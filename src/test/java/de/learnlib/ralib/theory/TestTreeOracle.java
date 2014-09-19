@@ -22,11 +22,15 @@ package de.learnlib.ralib.theory;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.sul.DataWordOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,7 +118,7 @@ public class TestTreeOracle {
             }
 
             @Override
-            public void getInitialBranching() {
+            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
@@ -129,9 +133,10 @@ public class TestTreeOracle {
             }
 
             @Override
-            public void getInitialBranching() {
+            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
+
         };
         
         Map<DataType, Theory> theories = new HashMap<>();

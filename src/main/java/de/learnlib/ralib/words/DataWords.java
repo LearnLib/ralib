@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,20 @@ public final class DataWords {
                     vals.add(d);
                 }
             }
+        }
+        return vals;
+    }
+    
+    /**
+     * 
+     * @param <T>
+     * @param in
+     * @return 
+     */
+    public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
+        Set<DataValue<T>> vals = new HashSet<>();    
+        for (Collection<DataValue<T>> s : in) {
+            vals.addAll(s);
         }
         return vals;
     }

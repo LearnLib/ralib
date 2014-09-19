@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
@@ -48,19 +49,19 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     @Override
     public List<DataValue<T>> getPotential(
-            Collection<DataValue<T>> ... vals) {        
-        Set<T> set = new LinkedHashSet<>();
-        for (Collection<DataValue<T>> c : vals) {
-            set.addAll((Collection<? extends T>) c);
-        }
-        return new ArrayList<>((Collection<? extends DataValue<T>>) set);
+            Collection<DataValue<T>> vals) {        
+        Set<DataValue<T>> set = new LinkedHashSet<>(vals);
+        return new ArrayList<>(set);
     }
     
     @Override
     public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, ParsInVars piv,
-            VarValuation suffixValues) {
+            Word<PSymbolInstance> prefix, 
+            SymbolicSuffix suffix,
+            WordValuation values, 
+            ParsInVars piv,
+            VarValuation suffixValues,
+            TreeOracle oracle) {
 
         // 1. check degree of freedom for this parameter
         int prefixLength = DataWords.paramLength(DataWords.actsOf(prefix));
@@ -71,8 +72,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         
         boolean free = suffix.getFreeValues().contains(sv);
         List<DataValue<T>> potential = getPotential(
-                DataWords.<T>valSet(prefix, type),
-                suffixValues.<T>values(type));
+                DataWords.<T>joinValsToSet(
+                    DataWords.<T>valSet(prefix, type),
+                    suffixValues.<T>values(type)));
                         
         if (!free) {
             DataValue d = suffixValues.get(sv);
@@ -83,7 +85,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             values.put(pId, d);
             
             // call next ...
-        }
+        } 
         
         // 2. get set of all values ...        
         //suffix.

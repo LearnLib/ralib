@@ -17,47 +17,12 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory;
-
-import de.learnlib.ralib.data.VarsToInternalRegs;
-import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+package de.learnlib.ralib.data;
 
 /**
  *
  * @author falk
  */
-public class TreeQueryResult {
-    
-    private final ParsInVars parsInVars;
-    
-    private final VarsToInternalRegs vtir; 
-    
-    private final SymbolicDecisionTree sdt;
-
-    public TreeQueryResult(
-            ParsInVars piv, 
-            VarsToInternalRegs vtir, 
-            SymbolicDecisionTree sdt) {
-        
-        this.parsInVars = piv;
-        this.vtir = vtir;
-        this.sdt = sdt;
-    }
-
-    /**
-     * @return the piv
-     */
-    public ParsInVars getParsInVars() {
-        return parsInVars;
-    }
-
-    /**
-     * @return the sdt
-     */
-    public SymbolicDecisionTree getSdt() {
-        return sdt;
-    }
-
+public class VarsToInternalRegs {
     
 }
