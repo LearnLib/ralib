@@ -62,22 +62,40 @@ public class TreeOracle {
             WordValuation values, ParsInVars piv, 
             VarValuation suffixValues) {
         
-        if (values.size() == DataWords.paramLength(suffix.getActions())) {
+        //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size());
+        
+        // IF at the end of the word!
+        if (values.size() == DataWords.paramLength(suffix.getActions())) { 
+            System.out.println("we're at the end of the wor(l)d!");
+            // if we are at the end of the word, i.e., nothing more to 
+            // instantiate, the number of values in the whole word is equal to 
+            // the number of actions in the suffix
             
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
+            // instantiate the suffix with the values in the word
+            
             
             Word<PSymbolInstance> trace = prefix.concat(concSuffix);
             DefaultQuery<PSymbolInstance, Boolean> query = 
                     new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
             
+            System.out.println("reply = " + query.getOutput());
             return new TreeQueryResult(piv, new VarsToInternalRegs(),
                     query.getOutput() ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
+            
+            // return accept / reject as a leaf
         }
         
+//        System.out.println("values passed to theory: " + values.toString());
+        
+        // OTHERWISE get the first noninstantiated data value in the suffix and its type
         SymbolicDataValue sd = suffix.getDataValue(values.size() + 1);
         Theory teach = teachers.get(sd.getType());
+        System.out.println("Teacher theory: " + sd.getType().toString());
+        // make a new tree query for prefix, suffix, prefix valuation, ...
+        // to the correct teacher (given by type of first DV in suffix)
         return teach.treeQuery(prefix, suffix, values, piv, suffixValues, this);
     }    
     

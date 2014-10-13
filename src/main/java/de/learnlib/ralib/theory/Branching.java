@@ -8,6 +8,8 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import de.learnlib.ralib.trees.SDTLeaf;
+import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -22,5 +24,7 @@ public class Branching {
     private ParameterizedSymbol act;
             
     private Map<Guard, Word<PSymbolInstance>> branches;
+
+    
     
 }

@@ -41,9 +41,9 @@ public class TestWords {
                 
         ParameterizedSymbol a = new ParameterizedSymbol("a", new DataType[]{intType});
         
-        DataValue<Integer> i1 = new DataValue<>(intType, 1);
-        DataValue<Integer> i2 = new DataValue<>(intType, 2);
-        DataValue<Integer> i3 = new DataValue<>(intType, 3);
+        DataValue<Integer> i1 = new DataValue(intType, 1);
+        DataValue<Integer> i2 = new DataValue(intType, 2);
+        DataValue<Integer> i3 = new DataValue(intType, 3);
         
         PSymbolInstance[] prefixSymbols = new PSymbolInstance[] {
             new PSymbolInstance(a, i1),

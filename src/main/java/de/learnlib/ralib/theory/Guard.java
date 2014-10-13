@@ -14,14 +14,21 @@ import de.learnlib.ralib.data.SymbolicDataValue;
  */
 public class Guard {
     
+    private final SymbolicDataValue parameter;
+    //private final SymbolicDataValue register;
+    
     public SymbolicDataValue getParameter() {
-        throw new IllegalStateException("not implemented yet.");
+        return this.parameter;
     }
     
-    public SymbolicDataValue getRegister() {
-        throw new IllegalStateException("not implemented yet.");        
-    }
+    //public SymbolicDataValue getRegister() {
+    //    return this.register;        
+    //}
     
+    public Guard(SymbolicDataValue param) { //, SymbolicDataValue reg) {
+        this.parameter = param;
+    //    this.register = reg;
+    }
     
     
 }
