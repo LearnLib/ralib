@@ -28,7 +28,18 @@ import de.learnlib.ralib.theory.Guard;
 public class ElseGuard extends Guard {
     
     public ElseGuard(SymbolicDataValue param) {
-        super(param);     
+        super(param, null);     
     }
-   
+    
+    
+    @Override
+    public String toString() {
+        return "ELSE[" + this.getParameter().toString() + "]";
+    }
+    
+    public ElseGuard join(Equality e) {
+        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
+        assert e.getParameter().equals(this.getParameter());
+        return this;
+    }
 }

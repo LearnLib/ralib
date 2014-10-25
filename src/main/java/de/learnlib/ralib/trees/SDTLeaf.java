@@ -50,8 +50,23 @@ public class SDTLeaf extends SymbolicDecisionTree {
     }
 
     @Override
+    public boolean canUse(SymbolicDecisionTree other) {
+        if (other instanceof SDT) {
+            return false;
+        }
+        else {
+            return this.isEquivalent(other);
+        }
+    }
+    
+    @Override
     public SymbolicDecisionTree createCopy(VarMapping renaming) {
         return this;
+    }
+    
+    @Override
+    public String toString() {
+        return this.isAccepting() ? "+" : "-";
     }
     
 }

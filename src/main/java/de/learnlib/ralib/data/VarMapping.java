@@ -23,6 +23,6 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class VarMapping {
+public class VarMapping extends Mapping<SymbolicDataValue, SymbolicDataValue> {
     
 }

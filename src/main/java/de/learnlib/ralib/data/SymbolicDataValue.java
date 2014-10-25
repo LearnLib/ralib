@@ -37,6 +37,10 @@ public class SymbolicDataValue extends DataValue<Integer> {
         this.valueClass = valueType;
     }
 
+    public String toStringWithType() {
+        return this.toString() + ":" + this.type.getName();
+    }
+
     @Override
     public String toString() {
         String s = "";
@@ -44,11 +48,11 @@ public class SymbolicDataValue extends DataValue<Integer> {
             case PARAMETER: s += "p"; break;
             case SUFFIX:    s += "s"; break;
             case REGISTER:  s += "r"; break;
-            case TEMP:      s += "t"; break;              
+            case TEMP:      s += "t"; break;   
         }
-        return s + this.id + ":" + this.type.getName();
+        return s + this.id;
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

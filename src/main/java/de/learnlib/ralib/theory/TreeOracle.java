@@ -66,7 +66,7 @@ public class TreeOracle {
         
         // IF at the end of the word!
         if (values.size() == DataWords.paramLength(suffix.getActions())) { 
-            System.out.println("we're at the end of the wor(l)d!");
+            //System.out.println("we're at the end of the wor(l)d!");
             // if we are at the end of the word, i.e., nothing more to 
             // instantiate, the number of values in the whole word is equal to 
             // the number of actions in the suffix
@@ -80,10 +80,12 @@ public class TreeOracle {
             DefaultQuery<PSymbolInstance, Boolean> query = 
                     new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
+            boolean qOut = query.getOutput();
             
-            System.out.println("reply = " + query.getOutput());
+            System.out.println("Trace = " + trace.toString() + " >>> " + 
+                    (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return new TreeQueryResult(piv, new VarsToInternalRegs(),
-                    query.getOutput() ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
+                    qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
             
             // return accept / reject as a leaf
         }
@@ -93,7 +95,7 @@ public class TreeOracle {
         // OTHERWISE get the first noninstantiated data value in the suffix and its type
         SymbolicDataValue sd = suffix.getDataValue(values.size() + 1);
         Theory teach = teachers.get(sd.getType());
-        System.out.println("Teacher theory: " + sd.getType().toString());
+        //System.out.println("Teacher theory: " + sd.getType().toString());
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
         return teach.treeQuery(prefix, suffix, values, piv, suffixValues, this);

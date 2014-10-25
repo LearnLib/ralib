@@ -23,6 +23,6 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class VarsToInternalRegs {
+public class VarsToInternalRegs extends Mapping<SymbolicDataValue, SymbolicDataValue> {
     
 }

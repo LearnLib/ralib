@@ -23,6 +23,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarsToInternalRegs;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
@@ -45,19 +47,63 @@ import net.automatalib.words.Word;
 
 /**
  *
- * @author falk
+ * @author falk and sofia
  * @param <T>
  */
 public abstract class EqualityTheory<T> implements Theory<T> {
 
-    //
-      
-    // potential for equality theory: equivalence with all previously seen values.
     @Override
     public List<DataValue<T>> getPotential(
             Collection<DataValue<T>> vals) {        
         Set<DataValue<T>> set = new LinkedHashSet<>(vals);
         return new ArrayList<>(set);
+    }
+    
+    // given a map from guards to SDTs, merge guards based on whether they can
+    // use another SDT.  Base case: always add the 'else' guard first.
+    private Map<Guard, SymbolicDecisionTree> 
+            mergeGuards(Map<Guard,SymbolicDecisionTree> unmerged) {
+        Map<Guard, SymbolicDecisionTree> merged = new HashMap<>();
+        Map<Equality, SymbolicDecisionTree> ifs = new HashMap<>();
+        for (Guard tempG : unmerged.keySet()) {
+            SymbolicDecisionTree tempSdt = unmerged.get(tempG);
+            if (tempG instanceof ElseGuard) {
+                //System.out.println("Adding else guard: " + tempG.toString());
+                merged.put((ElseGuard) tempG, tempSdt);
+            }
+            else {
+                ifs.put((Equality) tempG, tempSdt);
+            }
+        }
+        for (Guard elseG: merged.keySet()) {
+            SymbolicDecisionTree elseSdt = merged.get(elseG);
+            for (Equality ifG : ifs.keySet()) {
+                SymbolicDecisionTree ifSdt = ifs.get(ifG);
+                //System.out.println("comparing guards: " + ifG.toString() 
+                // + " to " + elseG.toString() + "\nSDT    : " + 
+                // ifSdt.toString() + "\nto SDT : " + elseSdt.toString());
+                if (!(ifSdt.canUse(elseSdt))) {
+                    //System.out.println("Adding if guard: " + ifG.toString());
+                    //System.out.println(ifSdt.toString() + " not eq to " + elseSdt.toString());
+                    merged.put((Equality) ifG, ifSdt);
+                }
+            }
+        }
+        return merged;
+    }
+
+    // given a set of registers and a set of guards, keep only the registers
+    // that are mentioned in any guard
+    private ParsInVars keepMem(ParsInVars pivs, Set<Guard> guardSet) {
+        ParsInVars ret = new ParsInVars();
+        for (SymbolicDataValue k : pivs.keySet()) {
+            for (Guard mg : guardSet) {
+                if (!(mg instanceof ElseGuard) && mg.getRegister().equals(k)) {
+                    ret.put(k, pivs.get(k));
+                }
+            }
+        }
+        return ret;
     }
     
     @Override
@@ -69,14 +115,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             VarValuation suffixValues,
             TreeOracle oracle) {
         
-        //System.out.println("values received by equality: " + values.toString());
-
-        // 1. check degree of freedom for this parameter
-        int prefixLength = DataWords.paramLength(DataWords.actsOf(prefix));
         int pId = values.size() + 1;
-        //int suffixPId = pId - prefixLength;
+        
         SymbolicDataValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
+        
+        Map<Guard, SymbolicDecisionTree> tempKids = new HashMap<>();
+        
+        ParsInVars ifPiv  = new ParsInVars();
+        ifPiv.putAll(piv);
         
         boolean free = suffix.getFreeValues().contains(sv);
         List<DataValue<T>> potential = getPotential(
@@ -85,132 +132,79 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     suffixValues.<T>values(type)));
                         
         if (!free) {  // for now, we assume that all values are free.
-            //System.out.println("not free");
             DataValue d = suffixValues.get(sv);
             if (d == null) {
                 d = getFreshValue( potential );
                 suffixValues.put(sv, d);
             }
             values.put(pId, d);
-            
-            // call next ...
         } 
-        // possible values are, for equality, potential + fresh
         
-        
-        List<DataValue<T>> freshAndPotential = new ArrayList<>();
+        // process the 'else' case
         DataValue fresh = getFreshValue(potential);
-        freshAndPotential.addAll(potential);
-        freshAndPotential.add(fresh);
-        //freshAndPotential.add(fresh);
         
-        //System.out.println("here's the potential: " + potential.toString());
+        WordValuation elseValues = new WordValuation();
+        elseValues.putAll(values);
+        elseValues.put(pId, fresh);
         
-        WordValuation newValues = new WordValuation();
-        newValues.putAll(values);
-        
-        VarValuation newSuffixValues = new VarValuation();
-        newSuffixValues.putAll(suffixValues);  // copy the suffix valuation
-                
-        Map<Guard, SymbolicDecisionTree> kids = new HashMap<>();
-                
-        // Start with the 'else' case
-        //System.out.println("-------- Begin else case --------");
-        //newValues.put(pId, fresh);
-        //newSuffixValues.put(sv, fresh);
-        
-        //System.out.println("Querying oracle for fresh value");
-        //System.out.println("suffix actions: " + suffix.getActions().toString());
-        //System.out.println("new prefix: " + newPrefix.toString());
-        //System.out.println("old suffix: " + suffix.toString());
-        //System.out.println("new suffix: " + newSuffix.toString());
-        //System.out.println("new values: " + newValues.toString());
-        //System.out.println("new suffix values: " + newSuffixValues.toString());
-        
-        //return treeQuery(prefix, suffix, newValues, piv, newSuffixValues, oracle);
-        //Word<PSymbolInstance> elsePrefix = prefix;
-        //SymbolicSuffix elseSuffix = suffix;
-        
-        //TreeQueryResult elseOracleReply = treeQuery(prefix, suffix, newValues, piv, newSuffixValues, oracle);
-        //SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
-        
-        //newValues.remove(pId);
-        //newSuffixValues.remove(sv);
-        
-        //kids.put(new ElseGuard(sv), elseOracleSdt);
-        
-        // now time for the special cases
-        
-        for (DataValue<T> newDv : freshAndPotential) {
-            System.out.println("-------- Begin iteration for sv: " + sv.toString() + " and dv: " + newDv.toString() + " --------");
-            newValues.put(pId, newDv);
-            newSuffixValues.put(sv, newDv);
-            
-            System.out.println("Querying oracle");
-            //System.out.println("suffix actions: " + suffix.getActions().toString() + ", suffix length: " + DataWords.paramLength(suffix.getActions()));
-            //System.out.println("new prefix: " + newPrefix.toString());
-            //System.out.println("old suffix: " + suffix.toString());
-            //System.out.println("new suffix: " + newSuffix.toString());
-            System.out.println("new values: " + newValues.toString() + ", size: " + newValues.size());
-            //System.out.println("new suffix values: " + newSuffixValues.toString());
-            
-            
-            if (newDv != fresh) {
-            SymbolicDataValue rv = new SymbolicDataValue(SymbolicDataValue.ValueClass.REGISTER, type, (piv.size() +1) );
-            piv.put(rv, sv);     
-            System.out.println("Add to piv: " + sv.toString() + " (store " + newDv.toString() + " in " + rv.toString() + ")");
-            TreeQueryResult eqOracleReply = oracle.treeQuery(prefix, suffix, newValues, piv, newSuffixValues);
-            SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
-            //System.out.println("SDT: " + eqOracleSdt.toString());
-            
-            kids.put(new Equality(sv, rv), eqOracleSdt);               
-            }
-            
-            else{
-                TreeQueryResult eqOracleReply = oracle.treeQuery(prefix, suffix, newValues, piv, newSuffixValues);
-            SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
-            //System.out.println("SDT: " + eqOracleSdt.toString());
-            
-                kids.put(new ElseGuard(sv), eqOracleSdt);
-            }
-            
-            
+        VarValuation elseSuffixValues = new VarValuation();
+        elseSuffixValues.putAll(suffixValues);
+        elseSuffixValues.put(sv, fresh);
                         
-            newValues.remove(pId);
-            newSuffixValues.remove(sv);
-            
-            System.out.println("--------- End of iteration --------");
-            
-            // Don't forget to add the nonfresh values to memorable
+        TreeQueryResult elseOracleReply = oracle.treeQuery(
+                prefix, suffix, elseValues, piv, elseSuffixValues);
+        SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
+        tempKids.put(new ElseGuard(sv), elseOracleSdt);
         
-            //    subtrees.add(oracle.treeQuery(prefix, suffix, values, piv, newSuffixValues));
+        // process each 'if' case
+        for (DataValue<T> newDv : potential) {
+        
+            WordValuation ifValues = new WordValuation();
+            ifValues.putAll(values);
+            ifValues.put(pId, newDv);
+            
+            VarValuation ifSuffixValues = new VarValuation();
+            ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
+            ifSuffixValues.put(sv, newDv);
+            
+            SymbolicDataValue rv = ifPiv.getKey(newDv);
+            Integer rvPos = ifValues.getKey(newDv);
+        
+            if (rv == null) {
+                rv = SymbolicDataValue.register(type, rvPos);
+                ifPiv.put(rv, newDv);
+            }
+            
+            TreeQueryResult eqOracleReply = oracle.treeQuery(
+                    prefix, suffix, ifValues, ifPiv, ifSuffixValues);
+            SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
+                
+            Guard newGuard = new Equality(sv,rv);
+            tempKids.put(newGuard, eqOracleSdt);
         }
         
-        //return treeQuery(prefix, suffix, newValues, piv, newSuffixValues, oracle);
+        // merge the guards
+        Map<Guard, SymbolicDecisionTree> merged = mergeGuards(tempKids);
         
+        // only keep registers that are referenced by the merged guards
+        ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
         
-        // System.out.println("reached end of for loop");
-//       bad attempt at grouping branches
+        //System.out.println("temporary guards = " + tempKids.keySet());
+        //System.out.println("temporary pivs = " + tempPiv.keySet());
+        //System.out.println("merged guards = " + merged.keySet());
+        //System.out.println("merged pivs = " + addPiv.toString());
         
-        // for (int i = 1; i < subtrees.size(); i++) {
-//            TreeQueryResult current = subtrees.get(i);
-//            for (int j = i+1; j < subtrees.size(); j++) {
-//                TreeQueryResult next = subtrees.get(j);
-//                if (current.getSdt().isEquivalent(next.getSdt())) {
-//                    subtrees.remove(j);
-//                }
-//            }
-//            // add current.getSdt()
-//        }
-//            // if unique flag still OK, then create a branch for current.
-//        
-        System.out.println("done!");
+        // clear the temporary map of children
+        tempKids.clear();
         
+        SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
+        return new TreeQueryResult(addPiv, null, returnSDT);         
+    
         
-        return new TreeQueryResult(piv, null, new SDT(true, piv.keySet(), kids));         
-         
+               
+                    
     }
+    
+    
 }
 
-        
-    

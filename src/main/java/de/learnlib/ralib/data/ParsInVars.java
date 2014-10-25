@@ -23,12 +23,16 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class ParsInVars extends Mapping<SymbolicDataValue, SymbolicDataValue> {
+public class ParsInVars extends Mapping<SymbolicDataValue, DataValue<?>> {
      
 
    
     // this class stores memorable data values
     // each memorable is a mapping from a data value to a symbolic data value
     // for now, let's make it a mapping...
+
     
+    // returns the first / only key for a data value
+    
+  
 }
