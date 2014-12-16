@@ -178,6 +178,7 @@ public class TestTreeOracle {
             public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
+            
         };
 
         Theory<PassType> passTheory = new EqualityTheory<PassType>() {
@@ -188,7 +189,8 @@ public class TestTreeOracle {
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());
             }
-
+            
+            
             @Override
             public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

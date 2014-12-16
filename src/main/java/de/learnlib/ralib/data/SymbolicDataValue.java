@@ -31,7 +31,8 @@ public class SymbolicDataValue extends DataValue<Integer> {
     
     private final ValueClass valueClass;
     
- 
+    
+    
     public SymbolicDataValue(ValueClass valueType, DataType dataType, int id) {
         super(dataType, id);
         this.valueClass = valueType;
@@ -51,6 +52,10 @@ public class SymbolicDataValue extends DataValue<Integer> {
             case TEMP:      s += "t"; break;   
         }
         return s + this.id;
+    }
+    
+    public ValueClass getVC() {
+        return this.valueClass;
     }
     
     @Override

@@ -25,9 +25,11 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.sul.DataWordOracle;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.theory.inequality.InequalityTheory;
+import de.learnlib.ralib.theory.inequality.Compatibility;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -45,87 +48,70 @@ import org.testng.annotations.Test;
  * @author falk
  */
 @Test
-public class TestTreeOracle {
-   
-    private static final class UserType extends DataType {
-        UserType() {
-            super("userType");
-        }
-    }
-   
-    private static final class PassType extends DataType {
-        PassType() {
-            super("passType");
-        }
-    }
+public class TestIneqOracle {
 
-    public void testTreeOracle() {
+    public void testIneqOracle() {
         
         // define types
         
-        final UserType userType = new UserType();
-        final PassType passType = new PassType();
+        final IntType intType = new IntType();
+        final DoubType doubType = new DoubType();
+        //final CompIntType intTypeComparator = new CompIntType();
+    
+                // define parameterized symbols
+        final ParameterizedSymbol ini = new ParameterizedSymbol(
+                "initialize", new DataType[] {intType});
         
-        // define parameterized symbols
+        final ParameterizedSymbol lower = new ParameterizedSymbol(
+                "lower", new DataType[] {intType});
         
-        final ParameterizedSymbol register = new ParameterizedSymbol(
-                "register", new DataType[] {userType, passType});
-        
-        final ParameterizedSymbol login = new ParameterizedSymbol(
-                "login", new DataType[] {userType, passType});
-        
-        final ParameterizedSymbol change = new ParameterizedSymbol(
-                "change", new DataType[] {passType});
-        
-        final ParameterizedSymbol logout = new ParameterizedSymbol(
-                "logout", new DataType[] {userType});
+        final ParameterizedSymbol higher = new ParameterizedSymbol(
+                "higer", new DataType[] {intType});
         
         // create prefix: register(falk[userType], secret[passType])
         
-        final Word<PSymbolInstance> prefix = Word.fromLetter(
-                new PSymbolInstance(register, 
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")));
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(ini, 
+                    new DataValue(intType, 4)),
+                new PSymbolInstance(lower, 
+                    new DataValue(intType, 3))
+            );
         
         // create suffix: login(falk[userType], secret[passType])
 
-        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(login, 
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")),
-                new PSymbolInstance(change, 
-                    new DataValue(passType, "secret")),
-                new PSymbolInstance(logout,
-                    new DataValue(userType, "falk")),
-                new PSymbolInstance(login,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
-                    );
-        
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(login, 
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
+                new PSymbolInstance(lower, 
+                    new DataValue(intType, 2)),
+                new PSymbolInstance(higher, 
+                    new DataValue(intType, 5)),
+                new PSymbolInstance(lower, 
+                    new DataValue(intType, 2))
                     );
         
         
-        // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
         
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);
         
+   
         // hacked oracle
         
-        DataWordOracle dwOracle = new DataWordOracle() {
+                DataWordOracle dwOracle = new DataWordOracle() {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
                 
                 // given a collection of queries, process each one (with Bool replies)
                 
+                //CompIntType fakeIntComp = new CompIntType();
+                
                 for (Query q : clctn) {
-                    Word<PSymbolInstance> trace = q.getInput();
+                    Word<PSymbolInstance> oTrace = q.getInput();     
+                    
+                    System.out.println("Original trace = " + oTrace.toString() + " >>> ");
+                    
+                    Word<PSymbolInstance> trace = Compatibility.intify(oTrace);     
+                    System.out.print("Trace = " + trace.toString() + " >>> ");
+                    //(qOut ? "ACCEPT (+)" : "REJECT (-)"));
+            
+                    // the trace now contains only integer values
                     
                     // if the trace is not 5, answer false (since then automatically incorrect)
                     
@@ -142,70 +128,112 @@ public class TestTreeOracle {
                     PSymbolInstance a4 = trace.getSymbol(3);
                     PSymbolInstance a5 = trace.getSymbol(4);
                     
-                    DataValue[] a1Params = a1.getParameterValues();
-                    DataValue[] a2Params = a2.getParameterValues();
-                    DataValue[] a3Params = a3.getParameterValues();
-                    DataValue[] a4Params = a4.getParameterValues();
-                    DataValue[] a5Params = a5.getParameterValues();
+                    DataValue<Integer>[] a1Params = a1.getParameterValues();
+                    DataValue<Integer>[] a2Params = a2.getParameterValues();
+                    DataValue<Integer>[] a3Params = a3.getParameterValues();
+                    DataValue<Integer>[] a4Params = a4.getParameterValues();
+                    DataValue<Integer>[] a5Params = a5.getParameterValues();
                     
-                    // query reply is ACCEPT only if length 2 and symbols equal each other
+                    // query reply is ACCEPT only if ...
                     
-                    q.answer( a1.getBaseSymbol().equals(register) &&
-                            a2.getBaseSymbol().equals(login) &&
-                            Arrays.equals(a1Params, a2Params) && 
-                            a3.getBaseSymbol().equals(change) && 
-                            a4.getBaseSymbol().equals(logout) && 
-                            a5.getBaseSymbol().equals(login) && 
-                            a4Params[0].equals(a5Params[0]) && 
-                            a5Params[0].equals(a1Params[0]) && 
-                            a1Params[0].equals(a2Params[0]) && 
-                            a3Params[0].equals(a5Params[1]));
+                    q.answer( a1.getBaseSymbol().equals(ini) &&
+                            a2.getBaseSymbol().equals(lower) && 
+                            a3.getBaseSymbol().equals(lower) && 
+                            a4.getBaseSymbol().equals(higher)&& 
+                            a5.getBaseSymbol().equals(lower)&& 
+                            (intType.compare(a1Params[0], a4Params[0]) < 0) && 
+                            (intType.compare(a5Params[0], a3Params[0]) < 0) && 
+                            (intType.compare(a3Params[0], a2Params[0]) < 0) &&
+                            (intType.compare(a2Params[0], a1Params[0]) < 0));
                    
                 }
             }
         };
-        
-        Theory<UserType> userTheory = new EqualityTheory<UserType>() {
 
-            @Override
-            public DataValue<UserType> getFreshValue(List<DataValue<UserType>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), 
-                        v.getId().toString() + "_" + vals.size());
-            }
+        
+        Theory<Double> doubTheory = new InequalityTheory<Double>() {
 
             @Override
             public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
+            
+            //no fresh value in this theory
+            @Override
+            public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+                return null;
+            }
+            
+            public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
+                //assume we can just sort the list and get the values
+                List<DataValue<Double>> sortedList = dvs;
+                Collections.sort(sortedList,doubType);
+                List<DataValue<Double>> retList = new ArrayList<DataValue<Double>>();
+                int listSize = sortedList.size();
+                
+                if (dvs.size() < 2) {
+                    retList.add(new DataValue(doubType, dvs.get(0).getId()-1));
+                    retList.add(new DataValue(doubType, dvs.get(0).getId()+1));
+                }
+                
+                else {
+                // create smallest
+                DataValue<Double> first = sortedList.get(0);
+                double firstInterval = (sortedList.get(1).getId() - first.getId())/2;
+                retList.add(new DataValue(doubType, first.getId()-firstInterval));
+                
+                // create middle
+                for (int j = 0; j < listSize-1; j++) {
+                    DataValue<Double> curr = sortedList.get(j);
+                    double interval = (sortedList.get(j+1).getId() - curr.getId())/2;
+                    retList.add(new DataValue(doubType, curr.getId()+interval));
+                }
+                
+                // create biggest
+                DataValue<Double> last = sortedList.get(listSize-1);
+                double lastInterval = (last.getId() - sortedList.get(listSize-2).getId());
+                retList.add(new DataValue(doubType, last.getId()+lastInterval));
+                }
+                return retList;
+                
+            }
+            
+            
+            
         };
 
-        Theory<PassType> passTheory = new EqualityTheory<PassType>() {
-
-            @Override
-            public DataValue<PassType> getFreshValue(List<DataValue<PassType>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), 
-                        v.getId().toString() + "_" + vals.size());
-            }
-
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-        };
-        
         Map<DataType, Theory> theories = new HashMap();
-        theories.put(userType, userTheory);
-        theories.put(passType, passTheory);
+        theories.put(doubType,doubTheory);
         
         TreeOracle treeOracle = new TreeOracle(dwOracle, theories);
         
-        TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+        //Word<PSymbolInstance>newPrefix = Compatibility.reinstantiatePrefix(prefix,DataWords.paramLength(symSuffix.getActions()));
+        //System.out.println("reinstantiated prefix: " + newPrefix.toString());        
+        //TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+//        System.out.println(res.getSdt().isAccepting());
+        
+//        List<DataValue<Integer>> datavalues = new ArrayList();
+//        //System.out.println("array defined " + datavalues.toString());
+//        //DVs must be ordered
+//        DataValue<Integer> dv2 = new DataValue(intType, 2);
+//        DataValue<Integer> dv7 = new DataValue(intType, 7);
+//        DataValue<Integer> dv4 = new DataValue(intType, 4);
+//        datavalues.add(dv2);
+//        datavalues.add(dv7);
+//        datavalues.add(dv4);
+//        System.out.println("datavalues" + datavalues.toString());
+//        
+//        System.out.println(intTheory.getPotential(datavalues).toString());
+        
+        final Word<PSymbolInstance> dPrefix = Compatibility.doublify(prefix);
+        final SymbolicSuffix symSuffix = new SymbolicSuffix(dPrefix, Compatibility.doublify(suffix));
+        System.out.println("Prefix: " + dPrefix);
+        System.out.println("Suffix: " + symSuffix);
+
+        
+        TreeQueryResult res = treeOracle.treeQuery(dPrefix, symSuffix);
 //        System.out.println(res.getSdt().isAccepting());
         System.out.println("final SDT: \n" + res.getSdt().toString());
-        
     } 
             
             

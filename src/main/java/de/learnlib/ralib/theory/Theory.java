@@ -30,6 +30,7 @@ import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import net.automatalib.words.Word;
 
 
@@ -40,6 +41,7 @@ import net.automatalib.words.Word;
  */
 public interface Theory<T> {
       
+    
     public DataValue<T> getFreshValue(List<DataValue<T>> vals);
     
     /**
@@ -48,7 +50,10 @@ public interface Theory<T> {
      * @param vals
      * @return 
      */
-    public List<DataValue<T>> getPotential(Collection<DataValue<T>> vals);
+    
+    
+
+    public List<DataValue<T>> getPotential(List<DataValue<T>> vals);
     
     /** 
      * Implements a tree query for this theory. This tree query

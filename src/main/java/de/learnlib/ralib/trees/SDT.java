@@ -22,27 +22,28 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<SymbolicDataValue> registers, Map<Guard, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<SymbolicDataValue> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
     
     // Method in progress.    
     @Override
     public SymbolicDecisionTree createCopy(VarMapping renaming) {
-        boolean acc = this.isAccepting();
-        // registers: add the ones that are mapped
-        Set<SymbolicDataValue> newRegs = new HashSet<SymbolicDataValue>();
-        for (SymbolicDataValue reg : (Set<SymbolicDataValue>) this.getRegisters()) {
-            newRegs.add(renaming.get(reg));
-        }
-        // children (map from guards to trees): change the guards
-        Map<Guard, SymbolicDecisionTree> newChildren = new HashMap<>();
-        Map<Guard, SymbolicDecisionTree> currChildren = this.getChildren();
-        for (Guard guard : (Set<Guard>) currChildren.keySet()) {
-            newChildren.put(guard.createCopy(renaming), currChildren.get(guard).createCopy(renaming));
-        }
-        return new SDT(acc, newRegs, newChildren);
-        
+        return this;
+//        boolean acc = this.isAccepting();
+//        // registers: add the ones that are mapped
+//        Set<SymbolicDataValue> newRegs = new HashSet<SymbolicDataValue>();
+//        for (SymbolicDataValue reg : (Set<SymbolicDataValue>) this.getRegisters()) {
+//            newRegs.add(renaming.get(reg));
+//        }
+//        // children (map from guards to trees): change the guards
+//        Map<Guard[], SymbolicDecisionTree> newChildren = new HashMap<>();
+//        Map<Guard[], SymbolicDecisionTree> currChildren = this.getChildren();
+//        for (Guard[] guard : (Set<Guard[]>) currChildren.keySet()) {
+//            newChildren.put(guard.createCopy(renaming), currChildren.get(guard).createCopy(renaming));
+//        }
+//        return new SDT(acc, newRegs, newChildren);
+//        
         }
     
     // Returns true if all elements of a boolean array are true.
@@ -80,14 +81,14 @@ public class SDT extends SymbolicDecisionTree {
     
     // Returns true if this SDT can use the children of another SDT.
     private boolean chiCanUse (SDT other) {
-        Map<Guard, SymbolicDecisionTree> thisChildren  = this.getChildren();
-        Map<Guard, SymbolicDecisionTree> otherChildren  = other.getChildren();
+        Map<Set<Guard>, SymbolicDecisionTree> thisChildren  = this.getChildren();
+        Map<Set<Guard>, SymbolicDecisionTree> otherChildren  = other.getChildren();
         Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
         Integer i = 0;
-        for (Guard thisGuard : thisChildren.keySet()) {
+        for (Set<Guard> thisGuard : thisChildren.keySet()) {
             SymbolicDecisionTree thisBranch = thisChildren.get(thisGuard);
             chiEqArr[i] = false;
-            for (Guard otherGuard : otherChildren.keySet()) {
+            for (Set<Guard> otherGuard : otherChildren.keySet()) {
 //                System.out.println("comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
                 if (thisBranch.canUse(otherChildren.get(otherGuard))) {
                     chiEqArr[i] = true;
@@ -143,7 +144,7 @@ public class SDT extends SymbolicDecisionTree {
     }
     
     public String makeString(int level) {
-        Map<Guard,SymbolicDecisionTree> kids = this.getChildren();
+        Map<Set<Guard>, SymbolicDecisionTree> kids = this.getChildren();
         Set<SymbolicDataValue> thisRegisters = this.getRegisters();
         int numRegs = thisRegisters.size();
         String rootString = (this.isAccepting() ? "+" : "-") + 
@@ -151,19 +152,23 @@ public class SDT extends SymbolicDecisionTree {
                 + " ...\n";
         String kidString = "";
         level++;
-        for (Guard g : kids.keySet()) {
-            int gl = g.getParameter().getId();
-            SymbolicDecisionTree kidSdt = kids.get(g);
-            kidString = kidString + spaces(gl) + g.toString() + " ==> ";
+        for (Set<Guard> gSet : kids.keySet()) {
+            SymbolicDecisionTree kidSdt = kids.get(gSet);
+            int gl = 0;
+            for (Guard g : gSet) {
+            gl = g.getParameter().getId();
+            }
+            kidString = kidString + spaces(gl) + gSet.toString() + " ==> ";
             if (kidSdt instanceof SDTLeaf) {
                 kidString = kidString + (((SDTLeaf) kidSdt).toString()) + "\n";
             }
             else {
                 if (!(kidSdt instanceof SDTLeaf)) {
-                    kidString = kidString + ((SDT) kids.get(g)).makeString(level);
+                    kidString = kidString + ((SDT) kids.get(gSet)).makeString(level);
                 }
             }
         }
+        
         return (rootString + kidString);
     }
     

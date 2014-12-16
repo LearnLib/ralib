@@ -18,6 +18,8 @@ public class Guard {
     
     private final SymbolicDataValue parameter;
     private final SymbolicDataValue register;
+    private final Relation relation;
+    
     
     public SymbolicDataValue getParameter() {
         return this.parameter;
@@ -27,9 +29,15 @@ public class Guard {
         return this.register;        
     }
     
-    public Guard(SymbolicDataValue param, SymbolicDataValue reg) {
+    public Relation getRelation() {
+        return this.relation;
+    }
+    
+    public Guard(SymbolicDataValue param, SymbolicDataValue reg, Relation rel) {
+        
         this.parameter = param;
         this.register = reg;
+        this.relation = rel;
     }
     
     public Guard createCopy(VarMapping renaming) {
@@ -46,5 +54,30 @@ public class Guard {
         
             return guards;
         }
+    
+    public boolean equals(Guard other) {
+        return (this.parameter == other.getParameter() &&
+                this.register == other.getRegister() &&
+                this.relation == other.getRelation());
+    }
+    
+    public boolean contradicts(Guard other) {
+        boolean samePR = (this.parameter.getId() == other.getParameter().getId() && 
+                this.register.getVC() == other.getRegister().getVC() &&
+                this.register.getId() == other.getRegister().getId());
+        //System.out.println("params " + this.parameter.toString() + " and " + other.getParameter().toString() + "\nregs " + this.register.toString() + " and " + other.getRegister().toString() + "? : " + samePR);
+        boolean contRels = ((this.relation.equals(Relation.SMALLER) && 
+                (other.getRelation().equals(Relation.BIGGER))) ||
+                (this.relation.equals(Relation.BIGGER) &&
+                (other.getRelation().equals(Relation.SMALLER))));
+        //System.out.println("rels contradict: " + contRels);
+        return samePR && contRels;
+    }
+    
+    @Override
+    public String toString() {
+        return this.parameter + " " + this.relation + " " + this.register;
+    }
+            
     
     }

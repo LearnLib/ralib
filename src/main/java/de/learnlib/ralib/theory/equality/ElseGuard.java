@@ -21,6 +21,7 @@ package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.Relation;
 /**
  *
  * @author falk
@@ -28,7 +29,7 @@ import de.learnlib.ralib.theory.Guard;
 public class ElseGuard extends Guard {
     
     public ElseGuard(SymbolicDataValue param) {
-        super(param, null);     
+        super(param, null,Relation.ELSE);     
     }
     
     
@@ -37,7 +38,7 @@ public class ElseGuard extends Guard {
         return "ELSE[" + this.getParameter().toString() + "]";
     }
     
-    public ElseGuard join(Equality e) {
+    public ElseGuard join(EqualityGuard e) {
         //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
         assert e.getParameter().equals(this.getParameter());
         return this;

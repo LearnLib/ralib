@@ -51,7 +51,10 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V> {
     public K getKey(DataValue value) {
         K retKey = null;
         for (K key : this.keySet()) {
+            System.out.println("key = " + K);
+            System.out.println("value = " + this.get(key).toString());
             if (this.get(key).equals(value)){
+                System.out.println(this.get(key).toString() + " equals " + value.toString());
                 retKey = key;
                 break;
             }

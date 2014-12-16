@@ -22,20 +22,21 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.Relation;
 
 /**
  *
  * @author falk
  */
-public class Equality extends Guard {
+public class EqualityGuard extends Guard {
     
-    public Equality(SymbolicDataValue param, SymbolicDataValue reg) {
-        super(param, reg);
+    public EqualityGuard(SymbolicDataValue param, SymbolicDataValue reg) {
+        super(param, reg, Relation.EQUALS);
     }
     
     @Override
-    public Equality createCopy(VarMapping renaming) {
-        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
+    public EqualityGuard createCopy(VarMapping renaming) {
+        return new EqualityGuard(this.getParameter(), renaming.get(this.getRegister()));
     }
     
    

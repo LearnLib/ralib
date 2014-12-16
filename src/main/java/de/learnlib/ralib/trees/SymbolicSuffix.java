@@ -69,6 +69,8 @@ public class SymbolicSuffix {
     public SymbolicSuffix(Word<PSymbolInstance> prefix, 
             Word<PSymbolInstance> suffix) {
         
+//        System.out.println(prefix.toString() + "\n" + suffix.toString());
+        
         this.actions = DataWords.actsOf(suffix);
         
         this.dataValues = new HashMap<>();
@@ -84,6 +86,8 @@ public class SymbolicSuffix {
                         d.getType(), symc++);
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
+//                System.out.println("adding " + sym.toString() + " at " + idx);
+
             } else {
                 SymbolicDataValue ref = groups.get(d);
                 if (ref == null) {
