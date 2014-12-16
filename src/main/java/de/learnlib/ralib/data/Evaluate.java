@@ -17,17 +17,21 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
-
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+package de.learnlib.ralib.data;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public interface Evaluate<T> {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
+    /**
+     *
+     * @param vars
+     * @param pars
+     * @param consts
+     * @return
+     */
+    public T evaluate(VarValuation vars, ParValuation pars, Constants consts);
+    
 }

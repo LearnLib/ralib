@@ -37,7 +37,7 @@ public class TestWords {
     
     public void testSymbolicSuffix() {
         
-        DataType intType = new DataType("int") {};
+        DataType intType = new DataType("int", int.class) {};
                 
         ParameterizedSymbol a = new ParameterizedSymbol("a", new DataType[]{intType});
         

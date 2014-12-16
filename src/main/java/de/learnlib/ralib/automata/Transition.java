@@ -19,10 +19,63 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+
 /**
  *
  * @author falk
  */
-public class Transition {
+public abstract class Transition {
+       
+    private final ParameterizedSymbol label;
+    
+    private final RALocation source;
+    
+    private final RALocation destination;
+
+    private final Assignment assignment;
+
+    public Transition(ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+        this.label = label;
+        this.source = source;
+        this.destination = destination;
+        this.assignment = assignment;
+    }
+    
+    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters);
+    
+    public abstract VarValuation execute(VarValuation registers, ParValuation parameters);
+
+    /**
+     * @return the label
+     */
+    public ParameterizedSymbol getLabel() {
+        return label;
+    }
+
+    /**
+     * @return the source
+     */
+    public RALocation getSource() {
+        return source;
+    }
+
+    /**
+     * @return the destination
+     */
+    public RALocation getDestination() {
+        return destination;
+    }
+
+    /**
+     * @return the assignment
+     */
+    public Assignment getAssignment() {
+        return assignment;
+    }
+    
+    
     
 }

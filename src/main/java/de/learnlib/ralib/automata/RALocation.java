@@ -19,10 +19,30 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author falk
  */
 public class RALocation {
     
+    private Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
+    
+    public Collection<Transition> getOut(ParameterizedSymbol ps) {
+        return out.get(ps);
+    }
+    
+    public void addOut(Transition t) {
+        Collection<Transition> c = out.get(t.getLabel());
+        if (c == null) {
+            c = new ArrayList<>();
+            out.put(t.getLabel(), c);
+        }
+        c.add(t);
+    }
 }

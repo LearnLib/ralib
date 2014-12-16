@@ -80,7 +80,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             DataValue d = suffixValues.get(sv);
             if (d == null) {
                 d = getFreshValue( potential );
-                suffixValues.put(sv, d);
+                //suffixValues.put(sv, d);
             }
             values.put(pId, d);
             

@@ -20,39 +20,83 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.ParsInVars;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Collection;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-class Cell {
+final class Cell {
     
+    private final Word<PSymbolInstance> prefix;
+     
     private final SymbolicSuffix suffix;
     
     private final SymbolicDecisionTree sdt;
     
     private final ParsInVars parsInVars;
 
-    Cell(SymbolicSuffix suffix, TreeQueryResult result) {
+    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, ParsInVars parsInVars) {
+        this.prefix = prefix;
         this.suffix = suffix;
-        this.sdt = result.getSdt();
-        this.parsInVars = result.getParsInVars();
+        this.sdt = sdt;
+        this.parsInVars = parsInVars;
     }
 
-    ParsInVars getMemorable() {
-        return this.parsInVars;       
-    }
-    
-    Cell createCopy(VarMapping renaming) {
+    Collection<SymbolicDataValue> getMemorable() {
         throw new UnsupportedOperationException("not implemented yet.");                
     }
     
-    boolean isEquivalent(Cell other) {
-        throw new UnsupportedOperationException("not implemented yet.");                
+    /**
+     * 
+     * @param relabelling
+     * @return 
+     */
+    Cell relabel(VarMapping relabelling) {
+        throw new UnsupportedOperationException("not implemented yet");
+//        return new Cell(prefix, suffix, 
+//                sdt.createCopy(relabelling), parsInVars.then(relabelling) );
+    } 
+         
+    /**
+     * checks whether the sdts of the two cells are equal
+     * 
+     * @param other
+     * @return 
+     */
+    boolean equals(Cell other) {
+        return this.sdt.isEquivalent(other.sdt);
     }
     
+    /**
+     * 
+     * @param r
+     * @return 
+     */
+    boolean couldBeEquivalentTo(Cell other) {
+        return this.parsInVars.size() == other.parsInVars.size();
+        //TODO: call preliminary checks on SDTs
+    }   
+    
+    /**
+     * computes a cell for a prefix and a symbolic suffix.
+     * 
+     * @param oracle
+     * @param prefix
+     * @param suffix
+     * @return 
+     */
+    static Cell computeCell(Oracle oracle, 
+            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+       
+        TreeQueryResult tqr = oracle.processTreeQuery(prefix, suffix);
+        return new Cell(prefix, suffix, tqr.getSdt(), tqr.getParsInVars());
+    }
 }

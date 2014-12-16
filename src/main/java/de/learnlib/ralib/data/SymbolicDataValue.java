@@ -25,26 +25,44 @@ import java.util.Objects;
  *
  * @author falk
  */
-public class SymbolicDataValue extends DataValue<Integer> {
+public abstract class SymbolicDataValue extends DataValue<Integer> {
+
+        
+    public static final class Parameter extends SymbolicDataValue {
+        Parameter(DataType dataType, int id) {
+            super(dataType, id);
+        }        
+    }; 
+            
+    public static final class Register extends SymbolicDataValue {
+        Register(DataType dataType, int id) {
+            super(dataType, id);
+        }        
+    };         
+
+    public static final class Constant extends SymbolicDataValue {
+        Constant(DataType dataType, int id) {
+            super(dataType, id);
+        }        
+    };   
     
-    public static enum ValueClass {PARAMETER, SUFFIX, REGISTER, TEMP}
+    public static final class SuffixValue extends SymbolicDataValue {
+        SuffixValue(DataType dataType, int id) {
+            super(dataType, id);
+        }        
+    };     
     
-    private final ValueClass valueClass;
-    
- 
-    public SymbolicDataValue(ValueClass valueType, DataType dataType, int id) {
+    private SymbolicDataValue(DataType dataType, int id) {
         super(dataType, id);
-        this.valueClass = valueType;
     }
 
     @Override
     public String toString() {
         String s = "";
-        switch (this.valueClass) {
-            case PARAMETER: s += "p"; break;
-            case SUFFIX:    s += "s"; break;
-            case REGISTER:  s += "r"; break;
-            case TEMP:      s += "t"; break;              
+        if (this.isParameter()) {
+            s += "p"; 
+        } else if (this.isRegister()) {
+            s += "r";             
         }
         return s + this.id + ":" + this.type.getName();
     }
@@ -58,9 +76,6 @@ public class SymbolicDataValue extends DataValue<Integer> {
             return false;
         }
         final SymbolicDataValue other = (SymbolicDataValue) obj;
-        if (this.valueClass != other.valueClass) {
-            return false;
-        }
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
@@ -73,26 +88,22 @@ public class SymbolicDataValue extends DataValue<Integer> {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + Objects.hashCode(this.valueClass);
+        hash = 97 * hash + Objects.hashCode(this.type);
+        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.getClass());
         return hash;
     }
 
-    
-    
-    public static SymbolicDataValue suffix(DataType t, int id) {
-        return new SymbolicDataValue(ValueClass.SUFFIX, t, id);
+    public boolean isRegister() {
+        return this.getClass().equals(Register.class);
     }
 
-    public static SymbolicDataValue register(DataType t, int id) {
-        return new SymbolicDataValue(ValueClass.REGISTER, t, id);
+    public boolean isParameter() {
+        return this.getClass().equals(Parameter.class);
+    }    
+
+    public boolean isConstant() {
+        return this.getClass().equals(Constant.class);
     }
 
-    public static SymbolicDataValue temp(DataType t, int id) {
-        return new SymbolicDataValue(ValueClass.TEMP, t, id);
-    }
-    
-    public static SymbolicDataValue parameter(DataType t, int id) {
-        return new SymbolicDataValue(ValueClass.PARAMETER, t, id);
-    }
-    
 }

@@ -17,17 +17,20 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.example.login;
 
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.DataType;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public final class LoginAutomatonExample {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
+    public static DataType T_UID = new DataType("T_uid", Integer.class) {
+    };
+    
+    private LoginAutomatonExample() {        
+    }
+    
 }

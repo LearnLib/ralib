@@ -19,10 +19,16 @@
 
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.words.PSymbolInstance;
+
 /**
  *
  * @author falk
  */
-public class ParValuation {
+public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {
+
+    public ParValuation(PSymbolInstance psi) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

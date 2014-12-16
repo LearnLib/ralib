@@ -21,6 +21,8 @@ package de.learnlib.ralib.trees;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -78,17 +80,18 @@ public class SymbolicSuffix {
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
         int symc = 1;
+        
+        SuffixValueGenerator valgen = new SuffixValueGenerator();
+        
         for (DataValue d : DataWords.valsOf(suffix)) {
             if (valsetPrefix.contains(d)) {
-                SymbolicDataValue sym = SymbolicDataValue.suffix(
-                        d.getType(), symc++);
+                SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
             } else {
                 SymbolicDataValue ref = groups.get(d);
                 if (ref == null) {
-                    ref = SymbolicDataValue.suffix( 
-                            d.getType(), symc++);
+                    ref = valgen.next(d.getType());
                     groups.put(d, ref);
                 } 
                 this.dataValues.put(idx, ref);

@@ -32,9 +32,15 @@ public abstract class DataType {
      * name of type (defining member)
      */
     private final String name;
+    
+    /**
+     * base type
+     */
+    private final Class base;
 
-    protected DataType(String name) {
+    protected DataType(String name, Class base) {
         this.name = name;
+        this.base = base;
     }
 
     @Override
@@ -63,6 +69,8 @@ public abstract class DataType {
         return name;
     }
     
-    
+    public Class getBase() {
+        return base;
+    }
     
 }

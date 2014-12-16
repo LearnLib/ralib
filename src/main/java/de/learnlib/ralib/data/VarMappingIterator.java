@@ -19,10 +19,17 @@
 
 package de.learnlib.ralib.data;
 
+import java.util.Iterator;
+
 /**
  *
  * @author falk
  */
-public class VarMappingIterator {
+public class VarMappingIterator<K, V extends DataValue<?>> implements Iterable<Mapping<K, V>> {
+
+    @Override
+    public Iterator<Mapping<K, V>> iterator() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

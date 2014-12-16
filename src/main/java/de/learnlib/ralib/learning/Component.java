@@ -19,6 +19,9 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.data.VarMappingIterator;
+import java.util.List;
+
 /**
  *
  * @author falk
@@ -27,9 +30,27 @@ class Component {
         
     private Row primeRow;
  
-    private 
+    private List<Row> otherRows;
     
+    /**
+     * tries to add a row to this component.
+     * checks if row is equivalent to rows in this component.
+     * 
+     * @param r
+     * @return true if successful
+     */
     boolean addPrefix(Row r) {
-        throw new UnsupportedOperationException("not implemented yet.");                
+        //
+        if (!primeRow.couldBeEquivalentTo(r)) {
+            return false;
+        }
+        
+        VarMappingIterator iterator;
+        
+        throw new UnsupportedOperationException("not implemented yet");
+
     }
+    
+    
+    
 }

@@ -21,8 +21,10 @@ package de.learnlib.ralib.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -30,7 +32,8 @@ import java.util.List;
  * @param <K>
  * @param <V>
  */
-public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V> {
+public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
+        implements Iterable<Map.Entry<K, V>> {
 
     public Mapping<K, V> createCopy() {
         Mapping val = new Mapping();
@@ -47,4 +50,44 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V> {
         }
         return list;
     }
+
+    @Override
+    public Iterator<Map.Entry<K, V>> iterator() {
+        return this.entrySet().iterator();
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Mapping<?, ?> other = (Mapping<?, ?>) obj;
+        return other.entrySet().equals(entrySet());
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash * this.entrySet().hashCode();
+    }
+
+    @Override
+    public V get(Object key) {
+        V v = super.get(key);
+        if (v == null) {
+            throw new IllegalStateException();
+        }
+        return v;
+    }
+    
+    
+    public <V2 extends DataValue<?>> Mapping<V, V2> then(Mapping<V, V2> other) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+    
+    
 }
