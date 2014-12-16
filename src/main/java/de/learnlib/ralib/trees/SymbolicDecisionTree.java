@@ -20,6 +20,7 @@
 package de.learnlib.ralib.trees;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Guard;
 import java.util.Map;
@@ -34,19 +35,19 @@ public abstract class SymbolicDecisionTree<G extends Guard> {
     
     private final boolean accepting;
     
-    private final Set<SymbolicDataValue> registers;
+    private final Set<SuffixValue> registers;
     
     private final Map<G, SymbolicDecisionTree> children;
 
     SymbolicDecisionTree(boolean accepting, 
-            Set<SymbolicDataValue> registers,
+            Set<SuffixValue> registers,
             Map<G, SymbolicDecisionTree> children) {
         this.accepting = accepting;
         this.registers = registers;
         this.children = children;
     }
     
-    public Set<SymbolicDataValue> getRegisters() {
+    public Set<SuffixValue> getRegisters() {
         return this.registers;
     }
     
@@ -65,5 +66,5 @@ public abstract class SymbolicDecisionTree<G extends Guard> {
     public abstract boolean canUse(SymbolicDecisionTree other);
     
     //public abstract SymbolicDecisionTree createCopy(VarMapping renaming);
-   
+
 }

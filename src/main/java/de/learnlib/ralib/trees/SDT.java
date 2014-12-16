@@ -40,7 +40,7 @@ public class SDT extends SymbolicDecisionTree {
 //        return new SDT(acc, newRegs, newChildren);
 //        
 //        }
-    
+        
     // Returns true if all elements of a boolean array are true.
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
