@@ -23,8 +23,13 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Theory;
@@ -37,7 +42,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -52,9 +56,9 @@ import net.automatalib.words.Word;
  */
 public abstract class EqualityTheory<T> implements Theory<T> {
 
-    @Override
+//    @Override
     public List<DataValue<T>> getPotential(
-            List<DataValue<T>> vals) {        
+            Collection<DataValue<T>> vals) {        
         Set<DataValue<T>> set = new LinkedHashSet<>(vals);
         return new ArrayList<>(set);
     }
@@ -91,14 +95,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         }
         return merged;
     }
-            
-            private Map<Set<Guard>, SymbolicDecisionTree> convToArrGuards(Map<Guard,SymbolicDecisionTree> someMap) {
-                Map<Set<Guard>, SymbolicDecisionTree> convMap = new HashMap<>();
-                for (Map.Entry<Guard, SymbolicDecisionTree> entry : someMap.entrySet()) {
-                    convMap.put(Collections.singleton(entry.getKey()), entry.getValue());
-                }
-                return convMap;
-            }
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
@@ -114,7 +110,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return ret;
     }
     
-    
     @Override
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, 
@@ -124,9 +119,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SuffixValuation suffixValues,
             TreeOracle oracle) {
         
-        int pId = suffixValues.size() + 1;
+        int pId = values.size() + 1;
         
-//        System.out.println(values.toString());
         SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
         
@@ -135,33 +129,21 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         ParsInVars ifPiv  = new ParsInVars();
         ifPiv.putAll(piv);
         
-        //boolean free = suffix.getFreeValues().contains(sv);
-        
-                Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
+        boolean free = suffix.getFreeValues().contains(sv);
+        List<DataValue<T>> potential = getPotential(
+                DataWords.<T>joinValsToSet(
                     DataWords.<T>valSet(prefix, type),
-                    suffixValues.<T>values(type));
+                    suffixValues.<T>values(type)));
                         
-//        if (!free) {  // for now, we assume that all values are free.
-//            DataValue d = suffixValues.get(sv);
-//            if (d == null) {
-//                d = getFreshValue( potential );
-//                //suffixValues.put(sv, d);
-//            }
-//            values.put(pId, d);
-//        } 
+        if (!free) {  // for now, we assume that all values are free.
+            DataValue d = suffixValues.get(sv);
+            if (d == null) {
+                d = getFreshValue( potential );
+                //suffixValues.put(sv, d);
+            }
+            values.put(pId, d);
+        } 
         
-         List<DataValue<T>> potential = getPotential(new ArrayList<>(potSet));
-               
-                
-//        if (!free) {  // for now, we assume that all values are free.
-//            DataValue d = suffixValues.get(sv);
-//            if (d == null) {
-//                d = getFreshValue( potential );
-//                suffixValues.put(sv, d);
-//            }
-//            values.put(pId, d);
-//        } 
-//        
         // process the 'else' case
         DataValue fresh = getFreshValue(potential);
         
@@ -172,8 +154,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         SuffixValuation elseSuffixValues = new SuffixValuation();
         elseSuffixValues.putAll(suffixValues);
         elseSuffixValues.put(sv, fresh);
-        
-        System.out.println("query: " + elseValues.toString()+ "|||, " + piv.toString() + ", " + elseSuffixValues.toString());
+                        
         TreeQueryResult elseOracleReply = oracle.treeQuery(
                 prefix, suffix, elseValues, piv, elseSuffixValues);
         SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
@@ -191,7 +172,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             ifSuffixValues.put(sv, newDv);
             
             Register rv = ifPiv.getKey(newDv);
-            Integer rvPos = pId;
+            Integer rvPos = ifValues.getKey(newDv);
         
             if (rv == null) {
                 rv = new Register(type, rvPos);
@@ -220,7 +201,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // clear the temporary map of children
         tempKids.clear();
         
-        SDT returnSDT = new SDT(true, addPiv.keySet(), convToArrGuards(merged));
+        SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
         return new TreeQueryResult(addPiv, null, returnSDT);         
     
         

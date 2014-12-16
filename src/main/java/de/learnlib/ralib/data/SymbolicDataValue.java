@@ -75,7 +75,6 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         return s + this.id;
     }
     
-    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

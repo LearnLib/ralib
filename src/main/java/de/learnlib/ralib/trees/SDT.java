@@ -18,10 +18,29 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<Register> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<Register> registers, Map<Guard, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
     
+    // Method in progress.    
+//    @Override
+//    public SymbolicDecisionTree createCopy(VarMapping<SymbolicDataValue, SymbolicDataValue> renaming) {
+//        boolean acc = this.isAccepting();
+//        // registers: add the ones that are mapped
+//        Set<SymbolicDataValue> newRegs = new HashSet<>();
+//        for (SymbolicDataValue reg : (Set<SymbolicDataValue>) this.getRegisters()) {
+//            newRegs.add(renaming.get(reg));
+//        }
+//        // children (map from guards to trees): change the guards
+//        Map<Guard, SymbolicDecisionTree> newChildren = new HashMap<>();
+//        Map<Guard, SymbolicDecisionTree> currChildren = this.getChildren();
+//        for (Guard guard : (Set<Guard>) currChildren.keySet()) {
+//            newChildren.put(guard.createCopy(renaming), currChildren.get(guard).createCopy(renaming));
+//        }
+//        return new SDT(acc, newRegs, newChildren);
+//        
+//        }
+        
     // Returns true if all elements of a boolean array are true.
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;

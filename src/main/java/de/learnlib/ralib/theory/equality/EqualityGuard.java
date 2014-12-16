@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.theory.equality;
 
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Relation;
@@ -34,6 +33,10 @@ public class EqualityGuard extends Guard {
         super(param, reg, Relation.EQUALS);
     }
     
+//    @Override
+//    public Equality createCopy(VarMapping renaming) {
+//        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
+//    }
     
    
     @Override
