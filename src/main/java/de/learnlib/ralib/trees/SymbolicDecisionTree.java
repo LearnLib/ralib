@@ -53,9 +53,17 @@ public abstract class SymbolicDecisionTree<G extends Guard> {
     public boolean isAccepting() {
         return this.accepting;
     }
-
-    public abstract boolean isEquivalent(SymbolicDecisionTree other);
     
-    public abstract SymbolicDecisionTree createCopy(VarMapping renaming);
+    public Map<G, SymbolicDecisionTree> getChildren() {
+        return this.children;
+    }
 
+    public boolean isEquivalent(SymbolicDecisionTree other) {
+        return this.canUse(other) && other.canUse(this);
+    }
+    
+    public abstract boolean canUse(SymbolicDecisionTree other);
+    
+    //public abstract SymbolicDecisionTree createCopy(VarMapping renaming);
+   
 }

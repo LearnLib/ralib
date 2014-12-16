@@ -23,9 +23,10 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class ParsInVars extends VarMapping<SymbolicDataValue.Parameter, SymbolicDataValue.Register> {
+public class ParsInVars extends VarValuation {
    
 //    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {
 //        throw new UnsupportedOperationException("Not implemented");
 //    }    
+
 }

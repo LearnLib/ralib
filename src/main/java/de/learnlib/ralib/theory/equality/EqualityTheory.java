@@ -22,36 +22,92 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.theory.TreeQueryResult;
+import de.learnlib.ralib.trees.SDT;
+import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.automatalib.words.Word;
 
 /**
  *
- * @author falk
+ * @author falk and sofia
  * @param <T>
  */
 public abstract class EqualityTheory<T> implements Theory<T> {
 
-    //
-    
     @Override
     public List<DataValue<T>> getPotential(
             Collection<DataValue<T>> vals) {        
         Set<DataValue<T>> set = new LinkedHashSet<>(vals);
         return new ArrayList<>(set);
+    }
+    
+    // given a map from guards to SDTs, merge guards based on whether they can
+    // use another SDT.  Base case: always add the 'else' guard first.
+    private Map<Guard, SymbolicDecisionTree> 
+            mergeGuards(Map<Guard,SymbolicDecisionTree> unmerged) {
+        Map<Guard, SymbolicDecisionTree> merged = new HashMap<>();
+        Map<Equality, SymbolicDecisionTree> ifs = new HashMap<>();
+        for (Guard tempG : unmerged.keySet()) {
+            SymbolicDecisionTree tempSdt = unmerged.get(tempG);
+            if (tempG instanceof ElseGuard) {
+                //System.out.println("Adding else guard: " + tempG.toString());
+                merged.put((ElseGuard) tempG, tempSdt);
+            }
+            else {
+                ifs.put((Equality) tempG, tempSdt);
+            }
+        }
+        for (Guard elseG: merged.keySet()) {
+            SymbolicDecisionTree elseSdt = merged.get(elseG);
+            for (Equality ifG : ifs.keySet()) {
+                SymbolicDecisionTree ifSdt = ifs.get(ifG);
+                //System.out.println("comparing guards: " + ifG.toString() 
+                // + " to " + elseG.toString() + "\nSDT    : " + 
+                // ifSdt.toString() + "\nto SDT : " + elseSdt.toString());
+                if (!(ifSdt.canUse(elseSdt))) {
+                    //System.out.println("Adding if guard: " + ifG.toString());
+                    //System.out.println(ifSdt.toString() + " not eq to " + elseSdt.toString());
+                    merged.put((Equality) ifG, ifSdt);
+                }
+            }
+        }
+        return merged;
+    }
+
+    // given a set of registers and a set of guards, keep only the registers
+    // that are mentioned in any guard
+    private ParsInVars keepMem(ParsInVars pivs, Set<Guard> guardSet) {
+        ParsInVars ret = new ParsInVars();
+        for (Register k : pivs.keySet()) {
+            for (Guard mg : guardSet) {
+                if (!(mg instanceof ElseGuard) && mg.getRegister().equals(k)) {
+                    ret.put(k, pivs.get(k));
+                }
+            }
+        }
+        return ret;
     }
     
     @Override
@@ -60,15 +116,18 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values, 
             ParsInVars piv,
-            VarValuation suffixValues,
+            SuffixValuation suffixValues,
             TreeOracle oracle) {
-
-        // 1. check degree of freedom for this parameter
-        int prefixLength = DataWords.paramLength(DataWords.actsOf(prefix));
+        
         int pId = values.size() + 1;
-        //int suffixPId = pId - prefixLength;
-        SymbolicDataValue sv = suffix.getDataValue(pId);
+        
+        SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
+        
+        Map<Guard, SymbolicDecisionTree> tempKids = new HashMap<>();
+        
+        ParsInVars ifPiv  = new ParsInVars();
+        ifPiv.putAll(piv);
         
         boolean free = suffix.getFreeValues().contains(sv);
         List<DataValue<T>> potential = getPotential(
@@ -76,31 +135,80 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     DataWords.<T>valSet(prefix, type),
                     suffixValues.<T>values(type)));
                         
-        if (!free) {
+        if (!free) {  // for now, we assume that all values are free.
             DataValue d = suffixValues.get(sv);
             if (d == null) {
                 d = getFreshValue( potential );
                 //suffixValues.put(sv, d);
             }
             values.put(pId, d);
-            
-            // call next ...
         } 
         
-        // 2. get set of all values ...        
-        //suffix.
+        // process the 'else' case
+        DataValue fresh = getFreshValue(potential);
         
-        // 3. compute tree for default case
+        WordValuation elseValues = new WordValuation();
+        elseValues.putAll(values);
+        elseValues.put(pId, fresh);
         
-        // 4. create special cases and group cases
+        SuffixValuation elseSuffixValues = new SuffixValuation();
+        elseSuffixValues.putAll(suffixValues);
+        elseSuffixValues.put(sv, fresh);
+                        
+        TreeQueryResult elseOracleReply = oracle.treeQuery(
+                prefix, suffix, elseValues, piv, elseSuffixValues);
+        SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
+        tempKids.put(new ElseGuard(sv), elseOracleSdt);
         
-        // 5. create guards
+        // process each 'if' case
+        for (DataValue<T> newDv : potential) {
         
-        // 6. create tree
+            WordValuation ifValues = new WordValuation();
+            ifValues.putAll(values);
+            ifValues.put(pId, newDv);
+            
+            SuffixValuation ifSuffixValues = new SuffixValuation();
+            ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
+            ifSuffixValues.put(sv, newDv);
+            
+            Register rv = ifPiv.getKey(newDv);
+            Integer rvPos = ifValues.getKey(newDv);
+        
+            if (rv == null) {
+                rv = new Register(type, rvPos);
+                ifPiv.put(rv, newDv);
+            }
+            
+            TreeQueryResult eqOracleReply = oracle.treeQuery(
+                    prefix, suffix, ifValues, ifPiv, ifSuffixValues);
+            SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
                 
-        // 7. clean up
+            Guard newGuard = new Equality(sv,rv);
+            tempKids.put(newGuard, eqOracleSdt);
+        }
         
-        throw new UnsupportedOperationException("not implemented");
+        // merge the guards
+        Map<Guard, SymbolicDecisionTree> merged = mergeGuards(tempKids);
+        
+        // only keep registers that are referenced by the merged guards
+        ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
+        
+        //System.out.println("temporary guards = " + tempKids.keySet());
+        //System.out.println("temporary pivs = " + tempPiv.keySet());
+        //System.out.println("merged guards = " + merged.keySet());
+        //System.out.println("merged pivs = " + addPiv.toString());
+        
+        // clear the temporary map of children
+        tempKids.clear();
+        
+        SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
+        return new TreeQueryResult(addPiv, null, returnSDT);         
+    
+        
+               
+                    
     }
     
+    
 }
+

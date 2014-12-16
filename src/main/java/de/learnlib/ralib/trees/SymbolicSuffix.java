@@ -20,7 +20,6 @@
 package de.learnlib.ralib.trees;
 
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
@@ -44,12 +43,12 @@ public class SymbolicSuffix {
     /**
      * symbolic values that may connect to a prefix
      */
-    private final Set<SymbolicDataValue> freeValues;
+    private final Set<SuffixValue> freeValues;
     
     /**
      * Map of positions to data values
      */
-    private final Map<Integer, SymbolicDataValue> dataValues;
+    private final Map<Integer, SuffixValue> dataValues;
             
     /**
      * actions
@@ -76,7 +75,7 @@ public class SymbolicSuffix {
         this.dataValues = new HashMap<>();
         this.freeValues = new HashSet<>();
         
-        Map<DataValue, SymbolicDataValue> groups = new HashMap<>();
+        Map<DataValue, SuffixValue> groups = new HashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
         int symc = 1;
@@ -89,7 +88,7 @@ public class SymbolicSuffix {
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
             } else {
-                SymbolicDataValue ref = groups.get(d);
+                SuffixValue ref = groups.get(d);
                 if (ref == null) {
                     ref = valgen.next(d.getType());
                     groups.put(d, ref);
@@ -100,11 +99,11 @@ public class SymbolicSuffix {
         }
     }
 
-    public SymbolicDataValue getDataValue(int i) {
+    public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
     
-    public Set<SymbolicDataValue> getFreeValues() {
+    public Set<SuffixValue> getFreeValues() {
         return this.freeValues;
     }
 

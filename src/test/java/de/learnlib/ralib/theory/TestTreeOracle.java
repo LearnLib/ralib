@@ -59,8 +59,12 @@ public class TestTreeOracle {
 
     public void testTreeOracle() {
         
+        // define types
+        
         final UserType userType = new UserType();
         final PassType passType = new PassType();
+        
+        // define parameterized symbols
         
         final ParameterizedSymbol register = new ParameterizedSymbol(
                 "register", new DataType[] {userType, passType});
@@ -68,40 +72,93 @@ public class TestTreeOracle {
         final ParameterizedSymbol login = new ParameterizedSymbol(
                 "login", new DataType[] {userType, passType});
         
+        final ParameterizedSymbol change = new ParameterizedSymbol(
+                "change", new DataType[] {passType});
+        
+        final ParameterizedSymbol logout = new ParameterizedSymbol(
+                "logout", new DataType[] {userType});
+        
+        // create prefix: register(falk[userType], secret[passType])
+        
         final Word<PSymbolInstance> prefix = Word.fromLetter(
                 new PSymbolInstance(register, 
                     new DataValue(userType, "falk"),
                     new DataValue(passType, "secret")));
+        
+        // create suffix: login(falk[userType], secret[passType])
 
-        final Word<PSymbolInstance> suffix = Word.fromLetter(
+        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(login, 
                     new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")));
+                    new DataValue(passType, "secret")),
+                new PSymbolInstance(change, 
+                    new DataValue(passType, "secret")),
+                new PSymbolInstance(logout,
+                    new DataValue(userType, "falk")),
+                new PSymbolInstance(login,
+                    new DataValue(userType, "falk"),
+                    new DataValue(passType, "secret"))
+                    );
         
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(login, 
+                    new DataValue(userType, "falk"),
+                    new DataValue(passType, "secret"))
+                    );
+        
+        
+        // create a symbolic suffix from the concrete suffix
+        // symbolic data values: s1, s2 (userType, passType)
+        
+        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + symSuffix);
+        
+        // hacked oracle
         
         DataWordOracle dwOracle = new DataWordOracle() {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
+                
+                // given a collection of queries, process each one (with Bool replies)
+                
                 for (Query q : clctn) {
                     Word<PSymbolInstance> trace = q.getInput();
-                    if (trace.length() != 2) {
+                    
+                    // if the trace is not 5, answer false (since then automatically incorrect)
+                    
+                    if (trace.length() != 5) {
                         q.answer(false);
                         continue;
                     }
+                    
+                    // get the first two symbols in the trace
+                    
                     PSymbolInstance a1 = trace.getSymbol(0);
                     PSymbolInstance a2 = trace.getSymbol(1);
+                    PSymbolInstance a3 = trace.getSymbol(2);
+                    PSymbolInstance a4 = trace.getSymbol(3);
+                    PSymbolInstance a5 = trace.getSymbol(4);
                     
                     DataValue[] a1Params = a1.getParameterValues();
                     DataValue[] a2Params = a2.getParameterValues();
+                    DataValue[] a3Params = a3.getParameterValues();
+                    DataValue[] a4Params = a4.getParameterValues();
+                    DataValue[] a5Params = a5.getParameterValues();
+                    
+                    // query reply is ACCEPT only if length 2 and symbols equal each other
                     
                     q.answer( a1.getBaseSymbol().equals(register) &&
                             a2.getBaseSymbol().equals(login) &&
-                            Arrays.equals(a1Params, a2Params));
-                    
-                    
+                            Arrays.equals(a1Params, a2Params) && 
+                            a3.getBaseSymbol().equals(change) && 
+                            a4.getBaseSymbol().equals(logout) && 
+                            a5.getBaseSymbol().equals(login) && 
+                            a4Params[0].equals(a5Params[0]) && 
+                            a5Params[0].equals(a1Params[0]) && 
+                            a1Params[0].equals(a2Params[0]) && 
+                            a3Params[0].equals(a5Params[1]));
+                   
                 }
             }
         };
@@ -137,13 +194,16 @@ public class TestTreeOracle {
 
         };
         
-        Map<DataType, Theory> theories = new HashMap<>();
+        Map<DataType, Theory> theories = new HashMap();
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
         TreeOracle treeOracle = new TreeOracle(dwOracle, theories);
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+//        System.out.println(res.getSdt().isAccepting());
+        System.out.println("final SDT: \n" + res.getSdt().toString());
+        
     } 
             
             

@@ -29,31 +29,39 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
 
         
     public static final class Parameter extends SymbolicDataValue {
-        Parameter(DataType dataType, int id) {
+        @Deprecated()
+        public Parameter(DataType dataType, int id) {
             super(dataType, id);
         }        
     }; 
             
     public static final class Register extends SymbolicDataValue {
-        Register(DataType dataType, int id) {
+        @Deprecated()
+        public Register(DataType dataType, int id) {
             super(dataType, id);
         }        
     };         
 
     public static final class Constant extends SymbolicDataValue {
-        Constant(DataType dataType, int id) {
+        @Deprecated()
+        public Constant(DataType dataType, int id) {
             super(dataType, id);
         }        
     };   
     
     public static final class SuffixValue extends SymbolicDataValue {
-        SuffixValue(DataType dataType, int id) {
+        @Deprecated()
+        public SuffixValue(DataType dataType, int id) {
             super(dataType, id);
         }        
     };     
     
     private SymbolicDataValue(DataType dataType, int id) {
         super(dataType, id);
+    }
+
+    public String toStringWithType() {
+        return this.toString() + ":" + this.type.getName();
     }
 
     @Override
@@ -64,9 +72,9 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         } else if (this.isRegister()) {
             s += "r";             
         }
-        return s + this.id + ":" + this.type.getName();
+        return s + this.id;
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

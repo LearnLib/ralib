@@ -90,4 +90,16 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     }
     
     
+    
+    public K getKey(V value) {
+        K retKey = null;
+        for (K key : this.keySet()) {
+            if (this.get(key).equals(value)){
+                retKey = key;
+                break;
+            }
+        }   
+        return retKey;
+    }
+
 }

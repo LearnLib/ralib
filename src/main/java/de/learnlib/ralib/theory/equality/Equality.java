@@ -19,10 +19,29 @@
 
 package de.learnlib.ralib.theory.equality;
 
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.theory.Guard;
+
 /**
  *
  * @author falk
  */
-public class Equality {
+public class Equality extends Guard {
     
+    public Equality(SymbolicDataValue param, SymbolicDataValue reg) {
+        super(param, reg);
+    }
+    
+//    @Override
+//    public Equality createCopy(VarMapping renaming) {
+//        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
+//    }
+    
+   
+    @Override
+    public String toString() {
+        return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
+        
+    }
 }

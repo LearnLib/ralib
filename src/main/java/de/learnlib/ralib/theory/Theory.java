@@ -22,7 +22,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -74,7 +74,7 @@ public interface Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values, 
             ParsInVars piv,
-            VarValuation suffixValues,
+            SuffixValuation suffixValues,
             TreeOracle oracle);
         
     

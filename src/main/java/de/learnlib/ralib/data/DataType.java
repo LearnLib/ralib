@@ -31,12 +31,12 @@ public abstract class DataType {
     /**
      * name of type (defining member)
      */
-    private final String name;
+    protected final String name;
     
     /**
      * base type
      */
-    private final Class base;
+    protected final Class base;
 
     protected DataType(String name, Class base) {
         this.name = name;

@@ -17,29 +17,12 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory.equality;
+package de.learnlib.ralib.data;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.theory.Guard;
 /**
  *
  * @author falk
  */
-public class ElseGuard extends Guard {
+public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, DataValue<?>> {
     
-    public ElseGuard(SymbolicDataValue param) {
-        super(param, null);     
-    }
-    
-    
-    @Override
-    public String toString() {
-        return "ELSE[" + this.getParameter().toString() + "]";
-    }
-    
-    public ElseGuard join(Equality e) {
-        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
-        assert e.getParameter().equals(this.getParameter());
-        return this;
-    }
 }

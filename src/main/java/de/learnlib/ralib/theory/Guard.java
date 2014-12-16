@@ -6,7 +6,9 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import java.util.ArrayList;
 
 /**
  *
@@ -14,14 +16,35 @@ import de.learnlib.ralib.data.SymbolicDataValue;
  */
 public class Guard {
     
+    private final SymbolicDataValue parameter;
+    private final SymbolicDataValue register;
+    
     public SymbolicDataValue getParameter() {
-        throw new IllegalStateException("not implemented yet.");
+        return this.parameter;
     }
     
     public SymbolicDataValue getRegister() {
-        throw new IllegalStateException("not implemented yet.");        
+        return this.register;        
     }
     
+    public Guard(SymbolicDataValue param, SymbolicDataValue reg) {
+        this.parameter = param;
+        this.register = reg;
+    }
     
+//    public Guard createCopy(VarMapping renaming) {
+//        return this;
+//    }
     
-}
+    public Guard[] or(Guard... guards) {
+    //        Guard[] guardList = new Guard[guards.length];
+    //        for (int i=0; i<guards.length; i++) {
+    //            guardList[i] = guards[i];
+    //        }
+        
+        // check feasibility here...
+        
+            return guards;
+        }
+    
+    }
