@@ -34,10 +34,6 @@ public class EqualityGuard extends Guard {
         super(param, reg, Relation.EQUALS);
     }
     
-    @Override
-    public EqualityGuard createCopy(VarMapping renaming) {
-        return new EqualityGuard(this.getParameter(), renaming.get(this.getRegister()));
-    }
     
    
     @Override

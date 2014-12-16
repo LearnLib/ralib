@@ -17,17 +17,12 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
-
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+package de.learnlib.ralib.data;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
 }

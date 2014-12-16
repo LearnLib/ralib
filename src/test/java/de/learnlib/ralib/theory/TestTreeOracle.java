@@ -30,10 +30,8 @@ import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,13 +47,13 @@ public class TestTreeOracle {
    
     private static final class UserType extends DataType {
         UserType() {
-            super("userType");
+            super("userType", String.class);
         }
     }
    
     private static final class PassType extends DataType {
         PassType() {
-            super("passType");
+            super("passType", String.class);
         }
     }
 

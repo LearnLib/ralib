@@ -19,7 +19,12 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
+import java.util.Map.Entry;
 
 /**
  *
@@ -27,6 +32,29 @@ import de.learnlib.ralib.data.VarMapping;
  */
 public class Assignment {
     
-    private VarMapping assignment;
+    private final VarMapping<Register, ? extends SymbolicDataValue> assignment;
+
+    public Assignment(VarMapping<Register, ? extends SymbolicDataValue> assignment) {
+        this.assignment = assignment;
+    }
+    
+    public VarValuation compute(VarValuation registers, ParValuation parameters) {
+        VarValuation val = new VarValuation();
+        for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
+            SymbolicDataValue valp = e.getValue();
+            if (valp.isRegister()) {
+                val.put(e.getKey(), registers.get(valp));
+            }
+            else if (valp.isParameter()) {
+                val.put(e.getKey(), parameters.get(valp));
+            }
+            else {
+                throw new IllegalStateException();
+            }
+        }
+        return val;
+    }
+    
+    
     
 }

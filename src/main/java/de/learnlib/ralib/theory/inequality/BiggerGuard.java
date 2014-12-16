@@ -34,10 +34,6 @@ public class BiggerGuard extends Guard {
         super(param,reg,Relation.BIGGER);
     }
     
-    @Override
-    public BiggerGuard createCopy(VarMapping renaming) {
-        return new BiggerGuard(this.getParameter(), renaming.get(this.getRegister()));
-    }
     
    
     @Override

@@ -40,9 +40,9 @@ public class Guard {
         this.relation = rel;
     }
     
-    public Guard createCopy(VarMapping renaming) {
-        return this;
-    }
+//    public Guard createCopy(VarMapping renaming) {
+//        return this;
+//    }
     
     public Guard[] or(Guard... guards) {
     //        Guard[] guardList = new Guard[guards.length];
@@ -63,7 +63,7 @@ public class Guard {
     
     public boolean contradicts(Guard other) {
         boolean samePR = (this.parameter.getId() == other.getParameter().getId() && 
-                this.register.getVC() == other.getRegister().getVC() &&
+     //           this.register.getVC() == other.getRegister().getVC() &&
                 this.register.getId() == other.getRegister().getId());
         //System.out.println("params " + this.parameter.toString() + " and " + other.getParameter().toString() + "\nregs " + this.register.toString() + " and " + other.getRegister().toString() + "? : " + samePR);
         boolean contRels = ((this.relation.equals(Relation.SMALLER) && 

@@ -23,16 +23,10 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class ParsInVars extends Mapping<SymbolicDataValue, DataValue<?>> {
-     
-
+public class ParsInVars extends VarValuation {
    
-    // this class stores memorable data values
-    // each memorable is a mapping from a data value to a symbolic data value
-    // for now, let's make it a mapping...
+//    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {
+//        throw new UnsupportedOperationException("Not implemented");
+//    }    
 
-    
-    // returns the first / only key for a data value
-    
-  
 }

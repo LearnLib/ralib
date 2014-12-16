@@ -22,25 +22,26 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.theory.TreeQueryResult;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.trees.SDT;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import net.automatalib.words.Word;
 
@@ -103,7 +104,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     // that are mentioned in any guard
     private ParsInVars keepMem(ParsInVars pivs, Set<Guard> guardSet) {
         ParsInVars ret = new ParsInVars();
-        for (SymbolicDataValue k : pivs.keySet()) {
+        for (Register k : pivs.keySet()) {
             for (Guard mg : guardSet) {
                 if (!(mg instanceof ElseGuard) && mg.getRegister().equals(k)) {
                     ret.put(k, pivs.get(k));
@@ -120,15 +121,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values, 
             ParsInVars piv,
-            VarValuation suffixValues,
+            SuffixValuation suffixValues,
             TreeOracle oracle) {
         
         int pId = suffixValues.size() + 1;
         
 //        System.out.println(values.toString());
-        
-        SymbolicDataValue sv = suffix.getDataValue(pId);
-        System.out.println(sv.toString());
+        SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
         
         Map<Guard, SymbolicDecisionTree> tempKids = new HashMap<>();
@@ -141,6 +140,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     DataWords.<T>valSet(prefix, type),
                     suffixValues.<T>values(type));
+                        
+//        if (!free) {  // for now, we assume that all values are free.
+//            DataValue d = suffixValues.get(sv);
+//            if (d == null) {
+//                d = getFreshValue( potential );
+//                //suffixValues.put(sv, d);
+//            }
+//            values.put(pId, d);
+//        } 
         
          List<DataValue<T>> potential = getPotential(new ArrayList<>(potSet));
                
@@ -161,7 +169,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         elseValues.putAll(values);
         elseValues.put(pId, fresh);
         
-        VarValuation elseSuffixValues = new VarValuation();
+        SuffixValuation elseSuffixValues = new SuffixValuation();
         elseSuffixValues.putAll(suffixValues);
         elseSuffixValues.put(sv, fresh);
         
@@ -178,15 +186,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             ifValues.putAll(values);
             ifValues.put(pId, newDv);
             
-            VarValuation ifSuffixValues = new VarValuation();
+            SuffixValuation ifSuffixValues = new SuffixValuation();
             ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
             ifSuffixValues.put(sv, newDv);
             
-            SymbolicDataValue rv = ifPiv.getKey(newDv);
-            Integer rvPos = ifValues.getKey(newDv);
+            Register rv = ifPiv.getKey(newDv);
+            Integer rvPos = pId;
         
             if (rv == null) {
-                rv = SymbolicDataValue.register(type, rvPos);
+                rv = new Register(type, rvPos);
                 ifPiv.put(rv, newDv);
             }
             

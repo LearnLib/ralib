@@ -23,6 +23,7 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
@@ -60,13 +61,13 @@ public class TreeOracle {
         //    prefixValuation.put(k, prefixValues[k]);
         //}
         return treeQuery(prefix, suffix, 
-                new WordValuation(), new ParsInVars(), new VarValuation());
+                new WordValuation(), new ParsInVars(), new SuffixValuation());
     }
     
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, ParsInVars piv, 
-            VarValuation suffixValues) {
+            SuffixValuation suffixValues) {
         
         //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size() + ", suffixValues size " + suffixValues.size());
         

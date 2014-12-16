@@ -21,13 +21,29 @@ package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public class InputTransition extends Transition {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
+    private final Guard guard;
+
+    public InputTransition(Guard guard, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+        super(label, source, destination, assignment);
+        this.guard = guard;
+    }
+
+    @Override
+    public boolean isEnabled(VarValuation registers, ParValuation parameters) {
+        return guard.isSatisfied(registers, parameters);
+    }
+
+    @Override
+    public VarValuation execute(VarValuation registers, ParValuation parameters) {        
+        return this.getAssignment().compute(registers, parameters);
+    }
         
 }

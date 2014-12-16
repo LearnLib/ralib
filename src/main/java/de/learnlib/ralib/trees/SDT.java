@@ -6,13 +6,9 @@
 
 package de.learnlib.ralib.trees;
 
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,29 +18,9 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<SymbolicDataValue> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<Register> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
-    
-    // Method in progress.    
-    @Override
-    public SymbolicDecisionTree createCopy(VarMapping renaming) {
-        return this;
-//        boolean acc = this.isAccepting();
-//        // registers: add the ones that are mapped
-//        Set<SymbolicDataValue> newRegs = new HashSet<SymbolicDataValue>();
-//        for (SymbolicDataValue reg : (Set<SymbolicDataValue>) this.getRegisters()) {
-//            newRegs.add(renaming.get(reg));
-//        }
-//        // children (map from guards to trees): change the guards
-//        Map<Guard[], SymbolicDecisionTree> newChildren = new HashMap<>();
-//        Map<Guard[], SymbolicDecisionTree> currChildren = this.getChildren();
-//        for (Guard[] guard : (Set<Guard[]>) currChildren.keySet()) {
-//            newChildren.put(guard.createCopy(renaming), currChildren.get(guard).createCopy(renaming));
-//        }
-//        return new SDT(acc, newRegs, newChildren);
-//        
-        }
     
     // Returns true if all elements of a boolean array are true.
     private boolean isArrayTrue(Boolean[] maybeArr) {

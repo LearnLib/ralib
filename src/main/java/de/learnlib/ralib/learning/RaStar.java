@@ -20,7 +20,9 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.List;
 import net.automatalib.words.Word;
 
 /**
@@ -28,6 +30,10 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class RaStar {
+    
+    private List<SymbolicSuffix> suffixes;
+    
+    private Oracle oracle;
     
     // public interface
     
@@ -49,8 +55,19 @@ public class RaStar {
         
     }
     
+    /**
+     * adds a new prefix to the table.
+     * 
+     * @param prefix 
+     */
     void addPrefix(Word<PSymbolInstance> prefix) {
-        
+        //Row r = new Row(prefix,);
+        throw new UnsupportedOperationException("not implemented yet");
     }
     
+    
+    
+    //private void computeCell(Word<PSymbolInstance> prefix, SymbolicSuffix prefix) 
+    
+            
 }

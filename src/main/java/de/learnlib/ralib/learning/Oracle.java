@@ -17,17 +17,23 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.theory.TreeQueryResult;
+import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public class Oracle {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
+    public TreeQueryResult processTreeQuery(Word<PSymbolInstance> prefix,
+            SymbolicSuffix suffix) {
+    
+        throw new UnsupportedOperationException("not implemented yet."); 
+    }
+    
 }

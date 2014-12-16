@@ -20,9 +20,14 @@
 package de.learnlib.ralib.data;
 
 /**
- *
+ * maps symbolic data values to symbolic data values.
+ * 
+ * 
  * @author falk
+ * @param <K>
+ * @param <V>
  */
-public class VarMapping extends Mapping<SymbolicDataValue, SymbolicDataValue> {
+public class VarMapping<K extends SymbolicDataValue, V extends SymbolicDataValue> 
+extends Mapping<K, V> {
     
 }

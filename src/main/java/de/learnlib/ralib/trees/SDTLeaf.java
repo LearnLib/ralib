@@ -59,10 +59,10 @@ public class SDTLeaf extends SymbolicDecisionTree {
         }
     }
     
-    @Override
-    public SymbolicDecisionTree createCopy(VarMapping renaming) {
-        return this;
-    }
+//    @Override
+//    public SymbolicDecisionTree createCopy(VarMapping renaming) {
+//        return this;
+//    }
     
     @Override
     public String toString() {

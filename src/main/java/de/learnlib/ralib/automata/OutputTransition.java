@@ -21,13 +21,31 @@ package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public class OutputTransition extends Transition {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
+    private final OutputMapping output;
+
+    public OutputTransition(OutputMapping output, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+        super(label, source, destination, assignment);
+        this.output = output;
+    }
+    
+    @Override
+    public boolean isEnabled(VarValuation registers, ParValuation parameters) {
+        // check freshness of parameters ...
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    public VarValuation execute(VarValuation registers, ParValuation parameters) {
+        throw new UnsupportedOperationException("not implemented yet");        
+    }
+    
+    
 }

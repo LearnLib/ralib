@@ -19,15 +19,16 @@
 
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+public class OutputMapping {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
-        
+    private SymbolicDataValue[] outputs;
+    
+    
+    
 }

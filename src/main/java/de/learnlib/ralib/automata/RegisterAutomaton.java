@@ -19,9 +19,13 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import net.automatalib.automata.DeterministicAutomaton;
 import net.automatalib.automata.abstractimpl.AbstractDeterministicAutomaton;
 import net.automatalib.words.Word;
@@ -35,25 +39,58 @@ public class RegisterAutomaton
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
     
     
+    private final RALocation initial;
     
+    private final List<RALocation> locations = new ArrayList<>();
+
+    public RegisterAutomaton() {
+        this.initial = new RALocation();
+        locations.add(initial);
+    }
+    
+    @Override
     public RALocation getSuccessor(Transition t) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return t.getDestination();
     }
 
+    @Override
     public Transition getTransition(RALocation s, ParameterizedSymbol i) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException(
+                "There may be more than one transition per symbol in an RA."); 
     }
 
+    @Override
+    public Collection<Transition> getTransitions(RALocation s, ParameterizedSymbol i) {
+        return s.getOut(i);
+    }
+    
+    @Override
     public RALocation getInitialState() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return initial;
     }
 
+    @Override
     public Collection<RALocation> getStates() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return locations;
     }
 
-    public boolean hasTrace(Word<PSymbolInstance> dw) {
-        throw new IllegalStateException("Not implemented.");        
+    public boolean hasTrace(Word<PSymbolInstance> dw) {        
+        VarValuation vars = new VarValuation();
+        RALocation current = initial;
+        for (PSymbolInstance psi : dw) {
+            
+            ParValuation pars = new ParValuation(psi);
+            
+            Collection<Transition> candidates = 
+                    current.getOut(psi.getBaseSymbol());
+            
+            for (Transition t : candidates) {
+                if (t.isEnabled(vars, pars)) {
+                    vars = t.execute(vars, pars);
+                }
+            }
+        }
+        return true;
     }
     
 }
