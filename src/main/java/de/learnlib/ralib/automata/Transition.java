@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -44,9 +45,9 @@ public abstract class Transition {
         this.assignment = assignment;
     }
     
-    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters);
+    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts);
     
-    public abstract VarValuation execute(VarValuation registers, ParValuation parameters);
+    public abstract VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts);
 
     /**
      * @return the label

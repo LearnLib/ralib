@@ -18,7 +18,11 @@
  */
 package de.learnlib.ralib.automata;
 
-import static org.testng.Assert.*;
+import de.learnlib.ralib.data.DataValue;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
+import de.learnlib.ralib.words.PSymbolInstance;
+import junit.framework.Assert;
+import net.automatalib.words.Word;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -37,9 +41,29 @@ public class RegisterAutomatonTest {
     @Test
     public void testHasTrace() {
     
-        // ...
+        RegisterAutomaton ra = AUTOMATON;
         
-    
+        Word<PSymbolInstance> test1 = Word.epsilon();        
+        System.out.println("test1: " + test1);     
+        Assert.assertTrue(ra.hasTrace(test1));
+
+        Word<PSymbolInstance> test2 = Word.epsilon();        
+        test2 = test2.append(new PSymbolInstance(I_REGISTER, new DataValue[] {
+                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+        test2 = test2.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
+                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+        
+        System.out.println("test2: " + test2);     
+        Assert.assertTrue(ra.hasTrace(test2));        
+        
+        Word<PSymbolInstance> test3 = Word.epsilon();        
+        test3 = test3.append(new PSymbolInstance(I_REGISTER, new DataValue[] {
+                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+        test3 = test3.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
+                new DataValue(T_UID, 1), new DataValue(T_PWD, 3)}));
+        
+        System.out.println("test3: " + test3);     
+        Assert.assertTrue(ra.hasTrace(test3));          
     }
 
     @BeforeClass

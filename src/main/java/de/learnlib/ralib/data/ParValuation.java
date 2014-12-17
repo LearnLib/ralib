@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.data.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
@@ -28,7 +29,10 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {
 
     public ParValuation(PSymbolInstance psi) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ParameterGenerator pgen = new ParameterGenerator();
+        for (DataValue dv : psi.getParameterValues()) {
+            this.put(pgen.next(dv.getType()), dv);
+        }    
     }
     
 }

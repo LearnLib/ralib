@@ -31,18 +31,22 @@ import java.util.Map;
  */
 public class RALocation {
     
-    private Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
+    private final Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
     
-    public Collection<Transition> getOut(ParameterizedSymbol ps) {
+    Collection<Transition> getOut(ParameterizedSymbol ps) {
         return out.get(ps);
     }
     
-    public void addOut(Transition t) {
+    void addOut(Transition t) {
         Collection<Transition> c = out.get(t.getLabel());
         if (c == null) {
             c = new ArrayList<>();
             out.put(t.getLabel(), c);
         }
         c.add(t);
+    }
+    
+    void clear() {
+        this.out.clear();
     }
 }

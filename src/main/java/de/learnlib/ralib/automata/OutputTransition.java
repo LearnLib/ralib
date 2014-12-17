@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -37,13 +38,13 @@ public class OutputTransition extends Transition {
     }
     
     @Override
-    public boolean isEnabled(VarValuation registers, ParValuation parameters) {
+    public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
         // check freshness of parameters ...
         throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
-    public VarValuation execute(VarValuation registers, ParValuation parameters) {
+    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
         throw new UnsupportedOperationException("not implemented yet");        
     }
     
