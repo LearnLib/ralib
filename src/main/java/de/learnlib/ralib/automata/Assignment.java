@@ -22,7 +22,6 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
@@ -61,7 +60,12 @@ public class Assignment {
         }
         return val;
     }
+
+    @Override
+    public String toString() {
+        return assignment.toString(":=");
+    }
     
-    
+
     
 }

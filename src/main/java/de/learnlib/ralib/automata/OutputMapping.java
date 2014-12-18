@@ -20,15 +20,55 @@
 package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
  * @author falk
  */
-public class OutputMapping {
+public class OutputMapping  {
     
-    private SymbolicDataValue[] outputs;
+    private final Collection<Parameter> fresh;
     
+    private final VarMapping<Parameter, Register> piv;
     
+    public OutputMapping(Collection<Parameter> fresh, 
+            VarMapping<Parameter, Register> piv) {
+        this.fresh = fresh;
+        this.piv = piv;
+    }
     
+    public OutputMapping() {
+        this(new ArrayList<Parameter>(), new VarMapping<Parameter, Register>());
+    }
+
+    public OutputMapping(Parameter fresh) {
+        this(Collections.singleton(fresh), new VarMapping<Parameter, Register>());
+    }
+    
+    public OutputMapping(Parameter key, Register value) {
+        this(new ArrayList<Parameter>(), new VarMapping<Parameter, Register>(key, value));
+    }
+
+    public Collection<Parameter> getFreshParameters() {
+        return fresh;
+    }
+    
+    public VarMapping<Parameter, Register> getOutput() {
+        return piv;
+    }
+
+    @Override
+    public String toString() {
+
+        return "F:" + Arrays.toString(fresh.toArray()) + ", M:" + piv.toString();
+    }
+    
+
 }

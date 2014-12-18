@@ -66,5 +66,11 @@ public class DataExpression<T> implements Evaluate<T> {
         }        
         return valuation;
     }
+
+    @Override
+    public String toString() {
+        return this.mapping.toString() + "[" + this.expression.toString() + "]";
+    }
     
+
 }

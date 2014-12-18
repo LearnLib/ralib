@@ -17,34 +17,37 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example.login;
+package de.learnlib.ralib.example;
 
 import de.learnlib.ralib.automata.Guard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataExpression;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
-import java.util.Collection;
+
 
 /**
  *
  * @author falk
  */
-public class ElseGuard implements Guard {
+public class IfGuard implements Guard {
 
-    private final Collection<IfGuard> ifs;
+    private final DataExpression<Boolean> condition;
 
-    public ElseGuard(Collection<IfGuard> ifs) {
-        this.ifs = ifs;
-    }  
+    public IfGuard(DataExpression<Boolean> condition) {
+        this.condition = condition;
+    }
     
     @Override
     public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        for (IfGuard g : ifs) {
-            if (g.isSatisfied(registers, parameters, consts)) {
-                return false;
-            }
-        }
-        return true;
+        return condition.evaluate(registers, parameters, consts);
+    }
+
+    @Override
+    public String toString() {
+        return condition.toString();
     }
     
+
+
 }

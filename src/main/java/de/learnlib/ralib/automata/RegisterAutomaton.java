@@ -34,5 +34,19 @@ public abstract class RegisterAutomaton
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
     
     public abstract boolean hasTrace(Word<PSymbolInstance> dw);        
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (RALocation loc : getStates()) {
+            sb.append(loc).append( loc.equals(getInitialState()) ? " (initial)" : "").append(":\n");            
+            for (Transition t : loc.getOut()) {
+                sb.append("  ").append(t).append("\n");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
     
+
 }

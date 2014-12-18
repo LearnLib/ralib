@@ -30,11 +30,25 @@ import java.util.Map;
  * @author falk
  */
 public class RALocation {
+        
+    private final int id;
     
     private final Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
-    
+
+    public RALocation(int id) {
+        this.id = id;
+    }
+        
     Collection<Transition> getOut(ParameterizedSymbol ps) {
         return out.get(ps);
+    }
+
+    Collection<Transition> getOut() {
+        ArrayList<Transition> ret = new ArrayList<>();
+        for (Collection<Transition> col : out.values()) {
+            ret.addAll(col);
+        }
+        return ret;
     }
     
     void addOut(Transition t) {
@@ -49,4 +63,33 @@ public class RALocation {
     void clear() {
         this.out.clear();
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final RALocation other = (RALocation) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "l" + id;
+    }
+    
+
 }

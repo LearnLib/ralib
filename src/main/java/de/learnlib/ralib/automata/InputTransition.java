@@ -43,8 +43,10 @@ public class InputTransition extends Transition {
     }
 
     @Override
-    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {        
-        return this.getAssignment().compute(registers, parameters, consts);
+    public String toString() {
+        return "(" + source + ", " + label + ", " + guard + ", " + assignment + ", " + destination + ")";
     }
+
+
         
 }

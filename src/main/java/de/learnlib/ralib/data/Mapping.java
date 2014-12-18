@@ -89,8 +89,22 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         throw new UnsupportedOperationException("Not implemented");
     }
     
+    public String toString(String map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Map.Entry<K,V> e : entrySet()) {
+            sb.append(e.getKey()).append(map).append(e.getValue()).append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
     
+    @Override
+    public String toString() {
+        return toString(">");
+    }
     
+    // FIXME: this method is bogus. There may be more than one value.
     public K getKey(V value) {
         K retKey = null;
         for (K key : this.keySet()) {

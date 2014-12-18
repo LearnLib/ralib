@@ -39,6 +39,8 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     
     private final Constants constants;
     
+    private int ids = 0;
+    
     private RALocation initial;
     
     private final Set<RALocation> locations = new HashSet<>();
@@ -141,7 +143,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
 
     @Override
     public RALocation addState(Void sp) {
-        RALocation lNew = new RALocation();
+        RALocation lNew = new RALocation(ids++);
         this.locations.add(lNew);
         return lNew;
     }

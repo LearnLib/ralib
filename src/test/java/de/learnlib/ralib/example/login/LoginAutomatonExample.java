@@ -19,6 +19,8 @@
 
 package de.learnlib.ralib.example.login;
 
+import de.learnlib.ralib.example.IfGuard;
+import de.learnlib.ralib.example.ElseGuard;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -128,7 +130,7 @@ public final class LoginAutomatonExample {
         ra.addTransition(l1, I_LOGIN, new InputTransition(errorGuard, I_LOGIN, l1, l1, copyAssign));        
         
         // login location
-        ra.addTransition(l1, I_LOGOUT, new InputTransition(trueGuard, I_LOGOUT, l2, l1, copyAssign));        
+        ra.addTransition(l2, I_LOGOUT, new InputTransition(trueGuard, I_LOGOUT, l2, l1, copyAssign));        
         
         return ra;
     }

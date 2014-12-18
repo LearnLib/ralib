@@ -33,15 +33,16 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class RegisterAutomatonTest {
+public class LoginAutomatonTest {
 
-    public RegisterAutomatonTest() {
+    public LoginAutomatonTest() {
     }
 
     @Test
     public void testHasTrace() {
     
         RegisterAutomaton ra = AUTOMATON;
+        System.out.println(ra);        
         
         Word<PSymbolInstance> test1 = Word.epsilon();        
         System.out.println("test1: " + test1);     

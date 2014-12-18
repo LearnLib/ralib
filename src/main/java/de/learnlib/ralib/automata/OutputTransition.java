@@ -20,9 +20,13 @@
 package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Map.Entry;
 
 /**
  *
@@ -39,14 +43,33 @@ public class OutputTransition extends Transition {
     
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
-        // check freshness of parameters ...
-        throw new UnsupportedOperationException("not implemented yet");
+        
+        // check freshness of parameters ...        
+        for (Parameter p : output.getFreshParameters()) {
+            DataValue pval = parameters.get(p);
+            if (registers.containsValue(pval) || consts.containsValue(pval)) {
+                return false;
+            }
+            for (Entry<Parameter, DataValue<?>> e : parameters) {
+                if (!p.equals(e.getKey()) && pval.equals(e.getValue())) {
+                    return false;
+                }
+            }
+        }
+
+        // check other parameters
+        for (Entry<Parameter, Register> e : output.getOutput()) {
+            if (!parameters.get(e.getKey()).equals(
+                    registers.get(e.getValue()))) {
+                return false;
+            }
+        }
+            
+        return true;
     }
 
     @Override
-    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
-        throw new UnsupportedOperationException("not implemented yet");        
-    }
-    
-    
+    public String toString() {
+        return "(" + source + ", " + label + ", " + output + ", " + assignment + ", " + destination + ")";
+    }    
 }
