@@ -42,21 +42,21 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
     IntType intType = new IntType();
 
-    private Set<Guard> mergeGuardArrays(Set<Guard> one, Set<Guard> two) {
+    private List<Guard> mergeGuardLists(List<Guard> one, List<Guard> two) {
         return removeCo(one,two);
     }
     
-    private Set<Guard> removeCo(Set<Guard> one, Set<Guard> two) {
-        Set<Guard> onetwoSet = new HashSet();
+    private List<Guard> removeCo(List<Guard> one, List<Guard> two) {
+        List<Guard> onetwoList = new ArrayList();
 
         // remove contradicting guards
-        Set<Guard> cSet = new HashSet();
+        List<Guard> cList = new ArrayList();
         for (Guard o : one) {
             for (Guard t : two) {
                 if (o.contradicts(t)) {
                     //System.out.println("CONTRADICTION");
-                    cSet.add(o);
-                    cSet.add(t);
+                    cList.add(o);
+                    cList.add(t);
                 }
             }
         }
@@ -64,26 +64,26 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         //System.out.println("Contradictions: " + cSet.toString());
         for (Guard o : one) {
             for (Guard t : two) {
-                if (!cSet.contains(o)) {
-                    onetwoSet.add(o);
+                if (!cList.contains(o)) {
+                    onetwoList.add(o);
                 }
-                if (!cSet.contains(t)) {
-                    onetwoSet.add(t);
+                if (!cList.contains(t)) {
+                    onetwoList.add(t);
                 }
             }
 
         }
 
-        return onetwoSet;
+        return onetwoList;
     }
     
       
     
-    private Map<Set<Guard>, SymbolicDecisionTree> tryToMerge(Set<Guard> guard, 
-            List<Set<Guard>> targetList, Map<Set<Guard>, SymbolicDecisionTree> refSDTMap, 
-            Map<Set<Guard>, SymbolicDecisionTree> finalMap, Map<Set<Guard>, SymbolicDecisionTree> contMap) {
+    private Map<List<Guard>, SymbolicDecisionTree> tryToMerge(List<Guard> guard, 
+            List<List<Guard>> targetList, Map<List<Guard>, SymbolicDecisionTree> refSDTMap, 
+            Map<List<Guard>, SymbolicDecisionTree> finalMap, Map<List<Guard>, SymbolicDecisionTree> contMap) {
         System.out.println("---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
-    Map<Set<Guard>, SymbolicDecisionTree> cMap = new HashMap();
+    Map<List<Guard>, SymbolicDecisionTree> cMap = new HashMap();
     cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
@@ -93,18 +93,18 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             return finalMap;
         }
         else {
-                Map<Set<Guard>, SymbolicDecisionTree> newSDTMap = new HashMap();
+                Map<List<Guard>, SymbolicDecisionTree> newSDTMap = new HashMap();
         newSDTMap.putAll(refSDTMap);
         SymbolicDecisionTree guardSDT = newSDTMap.get(guard);
-         List<Set<Guard>> newTargetList = new ArrayList();
+         List<List<Guard>> newTargetList = new ArrayList();
         newTargetList.addAll(targetList);
-        Set<Guard> other = newTargetList.remove(0);
+        List<Guard> other = newTargetList.remove(0);
         SymbolicDecisionTree otherSDT = newSDTMap.get(other);
         cMap.put(other, otherSDT);
         
             if (guardSDT.canUse(otherSDT) && otherSDT.canUse(guardSDT)) {
                 // if yes, then merge them
-                Set<Guard> merged = mergeGuardArrays(guard, other);
+                List<Guard> merged = mergeGuardLists(guard, other);
                 System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
                 // add the merged guard and SDT to merged map
                 newSDTMap.put(merged, guardSDT);
@@ -122,20 +122,19 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  
-    private Map<Set<Guard>, SymbolicDecisionTree>
-            mergeGuards(Map<Set<Guard>, SymbolicDecisionTree> unmerged) {
+    private Map<List<Guard>, SymbolicDecisionTree>
+            mergeGuards(Map<List<Guard>, SymbolicDecisionTree> unmerged) {
         System.out.println("master merge...");
-        Map<Set<Guard>, SymbolicDecisionTree> tempMap = new HashMap();        
+        Map<List<Guard>, SymbolicDecisionTree> tempMap = new HashMap();        
         
-        List<Set<Guard>> guardList = new ArrayList(unmerged.keySet());
+        List<List<Guard>> guardList = new ArrayList(unmerged.keySet());
         System.out.println("unmerged: " + unmerged.toString());
-        //for (int i = 0; i < guardList.size(); i++) {
-        int i = 0;
-            List<Set<Guard>> jGuardList = new ArrayList();
+        //int i = 0;
+            List<List<Guard>> jGuardList = new ArrayList();
             jGuardList.addAll(guardList);
-            Map<Set<Guard>, SymbolicDecisionTree> gMerged = tryToMerge(guardList.get(i), jGuardList.subList(i+1, guardList.size()), unmerged, new HashMap(), new HashMap());
-            tempMap.putAll(gMerged);            
-            //}
+            Map<List<Guard>, SymbolicDecisionTree> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
+            tempMap.putAll(gMerged);   
+            
         System.out.println(tempMap.toString());
             if (tempMap.equals(unmerged)) {
                 System.out.println("unchanged");
@@ -221,10 +220,10 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<Set<Guard>> guardSet) {
+    private ParsInVars keepMem(ParsInVars pivs, Set<List<Guard>> guardSet) {
         ParsInVars ret = new ParsInVars();
         for (Register k : pivs.keySet()) {
-            for (Set<Guard> mg : guardSet) {
+            for (List<Guard> mg : guardSet) {
                 for (Guard g : mg) {
                     if (g.getRegister().equals(k)) {
                         ret.put(k, pivs.get(k));
@@ -300,7 +299,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     //    WordValuation prefixValuation = valuatePrefix(prefix, type);
         // System.out.println("prefix valuation: " + prefixValuation.toString());
 
-        Map<Set<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
+        Map<List<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
         ParsInVars ifPiv = new ParsInVars();
         ifPiv.putAll(piv);
         // System.out.println("ifpiv is " + ifPiv.toString());
@@ -339,7 +338,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            SymbolicDataValue rvPrev = null;
 //            SymbolicDataValue rvNext = null;
 
-            Set<Guard> guardSet = new HashSet();
+            List<Guard> guards = new ArrayList();
             
             // SMALLEST case
             if (i == 0) {
@@ -355,7 +354,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                 //int pos = suffixValues.getKey(dvRight).getId();
                 //Register rvRight = regGenerator.next(type);
 //                SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
-                guardSet.add(new SmallerGuard(currentParam, rvRight));
+                guards.add(new SmallerGuard(currentParam, rvRight));
                 
             }
             
@@ -372,7 +371,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                     rvLeft = new Register(type, lvPos);
                     ifPiv.put(rvLeft, dvLeft);
                 }
-                guardSet.add(new BiggerGuard(currentParam, rvLeft));
+                guards.add(new BiggerGuard(currentParam, rvLeft));
                 //SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
                 
                 Register rvRight = ifPiv.getOneKey(currentDv);
@@ -380,7 +379,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                     rvRight = new Register(type, rvPos);
                     ifPiv.put(rvRight, dvRight);
                 }
-                guardSet.add(new SmallerGuard(currentParam, rvRight));
+                guards.add(new SmallerGuard(currentParam, rvRight));
             }
 
             // BIGGEST case
@@ -393,11 +392,11 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                     rvLeft = new Register(type, lvPos);
                     ifPiv.put(rvLeft, dvLeft);
                 }
-                guardSet.add(new BiggerGuard(currentParam, rvLeft));
+                guards.add(new BiggerGuard(currentParam, rvLeft));
             }
 
             
-            System.out.println("Guard set: " + guardSet.toString());
+            System.out.println("Guard list: " + guards.toString());
            
 // for the 1 - last value in the potential
 //            if (i > 0) {
@@ -421,7 +420,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             TreeQueryResult oracleReply = oracle.treeQuery(
                     prefix, suffix, currentValues, ifPiv, currentSuffixValues);
             SymbolicDecisionTree oracleSdt = oracleReply.getSdt();
-            tempKids.put(guardSet, oracleSdt);
+            tempKids.put(guards, oracleSdt);
             
 
         }
@@ -429,7 +428,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //        System.out.println("-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
 
         // merge the guards
-        Map<Set<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
+        Map<List<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
 
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());

@@ -69,11 +69,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
-    private Map<Set<Guard>, SymbolicDecisionTree> 
-            mergeGuards(Map<Set<Guard>,SymbolicDecisionTree> unmerged) {
-        Map<Set<Guard>, SymbolicDecisionTree> merged = new HashMap<>();
-        Map<Set<Guard>, SymbolicDecisionTree> ifs = new HashMap<>();
-        for (Set<Guard> tempG : unmerged.keySet()) {
+    private Map<List<Guard>, SymbolicDecisionTree> 
+            mergeGuards(Map<List<Guard>,SymbolicDecisionTree> unmerged) {
+        Map<List<Guard>, SymbolicDecisionTree> merged = new HashMap<>();
+        Map<List<Guard>, SymbolicDecisionTree> ifs = new HashMap<>();
+        for (List<Guard> tempG : unmerged.keySet()) {
             SymbolicDecisionTree tempSdt = unmerged.get(tempG);
             if (tempG.isEmpty()) {
                 //System.out.println("Adding else guard: " + tempG.toString());
@@ -83,9 +83,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 ifs.put(tempG, tempSdt);
             }
         }
-        for (Set<Guard> elseG: merged.keySet()) {
+        for (List<Guard> elseG: merged.keySet()) {
             SymbolicDecisionTree elseSdt = merged.get(elseG);
-            for (Set<Guard> ifG : ifs.keySet()) {
+            for (List<Guard> ifG : ifs.keySet()) {
                 SymbolicDecisionTree ifSdt = ifs.get(ifG);
                 //System.out.println("comparing guards: " + ifG.toString() 
                 // + " to " + elseG.toString() + "\nSDT    : " + 
@@ -102,10 +102,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<Set<Guard>> guardSet) {
+    private ParsInVars keepMem(ParsInVars pivs, Set<List<Guard>> guardSet) {
         System.out.println("available regs: " + pivs.toString());
         ParsInVars ret = new ParsInVars();
-        for (Set<Guard> mg : guardSet) {
+        for (List<Guard> mg : guardSet) {
             for (Guard g : mg) {
                 if (g.getRelation().equals(Relation.EQUALS)) {
                     System.out.println(g.toString());
@@ -136,7 +136,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         
         Parameter currentParam = new Parameter(type, pId);    
         
-        Map<Set<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
+        Map<List<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
         
         ParsInVars ifPiv  = new ParsInVars();
         ifPiv.putAll(piv);
@@ -179,7 +179,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         TreeQueryResult elseOracleReply = oracle.treeQuery(
                 prefix, suffix, elseValues, piv, elseSuffixValues);
         SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
-        tempKids.put(new HashSet<Guard>(), elseOracleSdt);
+        tempKids.put(new ArrayList<Guard>(), elseOracleSdt);
         
         // process each 'if' case
         for (DataValue<T> newDv : potential) {
@@ -211,13 +211,14 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     prefix, suffix, ifValues, ifPiv, ifSuffixValues);
             SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
                 
-            Guard newGuard = new EqualityGuard(currentParam,rv);
+            List newGuardList = new ArrayList<Guard>();
+            newGuardList.add(new EqualityGuard(currentParam,rv));
             
-            tempKids.put(Collections.singleton(newGuard), eqOracleSdt);
+            tempKids.put(newGuardList, eqOracleSdt);
         }
         
         // merge the guards
-        Map<Set<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
+        Map<List<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
         
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());

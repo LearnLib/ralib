@@ -9,6 +9,7 @@ package de.learnlib.ralib.trees;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<Register> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<Register> registers, Map<List<Guard>, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
     
@@ -76,14 +77,14 @@ public class SDT extends SymbolicDecisionTree {
     
     // Returns true if this SDT can use the children of another SDT.
     private boolean chiCanUse (SDT other) {
-        Map<Set<Guard>, SymbolicDecisionTree> thisChildren  = this.getChildren();
-        Map<Set<Guard>, SymbolicDecisionTree> otherChildren  = other.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> thisChildren  = this.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> otherChildren  = other.getChildren();
         Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
         Integer i = 0;
-        for (Set<Guard> thisGuard : thisChildren.keySet()) {
+        for (List<Guard> thisGuard : thisChildren.keySet()) {
             SymbolicDecisionTree thisBranch = thisChildren.get(thisGuard);
             chiEqArr[i] = false;
-            for (Set<Guard> otherGuard : otherChildren.keySet()) {
+            for (List<Guard> otherGuard : otherChildren.keySet()) {
 //                System.out.println("comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
                 if (thisBranch.canUse(otherChildren.get(otherGuard))) {
                     chiEqArr[i] = true;
@@ -141,7 +142,7 @@ public class SDT extends SymbolicDecisionTree {
     }
     
     public String makeString(int level) {
-        Map<Set<Guard>, SymbolicDecisionTree> kids = this.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> kids = this.getChildren();
         Set<SymbolicDataValue> thisRegisters = this.getRegisters();
         int numRegs = thisRegisters.size();
         String rootString = (this.isAccepting() ? "+" : "-") + 
@@ -149,19 +150,19 @@ public class SDT extends SymbolicDecisionTree {
                 + " ...\n";
         String kidString = "";
         level++;
-        for (Set<Guard> gSet : kids.keySet()) {
-            SymbolicDecisionTree kidSdt = kids.get(gSet);
+        for (List<Guard> gList : kids.keySet()) {
+            SymbolicDecisionTree kidSdt = kids.get(gList);
             int gl = 0;
-            for (Guard g : gSet) {
+            for (Guard g : gList) {
             gl = g.getParameter().getId();
             }
-            kidString = kidString + spaces(gl) + gSet.toString() + " ==> ";
+            kidString = kidString + spaces(gl) + gList.toString() + " ==> ";
             if (kidSdt instanceof SDTLeaf) {
                 kidString = kidString + (((SDTLeaf) kidSdt).toString()) + "\n";
             }
             else {
                 if (!(kidSdt instanceof SDTLeaf)) {
-                    kidString = kidString + ((SDT) kids.get(gSet)).makeString(level);
+                    kidString = kidString + ((SDT) kids.get(gList)).makeString(level);
                 }
             }
         }
