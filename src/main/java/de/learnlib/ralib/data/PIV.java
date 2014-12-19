@@ -17,25 +17,25 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.data;
+
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-class Observations {
-    
-    
-    boolean checkLocationClosedness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
+public class PIV extends VarMapping<Parameter, Register> {
 
-    boolean checkBranchingCompleteness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
+    public PIV(Word<PSymbolInstance> prefix, ParsInVars parsInVars) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    boolean checkVariableConsistency() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
+   
+//    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {
+//        throw new UnsupportedOperationException("Not implemented");
+//    }    
 
 }

@@ -23,19 +23,6 @@ package de.learnlib.ralib.learning;
  *
  * @author falk
  */
-class Observations {
+public class CellTest {
     
-    
-    boolean checkLocationClosedness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
-
-    boolean checkBranchingCompleteness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
-    
-    boolean checkVariableConsistency() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
-
 }

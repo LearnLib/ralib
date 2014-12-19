@@ -85,8 +85,7 @@ public class TreeOracle {
             
             System.out.println("Trace = " + trace.toString() + " >>> " + 
                     (qOut ? "ACCEPT (+)" : "REJECT (-)"));
-            return new TreeQueryResult(piv, new VarsToInternalRegs(),
-                    qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
+            return new TreeQueryResult(piv, qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
             
             // return accept / reject as a leaf
         }

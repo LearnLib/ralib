@@ -19,8 +19,10 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -41,17 +43,17 @@ final class Cell {
     
     private final SymbolicDecisionTree sdt;
     
-    private final ParsInVars parsInVars;
+    private final PIV parsInVars;
 
-    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, ParsInVars parsInVars) {
+    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV parsInVars) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.sdt = sdt;
         this.parsInVars = parsInVars;
     }
 
-    Collection<SymbolicDataValue> getMemorable() {
-        throw new UnsupportedOperationException("not implemented yet.");                
+    Collection<Parameter> getMemorable() {
+        return parsInVars.keySet();
     }
     
     /**
@@ -97,6 +99,7 @@ final class Cell {
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
        
         TreeQueryResult tqr = oracle.processTreeQuery(prefix, suffix);
-        return new Cell(prefix, suffix, tqr.getSdt(), tqr.getParsInVars());
+        return new Cell(prefix, suffix, tqr.getSdt(), 
+                new PIV(prefix, tqr.getParsInVars()));
     }
 }

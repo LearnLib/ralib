@@ -64,27 +64,27 @@ public class Login {
 
     private State state = State.INIT;
             
-    public State login(String user, Password pass) {
+    public boolean login(String user, Password pass) {
         if (!(state == State.REGISTERED)) {
-            return state;
+            return output();
         }
         
         if (user.equals(username) && pass.equals(password)) {
             state = State.LOGGED_IN;
         }
-        return state;
+        return output();
     }
     
-    public State register(String user, Password pass) {
+    public boolean register(String user, Password pass) {
         if (!(state == State.INIT)) {
-            return state;
+            return output();
         }
         
         this.username = user;
         this.password = pass;
         
         state = State.REGISTERED;
-        return state;
+        return output();
     }
 
     public State logout() {
@@ -95,26 +95,30 @@ public class Login {
         return state;
     }
 
-    public State change(Password oldPW, Password newPW) {
+    public boolean change(Password oldPW, Password newPW) {
         if (!(state == State.LOGGED_IN)) {
-            return state;
+            return output();
         }
         
         if (oldPW.equals(password)) {
             this.password = newPW;
         }
-        return state;
+        return output();
     }
     
-    public State delete(String user, Password pass) {
+    public boolean delete(String user, Password pass) {
         if (!(state == State.LOGGED_IN)) {
-            return state;
+            return output();
         }
         
         if (user.equals(username) && pass.equals(password)) {
             state = State.INIT;
         }
-        return state;
+        return output();
+    }
+    
+    private boolean output() {
+        return (state == State.LOGGED_IN);
     }
 
 }

@@ -202,7 +202,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         tempKids.clear();
         
         SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
-        return new TreeQueryResult(addPiv, null, returnSDT);         
+        return new TreeQueryResult(addPiv, returnSDT);         
     
         
                

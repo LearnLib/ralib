@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.VarMappingIterator;
+import de.learnlib.ralib.trees.SymbolicSuffix;
 import java.util.List;
 
 /**
@@ -49,6 +50,10 @@ class Component {
         
         throw new UnsupportedOperationException("not implemented yet");
 
+    }
+    
+    void addSuffix(SymbolicSuffix suffix) {
+        
     }
     
     

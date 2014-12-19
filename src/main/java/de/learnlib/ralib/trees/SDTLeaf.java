@@ -49,6 +49,7 @@ public class SDTLeaf extends SymbolicDecisionTree {
                 isAccepting() == other.isAccepting());
     }
 
+    // FIXME: there may be more types of SDT in the end, then the instanceof check will break
     @Override
     public boolean canUse(SymbolicDecisionTree other) {
         if (other instanceof SDT) {

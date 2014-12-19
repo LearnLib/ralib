@@ -17,25 +17,32 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.sul;
+
+import de.learnlib.api.Query;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Collection;
 
 /**
- *
+ * Uses a Register Automaton to simulate a SUL. 
+ * 
  * @author falk
  */
-class Observations {
-    
-    
-    boolean checkLocationClosedness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
+public class SimulatorOracle implements DataWordOracle {
 
-    boolean checkBranchingCompleteness() {
-        throw new UnsupportedOperationException("not implemented yet.");        
+    private final RegisterAutomaton target;
+
+    public SimulatorOracle(RegisterAutomaton target) {
+        this.target = target;
     }
     
-    boolean checkVariableConsistency() {
-        throw new UnsupportedOperationException("not implemented yet.");        
+    @Override
+    public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
+        for (Query<PSymbolInstance, Boolean> q : clctn) {
+            boolean inLang = target.hasTrace(q.getInput());
+            q.answer(inLang);
+        }
     }
-
+    
 }

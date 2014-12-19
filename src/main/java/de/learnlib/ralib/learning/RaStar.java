@@ -20,8 +20,11 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.sul.DataWordOracle;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import net.automatalib.words.Word;
 
@@ -33,11 +36,27 @@ public class RaStar {
     
     private List<SymbolicSuffix> suffixes;
     
-    private Oracle oracle;
+    private Deque<SymbolicSuffix> newSuffxes = new LinkedList<>();
+    
+    private Deque<Word<PSymbolInstance>> newPrefixes = new LinkedList<>();
+    
+    private Deque<Component> newComponents = new LinkedList<>();
+                
+    private Observations obs;
+    
+    //private DataWordOracle oracle;
     
     // public interface
     
     public void learn() {
+        
+        while(!(obs.checkLocationClosedness() && 
+                obs.checkVariableConsistency() && 
+                obs.checkBranchingCompleteness())) {
+            
+            
+            
+        } // while checks do not hold on observations
         
     }
     
@@ -48,24 +67,36 @@ public class RaStar {
     public RegisterAutomaton getHypothesis() {
         throw new UnsupportedOperationException("not implemented yet.");        
     }
-    
-    // internal interface 
-    
-    void addShortPrefix(Row r) {
-        
-    }
+
+
+    // internal interface
     
     /**
-     * adds a new prefix to the table.
+     * adds a new prefix to the list of new prefixes.
      * 
      * @param prefix 
      */
     void addPrefix(Word<PSymbolInstance> prefix) {
-        //Row r = new Row(prefix,);
-        throw new UnsupportedOperationException("not implemented yet");
+        this.newPrefixes.offer(prefix);
     }
     
+    /**
+     * adds a component to the list of rows to become components.
+     * 
+     * @param r 
+     */
+    void addShortPrefix(Component c) {
+        this.newComponents.add(c);
+    }
     
+    /**
+     * adds a symbolic suffix to the list of new symbolic suffixes.
+     * 
+     * @param s 
+     */
+    void addSuffix(SymbolicSuffix s) {
+       this.newSuffxes.add(s);
+    }
     
     //private void computeCell(Word<PSymbolInstance> prefix, SymbolicSuffix prefix) 
     

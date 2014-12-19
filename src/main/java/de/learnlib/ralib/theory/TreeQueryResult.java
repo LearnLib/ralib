@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 
@@ -31,17 +30,13 @@ public class TreeQueryResult {
     
     private final ParsInVars parsInVars;
     
-    private final VarsToInternalRegs vtir; 
-    
     private final SymbolicDecisionTree sdt;
 
     public TreeQueryResult(
             ParsInVars piv, 
-            VarsToInternalRegs vtir, 
             SymbolicDecisionTree sdt) {
         
         this.parsInVars = piv;
-        this.vtir = vtir;
         this.sdt = sdt;
     }
 
