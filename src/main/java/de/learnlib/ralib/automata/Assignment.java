@@ -19,8 +19,10 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
@@ -38,23 +40,32 @@ public class Assignment {
         this.assignment = assignment;
     }
     
-    public VarValuation compute(VarValuation registers, ParValuation parameters) {
+    public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
         VarValuation val = new VarValuation();
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
             SymbolicDataValue valp = e.getValue();
             if (valp.isRegister()) {
-                val.put(e.getKey(), registers.get(valp));
+                val.put(e.getKey(), registers.get( (Register) valp));
             }
             else if (valp.isParameter()) {
-                val.put(e.getKey(), parameters.get(valp));
+                val.put(e.getKey(), parameters.get( (Parameter) valp));
             }
+            //else if (valp.isConstant()) {
+            //    val.put(e.getKey(), consts.get( (Constant) valp));
+            //}
             else {
-                throw new IllegalStateException();
+                throw new IllegalStateException("Illegal assignment: " +
+                        e.getKey() + " := " + valp);
             }
         }
         return val;
     }
+
+    @Override
+    public String toString() {
+        return assignment.toString(":=");
+    }
     
-    
+
     
 }

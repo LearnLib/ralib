@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -37,13 +38,15 @@ public class InputTransition extends Transition {
     }
 
     @Override
-    public boolean isEnabled(VarValuation registers, ParValuation parameters) {
-        return guard.isSatisfied(registers, parameters);
+    public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
+        return guard.isSatisfied(registers, parameters, consts);
     }
 
     @Override
-    public VarValuation execute(VarValuation registers, ParValuation parameters) {        
-        return this.getAssignment().compute(registers, parameters);
+    public String toString() {
+        return "(" + source + ", " + label + ", " + guard + ", " + assignment + ", " + destination + ")";
     }
+
+
         
 }

@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -29,13 +30,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  */
 public abstract class Transition {
        
-    private final ParameterizedSymbol label;
+    protected final ParameterizedSymbol label;
     
-    private final RALocation source;
+    protected final RALocation source;
     
-    private final RALocation destination;
+    protected final RALocation destination;
 
-    private final Assignment assignment;
+    protected final Assignment assignment;
 
     public Transition(ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
@@ -44,10 +45,12 @@ public abstract class Transition {
         this.assignment = assignment;
     }
     
-    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters);
+    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts);
     
-    public abstract VarValuation execute(VarValuation registers, ParValuation parameters);
-
+    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {        
+        return this.getAssignment().compute(registers, parameters, consts);
+    }
+    
     /**
      * @return the label
      */

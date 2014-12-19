@@ -17,11 +17,14 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example.login;
+package de.learnlib.ralib.example;
 
 import de.learnlib.ralib.automata.Guard;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataExpression;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
+
 
 /**
  *
@@ -29,9 +32,22 @@ import de.learnlib.ralib.data.VarValuation;
  */
 public class IfGuard implements Guard {
 
-    @Override
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private final DataExpression<Boolean> condition;
+
+    public IfGuard(DataExpression<Boolean> condition) {
+        this.condition = condition;
     }
+    
+    @Override
+    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
+        return condition.evaluate(registers, parameters, consts);
+    }
+
+    @Override
+    public String toString() {
+        return condition.toString();
+    }
+    
+
 
 }

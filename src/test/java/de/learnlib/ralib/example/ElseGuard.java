@@ -17,11 +17,13 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example.login;
+package de.learnlib.ralib.example;
 
 import de.learnlib.ralib.automata.Guard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
+import java.util.Collection;
 
 /**
  *
@@ -29,11 +31,27 @@ import de.learnlib.ralib.data.VarValuation;
  */
 public class ElseGuard implements Guard {
 
+    private final Collection<IfGuard> ifs;
+
+    public ElseGuard(Collection<IfGuard> ifs) {
+        this.ifs = ifs;
+    }  
+    
     @Override
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
+        for (IfGuard g : ifs) {
+            if (g.isSatisfied(registers, parameters, consts)) {
+                return false;
+            }
+        }
+        return true;
     }
 
+    @Override
+    public String toString() {
+        return (ifs.isEmpty()) ? "true" : "else";
+    }
+    
 
     
 }

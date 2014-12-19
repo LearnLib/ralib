@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 
@@ -28,6 +29,7 @@ import de.learnlib.ralib.data.VarValuation;
  */
 public interface Guard {
     
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters); 
+    public boolean isSatisfied(VarValuation registers, 
+            ParValuation parameters, Constants consts); 
         
 }
