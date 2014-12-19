@@ -8,8 +8,10 @@ package de.learnlib.ralib.theory.inequality;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.IntType;
@@ -22,7 +24,6 @@ import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,6 +77,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         return onetwoSet;
     }
     
+      
     
     private Map<Set<Guard>, SymbolicDecisionTree> tryToMerge(Set<Guard> guard, 
             List<Set<Guard>> targetList, Map<Set<Guard>, SymbolicDecisionTree> refSDTMap, 
@@ -100,10 +102,10 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         SymbolicDecisionTree otherSDT = newSDTMap.get(other);
         cMap.put(other, otherSDT);
         
-            if (guardSDT.canUse(otherSDT)) {
+            if (guardSDT.canUse(otherSDT) && otherSDT.canUse(guardSDT)) {
                 // if yes, then merge them
                 Set<Guard> merged = mergeGuardArrays(guard, other);
-                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString());
+                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
                 // add the merged guard and SDT to merged map
                 newSDTMap.put(merged, guardSDT);
                 cMap.remove(other);
@@ -126,6 +128,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         Map<Set<Guard>, SymbolicDecisionTree> tempMap = new HashMap();        
         
         List<Set<Guard>> guardList = new ArrayList(unmerged.keySet());
+        System.out.println("unmerged: " + unmerged.toString());
         //for (int i = 0; i < guardList.size(); i++) {
         int i = 0;
             List<Set<Guard>> jGuardList = new ArrayList();
@@ -220,7 +223,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     // that are mentioned in any guard
     private ParsInVars keepMem(ParsInVars pivs, Set<Set<Guard>> guardSet) {
         ParsInVars ret = new ParsInVars();
-        for (SymbolicDataValue k : pivs.keySet()) {
+        for (Register k : pivs.keySet()) {
             for (Set<Guard> mg : guardSet) {
                 for (Guard g : mg) {
                     if (g.getRegister().equals(k)) {
@@ -231,78 +234,70 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         }
         return ret;
     }
-
-    private WordValuation valuatePrefix(Word<PSymbolInstance> p, DataType dt) {
-        WordValuation prefixVal = new WordValuation();
-        DataValue[] untypedPV = DataWords.valsOf(p);
-        for (int t = 0; t < untypedPV.length; t++) {
-            DataValue curr = untypedPV[t];
-            if (curr.getType().equals(dt)) {
-                prefixVal.put(t+1, curr);
-            }
-        }
-        return prefixVal;
-    }
     
-    private SymbolicDataValue initReg(DataValue<T> dv, WordValuation preVal, WordValuation vals, int pId, DataType type) {
-        SymbolicDataValue ret;
-        //ParsInVars newPiv = new ParsInVars();
-        //newPiv.putAll(ifPiv);
-        // if value already in prefix, get appropriate index
-        Integer pvPos = preVal.getKey(dv);
-        if (pvPos == null) {
-            Integer vPos  = vals.getKey(dv);
-            if (vPos == null) {
-                ret = SymbolicDataValue.temp(type, pId);
+//    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
+//        System.out.println(dv.toString() + " should be in " + preVal.toString() + " or in "+ curVal.toString());
+//        List<Integer> rvPoss1 = new ArrayList(preVal.getAllKeys(dv));
+//        List<Integer> rvPoss2 = new ArrayList(curVal.getAllKeys(dv));
+//        if (rvPoss1.isEmpty()) {
+//            return Collections.min(rvPoss2);
+//        }
+//        else if (rvPoss2.isEmpty()) {
+//            return Collections.min(rvPoss1);
+//        }
+//        else {
+//            System.out.println("possible indices: " + rvPoss1.toString() + " or " + rvPoss2.toString());
+//            Integer rvPos1 = Collections.min(rvPoss1);
+//            Integer rvPos2 = Collections.min(rvPoss2);
+//            return (rvPos1 < rvPos2) ? rvPos1 : rvPos2;
+//        }
+//    }
+
+        private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
+        System.out.println(dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = "+ curVal.toString());
+            Integer rvPos = preVal.getOneKey(dv);
+            if (rvPos !=null) {
+                return rvPos;
             }
             else {
-                ret = SymbolicDataValue.temp(type, vPos+preVal.size()+1);
+                List<Integer> rvPositions = new ArrayList(curVal.getAllKeys(dv));
+                    return Collections.min(rvPositions) + preVal.size();
             }
         }
-        else {
-        ret = SymbolicDataValue.register(type,pvPos);
-        }
-        return ret;
-    }
     
-//        private SymbolicDataValue getRightRegister(int i, List<DataValue<T>> pList, WordValuation preVal, int curr_id, DataType type) {
-//        DataValue<T> right = pList.get(i);
-//        Integer rightPos = preVal.getKey(right);
-//        if (rightPos == null) {
-//        //nextPos = (suffixValues.getKey(next).getId()); // + prefixValuation.size()+1);
-//        rightPos = (preVal.size() + curr_id);
-//                }
-//        return SymbolicDataValue.register(type, rightPos);
-//    }
-//    
-//    prev = potList.get(i - 1);
-//                prevPos = prefixValuation.getKey(prev);  // this is either 1 or 2
-//                if (prevPos == null) {
-//                    //prevPos = (suffixValues.getKey(prev).getId()); // + prefixValuation.size()+1);
-//                    prevPos = (prefixValuation.size() + pId);
-//                }
-
     @Override
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
             ParsInVars piv,
-            VarValuation suffixValues,
+            SuffixValuation suffixValues,
             TreeOracle oracle) {
 
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + suffix);
-        System.out.println("values " + values.toString());
-        System.out.println("suffix values: " + suffixValues.toString());
+           
+//        System.out.println("Prefix: " + prefix);
+//        System.out.println("Suffix: " + suffix);
+//        System.out.println("values " + values.toString());
+//        System.out.println("suffix values: " + suffixValues.toString());
 
+        //int offset = DataWords.valsOf(prefix).length;
         int pId = values.size() + 1;
         // System.out.println("pId " + pId);
 
-        SymbolicDataValue sv = suffix.getDataValue(pId);
+        SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
 
-        WordValuation prefixValuation = valuatePrefix(prefix, type);
+        DataValue<T>[] prefixValues = DataWords.valsOf(prefix, type);
+        WordValuation prefixValuation = new WordValuation();
+        for (int i = 0; i < prefixValues.length; i++)
+            prefixValuation.put(i+1, prefixValues[i]);
+        
+        //int pId = sId + prefixValuation.size();
+        
+        Parameter currentParam = new Parameter(type, pId+prefixValuation.size());    
+        
+
+    //    WordValuation prefixValuation = valuatePrefix(prefix, type);
         // System.out.println("prefix valuation: " + prefixValuation.toString());
 
         Map<Set<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
@@ -310,6 +305,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         ifPiv.putAll(piv);
         // System.out.println("ifpiv is " + ifPiv.toString());
 
+        
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 DataWords.<T>valSet(prefix, type),
                 suffixValues.<T>values(type));
@@ -317,7 +313,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
         int potSize = potential.size();
-        // System.out.println("potential is: " + potential.toString());
+         System.out.println("potential is: " + potential.toString());
 
         // process each '<' case
         for (int i = 0; i < potSize; i++) {
@@ -326,12 +322,13 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             WordValuation currentValues = new WordValuation();
             currentValues.putAll(values);
             currentValues.put(pId, currentDv);
-
+            
           //  System.out.println("new values " + currentValues.toString());
 
-            VarValuation currentSuffixValues = new VarValuation();
+            SuffixValuation currentSuffixValues = new SuffixValuation();
             currentSuffixValues.putAll(suffixValues);
             currentSuffixValues.put(sv, currentDv);
+            
 //
 //            Integer prevPos;
 //            Integer nextPos;
@@ -347,38 +344,58 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             // SMALLEST case
             if (i == 0) {
                 DataValue<T> dvRight = potList.get(i);
-                //int pos = suffixValues.getKey(dvRight).getId();
-                SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
-                ifPiv.put(rvRight, dvRight);
-                guardSet.add(new SmallerGuard(sv, rvRight));
+                Integer rvPos = getFirstOcc(prefixValuation, currentValues, dvRight);
                 
-            }
-            
-            // BIGGEST case
-            else if (i == potSize-1) {
-                DataValue<T> dvLeft = potList.get(i-1);
-                //int pos = suffixValues.getKey(dvLeft).getId();
-                SymbolicDataValue rvLeft = initReg(dvLeft, prefixValuation, values, pId, type);
-                ifPiv.put(rvLeft, dvLeft);
-                guardSet.add(new BiggerGuard(sv, rvLeft));
+                Register rvRight = ifPiv.getOneKey(currentDv);
+                if (rvRight == null) {
+                    rvRight = new Register(type, rvPos);
+                    ifPiv.put(rvRight, dvRight);
+                }
+                
+                //int pos = suffixValues.getKey(dvRight).getId();
+                //Register rvRight = regGenerator.next(type);
+//                SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
+                guardSet.add(new SmallerGuard(currentParam, rvRight));
+                
             }
             
             // MIDDLE cases
+            else if (i > 0 && i < potSize-1) {
+                DataValue<T> dvLeft = potList.get(i-1);
+                Integer lvPos = getFirstOcc(prefixValuation, currentValues, dvLeft);
+                
+                DataValue<T> dvRight = potList.get(i);
+                Integer rvPos = getFirstOcc(prefixValuation, currentValues, dvRight);
+//                                
+                Register rvLeft = ifPiv.getOneKey(currentDv);
+                if (rvLeft == null) {
+                    rvLeft = new Register(type, lvPos);
+                    ifPiv.put(rvLeft, dvLeft);
+                }
+                guardSet.add(new BiggerGuard(currentParam, rvLeft));
+                //SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
+                
+                Register rvRight = ifPiv.getOneKey(currentDv);
+                if (rvRight == null) {
+                    rvRight = new Register(type, rvPos);
+                    ifPiv.put(rvRight, dvRight);
+                }
+                guardSet.add(new SmallerGuard(currentParam, rvRight));
+            }
+
+            // BIGGEST case
             else {
                 DataValue<T> dvLeft = potList.get(i-1);
-                DataValue<T> dvRight = potList.get(i);
+                Integer lvPos = getFirstOcc(prefixValuation, currentValues, dvLeft);
                 
-//                int lPos = suffixValues.getKey(dvLeft).getId();
-//                int rPos = suffixValues.getKey(dvRight).getId();
-//                                
-                SymbolicDataValue rvLeft = initReg(dvLeft, prefixValuation, values, pId, type);
-                ifPiv.put(rvLeft, dvLeft);
-                guardSet.add(new BiggerGuard(sv, rvLeft));
-                
-                SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
-                ifPiv.put(rvRight, dvRight);
-                guardSet.add(new SmallerGuard(sv, rvRight));
+                Register rvLeft = ifPiv.getOneKey(currentDv);
+                if (rvLeft == null) {
+                    rvLeft = new Register(type, lvPos);
+                    ifPiv.put(rvLeft, dvLeft);
+                }
+                guardSet.add(new BiggerGuard(currentParam, rvLeft));
             }
+
             
             System.out.println("Guard set: " + guardSet.toString());
            

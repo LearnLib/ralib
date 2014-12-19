@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<Register> registers, Map<Guard, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<Register> registers, Map<Set<Guard>, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
     
@@ -110,9 +110,11 @@ public class SDT extends SymbolicDecisionTree {
 //            System.out.println("regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (this.isAccepting() == other.isAccepting());
 //            System.out.println(accEq ? "acc eq." : "acc not eq.");
-//            System.out.println("comparing children : " + this.getChildren().keySet().toString() + "\n and "+ other.getChildren().keySet().toString());
+            System.out.println("comparing children : " + this.getChildren().toString() + "\n and "+ other.getChildren().toString());
+            // both must use each other
             boolean chiEq = this.chiCanUse((SDT) other);
-            return regEq && accEq && chiEq;
+            //return regEq && accEq && chiEq;
+            return accEq && chiEq;
         }
     }
     
@@ -165,6 +167,10 @@ public class SDT extends SymbolicDecisionTree {
         }
         
         return (rootString + kidString);
+    }
+    
+    public boolean isEmpty() {
+        return this.getChildren().isEmpty();
     }
     
 }

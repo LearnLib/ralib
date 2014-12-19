@@ -110,7 +110,7 @@ public class TestTreeOracle {
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
         
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + symSuffix);
         
@@ -127,7 +127,7 @@ public class TestTreeOracle {
                     
                     // if the trace is not 5, answer false (since then automatically incorrect)
                     
-                    if (trace.length() != 5) {
+                    if (trace.length() != 2) {
                         q.answer(false);
                         continue;
                     }
@@ -136,28 +136,28 @@ public class TestTreeOracle {
                     
                     PSymbolInstance a1 = trace.getSymbol(0);
                     PSymbolInstance a2 = trace.getSymbol(1);
-                    PSymbolInstance a3 = trace.getSymbol(2);
-                    PSymbolInstance a4 = trace.getSymbol(3);
-                    PSymbolInstance a5 = trace.getSymbol(4);
+//                    PSymbolInstance a3 = trace.getSymbol(2);
+//                    PSymbolInstance a4 = trace.getSymbol(3);
+//                    PSymbolInstance a5 = trace.getSymbol(4);
                     
                     DataValue[] a1Params = a1.getParameterValues();
                     DataValue[] a2Params = a2.getParameterValues();
-                    DataValue[] a3Params = a3.getParameterValues();
-                    DataValue[] a4Params = a4.getParameterValues();
-                    DataValue[] a5Params = a5.getParameterValues();
+//                    DataValue[] a3Params = a3.getParameterValues();
+//                    DataValue[] a4Params = a4.getParameterValues();
+//                    DataValue[] a5Params = a5.getParameterValues();
                     
                     // query reply is ACCEPT only if length 2 and symbols equal each other
                     
                     q.answer( a1.getBaseSymbol().equals(register) &&
                             a2.getBaseSymbol().equals(login) &&
-                            Arrays.equals(a1Params, a2Params) && 
-                            a3.getBaseSymbol().equals(change) && 
-                            a4.getBaseSymbol().equals(logout) && 
-                            a5.getBaseSymbol().equals(login) && 
-                            a4Params[0].equals(a5Params[0]) && 
-                            a5Params[0].equals(a1Params[0]) && 
-                            a1Params[0].equals(a2Params[0]) && 
-                            a3Params[0].equals(a5Params[1]));
+                            Arrays.equals(a1Params, a2Params)); //&& 
+//                            a3.getBaseSymbol().equals(change) && 
+//                            a4.getBaseSymbol().equals(logout) && 
+//                            a5.getBaseSymbol().equals(login) && 
+//                            a4Params[0].equals(a5Params[0]) && 
+//                            a5Params[0].equals(a1Params[0]) && 
+//                            a1Params[0].equals(a2Params[0]) && 
+//                            a3Params[0].equals(a5Params[1]));
                    
                 }
             }

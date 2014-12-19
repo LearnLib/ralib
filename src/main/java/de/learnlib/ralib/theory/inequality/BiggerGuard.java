@@ -19,8 +19,8 @@
 
 package de.learnlib.ralib.theory.inequality;
 
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Relation;
 
@@ -30,7 +30,7 @@ import de.learnlib.ralib.theory.Relation;
  */
 public class BiggerGuard extends Guard {
     
-    public BiggerGuard(SymbolicDataValue param, SymbolicDataValue reg) {
+    public BiggerGuard(Parameter param, Register reg) {
         super(param,reg,Relation.BIGGER);
     }
     

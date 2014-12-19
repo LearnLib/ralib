@@ -21,11 +21,9 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.sul.DataWordOracle;
@@ -33,7 +31,6 @@ import de.learnlib.ralib.trees.SDTLeaf;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collections;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -81,7 +78,7 @@ public class TreeOracle {
             //System.out.println("attempting to concatenate suffix: " + suffix.getActions().toString() + " AND " + values.toString());
 //            int startingPoint = DataWords.paramLength(DataWords.actsOf(prefix));
 //            Map<
-//            
+//          
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
             

@@ -55,10 +55,5 @@
             <artifactId>learnlib-mapper</artifactId>
             <version>${learnlib.version}</version>
         </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-drivers-basic</artifactId>
-            <version>0.10.1</version>
-        </dependency>                        
     </dependencies>
 </project>

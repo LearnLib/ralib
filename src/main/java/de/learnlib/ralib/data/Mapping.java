@@ -21,10 +21,12 @@ package de.learnlib.ralib.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -90,14 +92,27 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     }
     
     
+    public Set<K> getAllKeys(V value) {
+        Set<K> retKeySet = new HashSet();
+        for (K key : this.keySet()) {
+            //System.out.println("key = " + K);
+            //System.out.println("value = " + this.get(key).toString());
+            if (this.get(key).equals(value)){
+                //System.out.println(this.get(key).toString() + " equals " + value.toString());
+                retKeySet.add(key);
+            }
+        }   
+        return retKeySet;
+    }
     
-    public K getKey(V value) {
+    
+    public K getOneKey(V value) {
         K retKey = null;
         for (K key : this.keySet()) {
-            System.out.println("key = " + K);
-            System.out.println("value = " + this.get(key).toString());
+            //System.out.println("key = " + K);
+            //System.out.println("value = " + this.get(key).toString());
             if (this.get(key).equals(value)){
-                System.out.println(this.get(key).toString() + " equals " + value.toString());
+                //System.out.println(this.get(key).toString() + " equals " + value.toString());
                 retKey = key;
                 break;
             }

@@ -148,7 +148,7 @@ public final class DataWords {
     public static Word<PSymbolInstance> instantiate(
             Word<ParameterizedSymbol> actions, 
             Map<Integer, ? extends DataValue> dataValues) {
-
+       
         PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
         int idx = 0;
         int pid = 1;

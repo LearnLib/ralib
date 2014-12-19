@@ -6,9 +6,8 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import java.util.ArrayList;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 
 /**
  *
@@ -16,16 +15,16 @@ import java.util.ArrayList;
  */
 public class Guard {
     
-    private final SymbolicDataValue parameter;
-    private final SymbolicDataValue register;
+    private final Parameter parameter;
+    private final Register register;
     private final Relation relation;
     
     
-    public SymbolicDataValue getParameter() {
+    public Parameter getParameter() {
         return this.parameter;
     }
     
-    public SymbolicDataValue getRegister() {
+    public Register getRegister() {
         return this.register;        
     }
     
@@ -33,7 +32,7 @@ public class Guard {
         return this.relation;
     }
     
-    public Guard(SymbolicDataValue param, SymbolicDataValue reg, Relation rel) {
+    public Guard(Parameter param, Register reg, Relation rel) {
         
         this.parameter = param;
         this.register = reg;

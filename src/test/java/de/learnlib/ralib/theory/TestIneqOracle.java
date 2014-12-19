@@ -29,17 +29,14 @@ import de.learnlib.ralib.theory.inequality.InequalityTheory;
 import de.learnlib.ralib.theory.inequality.Compatibility;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -56,8 +53,8 @@ public class TestIneqOracle {
         
         final IntType intType = new IntType();
         final DoubType doubType = new DoubType();
-        //final CompIntType intTypeComparator = new CompIntType();
-    
+        final CompTypes cparator = new CompTypes();
+        
                 // define parameterized symbols
         final ParameterizedSymbol ini = new ParameterizedSymbol(
                 "initialize", new DataType[] {intType});
@@ -79,15 +76,18 @@ public class TestIneqOracle {
         
         // create suffix: login(falk[userType], secret[passType])
 
+        // longer suffix
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(lower, 
                     new DataValue(intType, 2)),
                 new PSymbolInstance(higher, 
-                    new DataValue(intType, 5)),
-                new PSymbolInstance(lower, 
-                    new DataValue(intType, 2))
-                    );
+                    new DataValue(intType, 5)));
         
+        // shorter suffix
+//        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+//                new PSymbolInstance(higher, 
+//                    new DataValue(intType, 5))
+//                    );
         
         
         
@@ -105,7 +105,7 @@ public class TestIneqOracle {
                 for (Query q : clctn) {
                     Word<PSymbolInstance> oTrace = q.getInput();     
                     
-                    System.out.println("Original trace = " + oTrace.toString() + " >>> ");
+                    //System.out.println("Original trace = " + oTrace.toString() + " >>> ");
                     
                     Word<PSymbolInstance> trace = Compatibility.intify(oTrace);     
                     System.out.print("Trace = " + trace.toString() + " >>> ");
@@ -115,7 +115,7 @@ public class TestIneqOracle {
                     
                     // if the trace is not 5, answer false (since then automatically incorrect)
                     
-                    if (trace.length() != 5) {
+                    if (trace.length() != 4) {
                         q.answer(false);
                         continue;
                     }
@@ -126,32 +126,44 @@ public class TestIneqOracle {
                     PSymbolInstance a2 = trace.getSymbol(1);
                     PSymbolInstance a3 = trace.getSymbol(2);
                     PSymbolInstance a4 = trace.getSymbol(3);
-                    PSymbolInstance a5 = trace.getSymbol(4);
                     
-                    DataValue<Integer>[] a1Params = a1.getParameterValues();
-                    DataValue<Integer>[] a2Params = a2.getParameterValues();
-                    DataValue<Integer>[] a3Params = a3.getParameterValues();
-                    DataValue<Integer>[] a4Params = a4.getParameterValues();
-                    DataValue<Integer>[] a5Params = a5.getParameterValues();
+                    DataValue<IntType>[] a1Params = a1.getParameterValues();
+                    DataValue<IntType>[] a2Params = a2.getParameterValues();
+                    DataValue<IntType>[] a3Params = a3.getParameterValues();
+                    DataValue<IntType>[] a4Params = a4.getParameterValues();
                     
+                    
+                    
+//                    System.out.println("Constraint: " 
+//                            + cparator.compare(a1Params[0], a4Params[0]) + " AND " 
+//                            + cparator.compare(a5Params[0], a3Params[0]) + " AND " 
+//                            + cparator.compare(a3Params[0], a2Params[0]) + " AND " 
+//                            + cparator.compare(a2Params[0], a1Params[0]));
+//        
                     // query reply is ACCEPT only if ...
                     
+                    // longer answer
                     q.answer( a1.getBaseSymbol().equals(ini) &&
                             a2.getBaseSymbol().equals(lower) && 
                             a3.getBaseSymbol().equals(lower) && 
                             a4.getBaseSymbol().equals(higher)&& 
-                            a5.getBaseSymbol().equals(lower)&& 
-                            (intType.compare(a1Params[0], a4Params[0]) < 0) && 
-                            (intType.compare(a5Params[0], a3Params[0]) < 0) && 
-                            (intType.compare(a3Params[0], a2Params[0]) < 0) &&
-                            (intType.compare(a2Params[0], a1Params[0]) < 0));
-                   
+                            (cparator.compare(a1Params[0], a4Params[0]) < 0) && 
+                            (cparator.compare(a3Params[0], a2Params[0]) < 0) &&
+                            (cparator.compare(a2Params[0], a1Params[0]) < 0));
+//                  
+                    // shorter answer
+//                    q.answer( a1.getBaseSymbol().equals(ini) &&
+//                            a2.getBaseSymbol().equals(lower) && 
+//                            a3.getBaseSymbol().equals(higher) && 
+//                            (cparator.compare(a1Params[0], a2Params[0]) > 0) && 
+//                            (cparator.compare(a3Params[0], a1Params[0])< 0));
+                    
                 }
             }
         };
 
         
-        Theory<Double> doubTheory = new InequalityTheory<Double>() {
+        Theory<DoubType> doubTheory = new InequalityTheory<DoubType>() {
 
             @Override
             public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
@@ -160,39 +172,46 @@ public class TestIneqOracle {
             
             //no fresh value in this theory
             @Override
-            public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+            public DataValue<DoubType> getFreshValue(List<DataValue<DoubType>> vals) {
                 return null;
             }
             
-            public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
+            public List<DataValue<DoubType>> getPotential(List<DataValue<DoubType>> dvs) {
                 //assume we can just sort the list and get the values
-                List<DataValue<Double>> sortedList = dvs;
-                Collections.sort(sortedList,doubType);
-                List<DataValue<Double>> retList = new ArrayList<DataValue<Double>>();
+                List<DataValue<DoubType>> sortedList = dvs;
+                Collections.sort(sortedList,cparator);
+                List<DataValue<DoubType>> retList = new ArrayList<DataValue<DoubType>>();
                 int listSize = sortedList.size();
+                Double first = Double.class.cast(Collections.min(sortedList, cparator).getId());
                 
                 if (dvs.size() < 2) {
-                    retList.add(new DataValue(doubType, dvs.get(0).getId()-1));
-                    retList.add(new DataValue(doubType, dvs.get(0).getId()+1));
+                    Double doub = Double.class.cast(dvs.get(0).getId());
+                    retList.add(new DataValue(doubType, doub-(doub/2)));
+                    retList.add(new DataValue(doubType, doub+(doub/2)));
                 }
                 
                 else {
                 // create smallest
-                DataValue<Double> first = sortedList.get(0);
-                double firstInterval = (sortedList.get(1).getId() - first.getId())/2;
-                retList.add(new DataValue(doubType, first.getId()-firstInterval));
+                Double second = Double.class.cast(sortedList.get(1).getId());
+                //double firstInterval = (second-first)/2;
+                retList.add(new DataValue(doubType, first-((second-first)/2)));
+                //retList.add(new DataValue(doubType, first-.001));
                 
                 // create middle
                 for (int j = 0; j < listSize-1; j++) {
-                    DataValue<Double> curr = sortedList.get(j);
-                    double interval = (sortedList.get(j+1).getId() - curr.getId())/2;
-                    retList.add(new DataValue(doubType, curr.getId()+interval));
+                    Double curr = Double.class.cast(sortedList.get(j).getId());
+                    Double nxt = Double.class.cast(sortedList.get(j+1).getId());
+                    //double interval = (nxt - curr)/2;
+                    retList.add(new DataValue(doubType, curr+((nxt - curr)/2)));
+                    //retList.add(new DataValue(doubType, curr+.001));
                 }
                 
                 // create biggest
-                DataValue<Double> last = sortedList.get(listSize-1);
-                double lastInterval = (last.getId() - sortedList.get(listSize-2).getId());
-                retList.add(new DataValue(doubType, last.getId()+lastInterval));
+                Double last = Double.class.cast(sortedList.get(listSize-1).getId());
+                Double prv = Double.class.cast(sortedList.get(listSize-2).getId());
+                //double lastInterval = (last-prv);
+                retList.add(new DataValue(doubType, last+((last-prv)/2)));
+                //retList.add(new DataValue(doubType, last+.001));
                 }
                 return retList;
                 

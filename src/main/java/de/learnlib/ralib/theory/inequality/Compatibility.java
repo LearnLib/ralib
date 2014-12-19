@@ -7,6 +7,7 @@ package de.learnlib.ralib.theory.inequality;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.theory.CompTypes;
 import de.learnlib.ralib.theory.DoubType;
 //import de.learnlib.ralib.theory.CompIntType;
 import de.learnlib.ralib.theory.IntType;
@@ -27,7 +28,7 @@ public class Compatibility {
 
     final static IntType intType = new IntType();
     final static DoubType doubType = new DoubType();
-    //final static CompIntType intTypeComparator = new CompIntType();
+    final static CompTypes cparator = new CompTypes();
 //
 //    private static Map<DataValue<Integer>, Integer> makeInitialSpace(Map<DataValue<Integer>, Integer> valMap, int space) {
 //        
@@ -125,11 +126,11 @@ public class Compatibility {
     public static Word<PSymbolInstance> intify(Word<PSymbolInstance> w) {
                          Map<Integer,DataValue<?>> retMap = new HashMap();
                 //used for positioning
-                         DataValue<Double>[] valArray = DataWords.valsOf(w);
-                DataValue<Double>[] typedArray = DataWords.valsOf(w, doubType);
-                List<DataValue<Double>> sortList = new ArrayList();
+                         DataValue<DoubType>[] valArray = DataWords.valsOf(w);
+                DataValue<DoubType>[] typedArray = DataWords.valsOf(w, doubType);
+                List<DataValue<DoubType>> sortList = new ArrayList();
                 Collections.addAll(sortList, typedArray);
-                Collections.sort(sortList,doubType);
+                Collections.sort(sortList,cparator);
                 for (int i = 0; i < valArray.length; i++) {
                 if (valArray[i].getType().equals(doubType)) {
                     int newValue = sortList.indexOf(valArray[i])+1;
@@ -149,7 +150,7 @@ public class Compatibility {
                 //used for positioning
                 DataValue[] valArray = DataWords.valsOf(w);
                 //DataValue<Integer>[] typedArray = DataWords.valsOf(w, intType);
-//                List<DataValue<Double>> sortList = new ArrayList();
+//                List<DataValue<DoubType>> sortList = new ArrayList();
 //                Collections.addAll(sortList, typedArray);
 //                Collections.sort(sortList,doubType);
                 for (int i = 0; i < valArray.length; i++) {

@@ -19,7 +19,8 @@
 
 package de.learnlib.ralib.theory.equality;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Relation;
 
@@ -29,7 +30,7 @@ import de.learnlib.ralib.theory.Relation;
  */
 public class EqualityGuard extends Guard {
     
-    public EqualityGuard(SymbolicDataValue param, SymbolicDataValue reg) {
+    public EqualityGuard(Parameter param, Register reg) {
         super(param, reg, Relation.EQUALS);
     }
     
