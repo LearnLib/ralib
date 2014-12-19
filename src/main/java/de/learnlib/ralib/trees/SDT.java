@@ -9,6 +9,7 @@ package de.learnlib.ralib.trees;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 public class SDT extends SymbolicDecisionTree {
     
-    public SDT(boolean accepting, Set<Register> registers, Map<Guard, SymbolicDecisionTree> sdt) {
+    public SDT(boolean accepting, Set<Register> registers, Map<List<Guard>, SymbolicDecisionTree> sdt) {
         super(accepting, registers, sdt);
     }
     
@@ -76,14 +77,14 @@ public class SDT extends SymbolicDecisionTree {
     
     // Returns true if this SDT can use the children of another SDT.
     private boolean chiCanUse (SDT other) {
-        Map<Guard, SymbolicDecisionTree> thisChildren  = this.getChildren();
-        Map<Guard, SymbolicDecisionTree> otherChildren  = other.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> thisChildren  = this.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> otherChildren  = other.getChildren();
         Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
         Integer i = 0;
-        for (Guard thisGuard : thisChildren.keySet()) {
+        for (List<Guard> thisGuard : thisChildren.keySet()) {
             SymbolicDecisionTree thisBranch = thisChildren.get(thisGuard);
             chiEqArr[i] = false;
-            for (Guard otherGuard : otherChildren.keySet()) {
+            for (List<Guard> otherGuard : otherChildren.keySet()) {
 //                System.out.println("comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
                 if (thisBranch.canUse(otherChildren.get(otherGuard))) {
                     chiEqArr[i] = true;
@@ -110,9 +111,11 @@ public class SDT extends SymbolicDecisionTree {
 //            System.out.println("regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (this.isAccepting() == other.isAccepting());
 //            System.out.println(accEq ? "acc eq." : "acc not eq.");
-//            System.out.println("comparing children : " + this.getChildren().keySet().toString() + "\n and "+ other.getChildren().keySet().toString());
+            System.out.println("comparing children : " + this.getChildren().toString() + "\n and "+ other.getChildren().toString());
+            // both must use each other
             boolean chiEq = this.chiCanUse((SDT) other);
-            return regEq && accEq && chiEq;
+            //return regEq && accEq && chiEq;
+            return accEq && chiEq;
         }
     }
     
@@ -139,7 +142,7 @@ public class SDT extends SymbolicDecisionTree {
     }
     
     public String makeString(int level) {
-        Map<Guard,SymbolicDecisionTree> kids = this.getChildren();
+        Map<List<Guard>, SymbolicDecisionTree> kids = this.getChildren();
         Set<SymbolicDataValue> thisRegisters = this.getRegisters();
         int numRegs = thisRegisters.size();
         String rootString = (this.isAccepting() ? "+" : "-") + 
@@ -147,20 +150,28 @@ public class SDT extends SymbolicDecisionTree {
                 + " ...\n";
         String kidString = "";
         level++;
-        for (Guard g : kids.keySet()) {
-            int gl = g.getParameter().getId();
-            SymbolicDecisionTree kidSdt = kids.get(g);
-            kidString = kidString + spaces(gl) + g.toString() + " ==> ";
+        for (List<Guard> gList : kids.keySet()) {
+            SymbolicDecisionTree kidSdt = kids.get(gList);
+            int gl = 0;
+            for (Guard g : gList) {
+            gl = g.getParameter().getId();
+            }
+            kidString = kidString + spaces(gl) + gList.toString() + " ==> ";
             if (kidSdt instanceof SDTLeaf) {
                 kidString = kidString + (((SDTLeaf) kidSdt).toString()) + "\n";
             }
             else {
                 if (!(kidSdt instanceof SDTLeaf)) {
-                    kidString = kidString + ((SDT) kids.get(g)).makeString(level);
+                    kidString = kidString + ((SDT) kids.get(gList)).makeString(level);
                 }
             }
         }
+        
         return (rootString + kidString);
+    }
+    
+    public boolean isEmpty() {
+        return this.getChildren().isEmpty();
     }
     
 }

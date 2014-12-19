@@ -148,7 +148,7 @@ public final class DataWords {
     public static Word<PSymbolInstance> instantiate(
             Word<ParameterizedSymbol> actions, 
             Map<Integer, ? extends DataValue> dataValues) {
-
+       
         PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
         int idx = 0;
         int pid = 1;
@@ -156,8 +156,12 @@ public final class DataWords {
             DataValue[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues.get(pid++);
+                //System.out.println(pvalues[i].toString());
             }
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
+        }
+        for (PSymbolInstance p : symbols) {
+            //System.out.println(p.toString());
         }
         return Word.fromSymbols(symbols);
     }

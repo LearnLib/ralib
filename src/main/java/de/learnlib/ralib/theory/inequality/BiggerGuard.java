@@ -17,31 +17,29 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory.equality;
+package de.learnlib.ralib.theory.inequality;
 
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.Relation;
 
 /**
  *
  * @author falk
  */
-public class Equality extends Guard {
+public class BiggerGuard extends Guard {
     
-    public Equality(SymbolicDataValue param, SymbolicDataValue reg) {
-        super(param, reg);
+    public BiggerGuard(Parameter param, Register reg) {
+        super(param,reg,Relation.BIGGER);
     }
     
-//    @Override
-//    public Equality createCopy(VarMapping renaming) {
-//        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
-//    }
     
    
     @Override
     public String toString() {
-        return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
-        
+        //return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
+        return super.toString();
     }
+    
 }

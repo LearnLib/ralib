@@ -24,7 +24,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.sul.DataWordOracle;
@@ -53,7 +52,11 @@ public class TreeOracle {
     
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-        
+        //WordValuation prefixValuation = new WordValuation();
+        //DataValue[] prefixValues = DataWords.valsOf(prefix);
+        //for (int k = 0; k<prefixValues.length; k++) {
+        //    prefixValuation.put(k, prefixValues[k]);
+        //}
         return treeQuery(prefix, suffix, 
                 new WordValuation(), new ParsInVars(), new SuffixValuation());
     }
@@ -63,7 +66,7 @@ public class TreeOracle {
             WordValuation values, ParsInVars piv, 
             SuffixValuation suffixValues) {
         
-        //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size());
+        //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size() + ", suffixValues size " + suffixValues.size());
         
         // IF at the end of the word!
         if (values.size() == DataWords.paramLength(suffix.getActions())) { 
@@ -72,19 +75,21 @@ public class TreeOracle {
             // instantiate, the number of values in the whole word is equal to 
             // the number of actions in the suffix
             
+            //System.out.println("attempting to concatenate suffix: " + suffix.getActions().toString() + " AND " + values.toString());
+//            int startingPoint = DataWords.paramLength(DataWords.actsOf(prefix));
+//            Map<
+//          
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
-            // instantiate the suffix with the values in the word
             
-            
-            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
+            //Word<PSymbolInstance> trace = prefix.concat(concSuffix);
             DefaultQuery<PSymbolInstance, Boolean> query = 
                     new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
             
-            System.out.println("Trace = " + trace.toString() + " >>> " + 
-                    (qOut ? "ACCEPT (+)" : "REJECT (-)"));
+            //System.out.println("Trace = " + trace.toString() + " >>> " + 
+            //        (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return new TreeQueryResult(piv, qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
             
             // return accept / reject as a leaf
@@ -94,6 +99,9 @@ public class TreeOracle {
         
         // OTHERWISE get the first noninstantiated data value in the suffix and its type
         SymbolicDataValue sd = suffix.getDataValue(values.size() + 1);
+        //if (sd == null) {System.out.println("breaking");}
+        //System.out.println("first uninstantiated value in suffix... " + sd.toString() + " of type " + sd.getType().getName());
+        
         Theory teach = teachers.get(sd.getType());
         //System.out.println("Teacher theory: " + sd.getType().toString());
         // make a new tree query for prefix, suffix, prefix valuation, ...

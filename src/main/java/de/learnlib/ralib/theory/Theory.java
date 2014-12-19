@@ -23,12 +23,13 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Collection;
 import java.util.List;
 import net.automatalib.words.Word;
 
@@ -40,6 +41,7 @@ import net.automatalib.words.Word;
  */
 public interface Theory<T> {
       
+    
     public DataValue<T> getFreshValue(List<DataValue<T>> vals);
     
     /**
@@ -48,7 +50,10 @@ public interface Theory<T> {
      * @param vals
      * @return 
      */
-    public List<DataValue<T>> getPotential(Collection<DataValue<T>> vals);
+    
+    
+
+    public List<DataValue<T>> getPotential(List<DataValue<T>> vals);
     
     /** 
      * Implements a tree query for this theory. This tree query
@@ -66,6 +71,7 @@ public interface Theory<T> {
      * @param suffixValues map of already instantiated suffix 
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
+     * @param regGenerator
      * 
      * @return a symbolic decision tree and updated piv 
      */

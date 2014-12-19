@@ -17,30 +17,29 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory.equality;
+package de.learnlib.ralib.theory.inequality;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Relation;
+
 /**
  *
  * @author falk
  */
-public class ElseGuard extends Guard {
+public class SmallerGuard extends Guard {
     
-    public ElseGuard(Parameter param) {
-        super(param, null,Relation.ELSE);     
+    public SmallerGuard(Parameter param, Register reg) {
+        super(param,reg,Relation.SMALLER);
     }
     
     
+   
     @Override
     public String toString() {
-        return "ELSE[" + this.getParameter().toString() + "]";
+        //return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
+        return super.toString();
     }
     
-    public ElseGuard join(EqualityGuard e) {
-        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
-        assert e.getParameter().equals(this.getParameter());
-        return this;
-    }
 }
