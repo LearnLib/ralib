@@ -443,7 +443,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
         SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
 
-        return new TreeQueryResult(addPiv, returnSDT);
+        return new TreeQueryResult(addPiv, null, returnSDT);
 
     }
 }
