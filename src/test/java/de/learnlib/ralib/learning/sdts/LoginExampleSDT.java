@@ -40,7 +40,7 @@ public class LoginExampleSDT extends SymbolicDecisionTree {
     private final Set<Register> registers;
     
     public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
-        super(false, null, null);
+        super( clazz == SDTClass.ACCEPT, null, null);
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;
@@ -51,11 +51,6 @@ public class LoginExampleSDT extends SymbolicDecisionTree {
         if (!(other.getClass().equals(this.getClass()))) {
             return false;
         }
-        
-        // create renamed copies
-        
-        
-        // compare
         
         LoginExampleSDT sdt = (LoginExampleSDT) other;
         return (clazz == sdt.clazz) &&

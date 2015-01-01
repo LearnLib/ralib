@@ -35,7 +35,7 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class MutableRegisterAutomaton extends RegisterAutomaton
-        implements MutableDeterministic<RALocation, ParameterizedSymbol, Transition, Void, Void> {
+        implements MutableDeterministic<RALocation, ParameterizedSymbol, Transition, Boolean, Void> {
     
     private final Constants constants;
     
@@ -80,7 +80,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     @Override
-    public boolean hasTrace(Word<PSymbolInstance> dw) {        
+    public boolean accepts(Word<PSymbolInstance> dw) {        
         VarValuation vars = new VarValuation();
         RALocation current = initial;
         for (PSymbolInstance psi : dw) {
@@ -108,7 +108,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                 return false;
             }
         }
-        return true;
+        return current.isAccepting();
     }
 
     @Override
@@ -127,8 +127,8 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     @Override
-    public Void getStateProperty(RALocation s) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Boolean getStateProperty(RALocation s) {
+        return s.isAccepting();
     }
 
     @Override
@@ -142,26 +142,26 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     @Override
-    public RALocation addState(Void sp) {
-        RALocation lNew = new RALocation(ids++);
+    public RALocation addState(Boolean sp) {
+        RALocation lNew = new RALocation(ids++, sp);
         this.locations.add(lNew);
         return lNew;
     }
 
     @Override
-    public RALocation addInitialState(Void sp) {
-        this.initial = addState(null);
+    public RALocation addInitialState(Boolean sp) {
+        this.initial = addState(sp);
         return this.initial;
     }
 
     @Override
     public RALocation addState() {
-        return addState(null);
+        return addState(true);
     }
 
     @Override
     public RALocation addInitialState() {
-        return addInitialState(null);
+        return addInitialState(true);
     }
 
     @Override
@@ -177,7 +177,8 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     @Override
-    public void setStateProperty(RALocation s, Void sp) {
+    public void setStateProperty(RALocation s, Boolean sp) {
+        s.setAccepting(sp);
     }
 
     @Override

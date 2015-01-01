@@ -124,6 +124,8 @@ final class Cell {
                 parsInVars.relabel(relabelling));
     }
 
-    
-    
+    boolean isAccepting() {
+        return this.sdt.isAccepting();
+    }
+
 }

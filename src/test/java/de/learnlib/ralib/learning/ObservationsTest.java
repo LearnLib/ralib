@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
 import static org.testng.Assert.*;
@@ -67,6 +68,11 @@ public class ObservationsTest {
         
         obs.addSuffix(symSuffix);
         
-        while(!(obs.complete())) {};        
+        while(!(obs.complete())) {};    
+        
+        AutomatonBuilder ab = new AutomatonBuilder(
+                obs.getComponents(), new Constants());
+        
+        System.out.println(ab.toRegisterAutomaton());
      }
 }

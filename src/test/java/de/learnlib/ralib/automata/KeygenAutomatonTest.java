@@ -47,14 +47,14 @@ public class KeygenAutomatonTest {
         
         Word<PSymbolInstance> test1 = Word.epsilon();        
         System.out.println("test1: " + test1);     
-        Assert.assertTrue(ra.hasTrace(test1));
+        Assert.assertTrue(ra.accepts(test1));
 
         Word<PSymbolInstance> test2 = Word.epsilon();        
         test2 = test2.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
         test2 = test2.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
         
         System.out.println("test2: " + test2);     
-        Assert.assertTrue(ra.hasTrace(test2));        
+        Assert.assertTrue(ra.accepts(test2));        
         
         Word<PSymbolInstance> test3 = Word.epsilon();        
         test3 = test3.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
@@ -63,7 +63,7 @@ public class KeygenAutomatonTest {
         test3 = test3.append(new PSymbolInstance(O_GET, new DataValue[] { new DataValue(T_VAL, 1) }));
         
         System.out.println("test3: " + test3);     
-        Assert.assertTrue(ra.hasTrace(test3));          
+        Assert.assertTrue(ra.accepts(test3));          
 
         Word<PSymbolInstance> test4 = Word.epsilon();        
         test4 = test4.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
@@ -72,7 +72,7 @@ public class KeygenAutomatonTest {
         test4 = test4.append(new PSymbolInstance(O_NULL, new DataValue[] { }));
         
         System.out.println("test4: " + test4);     
-        Assert.assertTrue(ra.hasTrace(test4));
+        Assert.assertTrue(ra.accepts(test4));
         
         Word<PSymbolInstance> test5 = Word.epsilon();        
         test5 = test5.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
@@ -85,7 +85,7 @@ public class KeygenAutomatonTest {
         test5 = test5.append(new PSymbolInstance(O_GET, new DataValue[] { new DataValue(T_VAL, 2) }));
                 
         System.out.println("test5: " + test5);     
-        Assert.assertTrue(ra.hasTrace(test5));  
+        Assert.assertTrue(ra.accepts(test5));  
         
         Word<PSymbolInstance> test6 = Word.epsilon();        
         test6 = test6.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
@@ -95,7 +95,7 @@ public class KeygenAutomatonTest {
         test6 = test6.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 3)} ));
                 
         System.out.println("test6: " + test6);     
-        Assert.assertTrue(!ra.hasTrace(test6));  
+        Assert.assertTrue(!ra.accepts(test6));  
 
         Word<PSymbolInstance> test7 = Word.epsilon();        
         test7 = test7.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
@@ -104,7 +104,7 @@ public class KeygenAutomatonTest {
         test7 = test7.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
                 
         System.out.println("test7: " + test7);     
-        Assert.assertTrue(!ra.hasTrace(test7));          
+        Assert.assertTrue(!ra.accepts(test7));          
     }
 
     @BeforeClass

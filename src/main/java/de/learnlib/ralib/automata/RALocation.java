@@ -33,12 +33,19 @@ public class RALocation {
         
     private final int id;
     
+    private boolean accepting;
+    
     private final Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
 
-    public RALocation(int id) {
+    public RALocation(int id, boolean accepting) {
         this.id = id;
+        this.accepting = accepting;
     }
         
+    public RALocation(int id) {
+        this(id, true);
+    }
+
     Collection<Transition> getOut(ParameterizedSymbol ps) {
         return out.get(ps);
     }
@@ -88,8 +95,14 @@ public class RALocation {
 
     @Override
     public String toString() {
-        return "l" + id;
+        return "l" + id + " (" + (this.accepting ? "+" : "-") +")";
     }
     
-
+    public boolean isAccepting() {
+        return this.accepting;
+    }
+    
+    public void setAccepting(boolean accepting) {
+        this.accepting = accepting;
+    }
 }

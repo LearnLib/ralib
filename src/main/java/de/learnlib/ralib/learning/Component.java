@@ -30,6 +30,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,4 +191,23 @@ class Component {
         return primeRow.getPrefix();
     }
 
+    boolean isAccepting() {
+        return this.primeRow.isAccepting();
+    }
+    
+    Branching getBranching(ParameterizedSymbol act) {
+        return branching.get(act);
+    }
+    
+    VarMapping getRemapping(Row r) {
+        return this.otherRows.get(r);
+    }
+    
+    Row getPrimeRow() {
+        return this.primeRow;
+    }
+    
+    Collection<Row> getOtherRows() {
+        return this.otherRows.keySet();
+    }
 }

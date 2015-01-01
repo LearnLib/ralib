@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -32,16 +33,21 @@ import net.automatalib.words.Word;
  */
 public class RaStar {
     
+    public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
+    
+    public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(
+            Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon());
+    
     private final Observations obs;
+    
+    private final Constants consts;
 
-    public RaStar(TreeOracle oracle, ParameterizedSymbol ... inputs) {
+    public RaStar(TreeOracle oracle, Constants consts, ParameterizedSymbol ... inputs) {
         this.obs = new Observations(oracle, inputs);
+        this.consts = consts;
         
-        Word<PSymbolInstance> epsPrefix = Word.epsilon();
-        this.obs.addPrefix(epsPrefix);
-
-        SymbolicSuffix epsSuffix = new SymbolicSuffix(epsPrefix, epsPrefix);
-        this.obs.addSuffix(epsSuffix);
+        this.obs.addPrefix(EMPTY_PREFIX);
+        this.obs.addSuffix(EMPTY_SUFFIX);
     }
     
     
@@ -55,7 +61,7 @@ public class RaStar {
     }
     
     public RegisterAutomaton getHypothesis() {
-        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents());
+        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
         return ab.toRegisterAutomaton();
     }
     

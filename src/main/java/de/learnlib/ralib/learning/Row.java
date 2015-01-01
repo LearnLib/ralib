@@ -180,4 +180,9 @@ class Row {
         return r;
     }
 
+    boolean isAccepting() {
+        Cell c = this.cells.get(RaStar.EMPTY_SUFFIX);
+        return c.isAccepting();
+    }
+
 }

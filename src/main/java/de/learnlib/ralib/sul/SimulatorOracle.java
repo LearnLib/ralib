@@ -40,7 +40,7 @@ public class SimulatorOracle implements DataWordOracle {
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         for (Query<PSymbolInstance, Boolean> q : clctn) {
-            boolean inLang = target.hasTrace(q.getInput());
+            boolean inLang = target.accepts(q.getInput());
             q.answer(inLang);
         }
     }

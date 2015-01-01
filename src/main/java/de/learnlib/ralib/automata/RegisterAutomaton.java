@@ -33,7 +33,7 @@ public abstract class RegisterAutomaton
         extends AbstractDeterministicAutomaton<RALocation, ParameterizedSymbol, Transition>
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
     
-    public abstract boolean hasTrace(Word<PSymbolInstance> dw);        
+    public abstract boolean accepts(Word<PSymbolInstance> dw);        
 
     @Override
     public String toString() {
