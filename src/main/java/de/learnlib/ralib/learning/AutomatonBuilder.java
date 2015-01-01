@@ -17,19 +17,29 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Map;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public interface Guard {
+class AutomatonBuilder {
     
-    public boolean isSatisfied(VarValuation registers, 
-            ParValuation parameters, Constants consts); 
-        
+    private final Map<Word<PSymbolInstance>, Component> components;
+
+    AutomatonBuilder(Map<Word<PSymbolInstance>, Component> components) {
+        this.components = components;
+    }
+
+    RegisterAutomaton toRegisterAutomaton() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+    
 }

@@ -19,9 +19,8 @@
 
 package de.learnlib.ralib.trees;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -36,11 +35,11 @@ public class SDTLeaf extends SymbolicDecisionTree {
     public static final SDTLeaf REJECTING = new SDTLeaf(false);
 
     private SDTLeaf(boolean accepting) {
-        super(accepting, new HashSet<SymbolicDataValue>(), null);
+        super(accepting, new HashSet<Register>(), null);
     }
             
     @Override
-    public boolean isEquivalent(SymbolicDecisionTree other) {
+    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
 
         assert getRegisters().isEmpty() && 
                 other.getRegisters().isEmpty();
@@ -56,7 +55,7 @@ public class SDTLeaf extends SymbolicDecisionTree {
             return false;
         }
         else {
-            return this.isEquivalent(other);
+            return this.isEquivalent(other, new VarMapping());
         }
     }
     

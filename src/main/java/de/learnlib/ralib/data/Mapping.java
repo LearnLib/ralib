@@ -77,14 +77,14 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         return hash * this.entrySet().hashCode();
     }
 
-    @Override
-    public V get(Object key) {
-        V v = super.get(key);
-        if (v == null) {
-            throw new IllegalStateException();
-        }
-        return v;
-    }
+//    @Override
+//    public V get(Object key) {
+//        V v = super.get(key);
+//        if (v == null) {
+//            throw new IllegalStateException();
+//        }
+//        return v;
+//    }
     
     
     public <V2 extends DataValue<?>> Mapping<V, V2> then(Mapping<V, V2> other) {

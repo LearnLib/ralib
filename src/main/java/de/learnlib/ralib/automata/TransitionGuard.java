@@ -17,46 +17,19 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example;
+package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  *
  * @author falk
  */
-public class ElseGuard implements TransitionGuard {
-
-    private final Collection<IfGuard> ifs;
+public interface TransitionGuard {
     
-    public ElseGuard(Collection<IfGuard> ifs) {
-        this.ifs = ifs;
-    }  
-
-    public ElseGuard() {
-        this(new ArrayList<IfGuard>());
-    }
-    
-    @Override
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        for (IfGuard g : ifs) {
-            if (g.isSatisfied(registers, parameters, consts)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return (ifs.isEmpty()) ? "true" : "else";
-    }
-    
-
-    
+    public boolean isSatisfied(VarValuation registers, 
+            ParValuation parameters, Constants consts); 
+        
 }

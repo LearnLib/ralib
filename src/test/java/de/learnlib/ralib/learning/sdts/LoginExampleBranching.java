@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,37 +17,29 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example;
+package de.learnlib.ralib.learning.sdts;
 
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataExpression;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
-
+import de.learnlib.ralib.theory.Branching;
+import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Map;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class IfGuard implements TransitionGuard {
+public class LoginExampleBranching implements Branching {
 
-    private final DataExpression<Boolean> condition;
+    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
 
-    public IfGuard(DataExpression<Boolean> condition) {
-        this.condition = condition;
+    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
+        this.branches = branches;
     }
     
     @Override
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        return condition.evaluate(registers, parameters, consts);
+    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+        return branches;
     }
-
-    @Override
-    public String toString() {
-        return condition.toString();
-    }
-    
-
-
+        
 }

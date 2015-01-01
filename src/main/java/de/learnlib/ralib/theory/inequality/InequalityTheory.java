@@ -16,7 +16,8 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.IntType;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.TreeOracle;
+import de.learnlib.ralib.theory.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.SDTConstructor;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SDT;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -271,7 +272,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             WordValuation values,
             ParsInVars piv,
             SuffixValuation suffixValues,
-            TreeOracle oracle) {
+            SDTConstructor oracle) {
 
            
 //        System.out.println("Prefix: " + prefix);
@@ -443,7 +444,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
         SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
 
-        return new TreeQueryResult(addPiv, null, returnSDT);
+        return new TreeQueryResult(addPiv, returnSDT);
 
     }
 }

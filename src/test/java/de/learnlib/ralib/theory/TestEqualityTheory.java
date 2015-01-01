@@ -78,7 +78,7 @@ public class TestEqualityTheory {
         theories.put(T_UID, uidTheory);
         theories.put(T_PWD, pwdTheory);
         
-        TreeOracle treeOracle = new TreeOracle(oracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories);
         
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 

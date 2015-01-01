@@ -80,7 +80,6 @@ public class SymbolicSuffix {
         Map<DataValue, SuffixValue> groups = new HashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
-        int symc = 1;
         
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         
@@ -103,6 +102,52 @@ public class SymbolicSuffix {
         }
     }
 
+    public SymbolicSuffix(Word<PSymbolInstance> prefix, SymbolicSuffix symSuffix) {
+        
+        this.actions = symSuffix.actions.prepend(
+                DataWords.actsOf(prefix).lastSymbol());
+        
+        this.dataValues = new HashMap<>();
+        this.freeValues = new HashSet<>();
+        
+        Word<PSymbolInstance> suffix = prefix.suffix(1);
+        prefix = prefix.prefix(prefix.length() - 1);
+        
+        Map<DataValue, SuffixValue> groups = new HashMap<>();
+        Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
+        int idx = 1;
+        
+        SuffixValueGenerator valgen = new SuffixValueGenerator();
+        
+        for (DataValue d : DataWords.valsOf(suffix)) {
+            if (valsetPrefix.contains(d)) {
+                SuffixValue sym = valgen.next(d.getType());
+                this.freeValues.add(sym);
+                this.dataValues.put(idx, sym);
+//                System.out.println("adding " + sym.toString() + " at " + idx);
+
+            } else {
+                SuffixValue ref = groups.get(d);
+                if (ref == null) {
+                    ref = valgen.next(d.getType());
+                    groups.put(d, ref);
+                } 
+                this.dataValues.put(idx, ref);
+            }            
+            idx++;
+        }
+        
+        for (int i=1; i<=DataWords.paramLength(symSuffix.actions); i++) {
+            SuffixValue symValue = symSuffix.getDataValue(i);
+            SuffixValue shifted = valgen.next(symValue.getType());
+            this.dataValues.put(idx++, shifted);
+            if (symSuffix.freeValues.contains(symValue)) {
+                this.freeValues.add(shifted);
+            }
+        }
+    }
+    
+    
     public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }

@@ -81,7 +81,7 @@ public interface Theory<T> {
             WordValuation values, 
             ParsInVars piv,
             SuffixValuation suffixValues,
-            TreeOracle oracle);
+            SDTConstructor oracle);
         
     
    

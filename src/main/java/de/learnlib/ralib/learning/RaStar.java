@@ -20,12 +20,10 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.sul.DataWordOracle;
+import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
@@ -34,30 +32,22 @@ import net.automatalib.words.Word;
  */
 public class RaStar {
     
-    private List<SymbolicSuffix> suffixes;
-    
-    private Deque<SymbolicSuffix> newSuffxes = new LinkedList<>();
-    
-    private Deque<Word<PSymbolInstance>> newPrefixes = new LinkedList<>();
-    
-    private Deque<Component> newComponents = new LinkedList<>();
-                
-    private Observations obs;
-    
-    //private DataWordOracle oracle;
-    
-    // public interface
-    
-    public void learn() {
+    private final Observations obs;
+
+    public RaStar(TreeOracle oracle, ParameterizedSymbol ... inputs) {
+        this.obs = new Observations(oracle, inputs);
         
-        while(!(obs.checkLocationClosedness() && 
-                obs.checkVariableConsistency() && 
-                obs.checkBranchingCompleteness())) {
-            
-            
-            
-        } // while checks do not hold on observations
-        
+        Word<PSymbolInstance> epsPrefix = Word.epsilon();
+        this.obs.addPrefix(epsPrefix);
+
+        SymbolicSuffix epsSuffix = new SymbolicSuffix(epsPrefix, epsPrefix);
+        this.obs.addSuffix(epsSuffix);
+    }
+    
+    
+    
+    public void learn() {        
+        while(!(obs.complete())) {};        
     }
     
     public boolean addCounterexample(Word<PSymbolInstance> ce) {
@@ -65,40 +55,8 @@ public class RaStar {
     }
     
     public RegisterAutomaton getHypothesis() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    }
-
-
-    // internal interface
-    
-    /**
-     * adds a new prefix to the list of new prefixes.
-     * 
-     * @param prefix 
-     */
-    void addPrefix(Word<PSymbolInstance> prefix) {
-        this.newPrefixes.offer(prefix);
+        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents());
+        return ab.toRegisterAutomaton();
     }
     
-    /**
-     * adds a component to the list of rows to become components.
-     * 
-     * @param r 
-     */
-    void addShortPrefix(Component c) {
-        this.newComponents.add(c);
-    }
-    
-    /**
-     * adds a symbolic suffix to the list of new symbolic suffixes.
-     * 
-     * @param s 
-     */
-    void addSuffix(SymbolicSuffix s) {
-       this.newSuffxes.add(s);
-    }
-    
-    //private void computeCell(Word<PSymbolInstance> prefix, SymbolicSuffix prefix) 
-    
-            
 }

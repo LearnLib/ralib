@@ -30,9 +30,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  */
 public class InputTransition extends Transition {
     
-    private final Guard guard;
+    private final TransitionGuard guard;
 
-    public InputTransition(Guard guard, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+    public InputTransition(TransitionGuard guard, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         super(label, source, destination, assignment);
         this.guard = guard;
     }

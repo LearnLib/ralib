@@ -20,10 +20,9 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
@@ -56,25 +55,24 @@ final class Cell {
         return parsInVars.keySet();
     }
     
-    /**
-     * 
-     * @param relabelling
-     * @return 
-     */
-    Cell relabel(VarMapping relabelling) {
-        throw new UnsupportedOperationException("not implemented yet");
-//        return new Cell(prefix, suffix, 
-//                sdt.createCopy(relabelling), parsInVars.then(relabelling) );
-    } 
-         
+    PIV getParsInVars() {
+        return parsInVars;
+    }
+    
     /**
      * checks whether the sdts of the two cells are equal
      * 
      * @param other
      * @return 
      */
-    boolean equals(Cell other) {
-        return this.sdt.isEquivalent(other.sdt);
+    boolean isEquivalentTo(Cell other, VarMapping renaming) {
+        if (!couldBeEquivalentTo(other)) {
+            return false;
+        }
+        
+        return this.suffix.equals(other.suffix) &&
+                this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
+                this.sdt.isEquivalent(other.sdt, renaming);
     }
     
     /**
@@ -83,7 +81,7 @@ final class Cell {
      * @return 
      */
     boolean couldBeEquivalentTo(Cell other) {
-        return this.parsInVars.size() == other.parsInVars.size();
+        return this.parsInVars.typedSize().equals(other.parsInVars.typedSize());
         //TODO: call preliminary checks on SDTs
     }   
     
@@ -95,11 +93,37 @@ final class Cell {
      * @param suffix
      * @return 
      */
-    static Cell computeCell(Oracle oracle, 
+    static Cell computeCell(TreeOracle oracle, 
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
        
-        TreeQueryResult tqr = oracle.processTreeQuery(prefix, suffix);
+        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
         return new Cell(prefix, suffix, tqr.getSdt(), 
                 new PIV(prefix, tqr.getParsInVars()));
     }
+
+    SymbolicSuffix getSuffix() {
+        return this.suffix;
+    }
+
+    Word<PSymbolInstance> getPrefix() {
+        return this.prefix;
+    }
+    
+    SymbolicDecisionTree getSDT() {
+        return this.sdt;
+    }
+    
+    @Override
+    public String toString() {
+        return "Cell: " + this.prefix + " / " + this.suffix + " : " + this.sdt.toString();
+    }
+
+    Cell relabel(VarMapping relabelling) {
+        return new Cell(prefix, suffix, 
+                sdt.relabel(relabelling), 
+                parsInVars.relabel(relabelling));
+    }
+
+    
+    
 }

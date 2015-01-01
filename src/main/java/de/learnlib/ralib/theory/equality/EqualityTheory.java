@@ -32,7 +32,8 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.Guard;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.TreeOracle;
+import de.learnlib.ralib.theory.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.SDTConstructor;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SDT;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -126,7 +127,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             WordValuation values, 
             ParsInVars piv,
             SuffixValuation suffixValues,
-            TreeOracle oracle) {
+            SDTConstructor oracle) {
         
         int pId = values.size() + 1;
         

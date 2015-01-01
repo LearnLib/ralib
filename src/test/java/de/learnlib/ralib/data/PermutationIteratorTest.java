@@ -19,17 +19,32 @@
 
 package de.learnlib.ralib.data;
 
-import java.util.Iterator;
+import java.util.Arrays;
+import org.testng.Assert;
+import static org.testng.Assert.*;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class VarMappingIterator<K, V extends DataValue<?>> implements Iterable<Mapping<K, V>> {
-
-    @Override
-    public Iterator<Mapping<K, V>> iterator() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+public class PermutationIteratorTest {
     
+    public PermutationIteratorTest() {
+    }
+
+    @Test
+    public void testIterator() {
+    
+        int expected = 0;
+        for (int i=0; i<10; i++) {
+            int count = 0;
+            PermutationIterator iter = new PermutationIterator(i);
+            for (int[] xx : iter) {
+                count++;
+            }         
+            Assert.assertEquals(expected, count);
+            expected = (expected == 0) ? 1 : expected * (i+1);
+        }
+    }
 }

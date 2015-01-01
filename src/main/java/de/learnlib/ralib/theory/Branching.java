@@ -6,10 +6,8 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import de.learnlib.ralib.trees.SDTLeaf;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -17,14 +15,8 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class Branching {
+public interface Branching {
     
-    private Word<PSymbolInstance> prefix;
-    
-    private ParameterizedSymbol act;
-            
-    private Map<Guard, Word<PSymbolInstance>> branches;
+    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches();
 
-    
-    
 }

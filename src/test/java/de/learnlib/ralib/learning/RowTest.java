@@ -20,11 +20,14 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIVRemappingIterator;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.ArrayList;
 import java.util.Arrays;
 import net.automatalib.words.Word;
 import org.testng.Assert;
@@ -34,43 +37,55 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class CellTest {
+public class RowTest {
     
     @Test
-    public void testCellCreation() {
-           
-        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+    public void testRowEquivalence() {
+    
+        final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)),
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_UID, 2),
+                    new DataValue(T_PWD, 2)));
+        
+        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));           
-        
-        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+                    new DataValue(T_PWD, 2)));          
+    
+        final Word<PSymbolInstance> suffix1 = Word.epsilon();        
+        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGOUT));
+                    new DataValue(T_PWD, 1)));
         
+        final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1);
+        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
         
-        // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
-        
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);        
+        SymbolicSuffix[] suffixes = new SymbolicSuffix[] {symSuffix1, symSuffix2};
+        System.out.println("Suffixes: " + Arrays.toString(suffixes));
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
         
-        Cell c = Cell.computeCell(oracle, prefix, symSuffix);
+        Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes));
+        Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes));
         
-        System.out.println("Memorable: " + Arrays.toString(c.getMemorable().toArray()));
-        
-        System.out.println(c.toString());
-        
-        Assert.assertTrue(c.couldBeEquivalentTo(c));
-        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
+        VarMapping renaming = null;
+        for (VarMapping map : new PIVRemappingIterator(r1.getParsInVars(), r2.getParsInVars())) {
+            if (r1.isEquivalentTo(r2, map)) {
+                renaming = map;
+                break;
+            }
+        }
+
+        Assert.assertNotNull(renaming);
+        Assert.assertTrue(r1.couldBeEquivalentTo(r2));
+        Assert.assertTrue(r1.isEquivalentTo(r2, renaming));
         
     }
     

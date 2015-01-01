@@ -19,35 +19,35 @@
 
 package de.learnlib.ralib.trees;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Guard;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  *
  * @author falk
- * @param <G>
  */
-public abstract class SymbolicDecisionTree<G extends Guard> {
+public abstract class SymbolicDecisionTree {
     
     private final boolean accepting;
     
-    private final Set<SuffixValue> registers;
+    private final Set<Register> registers;
     
-    private final Map<G, SymbolicDecisionTree> children;
+    private final Map<List<Guard>, SymbolicDecisionTree> children;
 
-    SymbolicDecisionTree(boolean accepting, 
-            Set<SuffixValue> registers,
-            Map<G, SymbolicDecisionTree> children) {
+    public SymbolicDecisionTree(boolean accepting, 
+            Set<Register> registers,
+            Map<List<Guard>, SymbolicDecisionTree> children) {
         this.accepting = accepting;
         this.registers = registers;
         this.children = children;
     }
     
-    public Set<SuffixValue> getRegisters() {
+    public Set<Register> getRegisters() {
         return this.registers;
     }
     
@@ -55,16 +55,25 @@ public abstract class SymbolicDecisionTree<G extends Guard> {
         return this.accepting;
     }
     
-    public Map<G, SymbolicDecisionTree> getChildren() {
+    protected Map<List<Guard>, SymbolicDecisionTree> getChildren() {
         return this.children;
     }
 
-    public boolean isEquivalent(SymbolicDecisionTree other) {
+    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
         return this.canUse(other) && other.canUse(this);
     }
     
+    // FIXME: do we need this method in this interface?
     public abstract boolean canUse(SymbolicDecisionTree other);
     
     //public abstract SymbolicDecisionTree createCopy(VarMapping renaming);
+
+    public SymbolicDecisionTree relabel(VarMapping relabelling) {
+        if (relabelling.isEmpty()) {
+            return this;
+        }
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
 }

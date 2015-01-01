@@ -200,7 +200,7 @@ public class TestTreeOracle {
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
-        TreeOracle treeOracle = new TreeOracle(dwOracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories);
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 //        System.out.println(res.getSdt().isAccepting());

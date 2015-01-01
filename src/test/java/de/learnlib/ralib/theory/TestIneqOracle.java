@@ -224,7 +224,7 @@ public class TestIneqOracle {
         Map<DataType, Theory> theories = new HashMap();
         theories.put(doubType,doubTheory);
         
-        TreeOracle treeOracle = new TreeOracle(dwOracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories);
         
         //Word<PSymbolInstance>newPrefix = Compatibility.reinstantiatePrefix(prefix,DataWords.paramLength(symSuffix.getActions()));
         //System.out.println("reinstantiated prefix: " + newPrefix.toString());        

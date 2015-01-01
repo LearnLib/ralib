@@ -16,20 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.TreeOracle;
+import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.HashSet;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import net.automatalib.words.Word;
 
 /**
@@ -37,75 +40,118 @@ import net.automatalib.words.Word;
  * @author falk
  */
 class Row {
-    
+
     private final Word<PSymbolInstance> prefix;
 
     private final Map<SymbolicSuffix, Cell> cells;
-        
-    private final Set<SymbolicDataValue> memorable = new HashSet<>();
 
-    private Row(Word<PSymbolInstance> prefix, Map<SymbolicSuffix, Cell> cells) {
+    private final PIV memorable = new PIV();
+
+    private final RegisterGenerator regGen = new RegisterGenerator();
+
+    private Row (Word<PSymbolInstance> prefix) {
         this.prefix = prefix;
-        this.cells = cells;
-        
-        for (Cell c : cells.values()) {
-            memorable.addAll(c.getMemorable());
-        }
+        this.cells = new LinkedHashMap<>();        
     }
     
+    private Row(Word<PSymbolInstance> prefix, List<Cell> cells) {
+        this(prefix);
+        
+        for (Cell c : cells) {
+            this.cells.put(c.getSuffix(), c);
+        }
+    }
+   
+    void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
+        Cell c = Cell.computeCell(oracle, prefix, suffix);
+        addCell(c);
+    }
     
-    
-    ParsInVars getParsInVars() {
-        throw new UnsupportedOperationException("not implemented yet.");        
-    } 
-    
-    Set<SymbolicDataValue> getMemorable() {        
-        throw new UnsupportedOperationException("not implemented yet.");        
+    private void addCell(Cell c) {
+        
+        assert c.getPrefix().equals(this.prefix);
+        assert !this.cells.containsKey(c.getSuffix());
+        
+        PIV cpv = c.getParsInVars();
+        VarMapping relabelling = new VarMapping();
+        for (Entry<Parameter, Register> e : cpv.entrySet()) {
+            Register r = this.memorable.get(e.getKey());
+            if (r == null) {
+                r = regGen.next(e.getKey().getType());
+                memorable.put(e.getKey(), r);
+            }
+            relabelling.put(e.getValue(), r);
+        }
+
+        this.cells.put(c.getSuffix(), c.relabel(relabelling));
     }
 
-    /**
-     * relabels all the SDTs in the cells.
-     * 
-     * @param relabelling
-     * @return - a new row with relabeled cells
-     */
-    Row relabel(VarMapping relabelling) {
-        LinkedHashMap<SymbolicSuffix, Cell> cellsNew = new LinkedHashMap<>();
-        for (Entry<SymbolicSuffix, Cell> e : this.cells.entrySet()) {
-            cellsNew.put(e.getKey(), e.getValue().relabel(relabelling));
+    SymbolicSuffix getSuffixForMemorable(Parameter p) {
+        for (Entry<SymbolicSuffix, Cell> c: cells.entrySet()) {
+            if (c.getValue().getParsInVars().containsKey(p)) {
+                return c.getKey();
+            }
         }
-        return new Row(prefix, cellsNew);
-                     
+        
+        throw new IllegalStateException("This line is not supposed to be reached.");
     }
     
+    SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
+        List<SymbolicDecisionTree> sdts = new ArrayList<>();
+        for (Entry<SymbolicSuffix, Cell> c: cells.entrySet()) {
+            Word<ParameterizedSymbol> acts = c.getKey().getActions();
+            if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
+                sdts.add(c.getValue().getSDT());
+            }
+        } 
+        return sdts.toArray(new SymbolicDecisionTree[] {});
+    }
+    
+    PIV getParsInVars() {
+        return this.memorable;
+    }
+
+    Word<PSymbolInstance> getPrefix() {
+        return this.prefix;
+    }
+    
+    
     /**
-     * checks rows for equality (disregarding of the prefix!).
-     * It is assumed that both rows have the same set of suffixes.
-     * 
+     * checks rows for equality (disregarding of the prefix!). It is assumed
+     * that both rows have the same set of suffixes.
+     *
      * @param other
      * @return true if rows are equal
      */
-    boolean equals(Row other) { 
+    boolean isEquivalentTo(Row other, VarMapping renaming) {
+        if (!couldBeEquivalentTo(other)) {
+            return false;
+        }
+        
+        if (!this.memorable.relabel(renaming).equals(other.memorable)) {
+            return false;
+        }
+        
         for (SymbolicSuffix s : this.cells.keySet()) {
             Cell c1 = this.cells.get(s);
             Cell c2 = other.cells.get(s);
-            if (!c1.equals(c2)) {
+            if (!c1.isEquivalentTo(c2, renaming)) {
                 return false;
             }
         }
         return true;
     }
-    
+
     /**
-     * 
+     *
      * @param r
-     * @return 
+     * @return
      */
     boolean couldBeEquivalentTo(Row other) {
-        if (this.getMemorable().size() != other.getMemorable().size()) {
+        if (!this.memorable.typedSize().equals(other.memorable.typedSize())) {
             return false;
         }
-        
+
         for (SymbolicSuffix s : this.cells.keySet()) {
             Cell c1 = this.cells.get(s);
             Cell c2 = other.cells.get(s);
@@ -114,24 +160,24 @@ class Row {
             }
         }
         return true;
-    }    
-    
+    }
+
     /**
      * computes a new row object from a prefix and a set of symbolic suffixes.
-     * 
+     *
      * @param oracle
      * @param prefix
      * @param suffixes
-     * @return 
+     * @return
      */
-    static Row computeRow(Oracle oracle, 
+    static Row computeRow(TreeOracle oracle,
             Word<PSymbolInstance> prefix, List<SymbolicSuffix> suffixes) {
-    
-        LinkedHashMap<SymbolicSuffix, Cell> cells = new LinkedHashMap<>();
+
+        Row r = new Row(prefix);    
         for (SymbolicSuffix s : suffixes) {
-            cells.put(s, Cell.computeCell(oracle, prefix, s));
+            r.addCell(Cell.computeCell(oracle, prefix, s));
         }
-        return new Row(prefix, cells);
+        return r;
     }
 
 }

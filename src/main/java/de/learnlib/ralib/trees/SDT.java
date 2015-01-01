@@ -58,8 +58,8 @@ public class SDT extends SymbolicDecisionTree {
     // Returns true if this SDT can use the registers of another SDT.  Registers
     // are matched by name (no remapping)
     private boolean regCanUse(SDT other) {
-        Set<SymbolicDataValue> otherRegisters = other.getRegisters();
-        Set<SymbolicDataValue> thisRegisters = this.getRegisters();
+        Set<Register> otherRegisters = other.getRegisters();
+        Set<Register> thisRegisters = this.getRegisters();
         Boolean[] regEqArr = new Boolean[thisRegisters.size()];
         Integer i = 0;
         for (SymbolicDataValue thisReg : thisRegisters) { // if the trees have the same type and size
@@ -143,7 +143,7 @@ public class SDT extends SymbolicDecisionTree {
     
     public String makeString(int level) {
         Map<List<Guard>, SymbolicDecisionTree> kids = this.getChildren();
-        Set<SymbolicDataValue> thisRegisters = this.getRegisters();
+        Set<Register> thisRegisters = this.getRegisters();
         int numRegs = thisRegisters.size();
         String rootString = (this.isAccepting() ? "+" : "-") + 
                 ", " + ((numRegs != 0) ? thisRegisters.toString() : "") 

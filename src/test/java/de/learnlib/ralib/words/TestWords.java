@@ -22,6 +22,7 @@ package de.learnlib.ralib.words;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.trees.SymbolicSuffix;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -35,7 +36,7 @@ public class TestWords {
     
     
     
-    public void testSymbolicSuffix() {
+    public void testSymbolicSuffix1() {
         
         DataType intType = new DataType("int", int.class) {};
                 
@@ -68,4 +69,36 @@ public class TestWords {
         System.out.println(sym);
     }
     
+    public void testSymbolicSuffix2() {   
+
+        final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)));    
+        
+        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)),
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)),
+                new PSymbolInstance(I_LOGOUT));          
+           
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)));
+        
+        final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix);
+        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, symSuffix1);
+        
+        System.out.println("Prefix 1: " + prefix1);
+        System.out.println("Prefix 2: " + prefix2);
+        System.out.println("Suffix: " + suffix);
+        System.out.println("Sym. Suffix 1: " + symSuffix1);
+        System.out.println("Sym. Suffix 2: " + symSuffix2);
+        
+        
+    } 
 }

@@ -16,46 +16,178 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.VarMappingIterator;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.PIVRemappingIterator;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.Branching;
+import de.learnlib.ralib.theory.TreeOracle;
+import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
 class Component {
-        
-    private Row primeRow;
- 
-    private List<Row> otherRows;
-    
+
+    private final Row primeRow;
+
+    private final Map<Row, VarMapping> otherRows = new LinkedHashMap<>();
+
+    private final Observations obs;
+
+    private Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
+
+    public Component(Row primeRow, Observations obs) {
+        this.primeRow = primeRow;
+        this.obs = obs;
+    }
+
     /**
-     * tries to add a row to this component.
-     * checks if row is equivalent to rows in this component.
-     * 
+     * tries to add a row to this component. checks if row is equivalent to rows
+     * in this component.
+     *
      * @param r
      * @return true if successful
      */
-    boolean addPrefix(Row r) {
-        //
+    boolean addRow(Row r) {
         if (!primeRow.couldBeEquivalentTo(r)) {
             return false;
         }
-        
-        VarMappingIterator iterator;
-        
-        throw new UnsupportedOperationException("not implemented yet");
 
+        PIVRemappingIterator iterator = new PIVRemappingIterator(
+                r.getParsInVars(), primeRow.getParsInVars());
+
+        for (VarMapping m : iterator) {
+            if (r.isEquivalentTo(primeRow, m)) {
+                this.otherRows.put(r, m);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void start(TreeOracle oracle, ParameterizedSymbol... inputs) {
+        for (ParameterizedSymbol ps : inputs) {
+            SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+            Branching b = oracle.getInitialBranching(
+                    getAccessSequence(), ps, null, sdts);
+
+            branching.put(ps, b);
+            for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
+                obs.addPrefix(prefix);
+            }
+        }
+    }
+
+    void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
+
+        primeRow.addSuffix(suffix, oracle);
+        Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
+        otherRows.clear();
+        List<Component> newComponents = new ArrayList<>();
+
+        for (Row r : otherOld.keySet()) {
+            r.addSuffix(suffix, oracle);
+            if (addRow(r)) {
+                continue;
+            }
+
+            boolean added = false;
+            for (Component c : newComponents) {
+                if (c.addRow(r)) {
+                    added = true;
+                    break;
+                }
+            }
+
+            if (!added) {
+                Component c = new Component(r, obs);
+                newComponents.add(c);
+            }
+        }
+
+        for (Component c : newComponents) {
+            obs.addComponent(c);
+        }
+    }
+
+    boolean updateBranching(TreeOracle oracle) {
+        boolean ret = true;
+        for (ParameterizedSymbol ps : branching.keySet()) {
+            boolean ub = updateBranching(ps, oracle);
+            ret = ret && ub; 
+        }
+        return ret;
+    }
+
+    private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
+        Branching b = branching.get(ps);
+        SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, null, sdts);
+        boolean ret = true;
+        for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
+            if (!b.getBranches().containsKey(prefix)) {
+                obs.addPrefix(prefix);
+                ret = false;
+            }
+        }
+        branching.put(ps, newB);
+        return ret;
+    }
+
+    boolean checkVariableConsistency() {
+        if (!checkVariableConsistency(primeRow)) {
+            return false;
+        }
+        for (Row r : otherRows.keySet()) {
+            if (!checkVariableConsistency(r)) {
+                return false;
+            }
+        }
+        return true;
     }
     
-    void addSuffix(SymbolicSuffix suffix) {
+    private boolean checkVariableConsistency(Row r) {
+        if (r.getPrefix().length() < 2) {
+            return true;
+        }
+            
+        Word<PSymbolInstance> prefix = r.getPrefix().prefix(r.getPrefix().length() -1);
+        Row prefixRow = obs.getComponents().get(prefix).primeRow;
+                
+        PIV memPrefix = prefixRow.getParsInVars();
+        PIV memRow = r.getParsInVars();
         
+        int max = DataWords.paramLength(DataWords.actsOf(prefix));
+        
+        for (Parameter p : memRow.keySet()) {
+            // p is used by next but not stored by this and is from this word
+            if (!memPrefix.containsKey(p) && p.getId() <= max) {
+                SymbolicSuffix suffix = r.getSuffixForMemorable(p);
+                SymbolicSuffix newSuffix = new SymbolicSuffix(
+                        r.getPrefix(), suffix);
+                
+                obs.addSuffix(newSuffix);
+                return false;
+            }
+        }
+        return true;
     }
     
-    
-    
+    Word<PSymbolInstance> getAccessSequence() {
+        return primeRow.getPrefix();
+    }
+
 }

@@ -22,6 +22,11 @@ package de.learnlib.ralib.data;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -30,12 +35,67 @@ import net.automatalib.words.Word;
  */
 public class PIV extends VarMapping<Parameter, Register> {
 
-    public PIV(Word<PSymbolInstance> prefix, ParsInVars parsInVars) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public PIV() {
+        
     }
-   
-//    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {
-//        throw new UnsupportedOperationException("Not implemented");
-//    }    
+    
+    public PIV(Word<PSymbolInstance> prefix, ParsInVars parsInVars) {
 
+        for (Map.Entry<Register, DataValue<?>> e : parsInVars) {            
+            System.out.println("PIV: " + e.getKey() + " : " + e.getValue());
+        }
+        
+        HashSet<DataValue<?>> vals = new HashSet<>(parsInVars.values());
+        
+        int idx = 1;
+        for (PSymbolInstance psi : prefix) {        
+            for (DataValue dv : psi.getParameterValues()) {                
+                if (vals.contains(dv)) {
+                    vals.remove(dv);
+                    put( new Parameter(dv.getType(), idx), parsInVars.getOneKey(dv));
+                }
+                idx++;
+            }
+        }
+        
+    }
+      
+    public PIV relabel(VarMapping relabelling) {
+        PIV ret = new PIV();
+        for (Map.Entry<Parameter, Register> e : this) {
+            Parameter p = (Parameter) relabelling.get(e.getKey());
+            Register r = (Register) relabelling.get(e.getValue());            
+            ret.put(p == null ? e.getKey() : p, r == null ? e.getValue() : r);
+        }
+        return ret;
+    }
+    
+    public Map<DataType, Integer> typedSize() {
+        Map<DataType, Integer> ret = new HashMap<>();
+        for (Parameter p : keySet()) {
+            Integer i = ret.get(p.getType());
+            i = (i == null) ? 1 : i+1;
+            ret.put(p.getType(), i);
+        }
+        return ret;
+    } 
+
+    public Map<DataType, Parameter[]> asTypedArrays() {
+        Map<DataType, List<Parameter>> tmp = new HashMap<>();
+        for (Parameter p : keySet()) {
+            List<Parameter> list = tmp.get(p.getType());
+            if (list == null) {
+                list = new ArrayList<>();
+                tmp.put(p.getType(), list);
+            }
+            list.add(p);
+        } 
+        
+        Map<DataType, Parameter[]> ret = new HashMap<>();
+        for (Map.Entry<DataType, List<Parameter>> e : tmp.entrySet()) {
+            ret.put(e.getKey(), e.getValue().toArray(new Parameter[] {}));
+        }
+        return ret;
+    }
+    
 }

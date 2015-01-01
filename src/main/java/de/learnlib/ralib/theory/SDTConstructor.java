@@ -17,9 +17,11 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.theory.TreeQueryResult;
+import de.learnlib.ralib.data.ParsInVars;
+import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -28,12 +30,11 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class Oracle {
+public interface SDTConstructor {
     
-    public TreeQueryResult processTreeQuery(Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix) {
-    
-        throw new UnsupportedOperationException("not implemented yet."); 
-    }
+    public TreeQueryResult treeQuery(
+            Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
+            WordValuation values, ParsInVars piv, 
+            SuffixValuation suffixValues);
     
 }
