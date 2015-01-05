@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,28 +22,21 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public interface TreeOracle {
+public interface SDTLogicOracle {
     
-    public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix);    
+    public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
+            SymbolicDecisionTree sdt1, PIV piv1, 
+            SymbolicDecisionTree sdt2, PIV piv2, 
+            TransitionGuard guard, Word<PSymbolInstance> rep);
+            
+    public boolean doesRefine(TransitionGuard refined, PIV pivRefined,
+            TransitionGuard refining, PIV pivRefining);
     
-//    public Word<PSymbolInstance> getDefaultExtension(
-//            Word<PSymbolInstance> prefix, ParameterizedSymbol ps);
-     
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
-
-    public Branching updateBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, Branching current, 
-            PIV piv, SymbolicDecisionTree ... sdts);
-     
 }

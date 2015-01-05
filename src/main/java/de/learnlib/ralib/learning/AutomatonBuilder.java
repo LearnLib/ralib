@@ -49,17 +49,17 @@ class AutomatonBuilder {
 
     private final Map<Word<PSymbolInstance>, RALocation> locations = new HashMap<>();
     
-    private final MutableRegisterAutomaton automaton;
+    private final Hypothesis automaton;
     
     private final Constants consts;
     
     AutomatonBuilder(Map<Word<PSymbolInstance>, Component> components, Constants consts) {
         this.consts = consts;
         this.components = components;
-        this.automaton = new MutableRegisterAutomaton(consts);
+        this.automaton = new Hypothesis(consts);
     }
 
-    RegisterAutomaton toRegisterAutomaton() {
+    Hypothesis toRegisterAutomaton() {
         computeLocations();
         computeTransitions();
         return this.automaton;

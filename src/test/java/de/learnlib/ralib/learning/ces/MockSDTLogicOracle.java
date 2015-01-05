@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,33 +17,43 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory;
+package de.learnlib.ralib.learning.ces;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.theory.SDTLogicOracle;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public interface TreeOracle {
-    
-    public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix);    
-    
-//    public Word<PSymbolInstance> getDefaultExtension(
-//            Word<PSymbolInstance> prefix, ParameterizedSymbol ps);
-     
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
+public class MockSDTLogicOracle implements SDTLogicOracle {
 
-    public Branching updateBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, Branching current, 
-            PIV piv, SymbolicDecisionTree ... sdts);
-     
+    public static enum TestCase {LEFT, MID, RIGHT };
+    
+    private final boolean hasCE;
+
+    public MockSDTLogicOracle(boolean hasCE) {
+        this.hasCE = hasCE;
+    }
+    
+    @Override
+    public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
+            SymbolicDecisionTree sdt1, PIV piv1, 
+            SymbolicDecisionTree sdt2, PIV piv2, 
+            TransitionGuard guard, Word<PSymbolInstance> rep) {
+
+        return hasCE;
+    }
+
+    @Override
+    public boolean doesRefine(TransitionGuard refined, PIV pivRefined, 
+            TransitionGuard refining, PIV pivRefining) {
+        
+        return false;
+    }
+    
 }

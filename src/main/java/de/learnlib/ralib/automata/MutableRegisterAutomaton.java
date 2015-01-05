@@ -24,8 +24,10 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.automatalib.automata.MutableDeterministic;
 import net.automatalib.words.Word;
@@ -78,11 +80,11 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     public Collection<RALocation> getStates() {
         return locations;
     }
-
-    @Override
-    public boolean accepts(Word<PSymbolInstance> dw) {        
+    
+    protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
         VarValuation vars = new VarValuation();
         RALocation current = initial;
+        List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
             
             ParValuation pars = new ParValuation(psi);
@@ -91,7 +93,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                     current.getOut(psi.getBaseSymbol());
                         
             if (candidates == null) {
-                return false;
+                return null;
             }
             
             boolean found = false;
@@ -99,16 +101,36 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                 if (t.isEnabled(vars, pars, this.constants)) {
                     vars = t.execute(vars, pars, this.constants);
                     current = t.getDestination();
+                    tseq.add(t);
                     found = true;
                     break;
                 }
             }
             
             if (!found) {
-                return false;
+                return null;
             }
         }
-        return current.isAccepting();
+        return tseq;        
+    }
+    
+    protected RALocation getLocation(Word<PSymbolInstance> dw) {
+        List<Transition> tseq = getTransitions(dw);
+        if (tseq == null) {
+            return null;
+        }
+        if (tseq.isEmpty()) {
+            return initial;
+        } else {
+            Transition last = tseq.get(tseq.size() -1);
+            return last.getDestination();
+        }
+    }
+
+    @Override
+    public boolean accepts(Word<PSymbolInstance> dw) {        
+        RALocation dest = getLocation(dw);
+        return (dest != null && dest.isAccepting());
     }
 
     @Override
