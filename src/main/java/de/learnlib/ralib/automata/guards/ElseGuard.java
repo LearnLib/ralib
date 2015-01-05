@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example;
+package de.learnlib.ralib.automata.guards;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- *
+ * else-case to a bunch of if-guards.
+ * 
  * @author falk
  */
 public class ElseGuard implements TransitionGuard {

@@ -24,7 +24,8 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- *
+ * Container for output of an analysis of a counterexample.
+ * 
  * @author falk
  */
 public class CEAnalysisResult {

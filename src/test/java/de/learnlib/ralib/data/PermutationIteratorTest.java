@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.data.util.PermutationIterator;
 import java.util.Arrays;
 import org.testng.Assert;
 import static org.testng.Assert.*;

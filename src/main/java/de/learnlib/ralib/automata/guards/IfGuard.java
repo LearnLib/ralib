@@ -17,21 +17,38 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.automata.guards;
+
+import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarValuation;
+
 
 /**
- *
+ * Implementation of a TransitionGuard that uses 
+ * a DataExpression to encode and evaluate the guard.
+ * 
  * @author falk
  */
-public interface Evaluate<T> {
+public class IfGuard implements TransitionGuard {
+
+    private final DataExpression<Boolean> condition;
+
+    public IfGuard(DataExpression<Boolean> condition) {
+        this.condition = condition;
+    }
     
-    /**
-     *
-     * @param vars
-     * @param pars
-     * @param consts
-     * @return
-     */
-    public T evaluate(VarValuation vars, ParValuation pars, Constants consts);
+    @Override
+    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
+        return condition.evaluate(registers, parameters, consts);
+    }
+
+    @Override
+    public String toString() {
+        return condition.toString();
+    }
     
+
+
 }

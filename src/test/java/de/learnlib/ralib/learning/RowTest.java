@@ -20,7 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIVRemappingIterator;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;

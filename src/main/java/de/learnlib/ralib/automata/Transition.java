@@ -25,7 +25,8 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
- *
+ * Register Automaton transitions have input symbols, and assignments.
+ * 
  * @author falk
  */
 public abstract class Transition {

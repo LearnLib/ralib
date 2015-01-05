@@ -21,7 +21,7 @@ package de.learnlib.ralib.learning;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -36,7 +36,8 @@ import java.util.Map.Entry;
 import net.automatalib.words.Word;
 
 /**
- *
+ * A row in an observation table.
+ * 
  * @author falk
  */
 class Row {
@@ -72,6 +73,8 @@ class Row {
         assert c.getPrefix().equals(this.prefix);
         assert !this.cells.containsKey(c.getSuffix());
         
+        // make sure that pars-in-vars is consistant with 
+        // existing cells in his row
         PIV cpv = c.getParsInVars();
         VarMapping relabelling = new VarMapping();
         for (Entry<Parameter, Register> e : cpv.entrySet()) {

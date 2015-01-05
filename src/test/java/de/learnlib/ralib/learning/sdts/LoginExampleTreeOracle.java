@@ -19,16 +19,16 @@
 package de.learnlib.ralib.learning.sdts;
 
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.DataExpression;
+import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.example.ElseGuard;
-import de.learnlib.ralib.example.IfGuard;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.automata.guards.ElseGuard;
+import de.learnlib.ralib.automata.guards.IfGuard;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.learning.sdts.LoginExampleSDT.SDTClass;
 import de.learnlib.ralib.theory.Branching;

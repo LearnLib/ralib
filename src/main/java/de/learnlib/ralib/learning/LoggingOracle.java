@@ -21,7 +21,6 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.theory.Branching;
-import de.learnlib.ralib.theory.MultiTheoryTreeOracle;
 import de.learnlib.ralib.theory.TreeOracle;
 import de.learnlib.ralib.theory.TreeQueryResult;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
@@ -34,6 +33,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
+//TODO: this should be moved to test packages
 public class LoggingOracle implements TreeOracle {
     
     private final TreeOracle treeoracle;

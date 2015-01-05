@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
@@ -28,20 +27,48 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- *
+ * A tree oracle is the connection between the learning algorithm 
+ * and theories for data values.
+ * 
  * @author falk
  */
 public interface TreeOracle {
     
+    /**
+     * performs a tree query, returning a SymbolicDecisionTree
+     * an an Assignment of registers of this tree with parameters
+     * of the prefix.
+     * 
+     * @param prefix
+     * @param suffix
+     * @return 
+     */
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix);    
-    
-//    public Word<PSymbolInstance> getDefaultExtension(
-//            Word<PSymbolInstance> prefix, ParameterizedSymbol ps);
      
+    /**
+     * Computes a Branching from a set of SymbolicDecisionTrees.
+     * 
+     * @param prefix
+     * @param ps
+     * @param piv
+     * @param sdts
+     * @return 
+     */
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
 
+    /**
+     * Updates and extends an existing Branching 
+     * from a set of SymbolicDecisionTrees.
+     * 
+     * @param prefix
+     * @param ps
+     * @param current
+     * @param piv
+     * @param sdts
+     * @return 
+     */
     public Branching updateBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree ... sdts);

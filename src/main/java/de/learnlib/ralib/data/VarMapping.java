@@ -19,8 +19,6 @@
 
 package de.learnlib.ralib.data;
 
-import java.util.Map;
-
 /**
  * maps symbolic data values to symbolic data values.
  * 

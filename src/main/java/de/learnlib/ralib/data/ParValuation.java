@@ -19,11 +19,12 @@
 
 package de.learnlib.ralib.data;
 
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
- *
+ * A valuation of parameters.
+ * 
  * @author falk
  */
 public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {

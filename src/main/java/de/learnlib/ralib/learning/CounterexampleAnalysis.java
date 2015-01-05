@@ -34,10 +34,12 @@ import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
- *
+ * Analyzes Counterexamples in a binary search
+ * as described in SEFM 2014.
+ * 
  * @author falk
  */
-class CounterexampleAnalysis {
+public class CounterexampleAnalysis {
 
     private final TreeOracle sulOracle;
     
@@ -51,7 +53,7 @@ class CounterexampleAnalysis {
     
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
-    public CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
+    CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
             Map<Word<PSymbolInstance>, Component> components) {
         

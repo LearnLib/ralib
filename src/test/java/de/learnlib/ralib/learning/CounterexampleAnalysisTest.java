@@ -22,7 +22,7 @@ package de.learnlib.ralib.learning;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.ElseGuard;
+import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.learning.ces.MockSDTLogicOracle;
 import de.learnlib.ralib.learning.ces.MockTreeOracle;
 import de.learnlib.ralib.theory.TreeOracle;

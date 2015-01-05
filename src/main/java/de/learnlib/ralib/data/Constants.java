@@ -20,7 +20,8 @@
 package de.learnlib.ralib.data;
 
 /**
- *
+ * Named constants.
+ * 
  * @author falk
  */
 public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {

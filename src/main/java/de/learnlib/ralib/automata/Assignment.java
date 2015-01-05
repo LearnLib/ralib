@@ -29,7 +29,8 @@ import de.learnlib.ralib.data.VarValuation;
 import java.util.Map.Entry;
 
 /**
- *
+ * A parallel assignment for registers. 
+ * 
  * @author falk
  */
 public class Assignment {
@@ -50,6 +51,7 @@ public class Assignment {
             else if (valp.isParameter()) {
                 val.put(e.getKey(), parameters.get( (Parameter) valp));
             }
+            //TODO: check if we want to copy constant values into vars
             //else if (valp.isConstant()) {
             //    val.put(e.getKey(), consts.get( (Constant) valp));
             //}

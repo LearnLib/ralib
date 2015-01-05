@@ -23,6 +23,7 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
+@Deprecated
 public class VarsToInternalRegs extends Mapping<SymbolicDataValue, SymbolicDataValue> {
     
 }

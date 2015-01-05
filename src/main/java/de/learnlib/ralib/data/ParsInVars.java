@@ -23,6 +23,7 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
+@Deprecated
 public class ParsInVars extends VarValuation {
    
 //    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {

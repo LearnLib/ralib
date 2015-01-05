@@ -25,7 +25,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.sul.DataWordOracle;
 import de.learnlib.ralib.trees.SDTLeaf;

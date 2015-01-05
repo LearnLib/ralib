@@ -37,12 +37,21 @@ import java.util.Set;
 public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         implements Iterable<Map.Entry<K, V>> {
 
+    //TODO: remove this - it seems to be unused
+    @Deprecated
     public Mapping<K, V> createCopy() {
         Mapping val = new Mapping();
         val.putAll(this);
         return val;
     }    
     
+    /**
+     * returns the contained values of some type.
+     * 
+     * @param <T>
+     * @param type the type
+     * @return 
+     */
     public <T> Collection<DataValue<T>> values(DataType type) {
         List<DataValue<T>> list = new ArrayList<>();
         for (DataValue<?> v : values()) {
@@ -87,10 +96,6 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
 //    }
     
     
-    public <V2 extends DataValue<?>> Mapping<V, V2> then(Mapping<V, V2> other) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-    
     public String toString(String map) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -120,7 +125,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         return toString(">");
     }
     
-    // FIXME: this method is bogus. There may be more than one value.
+    //FIXME: this method is bogus. There may be more than one value.
     public K getOneKey(V value) {
         K retKey = null;
         for (K key : this.keySet()) {

@@ -19,21 +19,21 @@
 
 package de.learnlib.ralib.example.login;
 
-import de.learnlib.ralib.example.IfGuard;
-import de.learnlib.ralib.example.ElseGuard;
+import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.DataExpression;
+import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;

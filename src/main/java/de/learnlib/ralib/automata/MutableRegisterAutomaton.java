@@ -33,7 +33,8 @@ import net.automatalib.automata.MutableDeterministic;
 import net.automatalib.words.Word;
 
 /**
- *
+ * Mutable Register Automaton.
+ * 
  * @author falk
  */
 public class MutableRegisterAutomaton extends RegisterAutomaton

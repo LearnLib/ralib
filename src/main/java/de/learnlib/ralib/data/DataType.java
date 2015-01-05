@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.data;
 
-//import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**

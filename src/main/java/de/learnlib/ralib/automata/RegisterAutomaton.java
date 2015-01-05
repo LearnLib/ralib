@@ -33,6 +33,12 @@ public abstract class RegisterAutomaton
         extends AbstractDeterministicAutomaton<RALocation, ParameterizedSymbol, Transition>
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
     
+    /**
+     * Checks if a data word is accepted by an automaton.
+     * 
+     * @param dw a data word
+     * @return true if dw is accepted
+     */
     public abstract boolean accepts(Word<PSymbolInstance> dw);        
 
     @Override

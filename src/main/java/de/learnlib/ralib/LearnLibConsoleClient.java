@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,37 +17,12 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.example;
-
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataExpression;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
-
+package de.learnlib.ralib;
 
 /**
  *
  * @author falk
  */
-public class IfGuard implements TransitionGuard {
-
-    private final DataExpression<Boolean> condition;
-
-    public IfGuard(DataExpression<Boolean> condition) {
-        this.condition = condition;
-    }
+public class LearnLibConsoleClient {
     
-    @Override
-    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        return condition.evaluate(registers, parameters, consts);
-    }
-
-    @Override
-    public String toString() {
-        return condition.toString();
-    }
-    
-
-
 }

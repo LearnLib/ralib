@@ -29,7 +29,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Map.Entry;
 
 /**
- *
+ * Output transitions are a convenient way of 
+ * modeling systems with output.  
+ * 
  * @author falk
  */
 public class OutputTransition extends Transition {

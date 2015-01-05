@@ -24,11 +24,21 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 
 /**
- *
+ * General interface for transition guards.
+ * 
  * @author falk
  */
 public interface TransitionGuard {
     
+    /**
+     * Checks if the guard is satisfied for the given assignments of 
+     * registers, parameters, and named constants.
+     * 
+     * @param registers
+     * @param parameters
+     * @param consts
+     * @return 
+     */
     public boolean isSatisfied(VarValuation registers, 
             ParValuation parameters, Constants consts); 
         

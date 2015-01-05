@@ -31,7 +31,8 @@ import java.util.Collection;
 import net.automatalib.words.Word;
 
 /**
- *
+ * A cell of an observation table.
+ * 
  * @author falk
  */
 final class Cell {

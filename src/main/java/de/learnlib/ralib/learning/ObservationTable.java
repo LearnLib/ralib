@@ -28,14 +28,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import net.automatalib.words.Word;
 
 /**
- *
+ * An observation table.
+ * 
  * @author falk
  */
-class Observations {
+class ObservationTable {
     
     private final List<SymbolicSuffix> suffixes = new LinkedList<>();
     
@@ -52,7 +52,7 @@ class Observations {
     
     private final ParameterizedSymbol[] inputs;
     
-    public Observations(TreeOracle oracle, ParameterizedSymbol ... inputs) {
+    public ObservationTable(TreeOracle oracle, ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
     }

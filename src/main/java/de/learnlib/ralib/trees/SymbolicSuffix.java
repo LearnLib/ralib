@@ -21,7 +21,7 @@ package de.learnlib.ralib.trees;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;

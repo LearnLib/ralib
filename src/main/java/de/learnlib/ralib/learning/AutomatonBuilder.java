@@ -21,9 +21,7 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
-import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
@@ -40,7 +38,8 @@ import java.util.Map.Entry;
 import net.automatalib.words.Word;
 
 /**
- *
+ * Constructs Register Automata from observation tables
+ * 
  * @author falk
  */
 class AutomatonBuilder {

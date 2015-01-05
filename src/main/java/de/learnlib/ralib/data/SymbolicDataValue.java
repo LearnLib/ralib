@@ -22,35 +22,32 @@ package de.learnlib.ralib.data;
 import java.util.Objects;
 
 /**
- *
+ * Symbolic Data Values (Parameters, registers, etc.).
+ * 
  * @author falk
  */
 public abstract class SymbolicDataValue extends DataValue<Integer> {
 
         
     public static final class Parameter extends SymbolicDataValue {
-        @Deprecated()
         public Parameter(DataType dataType, int id) {
             super(dataType, id);
         }        
     }; 
             
     public static final class Register extends SymbolicDataValue {
-        @Deprecated()
         public Register(DataType dataType, int id) {
             super(dataType, id);
         }        
     };         
 
     public static final class Constant extends SymbolicDataValue {
-        @Deprecated()
         public Constant(DataType dataType, int id) {
             super(dataType, id);
         }        
     };   
     
     public static final class SuffixValue extends SymbolicDataValue {
-        @Deprecated()
         public SuffixValue(DataType dataType, int id) {
             super(dataType, id);
         }        

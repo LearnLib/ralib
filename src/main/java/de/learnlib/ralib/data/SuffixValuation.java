@@ -23,6 +23,7 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
+//TODO: check is necessary
 public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, DataValue<?>> {
     
 }

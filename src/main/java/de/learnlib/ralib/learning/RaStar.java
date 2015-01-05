@@ -28,7 +28,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- *
+ * Learning algorithm for register automata
+ * 
  * @author falk
  */
 public class RaStar {
@@ -38,12 +39,12 @@ public class RaStar {
     public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(
             Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon());
     
-    private final Observations obs;
+    private final ObservationTable obs;
     
     private final Constants consts;
 
     public RaStar(TreeOracle oracle, Constants consts, ParameterizedSymbol ... inputs) {
-        this.obs = new Observations(oracle, inputs);
+        this.obs = new ObservationTable(oracle, inputs);
         this.consts = consts;
         
         this.obs.addPrefix(EMPTY_PREFIX);

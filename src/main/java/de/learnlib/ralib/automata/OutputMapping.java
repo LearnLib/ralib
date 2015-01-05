@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
@@ -29,7 +28,12 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- *
+ * An output mapping encodes the guard of an output transition in a 
+ * more straight-forward form in the case of guards with equalities. 
+ * 
+ * - Fresh parameters have to be unequal to values stored in registers.
+ * - A mapping encodes equalities.
+ * 
  * @author falk
  */
 public class OutputMapping  {
@@ -66,9 +70,7 @@ public class OutputMapping  {
 
     @Override
     public String toString() {
-
         return "F:" + Arrays.toString(fresh.toArray()) + ", M:" + piv.toString();
     }
-    
 
 }

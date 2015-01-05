@@ -26,16 +26,47 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- *
+ * The SDTLogicOracle offers functions that are needed for 
+ * processing counterexamples.
+ * 
  * @author falk
  */
 public interface SDTLogicOracle {
     
+    /**
+     * checks if there is a counterexample (a word that is accepted by one sdt
+     * and rejected by the other sdt). 
+     * 
+     * sdts are both after prefix. the piv objects describe respective assignments
+     * of registers of the sdts. 
+     * 
+     * rep is the dataword that was used for one transition in a hypothesis
+     * with guard. Guard should be used to constrain the initial parameter values
+     * for the sdt.
+     * 
+     * @param prefix
+     * @param sdt1
+     * @param piv1
+     * @param sdt2
+     * @param piv2
+     * @param guard
+     * @param rep
+     * @return 
+     */
     public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
             SymbolicDecisionTree sdt1, PIV piv1, 
             SymbolicDecisionTree sdt2, PIV piv2, 
             TransitionGuard guard, Word<PSymbolInstance> rep);
             
+    /**
+     * checks if one guard refine another guard.
+     * 
+     * @param refined
+     * @param pivRefined
+     * @param refining
+     * @param pivRefining
+     * @return 
+     */
     public boolean doesRefine(TransitionGuard refined, PIV pivRefined,
             TransitionGuard refining, PIV pivRefining);
     

@@ -46,7 +46,5 @@ public class InputTransition extends Transition {
     public String toString() {
         return "(" + source + ", " + label + ", " + guard + ", " + assignment + ", " + destination + ")";
     }
-
-
         
 }

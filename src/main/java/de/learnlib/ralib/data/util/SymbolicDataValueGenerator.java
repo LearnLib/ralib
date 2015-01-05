@@ -17,10 +17,14 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.data.util;
+
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
- *
+ * Generates symbolic data values with increasing ids starting from id=1.
+ * 
  * @author falk
  */
 public abstract class SymbolicDataValueGenerator {

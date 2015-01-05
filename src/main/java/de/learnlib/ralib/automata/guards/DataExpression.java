@@ -17,8 +17,14 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.automata.guards;
 
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarValuation;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -26,10 +32,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- *
+ * A data expression encodes a relation between parameters and
+ * registers as a logic formula using the jConstraints library.
+ * 
  * @author falk
+ * @param <T> type to which the expression evaluates
  */
-public class DataExpression<T> implements Evaluate<T> {
+public class DataExpression<T extends Object> {
 
     private final Expression<T> expression;    
     private final Map<SymbolicDataValue, Variable> mapping;
@@ -40,7 +49,6 @@ public class DataExpression<T> implements Evaluate<T> {
         this.mapping = mapping;
     }
         
-    @Override
     public T evaluate(VarValuation vars, ParValuation pars, Constants consts) {
         
         Valuation val = new Valuation();        
@@ -51,7 +59,7 @@ public class DataExpression<T> implements Evaluate<T> {
         return this.expression.evaluate(val);
     }
     
-    public static Valuation setVals(Valuation valuation, 
+    private Valuation setVals(Valuation valuation, 
             Map<SymbolicDataValue, Variable> mapping,
             Mapping<? extends SymbolicDataValue, DataValue<?>> vals) {
         
@@ -61,7 +69,7 @@ public class DataExpression<T> implements Evaluate<T> {
             if (var == null) {
                 continue;
             }
-            Object value = e.getValue().id;
+            Object value = e.getValue().getId();
             valuation.setValue(var, value);
         }        
         return valuation;

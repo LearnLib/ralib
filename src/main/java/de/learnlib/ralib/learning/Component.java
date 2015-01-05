@@ -19,7 +19,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.PIVRemappingIterator;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Branching;
@@ -37,7 +37,9 @@ import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
- *
+ * A component is a bunch of rows that correspond to the
+ * same location in a hypothesis.
+ * 
  * @author falk
  */
 class Component {
@@ -46,11 +48,11 @@ class Component {
 
     private final Map<Row, VarMapping> otherRows = new LinkedHashMap<>();
 
-    private final Observations obs;
+    private final ObservationTable obs;
 
     private Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
 
-    public Component(Row primeRow, Observations obs) {
+    public Component(Row primeRow, ObservationTable obs) {
         this.primeRow = primeRow;
         this.obs = obs;
     }

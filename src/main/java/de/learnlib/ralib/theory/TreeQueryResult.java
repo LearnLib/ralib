@@ -23,9 +23,11 @@ import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.trees.SymbolicDecisionTree;
 
 /**
- *
+ * Container for result of tree queries.
+ * 
  * @author falk
  */
+//TODO: ParsInVars should be replaced by PIV
 public class TreeQueryResult {
     
     private final ParsInVars parsInVars;

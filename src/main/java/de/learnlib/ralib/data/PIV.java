@@ -30,13 +30,13 @@ import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
- *
+ * A mapping from parameters to registers. 
+ * 
  * @author falk
  */
 public class PIV extends VarMapping<Parameter, Register> {
 
-    public PIV() {
-        
+    public PIV() {        
     }
     
     public PIV(Word<PSymbolInstance> prefix, ParsInVars parsInVars) {
