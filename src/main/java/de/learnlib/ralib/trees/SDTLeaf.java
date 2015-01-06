@@ -19,39 +19,36 @@
 
 package de.learnlib.ralib.trees;
 
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.HashSet;
 
 /**
  * Leaf implementation of an SDT.
  * 
  * @author falk
  */
-public class SDTLeaf extends SymbolicDecisionTree {
+public class SDTLeaf extends SDT {
 
     public static final SDTLeaf ACCEPTING = new SDTLeaf(true);
     
     public static final SDTLeaf REJECTING = new SDTLeaf(false);
 
+    private final boolean accepting;
+    
     private SDTLeaf(boolean accepting) {
-        super(accepting, new HashSet<Register>(), null);
+        super(null);
+        this.accepting = accepting;
     }
             
     @Override
     public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
-
-        assert getRegisters().isEmpty() && 
-                other.getRegisters().isEmpty();
-        
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
 
-    // FIXME: there may be more types of SDT in the end, then the instanceof check will break
     @Override
-    public boolean canUse(SymbolicDecisionTree other) {
-        if (other instanceof SDT) {
+    public boolean canUse(SDT other) {
+        if (!(other instanceof SDTLeaf)) {
             return false;
         }
         else {
@@ -59,14 +56,24 @@ public class SDTLeaf extends SymbolicDecisionTree {
         }
     }
     
-//    @Override
-//    public SymbolicDecisionTree createCopy(VarMapping renaming) {
-//        return this;
-//    }
-    
     @Override
     public String toString() {
         return this.isAccepting() ? "+" : "-";
     }
+
+    @Override
+    public SymbolicDecisionTree relabel(VarMapping relabeling) {
+        return this;
+    }
+
+    @Override
+    public boolean isAccepting() {
+        return accepting;
+    }
     
+    
+    @Override
+    void toString(StringBuilder sb, String indentation) {
+        sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]").append("\n");
+    }
 }

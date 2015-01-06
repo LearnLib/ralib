@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 falk.
+ * Copyright (C) 2014 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,12 +17,44 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib;
+package de.learnlib.ralib.oracles;
+
+import de.learnlib.ralib.data.ParsInVars;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 
 /**
- *
+ * Container for result of tree queries.
+ * 
  * @author falk
  */
-public class LearnLibConsoleClient {
+//TODO: ParsInVars should be replaced by PIV
+public class TreeQueryResult {
+    
+    private final ParsInVars parsInVars;
+    
+    private final SymbolicDecisionTree sdt;
+
+    public TreeQueryResult(
+            ParsInVars piv, 
+            SymbolicDecisionTree sdt) {
+        
+        this.parsInVars = piv;
+        this.sdt = sdt;
+    }
+
+    /**
+     * @return the piv
+     */
+    public ParsInVars getParsInVars() {
+        return parsInVars;
+    }
+
+    /**
+     * @return the sdt
+     */
+    public SymbolicDecisionTree getSdt() {
+        return sdt;
+    }
+
     
 }

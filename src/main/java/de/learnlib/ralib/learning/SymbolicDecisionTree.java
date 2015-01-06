@@ -17,24 +17,40 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory;
+package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.trees.SymbolicSuffix;
-import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+
+import de.learnlib.ralib.data.VarMapping;
 
 /**
- *
+ * This interface describes the methods that are needed in a symbolic decision
+ * tree during learning.
+ * 
  * @author falk
  */
-public interface SDTConstructor {
+public interface SymbolicDecisionTree {
     
-    public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, ParsInVars piv, 
-            SuffixValuation suffixValues);
+    /**
+     * checks if the the tree (under renaming) is equivalent to other tree 
+     * 
+     * @param other
+     * @param renaming
+     * @return 
+     */
+    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
     
+    /**
+     * apply relabeling to tree and return a renamed tree.
+     * 
+     * @param relabeling
+     * @return 
+     */
+    public SymbolicDecisionTree relabel(VarMapping relabeling);
+    
+    /**
+     * true if all paths in this tree are accepting
+     * 
+     * @return 
+     */
+    public boolean isAccepting();
 }

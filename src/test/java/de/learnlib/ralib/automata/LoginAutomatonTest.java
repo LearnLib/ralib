@@ -46,7 +46,7 @@ public class LoginAutomatonTest {
         
         Word<PSymbolInstance> test1 = Word.epsilon();        
         System.out.println("test1: " + test1);     
-        Assert.assertTrue(ra.accepts(test1));
+        Assert.assertFalse(ra.accepts(test1));
 
         Word<PSymbolInstance> test2 = Word.epsilon();        
         test2 = test2.append(new PSymbolInstance(I_REGISTER, new DataValue[] {
@@ -64,7 +64,7 @@ public class LoginAutomatonTest {
                 new DataValue(T_UID, 1), new DataValue(T_PWD, 3)}));
         
         System.out.println("test3: " + test3);     
-        Assert.assertTrue(ra.accepts(test3));          
+        Assert.assertFalse(ra.accepts(test3));          
     }
 
     @BeforeClass

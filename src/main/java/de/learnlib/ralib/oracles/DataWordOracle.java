@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.oracles;
 
 import de.learnlib.api.MembershipOracle;
 import de.learnlib.ralib.words.PSymbolInstance;

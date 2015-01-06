@@ -19,7 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.theory.TreeOracle;
+import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;

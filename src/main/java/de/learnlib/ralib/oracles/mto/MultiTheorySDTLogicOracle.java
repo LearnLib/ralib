@@ -17,29 +17,34 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.learning.sdts;
+package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class LoginExampleBranching implements Branching {
+public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
-    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
+    @Override
+    public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
+            SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2, 
+            TransitionGuard guard, Word<PSymbolInstance> rep) {
+        
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
 
-    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
-        this.branches = branches;
+    @Override
+    public boolean doesRefine(TransitionGuard refined, PIV pivRefined, 
+            TransitionGuard refining, PIV pivRefining) {
+        
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
     
-    @Override
-    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        return branches;
-    }
-        
 }

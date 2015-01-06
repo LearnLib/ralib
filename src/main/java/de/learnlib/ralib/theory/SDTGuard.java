@@ -6,16 +6,23 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import java.util.Map;
 
 /**
  *
  * @author falk
  */
-public class Guard {
+public abstract class SDTGuard {
     
+    //TODO: this should probably be a special sdtparameter
     private final Parameter parameter;
+    
+    //TODO: this should be either a register or a special sdtregister
     private final Register register;
     private final Relation relation;
     
@@ -32,7 +39,7 @@ public class Guard {
         return this.relation;
     }
     
-    public Guard(Parameter param, Register reg, Relation rel) {
+    public SDTGuard(Parameter param, Register reg, Relation rel) {
         
         this.parameter = param;
         this.register = reg;
@@ -43,7 +50,7 @@ public class Guard {
 //        return this;
 //    }
     
-    public Guard[] or(Guard... guards) {
+    public SDTGuard[] or(SDTGuard... guards) {
     //        Guard[] guardList = new Guard[guards.length];
     //        for (int i=0; i<guards.length; i++) {
     //            guardList[i] = guards[i];
@@ -54,13 +61,14 @@ public class Guard {
             return guards;
         }
     
-    public boolean equals(Guard other) {
+    public boolean equals(SDTGuard other) {
         return (this.parameter == other.getParameter() &&
                 this.register == other.getRegister() &&
                 this.relation == other.getRelation());
     }
     
-    public boolean contradicts(Guard other) {
+    //TODO: this method should not be in this class unless it applies to every kind of guard...
+    public boolean contradicts(SDTGuard other) {
         boolean samePR = (this.parameter.getId() == other.getParameter().getId() && 
      //           this.register.getVC() == other.getRegister().getVC() &&
                 this.register.getId() == other.getRegister().getId());
@@ -75,8 +83,15 @@ public class Guard {
     
     @Override
     public String toString() {
-        return this.parameter + " " + this.relation + " " + this.register;
+        return this.register + " " + this.relation + " " + this.parameter;
     }
-            
+
+    /**
+     * 
+     * @param variables
+     * @return 
+     */
+    public abstract Expression<Boolean> getGuardExpression(
+            Map<SymbolicDataValue, Variable> variables);
     
-    }
+}

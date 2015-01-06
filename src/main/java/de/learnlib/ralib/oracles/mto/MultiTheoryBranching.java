@@ -17,11 +17,15 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.learning.sdts;
+package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.HashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -29,17 +33,32 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class LoginExampleBranching implements Branching {
+public class MultiTheoryBranching implements Branching {
 
-    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
+    public static class Node {
+        private final Parameter parameter;
+        private final Map<DataValue, Node> next = new HashMap<>();
+        private final Map<DataValue, SDTGuard> guards = new HashMap<>();
 
-    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
-        this.branches = branches;
+        public Node(Parameter parameter) {
+            this.parameter = parameter;
+        }
+ 
     }
+    
+    private final Word<PSymbolInstance> prefix;
+    
+    private final PSymbolInstance action;
+
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, PSymbolInstance action) {
+        this.prefix = prefix;
+        this.action = action;
+    }
+    
     
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        return branches;
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
-        
+    
 }

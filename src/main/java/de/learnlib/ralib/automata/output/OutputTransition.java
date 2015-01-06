@@ -17,8 +17,11 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.automata.output;
 
+import de.learnlib.ralib.automata.Assignment;
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;

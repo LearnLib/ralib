@@ -75,9 +75,9 @@ public final class LoginAutomatonExample {
         MutableRegisterAutomaton ra = new MutableRegisterAutomaton();        
         
         // locations
-        RALocation l0 = ra.addInitialState();
-        RALocation l1 = ra.addState();
-        RALocation l2 = ra.addState();
+        RALocation l0 = ra.addInitialState(false);
+        RALocation l1 = ra.addState(false);
+        RALocation l2 = ra.addState(true);
         
         // registers and parameters
         RegisterGenerator rgen = new RegisterGenerator();

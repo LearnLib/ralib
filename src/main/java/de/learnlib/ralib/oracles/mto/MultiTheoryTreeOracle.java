@@ -17,23 +17,33 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.theory;
+package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.sul.DataWordOracle;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.trees.SDT;
 import de.learnlib.ralib.trees.SDTLeaf;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -60,12 +70,15 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //for (int k = 0; k<prefixValues.length; k++) {
         //    prefixValuation.put(k, prefixValues[k]);
         //}
-        return treeQuery(prefix, suffix, 
-                new WordValuation(), new ParsInVars(), new SuffixValuation());
+        ParsInVars piv = new ParsInVars();
+        SDT sdt = treeQuery(prefix, suffix, 
+                new WordValuation(), piv, new SuffixValuation());
+        
+        return new TreeQueryResult(piv, sdt);
     }
     
     @Override
-    public TreeQueryResult treeQuery(
+    public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, ParsInVars piv, 
             SuffixValuation suffixValues) {
@@ -94,7 +107,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             
             //System.out.println("Trace = " + trace.toString() + " >>> " + 
             //        (qOut ? "ACCEPT (+)" : "REJECT (-)"));
-            return new TreeQueryResult(piv, qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING);
+            return qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
             
             // return accept / reject as a leaf
         }
@@ -123,9 +136,38 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        //TODO: check if this casting can be avoided by proper use of generics
+        //TODO: the problem seems to be 
+        SDT[] casted = new SDT[sdts.length];
+        for (int i = 0; i < casted.length; i++) {
+                casted[i] = (SDT) sdts[i];                
+            }
+        
+        MultiTheoryBranching mtb = getInitialBranching(
+                prefix, ps, piv, new ParValuation(), 
+                new ArrayList<SDTGuard>(), casted);
+        
+        return mtb;
     }
 
+    
+    @Override
+    public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
+            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
+            List<SDTGuard> guards, SDT... sdts) {
+
+        if (pval.size() == ps.getArity()) {
+            PSymbolInstance psi = null; //TODO: create psi from pval and ps
+            return null; //TODO: return Branching
+        }
+        
+        DataType type = ps.getPtypes()[pval.size()];
+        Theory teach = teachers.get(type);
+        //return teach.getInitialBranching(prefix, ps, piv, pval, guards, this, sdts);
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+    }
+    
     /**
      * This method computes the initial branching for
      * an SDT. It re-uses existing valuations where 
@@ -138,5 +180,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             PIV piv, SymbolicDecisionTree... sdts) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+   
+
+
     
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,32 +17,12 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.sul;
-
-import de.learnlib.api.Query;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Collection;
+package de.learnlib.ralib;
 
 /**
- * Uses a Register Automaton to simulate a SUL. 
- * 
+ *
  * @author falk
  */
-public class SimulatorOracle implements DataWordOracle {
-
-    private final RegisterAutomaton target;
-
-    public SimulatorOracle(RegisterAutomaton target) {
-        this.target = target;
-    }
-    
-    @Override
-    public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
-        for (Query<PSymbolInstance, Boolean> q : clctn) {
-            boolean inLang = target.accepts(q.getInput());
-            q.answer(inLang);
-        }
-    }
+public class ClassAnalyzerConsoleClient {
     
 }

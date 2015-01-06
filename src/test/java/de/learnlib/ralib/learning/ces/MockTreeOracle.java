@@ -22,10 +22,10 @@ package de.learnlib.ralib.learning.ces;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
-import de.learnlib.ralib.theory.Branching;
-import de.learnlib.ralib.theory.TreeOracle;
-import de.learnlib.ralib.theory.TreeQueryResult;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -41,13 +41,7 @@ public class MockTreeOracle implements TreeOracle {
 
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-        return new TreeQueryResult(new ParsInVars(), new SymbolicDecisionTree(true, null, null) {
-            
-            @Override
-            public boolean canUse(SymbolicDecisionTree other) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        });
+        return new TreeQueryResult(new ParsInVars(), null);
     }
 
     @Override

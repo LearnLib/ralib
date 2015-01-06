@@ -29,6 +29,10 @@ import de.learnlib.ralib.words.PSymbolInstance;
  */
 public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {
 
+    public ParValuation() {
+        
+    }
+    
     public ParValuation(PSymbolInstance psi) {
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataValue dv : psi.getParameterValues()) {

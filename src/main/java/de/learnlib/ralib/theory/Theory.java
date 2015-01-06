@@ -19,17 +19,21 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryBranching;
+import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.trees.SDT;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
 import net.automatalib.words.Word;
 
@@ -41,20 +45,6 @@ import net.automatalib.words.Word;
  */
 public interface Theory<T> {
       
-    
-    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
-    
-    /**
-     * computes the potential for a set of data values of this type.
-     * 
-     * @param vals
-     * @return 
-     */
-    
-    
-
-    public List<DataValue<T>> getPotential(List<DataValue<T>> vals);
-    
     /** 
      * Implements a tree query for this theory. This tree query
      * will only work on one parameter and then call the 
@@ -75,7 +65,7 @@ public interface Theory<T> {
      * 
      * @return a symbolic decision tree and updated piv 
      */
-    public TreeQueryResult treeQuery(
+    public SDT treeQuery(
             Word<PSymbolInstance> prefix,             
             SymbolicSuffix suffix,
             WordValuation values, 
@@ -83,23 +73,13 @@ public interface Theory<T> {
             SuffixValuation suffixValues,
             SDTConstructor oracle);
         
-    
-   
-    /**
-     * This method computes the initial branching for
-     * an SDT. It re-uses existing valuations where 
-     * possible.
-     * 
-     * @param merged An SDT
-     * @param vtir mapping from memorable values to
-     * internal registers of the tree
-     * @param parval already used valuations of 
-     * parameters of the tree
-     * @return a branching
-     */
-    public Branching getInitialBranching(
-            SymbolicDecisionTree merged, 
-            VarsToInternalRegs vtir,
-            ParValuation ... parval);
+       
+//    public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
+//            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
+//            List<SDTGuard> guards, SDTConstructor oracle, SDT ... sdts);
+
+//    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
+//            ParameterizedSymbol ps, MultiTheoryBranching current, 
+//            PIV piv, SDTConstructor oracle, SDT... sdts);
     
 }

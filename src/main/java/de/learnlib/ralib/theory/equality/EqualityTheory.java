@@ -29,14 +29,14 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.MultiTheoryTreeOracle;
-import de.learnlib.ralib.theory.SDTConstructor;
-import de.learnlib.ralib.theory.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.trees.SDT;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -57,25 +57,27 @@ import net.automatalib.words.Word;
  */
 public abstract class EqualityTheory<T> implements Theory<T> {
 
-    @Override
+    //@Override
 //    public List<DataValue<T>> getPotential(
 //            Collection<DataValue<T>> vals) {        
 //        Set<DataValue<T>> set = new LinkedHashSet<>(vals);
 //        return new ArrayList<>(set);
 //    }
     
+    public abstract DataValue<T> getFreshValue(List<DataValue<T>> vals);
+        
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
     }
     
     // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
-    private Map<List<Guard>, SymbolicDecisionTree> 
-            mergeGuards(Map<List<Guard>,SymbolicDecisionTree> unmerged) {
-        Map<List<Guard>, SymbolicDecisionTree> merged = new HashMap<>();
-        Map<List<Guard>, SymbolicDecisionTree> ifs = new HashMap<>();
-        for (List<Guard> tempG : unmerged.keySet()) {
-            SymbolicDecisionTree tempSdt = unmerged.get(tempG);
+    private Map<List<SDTGuard>, SDT> 
+            mergeGuards(Map<List<SDTGuard>,SDT> unmerged) {
+        Map<List<SDTGuard>, SDT> merged = new HashMap<>();
+        Map<List<SDTGuard>, SDT> ifs = new HashMap<>();
+        for (List<SDTGuard> tempG : unmerged.keySet()) {
+            SDT tempSdt = unmerged.get(tempG);
             if (tempG.isEmpty()) {
                 //System.out.println("Adding else guard: " + tempG.toString());
                 merged.put(tempG, tempSdt);
@@ -84,10 +86,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 ifs.put(tempG, tempSdt);
             }
         }
-        for (List<Guard> elseG: merged.keySet()) {
-            SymbolicDecisionTree elseSdt = merged.get(elseG);
-            for (List<Guard> ifG : ifs.keySet()) {
-                SymbolicDecisionTree ifSdt = ifs.get(ifG);
+        for (List<SDTGuard> elseG: merged.keySet()) {
+            SDT elseSdt = merged.get(elseG);
+            for (List<SDTGuard> ifG : ifs.keySet()) {
+                SDT ifSdt = ifs.get(ifG);
                 //System.out.println("comparing guards: " + ifG.toString() 
                 // + " to " + elseG.toString() + "\nSDT    : " + 
                 // ifSdt.toString() + "\nto SDT : " + elseSdt.toString());
@@ -103,11 +105,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<List<Guard>> guardSet) {
+    private ParsInVars keepMem(ParsInVars pivs, Set<List<SDTGuard>> guardSet) {
         System.out.println("available regs: " + pivs.toString());
         ParsInVars ret = new ParsInVars();
-        for (List<Guard> mg : guardSet) {
-            for (Guard g : mg) {
+        for (List<SDTGuard> mg : guardSet) {
+            for (SDTGuard g : mg) {
                 if (g.getRelation().equals(Relation.EQUALS)) {
                     System.out.println(g.toString());
                     Register k = g.getRegister();
@@ -121,7 +123,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
        
     @Override
-    public TreeQueryResult treeQuery(
+    public SDT treeQuery(
             Word<PSymbolInstance> prefix, 
             SymbolicSuffix suffix,
             WordValuation values, 
@@ -137,7 +139,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         
         Parameter currentParam = new Parameter(type, pId);    
         
-        Map<List<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
+        Map<List<SDTGuard>, SDT> tempKids = new HashMap<>();
         
         ParsInVars ifPiv  = new ParsInVars();
         ifPiv.putAll(piv);
@@ -177,10 +179,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         elseSuffixValues.putAll(suffixValues);
         elseSuffixValues.put(sv, fresh);
                         
-        TreeQueryResult elseOracleReply = oracle.treeQuery(
+        SDT elseOracleSdt = oracle.treeQuery(
                 prefix, suffix, elseValues, piv, elseSuffixValues);
-        SymbolicDecisionTree elseOracleSdt = elseOracleReply.getSdt();
-        tempKids.put(new ArrayList<Guard>(), elseOracleSdt);
+
+        tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
         
         // process each 'if' case
         for (DataValue<T> newDv : potential) {
@@ -208,18 +210,18 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 ifPiv.put(rv, newDv);
             }
             
-            TreeQueryResult eqOracleReply = oracle.treeQuery(
+            SDT eqOracleSdt = oracle.treeQuery(
                     prefix, suffix, ifValues, ifPiv, ifSuffixValues);
-            SymbolicDecisionTree eqOracleSdt = eqOracleReply.getSdt();
+
                 
-            List newGuardList = new ArrayList<Guard>();
+            List newGuardList = new ArrayList<SDTGuard>();
             newGuardList.add(new EqualityGuard(currentParam,rv));
             
             tempKids.put(newGuardList, eqOracleSdt);
         }
         
         // merge the guards
-        Map<List<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
+        Map<List<SDTGuard>, SDT> merged = mergeGuards(tempKids);
         
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
@@ -232,8 +234,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // clear the temporary map of children
         tempKids.clear();
         
-        SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
-        return new TreeQueryResult(addPiv, returnSDT);         
+        SDT returnSDT = new SDT(merged);
+        return returnSDT;
     
         
                

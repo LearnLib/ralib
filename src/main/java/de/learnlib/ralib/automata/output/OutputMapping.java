@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.automata.output;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;

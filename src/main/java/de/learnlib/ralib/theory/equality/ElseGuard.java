@@ -19,14 +19,18 @@
 
 package de.learnlib.ralib.theory.equality;
 
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import java.util.Map;
 /**
  *
  * @author falk
  */
-public class ElseGuard extends Guard {
+public class ElseGuard extends SDTGuard {
     
     public ElseGuard(Parameter param) {
         super(param, null,Relation.ELSE);     
@@ -42,5 +46,10 @@ public class ElseGuard extends Guard {
         //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
         assert e.getParameter().equals(this.getParameter());
         return this;
+    }
+
+    @Override
+    public Expression<Boolean> getGuardExpression(Map<SymbolicDataValue, Variable> variables) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

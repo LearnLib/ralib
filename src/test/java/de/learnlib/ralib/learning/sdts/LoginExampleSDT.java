@@ -21,7 +21,7 @@ package de.learnlib.ralib.learning.sdts;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import java.util.Set;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  *
  * @author falk
  */
-public class LoginExampleSDT extends SymbolicDecisionTree {
+public class LoginExampleSDT implements SymbolicDecisionTree {
     
     public static enum SDTClass {ACCEPT, REJECT, LOGIN};
     
@@ -40,7 +40,6 @@ public class LoginExampleSDT extends SymbolicDecisionTree {
     private final Set<Register> registers;
     
     public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
-        super( clazz == SDTClass.ACCEPT, null, null);
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;
@@ -62,16 +61,14 @@ public class LoginExampleSDT extends SymbolicDecisionTree {
     public LoginExampleSDT relabel(VarMapping relabelling) {
         return this;
     }    
-    
-    @Override
-    public boolean canUse(SymbolicDecisionTree other) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String toString() {
         return "[" + clazz + "]";
     }
     
-
+    @Override
+    public boolean isAccepting() {
+        return clazz == SDTClass.ACCEPT;
+    }
 }

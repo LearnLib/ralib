@@ -19,15 +19,18 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.sul.DataWordOracle;
-import de.learnlib.ralib.sul.SimulatorOracle;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.HashMap;
@@ -55,10 +58,6 @@ public class TestEqualityTheory {
                 return new DataValue(v.getType(), vals.size() + 1);
             }
 
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
         };    
     
         Theory<Integer> pwdTheory = new EqualityTheory<Integer>() {
@@ -68,10 +67,7 @@ public class TestEqualityTheory {
                 return new DataValue(v.getType(), vals.size() + 1);
             }
 
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+
         };  
     
         Map<DataType, Theory> theories = new HashMap();
@@ -92,7 +88,10 @@ public class TestEqualityTheory {
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGOUT));
+                new PSymbolInstance(I_LOGOUT),
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)));
         
         
         // create a symbolic suffix from the concrete suffix

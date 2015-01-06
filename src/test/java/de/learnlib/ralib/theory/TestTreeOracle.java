@@ -19,14 +19,17 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
-import de.learnlib.ralib.sul.DataWordOracle;
+import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -172,10 +175,6 @@ public class TestTreeOracle {
                         v.getId().toString() + "_" + vals.size());
             }
 
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
             
         };
 
@@ -187,12 +186,7 @@ public class TestTreeOracle {
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());
             }
-            
-            
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
+
 
         };
         

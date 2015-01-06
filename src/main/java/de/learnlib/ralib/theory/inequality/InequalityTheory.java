@@ -13,14 +13,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.IntType;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.MultiTheoryTreeOracle;
-import de.learnlib.ralib.theory.SDTConstructor;
-import de.learnlib.ralib.theory.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.trees.SDT;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -42,18 +41,18 @@ import net.automatalib.words.Word;
 public abstract class InequalityTheory<T> implements Theory<T> {
 
     IntType intType = new IntType();
-
-    private List<Guard> mergeGuardLists(List<Guard> one, List<Guard> two) {
+    
+    private List<SDTGuard> mergeGuardLists(List<SDTGuard> one, List<SDTGuard> two) {
         return removeCo(one,two);
     }
     
-    private List<Guard> removeCo(List<Guard> one, List<Guard> two) {
-        List<Guard> onetwoList = new ArrayList();
+    private List<SDTGuard> removeCo(List<SDTGuard> one, List<SDTGuard> two) {
+        List<SDTGuard> onetwoList = new ArrayList();
 
         // remove contradicting guards
-        List<Guard> cList = new ArrayList();
-        for (Guard o : one) {
-            for (Guard t : two) {
+        List<SDTGuard> cList = new ArrayList();
+        for (SDTGuard o : one) {
+            for (SDTGuard t : two) {
                 if (o.contradicts(t)) {
                     //System.out.println("CONTRADICTION");
                     cList.add(o);
@@ -63,8 +62,8 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         }
 
         //System.out.println("Contradictions: " + cSet.toString());
-        for (Guard o : one) {
-            for (Guard t : two) {
+        for (SDTGuard o : one) {
+            for (SDTGuard t : two) {
                 if (!cList.contains(o)) {
                     onetwoList.add(o);
                 }
@@ -80,11 +79,11 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     
       
     
-    private Map<List<Guard>, SymbolicDecisionTree> tryToMerge(List<Guard> guard, 
-            List<List<Guard>> targetList, Map<List<Guard>, SymbolicDecisionTree> refSDTMap, 
-            Map<List<Guard>, SymbolicDecisionTree> finalMap, Map<List<Guard>, SymbolicDecisionTree> contMap) {
+    private Map<List<SDTGuard>, SDT> tryToMerge(List<SDTGuard> guard, 
+            List<List<SDTGuard>> targetList, Map<List<SDTGuard>, SDT> refSDTMap, 
+            Map<List<SDTGuard>, SDT> finalMap, Map<List<SDTGuard>, SDT> contMap) {
         System.out.println("---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
-    Map<List<Guard>, SymbolicDecisionTree> cMap = new HashMap();
+    Map<List<SDTGuard>, SDT> cMap = new HashMap();
     cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
@@ -94,18 +93,18 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             return finalMap;
         }
         else {
-                Map<List<Guard>, SymbolicDecisionTree> newSDTMap = new HashMap();
+                Map<List<SDTGuard>, SDT> newSDTMap = new HashMap();
         newSDTMap.putAll(refSDTMap);
-        SymbolicDecisionTree guardSDT = newSDTMap.get(guard);
-         List<List<Guard>> newTargetList = new ArrayList();
+        SDT guardSDT = newSDTMap.get(guard);
+         List<List<SDTGuard>> newTargetList = new ArrayList();
         newTargetList.addAll(targetList);
-        List<Guard> other = newTargetList.remove(0);
-        SymbolicDecisionTree otherSDT = newSDTMap.get(other);
+        List<SDTGuard> other = newTargetList.remove(0);
+        SDT otherSDT = newSDTMap.get(other);
         cMap.put(other, otherSDT);
         
             if (guardSDT.canUse(otherSDT) && otherSDT.canUse(guardSDT)) {
                 // if yes, then merge them
-                List<Guard> merged = mergeGuardLists(guard, other);
+                List<SDTGuard> merged = mergeGuardLists(guard, other);
                 System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
                 // add the merged guard and SDT to merged map
                 newSDTMap.put(merged, guardSDT);
@@ -123,17 +122,17 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  
-    private Map<List<Guard>, SymbolicDecisionTree>
-            mergeGuards(Map<List<Guard>, SymbolicDecisionTree> unmerged) {
+    private Map<List<SDTGuard>, SDT>
+            mergeGuards(Map<List<SDTGuard>, SDT> unmerged) {
         System.out.println("master merge...");
-        Map<List<Guard>, SymbolicDecisionTree> tempMap = new HashMap();        
+        Map<List<SDTGuard>, SDT> tempMap = new HashMap();        
         
-        List<List<Guard>> guardList = new ArrayList(unmerged.keySet());
+        List<List<SDTGuard>> guardList = new ArrayList(unmerged.keySet());
         System.out.println("unmerged: " + unmerged.toString());
         //int i = 0;
-            List<List<Guard>> jGuardList = new ArrayList();
+            List<List<SDTGuard>> jGuardList = new ArrayList();
             jGuardList.addAll(guardList);
-            Map<List<Guard>, SymbolicDecisionTree> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
+            Map<List<SDTGuard>, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
             tempMap.putAll(gMerged);   
             
         System.out.println(tempMap.toString());
@@ -149,7 +148,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                
 //                
 //                
-//                Map<Set<Guard>, SymbolicDecisionTree> mergingMap = new HashMap<>();
+//                Map<Set<Guard>, SDT> mergingMap = new HashMap<>();
 //        System.out.println("---- Merging! ---- " + unmerged.toString());
 //        // guards we've already tried
 //        Set<Set<Guard>> tried = new HashSet();
@@ -169,13 +168,13 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //        for (int i = 0; i < gSize - 1; i++) {
 //            boolean uniq = true;
 //            Set<Guard> one = guardList.get(i);
-//            SymbolicDecisionTree oneSdt = unmerged.get(one);
+//            SDT oneSdt = unmerged.get(one);
 //            System.out.print("one : " + one.toString());
 //                // for each next guard array
 //            for (int j = i + 1; j < gSize; j++) {
 //                Set<Guard> two = guardList.get(j);
 //                System.out.println("two : " + two.toString());
-//                SymbolicDecisionTree twoSdt = unmerged.get(two);
+//                SDT twoSdt = unmerged.get(two);
 //                if (oneSdt.canUse(twoSdt)) {
 //                     Set<Guard> onetwo = mergeGuardArrays(one, two);
 //                     System.out.println(one.toString() + " and " + two.toString() + " are compatible, become " + onetwo.toString());
@@ -221,11 +220,11 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<List<Guard>> guardSet) {
+    private ParsInVars keepMem(ParsInVars pivs, Set<List<SDTGuard>> guardSet) {
         ParsInVars ret = new ParsInVars();
         for (Register k : pivs.keySet()) {
-            for (List<Guard> mg : guardSet) {
-                for (Guard g : mg) {
+            for (List<SDTGuard> mg : guardSet) {
+                for (SDTGuard g : mg) {
                     if (g.getRegister().equals(k)) {
                         ret.put(k, pivs.get(k));
                     }
@@ -266,7 +265,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         }
     
     @Override
-    public TreeQueryResult treeQuery(
+    public SDT treeQuery(
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
@@ -300,7 +299,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     //    WordValuation prefixValuation = valuatePrefix(prefix, type);
         // System.out.println("prefix valuation: " + prefixValuation.toString());
 
-        Map<List<Guard>, SymbolicDecisionTree> tempKids = new HashMap<>();
+        Map<List<SDTGuard>, SDT> tempKids = new HashMap<>();
         ParsInVars ifPiv = new ParsInVars();
         ifPiv.putAll(piv);
         // System.out.println("ifpiv is " + ifPiv.toString());
@@ -339,7 +338,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            SymbolicDataValue rvPrev = null;
 //            SymbolicDataValue rvNext = null;
 
-            List<Guard> guards = new ArrayList();
+            List<SDTGuard> guards = new ArrayList();
             
             // SMALLEST case
             if (i == 0) {
@@ -418,9 +417,9 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            if (prev != null) {
 //                guardSet.add(new BiggerGuard(sv, rvPrev));
 //            }
-            TreeQueryResult oracleReply = oracle.treeQuery(
+            SDT oracleSdt = oracle.treeQuery(
                     prefix, suffix, currentValues, ifPiv, currentSuffixValues);
-            SymbolicDecisionTree oracleSdt = oracleReply.getSdt();
+            
             tempKids.put(guards, oracleSdt);
             
 
@@ -429,7 +428,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //        System.out.println("-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
 
         // merge the guards
-        Map<List<Guard>, SymbolicDecisionTree> merged = mergeGuards(tempKids);
+        Map<List<SDTGuard>, SDT> merged = mergeGuards(tempKids);
 
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
@@ -442,9 +441,12 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         // clear the temporary map of children
         tempKids.clear();
 
-        SDT returnSDT = new SDT(true, addPiv.keySet(), merged);
+        SDT returnSDT = new SDT(merged);
 
-        return new TreeQueryResult(addPiv, returnSDT);
+        return returnSDT;
 
     }
+
+    protected abstract List<DataValue<T>> getPotential(List<DataValue<T>> potList);
+
 }

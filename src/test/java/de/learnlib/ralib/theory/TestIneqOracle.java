@@ -19,15 +19,18 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarsToInternalRegs;
-import de.learnlib.ralib.sul.DataWordOracle;
+import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.inequality.InequalityTheory;
 import de.learnlib.ralib.theory.inequality.Compatibility;
-import de.learnlib.ralib.trees.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -165,16 +168,7 @@ public class TestIneqOracle {
         
         Theory<DoubType> doubTheory = new InequalityTheory<DoubType>() {
 
-            @Override
-            public Branching getInitialBranching(SymbolicDecisionTree merged, VarsToInternalRegs vtir, ParValuation... parval) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-            
-            //no fresh value in this theory
-            @Override
-            public DataValue<DoubType> getFreshValue(List<DataValue<DoubType>> vals) {
-                return null;
-            }
+           
             
             public List<DataValue<DoubType>> getPotential(List<DataValue<DoubType>> dvs) {
                 //assume we can just sort the list and get the values

@@ -17,30 +17,33 @@
  * MA 02110-1301  USA
  */
 
+package de.learnlib.ralib.oracles;
+
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.api.Query;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Collection;
+
 /**
- *
- * @author Sofia Cassel
+ * Uses a Register Automaton to simulate a SUL. 
+ * 
+ * @author falk
  */
+public class SimulatorOracle implements DataWordOracle {
 
-package de.learnlib.ralib.theory;
+    private final RegisterAutomaton target;
 
-public enum Relation {
-    EQUALS("=="), 
-    SMALLER("<"), 
-    PLUS_ONE("+1=="), 
-    MEMBER_OF(" in "),
-    BIGGER(">"),
-    ELSE("else");
-    
-    private final String name;       
-
-    private Relation(String s) {
-        name = s;
+    public SimulatorOracle(RegisterAutomaton target) {
+        this.target = target;
     }
-
+    
     @Override
-    public String toString(){
-       return name;
-    }    
+    public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
+        for (Query<PSymbolInstance, Boolean> q : clctn) {
+            boolean inLang = target.accepts(q.getInput());
+            q.answer(inLang);
+        }
+    }
+    
 }
-

@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.sul;
 
+import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.api.Query;
 import de.learnlib.drivers.reflect.AbstractMethodInput;
 import de.learnlib.drivers.reflect.AbstractMethodOutput;

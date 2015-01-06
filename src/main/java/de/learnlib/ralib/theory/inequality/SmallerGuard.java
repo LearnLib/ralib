@@ -19,16 +19,20 @@
 
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.theory.Guard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import java.util.Map;
 
 /**
  *
  * @author falk
  */
-public class SmallerGuard extends Guard {
+public class SmallerGuard extends SDTGuard {
     
     public SmallerGuard(Parameter param, Register reg) {
         super(param,reg,Relation.SMALLER);
@@ -40,6 +44,11 @@ public class SmallerGuard extends Guard {
     public String toString() {
         //return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
         return super.toString();
+    }
+
+    @Override
+    public Expression<Boolean> getGuardExpression(Map<SymbolicDataValue, Variable> variables) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

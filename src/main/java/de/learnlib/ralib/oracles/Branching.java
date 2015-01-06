@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package de.learnlib.ralib.theory;
+package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
