@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata.output;
 
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
@@ -40,31 +41,35 @@ public class OutputMapping  {
     
     private final Collection<Parameter> fresh;
     
-    private final VarMapping<Parameter, Register> piv;
+    private final VarMapping<Parameter, SymbolicDataValue> piv;
     
     public OutputMapping(Collection<Parameter> fresh, 
-            VarMapping<Parameter, Register> piv) {
+            VarMapping<Parameter, SymbolicDataValue> piv) {
         this.fresh = fresh;
         this.piv = piv;
     }
     
     public OutputMapping() {
-        this(new ArrayList<Parameter>(), new VarMapping<Parameter, Register>());
+        this(new ArrayList<Parameter>(), new VarMapping<Parameter, SymbolicDataValue>());
     }
 
     public OutputMapping(Parameter fresh) {
-        this(Collections.singleton(fresh), new VarMapping<Parameter, Register>());
+        this(Collections.singleton(fresh), new VarMapping<Parameter, SymbolicDataValue>());
     }
     
     public OutputMapping(Parameter key, Register value) {
-        this(new ArrayList<Parameter>(), new VarMapping<Parameter, Register>(key, value));
+        this(new ArrayList<Parameter>(), new VarMapping<Parameter, SymbolicDataValue>(key, value));
+    }
+
+    public OutputMapping(VarMapping<Parameter, SymbolicDataValue> outputs) {
+        this(new ArrayList<Parameter>(), outputs);
     }
 
     public Collection<Parameter> getFreshParameters() {
         return fresh;
     }
     
-    public VarMapping<Parameter, Register> getOutput() {
+    public VarMapping<Parameter, SymbolicDataValue> getOutput() {
         return piv;
     }
 

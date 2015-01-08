@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.automata.DeterministicAutomaton;
@@ -32,6 +33,17 @@ import net.automatalib.words.Word;
 public abstract class RegisterAutomaton 
         extends AbstractDeterministicAutomaton<RALocation, ParameterizedSymbol, Transition>
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
+    
+    protected final VarValuation initialRegisters;
+
+    public RegisterAutomaton(VarValuation initialRegisters) {
+        this.initialRegisters = initialRegisters;
+    }
+
+    public RegisterAutomaton() {
+        this(new VarValuation());
+    }
+
     
     /**
      * Checks if a data word is accepted by an automaton.

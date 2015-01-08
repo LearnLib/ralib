@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,15 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.sul;
+
+import de.learnlib.api.SUL;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
- * A valuation of registers.
- * 
+ *
  * @author falk
  */
-public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue<?>> {
-
-    public VarValuation(VarValuation other) {
-        putAll(other);
-    }
-
-    public VarValuation() {
-    }
-     
+public interface DataWordSUL extends SUL<PSymbolInstance, PSymbolInstance> {
+    
 }

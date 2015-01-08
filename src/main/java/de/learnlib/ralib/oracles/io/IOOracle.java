@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,18 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.oracles.io;
+
+import de.learnlib.ralib.oracles.QueryCounter;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
- * A valuation of registers.
- * 
+ *
  * @author falk
  */
-public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue<?>> {
+public abstract class IOOracle extends QueryCounter {
+    
+    public abstract Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
 
-    public VarValuation(VarValuation other) {
-        putAll(other);
-    }
-
-    public VarValuation() {
-    }
-     
 }

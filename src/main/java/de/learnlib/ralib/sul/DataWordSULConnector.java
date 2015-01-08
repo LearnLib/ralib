@@ -39,6 +39,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
+@Deprecated
 public class DataWordSULConnector implements DataWordOracle {
     
     final SimplePOJOTestDriver driver;    

@@ -25,6 +25,8 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
@@ -63,10 +65,19 @@ public class OutputTransition extends Transition {
         }
 
         // check other parameters
-        for (Entry<Parameter, Register> e : output.getOutput()) {
-            if (!parameters.get(e.getKey()).equals(
-                    registers.get(e.getValue()))) {
-                return false;
+        for (Entry<Parameter, SymbolicDataValue> e : output.getOutput()) {
+            if (e.getValue() instanceof Register) {
+                if (!parameters.get(e.getKey()).equals(
+                        registers.get( (Register) e.getValue()))) {
+                    return false;
+                }
+            } else if (e.getValue() instanceof Constant) {
+                if (!parameters.get(e.getKey()).equals(
+                        consts.get( (Constant) e.getValue()))) {
+                    return false;
+                }
+            } else {
+                throw new IllegalStateException("Source for parameter has to be register or constant.");
             }
         }
             

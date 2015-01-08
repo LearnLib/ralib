@@ -55,5 +55,12 @@ public abstract class SymbolicDataValueGenerator {
         public SymbolicDataValue.SuffixValue next(DataType type) {
             return new SymbolicDataValue.SuffixValue(type, id++);
         }        
-    };      
+    };  
+    
+    public static final class ConstantGenerator extends SymbolicDataValueGenerator {
+        @Override
+        public SymbolicDataValue.Constant next(DataType type) {
+            return new SymbolicDataValue.Constant(type, id++);
+        }        
+    };     
 }

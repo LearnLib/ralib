@@ -48,6 +48,11 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     
     private final Set<RALocation> locations = new HashSet<>();
     
+    public MutableRegisterAutomaton(Constants consts, VarValuation initialRegisters) {
+        super(initialRegisters);
+        this.constants = consts;
+    }
+    
     public MutableRegisterAutomaton(Constants consts) {
         this.constants = consts;
     }
@@ -83,7 +88,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
     
     protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation();
+        VarValuation vars = new VarValuation(initialRegisters);
         RALocation current = initial;
         List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {

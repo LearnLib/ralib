@@ -39,7 +39,7 @@ public class ParameterizedSymbol {
      */
     private final DataType[] ptypes;
 
-    public ParameterizedSymbol(String name, DataType[] ptypes) {
+    public ParameterizedSymbol(String name, DataType ... ptypes) {
         this.name = name;
         this.ptypes = ptypes;
     }
