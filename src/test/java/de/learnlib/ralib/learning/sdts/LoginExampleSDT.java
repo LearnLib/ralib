@@ -22,7 +22,7 @@ package de.learnlib.ralib.learning.sdts;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import java.util.Set;
 
 /**

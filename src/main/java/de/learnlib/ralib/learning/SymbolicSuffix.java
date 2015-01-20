@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.trees;
+package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;

@@ -21,7 +21,7 @@ package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;

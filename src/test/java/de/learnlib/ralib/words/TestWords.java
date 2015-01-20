@@ -21,7 +21,7 @@ package de.learnlib.ralib.words;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;

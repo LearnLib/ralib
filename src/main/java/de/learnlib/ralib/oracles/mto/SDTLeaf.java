@@ -17,7 +17,7 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.trees;
+package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;

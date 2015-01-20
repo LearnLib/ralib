@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package de.learnlib.ralib.trees;
+package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.SymbolicDataValue;

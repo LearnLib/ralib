@@ -25,7 +25,6 @@ import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 

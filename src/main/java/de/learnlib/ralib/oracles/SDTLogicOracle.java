@@ -61,13 +61,13 @@ public interface SDTLogicOracle {
     /**
      * checks if one guard refine another guard.
      * 
-     * @param refined
-     * @param pivRefined
      * @param refining
      * @param pivRefining
+     * @param refined
+     * @param pivRefined
      * @return 
      */
-    public boolean doesRefine(TransitionGuard refined, PIV pivRefined,
-            TransitionGuard refining, PIV pivRefining);
+    public boolean doesRefine(TransitionGuard refining, PIV pivRefining,
+            TransitionGuard refined, PIV pivRefined);
     
 }

@@ -30,7 +30,7 @@ import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;

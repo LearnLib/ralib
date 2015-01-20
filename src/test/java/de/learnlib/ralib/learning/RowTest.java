@@ -25,7 +25,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Arrays;

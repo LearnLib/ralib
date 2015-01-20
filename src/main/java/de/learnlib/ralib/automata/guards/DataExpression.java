@@ -19,17 +19,25 @@
 
 package de.learnlib.ralib.automata.guards;
 
+import com.google.common.base.Function;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.Negation;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * A data expression encodes a relation between parameters and
@@ -40,6 +48,13 @@ import java.util.Map.Entry;
  */
 public class DataExpression<T extends Object> {
 
+    private static class MapFunction extends HashMap<String, String> implements Function<String, String> {
+        @Override
+        public String apply(String f) {
+            return get(f);
+        }        
+    }    
+    
     private final Expression<T> expression;    
     private final Map<SymbolicDataValue, Variable> mapping;
 
@@ -79,6 +94,82 @@ public class DataExpression<T extends Object> {
     public String toString() {
         return this.mapping.toString() + "[" + this.expression.toString() + "]";
     }
+
+    /**
+     * @return the expression
+     */
+    public Expression<T> getExpression() {
+        return expression;
+    }
+
+    /**
+     * @return the mapping
+     */
+    public Map<SymbolicDataValue, Variable> getMapping() {
+        return mapping;
+    }
     
+    
+    
+    public DataExpression<T> relabel(
+            VarMapping<SymbolicDataValue, SymbolicDataValue> renaming) {
+
+        Map<SymbolicDataValue, Variable> newMap = new HashMap<>();
+        for (Entry<SymbolicDataValue, Variable> e : mapping.entrySet()) {
+            SymbolicDataValue sdv = renaming.get(e.getKey());
+            if (sdv == null) {
+                sdv = e.getKey();
+            }
+            newMap.put(sdv, e.getValue());
+        }
+        return new DataExpression<>(expression, newMap);
+    }
+    
+    public static DataExpression<Boolean> negate(DataExpression<Boolean> neg) {
+        return new DataExpression<>(new Negation(neg.expression), neg.mapping);
+    } 
+    
+    public static DataExpression<Boolean> and(DataExpression<Boolean> ... conj) {
+        Set<SymbolicDataValue> vals = new HashSet<>();
+        for (DataExpression<Boolean> expr : conj) {
+            vals.addAll(expr.mapping.keySet());
+        }
+        return and(vals, conj);
+    }
+            
+    public static DataExpression<Boolean> and(
+            Collection<SymbolicDataValue> join, DataExpression<Boolean> ... conj) {
+        
+        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        Expression<Boolean> and = null;
+        
+        int eIdx = 0;
+        for (DataExpression<Boolean> expr : conj) {
+            MapFunction mFkt = new MapFunction();
+            for (Entry<SymbolicDataValue, Variable> e : expr.mapping.entrySet()) {
+                
+                if (join.contains(e.getKey())) {
+                    // replace var name by joined name
+                    Variable var = map.get(e.getKey());
+                    if (var == null) {
+                        map.put(e.getKey(), e.getValue());
+                    } else {
+                        mFkt.put(e.getValue().getName(), var.getName());
+                    }
+                } else {
+                    mFkt.put(e.getValue().getName(), "e" + eIdx + "_" + 
+                            e.getValue().getName());
+                }
+            }
+
+            Expression<Boolean> _temp = ExpressionUtil.renameVars(
+                    expr.expression, mFkt);
+            
+            and = (and == null) ? _temp : ExpressionUtil.and(and, _temp);                    
+            eIdx++;
+        }
+        
+        return new DataExpression<>(and, map);
+    }
 
 }

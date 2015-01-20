@@ -32,7 +32,6 @@ import java.util.Map;
 import net.automatalib.words.Word;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import org.testng.annotations.Test;

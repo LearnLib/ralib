@@ -21,8 +21,9 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -32,19 +33,23 @@ import net.automatalib.words.Word;
  */
 public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
+
+    
     @Override
     public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
             SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2, 
             TransitionGuard guard, Word<PSymbolInstance> rep) {
         
-        throw new UnsupportedOperationException("Not supported yet."); 
+        //Collection<SymbolicDataValue> join = piv1.values();
+        
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+        
     }
 
     @Override
-    public boolean doesRefine(TransitionGuard refined, PIV pivRefined, 
-            TransitionGuard refining, PIV pivRefining) {
-        
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public boolean doesRefine(TransitionGuard refining, PIV pivRefining, 
+            TransitionGuard refined, PIV pivRefined) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

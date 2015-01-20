@@ -19,7 +19,6 @@
 
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.trees.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 

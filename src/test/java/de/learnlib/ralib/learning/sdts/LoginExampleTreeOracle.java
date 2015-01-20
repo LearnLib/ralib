@@ -35,7 +35,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.trees.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
