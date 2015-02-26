@@ -25,8 +25,11 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import net.automatalib.words.Word;
 
 /**
@@ -43,22 +46,93 @@ public class MultiTheoryBranching implements Branching {
         public Node(Parameter parameter) {
             this.parameter = parameter;
         }
+        
+        public Node(Parameter parameter, 
+                Map<DataValue, Node> next, 
+                Map<DataValue, SDTGuard> guards) {
+            this.parameter = parameter;
+            this.next.putAll(next);
+            this.guards.putAll(guards);
+        }
+        
+//        @Override
+//        public String toString() {
+//            return ":Node: \n " + parameter.toString() + "\n" 
+//                    + "--next on: " + next.keySet().toString() + " -->\n" + next.toString() + "\n"
+//                    + "--guards-->\n" + guards.toString() + "\n:End node:";
+//        }
+//        
+            @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        String start = parameter.toString();        
+        sb.append(start).append("::\n");
+        toString(sb, spaces(1));
+        return sb.toString();
+    }
+    
+    void toString(StringBuilder sb, String indentation) {
+        sb.append(indentation);
+        final int childCount = next.keySet().size();
+        int count = 1;
+        for (Map.Entry<DataValue, Node> e : next.entrySet()) {
+            DataValue d = e.getKey();
+            SDTGuard g = guards.get(d);
+            //TODO: replace lists of guards by guards
+            String nextIndent;
+            if (count == childCount) {
+                nextIndent = indentation + "      ";
+            } else {
+                nextIndent = indentation + " |    ";
+            } 
+            if (count > 1) {            
+                sb.append(indentation);
+            }
+            sb.append("-- ").append(g.toString()).append(" (").append(d.toString()).append(") -->\n");
+            e.getValue().toString(sb, nextIndent);
+            
+            count++;
+        }
+    }
+
+    private String spaces(int max) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < max; i++) {
+            sb.append(" ");
+        }
+        return sb.toString();
+    }
+
  
     }
     
     private final Word<PSymbolInstance> prefix;
     
-    private final PSymbolInstance action;
+    private final ParameterizedSymbol action;
+    
+    private final Node node;
 
-    public MultiTheoryBranching(Word<PSymbolInstance> prefix, PSymbolInstance action) {
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node) {
         this.prefix = prefix;
         this.action = action;
+        this.node = node;
     }
     
     
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+//        Set<Word<PSymbolInstance>> words = new HashSet<>();
+//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new HashMap<>();
+//        for (DataValue d : this.node.guards.keySet()) {
+//            
+//        }
+//  
+        return null;  
+    }
+    
+    @Override
+    public String toString() {
+        return "---- Branching for " + action.toString() + " after " + prefix.toString() + " ----\n" + node.toString() + "\n-------------------------------------------------------------------------------------";
     }
     
 }

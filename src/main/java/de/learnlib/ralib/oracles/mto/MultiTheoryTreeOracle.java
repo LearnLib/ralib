@@ -19,14 +19,17 @@
 
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.Branching;
@@ -36,11 +39,13 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.equality.ElseGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -149,21 +154,67 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return mtb;
     }
 
+    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
+            ParameterizedSymbol ps, PIV piv, ParValuation pval, SymbolicDecisionTree... sdts) {
+        SDT[] casted = new SDT[sdts.length];
+        for (int i = 0; i < casted.length; i++) {
+                casted[i] = (SDT) sdts[i];                
+            }
+        
+        MultiTheoryBranching mtb = getInitialBranching(
+                prefix, ps, piv, pval, 
+                new ArrayList<SDTGuard>(), casted);
+        
+        return mtb;
+    }
+    
     
     @Override
+    // get the initial branching for the symbol ps after prefix given a certain tree
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
+//ParVal maps from parameters to data values; PIV maps from parameters to registers
             List<SDTGuard> guards, SDT... sdts) {
-
-        if (pval.size() == ps.getArity()) {
-            PSymbolInstance psi = null; //TODO: create psi from pval and ps
-            return null; //TODO: return Branching
+        
+        Node n = createNode(0, prefix, ps, piv, pval, sdts);
+        
+        return new MultiTheoryBranching(prefix, ps, n);
+    
+    }
+    
+    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, 
+            PIV piv, ParValuation pval, SDT... sdts) {
+        
+        if (i == ps.getArity()) {
+            return new Node(new Parameter(null,ps.getArity()));
         }
         
-        DataType type = ps.getPtypes()[pval.size()];
-        Theory teach = teachers.get(type);
-        //return teach.getInitialBranching(prefix, ps, piv, pval, guards, this, sdts);
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
+        else {
+            DataType type = ps.getPtypes()[i];
+            int j = i+1;
+            Parameter p = new Parameter(type,j);
+            SuffixValue s = new SuffixValue(type,j);
+            Map<DataValue, Node> nextMap = new HashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            for (SDT sdt : sdts) {
+                for (List<SDTGuard> guardList : sdt.getChildren().keySet()) {
+                    System.out.println(guardList.toString());
+                    Theory teach = teachers.get(type);
+                    DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guardList, p);
+                    //System.out.println("dvi = " + dvi.toString());
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, sdts));
+                    // another ugly hack because yuck
+                    SDTGuard newGuard = new ElseGuard(s);
+                    if (!guardList.isEmpty()) {
+                        newGuard = guardList.get(0);
+                    }
+                    guardMap.put(dvi, newGuard);
+                }
+            }
+            System.out.println("guardMap: " + guardMap.toString());
+            System.out.println("nextMap: " + nextMap.toString());
+            return new Node(p,nextMap,guardMap);
+        }
     }
     
     /**

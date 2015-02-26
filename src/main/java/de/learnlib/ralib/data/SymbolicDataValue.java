@@ -69,6 +69,9 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         } else if (this.isRegister()) {
             s += "r";             
         }
+        else if (this.isSuffixValue()) {
+            s+= "s";
+        }
         return s + this.id;
     }
     
@@ -109,6 +112,10 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
 
     public boolean isConstant() {
         return this.getClass().equals(Constant.class);
+    }
+    
+    public boolean isSuffixValue() {
+        return this.getClass().equals(SuffixValue.class);
     }
 
 }

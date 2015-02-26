@@ -21,30 +21,27 @@ package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,7 +61,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //        return new ArrayList<>(set);
 //    }
     
-    public abstract DataValue<T> getFreshValue(List<DataValue<T>> vals);
         
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
@@ -137,7 +133,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         DataType type = sv.getType();
         
         
-        Parameter currentParam = new Parameter(type, pId);    
+        SuffixValue currentParam = new SuffixValue(type, pId);    
         
         Map<List<SDTGuard>, SDT> tempKids = new HashMap<>();
         
@@ -214,7 +210,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     prefix, suffix, ifValues, ifPiv, ifSuffixValues);
 
                 
-            List newGuardList = new ArrayList<SDTGuard>();
+            List newGuardList = new ArrayList<>();
             newGuardList.add(new EqualityGuard(currentParam,rv));
             
             tempKids.put(newGuardList, eqOracleSdt);
@@ -241,6 +237,43 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                
                     
     }
+
+    @Override
+    public DataValue instantiate(
+            Word<PSymbolInstance> prefix, 
+            ParameterizedSymbol ps, PIV piv, 
+            ParValuation pval, 
+            List<SDTGuard> guards, 
+            Parameter param) {
+        
+        System.out.println("size of guards: " + guards.size() + "; guards are: " + guards.toString());
+        
+        if (!guards.isEmpty()) {
+            // ugly hack because in equality theory, all guard lists contain only one element
+            System.out.println("picking guard " + guards.get(0).toString());
+            SDTGuard g = guards.get(0);
+            if (g.getRelation().equals(Relation.EQUALS)) {
+                System.out.println("equality guard");
+                if (!pval.isEmpty()) {
+                    System.out.println("pval = " + pval.toString());
+                }
+                else {
+                    System.out.println("pval is empty");
+                }
+                return pval.get(param);
+            }
+        }
+        
+        System.out.println("base case");
+        DataType type = param.getType();
+        Collection potSet = DataWords.<T>joinValsToSet(
+                            DataWords.<T>valSet(prefix, type),
+                            pval.<T>values(type));
+        DataValue fresh = this.getFreshValue(new ArrayList<>(potSet));
+        System.out.println("fresh = " + fresh.toString());
+        return fresh;
+        
+        }
     
     
 }

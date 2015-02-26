@@ -20,7 +20,7 @@
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ElseGuard extends SDTGuard {
     
-    public ElseGuard(Parameter param) {
+    public ElseGuard(SuffixValue param) {
         super(param, null,Relation.ELSE);     
     }
     

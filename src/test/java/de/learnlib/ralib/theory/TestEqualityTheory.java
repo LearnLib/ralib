@@ -20,19 +20,21 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarsToInternalRegs;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +95,11 @@ public class TestEqualityTheory {
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
         
+        final Word<PSymbolInstance> testprefix = Word.fromSymbols(
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)));
+        
         
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
@@ -102,10 +109,25 @@ public class TestEqualityTheory {
         System.out.println("Suffix: " + symSuffix);        
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+        SymbolicDecisionTree sdt = res.getSdt();
 //        System.out.println(res.getSdt().isAccepting());
-        System.out.println("final SDT: \n" + res.getSdt().toString());
+        System.out.println("final SDT: \n" + sdt.toString());
+        
+        Parameter p1 = new Parameter(T_UID, 1);
+        Parameter p2 = new Parameter(T_PWD, 2);
+        DataValue d1 = new DataValue(T_UID, 1);
+        DataValue d2 = new DataValue(T_PWD, 1);
+        
+        PIV testPiv =  new PIV();
+        testPiv.put(p1, new Register(T_UID, 1));
+        testPiv.put(p2, new Register(T_PWD, 2));
+        
+        ParValuation testPval = new ParValuation();
+        testPval.put(p1, d1);
+        testPval.put(p2,d2);
     
-    
+        System.out.println("branching");
+        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(testprefix, I_LOGIN, testPiv, testPval, sdt));
     }
     
     

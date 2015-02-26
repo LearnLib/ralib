@@ -30,10 +30,19 @@ public class SDT implements SymbolicDecisionTree {
         this.children = children;
     }
     
+    @Override
     public Set<Register> getRegisters() {
         Set<Register> registers = new HashSet<>();
         for (Entry<List<SDTGuard>, SDT> e : children.entrySet()) {
-            //TODO: do something to collect registers
+//            System.out.println(e.getKey().toString() + " " + e.getValue().toString());
+            for (SDTGuard g : e.getKey()) {
+                registers.add(g.getRegister());
+            }
+            SDT child = e.getValue();
+            if (child.getChildren() != null) {
+            //    Set<Register> chiRegs = child.getRegisters
+               registers.addAll(child.getRegisters());
+            }
         }
         return registers;
     }

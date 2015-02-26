@@ -9,6 +9,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
@@ -20,14 +21,14 @@ import java.util.Map;
 public abstract class SDTGuard {
     
     //TODO: this should probably be a special sdtparameter
-    private final Parameter parameter;
+    private final SuffixValue parameter;
     
     //TODO: this should be either a register or a special sdtregister
     private final Register register;
     private final Relation relation;
     
     
-    public Parameter getParameter() {
+    public SuffixValue getParameter() {
         return this.parameter;
     }
     
@@ -39,7 +40,7 @@ public abstract class SDTGuard {
         return this.relation;
     }
     
-    public SDTGuard(Parameter param, Register reg, Relation rel) {
+    public SDTGuard(SuffixValue param, Register reg, Relation rel) {
         
         this.parameter = param;
         this.register = reg;

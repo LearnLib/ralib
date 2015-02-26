@@ -20,7 +20,7 @@
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class EqualityGuard extends SDTGuard {
     
-    public EqualityGuard(Parameter param, Register reg) {
+    public EqualityGuard(SuffixValue param, Register reg) {
         super(param, reg, Relation.EQUALS);
     }
     

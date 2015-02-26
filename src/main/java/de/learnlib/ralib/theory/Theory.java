@@ -19,19 +19,17 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.VarsToInternalRegs;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryBranching;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.mto.MultiTheoryBranching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
@@ -62,9 +60,13 @@ public interface Theory<T> {
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
      * @param regGenerator
+     * @param vals
      * 
      * @return a symbolic decision tree and updated piv 
      */
+    
+    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
+    
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,             
             SymbolicSuffix suffix,
@@ -74,9 +76,9 @@ public interface Theory<T> {
             SDTConstructor oracle);
         
        
-//    public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
-//            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
-//            List<SDTGuard> guards, SDTConstructor oracle, SDT ... sdts);
+    public DataValue instantiate(Word<PSymbolInstance> prefix, 
+            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
+            List<SDTGuard> guards, Parameter param);
 
 //    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
 //            ParameterizedSymbol ps, MultiTheoryBranching current, 
