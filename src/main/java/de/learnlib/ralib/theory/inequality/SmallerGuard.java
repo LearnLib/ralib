@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class SmallerGuard extends SDTGuard {
     
-    public SmallerGuard(Parameter param, Register reg) {
+    public SmallerGuard(SymbolicDataValue.SuffixValue param, Register reg) {
         super(param,reg,Relation.SMALLER);
     }
     

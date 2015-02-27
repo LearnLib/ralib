@@ -25,7 +25,9 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.inequality.InequalityTheory;
@@ -209,6 +211,16 @@ public class TestIneqOracle {
                 }
                 return retList;
                 
+            }
+
+            @Override
+            public DataValue<DoubType> getFreshValue(List<DataValue<DoubType>> vals) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval, List<SDTGuard> guards, SymbolicDataValue.Parameter param) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
             
             

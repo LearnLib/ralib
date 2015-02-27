@@ -293,7 +293,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         
         //int pId = sId + prefixValuation.size();
         
-        Parameter currentParam = new Parameter(type, pId+prefixValuation.size());    
+        SuffixValue currentParam = new SuffixValue(type, pId+prefixValuation.size());    
         
 
     //    WordValuation prefixValuation = valuatePrefix(prefix, type);

@@ -30,7 +30,7 @@ import java.util.Set;
  * @author falk
  */
 public class LoginExampleSDT implements SymbolicDecisionTree {
-    
+
     public static enum SDTClass {ACCEPT, REJECT, LOGIN};
     
     private final SDTClass clazz;
@@ -71,4 +71,10 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     public boolean isAccepting() {
         return clazz == SDTClass.ACCEPT;
     }
+    
+    @Override
+    public Set<Register> getRegisters() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+        
 }

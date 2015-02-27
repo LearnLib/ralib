@@ -22,8 +22,9 @@ package de.learnlib.ralib.theory.inequality;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.Relation;
+import de.learnlib.ralib.theory.SDTGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Map;
  */
 public class BiggerGuard extends SDTGuard {
     
-    public BiggerGuard(Parameter param, Register reg) {
+    public BiggerGuard(SuffixValue param, Register reg) {
         super(param,reg,Relation.BIGGER);
     }
     
