@@ -78,7 +78,7 @@ public interface Theory<T> {
        
     public DataValue instantiate(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
-            List<SDTGuard> guards, Parameter param);
+            SDTGuard guard, Parameter param);
 
 //    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
 //            ParameterizedSymbol ps, MultiTheoryBranching current, 

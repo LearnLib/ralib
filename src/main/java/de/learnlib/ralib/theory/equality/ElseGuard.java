@@ -20,12 +20,15 @@
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 /**
  *
  * @author falk
@@ -34,6 +37,11 @@ public class ElseGuard extends SDTGuard {
     
     public ElseGuard(SuffixValue param) {
         super(param, null,Relation.ELSE);     
+    }
+    
+    @Override
+    public Set<Register> getRegisters() {
+        return new HashSet<>();
     }
     
     

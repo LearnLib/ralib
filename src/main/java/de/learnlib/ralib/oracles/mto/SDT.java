@@ -6,8 +6,8 @@
 
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -24,20 +24,19 @@ import java.util.Set;
  */
 public class SDT implements SymbolicDecisionTree {
     
-    private final Map<List<SDTGuard>, SDT> children;
+    private final Map<SDTGuard, SDT> children;
 
-    public SDT(Map<List<SDTGuard>, SDT> children) {
+    public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
     
     @Override
     public Set<Register> getRegisters() {
         Set<Register> registers = new HashSet<>();
-        for (Entry<List<SDTGuard>, SDT> e : children.entrySet()) {
+        for (Entry<SDTGuard, SDT> e : children.entrySet()) {
 //            System.out.println(e.getKey().toString() + " " + e.getValue().toString());
-            for (SDTGuard g : e.getKey()) {
-                registers.add(g.getRegister());
-            }
+            
+            registers.addAll(e.getKey().getRegisters());
             SDT child = e.getValue();
             if (child.getChildren() != null) {
             //    Set<Register> chiRegs = child.getRegisters
@@ -59,7 +58,7 @@ public class SDT implements SymbolicDecisionTree {
         return true;
     }
     
-    protected Map<List<SDTGuard>, SDT> getChildren() {
+    protected Map<SDTGuard, SDT> getChildren() {
         return this.children;
     }
 
@@ -94,9 +93,9 @@ public class SDT implements SymbolicDecisionTree {
         sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]");
         final int childCount = children.size();
         int count = 1;
-        for (Entry<List<SDTGuard>, SDT> e : children.entrySet()) {
-            List<SDTGuard> g = e.getKey();
-            String gString = Arrays.toString(g.toArray());
+        for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+            SDTGuard g = e.getKey();
+            String gString = g.toString();
             //TODO: replace lists of guards by guards
             if (gString.length() < 3) {
                 gString = "[else]";
@@ -163,8 +162,18 @@ public class SDT implements SymbolicDecisionTree {
     // Returns true if this SDT can use the registers of another SDT.  Registers
     // are matched by name (no remapping)
     private boolean regCanUse(SDT other) {
+        
         Set<Register> otherRegisters = other.getRegisters();
         Set<Register> thisRegisters = this.getRegisters();
+       
+        System.out.println(thisRegisters.toString() + " vs " + otherRegisters.toString());
+        
+        if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
+            System.out.println("no regs anywhere");
+            return true;
+        }
+        else {
+            System.out.println("regs");
         Boolean[] regEqArr = new Boolean[thisRegisters.size()];
         Integer i = 0;
         for (SymbolicDataValue thisReg : thisRegisters) { // if the trees have the same type and size
@@ -178,18 +187,19 @@ public class SDT implements SymbolicDecisionTree {
             i++;
         }
         return isArrayTrue(regEqArr);
+        }
     }
     
     // Returns true if this SDT can use the children of another SDT.
     private boolean chiCanUse (SDT other) {
-        Map<List<SDTGuard>, SDT> thisChildren  = this.getChildren();
-        Map<List<SDTGuard>, SDT> otherChildren  = other.getChildren();
+        Map<SDTGuard, SDT> thisChildren  = this.getChildren();
+        Map<SDTGuard, SDT> otherChildren  = other.getChildren();
         Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
         Integer i = 0;
-        for (List<SDTGuard> thisGuard : thisChildren.keySet()) {
+        for (SDTGuard thisGuard : thisChildren.keySet()) {
             SDT thisBranch = thisChildren.get(thisGuard);
             chiEqArr[i] = false;
-            for (List<SDTGuard> otherGuard : otherChildren.keySet()) {
+            for (SDTGuard otherGuard : otherChildren.keySet()) {
 //                System.out.println("comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
                 if (thisBranch.canUse(otherChildren.get(otherGuard))) {
                     chiEqArr[i] = true;
@@ -211,8 +221,9 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         else {
+            System.out.println("no sdt leaf");
             boolean regEq = this.regCanUse((SDT) other);
-//            System.out.println("regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
+            System.out.println("regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (this.isAccepting() == other.isAccepting());
 //            System.out.println(accEq ? "acc eq." : "acc not eq.");
             System.out.println("comparing children : " + this.getChildren().toString() + "\n and "+ other.getChildren().toString());

@@ -30,7 +30,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -65,9 +64,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
     }
-    
-    // given a map from guards to SDTs, merge guards based on whether they can
-    // use another SDT.  Base case: always add the 'else' guard first.
+
+    @Deprecated
     private Map<List<SDTGuard>, SDT> 
             mergeGuards(Map<List<SDTGuard>,SDT> unmerged) {
         Map<List<SDTGuard>, SDT> merged = new HashMap<>();
@@ -99,20 +97,54 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return merged;
     }
 
-    // given a set of registers and a set of guards, keep only the registers
-    // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<List<SDTGuard>> guardSet) {
-        System.out.println("available regs: " + pivs.toString());
-        ParsInVars ret = new ParsInVars();
-        for (List<SDTGuard> mg : guardSet) {
-            for (SDTGuard g : mg) {
-                if (g.getRelation().equals(Relation.EQUALS)) {
-                    System.out.println(g.toString());
-                    Register k = g.getRegister();
-                    DataValue dv = pivs.get(k);
-                    ret.put(k, dv);
+    
+// given a map from guards to SDTs, merge guards based on whether they can
+    // use another SDT.  Base case: always add the 'else' guard first.
+    private Map<SDTGuard, SDT> 
+            fluffGuards(Map<SDTGuard,SDT> unmerged) {
+        Map<SDTGuard, SDT> merged = new HashMap<>();
+        Map<SDTGuard, SDT> ifs = new HashMap<>();
+        for (SDTGuard tempG : unmerged.keySet()) {
+            SDT tempSdt = unmerged.get(tempG);
+            if (tempG instanceof ElseGuard) {
+                //System.out.println("Adding else guard: " + tempG.toString());
+                merged.put(tempG, tempSdt);
+            }
+            else {
+                ifs.put(tempG, tempSdt);
+            }
+        }
+        for (SDTGuard elseG: merged.keySet()) {
+            SDT elseSdt = merged.get(elseG);
+            for (SDTGuard ifG : ifs.keySet()) {
+                SDT ifSdt = ifs.get(ifG);
+                System.out.println("comparing guards: " + ifG.toString() 
+                 + " to " + elseG.toString() + "\nSDT    : " + 
+                 ifSdt.toString() + "\nto SDT : " + elseSdt.toString());
+                if (!(ifSdt.canUse(elseSdt))) {
+                    //System.out.println("Adding if guard: " + ifG.toString());
+                    //System.out.println(ifSdt.toString() + " not eq to " + elseSdt.toString());
+                    merged.put(ifG, ifSdt);
                 }
             }
+        }
+        return merged;
+    }
+
+    // given a set of registers and a set of guards, keep only the registers
+    // that are mentioned in any guard
+    private ParsInVars keepMem(ParsInVars pivs, Set<SDTGuard> guardSet) {
+        System.out.println("available regs: " + pivs.toString());
+        ParsInVars ret = new ParsInVars();
+        for (SDTGuard mg : guardSet) {
+            if (mg instanceof EqualityGuard) {
+                System.out.println(mg.toString());
+                for (Register k : mg.getRegisters()) {
+                    //Register k = g.getRegister();
+                    DataValue dv = pivs.get(k);
+                    ret.put(k, dv);
+            }
+        }
         }
         return ret;
     }
@@ -135,7 +167,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         
         SuffixValue currentParam = new SuffixValue(type, pId);    
         
-        Map<List<SDTGuard>, SDT> tempKids = new HashMap<>();
+        Map<SDTGuard, SDT> tempKids = new HashMap<>();
         
         ParsInVars ifPiv  = new ParsInVars();
         ifPiv.putAll(piv);
@@ -178,7 +210,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         SDT elseOracleSdt = oracle.treeQuery(
                 prefix, suffix, elseValues, piv, elseSuffixValues);
 
-        tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
+        //tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
+        
+        tempKids.put(new ElseGuard(currentParam), elseOracleSdt);
+        
         
         // process each 'if' case
         for (DataValue<T> newDv : potential) {
@@ -210,14 +245,16 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     prefix, suffix, ifValues, ifPiv, ifSuffixValues);
 
                 
-            List newGuardList = new ArrayList<>();
-            newGuardList.add(new EqualityGuard(currentParam,rv));
+            //List newGuardList = new ArrayList<>();
+            //newGuardList.add(new EqualityGuard(currentParam,rv));
             
-            tempKids.put(newGuardList, eqOracleSdt);
+            EqualityGuard eqGuard = new EqualityGuard(currentParam,rv);
+            
+            tempKids.put(eqGuard, eqOracleSdt);
         }
         
         // merge the guards
-        Map<List<SDTGuard>, SDT> merged = mergeGuards(tempKids);
+        Map<SDTGuard, SDT> merged = fluffGuards(tempKids);
         
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
@@ -243,16 +280,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, 
             ParValuation pval, 
-            List<SDTGuard> guards, 
+            SDTGuard guard, 
             Parameter param) {
         
-        System.out.println("size of guards: " + guards.size() + "; guards are: " + guards.toString());
+        System.out.println("size of guards: " + guard.getRegisters().size() + "; guards are: " + guard.toString());
         
-        if (!guards.isEmpty()) {
-            // ugly hack because in equality theory, all guard lists contain only one element
-            System.out.println("picking guard " + guards.get(0).toString());
-            SDTGuard g = guards.get(0);
-            if (g.getRelation().equals(Relation.EQUALS)) {
+        if (guard instanceof EqualityGuard) {
                 System.out.println("equality guard");
                 if (!pval.isEmpty()) {
                     System.out.println("pval = " + pval.toString());
@@ -262,7 +295,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 }
                 return pval.get(param);
             }
-        }
         
         System.out.println("base case");
         DataType type = param.getType();

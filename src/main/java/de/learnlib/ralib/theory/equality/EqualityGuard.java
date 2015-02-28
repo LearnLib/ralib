@@ -46,7 +46,13 @@ public class EqualityGuard extends SDTGuard {
    
     @Override
     public String toString() {
-        return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
+        String ret = "";
+        for (Register reg : this.getRegisters()) {
+            ret = ret + " " + this.getParameter() + "=" + reg;
+        }
+        return ret;
+        //}
+        //return "(" + this.getParameter().toString() + "=" + this.getRegisters().toString() + ")";
         
     }
 
@@ -54,4 +60,5 @@ public class EqualityGuard extends SDTGuard {
     public Expression<Boolean> getGuardExpression(Map<SymbolicDataValue, Variable> variables) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
 }

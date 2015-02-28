@@ -7,12 +7,13 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -24,27 +25,45 @@ public abstract class SDTGuard {
     private final SuffixValue parameter;
     
     //TODO: this should be either a register or a special sdtregister
-    private final Register register;
-    private final Relation relation;
+    private final Map<Register, Relation> regrels;
+    
+//    private final Register register;
+//    private final Relation relation;
     
     
     public SuffixValue getParameter() {
         return this.parameter;
     }
-    
-    public Register getRegister() {
-        return this.register;        
+
+    public Set<Register> getRegisters() {
+        return regrels.keySet();
     }
     
-    public Relation getRelation() {
-        return this.relation;
+    public Relation getRelation(Register reg) {
+        return regrels.get(reg);
     }
+    
+    public Map<Register, Relation> getRegsAndRels() {
+        return this.regrels;
+    }
+    
+//    public Register getRegister() {
+//        return this.register;        
+//    }
+    
+//    public Relation getRelation() {
+//        return this.relation;
+//    }
     
     public SDTGuard(SuffixValue param, Register reg, Relation rel) {
         
+//        this.parameter = param;
+//        this.register = reg;
+//        this.relation = rel;
+//  
+        this.regrels = new HashMap<>();
         this.parameter = param;
-        this.register = reg;
-        this.relation = rel;
+        this.regrels.put(reg,rel);
     }
     
 //    public Guard createCopy(VarMapping renaming) {
@@ -64,27 +83,34 @@ public abstract class SDTGuard {
     
     public boolean equals(SDTGuard other) {
         return (this.parameter == other.getParameter() &&
-                this.register == other.getRegister() &&
-                this.relation == other.getRelation());
+//                this.register == other.getRegister() &&
+//                this.relation == other.getRelation());
+                this.regrels == other.getRegsAndRels());
     }
     
     //TODO: this method should not be in this class unless it applies to every kind of guard...
-    public boolean contradicts(SDTGuard other) {
-        boolean samePR = (this.parameter.getId() == other.getParameter().getId() && 
-     //           this.register.getVC() == other.getRegister().getVC() &&
-                this.register.getId() == other.getRegister().getId());
-        //System.out.println("params " + this.parameter.toString() + " and " + other.getParameter().toString() + "\nregs " + this.register.toString() + " and " + other.getRegister().toString() + "? : " + samePR);
-        boolean contRels = ((this.relation.equals(Relation.SMALLER) && 
-                (other.getRelation().equals(Relation.BIGGER))) ||
-                (this.relation.equals(Relation.BIGGER) &&
-                (other.getRelation().equals(Relation.SMALLER))));
-        //System.out.println("rels contradict: " + contRels);
-        return samePR && contRels;
-    }
+    // Fix this method for inequality
+//    public boolean contradicts(SDTGuard other) {
+//        boolean samePR = (this.parameter.getId() == other.getParameter().getId() && 
+//     //           this.register.getVC() == other.getRegister().getVC() &&
+//                this.register.getId() == other.getRegister().getId());
+//        //System.out.println("params " + this.parameter.toString() + " and " + other.getParameter().toString() + "\nregs " + this.register.toString() + " and " + other.getRegister().toString() + "? : " + samePR);
+//        boolean contRels = ((this.relation.equals(Relation.SMALLER) && 
+//                (other.getRelation().equals(Relation.BIGGER))) ||
+//                (this.relation.equals(Relation.BIGGER) &&
+//                (other.getRelation().equals(Relation.SMALLER))));
+//        //System.out.println("rels contradict: " + contRels);
+//        return samePR && contRels;
+//    }
     
     @Override
     public String toString() {
-        return this.register + " " + this.relation + " " + this.parameter;
+        String ret = "";
+        for (Register r : this.regrels.keySet()) {
+            ret = ret + " " + r + " " + regrels.get(r) + " " + this.parameter;
+        }
+        return ret;
+//        return this.register + " " + this.relation + " " + this.parameter;
     }
 
     /**
