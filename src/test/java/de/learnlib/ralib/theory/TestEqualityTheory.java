@@ -94,10 +94,10 @@ public class TestEqualityTheory {
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
         
-        //final Word<PSymbolInstance> testprefix = Word.fromSymbols(
-        //        new PSymbolInstance(I_REGISTER, 
-        //            new DataValue(T_UID, 1),
-        //            new DataValue(T_PWD, 1)));
+        final Word<PSymbolInstance> testprefix = Word.fromSymbols(
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 1)));
         
         
         // create a symbolic suffix from the concrete suffix
@@ -112,21 +112,21 @@ public class TestEqualityTheory {
 //        System.out.println(res.getSdt().isAccepting());
         System.out.println("final SDT: \n" + sdt.toString());
         
-//        Parameter p1 = new Parameter(T_UID, 1);
-//        Parameter p2 = new Parameter(T_PWD, 2);
-//        DataValue d1 = new DataValue(T_UID, 1);
-//        DataValue d2 = new DataValue(T_PWD, 1);
-//        
-//        PIV testPiv =  new PIV();
-//        testPiv.put(p1, new Register(T_UID, 1));
-//        testPiv.put(p2, new Register(T_PWD, 2));
-//        
-//        ParValuation testPval = new ParValuation();
-//        testPval.put(p1, d1);
-//        testPval.put(p2,d2);
-//    
-//        System.out.println("branching");
-//        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(testprefix, I_LOGIN, testPiv, testPval, sdt));
+        Parameter p1 = new Parameter(T_UID, 1);
+        Parameter p2 = new Parameter(T_PWD, 2);
+        DataValue d1 = new DataValue(T_UID, 1);
+        DataValue d2 = new DataValue(T_PWD, 1);
+        
+        PIV testPiv =  new PIV();
+        testPiv.put(p1, new Register(T_UID, 1));
+        testPiv.put(p2, new Register(T_PWD, 2));
+        
+        ParValuation testPval = new ParValuation();
+        testPval.put(p1, d1);
+        testPval.put(p2,d2);
+    
+        System.out.println("branching");
+        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(testprefix, I_LOGIN, testPiv, testPval, sdt).getBranches().toString());
     }
     
     

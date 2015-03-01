@@ -197,18 +197,18 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Map<DataValue, Node> nextMap = new HashMap<>();
             Map<DataValue, SDTGuard> guardMap = new HashMap<>();
             for (SDT sdt : sdts) {
-                for (List<SDTGuard> guardList : sdt.getChildren().keySet()) {
-                    System.out.println(guardList.toString());
+                for (SDTGuard guard : sdt.getChildren().keySet()) {
+                    System.out.println(guard.toString());
                     Theory teach = teachers.get(type);
-                    DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guardList, p);
+                    DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
                     //System.out.println("dvi = " + dvi.toString());
                     nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, sdts));
                     // another ugly hack because yuck
-                    SDTGuard newGuard = new ElseGuard(s);
-                    if (!guardList.isEmpty()) {
-                        newGuard = guardList.get(0);
-                    }
-                    guardMap.put(dvi, newGuard);
+                    //SDTGuard newGuard = new ElseGuard(s);
+                    //if (!guardList.isEmpty()) {
+                    //    newGuard = guardList.get(0);
+                    //}
+                    guardMap.put(dvi, guard);
                 }
             }
             System.out.println("guardMap: " + guardMap.toString());

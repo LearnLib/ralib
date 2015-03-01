@@ -286,22 +286,22 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         System.out.println("size of guards: " + guard.getRegisters().size() + "; guards are: " + guard.toString());
         
         if (guard instanceof EqualityGuard) {
-                System.out.println("equality guard");
-                if (!pval.isEmpty()) {
-                    System.out.println("pval = " + pval.toString());
-                }
-                else {
-                    System.out.println("pval is empty");
-                }
+//                System.out.println("equality guard");
+//                if (!pval.isEmpty()) {
+//                    System.out.println("pval = " + pval.toString());
+//                }
+//                else {
+//                    System.out.println("pval is empty");
+//                }
                 return pval.get(param);
             }
         
-        System.out.println("base case");
+//        System.out.println("base case");
         DataType type = param.getType();
         Collection potSet = DataWords.<T>joinValsToSet(
                             DataWords.<T>valSet(prefix, type),
                             pval.<T>values(type));
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue fresh = this.getFreshValue(new ArrayList<>(potSet));
         System.out.println("fresh = " + fresh.toString());
         return fresh;
         
