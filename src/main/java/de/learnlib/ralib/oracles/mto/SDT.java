@@ -10,10 +10,11 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.SDTElseGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -36,7 +37,13 @@ public class SDT implements SymbolicDecisionTree {
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
 //            System.out.println(e.getKey().toString() + " " + e.getValue().toString());
             
-            registers.addAll(e.getKey().getRegisters());
+            SDTGuard g = e.getKey();
+            if (g instanceof SDTIfGuard) {
+                registers.add(((SDTIfGuard)g).getRegister());
+            }
+            else {
+                registers.addAll(((SDTElseGuard)g).getRegisters());
+            }
             SDT child = e.getValue();
             if (child.getChildren() != null) {
             //    Set<Register> chiRegs = child.getRegisters

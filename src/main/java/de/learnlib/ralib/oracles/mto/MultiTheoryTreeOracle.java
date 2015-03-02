@@ -39,7 +39,6 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.theory.equality.ElseGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -182,32 +181,37 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     
     }
     
+    
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, 
             PIV piv, ParValuation pval, SDT... sdts) {
         
-        if (i == ps.getArity()) {
-            return new Node(new Parameter(null,ps.getArity()));
-        }
-        
-        else {
+        if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
+            System.out.println("current type: " + type.getName());
             int j = i+1;
             Parameter p = new Parameter(type,j);
             SuffixValue s = new SuffixValue(type,j);
             Map<DataValue, Node> nextMap = new HashMap<>();
             Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            
+            //for each guard in each sdt
             for (SDT sdt : sdts) {
-                for (SDTGuard guard : sdt.getChildren().keySet()) {
-                    System.out.println(guard.toString());
+                Map<SDTGuard, SDT> children = sdt.getChildren();
+                System.out.println("guards are: " + children.keySet().toString());
+                for (SDTGuard guard : children.keySet()) {
+                    //if (!visited.contains(nextNode)) {
+                    System.out.println("processing guard: " + guard.toString());
                     Theory teach = teachers.get(type);
                     DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
+                    System.out.println(dvi.toString() + " maps to " + guard.toString() );
                     //System.out.println("dvi = " + dvi.toString());
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, sdts));
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, children.get(guard)));
                     // another ugly hack because yuck
                     //SDTGuard newGuard = new ElseGuard(s);
                     //if (!guardList.isEmpty()) {
                     //    newGuard = guardList.get(0);
                     //}
+                    
                     guardMap.put(dvi, guard);
                 }
             }
@@ -215,6 +219,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             System.out.println("nextMap: " + nextMap.toString());
             return new Node(p,nextMap,guardMap);
         }
+        
+        else {
+            return new Node(new Parameter(null,ps.getArity()));
+        }
+        
     }
     
     /**

@@ -19,21 +19,26 @@
 
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
 
 /**
  *
  * @author falk
  */
-public class BiggerGuard extends SDTGuard {
+public class BiggerGuard extends SDTIfGuard {
     
     public BiggerGuard(SuffixValue param, Register reg) {
         super(param,reg,Relation.BIGGER);
@@ -47,9 +52,24 @@ public class BiggerGuard extends SDTGuard {
         return super.toString();
     }
 
+    public Expression<Boolean> toExpr() {
+        String xname = "x" + this.getRegister().getId();
+        Variable p = new Variable(BuiltinTypes.SINT32, "p");
+        Variable x = new Variable(BuiltinTypes.SINT32,xname);
+        return new NumericBooleanExpression(x, NumericComparator.GT, p);
+    }
+    
     @Override
-    public Expression<Boolean> getGuardExpression(Map<SymbolicDataValue, Variable> variables) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
+        Expression<Boolean> expr = this.toExpr();
+        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
+        return new IfGuard(cond);
+    }
+    
+    public boolean contradicts(SDTIfGuard other) {
+        boolean samePR = (this.getParameter().getId() == other.getParameter().getId() && 
+                this.getRegister().getId() == other.getRegister().getId());
+        return samePR && (other instanceof SmallerGuard);
     }
     
 }

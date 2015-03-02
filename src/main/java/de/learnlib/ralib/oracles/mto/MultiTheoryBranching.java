@@ -151,16 +151,90 @@ public class MultiTheoryBranching implements Branching {
             }
             return dvList;
         }
-
+        
+            private Map<DataValue[],List<TransitionGuard>> collectDataValuesAndGuards(
+                    Node n, Map<DataValue[],List<TransitionGuard>> dvgMap, 
+                    DataValue[] dvs, List<TransitionGuard> guards, List<Node> visited) 
+            {
+            // if we are not at a leaf
+            visited.add(n);
+            if (!n.next.isEmpty()) {
+                // get all next nodes
+                System.out.println("next dvs: " + n.next.keySet().toString());
+                // go through each of the 'next' nodes
+                for (DataValue d : n.next.keySet()) {
+                    Node nextNode = n.next.get(d);
+                    // if the node hasn't been visited previously 
+                    if (!visited.contains(nextNode)) {
+                        SDTGuard nextGuard = n.guards.get(d);
+                        // add the node's data value to the array
+                        int dvLength = dvs.length;
+                        DataValue[] newDvs = new DataValue[dvLength+1];
+                        System.arraycopy(dvs, 0, newDvs, 0, dvLength);
+                        newDvs[dvLength] = d;
+                        // add the guard to the guardlist
+                        List newGuards = new ArrayList<>();
+                        newGuards.addAll(guards);
+                        newGuards.add(nextGuard.toTG(null));
+                        System.out.println("dvs are currently " + Arrays.toString(newDvs));
+                        System.out.println("guards are currently " + newGuards.toString());
+                        System.out.println("marked: " + visited.size());
+                        // proceed down in the tree to the next node
+                        collectDataValuesAndGuards(nextNode,dvgMap, newDvs, newGuards, visited);
+                        
+                    }
+                }
+                
+            }
+            if (dvs.length == this.action.getArity()) {
+                System.out.println("Just adding: " + Arrays.toString(dvs));    
+                dvgMap.put(dvs, guards);
+            }
+            return dvgMap;
+        }
+           
+            
     
-    
+//    
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new HashMap<>();
-        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
-        for (DataValue[] d : psList) {
-            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+//        Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
+////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
+////        for (DataValue[] d : psList) {
+////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+////        }
+//        for (DataValue[] d : psMap.keySet()) {
+//            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+//        }
+ 
+
+// for each next-node
+        
+        
+        
+//        Set<Word<PSymbolInstance>> words = new HashSet<>();
+//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new HashMap<>();
+//        for (DataValue d : this.node.guards.keySet()) {
+//            
+//        }
+//  
+        return branches;  
+    }
+    
+    @Override
+    public Map<Word<PSymbolInstance>, List<TransitionGuard>> getFakeBranches() {
+        Map<Word<PSymbolInstance>, List<TransitionGuard>> branches = new HashMap<>();
+        Map<DataValue[], List<TransitionGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<TransitionGuard>>(), new DataValue[0], new ArrayList<TransitionGuard>(), new ArrayList<Node>());
+//        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
+//        for (DataValue[] d : psList) {
+//            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+//        }
+        for (DataValue[] d : psMap.keySet()) {
+            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),psMap.get(d));
         }
+ 
+
 // for each next-node
         
         

@@ -77,14 +77,14 @@ public class TestEqualityTheory {
         
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories);
         
-        final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));           
-        
+//        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+//                new PSymbolInstance(I_REGISTER, 
+//                    new DataValue(T_UID, 1),
+//                    new DataValue(T_PWD, 1)),
+//                new PSymbolInstance(I_LOGIN, 
+//                    new DataValue(T_UID, 2),
+//                    new DataValue(T_PWD, 2)));           
+//        
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
@@ -94,7 +94,7 @@ public class TestEqualityTheory {
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
         
-        final Word<PSymbolInstance> testprefix = Word.fromSymbols(
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
@@ -126,7 +126,7 @@ public class TestEqualityTheory {
         testPval.put(p2,d2);
     
         System.out.println("branching");
-        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(testprefix, I_LOGIN, testPiv, testPval, sdt).getBranches().toString());
+        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, testPval, sdt).getFakeBranches().toString());
     }
     
     

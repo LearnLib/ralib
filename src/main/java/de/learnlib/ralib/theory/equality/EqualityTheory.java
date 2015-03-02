@@ -34,6 +34,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -106,7 +107,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> ifs = new HashMap<>();
         for (SDTGuard tempG : unmerged.keySet()) {
             SDT tempSdt = unmerged.get(tempG);
-            if (tempG instanceof ElseGuard) {
+            if (tempG instanceof DisequalityGuard) {
                 //System.out.println("Adding else guard: " + tempG.toString());
                 merged.put(tempG, tempSdt);
             }
@@ -139,11 +140,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         for (SDTGuard mg : guardSet) {
             if (mg instanceof EqualityGuard) {
                 System.out.println(mg.toString());
-                for (Register k : mg.getRegisters()) {
-                    //Register k = g.getRegister();
+                //for (Register k : mg.getRegisters()) {
+                    Register k = ((EqualityGuard)mg).getRegister();
                     DataValue dv = pivs.get(k);
                     ret.put(k, dv);
-            }
+            //}
         }
         }
         return ret;
@@ -211,8 +212,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 prefix, suffix, elseValues, piv, elseSuffixValues);
 
         //tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
+        tempKids.put(new DisequalityGuard(currentParam,ifPiv.keySet()), elseOracleSdt);
         
-        tempKids.put(new ElseGuard(currentParam), elseOracleSdt);
         
         
         // process each 'if' case
@@ -283,16 +284,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SDTGuard guard, 
             Parameter param) {
         
-        System.out.println("size of guards: " + guard.getRegisters().size() + "; guards are: " + guard.toString());
+    //    System.out.println("size of guards: " + guard.getRegisters().size() + "; guards are: " + guard.toString());
         
         if (guard instanceof EqualityGuard) {
-//                System.out.println("equality guard");
+                System.out.println("equality guard");
 //                if (!pval.isEmpty()) {
 //                    System.out.println("pval = " + pval.toString());
 //                }
 //                else {
 //                    System.out.println("pval is empty");
 //                }
+                System.out.println("pval says " + pval.get(param).toString());
                 return pval.get(param);
             }
         

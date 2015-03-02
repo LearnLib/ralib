@@ -7,7 +7,9 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -18,5 +20,7 @@ import net.automatalib.words.Word;
 public interface Branching {
     
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches();
+    
+    public Map<Word<PSymbolInstance>, List<TransitionGuard>> getFakeBranches();
 
 }
