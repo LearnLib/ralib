@@ -20,7 +20,6 @@
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -48,33 +47,49 @@ public class DisequalityGuard extends SDTElseGuard {
         super(param, regs, Relation.ELSE);     
     }
     
-//    private Expression<Boolean> toExpr() {
-//        String xname = "x" + this.getRegister().getId();
-//        Variable p = new Variable(BuiltinTypes.SINT32, "p");
-//        Variable x = new Variable(BuiltinTypes.SINT32,xname);
-//        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
-//    }
-//    
-    
-       
-    private List<IfGuard> toIfs(Map<SymbolicDataValue, Variable> variables) {
-        List<IfGuard> ifs = new ArrayList<>();
+        private List<Expression<Boolean>> toExprList() {
+        List<Expression<Boolean>> deqs = new ArrayList<>();
         Variable p = new Variable(BuiltinTypes.SINT32, "p");
         for (Register reg : this.getRegisters()) {
             String xname = "x" + reg.getId();
             Variable x = new Variable(BuiltinTypes.SINT32, xname);
-            Expression<Boolean> expr = new 
-        NumericBooleanExpression(x, NumericComparator.EQ, p);
-            DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
-            ifs.add(new IfGuard(cond));
+            Expression<Boolean> expression = new 
+        NumericBooleanExpression(x, NumericComparator.NE, p);
+            deqs.add(expression);
         }
-        return ifs;
+        return deqs;
+    }
+//    
+    private Expression<Boolean> toExpr(List<Expression<Boolean>> deqList, int i) {
+        if (deqList.size() == i+1) {
+            return deqList.get(i);
+        }
+        else {
+            return new PropositionalCompound(deqList.get(i), LogicalOperator.AND, toExpr(deqList,i+1));
+        }
+    }
+    
+    @Override
+    public Expression<Boolean> toExpr() {
+        return this.toExpr(this.toExprList(),0);
+    }
+    
+    private List<IfGuard> toIfs(Set<Expression<Boolean>> ifExprs, Map<SymbolicDataValue, Variable> variables) {
+        List<IfGuard> ifGuards = new ArrayList<>();
+        for (Expression<Boolean> ifExpr : ifExprs) {
+            DataExpression<Boolean> cond = new DataExpression<>(ifExpr, variables);
+            ifGuards.add(new IfGuard(cond));
+        }
+        return ifGuards;
     }
         
     @Override
-    public ElseGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        return new ElseGuard(toIfs(variables));
-    }
+    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
+        Expression<Boolean> expr = this.toExpr();
+        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
+        return new IfGuard(cond);
+                
+                }
     
     
     @Override

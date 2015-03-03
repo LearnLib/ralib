@@ -9,6 +9,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
 
@@ -81,4 +82,5 @@ public abstract class SDTGuard {
     
     public abstract TransitionGuard toTG(Map<SymbolicDataValue, Variable> variables);
     
+    public abstract Expression<Boolean> toExpr();
 }

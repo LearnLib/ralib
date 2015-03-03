@@ -20,12 +20,20 @@
 package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.theory.SDTElseGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.LogicalOperator;
+import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +46,11 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class MultiTheoryBranching implements Branching {
+
+    @Override
+    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 
     public static class Node {
         private final Parameter parameter;
@@ -152,9 +165,9 @@ public class MultiTheoryBranching implements Branching {
             return dvList;
         }
         
-            private Map<DataValue[],List<TransitionGuard>> collectDataValuesAndGuards(
-                    Node n, Map<DataValue[],List<TransitionGuard>> dvgMap, 
-                    DataValue[] dvs, List<TransitionGuard> guards, List<Node> visited) 
+            private Map<DataValue[],TransitionGuard> collectDataValuesAndGuards(
+                    Node n, Map<DataValue[],TransitionGuard> dvgMap, 
+                    DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) 
             {
             // if we are not at a leaf
             visited.add(n);
@@ -175,7 +188,7 @@ public class MultiTheoryBranching implements Branching {
                         // add the guard to the guardlist
                         List newGuards = new ArrayList<>();
                         newGuards.addAll(guards);
-                        newGuards.add(nextGuard.toTG(null));
+                        newGuards.add(nextGuard);
                         System.out.println("dvs are currently " + Arrays.toString(newDvs));
                         System.out.println("guards are currently " + newGuards.toString());
                         System.out.println("marked: " + visited.size());
@@ -188,18 +201,28 @@ public class MultiTheoryBranching implements Branching {
             }
             if (dvs.length == this.action.getArity()) {
                 System.out.println("Just adding: " + Arrays.toString(dvs));    
-                dvgMap.put(dvs, guards);
+                //dvgMap.put(dvs, toTGList(guards,0));
+                dvgMap.put(dvs,null);
             }
             return dvgMap;
         }
            
-            
+//    public TransitionGuard toTGList(List<SDTGuard> guardList, int i) {
+//        // 1. Create a list of expressions.
+//        List<
+//        SDTGuard sdtGuard = guardList.get(i);
+//        if (sdtGuard instanceof SDTElseGuard) {
+//            
+//        }
+//        if (guardList.size() == i + 1) {
+//            return thisExpr;
+//        } else {
+//            return new PropositionalCompound(thisExpr, LogicalOperator.AND, makeExpr(guardList, i + 1));
+//        }
+//    }        
     
 //    
-    @Override
-    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        Map<Word<PSymbolInstance>, TransitionGuard> branches = new HashMap<>();
-//        Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
+   //      Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
 ////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
 ////        for (DataValue[] d : psList) {
 ////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
@@ -219,34 +242,45 @@ public class MultiTheoryBranching implements Branching {
 //            
 //        }
 //  
-        return branches;  
-    }
-    
-    @Override
-    public Map<Word<PSymbolInstance>, List<TransitionGuard>> getFakeBranches() {
-        Map<Word<PSymbolInstance>, List<TransitionGuard>> branches = new HashMap<>();
-        Map<DataValue[], List<TransitionGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<TransitionGuard>>(), new DataValue[0], new ArrayList<TransitionGuard>(), new ArrayList<Node>());
-//        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
-//        for (DataValue[] d : psList) {
-//            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
-//        }
-        for (DataValue[] d : psMap.keySet()) {
-            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),psMap.get(d));
-        }
- 
+    //    return branches;  
+    //}
 
-// for each next-node
-        
-        
-        
-//        Set<Word<PSymbolInstance>> words = new HashSet<>();
-//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new HashMap<>();
-//        for (DataValue d : this.node.guards.keySet()) {
-//            
+            
+            
+//    @Override
+//    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+//        Map<Word<PSymbolInstance>, TransitionGuard> branches = new HashMap<>();
+//        Map<DataValue[], Expression<Boolean>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],Expression<Boolean>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
+////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
+////        for (DataValue[] d : psList) {
+////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+//        
+//        Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
+//        mapping.put(rUid, x1);
+//        mapping.put(rPwd, x2);
+//        mapping.put(pUid, p1);
+//        mapping.put(pPwd, p2);
+//                
+////        }
+//        for (DataValue[] d : psMap.keySet()) {
+//            Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action,d));
+//            TransitionGuard t = new IfGuard(new DataExpression<Boolean>(psMap.get(d), mapping);
+//                    ,psMap.get(d));
 //        }
-//  
-        return branches;  
-    }
+// 
+//
+//// for each next-node
+//        
+//        
+//        
+////        Set<Word<PSymbolInstance>> words = new HashSet<>();
+////        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new HashMap<>();
+////        for (DataValue d : this.node.guards.keySet()) {
+////            
+////        }
+////  
+//        return branches;  
+//    }
     
     
     

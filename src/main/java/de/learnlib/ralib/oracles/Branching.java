@@ -21,6 +21,4 @@ public interface Branching {
     
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches();
     
-    public Map<Word<PSymbolInstance>, List<TransitionGuard>> getFakeBranches();
-
 }

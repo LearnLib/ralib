@@ -190,7 +190,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             System.out.println("current type: " + type.getName());
             int j = i+1;
             Parameter p = new Parameter(type,j);
-            SuffixValue s = new SuffixValue(type,j);
             Map<DataValue, Node> nextMap = new HashMap<>();
             Map<DataValue, SDTGuard> guardMap = new HashMap<>();
             

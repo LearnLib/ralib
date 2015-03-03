@@ -6,7 +6,7 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.automata.guards.ElseGuard;
+import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.*;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -22,6 +22,8 @@ public abstract class SDTElseGuard extends SDTGuard {
         return this.registers;
     }
     
+    //public abstract Set<Expression<Boolean>> toExprs();
+    
     private final Relation relation;
     
     public Relation getRelation() {
@@ -36,6 +38,6 @@ public abstract class SDTElseGuard extends SDTGuard {
     }
     
     @Override
-    public abstract ElseGuard toTG(Map<SymbolicDataValue, Variable> variables);
+    public abstract IfGuard toTG(Map<SymbolicDataValue, Variable> variables);
     
 }

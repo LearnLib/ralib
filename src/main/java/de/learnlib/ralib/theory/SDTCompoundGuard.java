@@ -43,6 +43,10 @@ public class SDTCompoundGuard extends SDTGuard {
             return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
         }
     }
+    
+    public Expression<Boolean> toExpr() {
+        return toExpr(this.toExprList(),0);
+    }
 
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {

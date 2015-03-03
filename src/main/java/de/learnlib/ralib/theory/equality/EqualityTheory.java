@@ -34,7 +34,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -303,7 +302,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Collection potSet = DataWords.<T>joinValsToSet(
                             DataWords.<T>valSet(prefix, type),
                             pval.<T>values(type));
-        DataValue fresh = this.getFreshValue(new ArrayList<>(potSet));
+        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
         System.out.println("fresh = " + fresh.toString());
         return fresh;
         

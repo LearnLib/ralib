@@ -218,10 +218,10 @@ public class TestIneqOracle {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
-            @Override
-            public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval, List<SDTGuard> guards, SymbolicDataValue.Parameter param) {
+            public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval, SDTGuard guard, SymbolicDataValue.Parameter param) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
+
             
             
             
