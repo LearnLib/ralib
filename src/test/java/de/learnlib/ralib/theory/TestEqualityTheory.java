@@ -126,7 +126,7 @@ public class TestEqualityTheory {
         testPval.put(p2,d2);
     
         System.out.println("branching");
-        //System.out.println("initial branching: \n" + treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, testPval, sdt).getFakeBranches().toString());
+        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, testPval, sdt).getBranches().toString());
     }
     
     

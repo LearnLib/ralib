@@ -21,6 +21,10 @@ import java.util.Map;
 public class SDTCompoundGuard extends SDTGuard {
 
     private final List<SDTIfGuard> guards;
+    
+    public List<SDTIfGuard> getGuards() {
+        return guards;
+    }
 
     public SDTCompoundGuard(SuffixValue param, SDTIfGuard... ifGuards) {
         super(param);
@@ -44,6 +48,7 @@ public class SDTCompoundGuard extends SDTGuard {
         }
     }
     
+    @Override
     public Expression<Boolean> toExpr() {
         return toExpr(this.toExprList(),0);
     }
@@ -55,4 +60,8 @@ public class SDTCompoundGuard extends SDTGuard {
         return new IfGuard(cond);
     }
 
+    @Override
+    public String toString() {
+        return guards.toString();
+    }
 }

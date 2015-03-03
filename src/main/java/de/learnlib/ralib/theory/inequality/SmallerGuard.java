@@ -50,10 +50,11 @@ public class SmallerGuard extends SDTIfGuard {
 
     @Override
     public String toString() {
-        //return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
-        return super.toString();
+        return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
+        //return super.toString();
     }
 
+    @Override
     public Expression<Boolean> toExpr() {
         String xname = "x" + this.getRegister().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, "p");

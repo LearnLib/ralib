@@ -86,7 +86,8 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public Expression<Boolean> toExpr() {
         String xname = "x" + this.getRegister().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, "p");
+        String pname = "p" + this.getParameter().getId();
+        Variable p = new Variable(BuiltinTypes.SINT32, pname);
         Variable x = new Variable(BuiltinTypes.SINT32,xname);
         return new NumericBooleanExpression(x, NumericComparator.EQ, p);
     }

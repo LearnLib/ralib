@@ -39,11 +39,11 @@ import net.automatalib.words.Word;
 public abstract class InequalityTheory<T> implements Theory<T> {
 
     IntType intType = new IntType();
-    
+
     private SDTGuard mergeGuardLists(SDTGuard one, SDTGuard two) {
-        return removeCo(one,two);
+        return removeCo(one, two);
     }
-    
+
     // TODO: REWRITE THIS
     private SDTGuard removeCo(SDTGuard one, SDTGuard two) {
 //        SDTGuard onetwoList = new ArrayList();
@@ -76,32 +76,29 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
         return one;
     }
-    
-      
-    
-    private Map<SDTGuard, SDT> tryToMerge(SDTGuard guard, 
-            List<SDTGuard> targetList, Map<SDTGuard, SDT> refSDTMap, 
+
+    private Map<SDTGuard, SDT> tryToMerge(SDTGuard guard,
+            List<SDTGuard> targetList, Map<SDTGuard, SDT> refSDTMap,
             Map<SDTGuard, SDT> finalMap, Map<SDTGuard, SDT> contMap) {
         System.out.println("---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
-    Map<SDTGuard, SDT> cMap = new HashMap();
-    cMap.putAll(contMap);
+        Map<SDTGuard, SDT> cMap = new HashMap();
+        cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
             finalMap.put(guard, refSDTMap.get(guard));
             finalMap.putAll(cMap);
-            System.out.println( " ---> " + finalMap.toString());
+            System.out.println(" ---> " + finalMap.toString());
             return finalMap;
-        }
-        else {
-                Map<SDTGuard, SDT> newSDTMap = new HashMap();
-        newSDTMap.putAll(refSDTMap);
-        SDT guardSDT = newSDTMap.get(guard);
-         List<SDTGuard> newTargetList = new ArrayList();
-        newTargetList.addAll(targetList);
-        SDTGuard other = newTargetList.remove(0);
-        SDT otherSDT = newSDTMap.get(other);
-        cMap.put(other, otherSDT);
-        
+        } else {
+            Map<SDTGuard, SDT> newSDTMap = new HashMap();
+            newSDTMap.putAll(refSDTMap);
+            SDT guardSDT = newSDTMap.get(guard);
+            List<SDTGuard> newTargetList = new ArrayList();
+            newTargetList.addAll(targetList);
+            SDTGuard other = newTargetList.remove(0);
+            SDT otherSDT = newSDTMap.get(other);
+            cMap.put(other, otherSDT);
+
             if (guardSDT.canUse(otherSDT) && otherSDT.canUse(guardSDT)) {
                 // if yes, then merge them
                 SDTGuard merged = mergeGuardLists(guard, other);
@@ -109,42 +106,39 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                 // add the merged guard and SDT to merged map
                 newSDTMap.put(merged, guardSDT);
                 cMap.remove(other);
-                
+
                 return tryToMerge(merged, newTargetList, newSDTMap, new HashMap(), cMap);
-            }
-            else {
+            } else {
                 return tryToMerge(guard, newTargetList, newSDTMap, new HashMap(), cMap);
             }
         }
-       
+
     }
-    
-    
+
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  
     private Map<SDTGuard, SDT>
             mergeGuards(Map<SDTGuard, SDT> unmerged) {
         System.out.println("master merge...");
-        Map<SDTGuard, SDT> tempMap = new HashMap();        
-        
+        Map<SDTGuard, SDT> tempMap = new HashMap();
+
         List<SDTGuard> guardList = new ArrayList(unmerged.keySet());
         System.out.println("unmerged: " + unmerged.toString());
         //int i = 0;
-            List<SDTGuard> jGuardList = new ArrayList();
-            jGuardList.addAll(guardList);
-            Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
-            tempMap.putAll(gMerged);   
-            
+        List<SDTGuard> jGuardList = new ArrayList();
+        jGuardList.addAll(guardList);
+        Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
+        tempMap.putAll(gMerged);
+
         System.out.println(tempMap.toString());
-            if (tempMap.equals(unmerged)) {
-                System.out.println("unchanged");
-                return tempMap;
-            }
-            else {
-                System.out.println("another round");
-                return mergeGuards(tempMap);
-            }
+        if (tempMap.equals(unmerged)) {
+            System.out.println("unchanged");
+            return tempMap;
+        } else {
+            System.out.println("another round");
+            return mergeGuards(tempMap);
         }
+    }
 //                
 //                
 //                
@@ -188,9 +182,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            }
 //        
 //        
-        
-        
-                            
+
                            // if one can use two, then one is not unique, and both have been tried
 //                    if (oneSdt.canUse(twoSdt) && (uniq == true)) {
 //                        uniq = 0;
@@ -205,9 +197,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                        break;
 //                    }
 //               
-                //if it is unique, then add to final map (because definitely unmergable)
-                
-           
+    //if it is unique, then add to final map (because definitely unmergable)
         // if there is nothing in the merging map, then return the final map (because everything is in the final map)
 //        if (mergingMap.isEmpty()) {
 //            System.out.println("---- End merging ----");
@@ -217,7 +207,6 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            return mergeGuards(mergingMap, finalMap);
 //        }
 //    }
-
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
     private ParsInVars keepMem(ParsInVars pivs, Set<SDTGuard> guardSet) {
@@ -225,15 +214,23 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         for (Register k : pivs.keySet()) {
             for (SDTGuard g : guardSet) {
                 //for (SDTGuard g : mg) {
+                if (g instanceof SDTIfGuard) {
                     if (((SDTIfGuard) g).getRegister().equals(k)) {
                         ret.put(k, pivs.get(k));
-                  //  }
+                    }
+                }
+                else if (g instanceof SDTCompoundGuard) {
+                    for (SDTIfGuard i : ((SDTCompoundGuard) g).getGuards()) {
+                        if (i.getRegister().equals(k)) {
+                            ret.put(k, pivs.get(k));
+                        }
+                    }
                 }
             }
         }
         return ret;
     }
-    
+
 //    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
 //        System.out.println(dv.toString() + " should be in " + preVal.toString() + " or in "+ curVal.toString());
 //        List<Integer> rvPoss1 = new ArrayList(preVal.getAllKeys(dv));
@@ -251,19 +248,17 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            return (rvPos1 < rvPos2) ? rvPos1 : rvPos2;
 //        }
 //    }
-
-        private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
-        System.out.println(dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = "+ curVal.toString());
-            Integer rvPos = preVal.getOneKey(dv);
-            if (rvPos !=null) {
-                return rvPos;
-            }
-            else {
-                List<Integer> rvPositions = new ArrayList(curVal.getAllKeys(dv));
-                    return Collections.min(rvPositions) + preVal.size();
-            }
+    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
+        System.out.println(dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = " + curVal.toString());
+        Integer rvPos = preVal.getOneKey(dv);
+        if (rvPos != null) {
+            return rvPos;
+        } else {
+            List<Integer> rvPositions = new ArrayList(curVal.getAllKeys(dv));
+            return Collections.min(rvPositions) + preVal.size();
         }
-    
+    }
+
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,
@@ -273,12 +268,10 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
 
-           
 //        System.out.println("Prefix: " + prefix);
 //        System.out.println("Suffix: " + suffix);
 //        System.out.println("values " + values.toString());
 //        System.out.println("suffix values: " + suffixValues.toString());
-
         //int offset = DataWords.valsOf(prefix).length;
         int pId = values.size() + 1;
         // System.out.println("pId " + pId);
@@ -288,23 +281,20 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
         DataValue<T>[] prefixValues = DataWords.valsOf(prefix, type);
         WordValuation prefixValuation = new WordValuation();
-        for (int i = 0; i < prefixValues.length; i++)
-            prefixValuation.put(i+1, prefixValues[i]);
-        
+        for (int i = 0; i < prefixValues.length; i++) {
+            prefixValuation.put(i + 1, prefixValues[i]);
+        }
+
         //int pId = sId + prefixValuation.size();
-        
-        SuffixValue currentParam = new SuffixValue(type, pId+prefixValuation.size());    
-        
+        SuffixValue currentParam = new SuffixValue(type, pId + prefixValuation.size());
 
     //    WordValuation prefixValuation = valuatePrefix(prefix, type);
         // System.out.println("prefix valuation: " + prefixValuation.toString());
-
         Map<SDTGuard, SDT> tempKids = new HashMap<>();
         ParsInVars ifPiv = new ParsInVars();
         ifPiv.putAll(piv);
         // System.out.println("ifpiv is " + ifPiv.toString());
 
-        
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 DataWords.<T>valSet(prefix, type),
                 suffixValues.<T>values(type));
@@ -312,7 +302,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
         int potSize = potential.size();
-         System.out.println("potential is: " + potential.toString());
+        System.out.println("potential is: " + potential.toString());
 
         // process each '<' case
         for (int i = 0; i < potSize; i++) {
@@ -321,13 +311,12 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             WordValuation currentValues = new WordValuation();
             currentValues.putAll(values);
             currentValues.put(pId, currentDv);
-            
-          //  System.out.println("new values " + currentValues.toString());
 
+          //  System.out.println("new values " + currentValues.toString());
             SuffixValuation currentSuffixValues = new SuffixValuation();
             currentSuffixValues.putAll(suffixValues);
             currentSuffixValues.put(sv, currentDv);
-            
+
 //
 //            Integer prevPos;
 //            Integer nextPos;
@@ -337,34 +326,31 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //
 //            SymbolicDataValue rvPrev = null;
 //            SymbolicDataValue rvNext = null;
-
             //List<SDTGuard> guards = new ArrayList();
             SDTGuard guard;
-            
+
             // SMALLEST case
             if (i == 0) {
                 DataValue<T> dvRight = potList.get(i);
                 Integer rvPos = getFirstOcc(prefixValuation, currentValues, dvRight);
-                
+
                 Register rvRight = ifPiv.getOneKey(currentDv);
                 if (rvRight == null) {
                     rvRight = new Register(type, rvPos);
                     ifPiv.put(rvRight, dvRight);
                 }
-                
+
                 //int pos = suffixValues.getKey(dvRight).getId();
                 //Register rvRight = regGenerator.next(type);
 //                SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
                 guard = new SmallerGuard(currentParam, rvRight);
-                
-            }
-            
-            // MIDDLE cases
-            else if (i > 0 && i < potSize-1) {
+
+            } // MIDDLE cases
+            else if (i > 0 && i < potSize - 1) {
                 SDTIfGuard[] middleGuard = new SDTIfGuard[2];
-                DataValue<T> dvLeft = potList.get(i-1);
+                DataValue<T> dvLeft = potList.get(i - 1);
                 Integer lvPos = getFirstOcc(prefixValuation, currentValues, dvLeft);
-                
+
                 DataValue<T> dvRight = potList.get(i);
                 Integer rvPos = getFirstOcc(prefixValuation, currentValues, dvRight);
 //                                
@@ -375,22 +361,20 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                 }
                 middleGuard[0] = new BiggerGuard(currentParam, rvLeft);
                 //SymbolicDataValue rvRight = initReg(dvRight, prefixValuation, values, pId, type);
-                
+
                 Register rvRight = ifPiv.getOneKey(currentDv);
                 if (rvRight == null) {
                     rvRight = new Register(type, rvPos);
                     ifPiv.put(rvRight, dvRight);
                 }
                 middleGuard[1] = new SmallerGuard(currentParam, rvRight);
-                
-                guard = new SDTCompoundGuard(currentParam, middleGuard);
-            }
 
-            // BIGGEST case
+                guard = new SDTCompoundGuard(currentParam, middleGuard);
+            } // BIGGEST case
             else {
-                DataValue<T> dvLeft = potList.get(i-1);
+                DataValue<T> dvLeft = potList.get(i - 1);
                 Integer lvPos = getFirstOcc(prefixValuation, currentValues, dvLeft);
-                
+
                 Register rvLeft = ifPiv.getOneKey(currentDv);
                 if (rvLeft == null) {
                     rvLeft = new Register(type, lvPos);
@@ -399,9 +383,8 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                 guard = new BiggerGuard(currentParam, rvLeft);
             }
 
-            
             System.out.println("Guard: " + guard.toString());
-           
+
 // for the 1 - last value in the potential
 //            if (i > 0) {
 //                // prev is the 0 - second last of potential (i.e. something that is < currentDv)
@@ -423,14 +406,12 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            }
             SDT oracleSdt = oracle.treeQuery(
                     prefix, suffix, currentValues, ifPiv, currentSuffixValues);
-            
+
             tempKids.put(guard, oracleSdt);
-            
 
         }
 
 //        System.out.println("-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
-
         // merge the guards
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
 
