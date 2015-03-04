@@ -235,7 +235,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching updateBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree... sdts) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return current;
     }
 
    
