@@ -22,6 +22,8 @@ import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -126,11 +128,25 @@ public class MultiTheoryBranching implements Branching {
     private final ParameterizedSymbol action;
 
     private final Node node;
-
-    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node) {
+    
+    private PIV piv;
+    
+    private ParValuation pval;
+    
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
         this.prefix = prefix;
         this.action = action;
         this.node = node;
+        this.piv = piv;
+        this.pval = pval;
+    }
+    
+    public ParValuation getPval() {
+        return pval;
+    }
+    
+    public PIV getPiv () {
+        return piv;
     }
 
     // collects DVs along one branch

@@ -7,9 +7,7 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
 

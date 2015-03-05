@@ -21,6 +21,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -29,7 +30,7 @@ import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.Branching;
@@ -172,12 +173,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     // get the initial branching for the symbol ps after prefix given a certain tree
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
-//ParVal maps from parameters to data values; PIV maps from parameters to registers
             List<SDTGuard> guards, SDT... sdts) {
         
         Node n = createNode(0, prefix, ps, piv, pval, sdts);
         
-        return new MultiTheoryBranching(prefix, ps, n);
+        return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
     
     }
     
@@ -235,11 +235,78 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching updateBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree... sdts) {
-            return current;
+            
+            MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
+            MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);
+            
+            Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
+            Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
+            
+            assert oldBranches.size() <= newBranches.size();
+            if (oldBranches.isEmpty()) {
+                if (newBranches.isEmpty()) {
+                    return oldBranching;
+                }
+            }
+
+            // parvaluation : param to dv
+            // piv : param to reg
+            // need: varvaluation (reg to dv), parvaluation
+            
+            System.out.println("ladidah");
+            
+            VarValuation oldValuation = new VarValuation();
+            ParValuation oldPval = oldBranching.getPval();
+            PIV oldPiv = oldBranching.getPiv();
+            
+            if (!oldPiv.isEmpty()) {
+                for (Parameter rp : oldPiv.keySet()) {
+                    oldValuation.put(oldPiv.get(rp),oldPval.get(rp));
+                }
+            }
+            
+            Map<Word<PSymbolInstance>,TransitionGuard> updated = new HashMap<>();
+            
+            Boolean[] canUse = new Boolean[newBranches.size()];
+            int i = 0;
+            
+            for (Word<PSymbolInstance> newWord : newBranches.keySet()) {
+               for (Word<PSymbolInstance> oldWord : oldBranches.keySet()) {
+                   canUse[i] = false;
+                   TransitionGuard newGuard = newBranches.get(newWord);
+                   if (newGuard.isSatisfied(oldValuation, oldPval, null)) {
+                       canUse[i] = true;
+                   }
+               }
+               i++;
+            }
+            
+            if (isArrayTrue(canUse)) {
+                return getInitialBranching(prefix, ps, oldPiv, oldPval, sdts);
+            }
+            else {
+                return oldBranching;
+            }
+    }
+            // for each guard in NEW, check if there is a guard in OLD whose data value satisfies the NEW guard under the NEW valuation
+            
+            //helper method for updateBranching
+            private boolean isArrayTrue(Boolean[] maybeArr) {
+        boolean maybe = true;
+        for (int c = 0; c < (maybeArr.length); c++) {
+            //System.out.println(maybeArr[c]);
+            if (!maybeArr[c]) {
+                maybe = false;
+                break;
+            }
+        }
+        return maybe;
+    }
+            
     }
 
    
 
 
     
-}
+

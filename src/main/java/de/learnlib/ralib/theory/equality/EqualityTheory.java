@@ -209,9 +209,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                         
         SDT elseOracleSdt = oracle.treeQuery(
                 prefix, suffix, elseValues, piv, elseSuffixValues);
+        
+        ParsInVars diseqPiv = new ParsInVars();
+        for (Register rg : ifPiv.keySet()) {
+            DataValue tdv = ifPiv.get(rg);
+            if (tdv.getType() == type) {
+                diseqPiv.put(rg, tdv);
+            }
+        }
 
         //tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
-        tempKids.put(new DisequalityGuard(currentParam,ifPiv.keySet()), elseOracleSdt);
+        tempKids.put(new DisequalityGuard(currentParam,diseqPiv.keySet()), elseOracleSdt);
         
         
         
