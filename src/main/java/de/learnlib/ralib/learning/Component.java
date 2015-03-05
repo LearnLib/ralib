@@ -28,6 +28,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -138,6 +139,10 @@ class Component {
         SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
         Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, null, sdts);
         boolean ret = true;
+        
+        System.out.println("OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
+        System.out.println("NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
+        
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {
                 obs.addPrefix(prefix);

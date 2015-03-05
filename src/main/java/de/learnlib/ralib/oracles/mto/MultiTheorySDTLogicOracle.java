@@ -20,6 +20,8 @@
 package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -42,6 +44,24 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         //Collection<SymbolicDataValue> join = piv1.values();
         
+        SDT _sdt1 = (SDT) sdt1;
+        SDT _sdt2 = (SDT) sdt2;
+        IfGuard _guard = (IfGuard) guard;
+        
+        DataExpression<Boolean> expr1 = _sdt1.getAcceptingPaths();
+        DataExpression<Boolean> expr2 = _sdt2.getAcceptingPaths();
+        
+        DataExpression<Boolean> exprG = _guard.getCondition();
+          
+        System.out.println(expr1);
+        System.out.println(expr2);
+        System.out.println(exprG);
+        
+        if (expr1 == DataExpression.FALSE && expr2 == DataExpression.FALSE) {
+            return false;
+        }
+        
+        //return false;
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.        
         
     }

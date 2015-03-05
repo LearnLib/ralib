@@ -21,6 +21,9 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.SDTGuard;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Leaf implementation of an SDT.
@@ -76,4 +79,14 @@ public class SDTLeaf extends SDT {
     void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]").append("\n");
     }
+    
+    @Override
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {        
+        List<List<SDTGuard>> ret = new ArrayList<>();
+        if (this.isAccepting()) {
+            ret.add(path);
+        }
+        return ret;
+    }
+            
 }

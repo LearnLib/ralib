@@ -71,13 +71,15 @@ class AutomatonBuilder {
     
     private void computeLocations() {
         Component c = components.get(RaStar.EMPTY_PREFIX);        
-        this.locations.put(RaStar.EMPTY_PREFIX, 
-                this.automaton.addInitialState(c.isAccepting()) );
-        
+        RALocation loc = this.automaton.addInitialState(c.isAccepting());
+        this.locations.put(RaStar.EMPTY_PREFIX, loc);
+        this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
+                
         for (Entry<Word<PSymbolInstance>, Component> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
-                this.locations.put(e.getKey(), 
-                        this.automaton.addState(e.getValue().isAccepting()));
+                loc = this.automaton.addState(e.getValue().isAccepting());
+                this.locations.put(e.getKey(), loc);
+                this.automaton.setAccessSequence(loc, e.getKey());
             }
         }
     }
@@ -140,6 +142,7 @@ class AutomatonBuilder {
         InputTransition t = new InputTransition(guard, action, src_loc, dest_loc, assign);
         log.log(Level.FINER, "computed transition {0}", t);
         this.automaton.addTransition(src_loc, action, t);
+        this.automaton.setTransitionSequence(t, r.getPrefix());
     }
     
 }

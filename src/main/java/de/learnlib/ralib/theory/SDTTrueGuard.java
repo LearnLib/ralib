@@ -35,10 +35,7 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        Expression<Boolean> expr = this.toExpr();
-        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
-        return new IfGuard(cond);
-
+        return new IfGuard(DataExpression.TRUE);
     }
 
 }

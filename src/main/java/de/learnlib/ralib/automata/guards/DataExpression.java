@@ -48,6 +48,14 @@ import java.util.Set;
  */
 public class DataExpression<T extends Object> {
 
+    public static DataExpression<Boolean> TRUE = 
+            new DataExpression<>(ExpressionUtil.TRUE, 
+                    new HashMap<SymbolicDataValue, Variable>());
+    
+    public static DataExpression<Boolean> FALSE = 
+            new DataExpression<>(ExpressionUtil.FALSE, 
+                    new HashMap<SymbolicDataValue, Variable>());
+
     private static class MapFunction extends HashMap<String, String> implements Function<String, String> {
         @Override
         public String apply(String f) {

@@ -28,7 +28,9 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -49,6 +51,8 @@ public class RaStar {
     private final Constants consts;
 
     private final Deque<Word<PSymbolInstance>> counterexamples = new LinkedList<>();
+    
+    private final Map<Word<PSymbolInstance>, Boolean> ceMap = new HashMap<>();
     
     private Hypothesis hyp = null;
     
@@ -76,7 +80,6 @@ public class RaStar {
     }
     
     
-    
     public void learn() {
         if (hyp != null) {
             analyzeCounterExample();
@@ -95,9 +98,10 @@ public class RaStar {
     }
     
     
-    public void addCounterexample(Word<PSymbolInstance> ce) {
-        log.log(Level.INFO, "adding counterexample: {0}", ce);
+    public void addCounterexample(Word<PSymbolInstance> ce, boolean accepted) {
+        log.log(Level.INFO, "adding counterexample: {0} - {1}", new Object[] {ce, accepted});
         counterexamples.add(ce);
+        ceMap.put(ce, accepted);
     }
     
     private boolean analyzeCounterExample() {
@@ -110,13 +114,20 @@ public class RaStar {
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
                 sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents());
         
-        Word<PSymbolInstance> ce = counterexamples.peek();        
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce);
-        if (res == null) {
+        Word<PSymbolInstance> ce = counterexamples.peek();    
+        
+        // check if ce still is a counterexample ...
+        boolean hypce = hyp.accepts(ce);
+        boolean sulce = ceMap.get(ce);        
+        if (hypce == sulce) {
+            log.log(Level.INFO, "word is not a counterexample: {0} - {1}", new Object[] {ce, sulce});            
             counterexamples.poll();
+            ceMap.remove(ce);
             return false;
         }
         
+        CEAnalysisResult res = analysis.analyzeCounterexample(ce);        
+        obs.addSuffix(res.getSuffix());       
         return true;
     }
             

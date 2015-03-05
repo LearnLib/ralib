@@ -48,6 +48,13 @@ public class IfGuard implements TransitionGuard {
     public String toString() {
         return condition.toString();
     }
+
+    /**
+     * @return the condition
+     */
+    public DataExpression<Boolean> getCondition() {
+        return condition;
+    }
     
 
 
