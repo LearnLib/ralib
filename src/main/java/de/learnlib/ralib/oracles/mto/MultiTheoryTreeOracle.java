@@ -206,14 +206,12 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Parameter p = new Parameter(type,j);
             Map<DataValue, Node> nextMap = new HashMap<>();
             Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            SDTGuard guard = new SDTTrueGuard(new SuffixValue(type,j));
             Theory teach = teachers.get(type);
-            Collection potSet = DataWords.joinValsToSet(
-                            DataWords.valSet(prefix, type),
-                            pval.values(type));
-            DataValue dvi = teach.getFreshValue(new ArrayList<DataValue>(potSet));
+            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
+            //pval.put(p,dvi);
             nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval));
-            guardMap.put(dvi, new SDTTrueGuard(new SuffixValue(type,j)));
-            pval.put(p,dvi);
+            guardMap.put(dvi, guard);
         return new Node(p,nextMap,guardMap);
                     
     }
