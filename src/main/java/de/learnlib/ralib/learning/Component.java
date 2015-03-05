@@ -83,7 +83,7 @@ class Component {
         for (ParameterizedSymbol ps : inputs) {
             SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
-                    getAccessSequence(), ps, null, sdts);
+                    getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
 
             branching.put(ps, b);
             for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {

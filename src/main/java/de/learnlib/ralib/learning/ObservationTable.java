@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -51,23 +53,25 @@ class ObservationTable {
     
     private final ParameterizedSymbol[] inputs;
     
+    private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
+    
     public ObservationTable(TreeOracle oracle, ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
     }
         
     void addComponent(Component c) {
-        System.out.println("Queueing component for obs: " + c);
+        log.log(Level.FINE, "Queueing component for obs: {0}", c);
         newComponents.add(c);
     }
     
     void addSuffix(SymbolicSuffix suffix) {
-        System.out.println("Queueing suffix for obs: " + suffix);
+        log.log(Level.FINE, "Queueing suffix for obs: {0}", suffix);
         newSuffixes.add(suffix);
     }
     
     void addPrefix(Word<PSymbolInstance> prefix) {
-        System.out.println("Queueing prefix for obs: " + prefix);
+        log.log(Level.FINE, "Queueing prefix for obs: {0}", prefix);
         newPrefixes.add(prefix);
     }
     
@@ -115,7 +119,7 @@ class ObservationTable {
 
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
-        System.out.println("Adding suffix to obs: " + suffix);
+        log.log(Level.INFO, "Adding suffix to obs: {0}", suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);
@@ -124,7 +128,7 @@ class ObservationTable {
 
     private void processNewPrefix() {
         Word<PSymbolInstance> prefix = newPrefixes.poll();
-        System.out.println("Adding prefix to obs: " + prefix);
+        log.log(Level.INFO, "Adding prefix to obs: {0}", prefix);
         Row r = Row.computeRow(oracle, prefix, suffixes);
         for (Component c : components.values()) {
             if (c.addRow(r)) {
@@ -137,7 +141,7 @@ class ObservationTable {
 
     private void processNewComponent() {
         Component c = newComponents.poll();
-        System.out.println("Adding component to obs: " + c);
+        log.log(Level.INFO, "Adding component to obs: {0}", c);
         components.put(c.getAccessSequence(), c);
         c.start(oracle, inputs);
     }

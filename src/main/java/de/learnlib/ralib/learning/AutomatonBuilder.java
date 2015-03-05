@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
@@ -35,6 +36,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -52,6 +54,8 @@ class AutomatonBuilder {
     
     private final Constants consts;
     
+    private static LearnLogger log = LearnLogger.getLogger(AutomatonBuilder.class);
+    
     AutomatonBuilder(Map<Word<PSymbolInstance>, Component> components, Constants consts) {
         this.consts = consts;
         this.components = components;
@@ -59,6 +63,7 @@ class AutomatonBuilder {
     }
 
     Hypothesis toRegisterAutomaton() {
+        log.fine("computing hypothesis");
         computeLocations();
         computeTransitions();
         return this.automaton;
@@ -87,10 +92,13 @@ class AutomatonBuilder {
     }
 
     
-    private void computeTransition(Component dest_c, Row r) {
+    private void computeTransition(Component dest_c, Row r) {        
         if (r.getPrefix().length() < 1) {
             return;
         }
+        
+        log.log(Level.FINER, "computing transition: {1} to {0}", new Object[]{dest_c, r});
+
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);        
         Component src_c = this.components.get(src_id);
@@ -130,6 +138,7 @@ class AutomatonBuilder {
                 
         // create transition
         InputTransition t = new InputTransition(guard, action, src_loc, dest_loc, assign);
+        log.log(Level.FINER, "computed transition {0}", t);
         this.automaton.addTransition(src_loc, action, t);
     }
     
