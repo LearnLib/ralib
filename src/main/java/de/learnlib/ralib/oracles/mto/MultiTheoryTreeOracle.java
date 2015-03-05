@@ -22,6 +22,7 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -30,6 +31,7 @@ import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -40,10 +42,12 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -174,13 +178,42 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
             List<SDTGuard> guards, SDT... sdts) {
-        
-        Node n = createNode(0, prefix, ps, piv, pval, sdts);
+        Node n;
+        if (sdts.length==0) {
+            n = createFreshNode(0, prefix,ps,piv,pval);
+        }
+        else {
+            n = createNode(0, prefix, ps, piv, pval, sdts);
+        }
         
         return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
     
     }
     
+    private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
+            PIV piv, ParValuation pval) {
+        if (i < ps.getArity()) {
+            DataType type = ps.getPtypes()[i];
+            System.out.println("current type: " + type.getName());
+            int j = i+1;
+            Parameter p = new Parameter(type,j);
+            Map<DataValue, Node> nextMap = new HashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            Theory teach = teachers.get(type);
+            Collection potSet = DataWords.joinValsToSet(
+                            DataWords.valSet(prefix, type),
+                            pval.values(type));
+            DataValue dvi = teach.getFreshValue(new ArrayList<DataValue>(potSet));
+            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval));
+            guardMap.put(dvi, new SDTTrueGuard(new SuffixValue(type,j)));
+            pval.put(p,dvi);
+        return new Node(p,nextMap,guardMap);
+                    
+    }
+        else {
+            return new Node(new Parameter(null,ps.getArity()));
+        }
+    }
     
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, 
             PIV piv, ParValuation pval, SDT... sdts) {
@@ -230,12 +263,16 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
      * an SDT. It re-uses existing valuations where 
      * possible.
      * 
-     */    
+     */
+    
+    
+    
+    
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree... sdts) {
-            
+        
             MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
             MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);
             
@@ -253,17 +290,24 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             // piv : param to reg
             // need: varvaluation (reg to dv), parvaluation
             
-            System.out.println("ladidah");
             
             VarValuation oldValuation = new VarValuation();
-            ParValuation oldPval = oldBranching.getPval();
-            PIV oldPiv = oldBranching.getPiv();
+            ParValuation oldPval = new ParValuation();
+            PIV oldPiv = new PIV();
+            
+            oldPval.putAll(oldBranching.getPval());
+            oldPiv.putAll(oldBranching.getPiv());
+            
+            System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
+            
+            
             
             if (!oldPiv.isEmpty()) {
                 for (Parameter rp : oldPiv.keySet()) {
                     oldValuation.put(oldPiv.get(rp),oldPval.get(rp));
                 }
             }
+            
             
             Map<Word<PSymbolInstance>,TransitionGuard> updated = new HashMap<>();
             
@@ -274,7 +318,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                for (Word<PSymbolInstance> oldWord : oldBranches.keySet()) {
                    canUse[i] = false;
                    TransitionGuard newGuard = newBranches.get(newWord);
-                   if (newGuard.isSatisfied(oldValuation, oldPval, null)) {
+                   if (newGuard.isSatisfied(oldValuation, oldPval, new Constants())) {
                        canUse[i] = true;
                    }
                }

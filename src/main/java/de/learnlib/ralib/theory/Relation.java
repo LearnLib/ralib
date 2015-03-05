@@ -30,7 +30,8 @@ public enum Relation {
     PLUS_ONE("+1=="), 
     MEMBER_OF(" in "),
     BIGGER(">"),
-    ELSE("else");
+    ELSE("else"),
+    TRUE("true");
     
     private final String name;       
 

@@ -33,6 +33,7 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +73,13 @@ public class DisequalityGuard extends SDTElseGuard {
     
     @Override
     public Expression<Boolean> toExpr() {
-        return this.toExpr(this.toExprList(),0);
+        List<Expression<Boolean>> eList = this.toExprList();
+        if (!eList.isEmpty()) {
+            return this.toExpr(eList,0);
+        }
+        else {
+            return ExpressionUtil.TRUE;
+        }
     }
     
     private List<IfGuard> toIfs(Set<Expression<Boolean>> ifExprs, Map<SymbolicDataValue, Variable> variables) {

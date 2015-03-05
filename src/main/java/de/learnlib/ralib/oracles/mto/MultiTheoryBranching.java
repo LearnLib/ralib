@@ -137,7 +137,10 @@ public class MultiTheoryBranching implements Branching {
         this.prefix = prefix;
         this.action = action;
         this.node = node;
-        this.piv = piv;
+        this.piv = new PIV();
+        if (piv != null) {
+            this.piv.putAll(piv);
+        }
         this.pval = pval;
     }
     
@@ -350,7 +353,9 @@ public class MultiTheoryBranching implements Branching {
             List<Expression<Boolean>> gExpr = new ArrayList<>();
             List<SDTGuard> gList = tempMap.get(dvs);
             for (SDTGuard g : gList) {
-                gExpr.add(g.toExpr());
+                if (!(g.toExpr() == null)) {
+                    gExpr.add(g.toExpr());
+                }
             }
             Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
             TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
