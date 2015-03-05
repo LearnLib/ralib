@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -59,6 +61,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private final DataWordOracle oracle;
     
     private final Map<DataType, Theory> teachers;
+    
+    private static LearnLogger log = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
 
     public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers) {
         this.oracle = oracle;
@@ -140,6 +144,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
         
+        log.log(Level.INFO, "computing initial branching for {0} after {1}", new Object[]{ps, prefix});
+        
         //TODO: check if this casting can be avoided by proper use of generics
         //TODO: the problem seems to be 
         SDT[] casted = new SDT[sdts.length];
@@ -154,6 +160,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return mtb;
     }
 
+    // TODO: is this method actually needed??
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, SymbolicDecisionTree... sdts) {
         SDT[] casted = new SDT[sdts.length];
