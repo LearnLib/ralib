@@ -186,6 +186,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
             List<SDTGuard> guards, SDT... sdts) {
         Node n;
+        
         if (sdts.length==0) {
             n = createFreshNode(0, prefix,ps,piv,pval);
         }
@@ -199,13 +200,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     
     private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
             PIV piv, ParValuation pval) {
+        Map<DataValue, Node> nextMap = new HashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
             System.out.println("current type: " + type.getName());
             int j = i+1;
             Parameter p = new Parameter(type,j);
-            Map<DataValue, Node> nextMap = new HashMap<>();
-            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type,j));
             Theory teach = teachers.get(type);
             DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
@@ -215,8 +217,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return new Node(p,nextMap,guardMap);
                     
     }
-        else {
-            return new Node(new Parameter(null,ps.getArity()));
+        else {        return new Node(new Parameter(null,ps.getArity()));
         }
     }
     
