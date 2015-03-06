@@ -43,18 +43,24 @@ public class SDT implements SymbolicDecisionTree {
 
             SDTGuard g = e.getKey();
             if (g instanceof SDTIfGuard) {
-                registers.add(((SDTIfGuard) g).getRegister());
-            } else if (g instanceof SDTCompoundGuard) {
-                for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
-                    registers.add(ifG.getRegister());
+                SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
+                if (r instanceof Register) {
+                    registers.add((Register) r);
+                } else if (g instanceof SDTCompoundGuard) {
+                    for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
+                        SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
+                        if (ifr instanceof Register) {
+                            registers.add((Register) ifr);
+                        }
+                    }
+                } else if (g instanceof SDTElseGuard) {
+                    registers.addAll(((SDTElseGuard) g).getRegisters());
                 }
-            } else if (g instanceof SDTElseGuard) {
-                registers.addAll(((SDTElseGuard) g).getRegisters());
-            }
-            SDT child = e.getValue();
-            if (child.getChildren() != null) {
-                //    Set<Register> chiRegs = child.getRegisters
-                registers.addAll(child.getRegisters());
+                SDT child = e.getValue();
+                if (child.getChildren() != null) {
+                    //    Set<Register> chiRegs = child.getRegisters
+                    registers.addAll(child.getRegisters());
+                }
             }
         }
         return registers;
@@ -94,11 +100,11 @@ public class SDT implements SymbolicDecisionTree {
         //System.out.println("RELABEL: " + relabelling);        
         Map<SDTGuard, SDT> reChildren = new HashMap<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
-            reChildren.put(e.getKey().relabel(relabelling), 
+            reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
         }
         SDT relabelled = new SDT(reChildren);
-        return relabelled;        
+        return relabelled;
     }
 
     @Override
@@ -260,18 +266,17 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     DataExpression<Boolean> getAcceptingPaths() {
-        
+
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
             return DataExpression.FALSE;
         }
-        
+
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    
-        
+
     }
-    
-    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {        
+
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
             List<SDTGuard> nextPath = new ArrayList<>(path);
@@ -279,7 +284,7 @@ public class SDT implements SymbolicDecisionTree {
             List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath);
             ret.addAll(nextRet);
         }
-            
+
         return ret;
     }
 

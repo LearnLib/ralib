@@ -22,8 +22,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -38,6 +38,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -61,37 +62,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //    }
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
-    }
-
-    @Deprecated
-    private Map<List<SDTGuard>, SDT>
-            mergeGuards(Map<List<SDTGuard>, SDT> unmerged) {
-        Map<List<SDTGuard>, SDT> merged = new LinkedHashMap<>();
-        Map<List<SDTGuard>, SDT> ifs = new LinkedHashMap<>();
-        for (List<SDTGuard> tempG : unmerged.keySet()) {
-            SDT tempSdt = unmerged.get(tempG);
-            if (tempG.isEmpty()) {
-                //System.out.println("Adding else guard: " + tempG.toString());
-                merged.put(tempG, tempSdt);
-            } else {
-                ifs.put(tempG, tempSdt);
-            }
-        }
-        for (List<SDTGuard> elseG : merged.keySet()) {
-            SDT elseSdt = merged.get(elseG);
-            for (List<SDTGuard> ifG : ifs.keySet()) {
-                SDT ifSdt = ifs.get(ifG);
-                //System.out.println("comparing guards: " + ifG.toString() 
-                // + " to " + elseG.toString() + "\nSDT    : " + 
-                // ifSdt.toString() + "\nto SDT : " + elseSdt.toString());
-                if (!(ifSdt.canUse(elseSdt))) {
-                    //System.out.println("Adding if guard: " + ifG.toString());
-                    //System.out.println(ifSdt.toString() + " not eq to " + elseSdt.toString());
-                    merged.put(ifG, ifSdt);
-                }
-            }
-        }
-        return merged;
     }
 
 // given a map from guards to SDTs, merge guards based on whether they can
@@ -128,17 +98,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private ParsInVars keepMem(ParsInVars pivs, Set<SDTGuard> guardSet) {
-        System.out.println("available regs: " + pivs.toString());
-        ParsInVars ret = new ParsInVars();
+    private PIV keepMem(Set<SDTGuard> guardSet) {
+        PIV ret = new PIV();
         for (SDTGuard mg : guardSet) {
             if (mg instanceof EqualityGuard) {
                 System.out.println(mg.toString());
                 //for (Register k : mg.getRegisters()) {
-                Register k = ((EqualityGuard) mg).getRegister();
-                DataValue dv = pivs.get(k);
-                ret.put(k, dv);
-                //}
+                SymbolicDataValue r = ((EqualityGuard) mg).getRegister();
+                Parameter p = new Parameter(r.getType(), r.getId());
+                if (r instanceof Register) {
+                    ret.put(p, (Register) r);
+                }
             }
         }
         return ret;
@@ -149,8 +119,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
-            ParsInVars piv,
-            ParsInVars pout,
+            PIV pir,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
 
@@ -163,11 +132,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
-        ParsInVars ifPiv = new ParsInVars();
-        ifPiv.putAll(piv);
-
-        boolean free = suffix.getFreeValues().contains(sv);
-
+        // store temporary values here
+//        PIV paramsToRegs = new PIV();
+//        for (Map.Entry<Parameter, Register> e : pir) {
+//            paramsToRegs.add(e.getKey(), e.getValue());
+//        }
+        //ParsInVars ifPiv = new ParsInVars();
+        //ifPiv.putAll(piv);
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 DataWords.<T>valSet(prefix, type),
                 suffixValues.<T>values(type));
@@ -179,7 +150,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                DataWords.<T>joinValsToSet(
 //                    DataWords.<T>valSet(prefix, type),
 //                    suffixValues.<T>values(type)));
-//                        
+//      
+        boolean free = suffix.getFreeValues().contains(sv);
         if (!free) {  // for now, we assume that all values are free.
             DataValue d = suffixValues.get(sv);
             if (d == null) {
@@ -193,65 +165,61 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // process the 'else' case
         DataValue fresh = getFreshValue(potential);
 
+        // this is the valuation of the positions in the suffix
         WordValuation elseValues = new WordValuation();
         elseValues.putAll(values);
         elseValues.put(pId, fresh);
 
+        // this is the valuation of the suffixvalues in the suffix
         SuffixValuation elseSuffixValues = new SuffixValuation();
         elseSuffixValues.putAll(suffixValues);
         elseSuffixValues.put(sv, fresh);
 
         SDT elseOracleSdt = oracle.treeQuery(
-                prefix, suffix, elseValues, piv, pout, elseSuffixValues);
+                prefix, suffix, elseValues, pir, elseSuffixValues);
 
-        ParsInVars diseqPiv = new ParsInVars();
-        for (Register rg : ifPiv.keySet()) {
-            DataValue tdv = ifPiv.get(rg);
-            if (tdv.getType() == type) {
-                diseqPiv.put(rg, tdv);
-            }
-        }
-        
+//        ParsInVars diseqPiv = new ParsInVars();
+//        for (Register rg : ifPiv.keySet()) {
+//            DataValue tdv = ifPiv.get(rg);
+//            if (tdv.getType() == type) {
+//                diseqPiv.put(rg, tdv);
+//            }
+//        }
+//        
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
-        for (Register rg : ifPiv.keySet()) {
-            diseqList.add(new DisequalityGuard(currentParam, rg));
+        for (Map.Entry<Parameter, Register> e : pir) {
+            diseqList.add(new DisequalityGuard(currentParam, e.getValue()));
         }
-        
 
-        //tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
+        // tempKids is the temporary SDT (sort of)
         tempKids.put(new SDTCompoundGuard(currentParam, (diseqList.toArray(new DisequalityGuard[]{}))), elseOracleSdt);
 
         // process each 'if' case
-        for (DataValue<T> newDv : potential) {
+        // prepare by picking up the prefix values
+        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
+        System.out.println("prefix list    " + prefixValues.toString());
+
+        for (DataValue<T> newDv : potential) {
+            System.out.println(newDv.toString());
+
+            // this is the valuation of the positions in the suffix
             WordValuation ifValues = new WordValuation();
             ifValues.putAll(values);
             ifValues.put(pId, newDv);
 
+            // this is the valuation of the suffixvalues in the suffix
             SuffixValuation ifSuffixValues = new SuffixValuation();
             ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
-            ifSuffixValues.put(sv, newDv);
+            //ifSuffixValues.put(sv, newDv);
+
+            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, ifValues, pir);
 
             //System.out.println("this is the piv: " + ifPiv.toString() + " and newDv " + newDv.toString());
-            List<Integer> rvPositions = new ArrayList(ifValues.getAllKeys(newDv));
-            Collections.sort(rvPositions);
-            Register rv = ifPiv.getOneKey(newDv);
-
-            Integer rvPos = rvPositions.get(0);
-            //Integer rvPos = ifValues.getKey(newDv);
-
-            if (rv == null) {
-                //rv = regGenerator.next(type);
-                rv = new Register(type, rvPos);
-                ifPiv.put(rv, newDv);
-            }
-
+            //construct the equality guard
+            // find the data value in the prefix
             SDT eqOracleSdt = oracle.treeQuery(
-                    prefix, suffix, ifValues, ifPiv, pout, ifSuffixValues);
-
-            //List newGuardList = new ArrayList<>();
-            //newGuardList.add(new EqualityGuard(currentParam,rv));
-            EqualityGuard eqGuard = new EqualityGuard(currentParam, rv);
+                    prefix, suffix, ifValues, pir, ifSuffixValues);
 
             tempKids.put(eqGuard, eqOracleSdt);
         }
@@ -260,21 +228,40 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> merged = fluffGuards(tempKids);
 
         // only keep registers that are referenced by the merged guards
-        ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
-        for (Map.Entry<Register, DataValue<?>> e : addPiv) {
-            pout.put(e.getKey(), e.getValue());
-        }
+        pir = keepMem(merged.keySet());
 
         System.out.println("temporary guards = " + tempKids.keySet());
         //System.out.println("temporary pivs = " + tempPiv.keySet());
         System.out.println("merged guards = " + merged.keySet());
-        System.out.println("merged pivs = " + addPiv.toString());
+        System.out.println("merged pivs = " + pir.toString());
 
         // clear the temporary map of children
         tempKids.clear();
 
         SDT returnSDT = new SDT(merged);
         return returnSDT;
+
+    }
+
+    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir) {
+        DataType type = currentParam.getType();
+        int newDv_i;
+        if (prefixValues.contains(newDv)) {
+            newDv_i = prefixValues.indexOf(newDv) + 1;
+            Parameter newDv_p = new Parameter(type, newDv_i);
+            Register newDv_r;
+            if (pir.containsKey(newDv_p)) {
+                newDv_r = pir.get(newDv_p);
+            } else {
+                newDv_r = new Register(type, newDv_i);
+            }
+            return new EqualityGuard(currentParam, newDv_r);
+
+        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
+        else {
+            int smallest = Collections.min(ifValues.getAllKeys(newDv));
+            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+        }
 
     }
 
@@ -288,16 +275,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         if (guard instanceof EqualityGuard) {
             System.out.println("equality guard");
-                if (pval.containsKey(param)) {
-                    System.out.println("pval = " + pval.toString());
-                    System.out.println("pval says " + pval.get(param).toString());
-                    return pval.get(param);
-                }
-                else {
-                    System.out.println("piv = " + piv.toString());
-                    System.out.println("piv says " + piv.get(param).toString());
-                    return piv.get(param);
-                }
+            if (pval.containsKey(param)) {
+                System.out.println("pval = " + pval.toString());
+                System.out.println("pval says " + pval.get(param).toString());
+                return pval.get(param);
+            } else {
+                System.out.println("piv = " + piv.toString());
+                System.out.println("piv says " + piv.get(param).toString());
+                return piv.get(param);
+            }
         }
 
 //        System.out.println("base case");

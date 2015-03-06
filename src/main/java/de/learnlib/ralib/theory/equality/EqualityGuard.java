@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class EqualityGuard extends SDTIfGuard {
     
-    public EqualityGuard(SuffixValue param, Register reg) {
+    public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.EQUALS);
     }
     
@@ -106,7 +106,7 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        Register r = (Register) relabelling.get(getRegister());
+        SymbolicDataValue r = (Register) relabelling.get(getRegister());
         
         sv = (sv == null) ? getParameter() : sv;
         r = (r == null) ? getRegister() : r;

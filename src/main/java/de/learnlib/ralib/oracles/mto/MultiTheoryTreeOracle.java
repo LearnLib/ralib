@@ -80,20 +80,19 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //for (int k = 0; k<prefixValues.length; k++) {
         //    prefixValuation.put(k, prefixValues[k]);
         //}
-        ParsInVars piv = new ParsInVars();
-        ParsInVars pout = new ParsInVars();
+        PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
-                new WordValuation(), piv, pout, new SuffixValuation());
+                new WordValuation(), pir, new SuffixValuation());
 
-        log.finer("PIV: " + pout);
+        log.finer("PIV: " + pir);
         
-        return new TreeQueryResult(pout, sdt);
+        return new TreeQueryResult(pir, sdt);
     }
 
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, ParsInVars piv, ParsInVars pout,
+            WordValuation values, PIV pir,
             SuffixValuation suffixValues) {
 
         //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size() + ", suffixValues size " + suffixValues.size());
@@ -134,7 +133,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //System.out.println("Teacher theory: " + sd.getType().toString());
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, piv, pout, suffixValues, this);
+        return teach.treeQuery(prefix, suffix, values, pir, suffixValues, this);
     }
 
     /**
