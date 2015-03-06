@@ -88,4 +88,12 @@ public class OutputTransition extends Transition {
     public String toString() {
         return "(" + source + ", " + label + ", " + output + ", " + assignment + ", " + destination + ")";
     }    
+
+    /**
+     * @return the output
+     */
+    public OutputMapping getOutput() {
+        return output;
+    }
+
 }

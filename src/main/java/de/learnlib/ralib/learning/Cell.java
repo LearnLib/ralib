@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -26,6 +27,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.Collection;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -42,6 +44,8 @@ final class Cell {
     private final SymbolicDecisionTree sdt;
     
     private final PIV parsInVars;
+    
+    private static LearnLogger log = LearnLogger.getLogger(Cell.class);
 
     private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV parsInVars) {
         this.prefix = prefix;
@@ -95,7 +99,10 @@ final class Cell {
     static Cell computeCell(TreeOracle oracle, 
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
        
-        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
+        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);        
+        log.log(Level.FINE, "Cell: {0}, {1}: {2}\n{3}", 
+                new Object[]{prefix, suffix, new PIV(prefix, tqr.getParsInVars()), tqr.getSdt()});
+        
         return new Cell(prefix, suffix, tqr.getSdt(), 
                 new PIV(prefix, tqr.getParsInVars()));
     }

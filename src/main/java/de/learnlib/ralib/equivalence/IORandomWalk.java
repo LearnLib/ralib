@@ -157,7 +157,7 @@ public class IORandomWalk {
             ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
 
             double draw = rand.nextDouble();
-            if (draw <= newDataProbability) {
+            if (draw <= newDataProbability || old.isEmpty()) {
                 DataValue v = teacher.getFreshValue(old);
                 vals[i] = v;
             } else {
