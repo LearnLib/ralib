@@ -20,11 +20,27 @@
 package de.learnlib.ralib.sul;
 
 import de.learnlib.api.SULException;
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.output.OutputMapping;
+import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,24 +52,98 @@ public class SimulatorSUL implements DataWordSUL {
     private final RegisterAutomaton model;
     private final Set<ParameterizedSymbol> inputs;
     
-    public SimulatorSUL(RegisterAutomaton model, ParameterizedSymbol[] inputs) {
+    private final Constants consts;
+    private final Map<DataType, Theory> teachers;
+    
+    private RALocation loc = null;
+    private VarValuation register = null;
+    
+    public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
+            Constants consts, ParameterizedSymbol[] inputs) {
         this.model = model;
+        this.teachers = teachers;
+        this.consts = consts;
         this.inputs = new HashSet<>(Arrays.asList(inputs));
     }
 
     @Override
     public void pre() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        loc = this.model.getInitialState();
+        register = new VarValuation();
     }
 
     @Override
     public void post() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        loc = null;
+        register = null;
     }
 
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        boolean found = false;
+        for (Transition t : this.model.getTransitions(loc, i.getBaseSymbol())) {
+            ParValuation pval = new ParValuation(i);
+            if (t.isEnabled(register, pval, consts)) {
+                found = true;
+                register = t.execute(register, pval, consts);
+                loc = t.getDestination();
+                break;
+            }            
+        }
+        
+        if (!found) {
+            throw new IllegalStateException();
+        }
+        
+        Transition t = getOutputTransition(loc);
+        OutputTransition ot = (OutputTransition) t;
+        PSymbolInstance out = createOutputSymbol(ot);
+        
+        register = ot.execute(register, new ParValuation(out), consts);
+        loc = ot.getDestination();
+        return out;
+    }
+
+    private PSymbolInstance createOutputSymbol(OutputTransition ot) {
+        ParameterizedSymbol ps = ot.getLabel();
+        OutputMapping mapping = ot.getOutput();
+        DataValue[] vals = new DataValue[ps.getArity()];
+        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+                new SymbolicDataValueGenerator.ParameterGenerator();
+        ParValuation pval = new ParValuation();
+        int i = 0;
+        for (DataType t : ps.getPtypes()) {
+            Parameter p = pgen.next(t);
+            if (mapping.getFreshParameters().contains(p)) {
+                List<DataValue> old = computeOld(t, pval);
+                vals[i] = teachers.get(t).getFreshValue(old);
+            }
+            else {
+                vals[i] = register.get( (Register) mapping.getOutput().get(p));
+            }
+            pval.put(p, vals[i]);
+            i++;
+        }
+        return new PSymbolInstance(ot.getLabel(), vals);
+    }
+    
+    private Transition getOutputTransition(RALocation loc) {
+        return loc.getOut().iterator().next();
+    }
+
+    private List<DataValue> computeOld(DataType t, ParValuation pval) {
+        Set<DataValue> set = new HashSet<>();
+        for (DataValue d : register.values()){
+            if (d.getType().equals(t)) {
+                set.add(d);
+            }
+        }
+        for (DataValue d : pval.values()){
+            if (d.getType().equals(t)) {
+                set.add(d);
+            }
+        }    
+        return new ArrayList<>(set);
     }
     
 }

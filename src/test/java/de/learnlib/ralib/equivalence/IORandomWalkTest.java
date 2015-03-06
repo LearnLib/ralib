@@ -63,9 +63,7 @@ public class IORandomWalkTest {
          RegisterAutomaton model = loader.getRegisterAutomaton();         
          ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                  new ParameterizedSymbol[] {});
-     
-         DataWordSUL sul = new SimulatorSUL(model, inputs);
-         
+              
          Constants consts = loader.getConstants();
          
          Map<DataType, Theory> teachers = new HashMap<>();
@@ -78,8 +76,7 @@ public class IORandomWalkTest {
              });
          }
          
-         SimulatorOracle sim = new SimulatorOracle(model);
-         MultiTheoryTreeOracle oracle = new MultiTheoryTreeOracle(sim, teachers);
+         DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
          
          IORandomWalk iowalk = new IORandomWalk(new Random(0), 
                  sul, 
@@ -93,6 +90,6 @@ public class IORandomWalkTest {
                  teachers, 
                  inputs);
          
-         //iowalk.findCounterExample(model);
+         iowalk.findCounterExample(model);
      }
 }

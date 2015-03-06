@@ -46,11 +46,11 @@ public class RALocation {
         this(id, true);
     }
 
-    Collection<Transition> getOut(ParameterizedSymbol ps) {
+    public Collection<Transition> getOut(ParameterizedSymbol ps) {
         return out.get(ps);
     }
 
-    Collection<Transition> getOut() {
+    public Collection<Transition> getOut() {
         ArrayList<Transition> ret = new ArrayList<>();
         for (Collection<Transition> col : out.values()) {
             ret.addAll(col);
