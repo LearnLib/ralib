@@ -50,7 +50,7 @@ public class DisequalityGuard extends SDTElseGuard {
     
         private List<Expression<Boolean>> toExprList() {
         List<Expression<Boolean>> deqs = new ArrayList<>();
-        String pname = "p" + this.getParameter().getId();
+        String pname = "y" + this.getParameter().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, pname);
         for (Register reg : this.getRegisters()) {
             String xname = "x" + reg.getId();
