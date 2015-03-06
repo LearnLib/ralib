@@ -215,4 +215,12 @@ class Component {
     Collection<Row> getOtherRows() {
         return this.otherRows.keySet();
     }
+
+    @Override
+    public String toString() {
+        return primeRow.getPrefix().toString() + " " + 
+                Arrays.toString(this.otherRows.keySet().toArray());
+    }
+    
+    
 }
