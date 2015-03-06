@@ -149,6 +149,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values,
             ParsInVars piv,
+            ParsInVars pout,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
 
@@ -200,7 +201,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         elseSuffixValues.put(sv, fresh);
 
         SDT elseOracleSdt = oracle.treeQuery(
-                prefix, suffix, elseValues, piv, elseSuffixValues);
+                prefix, suffix, elseValues, piv, pout, elseSuffixValues);
 
         ParsInVars diseqPiv = new ParsInVars();
         for (Register rg : ifPiv.keySet()) {
@@ -239,7 +240,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
 
             SDT eqOracleSdt = oracle.treeQuery(
-                    prefix, suffix, ifValues, ifPiv, ifSuffixValues);
+                    prefix, suffix, ifValues, ifPiv, pout, ifSuffixValues);
 
             //List newGuardList = new ArrayList<>();
             //newGuardList.add(new EqualityGuard(currentParam,rv));
@@ -253,6 +254,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         // only keep registers that are referenced by the merged guards
         ParsInVars addPiv = keepMem(ifPiv, merged.keySet());
+        for (Map.Entry<Register, DataValue<?>> e : addPiv) {
+            pout.put(e.getKey(), e.getValue());
+        }
 
         System.out.println("temporary guards = " + tempKids.keySet());
         //System.out.println("temporary pivs = " + tempPiv.keySet());

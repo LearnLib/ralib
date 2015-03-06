@@ -8,6 +8,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -36,6 +37,15 @@ public class SDTTrueGuard extends SDTGuard {
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         return new IfGuard(DataExpression.TRUE);
+    }
+
+    @Override
+    public SDTGuard relabel(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        if (sv != null) {
+            return new SDTTrueGuard(sv);
+        }
+        return this;
     }
 
 }

@@ -8,7 +8,8 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.*;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -64,4 +65,16 @@ public class SDTCompoundGuard extends SDTGuard {
     public String toString() {
         return guards.toString();
     }
+    
+    @Override
+    public SDTGuard relabel(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        sv = (sv == null) ? getParameter() : sv;
+        
+        List<SDTIfGuard> gg = new ArrayList<>();
+        for (SDTIfGuard g : this.guards) {
+            gg.add(g.relabel(relabelling));
+        }
+        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+    }    
 }

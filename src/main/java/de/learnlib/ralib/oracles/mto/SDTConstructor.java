@@ -40,7 +40,7 @@ public interface SDTConstructor {
     
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, ParsInVars piv, 
+            WordValuation values, ParsInVars piv, ParsInVars pout,
             SuffixValuation suffixValues);
     
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 

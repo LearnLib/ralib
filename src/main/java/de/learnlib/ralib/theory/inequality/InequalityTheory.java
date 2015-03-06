@@ -265,6 +265,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values,
             ParsInVars piv,
+            ParsInVars pout,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
 
@@ -405,7 +406,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                guardSet.add(new BiggerGuard(sv, rvPrev));
 //            }
             SDT oracleSdt = oracle.treeQuery(
-                    prefix, suffix, currentValues, ifPiv, currentSuffixValues);
+                    prefix, suffix, currentValues, ifPiv, pout, currentSuffixValues);
 
             tempKids.put(guard, oracleSdt);
 

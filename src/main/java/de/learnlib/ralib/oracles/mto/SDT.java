@@ -16,6 +16,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +91,14 @@ public class SDT implements SymbolicDecisionTree {
             return this;
         }
 
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //System.out.println("RELABEL: " + relabelling);        
+        Map<SDTGuard, SDT> reChildren = new HashMap<>();
+        for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+            reChildren.put(e.getKey().relabel(relabelling), 
+                    (SDT) e.getValue().relabel(relabelling));
+        }
+        SDT relabelled = new SDT(reChildren);
+        return relabelled;        
     }
 
     @Override

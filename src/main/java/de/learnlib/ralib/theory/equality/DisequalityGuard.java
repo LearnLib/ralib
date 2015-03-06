@@ -24,8 +24,10 @@ import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTElseGuard;
+import de.learnlib.ralib.theory.SDTGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -35,6 +37,7 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,4 +113,21 @@ public class DisequalityGuard extends SDTElseGuard {
         assert e.getParameter().equals(this.getParameter());
         return this;
     }
+    
+ 
+    @Override
+    public SDTGuard relabel(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        
+        sv = (sv == null) ? getParameter() : sv;
+  
+        Set<Register> regs = new HashSet<>();
+        for (Register r : getRegisters()) {
+            Register rNew = (Register) relabelling.get(r);
+            rNew = (rNew == null) ? r : rNew;
+            regs.add(rNew);            
+        }
+        
+        return new DisequalityGuard(sv, regs);
+    }        
 }

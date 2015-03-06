@@ -72,6 +72,7 @@ public interface Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values, 
             ParsInVars piv,
+            ParsInVars pout,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
         

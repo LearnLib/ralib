@@ -22,6 +22,7 @@ import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -67,5 +68,10 @@ public class SmallerGuard extends SDTIfGuard {
         Expression<Boolean> expr = this.toExpr();
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
+    }
+
+    @Override
+    public SDTIfGuard relabel(VarMapping relabelling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

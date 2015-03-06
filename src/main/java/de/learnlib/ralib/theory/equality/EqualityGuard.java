@@ -24,8 +24,11 @@ import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTTrueGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -99,5 +102,16 @@ public class EqualityGuard extends SDTIfGuard {
         return new IfGuard(cond);
                 
                 }
+ 
+    @Override
+    public SDTIfGuard relabel(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        Register r = (Register) relabelling.get(getRegister());
+        
+        sv = (sv == null) ? getParameter() : sv;
+        r = (r == null) ? getRegister() : r;
+        
+        return new EqualityGuard(sv, r);
+    }    
     
 }

@@ -24,6 +24,7 @@ import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -71,6 +72,11 @@ public class BiggerGuard extends SDTIfGuard {
         boolean samePR = (this.getParameter().getId() == other.getParameter().getId() && 
                 this.getRegister().getId() == other.getRegister().getId());
         return samePR && (other instanceof SmallerGuard);
+    }
+
+    @Override
+    public SDTIfGuard relabel(VarMapping relabelling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
