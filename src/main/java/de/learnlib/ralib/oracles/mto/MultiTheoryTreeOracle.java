@@ -149,17 +149,20 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
         
         log.log(Level.INFO, "computing initial branching for {0} after {1}", new Object[]{ps, prefix});
-        
+                
         //TODO: check if this casting can be avoided by proper use of generics
         //TODO: the problem seems to be 
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {
-                casted[i] = (SDT) sdts[i];                
-            }
+             casted[i] = (SDT) sdts[i];                
+            log.log(Level.FINE, "Using SDT \n{0}", sdts[i].toString());
+        }
         
         MultiTheoryBranching mtb = getInitialBranching(
                 prefix, ps, piv, new ParValuation(), 
                 new ArrayList<SDTGuard>(), casted);
+        
+        //System.out.println(mtb.toString());
         
         return mtb;
     }
