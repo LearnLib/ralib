@@ -50,7 +50,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -200,8 +200,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     
     private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
             PIV piv, ParValuation pval) {
-        Map<DataValue, Node> nextMap = new HashMap<>();
-            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+        Map<DataValue, Node> nextMap = new LinkedHashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
             
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
@@ -229,8 +229,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             System.out.println("current type: " + type.getName());
             int j = i+1;
             Parameter p = new Parameter(type,j);
-            Map<DataValue, Node> nextMap = new HashMap<>();
-            Map<DataValue, SDTGuard> guardMap = new HashMap<>();
+            Map<DataValue, Node> nextMap = new LinkedHashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
             
             //for each guard in each sdt
             for (SDT sdt : sdts) {
@@ -315,7 +315,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             }
             
             
-            Map<Word<PSymbolInstance>,TransitionGuard> updated = new HashMap<>();
+            Map<Word<PSymbolInstance>,TransitionGuard> updated = new LinkedHashMap<>();
             
             Boolean[] canUse = new Boolean[newBranches.size()];
             int i = 0;

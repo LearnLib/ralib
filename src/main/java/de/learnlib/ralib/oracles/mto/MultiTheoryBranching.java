@@ -43,7 +43,7 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +59,8 @@ public class MultiTheoryBranching implements Branching {
     public static class Node {
 
         private final Parameter parameter;
-        private final Map<DataValue, Node> next = new HashMap<>();
-        private final Map<DataValue, SDTGuard> guards = new HashMap<>();
+        private final Map<DataValue, Node> next = new LinkedHashMap<>();
+        private final Map<DataValue, SDTGuard> guards = new LinkedHashMap<>();
 
         public Node(Parameter parameter) {
             this.parameter = parameter;
@@ -255,7 +255,7 @@ public class MultiTheoryBranching implements Branching {
 //    }        
 
 //    
-    //      Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new HashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
+    //      Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new LinkedHashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
 ////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
 ////        for (DataValue[] d : psList) {
 ////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
@@ -265,7 +265,7 @@ public class MultiTheoryBranching implements Branching {
 //        }
 // for each next-node
 //        Set<Word<PSymbolInstance>> words = new HashSet<>();
-//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new HashMap<>();
+//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new LinkedHashMap<>();
 //        for (DataValue d : this.node.guards.keySet()) {
 //            
 //        }
@@ -328,12 +328,12 @@ public class MultiTheoryBranching implements Branching {
         System.out.println("get branches for " + this.action.toString());
         
         
-        Map<Word<PSymbolInstance>, TransitionGuard> branches = new HashMap<>();
+        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
         
         if (this.action.getArity() == 0) {
             TransitionGuard tg = new IfGuard(
                     new DataExpression<Boolean>(ExpressionUtil.TRUE, 
-                            new HashMap<SymbolicDataValue, Variable>()));
+                            new LinkedHashMap<SymbolicDataValue, Variable>()));
             PSymbolInstance psi = new PSymbolInstance(action,new DataValue[0]);
             branches.put(Word.fromLetter(psi), tg);
             return branches;
@@ -343,7 +343,7 @@ public class MultiTheoryBranching implements Branching {
         
         Map<DataValue[], List<SDTGuard>> tempMap
                 = collectDataValuesAndGuards(
-                        this.node, new HashMap<DataValue[], List<SDTGuard>>(),
+                        this.node, new LinkedHashMap<DataValue[], List<SDTGuard>>(),
                         new DataValue[0], new ArrayList<SDTGuard>(),
                         new ArrayList<Node>());
 //        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
@@ -352,7 +352,7 @@ public class MultiTheoryBranching implements Branching {
 //        
         Set<SymbolicDataValue> regsAndParams = collectRegsAndParams(tempMap);
 
-        Map<SymbolicDataValue, Variable> vars = new HashMap<SymbolicDataValue, Variable>();
+        Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
         for (SymbolicDataValue s : regsAndParams) {
             String xpre = "";
             if (s instanceof SuffixValue) {

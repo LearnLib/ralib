@@ -15,7 +15,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -32,7 +32,7 @@ public class Compatibility {
 //
 //    private static Map<DataValue<Integer>, Integer> makeInitialSpace(Map<DataValue<Integer>, Integer> valMap, int space) {
 //        
-//          Map intMap = new HashMap<>();
+//          Map intMap = new LinkedHashMap<>();
 ////        for (DataValue<Integer> dV : valMap.keySet()) {
 ////            intMap.put((new DataValue(intType, dV.getId() - initialDiff)), valMap.get(dV));
 ////        }
@@ -66,7 +66,7 @@ public class Compatibility {
 //
 //    private static Map<DataValue<Integer>, Integer> enlargeGaps(Map<DataValue<Integer>, Integer> sortedMap, int space) {
 //        Set dataValues = sortedMap.keySet();
-//        Map intMap = new HashMap<>();
+//        Map intMap = new LinkedHashMap<>();
 //        List<DataValue<Integer>> sortedList = new ArrayList<>(dataValues);
 //        Collections.sort(sortedList, intType);
 //        //System.out.println("sorted list with original gaps: " + sortedList.toString());
@@ -95,7 +95,7 @@ public class Compatibility {
 //        int space = (int)Math.pow(2, suffixLength);
 //        // sort values from prefix in a Map
 //        DataValue[] vals = DataWords.valsOf(prefix);
-//        Map<DataValue<Integer>, Integer> valMap = new HashMap<>();
+//        Map<DataValue<Integer>, Integer> valMap = new LinkedHashMap<>();
 //        for (int i = 0; i < vals.length; i++) {
 //            if (vals[i].getType().equals(intType)) {
 //                valMap.put(vals[i], i);
@@ -106,7 +106,7 @@ public class Compatibility {
 //        Map<DataValue<Integer>, Integer> transformedMap = enlargeGaps(makeInitialSpace(valMap, space),space);
 //        // create complete map to reinstantiate prefix with
 //        // first switch map
-//        Map<Integer, DataValue<Integer>> switchedMap = new HashMap();
+//        Map<Integer, DataValue<Integer>> switchedMap = new LinkedHashMap();
 //        for (Map.Entry<DataValue<Integer>, Integer> entry : transformedMap.entrySet()) {
 //            switchedMap.put(entry.getValue()+1, entry.getKey());
 //        }
@@ -124,7 +124,7 @@ public class Compatibility {
 //    }
 
     public static Word<PSymbolInstance> intify(Word<PSymbolInstance> w) {
-                         Map<Integer,DataValue<?>> retMap = new HashMap();
+                         Map<Integer,DataValue<?>> retMap = new LinkedHashMap();
                 //used for positioning
                          DataValue<DoubType>[] valArray = DataWords.valsOf(w);
                 DataValue<DoubType>[] typedArray = DataWords.valsOf(w, doubType);
@@ -146,7 +146,7 @@ public class Compatibility {
     
     
     public static Word<PSymbolInstance> doublify(Word<PSymbolInstance> w) {
-                 Map<Integer,DataValue<? extends DataType>> retMap = new HashMap();
+                 Map<Integer,DataValue<? extends DataType>> retMap = new LinkedHashMap();
                 //used for positioning
                 DataValue[] valArray = DataWords.valsOf(w);
                 //DataValue<Integer>[] typedArray = DataWords.valsOf(w, intType);

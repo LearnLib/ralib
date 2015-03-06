@@ -54,7 +54,7 @@ public abstract class SDTGuard {
         
         this.parameter = param;
     
-//        this.regrels = new HashMap<>();
+//        this.regrels = new LinkedHashMap<>();
 //        this.parameter = param;
 //        this.regrels.put(reg,rel);
     }

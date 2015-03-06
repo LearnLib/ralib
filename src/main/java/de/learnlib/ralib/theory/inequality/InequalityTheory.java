@@ -25,7 +25,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +81,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             List<SDTGuard> targetList, Map<SDTGuard, SDT> refSDTMap,
             Map<SDTGuard, SDT> finalMap, Map<SDTGuard, SDT> contMap) {
         System.out.println("---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
-        Map<SDTGuard, SDT> cMap = new HashMap();
+        Map<SDTGuard, SDT> cMap = new LinkedHashMap();
         cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
@@ -90,7 +90,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             System.out.println(" ---> " + finalMap.toString());
             return finalMap;
         } else {
-            Map<SDTGuard, SDT> newSDTMap = new HashMap();
+            Map<SDTGuard, SDT> newSDTMap = new LinkedHashMap();
             newSDTMap.putAll(refSDTMap);
             SDT guardSDT = newSDTMap.get(guard);
             List<SDTGuard> newTargetList = new ArrayList();
@@ -107,9 +107,9 @@ public abstract class InequalityTheory<T> implements Theory<T> {
                 newSDTMap.put(merged, guardSDT);
                 cMap.remove(other);
 
-                return tryToMerge(merged, newTargetList, newSDTMap, new HashMap(), cMap);
+                return tryToMerge(merged, newTargetList, newSDTMap, new LinkedHashMap(), cMap);
             } else {
-                return tryToMerge(guard, newTargetList, newSDTMap, new HashMap(), cMap);
+                return tryToMerge(guard, newTargetList, newSDTMap, new LinkedHashMap(), cMap);
             }
         }
 
@@ -120,14 +120,14 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT>
             mergeGuards(Map<SDTGuard, SDT> unmerged) {
         System.out.println("master merge...");
-        Map<SDTGuard, SDT> tempMap = new HashMap();
+        Map<SDTGuard, SDT> tempMap = new LinkedHashMap();
 
         List<SDTGuard> guardList = new ArrayList(unmerged.keySet());
         System.out.println("unmerged: " + unmerged.toString());
         //int i = 0;
         List<SDTGuard> jGuardList = new ArrayList();
         jGuardList.addAll(guardList);
-        Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new HashMap(), new HashMap());
+        Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new LinkedHashMap(), new LinkedHashMap());
         tempMap.putAll(gMerged);
 
         System.out.println(tempMap.toString());
@@ -142,7 +142,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                
 //                
 //                
-//                Map<Set<Guard>, SDT> mergingMap = new HashMap<>();
+//                Map<Set<Guard>, SDT> mergingMap = new LinkedHashMap<>();
 //        System.out.println("---- Merging! ---- " + unmerged.toString());
 //        // guards we've already tried
 //        Set<Set<Guard>> tried = new HashSet();
@@ -290,7 +290,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
     //    WordValuation prefixValuation = valuatePrefix(prefix, type);
         // System.out.println("prefix valuation: " + prefixValuation.toString());
-        Map<SDTGuard, SDT> tempKids = new HashMap<>();
+        Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
         ParsInVars ifPiv = new ParsInVars();
         ifPiv.putAll(piv);
         // System.out.println("ifpiv is " + ifPiv.toString());
