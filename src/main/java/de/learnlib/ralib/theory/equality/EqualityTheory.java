@@ -39,7 +39,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,8 +65,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     @Deprecated
     private Map<List<SDTGuard>, SDT>
             mergeGuards(Map<List<SDTGuard>, SDT> unmerged) {
-        Map<List<SDTGuard>, SDT> merged = new HashMap<>();
-        Map<List<SDTGuard>, SDT> ifs = new HashMap<>();
+        Map<List<SDTGuard>, SDT> merged = new LinkedHashMap<>();
+        Map<List<SDTGuard>, SDT> ifs = new LinkedHashMap<>();
         for (List<SDTGuard> tempG : unmerged.keySet()) {
             SDT tempSdt = unmerged.get(tempG);
             if (tempG.isEmpty()) {
@@ -97,8 +97,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
             fluffGuards(Map<SDTGuard, SDT> unmerged) {
-        Map<SDTGuard, SDT> merged = new HashMap<>();
-        Map<SDTGuard, SDT> ifs = new HashMap<>();
+        Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
+        Map<SDTGuard, SDT> ifs = new LinkedHashMap<>();
         for (SDTGuard tempG : unmerged.keySet()) {
             SDT tempSdt = unmerged.get(tempG);
             if (tempG instanceof DisequalityGuard) {
@@ -159,7 +159,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         SuffixValue currentParam = new SuffixValue(type, pId);
 
-        Map<SDTGuard, SDT> tempKids = new HashMap<>();
+        Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
         ParsInVars ifPiv = new ParsInVars();
         ifPiv.putAll(piv);
