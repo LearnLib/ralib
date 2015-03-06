@@ -277,14 +277,16 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         if (guard instanceof EqualityGuard) {
             System.out.println("equality guard");
-//                if (!pval.isEmpty()) {
-//                    System.out.println("pval = " + pval.toString());
-//                }
-//                else {
-//                    System.out.println("pval is empty");
-//                }
-            System.out.println("pval says " + pval.get(param).toString());
-            return pval.get(param);
+                if (pval.containsKey(param)) {
+                    System.out.println("pval = " + pval.toString());
+                    System.out.println("pval says " + pval.get(param).toString());
+                    return pval.get(param);
+                }
+                else {
+                    System.out.println("piv = " + piv.toString());
+                    System.out.println("piv says " + piv.get(param).toString());
+                    return piv.get(param);
+                }
         }
 
 //        System.out.println("base case");
