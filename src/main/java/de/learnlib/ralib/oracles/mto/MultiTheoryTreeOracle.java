@@ -249,7 +249,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     //if (!guardList.isEmpty()) {
                     //    newGuard = guardList.get(0);
                     //}
-                    
+                    pval.put(p,dvi);
                     guardMap.put(dvi, guard);
                 }
             }
