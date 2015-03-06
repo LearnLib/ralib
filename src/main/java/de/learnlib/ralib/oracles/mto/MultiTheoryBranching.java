@@ -327,16 +327,18 @@ public class MultiTheoryBranching implements Branching {
 
         Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
         for (SymbolicDataValue s : regsAndParams) {
+            SymbolicDataValue z = s;
             String xpre = "";
             if (s instanceof SuffixValue) {
-                xpre = "p" + s.getId();
+                xpre = "y" + s.getId();
+                z = new Parameter(s.getType(), s.getId());
             }
             if (s instanceof Register) {
                 xpre = "x" + s.getId();
             }
 //            String xname = xpre + s.getId() + "_" + s.getType().getName();
             Variable x = new Variable(BuiltinTypes.SINT32, xpre);
-            vars.put(s, x);
+            vars.put(z, x);
         }
 
         System.out.println("Vars =     " + vars.toString());
