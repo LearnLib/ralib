@@ -162,7 +162,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 prefix, ps, piv, new ParValuation(), 
                 new ArrayList<SDTGuard>(), casted);
         
-        //System.out.println(mtb.toString());
+        System.out.println(mtb.toString());
         
         return mtb;
     }
