@@ -57,7 +57,7 @@ public class SmallerGuard extends SDTIfGuard {
     @Override
     public Expression<Boolean> toExpr() {
         String xname = "x" + this.getRegister().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, "p");
+        Variable p = new Variable(BuiltinTypes.SINT32, "y");
         Variable x = new Variable(BuiltinTypes.SINT32, xname);
         return new NumericBooleanExpression(x, NumericComparator.GT, p);
     }
