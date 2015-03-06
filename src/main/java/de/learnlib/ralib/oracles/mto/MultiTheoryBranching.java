@@ -267,34 +267,34 @@ public class MultiTheoryBranching implements Branching {
 
     }
 
-    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
-        Set<Register> regs = new HashSet<>();
-        for (DataValue[] dvs : guardMap.keySet()) {
-            for (SDTGuard guard : guardMap.get(dvs)) {
-                if (guard instanceof SDTIfGuard) {
-                    regs.add(((SDTIfGuard) guard).getRegister());
-                } else if (guard instanceof SDTElseGuard) {
-                    regs.addAll(((SDTElseGuard) guard).getRegisters());
-                } else if (guard instanceof SDTCompoundGuard) {
-                    for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
-                        regs.add(ifGuard.getRegister());
-                    }
-                }
-            }
-
-        }
-        return regs;
-    }
-
-    private Set<SuffixValue> collectParameters(Map<DataValue[], List<SDTGuard>> guardMap) {
-        Set<SuffixValue> params = new HashSet<>();
-        for (DataValue[] dvs : guardMap.keySet()) {
-            for (SDTGuard guard : guardMap.get(dvs)) {
-                params.add(guard.getParameter());
-            }
-        }
-        return params;
-    }
+//    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
+//        Set<Register> regs = new HashSet<>();
+//        for (DataValue[] dvs : guardMap.keySet()) {
+//            for (SDTGuard guard : guardMap.get(dvs)) {
+//                if (guard instanceof SDTIfGuard) {
+//                    regs.add(((SDTIfGuard) guard).getRegister());
+//                } else if (guard instanceof SDTElseGuard) {
+//                    regs.addAll(((SDTElseGuard) guard).getRegisters());
+//                } else if (guard instanceof SDTCompoundGuard) {
+//                    for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
+//                        regs.add(ifGuard.getRegister());
+//                    }
+//                }
+//            }
+//
+//        }
+//        return regs;
+//    }
+//
+//    private Set<SuffixValue> collectParameters(Map<DataValue[], List<SDTGuard>> guardMap) {
+//        Set<SuffixValue> params = new HashSet<>();
+//        for (DataValue[] dvs : guardMap.keySet()) {
+//            for (SDTGuard guard : guardMap.get(dvs)) {
+//                params.add(guard.getParameter());
+//            }
+//        }
+//        return params;
+//    }
 
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {

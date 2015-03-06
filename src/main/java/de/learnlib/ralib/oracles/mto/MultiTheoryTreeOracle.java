@@ -84,9 +84,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, new SuffixValuation());
 
+        TreeQueryResult tqr = new TreeQueryResult(pir,sdt);
         log.finer("PIV: " + pir);
         
-        return new TreeQueryResult(pir, sdt);
+        return tqr;
     }
 
     @Override

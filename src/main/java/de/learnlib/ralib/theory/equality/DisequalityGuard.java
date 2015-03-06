@@ -103,7 +103,7 @@ public class DisequalityGuard extends SDTIfGuard {
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        Register r = (Register) relabelling.get(getRegister());
+        SymbolicDataValue r = (Register) relabelling.get(getRegister());
         
         sv = (sv == null) ? getParameter() : sv;
         r = (r == null) ? getRegister() : r;

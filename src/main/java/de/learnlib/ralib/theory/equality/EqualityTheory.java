@@ -228,7 +228,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> merged = fluffGuards(tempKids);
 
         // only keep registers that are referenced by the merged guards
-        pir = keepMem(merged.keySet());
+        pir.putAll(keepMem(merged.keySet()));
 
         System.out.println("temporary guards = " + tempKids.keySet());
         //System.out.println("temporary pivs = " + tempPiv.keySet());
