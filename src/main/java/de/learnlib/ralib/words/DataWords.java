@@ -24,7 +24,7 @@ import de.learnlib.ralib.data.DataValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +83,7 @@ public final class DataWords {
      * @return 
      */
     public static <T> Set<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType t) {
-        Set<DataValue<T>> vals = new HashSet<>();
+        Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
             for (DataValue d : psi.getParameterValues()) {
                 if (d.getType().equals(t)) {
@@ -101,7 +101,7 @@ public final class DataWords {
      * @return 
      */
     public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
-        Set<DataValue<T>> vals = new HashSet<>();    
+        Set<DataValue<T>> vals = new LinkedHashSet<>();    
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);
         }
@@ -115,7 +115,7 @@ public final class DataWords {
      * @return 
      */
     public static Set<DataValue> valSet(Word<PSymbolInstance> word) {
-        Set<DataValue> valset = new HashSet<>();
+        Set<DataValue> valset = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
             valset.addAll(Arrays.asList(psi.getParameterValues()));
         }

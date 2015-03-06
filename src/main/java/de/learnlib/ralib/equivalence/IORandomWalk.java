@@ -18,8 +18,8 @@
  */
 package de.learnlib.ralib.equivalence;
 
-
-import de.learnlib.ralib.automata.xml.RegisterAutomaton;
+import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -30,10 +30,10 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -42,8 +42,6 @@ import net.automatalib.words.Word;
  */
 public class IORandomWalk {
 
-
-    
     private final Random rand;
     private RegisterAutomaton hyp;
     private final DataWordSUL target;
@@ -55,13 +53,31 @@ public class IORandomWalk {
     private final boolean resetRuns;
     private long runs;
     private final int maxDepth;
-    private final Constants constants;    
+    private final Constants constants;
     private final Map<DataType, Theory> teachers;
+    
+    private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
 
-    public IORandomWalk(Random rand, DataWordSUL target, boolean uniform, 
-            double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants, 
-            boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol ... inputs) {
-        
+    /**
+     * creates an IO random walk
+     * 
+     * 
+     * @param rand Random 
+     * @param target SUL
+     * @param uniform draw from inputs uniformly or according to possible concrete instances
+     * @param resetProbability prob. to reset after each step
+     * @param newDataProbability prob. for using a fresh data value
+     * @param maxRuns max. number of runs
+     * @param maxDepth max length of a run
+     * @param constants constants
+     * @param resetRuns reset runs every time findCounterExample is called
+     * @param teachers teachers for creating fresh data values
+     * @param inputs inputs
+     */
+    public IORandomWalk(Random rand, DataWordSUL target, boolean uniform,
+            double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants,
+            boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
+
         this.resetRuns = resetRuns;
         this.rand = rand;
         this.target = target;
@@ -76,7 +92,7 @@ public class IORandomWalk {
     }
 
     public Word<PSymbolInstance> findCounterExample(RegisterAutomaton hyp) {
-        this.hyp = hyp;        
+        this.hyp = hyp;
         // reset the counter for number of runs?
         if (resetRuns) {
             runs = 0;
@@ -90,62 +106,32 @@ public class IORandomWalk {
         }
         return null;
     }
-    
-    
 
-    private Word run() {        
-//        int depth = 0;
-//        runs++;
-//        List<DataValue> usedValsSys = new ArrayList<DataValue>();
-//        List<DataValue> usedValsHyp = new ArrayList<DataValue>();
-//        for (String k : this.constants.getKeys()) {
-//            usedValsSys.add(this.constants.resolveLocal(new Reference(k)).getValue());
-//            usedValsHyp.add(this.constants.resolveLocal(new Reference(k)).getValue());
-//        }
-//
-//        Word testSys = new WordImpl();
-//        Word testHyp = new WordImpl();
-//        
-//        hyp.reset();
-//        target.reset();
-//        
-//        do {
-//            PSymbolInstance[] in = pickInput(usedValsSys, usedValsHyp);
-//            depth++;
-//            PSymbolInstance outSys = target.step(in[0]);
-//            PSymbolInstance outHyp = hyp.step(in[1]);
-//
-//            for (Object o : outHyp.getParameters()) {
-//                if (!usedValsHyp.contains((DataValue) o)) {
-//                    usedValsHyp.add((DataValue) o);
-//                }
-//            }          
-//            for (Object o : outSys.getParameters()) {
-//                if (!usedValsSys.contains((DataValue) o)) {
-//                    usedValsSys.add((DataValue) o);
-//                }
-//            }     
-//            
-//            testSys = WordUtil.concat(WordUtil.concat(testSys, in[0]), outSys);
-//            testHyp = WordUtil.concat(WordUtil.concat(testHyp, in[1]), outHyp);
-//
-//            Normalizer norm = new Normalizer(null, constants);
-//            
-//            Word traceSys = norm.normalize(testSys);
-//            Word traceHyp = norm.normalize(testHyp);
-//
-//            if (!traceSys.equals(traceHyp)) {
-//                //System.out.println("RUN: " + testSys);
-//                return traceSys;
-//            }
-//                      
-//        } while (rand.nextDouble() > resetProbability && depth < maxDepth);
-//        
-//        //System.out.println("RUN: " + testSys);
-//        return null;
-        throw new UnsupportedOperationException();
+    private Word<PSymbolInstance> run() {
+        int depth = 0;
+        runs++;
+        target.pre();
+        Word<PSymbolInstance> run = Word.epsilon();
+
+        do {
+            PSymbolInstance next = nextInput(run);
+            depth++;
+            PSymbolInstance out = target.step(next);
+
+            run = run.append(next).append(out);
+
+            if (!hyp.accepts(run)) {
+                log.log(Level.FINE, "Run with CE: {0}", run);                
+                target.post();
+                return run;
+            }
+
+        } while (rand.nextDouble() > resetProbability && depth < maxDepth);
+        log.log(Level.FINE, "Run /wo CE: {0}", run);
+        target.post();
+        return null;
     }
-    
+
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {
         ParameterizedSymbol ps = nextSymbol(run);
         PSymbolInstance psi = nextDataValues(run, ps);
@@ -154,37 +140,36 @@ public class IORandomWalk {
 
     private PSymbolInstance nextDataValues(
             Word<PSymbolInstance> run, ParameterizedSymbol ps) {
-        
+
         DataValue[] vals = new DataValue[ps.getArity()];
-        
+
         int i = 0;
         for (DataType t : ps.getPtypes()) {
             Theory teacher = teachers.get(t);
             // TODO: generics hack?
             // TODO: add constants?
             Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
-            for (int j=0; j<i; j++) {
+            for (int j = 0; j < i; j++) {
                 if (vals[j].getType().equals(t)) {
                     oldSet.add(vals[j]);
                 }
             }
             ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
-            
+
             double draw = rand.nextDouble();
             if (draw <= newDataProbability) {
                 DataValue v = teacher.getFreshValue(old);
                 vals[i] = v;
-            }
-            else {
-                int idx = rand.nextInt(old.size());  
+            } else {
+                int idx = rand.nextInt(old.size());
                 vals[i] = old.get(idx);
             }
-            
+
             i++;
         }
         return new PSymbolInstance(ps, vals);
     }
-    
+
     private ParameterizedSymbol nextSymbol(Word<PSymbolInstance> run) {
         ParameterizedSymbol ps = null;
         Map<DataType, Integer> tCount = new HashMap<>();
@@ -200,7 +185,7 @@ public class IORandomWalk {
                     if (old == null) {
                         // TODO: what about constants?
                         old = 0;
-                    }                    
+                    }
                     weights[i] *= (old + 1);
                     tCount.put(t, ++old);
                 }
