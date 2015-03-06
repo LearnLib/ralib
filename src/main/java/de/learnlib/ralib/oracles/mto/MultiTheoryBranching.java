@@ -335,7 +335,7 @@ public class MultiTheoryBranching implements Branching {
                     new DataExpression<Boolean>(ExpressionUtil.TRUE, 
                             new LinkedHashMap<SymbolicDataValue, Variable>()));
             PSymbolInstance psi = new PSymbolInstance(action,new DataValue[0]);
-            branches.put(Word.fromLetter(psi), tg);
+            branches.put(prefix.append(psi), tg);
             return branches;
         }
         
@@ -379,10 +379,10 @@ public class MultiTheoryBranching implements Branching {
                     gExpr.add(g.toExpr());
                 }
             }
-            Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
-            System.out.println("psWord = " + psWord.toString());
+            //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
+            //System.out.println("psWord = " + psWord.toString());
             TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
-            branches.put(psWord, tg);
+            branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
             //System.out.println("guard: " + ((IfGuard)tg).toString());
         }
 
