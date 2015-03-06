@@ -90,7 +90,13 @@ public class RaStar {
             log.info("completing observation table");
             while(!(obs.complete())) {};        
             log.info("completed observation table");
-        
+
+            AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
+            hyp = ab.toRegisterAutomaton();        
+            System.out.println("HYP:------------------------------------------------");
+            System.out.println(hyp);
+            System.out.println("----------------------------------------------------");
+            
         } while (analyzeCounterExample());
     
         AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);

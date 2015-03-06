@@ -219,6 +219,7 @@ class Component {
     @Override
     public String toString() {
         return primeRow.getPrefix().toString() + " " + 
+                primeRow.getParsInVars() + " " +
                 Arrays.toString(this.otherRows.keySet().toArray());
     }
     

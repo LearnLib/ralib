@@ -186,4 +186,9 @@ class Row {
         return c.isAccepting();
     }
 
+    @Override
+    public String toString() {
+        return this.prefix.toString();
+    }
+
 }

@@ -70,13 +70,15 @@ class AutomatonBuilder {
     }
     
     private void computeLocations() {
-        Component c = components.get(RaStar.EMPTY_PREFIX);        
+        Component c = components.get(RaStar.EMPTY_PREFIX);      
+        log.log(Level.FINER, "{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
         this.locations.put(RaStar.EMPTY_PREFIX, loc);
         this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
                 
         for (Entry<Word<PSymbolInstance>, Component> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
+                log.log(Level.FINER, "{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
                 this.locations.put(e.getKey(), loc);
                 this.automaton.setAccessSequence(loc, e.getKey());
