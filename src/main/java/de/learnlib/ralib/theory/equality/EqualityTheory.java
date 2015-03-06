@@ -33,6 +33,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -101,7 +102,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> ifs = new LinkedHashMap<>();
         for (SDTGuard tempG : unmerged.keySet()) {
             SDT tempSdt = unmerged.get(tempG);
-            if (tempG instanceof DisequalityGuard) {
+            if (tempG instanceof SDTCompoundGuard) {
                 //System.out.println("Adding else guard: " + tempG.toString());
                 merged.put(tempG, tempSdt);
             } else {
@@ -210,9 +211,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 diseqPiv.put(rg, tdv);
             }
         }
+        
+        List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
+        for (Register rg : ifPiv.keySet()) {
+            diseqList.add(new DisequalityGuard(currentParam, rg));
+        }
+        
 
         //tempKids.put(new ArrayList<SDTGuard>(), elseOracleSdt);
-        tempKids.put(new DisequalityGuard(currentParam, diseqPiv.keySet()), elseOracleSdt);
+        tempKids.put(new SDTCompoundGuard(currentParam, (diseqList.toArray(new DisequalityGuard[]{}))), elseOracleSdt);
 
         // process each 'if' case
         for (DataValue<T> newDv : potential) {

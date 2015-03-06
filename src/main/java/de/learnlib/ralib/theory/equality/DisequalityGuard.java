@@ -26,74 +26,72 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
-import de.learnlib.ralib.theory.SDTElseGuard;
-import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 /**
  *
  * @author falk
  */
-public class DisequalityGuard extends SDTElseGuard {
+public class DisequalityGuard extends SDTIfGuard {
     
-    public DisequalityGuard(SuffixValue param, Set<Register> regs) {
-        super(param, regs, Relation.ELSE);     
+    public DisequalityGuard(SuffixValue param, Register reg) {
+        super(param, reg, Relation.NOT_EQUALS);     
     }
     
-        private List<Expression<Boolean>> toExprList() {
-        List<Expression<Boolean>> deqs = new ArrayList<>();
-        String pname = "y" + this.getParameter().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, pname);
-        for (Register reg : this.getRegisters()) {
-            String xname = "x" + reg.getId();
-            Variable x = new Variable(BuiltinTypes.SINT32, xname);
-            Expression<Boolean> expression = new 
-        NumericBooleanExpression(x, NumericComparator.NE, p);
-            deqs.add(expression);
-        }
-        return deqs;
+//    @Override
+//    public Equality createCopy(VarMapping renaming) {
+//        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
+//    }
+    
+   
+    @Override
+    public String toString() {
+//        String ret = "";
+//        for (Register reg : this.getRegisters()) {
+//            ret = ret + " " + this.getParameter() + "=" + reg;
+//        }
+//        return ret;
+//        //}
+        return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
+        
     }
+    
+//    private List<Expression<Boolean>> toExprList() {
+//        List<Expression<Boolean>> eqs = new ArrayList<>();
+//        Variable p = new Variable(BuiltinTypes.SINT32, "p");
+//        for (Register reg : this.getRegisters()) {
+//            String xname = "x" + reg.getId();
+//            Variable x = new Variable(BuiltinTypes.SINT32, xname);
+//            Expression<Boolean> expression = new 
+//        NumericBooleanExpression(x, NumericComparator.EQ, p);
+//            eqs.add(expression);
+//        }
+//        return eqs;
+//    }
 //    
-    private Expression<Boolean> toExpr(List<Expression<Boolean>> deqList, int i) {
-        if (deqList.size() == i+1) {
-            return deqList.get(i);
-        }
-        else {
-            return new PropositionalCompound(deqList.get(i), LogicalOperator.AND, toExpr(deqList,i+1));
-        }
-    }
+//    private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
+//        if (eqList.size() == i+1) {
+//            return eqList.get(i);
+//        }
+//        else {
+//            return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList,i+1));
+//        }
+//    }
     
     @Override
     public Expression<Boolean> toExpr() {
-        List<Expression<Boolean>> eList = this.toExprList();
-        if (!eList.isEmpty()) {
-            return this.toExpr(eList,0);
-        }
-        else {
-            return ExpressionUtil.TRUE;
-        }
+        String xname = "x" + this.getRegister().getId();
+        String pname = "y" + this.getParameter().getId();
+        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+        Variable x = new Variable(BuiltinTypes.SINT32,xname);
+        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
     }
     
-    private List<IfGuard> toIfs(Set<Expression<Boolean>> ifExprs, Map<SymbolicDataValue, Variable> variables) {
-        List<IfGuard> ifGuards = new ArrayList<>();
-        for (Expression<Boolean> ifExpr : ifExprs) {
-            DataExpression<Boolean> cond = new DataExpression<>(ifExpr, variables);
-            ifGuards.add(new IfGuard(cond));
-        }
-        return ifGuards;
-    }
-        
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         Expression<Boolean> expr = this.toExpr();
@@ -101,33 +99,100 @@ public class DisequalityGuard extends SDTElseGuard {
         return new IfGuard(cond);
                 
                 }
-    
-    
-    @Override
-    public String toString() {
-        return "ELSE[" + this.getParameter().toString() + "]";
-    }
-    
-    public DisequalityGuard join(EqualityGuard e) {
-        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
-        assert e.getParameter().equals(this.getParameter());
-        return this;
-    }
-    
  
     @Override
-    public SDTGuard relabel(VarMapping relabelling) {
+    public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        Register r = (Register) relabelling.get(getRegister());
         
         sv = (sv == null) ? getParameter() : sv;
-  
-        Set<Register> regs = new HashSet<>();
-        for (Register r : getRegisters()) {
-            Register rNew = (Register) relabelling.get(r);
-            rNew = (rNew == null) ? r : rNew;
-            regs.add(rNew);            
-        }
+        r = (r == null) ? getRegister() : r;
         
-        return new DisequalityGuard(sv, regs);
-    }        
+        return new EqualityGuard(sv, r);
+    }    
+
+    
+    
+    
+    
+    
+//        private List<Expression<Boolean>> toExprList() {
+//        List<Expression<Boolean>> deqs = new ArrayList<>();
+//        String pname = "y" + this.getParameter().getId();
+//        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+//        for (Register reg : this.getRegisters()) {
+//            String xname = "x" + reg.getId();
+//            Variable x = new Variable(BuiltinTypes.SINT32, xname);
+//            Expression<Boolean> expression = new 
+//        NumericBooleanExpression(x, NumericComparator.NE, p);
+//            deqs.add(expression);
+//        }
+//        return deqs;
+//    }
+//    
+//    private Expression<Boolean> toExpr(List<Expression<Boolean>> deqList, int i) {
+//        if (deqList.size() == i+1) {
+//            return deqList.get(i);
+//        }
+//        else {
+//            return new PropositionalCompound(deqList.get(i), LogicalOperator.AND, toExpr(deqList,i+1));
+//        }
+//    }
+//    
+//    @Override
+//    public Expression<Boolean> toExpr() {
+//        List<Expression<Boolean>> eList = this.toExprList();
+//        if (!eList.isEmpty()) {
+//            return this.toExpr(eList,0);
+//        }
+//        else {
+//            return ExpressionUtil.TRUE;
+//        }
+//    }
+//    
+//    private List<IfGuard> toIfs(Set<Expression<Boolean>> ifExprs, Map<SymbolicDataValue, Variable> variables) {
+//        List<IfGuard> ifGuards = new ArrayList<>();
+//        for (Expression<Boolean> ifExpr : ifExprs) {
+//            DataExpression<Boolean> cond = new DataExpression<>(ifExpr, variables);
+//            ifGuards.add(new IfGuard(cond));
+//        }
+//        return ifGuards;
+//    }
+//        
+//    @Override
+//    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
+//        Expression<Boolean> expr = this.toExpr();
+//        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
+//        return new IfGuard(cond);
+//                
+//                }
+//    
+//    
+//    @Override
+//    public String toString() {
+//        return "ELSE[" + this.getParameter().toString() + "]";
+//    }
+//    
+//    public DisequalityGuard join(EqualityGuard e) {
+//        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
+//        assert e.getParameter().equals(this.getParameter());
+//        return this;
+//    }
+//    
+// 
+//    @Override
+//    public SDTGuard relabel(VarMapping relabelling) {
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        
+//        sv = (sv == null) ? getParameter() : sv;
+//  
+//        Set<Register> regs = new HashSet<>();
+//        for (Register r : getRegisters()) {
+//            Register rNew = (Register) relabelling.get(r);
+//            rNew = (rNew == null) ? r : rNew;
+//            regs.add(rNew);            
+//        }
+//        
+//        return new DisequalityGuard(sv, regs);
+//    }        
 }

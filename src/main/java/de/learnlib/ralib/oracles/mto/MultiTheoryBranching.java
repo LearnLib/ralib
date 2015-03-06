@@ -73,7 +73,7 @@ public class MultiTheoryBranching implements Branching {
             this.next.putAll(next);
             this.guards.putAll(guards);
         }
-            
+
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
@@ -88,7 +88,7 @@ public class MultiTheoryBranching implements Branching {
             for (Map.Entry<DataValue, Node> e : next.entrySet()) {
                 DataValue d = e.getKey();
                 SDTGuard g = guards.get(d);
-                
+
                 sb.append(indentation).append("+ ").append(g.toString()).append(" with ").append(d.toString()).append("\n");
 
                 String nextIndent = indentation + "    ";
@@ -102,11 +102,11 @@ public class MultiTheoryBranching implements Branching {
     private final ParameterizedSymbol action;
 
     private final Node node;
-    
+
     private PIV piv;
-    
+
     private ParValuation pval;
-    
+
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
         System.out.println("ps = " + action.toString());
         this.prefix = prefix;
@@ -118,12 +118,12 @@ public class MultiTheoryBranching implements Branching {
         }
         this.pval = pval;
     }
-    
+
     public ParValuation getPval() {
         return pval;
     }
-    
-    public PIV getPiv () {
+
+    public PIV getPiv() {
         return piv;
     }
 
@@ -155,7 +155,7 @@ public class MultiTheoryBranching implements Branching {
 
         }
         if (dvs.length == this.action.getArity()) {
- //           System.out.println("Just adding: " + Arrays.toString(dvs));
+            //           System.out.println("Just adding: " + Arrays.toString(dvs));
             dvList.add(dvs);
         }
         return dvList;
@@ -169,7 +169,7 @@ public class MultiTheoryBranching implements Branching {
         visited.add(n);
         if (!n.next.isEmpty()) {
             // get all next nodes
-   //         System.out.println("next dvs: " + n.next.keySet().toString());
+            //         System.out.println("next dvs: " + n.next.keySet().toString());
             // go through each of the 'next' nodes
             for (DataValue d : n.next.keySet()) {
                 Node nextNode = n.next.get(d);
@@ -186,8 +186,8 @@ public class MultiTheoryBranching implements Branching {
                     newGuards.addAll(guards);
                     newGuards.add(nextGuard);
   //                  System.out.println("dvs are currently " + Arrays.toString(newDvs));
-    //                System.out.println("guards are currently " + newGuards.toString());
-      //              System.out.println("marked: " + visited.size());
+                    //                System.out.println("guards are currently " + newGuards.toString());
+                    //              System.out.println("marked: " + visited.size());
                     // proceed down in the tree to the next node
                     collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
 
@@ -196,7 +196,7 @@ public class MultiTheoryBranching implements Branching {
 
         }
         if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
- //           System.out.println("Just adding: " + Arrays.toString(dvs));
+            //           System.out.println("Just adding: " + Arrays.toString(dvs));
             //dvgMap.put(dvs, toTGList(guards,0));
             dvgMap.put(dvs, guards);
         }
@@ -252,9 +252,10 @@ public class MultiTheoryBranching implements Branching {
                 regsAndParams.add(guard.getParameter());
                 if (guard instanceof SDTIfGuard) {
                     regsAndParams.add(((SDTIfGuard) guard).getRegister());
-                } else if (guard instanceof SDTElseGuard) {
-                    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
-                } else if (guard instanceof SDTCompoundGuard) {
+                } //else if (guard instanceof SDTElseGuard) {
+                //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
+                //} 
+                else if (guard instanceof SDTCompoundGuard) {
                     for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
                         regsAndParams.add(ifGuard.getRegister());
                     }
@@ -297,23 +298,20 @@ public class MultiTheoryBranching implements Branching {
 
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        
+
         System.out.println("get branches for " + this.action.toString());
-        
-        
+
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
-        
+
         if (this.action.getArity() == 0) {
             TransitionGuard tg = new IfGuard(
-                    new DataExpression<Boolean>(ExpressionUtil.TRUE, 
+                    new DataExpression<Boolean>(ExpressionUtil.TRUE,
                             new LinkedHashMap<SymbolicDataValue, Variable>()));
-            PSymbolInstance psi = new PSymbolInstance(action,new DataValue[0]);
+            PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
             branches.put(prefix.append(psi), tg);
             return branches;
         }
-        
-        
-        
+
         Map<DataValue[], List<SDTGuard>> tempMap
                 = collectDataValuesAndGuards(
                         this.node, new LinkedHashMap<DataValue[], List<SDTGuard>>(),
@@ -342,10 +340,7 @@ public class MultiTheoryBranching implements Branching {
         }
 
         System.out.println("Vars =     " + vars.toString());
-        
-        
-        
-        
+
         for (DataValue[] dvs : tempMap.keySet()) {
             List<Expression<Boolean>> gExpr = new ArrayList<>();
             List<SDTGuard> gList = tempMap.get(dvs);

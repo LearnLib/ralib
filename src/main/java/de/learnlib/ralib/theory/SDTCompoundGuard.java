@@ -14,6 +14,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +52,13 @@ public class SDTCompoundGuard extends SDTGuard {
     
     @Override
     public Expression<Boolean> toExpr() {
-        return toExpr(this.toExprList(),0);
+        List<Expression<Boolean>> thisList = this.toExprList();
+        if (thisList.isEmpty()) {
+            return ExpressionUtil.TRUE;
+        }
+        else {
+            return toExpr(thisList, 0);
+        }
     }
 
     @Override
