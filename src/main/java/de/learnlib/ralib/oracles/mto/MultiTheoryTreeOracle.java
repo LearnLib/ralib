@@ -80,20 +80,20 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //for (int k = 0; k<prefixValues.length; k++) {
         //    prefixValuation.put(k, prefixValues[k]);
         //}
-        ParsInVars piv = new ParsInVars();
-        ParsInVars pout = new ParsInVars();
+        PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
-                new WordValuation(), piv, pout, new SuffixValuation());
+                new WordValuation(), pir, new SuffixValuation());
 
-        log.finer("PIV: " + pout);
+        TreeQueryResult tqr = new TreeQueryResult(pir,sdt);
+        log.finer("PIV: " + pir);
         
-        return new TreeQueryResult(pout, sdt);
+        return tqr;
     }
 
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, ParsInVars piv, ParsInVars pout,
+            WordValuation values, PIV pir,
             SuffixValuation suffixValues) {
 
         //System.out.println("suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size() + ", suffixValues size " + suffixValues.size());
@@ -134,7 +134,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //System.out.println("Teacher theory: " + sd.getType().toString());
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, piv, pout, suffixValues, this);
+        return teach.treeQuery(prefix, suffix, values, pir, suffixValues, this);
     }
 
     /**
@@ -300,18 +300,28 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         VarValuation oldValuation = new VarValuation();
         ParValuation oldPval = new ParValuation();
         PIV oldPiv = new PIV();
+        
+        System.out.println("old branching piv " + oldBranching.getPiv().toString());
 
         oldPval.putAll(oldBranching.getPval());
         oldPiv.putAll(oldBranching.getPiv());
 
         System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
+        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
 
         if (!oldPiv.isEmpty()) {
             for (Parameter rp : oldPiv.keySet()) {
-                oldValuation.put(oldPiv.get(rp), oldPval.get(rp));
+                for (Parameter pp : oldPval.keySet()) {
+                    // ugly equality check
+                    if (rp.getId()==pp.getId()) {
+                        System.out.println(rp.toString() + " and " + pp.toString());
+                        oldValuation.put(oldPiv.get(rp), oldPval.get(pp));
+                    }
+                }
             }
         }
-
+        
+        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
         Map<Word<PSymbolInstance>, TransitionGuard> updated = new LinkedHashMap<>();
 
         Boolean[] canUse = new Boolean[newBranches.size()];

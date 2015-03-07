@@ -41,7 +41,7 @@ public class MockTreeOracle implements TreeOracle {
 
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-        return new TreeQueryResult(new ParsInVars(), null);
+        return new TreeQueryResult(new PIV(), null);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class MockTreeOracle implements TreeOracle {
 
             @Override
             public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-                return new HashMap<>();
+                return new HashMap<Word<PSymbolInstance>, TransitionGuard>();
             }
         };
     }

@@ -41,6 +41,11 @@ public class IfGuard implements TransitionGuard {
     
     @Override
     public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
+        System.out.println("evaluating " + condition.toString());
+        System.out.println("registers = " + registers.toString());
+        System.out.println("parameters = " + parameters.toString());
+        System.out.println("constants = " + consts.toString());
+        
         return condition.evaluate(registers, parameters, consts);
     }
 

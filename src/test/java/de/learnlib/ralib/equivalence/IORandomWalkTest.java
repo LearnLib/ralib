@@ -66,7 +66,7 @@ public class IORandomWalkTest {
               
          Constants consts = loader.getConstants();
          
-         Map<DataType, Theory> teachers = new HashMap<>();
+         Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
          for (final DataType t : loader.getDataTypes()) {
              teachers.put(t, new EqualityTheory() {
                  @Override

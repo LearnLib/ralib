@@ -124,7 +124,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     public String toString() {
         return toString(">");
     }
-    
+        
     //FIXME: this method is bogus. There may be more than one value.
     public K getOneKey(V value) {
         K retKey = null;

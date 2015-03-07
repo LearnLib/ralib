@@ -41,7 +41,7 @@ import java.util.Map;
  */
 public class BiggerGuard extends SDTIfGuard {
     
-    public BiggerGuard(SuffixValue param, Register reg) {
+    public BiggerGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param,reg,Relation.BIGGER);
     }
     

@@ -18,11 +18,11 @@ import java.util.Map;
 
 public abstract class SDTIfGuard extends SDTGuard {
     
-    private final Register register;
+    private final SymbolicDataValue register;
     private final Relation relation;
     
     
-    public Register getRegister() {
+    public SymbolicDataValue getRegister() {
         return this.register;
     }
     
@@ -38,7 +38,7 @@ public abstract class SDTIfGuard extends SDTGuard {
 //                this.regrels == other.getRegsAndRels());
     }
     
-    public SDTIfGuard(SuffixValue param, Register reg, Relation rel) {
+    public SDTIfGuard(SuffixValue param, SymbolicDataValue reg, Relation rel) {
         super(param);
         this.relation = rel;
         this.register = reg;

@@ -31,7 +31,8 @@ public enum Relation {
     MEMBER_OF(" in "),
     BIGGER(">"),
     ELSE("else"),
-    TRUE("true");
+    TRUE("true"),
+    NOT_EQUALS("!=");
     
     private final String name;       
 

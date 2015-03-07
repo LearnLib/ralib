@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.oracles;
 
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 
@@ -30,23 +31,23 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 //TODO: ParsInVars should be replaced by PIV
 public class TreeQueryResult {
     
-    private final ParsInVars parsInVars;
+    private final PIV piv;
     
     private final SymbolicDecisionTree sdt;
 
     public TreeQueryResult(
-            ParsInVars piv, 
+            PIV piv, 
             SymbolicDecisionTree sdt) {
         
-        this.parsInVars = piv;
+        this.piv = piv;
         this.sdt = sdt;
     }
 
     /**
      * @return the piv
      */
-    public ParsInVars getParsInVars() {
-        return parsInVars;
+    public PIV getPiv() {
+        return piv;
     }
 
     /**

@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class EqualityGuard extends SDTIfGuard {
     
-    public EqualityGuard(SuffixValue param, Register reg) {
+    public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.EQUALS);
     }
     
@@ -95,6 +95,10 @@ public class EqualityGuard extends SDTIfGuard {
         return new NumericBooleanExpression(x, NumericComparator.EQ, p);
     }
     
+    public DisequalityGuard toDeqGuard() {
+        return new DisequalityGuard(this.getParameter(), this.getRegister());
+    }
+    
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         Expression<Boolean> expr = this.toExpr();
@@ -106,7 +110,7 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        Register r = (Register) relabelling.get(getRegister());
+        SymbolicDataValue r = (Register) relabelling.get(getRegister());
         
         sv = (sv == null) ? getParameter() : sv;
         r = (r == null) ? getRegister() : r;

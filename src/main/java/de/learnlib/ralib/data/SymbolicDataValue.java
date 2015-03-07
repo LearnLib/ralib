@@ -32,7 +32,11 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public static final class Parameter extends SymbolicDataValue {
         public Parameter(DataType dataType, int id) {
             super(dataType, id);
-        }        
+        }
+        public boolean equals(Parameter other) {
+            return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
+            
+        }
     }; 
             
     public static final class Register extends SymbolicDataValue {

@@ -98,15 +98,16 @@ public class CounterexampleAnalysis {
         TransitionGuard g = c.getBranching(act).getBranches().get(transition);
         
         boolean hasCE = sdtOracle.hasCounterexample(prefix, 
-                resHyp.getSdt(), new PIV(location, resHyp.getParsInVars()), 
-                resSul.getSdt(), new PIV(location, resSul.getParsInVars()), 
+                resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
+                resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
         
         if (!hasCE) {
             return IndexResult.NO_CE;
         }
         
-        PIV pivSul = new PIV(location, resSul.getParsInVars());
+        // PIV pivSul = new PIV(location, resSul.getParsInVars());
+        PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                
         boolean sulRefinesTransition = 
