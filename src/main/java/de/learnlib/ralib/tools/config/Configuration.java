@@ -17,12 +17,18 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib;
+package de.learnlib.ralib.tools.config;
+
+import java.util.Properties;
 
 /**
  *
  * @author falk
  */
-public class ClassAnalyzerConsoleClient {
+public class Configuration extends Properties {
+
+    public Configuration(String[] params) {
+    }
+
     
 }

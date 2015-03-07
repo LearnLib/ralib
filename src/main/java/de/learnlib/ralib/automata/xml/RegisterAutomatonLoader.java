@@ -28,7 +28,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
@@ -55,6 +54,7 @@ public class RegisterAutomatonLoader {
     
     private MutableRegisterAutomaton iora;
     private Alphabet<ParameterizedSymbol> inputs;
+    private Alphabet<ParameterizedSymbol> actions;
     
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
@@ -72,7 +72,7 @@ public class RegisterAutomatonLoader {
 
         RegisterAutomaton a = unmarschall(is);
 
-        inputs = getAlphabet(a.getAlphabet());
+        getAlphabet(a.getAlphabet());
         
         getConstants(a.getConstants());
         getRegisters(a.getGlobals());
@@ -168,8 +168,9 @@ public class RegisterAutomatonLoader {
         }
     }
 
-    private Alphabet<ParameterizedSymbol> getAlphabet(RegisterAutomaton.Alphabet a) {
-        Alphabet<ParameterizedSymbol> ret = new SimpleAlphabet<>();
+    private void getAlphabet(RegisterAutomaton.Alphabet a) {
+        inputs = new SimpleAlphabet<>();
+        actions = new SimpleAlphabet<>();
         for (RegisterAutomaton.Alphabet.Inputs.Symbol s : a.getInputs().getSymbol()) {
             int pcount = s.getParam().size();
             String[] pNames = new String[pcount];
@@ -182,7 +183,8 @@ public class RegisterAutomatonLoader {
             }
             String sName = s.getName().startsWith("I") ? s.getName() : "I" + s.getName();
             ParameterizedSymbol ps = new ParameterizedSymbol(sName, pTypes);
-            ret.add(ps);
+            inputs.add(ps);
+            actions.add(ps);            
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
             System.out.println("Loading: " + ps);
@@ -199,12 +201,11 @@ public class RegisterAutomatonLoader {
             }
             String sName = s.getName().startsWith("O") ? s.getName() : "O" + s.getName();
             ParameterizedSymbol ps = new ParameterizedSymbol(sName, pTypes);
-            //ret.add(ps);
+            actions.add(ps);
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
             System.out.println("Loading: " + ps);
         }
-        return ret;
     }
 
     private void getConstants(RegisterAutomaton.Constants xml) {
@@ -280,6 +281,13 @@ public class RegisterAutomatonLoader {
         return inputs;
     }
 
+    /**
+     * @return the inputs
+     */
+    public Alphabet<ParameterizedSymbol> getActions() {
+        return actions;
+    }
+    
     /**
      * @return the consts
      */
