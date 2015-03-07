@@ -107,16 +107,16 @@ public final class MapAutomatonExample {
         Expression<Boolean> expression = 
                 new NumericBooleanExpression(x1, NumericComparator.EQ, p1);
         
-        Map<SymbolicDataValue, Variable> mapping1 = new HashMap<>();
+        Map<SymbolicDataValue, Variable> mapping1 = new HashMap<SymbolicDataValue, Variable>();
         mapping1.put(rKey1, x1);
         mapping1.put(pKey, p1);
 
-        Map<SymbolicDataValue, Variable> mapping2 = new HashMap<>();
+        Map<SymbolicDataValue, Variable> mapping2 = new HashMap<SymbolicDataValue, Variable>();
         mapping2.put(rKey2, x1);
         mapping2.put(pKey, p1);
         
-        DataExpression<Boolean> condition1 = new DataExpression<>(expression, mapping1);
-        DataExpression<Boolean> condition2 = new DataExpression<>(expression, mapping2);
+        DataExpression<Boolean> condition1 = new DataExpression<Boolean>(expression, mapping1);
+        DataExpression<Boolean> condition2 = new DataExpression<Boolean>(expression, mapping2);
         
         IfGuard   get1Guard    = new IfGuard(condition1);
         IfGuard   get2Guard    = new IfGuard(condition2);
@@ -125,31 +125,31 @@ public final class MapAutomatonExample {
         ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
         
         // assignments
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         store1IMapping.put(rVal1, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1OMapping = new VarMapping<>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         store1OMapping.put(rVal1, rVal1);
         store1OMapping.put(rKey1, pKey);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2IMapping = new VarMapping<>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         store2IMapping.put(rKey1, rKey1);
         store2IMapping.put(rVal1, rVal1);
         store2IMapping.put(rVal2, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2OMapping = new VarMapping<>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         store2OMapping.put(rKey1, rKey1);
         store2OMapping.put(rVal1, rVal1);
         store2OMapping.put(rVal2, rVal2);
         store2OMapping.put(rKey2, pKey);
         
-        VarMapping<Register, SymbolicDataValue> copy2Mapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> copy2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         copy2Mapping.put(rKey1, rKey1);
         copy2Mapping.put(rVal1, rVal1);
         copy2Mapping.put(rKey2, rKey2);
         copy2Mapping.put(rVal2, rVal2);
         
-        VarMapping<Register, SymbolicDataValue> copy1Mapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> copy1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         copy1Mapping.put(rKey1, rKey1);
         copy1Mapping.put(rVal1, rVal1);
         

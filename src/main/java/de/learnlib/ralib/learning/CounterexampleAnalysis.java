@@ -106,7 +106,7 @@ public class CounterexampleAnalysis {
             return IndexResult.NO_CE;
         }
         
-        //PIV pivSul = new PIV(location, resSul.getParsInVars());
+        // PIV pivSul = new PIV(location, resSul.getParsInVars());
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                

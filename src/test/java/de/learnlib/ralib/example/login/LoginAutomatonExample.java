@@ -31,7 +31,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
@@ -43,7 +42,6 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,25 +95,25 @@ public final class LoginAutomatonExample {
                 LogicalOperator.AND, 
                 new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
         
-        Map<SymbolicDataValue, Variable> mapping = new HashMap<>();
+        Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
         mapping.put(rUid, x1);
         mapping.put(rPwd, x2);
         mapping.put(pUid, p1);
         mapping.put(pPwd, p2);
                 
         DataExpression<Boolean> condition = 
-                new DataExpression<>(expression, mapping);
+                new DataExpression<Boolean>(expression, mapping);
         
         IfGuard   okGuard    = new IfGuard(condition);
         ElseGuard errorGuard = new ElseGuard(Collections.singleton(okGuard));
         ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
         
         // assignments
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
         copyMapping.put(rUid, rUid);
         copyMapping.put(rPwd, rPwd);
         
-        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
         storeMapping.put(rUid, pUid);
         storeMapping.put(rPwd, pPwd);
         

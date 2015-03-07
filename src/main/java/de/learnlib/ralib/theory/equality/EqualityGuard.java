@@ -95,6 +95,10 @@ public class EqualityGuard extends SDTIfGuard {
         return new NumericBooleanExpression(x, NumericComparator.EQ, p);
     }
     
+    public DisequalityGuard toDeqGuard() {
+        return new DisequalityGuard(this.getParameter(), this.getRegister());
+    }
+    
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         Expression<Boolean> expr = this.toExpr();

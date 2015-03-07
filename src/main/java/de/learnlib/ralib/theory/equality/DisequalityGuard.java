@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class DisequalityGuard extends SDTIfGuard {
     
-    public DisequalityGuard(SuffixValue param, Register reg) {
+    public DisequalityGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.NOT_EQUALS);     
     }
     
@@ -57,7 +57,7 @@ public class DisequalityGuard extends SDTIfGuard {
 //        }
 //        return ret;
 //        //}
-        return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
+        return "(" + this.getParameter().toString() + "!=" + this.getRegister().toString() + ")";
         
     }
     
@@ -89,7 +89,7 @@ public class DisequalityGuard extends SDTIfGuard {
         String pname = "y" + this.getParameter().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, pname);
         Variable x = new Variable(BuiltinTypes.SINT32,xname);
-        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
+        return new NumericBooleanExpression(x, NumericComparator.NE, p);
     }
     
     @Override
@@ -108,9 +108,24 @@ public class DisequalityGuard extends SDTIfGuard {
         sv = (sv == null) ? getParameter() : sv;
         r = (r == null) ? getRegister() : r;
         
-        return new EqualityGuard(sv, r);
+        return new DisequalityGuard(sv, r);
     }    
 
+//    @Override
+//    public SDTGuard relabel(VarMapping relabelling) {
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        
+//        sv = (sv == null) ? getParameter() : sv;
+//  
+//        Set<Register> regs = new HashSet<>();
+//        for (Register r : getRegisters()) {
+//            Register rNew = (Register) relabelling.get(r);
+//            rNew = (rNew == null) ? r : rNew;
+//            regs.add(rNew);            
+//        }
+//        
+//        return new DisequalityGuard(sv, regs);
+//    }        
     
     
     
@@ -180,19 +195,4 @@ public class DisequalityGuard extends SDTIfGuard {
 //    }
 //    
 // 
-//    @Override
-//    public SDTGuard relabel(VarMapping relabelling) {
-//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-//        
-//        sv = (sv == null) ? getParameter() : sv;
-//  
-//        Set<Register> regs = new HashSet<>();
-//        for (Register r : getRegisters()) {
-//            Register rNew = (Register) relabelling.get(r);
-//            rNew = (rNew == null) ? r : rNew;
-//            regs.add(rNew);            
-//        }
-//        
-//        return new DisequalityGuard(sv, regs);
-//    }        
 }

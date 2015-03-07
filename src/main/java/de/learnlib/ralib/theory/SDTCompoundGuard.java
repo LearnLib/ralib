@@ -70,7 +70,7 @@ public class SDTCompoundGuard extends SDTGuard {
 
     @Override
     public String toString() {
-        return guards.toString();
+        return this.guards.toString();
     }
     
     @Override

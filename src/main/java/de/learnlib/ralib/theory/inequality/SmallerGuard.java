@@ -39,14 +39,14 @@ import java.util.Map;
  */
 public class SmallerGuard extends SDTIfGuard {
 
-    public SmallerGuard(SymbolicDataValue.SuffixValue param, Register reg) {
+    public SmallerGuard(SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.SMALLER);
     }
 
     public boolean contradicts(SDTIfGuard other) {
         boolean samePR = (this.getParameter().getId() == other.getParameter().getId()
                 && this.getRegister().getId() == other.getRegister().getId());
-        return samePR && (other instanceof SmallerGuard);
+        return samePR && (other instanceof BiggerGuard);
     }
 
     @Override

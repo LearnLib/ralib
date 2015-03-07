@@ -72,7 +72,7 @@ public class LearnLoginTest {
         System.out.println(sul);
         System.out.println("----------------------------------------------------");
 
-        final Map<DataType, Theory> teachers = new HashMap<>();
+        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
         
         teachers.put(T_UID, new EqualityTheory() {
             @Override

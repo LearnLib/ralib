@@ -101,7 +101,7 @@ final class Cell {
        
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);        
         log.log(Level.FINE, "Cell: {0}, {1}: {2}\n{3}", 
-                new Object[]{prefix, suffix, tqr.getPiv()}); //new PIV(prefix, tqr.getPiv()), tqr.getSdt()});
+                new Object[]{prefix, suffix, tqr.getPiv(), tqr.getSdt()}); //new PIV(prefix, tqr.getPiv()), tqr.getSdt()});
         
         return new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
         //        new PIV(prefix, tqr.getPiv()));

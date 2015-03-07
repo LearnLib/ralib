@@ -300,18 +300,28 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         VarValuation oldValuation = new VarValuation();
         ParValuation oldPval = new ParValuation();
         PIV oldPiv = new PIV();
+        
+        System.out.println("old branching piv " + oldBranching.getPiv().toString());
 
         oldPval.putAll(oldBranching.getPval());
         oldPiv.putAll(oldBranching.getPiv());
 
         System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
+        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
 
         if (!oldPiv.isEmpty()) {
             for (Parameter rp : oldPiv.keySet()) {
-                oldValuation.put(oldPiv.get(rp), oldPval.get(rp));
+                for (Parameter pp : oldPval.keySet()) {
+                    // ugly equality check
+                    if (rp.getId()==pp.getId()) {
+                        System.out.println(rp.toString() + " and " + pp.toString());
+                        oldValuation.put(oldPiv.get(rp), oldPval.get(pp));
+                    }
+                }
             }
         }
-
+        
+        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
         Map<Word<PSymbolInstance>, TransitionGuard> updated = new LinkedHashMap<>();
 
         Boolean[] canUse = new Boolean[newBranches.size()];
