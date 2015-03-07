@@ -78,7 +78,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
-            return new TreeQueryResult(new ParsInVars(),
+            return new TreeQueryResult(new PIV(),
                     new LoginExampleSDT(SDTClass.REJECT, suffix, new HashSet<Register>()));
         }
 
@@ -118,7 +118,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
             }
 
             if (state == State.ERROR) {
-                return new TreeQueryResult(new ParsInVars(),
+                return new TreeQueryResult(new PIV(),
                         new LoginExampleSDT(SDTClass.REJECT, suffix, new HashSet<Register>()));
             }
 
@@ -144,11 +144,12 @@ public class LoginExampleTreeOracle implements TreeOracle {
                 break;
         }
 
-        ParsInVars piv = new ParsInVars();
-        // FIXME: edit this!!!
+        PIV piv = new PIV();
+        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+                new SymbolicDataValueGenerator.ParameterGenerator();
         if (uid != null && clazz == SDTClass.LOGIN) {
-            piv.put(rUid, uid);
-            piv.put(rPwd, pwd);
+            piv.put(pgen.next(T_UID), rUid);
+            piv.put(pgen.next(T_PWD), rPwd);
         }
 
         return new TreeQueryResult(piv,
