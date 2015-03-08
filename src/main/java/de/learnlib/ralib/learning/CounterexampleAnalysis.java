@@ -74,30 +74,35 @@ public class CounterexampleAnalysis {
     } 
     
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
-        
-        System.out.println("Computing index: " + idx);
-        
+                
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         
-
-        System.out.println("Location: " + location);
-        System.out.println("Transition: " + transition);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-
-        System.out.println("SymSuffix: " + symSuffix);
         
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
+
+        System.out.println("------------------------------------------------------");
+        System.out.println("Computing index: " + idx);
+        System.out.println("Prefix: " + prefix);
+        System.out.println("SymSuffix: " + symSuffix);
+        System.out.println("Location: " + location);
+        System.out.println("Transition: " + transition);
+        System.out.println("PIV HYP: " + resHyp.getPiv());
+        System.out.println("SDT HYP: " + resHyp.getSdt());
+        System.out.println("PIV SYS: " + resSul.getPiv());
+        System.out.println("SDT SYS: " + resSul.getSdt());        
+        System.out.println("------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
         TransitionGuard g = c.getBranching(act).getBranches().get(transition);
         
-        boolean hasCE = sdtOracle.hasCounterexample(prefix, 
+        boolean hasCE = sdtOracle.hasCounterexample(location, 
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
@@ -110,14 +115,14 @@ public class CounterexampleAnalysis {
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                
-        boolean sulRefinesTransition = 
-                sulRefinesTransition(prefix, act, resSul.getSdt(), pivSul);
+        boolean hypRefinesTransition = 
+                hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         
-        return (sulHasMoreRegs || sulRefinesTransition) ? 
+        return (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
     }
     
-    private boolean sulRefinesTransition(Word<PSymbolInstance> prefix, 
+    private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL) {
         
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
@@ -127,19 +132,19 @@ public class CounterexampleAnalysis {
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
             for (TransitionGuard guardSul : branchSul.getBranches().values()) {
-                if (sdtOracle.doesRefine(guardSul, pivSUL, 
-                        guardHyp, c.getPrimeRow().getParsInVars())) {
+                if (sdtOracle.doesRefine(guardHyp, c.getPrimeRow().getParsInVars(), 
+                        guardSul, pivSUL)) {
                     refines = true;
                     break;
                 }
             }
             
             if (!refines) {
-                return true;
+                return false;
             }
         }
         
-        return false;
+        return true;
     }
     
     private int binarySearch(Word<PSymbolInstance> ce) {

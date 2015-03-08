@@ -19,8 +19,11 @@
 
 package de.learnlib.ralib.sul;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -31,21 +34,29 @@ public class SULOracle extends IOOracle {
 
     private final DataWordSUL sul;
     
-    private final PSymbolInstance error;
+    private final ParameterizedSymbol error;
 
-    public SULOracle(DataWordSUL sul, PSymbolInstance error) {
+    private static LearnLogger log = LearnLogger.getLogger(SULOracle.class);
+    
+    public SULOracle(DataWordSUL sul, ParameterizedSymbol error) {
         this.sul = sul;
         this.error = error;
     }
 
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
+        // FIXME: this has to be checking a mapping is needed after every step!
+        Word<PSymbolInstance> act = query;
+        log.log(Level.FINEST, "MQ: {0}", query);                    
         sul.pre();
         Word<PSymbolInstance> trace = Word.epsilon();
-        for (PSymbolInstance i : query) {
-            PSymbolInstance o = sul.step(i);
-            trace = trace.append(o);
-            if (o.getBaseSymbol().equals(error)) {
+        for (int i=0; i<query.length(); i+=2) {
+            PSymbolInstance in = act.getSymbol(i);
+            PSymbolInstance out = sul.step(in);
+            
+            trace = trace.append(in).append(out);
+
+            if (out.getBaseSymbol().equals(error)) {
                 break;
             }
         }

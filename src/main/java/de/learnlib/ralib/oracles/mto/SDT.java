@@ -8,12 +8,17 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTElseGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,23 +51,27 @@ public class SDT implements SymbolicDecisionTree {
                 SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
                 if (r instanceof Register) {
                     registers.add((Register) r);
-                } else if (g instanceof SDTCompoundGuard) {
-                    for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
-                        SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
-                        if (ifr instanceof Register) {
-                            registers.add((Register) ifr);
-                        }
+                }
+            } else if (g instanceof SDTCompoundGuard) {
+                for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
+                    SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
+                    if (ifr instanceof Register) {
+                        registers.add((Register) ifr);
                     }
-                } else if (g instanceof SDTElseGuard) {
-                    registers.addAll(((SDTElseGuard) g).getRegisters());
                 }
-                SDT child = e.getValue();
-                if (child.getChildren() != null) {
-                    //    Set<Register> chiRegs = child.getRegisters
-                    registers.addAll(child.getRegisters());
-                }
+            } else if (g instanceof SDTElseGuard) {
+                registers.addAll(((SDTElseGuard) g).getRegisters());
+            } else {
+                throw new RuntimeException("unexpected case");
+            }
+            SDT child = e.getValue();
+            // FIXME: this is bad style: it will break if the tree is only a leaf! I added code to SDTLeaf to prevent this 
+            if (child.getChildren() != null) {
+                //    Set<Register> chiRegs = child.getRegisters
+                registers.addAll(child.getRegisters());
             }
         }
+        
         return registers;
     }
 
@@ -271,9 +280,29 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return DataExpression.FALSE;
         }
-
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-
+        Set<SuffixValue> svals = new HashSet<>();
+        Expression<Boolean> dis = null;
+        for (List<SDTGuard> list : paths) {
+            List<Expression<Boolean>> expr = new ArrayList<>();
+            for (SDTGuard g : list) {
+                expr.add(g.toExpr());
+                svals.add(g.getParameter());
+            } 
+            Expression<Boolean> con = ExpressionUtil.and(expr);
+            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
+        }
+        
+        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        for (Register r : getRegisters()) {
+            Variable x = new Variable(BuiltinTypes.SINT32, "x" + r.getId());
+            map.put(r, x);
+        }
+        for (SuffixValue s : svals) {
+            Variable p = new Variable(BuiltinTypes.SINT32, "y" + s.getId());
+            map.put(s, p);
+        }
+        
+        return new DataExpression<>(dis, map);
     }
 
     List<List<SDTGuard>> getPaths(List<SDTGuard> path) {

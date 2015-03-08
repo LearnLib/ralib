@@ -19,11 +19,14 @@
 
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Leaf implementation of an SDT.
@@ -88,5 +91,9 @@ public class SDTLeaf extends SDT {
         }
         return ret;
     }
-            
+           
+    @Override
+    public Set<SymbolicDataValue.Register> getRegisters() {
+        return new HashSet<>();    
+    }
 }

@@ -20,6 +20,7 @@
 package de.learnlib.ralib.oracles.io;
 
 import de.learnlib.api.Query;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -45,6 +47,8 @@ public class IOCache extends QueryCounter implements DataWordOracle {
 
     private final IOOracle sul;
 
+    private static LearnLogger log = LearnLogger.getLogger(IOCache.class);
+    
     public IOCache(IOOracle sul) {
         this.sul = sul;
     }
@@ -53,6 +57,7 @@ public class IOCache extends QueryCounter implements DataWordOracle {
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         countQueries(clctn.size());
         for (Query<PSymbolInstance, Boolean> q : clctn) {
+            log.log(Level.FINEST, "MQ: {0}", q.getInput());            
             boolean accepted = trace(q.getInput());
             q.answer(accepted);
         }

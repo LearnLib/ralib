@@ -20,6 +20,7 @@
 package de.learnlib.ralib.sul;
 
 import de.learnlib.api.SULException;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
@@ -42,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  *
@@ -57,6 +59,8 @@ public class SimulatorSUL implements DataWordSUL {
     
     private RALocation loc = null;
     private VarValuation register = null;
+
+    private static LearnLogger log = LearnLogger.getLogger(SimulatorSUL.class);
     
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
             Constants consts, ParameterizedSymbol[] inputs) {
@@ -80,6 +84,7 @@ public class SimulatorSUL implements DataWordSUL {
 
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
+        log.log(Level.FINEST, "step: {0} from {1}", new Object[] {i, loc});
         boolean found = false;
         for (Transition t : this.model.getTransitions(loc, i.getBaseSymbol())) {
             ParValuation pval = new ParValuation(i);

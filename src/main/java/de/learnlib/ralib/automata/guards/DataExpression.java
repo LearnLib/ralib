@@ -30,7 +30,9 @@ import de.learnlib.ralib.data.VarValuation;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.Negation;
+import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Collection;
 import java.util.HashMap;
@@ -117,8 +119,6 @@ public class DataExpression<T extends Object> {
         return mapping;
     }
     
-    
-    
     public DataExpression<T> relabel(
             VarMapping<SymbolicDataValue, SymbolicDataValue> renaming) {
 
@@ -142,10 +142,18 @@ public class DataExpression<T extends Object> {
         for (DataExpression<Boolean> expr : conj) {
             vals.addAll(expr.mapping.keySet());
         }
-        return and(vals, conj);
+        return combine(LogicalOperator.AND, vals, conj);
     }
-            
-    public static DataExpression<Boolean> and(
+
+    public static DataExpression<Boolean> or(DataExpression<Boolean> ... disj) {
+        Set<SymbolicDataValue> vals = new HashSet<>();
+        for (DataExpression<Boolean> expr : disj) {
+            vals.addAll(expr.mapping.keySet());
+        }
+        return combine(LogicalOperator.OR, vals, disj);
+    }
+    
+    public static DataExpression<Boolean> combine(LogicalOperator op, 
             Collection<SymbolicDataValue> join, DataExpression<Boolean> ... conj) {
         
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
@@ -160,10 +168,10 @@ public class DataExpression<T extends Object> {
                     // replace var name by joined name
                     Variable var = map.get(e.getKey());
                     if (var == null) {
+                        var = e.getValue();
                         map.put(e.getKey(), e.getValue());
-                    } else {
-                        mFkt.put(e.getValue().getName(), var.getName());
-                    }
+                    } 
+                    mFkt.put(e.getValue().getName(), var.getName());                    
                 } else {
                     mFkt.put(e.getValue().getName(), "e" + eIdx + "_" + 
                             e.getValue().getName());
@@ -173,7 +181,7 @@ public class DataExpression<T extends Object> {
             Expression<Boolean> _temp = ExpressionUtil.renameVars(
                     expr.expression, mFkt);
             
-            and = (and == null) ? _temp : ExpressionUtil.and(and, _temp);                    
+            and = (and == null) ? _temp : new PropositionalCompound(and, op ,_temp);                    
             eIdx++;
         }
         
