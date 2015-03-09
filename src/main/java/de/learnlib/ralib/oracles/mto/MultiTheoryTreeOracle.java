@@ -27,7 +27,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -43,6 +42,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -111,14 +111,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
 
-            //Word<PSymbolInstance> trace = prefix.concat(concSuffix);
+            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
             DefaultQuery<PSymbolInstance, Boolean> query
                     = new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
 
-            //System.out.println("Trace = " + trace.toString() + " >>> " + 
-            //        (qOut ? "ACCEPT (+)" : "REJECT (-)"));
+            System.out.println("Trace = " + trace.toString() + " >>> " + 
+                    (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
 
             // return accept / reject as a leaf
@@ -188,7 +188,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Node n;
 
         if (sdts.length == 0) {
-            n = createFreshNode(0, prefix, ps, piv, pval);
+            n = createFreshNode(0, prefix, ps, piv, pval, new ParValuation());
         } else {
             for (SDT s : sdts) {
                 for (Register r : s.getRegisters()) {
@@ -200,7 +200,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     }
                 }
             }
-            n = createNode(0, prefix, ps, piv, pval, sdts);
+            n = createNode(0, prefix, ps, piv, pval, new ParValuation(), sdts);
         }
 
         return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
@@ -208,7 +208,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
-            PIV piv, ParValuation pval) {
+            PIV piv, ParValuation pval, ParValuation ipval) {
         Map<DataValue, Node> nextMap = new LinkedHashMap<>();
         Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
@@ -219,9 +219,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Parameter p = new Parameter(type, j);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, j));
             Theory teach = teachers.get(type);
-            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
-            //pval.put(p,dvi);
-            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval));
+            ParValuation jpval = new ParValuation();
+            jpval.putAll(pval);
+            jpval.putAll(ipval);
+            DataValue dvi = teach.instantiate(prefix, ps, piv, jpval, guard, p);
+            // try commenting out this
+            ipval.put(p,dvi);
+            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval, ipval));
             guardMap.put(dvi, guard);
             return new Node(p, nextMap, guardMap);
 
@@ -231,7 +235,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, SDT... sdts) {
+            PIV piv, ParValuation pval, ParValuation ipval, SDT... sdts) {
 
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
@@ -248,11 +252,17 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 for (SDTGuard guard : children.keySet()) {
                     //if (!visited.contains(nextNode)) {
                     System.out.println("processing guard: " + guard.toString());
+                    //System.out.println("...... wh piv is " + piv.toString());
                     Theory teach = teachers.get(type);
-                    DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
+                    ParValuation jpval = new ParValuation();
+                    jpval.putAll(pval);
+                    jpval.putAll(ipval);
+                    DataValue dvi = teach.instantiate(prefix, ps, piv, jpval, guard, p);
                     System.out.println(dvi.toString() + " maps to " + guard.toString());
+                    // try commenting out this
+                    ipval.put(p, dvi);
                     //System.out.println("dvi = " + dvi.toString());
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, children.get(guard)));
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, ipval, children.get(guard)));
                     // another ugly hack because yuck
                     //SDTGuard newGuard = new ElseGuard(s);
                     //if (!guardList.isEmpty()) {

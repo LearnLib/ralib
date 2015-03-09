@@ -271,19 +271,23 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Parameter param) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        System.out.println("prefix values : " + prefixValues.toString());
 
         if (guard instanceof EqualityGuard) {
             System.out.println("equality guard " + guard.toString());
-            if (pval.containsKey(param)) {
-                System.out.println("pval = " + pval.toString());
-                System.out.println("pval says " + pval.get(param).toString());
-                return pval.get(param);
-            } else {
+            //if (pval.containsKey(param)) {
+            //    System.out.println("pval = " + pval.toString());
+            //    System.out.println("pval says " + pval.get(param).toString());
+            //    return pval.get(param);
+            //} else {
+                System.out.println(param);
                 //System.out.println("piv = " + piv.toString());
-                //System.out.println("piv says " + piv.get(param).toString());
-                //int idx = piv.get(param).getId();
-                return prefixValues.get(((EqualityGuard) guard).getRegister().getId() - 1);
-            }
+                //System.out.println("piv says " + piv.get((Parameter)param).toString());
+                int idx = ((EqualityGuard) guard).getRegister().getId();
+                //return piv.get(param);
+                // trying to not pickup values from prefix
+                return prefixValues.get(idx - 1);
+            //}
         }
 
 //        System.out.println("base case");

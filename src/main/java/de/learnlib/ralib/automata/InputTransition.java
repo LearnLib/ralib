@@ -39,6 +39,9 @@ public class InputTransition extends Transition {
 
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
+        System.out.print("isEnabled..... registers: " + registers.toString());
+        System.out.print(" ...... parameters: " + parameters.toString());
+        System.out.print(" ..... constants " + consts.toString() + "\n");
         return guard.isSatisfied(registers, parameters, consts);
     }
 

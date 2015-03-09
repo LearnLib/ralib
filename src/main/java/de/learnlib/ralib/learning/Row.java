@@ -69,6 +69,7 @@ class Row {
     private void addCell(Cell c) {
         
         assert c.getPrefix().equals(this.prefix);
+        System.out.println(c.getSuffix());
         assert !this.cells.containsKey(c.getSuffix());
         
         // make sure that pars-in-vars is consistant with 
