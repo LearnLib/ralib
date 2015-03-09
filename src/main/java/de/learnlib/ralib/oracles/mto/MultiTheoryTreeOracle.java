@@ -303,7 +303,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 return oldBranching;
             }
         }
-
+        
+        System.out.println(">>>>Updating old branching: " + oldBranching.toString());
+        System.out.println(".... according to new SDT: " + newBranching.toString());
+        
             // parvaluation : param to dv
         // piv : param to reg
         // need: varvaluation (reg to dv), parvaluation
@@ -311,14 +314,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         ParValuation oldPval = new ParValuation();
         PIV oldPiv = new PIV();
         
-        System.out.println("old branching piv " + oldBranching.getPiv().toString());
-
         oldPval.putAll(oldBranching.getPval());
         oldPiv.putAll(oldBranching.getPiv());
 
         System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
-        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
-
+        
         if (!oldPiv.isEmpty()) {
             for (Parameter rp : oldPiv.keySet()) {
                 for (Parameter pp : oldPval.keySet()) {
