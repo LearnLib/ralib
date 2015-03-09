@@ -42,7 +42,7 @@ public class Assignment {
     }
     
     public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarValuation val = new VarValuation();
+        VarValuation val = new VarValuation(registers);
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
             SymbolicDataValue valp = e.getValue();
             if (valp.isRegister()) {

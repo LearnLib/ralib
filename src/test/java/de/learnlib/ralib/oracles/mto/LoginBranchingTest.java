@@ -1,3 +1,5 @@
+package de.learnlib.ralib.oracles.mto;
+
 /*
  * Copyright (C) 2015 falk.
  *
@@ -16,7 +18,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
@@ -24,15 +25,13 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.equivalence.IORandomWalk;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -40,28 +39,31 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.automatalib.words.Word;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class LearnLoginIOTest {
-
-    public LearnLoginIOTest() {
+public class LoginBranchingTest {
+    
+    public LoginBranchingTest() {
     }
 
-    @Test
-    public void learnLoginExampleIO() {
 
+    @Test
+    public void testBranching() {
+    
         Logger root = Logger.getLogger("");
         root.setLevel(Level.ALL);
         for (Handler h : root.getHandlers()) {
@@ -76,19 +78,12 @@ public class LearnLoginIOTest {
                         "/de/learnlib/ralib/automata/xml/login_typed.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
-        System.out.println("SYS:------------------------------------------------");
-        System.out.println(model);
-        System.out.println("----------------------------------------------------");
-
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
-
-        ParameterizedSymbol[] actions = loader.getActions().toArray(
-                new ParameterizedSymbol[]{});
-
+        
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new HashMap<>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory() {
                 @Override
@@ -106,54 +101,63 @@ public class LearnLoginIOTest {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
+        
+        DataType uid = getType("uid", loader.getDataTypes());
+        DataType pwd = getType("pwd", loader.getDataTypes());
+        
+        ParameterizedSymbol reg = new ParameterizedSymbol(
+                "IRegister", new DataType[] {uid, pwd});
 
-        TreeOracleFactory hypFactory = new TreeOracleFactory() {
+        ParameterizedSymbol log = new ParameterizedSymbol(
+                "ILogin", new DataType[] {uid, pwd});    
+    
+        ParameterizedSymbol ok = new ParameterizedSymbol(
+                "OOK", new DataType[] {});    
 
-            @Override
-            public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers);
+        DataValue u = new DataValue(uid, 0);
+        DataValue p = new DataValue(pwd, 0);
+        
+        Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(reg, new DataValue[] {u, p}),
+                new PSymbolInstance(ok, new DataValue[] {}));
+
+        Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(log, new DataValue[] {u, p}),
+                new PSymbolInstance(ok, new DataValue[] {}));        
+        
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        
+        System.out.println(prefix);
+        System.out.println(suffix);
+        System.out.println(symSuffix);
+ 
+        System.out.println("MQ: " + ioOracle.trace(prefix.concat(suffix)));
+        
+        System.out.println("######################################################################");
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
+        System.out.println(res.getSdt());
+        
+        System.out.println("######################################################################");
+        // initial branching bug
+        Branching bug1 = mto.getInitialBranching(prefix, log, res.getPiv(), res.getSdt());        
+        System.out.println(Arrays.toString(bug1.getBranches().keySet().toArray()));
+        System.out.println("Why does the last word in the set have a password val. of 2");
+
+        System.out.println("######################################################################");
+        
+        // updated branching bug
+        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
+        bug2 = mto.updateBranching(prefix, log, bug2, res.getPiv(), res.getSdt());        
+        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
+        System.out.println("This set has only one word, there should be three.");
+    }
+
+    private DataType getType(String name, Collection<DataType> dataTypes) {
+        for (DataType t : dataTypes) {
+            if (t.getName().equals(name)) {
+                return t;
             }
-        };
-
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, actions);
-
-        IORandomWalk iowalk = new IORandomWalk(new Random(0),
-                sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
-                0.5, // prob. of choosing a fresh data value
-                1000, // 1000 runs 
-                4, // max depth
-                consts,
-                true, // reset runs 
-                teachers,
-                inputs);
-
-        int check = 0;
-        while (true && check < 10) {
-
-            check++;
-            rastar.learn();
-            RegisterAutomaton hyp = rastar.getHypothesis();
-            System.out.println("HYP:------------------------------------------------");
-            System.out.println(hyp);
-            System.out.println("----------------------------------------------------");
-
-            Word<PSymbolInstance> ce = iowalk.findCounterExample(hyp);
-            System.out.println("CE:" + ce);
-            if (ce == null) {
-                break;
-            }
-
-            rastar.addCounterexample(ce, true);
-
         }
-
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        System.out.println("LAST:------------------------------------------------");
-        System.out.println(hyp);
-        System.out.println("----------------------------------------------------");
-
+        return null;
     }
 }
