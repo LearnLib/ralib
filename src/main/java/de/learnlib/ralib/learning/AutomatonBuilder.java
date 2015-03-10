@@ -125,9 +125,9 @@ class AutomatonBuilder {
         PIV parsInVars_Row = r.getParsInVars();        
         VarMapping remapping = dest_c.getRemapping(r);
         
-//        System.out.println("PIV ROW:" + parsInVars_Row);
-//        System.out.println("PIV SRC:" + parsInVars_Src);
-//        System.out.println("REMAP: " + remapping);
+//        log.log(Level.FINEST,"PIV ROW:" + parsInVars_Row);
+//        log.log(Level.FINEST,"PIV SRC:" + parsInVars_Src);
+//        log.log(Level.FINEST,"REMAP: " + remapping);
         
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register

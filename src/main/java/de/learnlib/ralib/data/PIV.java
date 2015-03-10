@@ -39,27 +39,6 @@ public class PIV extends VarMapping<Parameter, Register> {
     public PIV() {        
     }
     
-    public PIV(Word<PSymbolInstance> prefix, ParsInVars parsInVars) {
-
-        for (Map.Entry<Register, DataValue<?>> e : parsInVars) {            
-            System.out.println("PIV: " + e.getKey() + " : " + e.getValue());
-        }
-        
-        HashSet<DataValue<?>> vals = new HashSet<>(parsInVars.values());
-        
-        int idx = 1;
-        for (PSymbolInstance psi : prefix) {        
-            for (DataValue dv : psi.getParameterValues()) {                
-                if (vals.contains(dv)) {
-                    vals.remove(dv);
-                    put( new Parameter(dv.getType(), idx), parsInVars.getOneKey(dv));
-                }
-                idx++;
-            }
-        }
-        
-    }
-      
     public PIV relabel(VarMapping relabelling) {
         PIV ret = new PIV();
         for (Map.Entry<Parameter, Register> e : this) {

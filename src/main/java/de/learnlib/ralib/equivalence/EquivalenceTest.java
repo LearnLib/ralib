@@ -77,10 +77,10 @@ public class EquivalenceTest
 //        if (!t1.equals(t2))
 //            return false;
 //        
-////        System.out.println(t1.sys1reg);
-////        System.out.println(t1.sys2reg);
-////        System.out.println(t2.sys1reg);
-////        System.out.println(t2.sys2reg);
+////        log.log(Level.FINEST,t1.sys1reg);
+////        log.log(Level.FINEST,t1.sys2reg);
+////        log.log(Level.FINEST,t2.sys1reg);
+////        log.log(Level.FINEST,t2.sys2reg);
 //        
 //        // compare registers
 //        HashMap<Object,Object> vMap = new HashMap<Object, Object>();
@@ -202,15 +202,15 @@ public class EquivalenceTest
 //                List<Word> words = getNext(t.as, ps, t.sys1reg, t.sys2reg,checkForEqualParameters, consts);
 //                for (Word w : words)
 //                {
-//                    //System.out.println(x + "----------------------------------------------------------------------");                    
-//                    //System.out.println(w);
+//                    //log.log(Level.FINEST,x + "----------------------------------------------------------------------");                    
+//                    //log.log(Level.FINEST,w);
 //                                        
 //                    Triple next = new Triple(null, null, null, null, w, null);
 //                    
 //                    Pair<PSymbolInstance,PSymbolInstance> out = 
 //                            executeStep(t, (PSymbolInstance)WordUtil.lastSymbol(w), next);
 //                                        
-//                    //System.out.println(w + " = " + out.getFirst() + " : " + out.getSecond());
+//                    //log.log(Level.FINEST,w + " = " + out.getFirst() + " : " + out.getSecond());
 //                    if (out.getSecond() == null || out.getFirst() == null) {
 //                        throw new IllegalStateException();
 //                    }
@@ -233,18 +233,18 @@ public class EquivalenceTest
 //                    // first one
 //                    if (comp == null) 
 //                    {
-//                        //System.out.println("First one in list");
+//                        //log.log(Level.FINEST,"First one in list");
 //                        visited.put(st, new ArrayList<Tuple>());                        
 //                    }
 //                    else
 //                    {
-//                        //System.out.println("Found list");
+//                        //log.log(Level.FINEST,"Found list");
 //                        boolean found = false;
 //                        for (Tuple xx : comp) {
 //                            if (compatible(xx, st, consts))
 //                            {
 //                                found = true;
-//                                //System.out.println("skip " + w);
+//                                //log.log(Level.FINEST,"skip " + w);
 //                                break;
 //                            }
 //                        }
@@ -255,7 +255,7 @@ public class EquivalenceTest
 //                    
 //                    q.add(next);
 //                    visited.get(st).add(st);
-//                    //System.out.println("added " + w + " to queue");                    
+//                    //log.log(Level.FINEST,"added " + w + " to queue");                    
 //                    
 //                }
 //            }
@@ -389,7 +389,7 @@ public class EquivalenceTest
 //            for (Object o : psi.getParameters())
 //                max = java.lang.Math.max(max, (Integer) ((DataValue)o).getValue() );
 //        }
-//        //System.out.println(max);
+//        //log.log(Level.FINEST,max);
 //        
 //        List<Integer> vars = new ArrayList<Integer>();
 //        for (int i=0;i<ps.getArity();i++)
@@ -423,7 +423,7 @@ public class EquivalenceTest
 //        while (m != null)
 //        {
 //            //int free = max+1;
-//            //System.out.println(m);        
+//            //log.log(Level.FINEST,m);        
 //            
 //            Object[] pv = new Object[ps.getArity()];
 //            for (int i=0;i<ps.getArity();i++)

@@ -61,17 +61,17 @@ class ObservationTable {
     }
         
     void addComponent(Component c) {
-        log.log(Level.FINE, "Queueing component for obs: {0}", c);
+        log.logEvent("Queueing component for obs: " + c);
         newComponents.add(c);
     }
     
     void addSuffix(SymbolicSuffix suffix) {
-        log.log(Level.FINE, "Queueing suffix for obs: {0}", suffix);
+        log.logEvent("Queueing suffix for obs: " +  suffix);
         newSuffixes.add(suffix);
     }
     
     void addPrefix(Word<PSymbolInstance> prefix) {
-        log.log(Level.FINE, "Queueing prefix for obs: {0}", prefix);
+        log.logEvent("Queueing prefix for obs: " + prefix);
         newPrefixes.add(prefix);
     }
     
@@ -119,7 +119,7 @@ class ObservationTable {
 
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
-        log.log(Level.INFO, "Adding suffix to obs: {0}", suffix);
+        log.logEvent("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);
@@ -128,7 +128,7 @@ class ObservationTable {
 
     private void processNewPrefix() {
         Word<PSymbolInstance> prefix = newPrefixes.poll();
-        log.log(Level.INFO, "Adding prefix to obs: {0}", prefix);
+        log.logEvent("Adding prefix to obs: " + prefix);
         Row r = Row.computeRow(oracle, prefix, suffixes);
         for (Component c : components.values()) {
             if (c.addRow(r)) {
@@ -141,7 +141,7 @@ class ObservationTable {
 
     private void processNewComponent() {
         Component c = newComponents.poll();
-        log.log(Level.INFO, "Adding component to obs: {0}", c);
+        log.logEvent("Adding component to obs: " + c);
         components.put(c.getAccessSequence(), c);
         c.start(oracle, inputs);
     }

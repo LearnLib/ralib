@@ -25,9 +25,9 @@ public final class DoubType extends DataType implements Comparable {
     @Override
     public int compareTo(Object dv_b) {
         assert dv_b instanceof DoubType;
-        //System.out.println("comparing");
-//            //System.out.println("id, dv_a: " + dv_a.getId().toString());
-//            //System.out.println("id, dv_b: " + (dv_b.getId()).getClass() + " " + dv_b.getId());
+        //log.log(Level.FINEST,"comparing");
+//            //log.log(Level.FINEST,"id, dv_a: " + dv_a.getId().toString());
+//            //log.log(Level.FINEST,"id, dv_b: " + (dv_b.getId()).getClass() + " " + dv_b.getId());
         DoubType dvd_a = this;
         DoubType dvd_b = (DoubType) dv_b;
         Double db_a = Double.class.cast(dvd_a);

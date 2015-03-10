@@ -62,7 +62,7 @@ public class RaStar {
     
     private final TreeOracleFactory hypOracleFactory;
     
-    private static LearnLogger log = LearnLogger.getLogger(RaStar.class);
+    private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, 
@@ -87,15 +87,13 @@ public class RaStar {
         
         do {
             
-            log.info("completing observation table");
+            log.logPhase("completing observation table");
             while(!(obs.complete())) {};        
-            log.info("completed observation table");
+            log.logPhase("completed observation table");
 
             AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
             hyp = ab.toRegisterAutomaton();        
-            System.out.println("HYP:------------------------------------------------");
-            System.out.println(hyp);
-            System.out.println("----------------------------------------------------");
+            log.logModel(hyp);
             
         } while (analyzeCounterExample());
     
@@ -105,7 +103,7 @@ public class RaStar {
     
     
     public void addCounterexample(Word<PSymbolInstance> ce, boolean accepted) {
-        log.log(Level.INFO, "adding counterexample: {0} - {1}", new Object[] {ce, accepted});
+        log.logEvent("adding counterexample: " + ce + " - " + accepted);
         counterexamples.add(ce);
         ceMap.put(ce, accepted);
     }
@@ -126,7 +124,7 @@ public class RaStar {
         boolean hypce = hyp.accepts(ce);
         boolean sulce = ceMap.get(ce);        
         if (hypce == sulce) {
-            log.log(Level.INFO, "word is not a counterexample: {0} - {1}", new Object[] {ce, sulce});            
+            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);           
             counterexamples.poll();
             ceMap.remove(ce);
             return false;

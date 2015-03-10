@@ -70,7 +70,7 @@ public class SymbolicSuffix {
     public SymbolicSuffix(Word<PSymbolInstance> prefix, 
             Word<PSymbolInstance> suffix) {
         
-//        System.out.println(prefix.toString() + "\n" + suffix.toString());
+//        log.log(Level.FINEST,prefix.toString() + "\n" + suffix.toString());
         
         this.actions = DataWords.actsOf(suffix);
         
@@ -88,7 +88,7 @@ public class SymbolicSuffix {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
-//                System.out.println("adding " + sym.toString() + " at " + idx);
+//                log.log(Level.FINEST,"adding " + sym.toString() + " at " + idx);
 
             } else {
                 SuffixValue ref = groups.get(d);
@@ -124,7 +124,7 @@ public class SymbolicSuffix {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
-//                System.out.println("adding " + sym.toString() + " at " + idx);
+//                log.log(Level.FINEST,"adding " + sym.toString() + " at " + idx);
 
             } else {
                 SuffixValue ref = groups.get(d);

@@ -18,11 +18,12 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -48,6 +50,8 @@ class Row {
 
     private final RegisterGenerator regGen = new RegisterGenerator();
 
+    private static final LearnLogger log = LearnLogger.getLogger(Row.class);
+    
     private Row (Word<PSymbolInstance> prefix) {
         this.prefix = prefix;
         this.cells = new LinkedHashMap<>();        
@@ -69,7 +73,6 @@ class Row {
     private void addCell(Cell c) {
         
         assert c.getPrefix().equals(this.prefix);
-        System.out.println(c.getSuffix());
         assert !this.cells.containsKey(c.getSuffix());
         
         // make sure that pars-in-vars is consistant with 

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IRepdigit3"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/> 
+         </symbol>
+         <symbol name="IPalindrome3"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/> 
+         </symbol>
+         <symbol name="IPalindrome4"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/>
+            <param type="int" name="p3"/> 
+         </symbol>
+         <symbol name="IRepdigit2"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="IRepdigit4"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/>
+            <param type="int" name="p3"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OYes"/>
+         <symbol name="ONo"/>
+      </outputs>
+   </alphabet>
+   <constants>
+
+   </constants>
+   <globals>
+      <variable type="int" name="vp4">0</variable>
+      <variable type="int" name="vp1">0</variable>
+      <variable type="int" name="vp3">0</variable>
+      <variable type="int" name="vp2">0</variable>
+   </globals>
+   <locations>
+      <location name="id4"/> 
+      <location name="id5" initial="true"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+   </locations>
+   <transitions>
+      <transition from="id0" to="id5" symbol="ONo" >
+         <guard>vp1!=vp2 || vp1!=vp3 || vp1!=vp4 || vp2!=vp3 || vp2!=vp4 || vp3!=vp4</guard>
+      </transition>
+      <transition from="id0" to="id5" symbol="OYes" >
+         <guard>vp1==vp2 &amp;&amp; vp2==vp3 &amp;&amp; vp3==vp4</guard>
+      </transition>
+      <transition from="id5" to="id0" symbol="IRepdigit4" params="p1,p2,p3,p4">
+         <assignments>
+            <assign to="vp1">p1</assign>
+            <assign to="vp2">p2</assign>
+            <assign to="vp3">p3</assign>
+            <assign to="vp4">p4</assign>
+         </assignments>
+      </transition>
+      <transition from="id1" to="id5" symbol="ONo" >
+         <guard>vp1!=vp4 || vp2!=vp3</guard>
+      </transition>
+      <transition from="id1" to="id5" symbol="OYes" >
+         <guard>vp1==vp4 &amp;&amp; vp2==vp3</guard>
+      </transition>
+      <transition from="id5" to="id1" symbol="IPalindrome4" params="p1,p2,p3,p4">
+         <assignments>
+            <assign to="vp1">p1</assign>
+            <assign to="vp2">p2</assign>
+            <assign to="vp3">p3</assign>
+            <assign to="vp4">p4</assign>
+         </assignments>
+      </transition>
+      <transition from="id2" to="id5" symbol="OYes" >
+         <guard>vp1==vp2 &amp;&amp; vp2==vp3</guard>
+      </transition>
+      <transition from="id2" to="id5" symbol="ONo" >
+         <guard>vp1!=vp2 || vp2!=vp3 || vp1!=vp3</guard>
+      </transition>
+      <transition from="id5" to="id2" symbol="IRepdigit3" params="p1,p2,p3">
+         <assignments>
+            <assign to="vp1">p1</assign>
+            <assign to="vp2">p2</assign>
+            <assign to="vp3">p3</assign>
+         </assignments>
+      </transition>
+      <transition from="id3" to="id5" symbol="OYes" >
+         <guard>vp1==vp2</guard>
+      </transition>
+      <transition from="id3" to="id5" symbol="ONo" >
+         <guard>vp1!=vp2</guard>
+      </transition>
+      <transition from="id5" to="id3" symbol="IRepdigit2" params="p1,p2">
+         <assignments>
+            <assign to="vp1">p1</assign>
+            <assign to="vp2">p2</assign>
+         </assignments>
+      </transition>
+      <transition from="id4" to="id5" symbol="OYes" >
+         <guard>vp1==vp3</guard>
+      </transition>
+      <transition from="id4" to="id5" symbol="ONo" >
+         <guard>vp1!=vp3</guard>
+      </transition>
+      <transition from="id5" to="id4" symbol="IPalindrome3" params="p1,p2,p3">
+         <assignments>
+            <assign to="vp1">p1</assign>
+            <assign to="vp2">p2</assign>
+            <assign to="vp3">p3</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>

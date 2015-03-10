@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.api.AccessSequenceTransformer;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.oracles.Branching;
@@ -29,6 +30,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -51,6 +53,8 @@ public class CounterexampleAnalysis {
     
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
+    private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
+    
     CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
             Map<Word<PSymbolInstance>, Component> components) {
@@ -86,17 +90,17 @@ public class CounterexampleAnalysis {
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
 
-        System.out.println("------------------------------------------------------");
-        System.out.println("Computing index: " + idx);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("SymSuffix: " + symSuffix);
-        System.out.println("Location: " + location);
-        System.out.println("Transition: " + transition);
-        System.out.println("PIV HYP: " + resHyp.getPiv());
-        System.out.println("SDT HYP: " + resHyp.getSdt());
-        System.out.println("PIV SYS: " + resSul.getPiv());
-        System.out.println("SDT SYS: " + resSul.getSdt());        
-        System.out.println("------------------------------------------------------");
+        log.log(Level.FINEST,"------------------------------------------------------");
+        log.log(Level.FINEST,"Computing index: " + idx);
+        log.log(Level.FINEST,"Prefix: " + prefix);
+        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
+        log.log(Level.FINEST,"Location: " + location);
+        log.log(Level.FINEST,"Transition: " + transition);
+        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
+        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
+        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
+        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
+        log.log(Level.FINEST,"------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
@@ -164,7 +168,7 @@ public class CounterexampleAnalysis {
             mid = (max+min+1) / 2;
          
             IndexResult res = computeIndex(ce, mid);
-            System.out.println(res);
+            log.log(Level.FINEST, "" + res);
             
             results[mid] = res;
             if (res == IndexResult.NO_CE) {

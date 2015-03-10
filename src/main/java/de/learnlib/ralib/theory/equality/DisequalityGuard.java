@@ -189,7 +189,7 @@ public class DisequalityGuard extends SDTIfGuard {
 //    }
 //    
 //    public DisequalityGuard join(EqualityGuard e) {
-//        //System.out.println("e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
+//        //log.log(Level.FINEST,"e.param = " + e.getParameter().toString() + ", this.param = " + this.getParameter().toString());
 //        assert e.getParameter().equals(this.getParameter());
 //        return this;
 //    }

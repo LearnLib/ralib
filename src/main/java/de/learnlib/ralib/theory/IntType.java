@@ -30,9 +30,9 @@ public final class IntType extends DataType {
 //            
 //            DataValue<IntType> dv_a, DataValue<IntType> dv_b) {
 //        return Integer.compare(dv_a.getBase(), dv_b.getBase());
-//        //System.out.println("comparing");
-//            //System.out.println("id, dv_a: " + dv_a.getId().toString());
-//            //System.out.println("id, dv_b: " + (dv_b.getId()).getClass() + " " + dv_b.getId());
+//        //log.log(Level.FINEST,"comparing");
+//            //log.log(Level.FINEST,"id, dv_a: " + dv_a.getId().toString());
+//            //log.log(Level.FINEST,"id, dv_b: " + (dv_b.getId()).getClass() + " " + dv_b.getId());
 //            //int int_a = Integer.valueOf(dv_a.getId());
 //            //int int_b = Integer.valueOf(dv_b.getId());
 //            //return Integer.compare(int_a, int_b);

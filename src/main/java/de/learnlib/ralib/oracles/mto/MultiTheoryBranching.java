@@ -18,6 +18,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
@@ -43,11 +44,12 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -111,8 +113,11 @@ public class MultiTheoryBranching implements Branching {
 
     private ParValuation pval;
 
+    private static final LearnLogger log = 
+            LearnLogger.getLogger(MultiTheoryBranching.class);
+    
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
-        System.out.println("ps = " + action.toString());
+        log.log(Level.FINEST,"ps = " + action.toString());
         this.prefix = prefix;
         this.action = action;
         this.node = node;
@@ -153,12 +158,12 @@ public class MultiTheoryBranching implements Branching {
     private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
             Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
             DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
-        System.out.println(n.toString());
+        log.log(Level.FINEST,n.toString());
         // if we are not at a leaf
         visited.add(n);
         if (!n.next.isEmpty()) {
             // get all next nodes
-            //         System.out.println("next dvs: " + n.next.keySet().toString());
+            //         log.log(Level.FINEST,"next dvs: " + n.next.keySet().toString());
             // go through each of the 'next' nodes
             for (DataValue d : n.next.keySet()) {
                 Node nextNode = n.next.get(d);
@@ -174,9 +179,9 @@ public class MultiTheoryBranching implements Branching {
                     List newGuards = new ArrayList<>();
                     newGuards.addAll(guards);
                     newGuards.add(nextGuard);
-  //                  System.out.println("dvs are currently " + Arrays.toString(newDvs));
-                    //                System.out.println("guards are currently " + newGuards.toString());
-                    //              System.out.println("marked: " + visited.size());
+  //                  log.log(Level.FINEST,"dvs are currently " + Arrays.toString(newDvs));
+                    //                log.log(Level.FINEST,"guards are currently " + newGuards.toString());
+                    //              log.log(Level.FINEST,"marked: " + visited.size());
                     // proceed down in the tree to the next node
                     collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
 
@@ -185,7 +190,7 @@ public class MultiTheoryBranching implements Branching {
 
         }
         if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
-            //           System.out.println("Just adding: " + Arrays.toString(dvs));
+            //           log.log(Level.FINEST,"Just adding: " + Arrays.toString(dvs));
             //dvgMap.put(dvs, toTGList(guards,0));
             dvgMap.put(dvs, guards);
         }
@@ -288,7 +293,7 @@ public class MultiTheoryBranching implements Branching {
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-        System.out.println("get branches for " + this.action.toString());
+        log.log(Level.FINEST,"get branches for " + this.action.toString());
 
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
@@ -328,7 +333,7 @@ public class MultiTheoryBranching implements Branching {
             vars.put(z, x);
         }
 
-        System.out.println("Vars =     " + vars.toString());
+        log.log(Level.FINEST,"Vars =     " + vars.toString());
 
         for (DataValue[] dvs : tempMap.keySet()) {
             List<Expression<Boolean>> gExpr = new ArrayList<>();
@@ -339,10 +344,10 @@ public class MultiTheoryBranching implements Branching {
                 }
             }
             //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
-            //System.out.println("psWord = " + psWord.toString());
+            //log.log(Level.FINEST,"psWord = " + psWord.toString());
             TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
             branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
-            //System.out.println("guard: " + ((IfGuard)tg).toString());
+            //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
         }
 
         return branches;

@@ -5,6 +5,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  *
@@ -36,6 +38,8 @@ public class SDT implements SymbolicDecisionTree {
 
     private final Map<SDTGuard, SDT> children;
 
+    private static final LearnLogger log = LearnLogger.getLogger(SDT.class);
+    
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
@@ -44,7 +48,7 @@ public class SDT implements SymbolicDecisionTree {
     public Set<Register> getRegisters() {
         Set<Register> registers = new HashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
-//            System.out.println(e.getKey().toString() + " " + e.getValue().toString());
+//            log.log(Level.FINEST,e.getKey().toString() + " " + e.getValue().toString());
 
             SDTGuard g = e.getKey();
             if (g instanceof SDTIfGuard) {
@@ -106,7 +110,7 @@ public class SDT implements SymbolicDecisionTree {
             return this;
         }
 
-        //System.out.println("RELABEL: " + relabelling);        
+        //log.log(Level.FINEST,"RELABEL: " + relabelling);        
         Map<SDTGuard, SDT> reChildren = new HashMap<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
             reChildren.put(e.getKey().relabel(relabelling),
@@ -183,7 +187,7 @@ public class SDT implements SymbolicDecisionTree {
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
         for (int c = 0; c < (maybeArr.length); c++) {
-            //System.out.println(maybeArr[c]);
+            //log.log(Level.FINEST,maybeArr[c]);
             if (!maybeArr[c]) {
                 maybe = false;
                 break;
@@ -199,13 +203,13 @@ public class SDT implements SymbolicDecisionTree {
         Set<Register> otherRegisters = other.getRegisters();
         Set<Register> thisRegisters = this.getRegisters();
 
-        System.out.println(thisRegisters.toString() + " vs " + otherRegisters.toString());
+        log.log(Level.FINEST,thisRegisters.toString() + " vs " + otherRegisters.toString());
 
         if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
-            System.out.println("no regs anywhere");
+            log.log(Level.FINEST,"no regs anywhere");
             return true;
         } else {
-            System.out.println("regs");
+            log.log(Level.FINEST,"regs");
             Boolean[] regEqArr = new Boolean[thisRegisters.size()];
             Integer i = 0;
             for (SymbolicDataValue thisReg : thisRegisters) { // if the trees have the same type and size
@@ -232,10 +236,10 @@ public class SDT implements SymbolicDecisionTree {
             SDT thisBranch = thisChildren.get(thisGuard);
             chiEqArr[i] = false;
             for (SDTGuard otherGuard : otherChildren.keySet()) {
-//                System.out.println("comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
+//                log.log(Level.FINEST,"comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
                 if (thisBranch.canUse(otherChildren.get(otherGuard))) {
                     chiEqArr[i] = true;
-//                    System.out.println("... OK");
+//                    log.log(Level.FINEST,"... OK");
                     break;
                 }
             }
@@ -250,12 +254,12 @@ public class SDT implements SymbolicDecisionTree {
         if (other instanceof SDTLeaf) { // trees with incompatible sizes can't use each other
             return false;
         } else {
-            System.out.println("no sdt leaf");
+            log.log(Level.FINEST,"no sdt leaf");
             boolean regEq = this.regCanUse((SDT) other);
-            System.out.println("regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
+            log.log(Level.FINEST,"regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (this.isAccepting() == other.isAccepting());
-//            System.out.println(accEq ? "acc eq." : "acc not eq.");
-            System.out.println("comparing children : " + this.getChildren().toString() + "\n and " + other.getChildren().toString());
+//            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
+            log.log(Level.FINEST,"comparing children : " + this.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
             boolean chiEq = this.chiCanUse((SDT) other);
             //return regEq && accEq && chiEq;

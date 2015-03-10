@@ -18,10 +18,11 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.DataWords;
@@ -33,6 +34,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -49,8 +51,10 @@ class Component {
 
     private final ObservationTable obs;
 
-    private Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
+    private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
 
+    private static final LearnLogger log = LearnLogger.getLogger(Component.class);
+    
     public Component(Row primeRow, ObservationTable obs) {
         this.primeRow = primeRow;
         this.obs = obs;
@@ -140,8 +144,8 @@ class Component {
         Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, null, sdts);
         boolean ret = true;
         
-        System.out.println("OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
-        System.out.println("NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
+        log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
+        log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {

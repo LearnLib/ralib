@@ -5,11 +5,11 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.theory.CompTypes;
 import de.learnlib.ralib.theory.DoubType;
-//import de.learnlib.ralib.theory.CompIntType;
 import de.learnlib.ralib.theory.IntType;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -25,6 +26,8 @@ import net.automatalib.words.Word;
  * @author Sofia Cassel
  */
 public class Compatibility {
+    
+    private static final LearnLogger log = LearnLogger.getLogger(Compatibility.class);
 
     final static IntType intType = new IntType();
     final static DoubType doubType = new DoubType();
@@ -44,7 +47,7 @@ public class Compatibility {
 //        
 //        //List<DataValue<Integer>> sortedList = new ArrayList<>(dataValues);
 //        //Collections.sort(sortedList, intType);
-//        //System.out.println("list before initial space made: " + sortedKeys.toString());
+//        //log.log(Level.FINEST,"list before initial space made: " + sortedKeys.toString());
 //        for (DataValue<Integer> dV : valMap.keySet()) {
 //            intMap.put((new DataValue(intType, dV.getId() - initialDiff)), valMap.get(dV));
 //        }
@@ -55,12 +58,12 @@ public class Compatibility {
 ////            Integer curr_index = valMap.get(curr);
 ////            if (initialDiff != 0) {
 ////                intMap.put((new DataValue(intType, curr.getId() - initialDiff)), curr_index);
-////                //System.out.println("adding chgd value to: " + intMap.toString());
+////                //log.log(Level.FINEST,"adding chgd value to: " + intMap.toString());
 ////            } else {
 ////                intMap.put(curr, curr_index);
 ////            }
 ////        }
-//        System.out.println("final initially modified map: " + intMap.toString());
+//        log.log(Level.FINEST,"final initially modified map: " + intMap.toString());
 //        return intMap;
 //    }
 //
@@ -69,7 +72,7 @@ public class Compatibility {
 //        Map intMap = new LinkedHashMap<>();
 //        List<DataValue<Integer>> sortedList = new ArrayList<>(dataValues);
 //        Collections.sort(sortedList, intType);
-//        //System.out.println("sorted list with original gaps: " + sortedList.toString());
+//        //log.log(Level.FINEST,"sorted list with original gaps: " + sortedList.toString());
 //
 //        int prevDiff;
 //        DataValue<Integer> first = sortedList.get(0);
@@ -86,7 +89,7 @@ public class Compatibility {
 //                intMap.put((new DataValue(intType, curr.getId() + space - prevDiff)), curr_index);
 //            }
 //        }
-//        System.out.println("map with gaps: " + intMap.toString());
+//        log.log(Level.FINEST,"map with gaps: " + intMap.toString());
 //        return intMap;
 //    }
 
@@ -101,7 +104,7 @@ public class Compatibility {
 //                valMap.put(vals[i], i);
 //            }
 //        }
-//        //System.out.println("prefix valMap: " + valMap.toString());
+//        //log.log(Level.FINEST,"prefix valMap: " + valMap.toString());
 //        // run valMap through transform procedures
 //        Map<DataValue<Integer>, Integer> transformedMap = enlargeGaps(makeInitialSpace(valMap, space),space);
 //        // create complete map to reinstantiate prefix with
@@ -118,7 +121,7 @@ public class Compatibility {
 //
 //            }
 //        }
-//        System.out.println("final switched map: " + switchedMap.toString());
+//        log.log(Level.FINEST,"final switched map: " + switchedMap.toString());
 //        return DataWords.instantiate(DataWords.actsOf(prefix), switchedMap);
 
 //    }
@@ -156,7 +159,7 @@ public class Compatibility {
                 for (int i = 0; i < valArray.length; i++) {
                 if (valArray[i].getType().equals(intType)) {
                     DataValue<Integer> oldDataValue = valArray[i];
-                    System.out.println(oldDataValue.toString());
+                    log.log(Level.FINEST,oldDataValue.toString());
                     int oldValue = oldDataValue.getId();
                     retMap.put(i+1, new DataValue(doubType,(double)oldValue));
                     

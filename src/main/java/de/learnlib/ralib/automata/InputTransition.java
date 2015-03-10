@@ -19,10 +19,12 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.logging.Level;
 
 /**
  *
@@ -31,6 +33,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class InputTransition extends Transition {
     
     private final TransitionGuard guard;
+    
+    private static final LearnLogger log = LearnLogger.getLogger(InputTransition.class);
 
     public InputTransition(TransitionGuard guard, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         super(label, source, destination, assignment);
@@ -39,9 +43,9 @@ public class InputTransition extends Transition {
 
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
-        System.out.print("isEnabled..... registers: " + registers.toString());
-        System.out.print(" ...... parameters: " + parameters.toString());
-        System.out.print(" ..... constants " + consts.toString() + "\n");
+        log.log(Level.FINEST, "isEnabled..... registers: {0}", registers.toString());
+        log.log(Level.FINEST, " ...... parameters: {0}", parameters.toString());
+        log.log(Level.FINEST, " ..... constants {0}\n", consts.toString());
         return guard.isSatisfied(registers, parameters, consts);
     }
 

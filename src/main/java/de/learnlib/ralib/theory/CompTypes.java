@@ -19,7 +19,7 @@ public class CompTypes implements Comparator<DataValue<? extends DataType>> {
     @Override
         public int compare(DataValue<? extends DataType> dv_a, DataValue<? extends DataType> dv_b) {
             Class ic = dv_a.getType().getBase();
-            // System.out.println("dv_a class is " + ic.toString());
+            // log.log(Level.FINEST,"dv_a class is " + ic.toString());
             if (ic == Integer.class) {
                 return intcompare((DataValue<IntType>) dv_a, (DataValue<IntType>) dv_b);
             }

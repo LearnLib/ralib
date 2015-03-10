@@ -109,10 +109,10 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     public Set<K> getAllKeys(V value) {
         Set<K> retKeySet = new HashSet();
         for (K key : this.keySet()) {
-            //System.out.println("key = " + K);
-            //System.out.println("value = " + this.get(key).toString());
+            //log.log(Level.FINEST,"key = " + K);
+            //log.log(Level.FINEST,"value = " + this.get(key).toString());
             if (this.get(key).equals(value)){
-                //System.out.println(this.get(key).toString() + " equals " + value.toString());
+                //log.log(Level.FINEST,this.get(key).toString() + " equals " + value.toString());
                 retKeySet.add(key);
             }
         }   
@@ -129,10 +129,10 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     public K getOneKey(V value) {
         K retKey = null;
         for (K key : this.keySet()) {
-            //System.out.println("key = " + K);
-            //System.out.println("value = " + this.get(key).toString());
+            //log.log(Level.FINEST,"key = " + K);
+            //log.log(Level.FINEST,"value = " + this.get(key).toString());
             if (this.get(key).equals(value)){
-                //System.out.println(this.get(key).toString() + " equals " + value.toString());
+                //log.log(Level.FINEST,this.get(key).toString() + " equals " + value.toString());
                 retKey = key;
                 break;
             }

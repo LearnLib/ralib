@@ -6,6 +6,7 @@
 package de.learnlib.ralib.automata.xml;
 
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -32,6 +33,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.xml.bind.JAXB;
 import net.automatalib.words.Alphabet;
 import net.automatalib.words.impl.SimpleAlphabet;
@@ -55,6 +57,8 @@ public class RegisterAutomatonLoader {
     private MutableRegisterAutomaton iora;
     private Alphabet<ParameterizedSymbol> inputs;
     private Alphabet<ParameterizedSymbol> actions;
+    
+    private static final LearnLogger log = LearnLogger.getLogger(RegisterAutomatonLoader.class);
     
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
@@ -157,12 +161,12 @@ public class RegisterAutomatonLoader {
                 OutputMapping outMap = new OutputMapping(outputs);
                 OutputTransition tOut = new OutputTransition(outMap, ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
-                System.out.println("Loading: " + tOut);
+                log.log(Level.FINEST,"Loading: " + tOut);
             } // input
             else {
-                System.out.println("Guard: " + gstring);
+                log.log(Level.FINEST,"Guard: " + gstring);
                 InputTransition tIn = new InputTransition(p, ps, from, to, assign);
-                System.out.println("Loading: " + tIn);
+                log.log(Level.FINEST,"Loading: " + tIn);
                 iora.addTransition(from, ps, tIn);
             }
         }
@@ -187,7 +191,7 @@ public class RegisterAutomatonLoader {
             actions.add(ps);            
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            System.out.println("Loading: " + ps);
+            log.log(Level.FINEST,"Loading: " + ps);
         }
         for (RegisterAutomaton.Alphabet.Outputs.Symbol s : a.getOutputs().getSymbol()) {
             int pcount = s.getParam().size();
@@ -204,7 +208,7 @@ public class RegisterAutomatonLoader {
             actions.add(ps);
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            System.out.println("Loading: " + ps);
+            log.log(Level.FINEST,"Loading: " + ps);
         }
     }
 
@@ -215,11 +219,11 @@ public class RegisterAutomatonLoader {
             Constant c = cgen.next(type);            
             constMap.put(def.value, c);
             constMap.put(def.name, c);
-            System.out.println(def.name + " ->" + c);
+            log.log(Level.FINEST,def.name + " ->" + c);
             DataValue dv = new DataValue(type, Integer.parseInt(def.value));
             consts.put(c, dv);
         }
-        System.out.println("Loading: " + consts);
+        log.log(Level.FINEST,"Loading: " + consts);
     }
 
     private void getRegisters(RegisterAutomaton.Globals g) {
@@ -228,11 +232,11 @@ public class RegisterAutomatonLoader {
             DataType type = getOrCreateType(def.type);
             Register r = rgen.next(type);
             regMap.put(def.name, r);
-            System.out.println(def.name + " ->" + r);
+            log.log(Level.FINEST,def.name + " ->" + r);
             DataValue dv = new DataValue(type, Integer.parseInt(def.value));
             initialRegs.put(r, dv);
         }
-        System.out.println("Loading: " + initialRegs);
+        log.log(Level.FINEST,"Loading: " + initialRegs);
     }
 
     private RegisterAutomaton unmarschall(InputStream is) {

@@ -18,6 +18,8 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.logging.Category;
+import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
@@ -40,6 +42,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +66,10 @@ public class LearnLoginIOTest {
     public void learnLoginExampleIO() {
 
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
+        root.setLevel(Level.FINE);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
+            h.setLevel(Level.FINE);
+            h.setFilter(new CategoryFilter(EnumSet.of(Category.EVENT)));
         }
 
         final ParameterizedSymbol ERROR
@@ -93,7 +97,7 @@ public class LearnLoginIOTest {
             teachers.put(t, new EqualityTheory() {
                 @Override
                 public DataValue getFreshValue(List vals) {
-                    System.out.println("GENERATING FRESH: " + vals.size());
+                    //System.out.println("GENERATING FRESH: " + vals.size());
                     return new DataValue(t, vals.size());
                 }
             });

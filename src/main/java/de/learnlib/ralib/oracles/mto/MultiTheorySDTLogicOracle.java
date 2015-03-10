@@ -97,15 +97,15 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         DataExpression<Boolean> test = DataExpression.or(left, right);
 
-        System.out.println("A1:  " + expr1);
-        System.out.println("A2:  " + expr2);
-        System.out.println("G:   " + exprG);
-        System.out.println("MAP: " + remap);
-        System.out.println("A2': " + expr2r);
-        System.out.println("TEST:" + test);
+        log.log(Level.FINEST,"A1:  " + expr1);
+        log.log(Level.FINEST,"A2:  " + expr2);
+        log.log(Level.FINEST,"G:   " + exprG);
+        log.log(Level.FINEST,"MAP: " + remap);
+        log.log(Level.FINEST,"A2': " + expr2r);
+        log.log(Level.FINEST,"TEST:" + test);
         
         Result r = solver.isSatisfiable(test.getExpression());
-        System.out.println("Res:" + r);
+        log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {
             throw new IllegalStateException("could not solve constraint.");
         }
@@ -135,11 +135,11 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         DataExpression<Boolean> test = DataExpression.and(
             exprRefining, DataExpression.negate(exprRefined));
         
-        System.out.println("MAP: " + remap);
-        System.out.println("TEST:" + test);        
+        log.log(Level.FINEST,"MAP: " + remap);
+        log.log(Level.FINEST,"TEST:" + test);        
                 
         Result r = solver.isSatisfiable(test.getExpression());
-        System.out.println("Res:" + r);
+        log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {
             throw new IllegalStateException("could not solve constraint.");
         }               

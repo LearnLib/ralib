@@ -5,6 +5,7 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -16,13 +17,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.IntType;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.theory.IntType;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -43,6 +45,8 @@ import net.automatalib.words.Word;
  */
 public abstract class InequalityTheory<T> implements Theory<T> {
 
+    private static final LearnLogger log = LearnLogger.getLogger(InequalityTheory.class); 
+    
     IntType intType = new IntType();
 
     private SDTGuard mergeGuardLists(SDTGuard one, SDTGuard two) {
@@ -59,14 +63,14 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            for (SDTGuard t : two) {
 //// TODO: add contradiction condition 
 ////               if (o.contradicts(t)) {
-//                    //System.out.println("CONTRADICTION");
+//                    //log.log(Level.FINEST,"CONTRADICTION");
 //                    cList.add(o);
 //                    cList.add(t);
 // //               }
 //            }
 //        }
 //
-//        //System.out.println("Contradictions: " + cSet.toString());
+//        //log.log(Level.FINEST,"Contradictions: " + cSet.toString());
 //        for (SDTGuard o : one) {
 //            for (SDTGuard t : two) {
 //                if (!cList.contains(o)) {
@@ -85,14 +89,14 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT> tryToMerge(SDTGuard guard,
             List<SDTGuard> targetList, Map<SDTGuard, SDT> refSDTMap,
             Map<SDTGuard, SDT> finalMap, Map<SDTGuard, SDT> contMap) {
-        System.out.println("---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
+        log.log(Level.FINEST,"---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
         Map<SDTGuard, SDT> cMap = new LinkedHashMap();
         cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
             finalMap.put(guard, refSDTMap.get(guard));
             finalMap.putAll(cMap);
-            System.out.println(" ---> " + finalMap.toString());
+            log.log(Level.FINEST," ---> " + finalMap.toString());
             return finalMap;
         } else {
             Map<SDTGuard, SDT> newSDTMap = new LinkedHashMap();
@@ -107,7 +111,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             if (guardSDT.canUse(otherSDT) && otherSDT.canUse(guardSDT)) {
                 // if yes, then merge them
                 SDTGuard merged = mergeGuardLists(guard, other);
-                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
+                log.log(Level.FINEST,guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
                 // add the merged guard and SDT to merged map
                 newSDTMap.put(merged, guardSDT);
                 cMap.remove(other);
@@ -124,23 +128,23 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     // use another SDT.  
     private Map<SDTGuard, SDT>
             mergeGuards(Map<SDTGuard, SDT> unmerged) {
-        System.out.println("master merge...");
+        log.log(Level.FINEST,"master merge...");
         Map<SDTGuard, SDT> tempMap = new LinkedHashMap();
 
         List<SDTGuard> guardList = new ArrayList(unmerged.keySet());
-        System.out.println("unmerged: " + unmerged.toString());
+        log.log(Level.FINEST,"unmerged: " + unmerged.toString());
         //int i = 0;
         List<SDTGuard> jGuardList = new ArrayList();
         jGuardList.addAll(guardList);
         Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new LinkedHashMap(), new LinkedHashMap());
         tempMap.putAll(gMerged);
 
-        System.out.println(tempMap.toString());
+        log.log(Level.FINEST,tempMap.toString());
         if (tempMap.equals(unmerged)) {
-            System.out.println("unchanged");
+            log.log(Level.FINEST,"unchanged");
             return tempMap;
         } else {
-            System.out.println("another round");
+            log.log(Level.FINEST,"another round");
             return mergeGuards(tempMap);
         }
     }
@@ -148,7 +152,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                
 //                
 //                Map<Set<Guard>, SDT> mergingMap = new LinkedHashMap<>();
-//        System.out.println("---- Merging! ---- " + unmerged.toString());
+//        log.log(Level.FINEST,"---- Merging! ---- " + unmerged.toString());
 //        // guards we've already tried
 //        Set<Set<Guard>> tried = new HashSet();
 //        List<Set<Guard>> guardList = new ArrayList(unmerged.keySet());
@@ -172,11 +176,11 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                // for each next guard array
 //            for (int j = i + 1; j < gSize; j++) {
 //                Set<Guard> two = guardList.get(j);
-//                System.out.println("two : " + two.toString());
+//                log.log(Level.FINEST,"two : " + two.toString());
 //                SDT twoSdt = unmerged.get(two);
 //                if (oneSdt.canUse(twoSdt)) {
 //                     Set<Guard> onetwo = mergeGuardArrays(one, two);
-//                     System.out.println(one.toString() + " and " + two.toString() + " are compatible, become " + onetwo.toString());
+//                     log.log(Level.FINEST,one.toString() + " and " + two.toString() + " are compatible, become " + onetwo.toString());
 //                     mergingMap.put(onetwo, twoSdt);
 //                     uniq = false;
 //                    }
@@ -195,7 +199,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                //        tried.add(two);
 //                        // merge one and two, add with SDT to map
 //                        Set<Guard> onetwo = mergeGuardArrays(one, two);
-//                        System.out.println(one.toString() + " and " + two.toString() + " are compatible, become " + onetwo.toString());
+//                        log.log(Level.FINEST,one.toString() + " and " + two.toString() + " are compatible, become " + onetwo.toString());
 //                        mergingMap.put(onetwo, twoSdt);
 //                    }
 //                    if (uniq == 0) {
@@ -205,7 +209,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     //if it is unique, then add to final map (because definitely unmergable)
         // if there is nothing in the merging map, then return the final map (because everything is in the final map)
 //        if (mergingMap.isEmpty()) {
-//            System.out.println("---- End merging ----");
+//            log.log(Level.FINEST,"---- End merging ----");
 //            return finalMap;
 //        } // otherwise, try to merge the mergingmap
 //        else {
@@ -240,7 +244,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
     }
 
 //    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
-//        System.out.println(dv.toString() + " should be in " + preVal.toString() + " or in "+ curVal.toString());
+//        log.log(Level.FINEST,dv.toString() + " should be in " + preVal.toString() + " or in "+ curVal.toString());
 //        List<Integer> rvPoss1 = new ArrayList(preVal.getAllKeys(dv));
 //        List<Integer> rvPoss2 = new ArrayList(curVal.getAllKeys(dv));
 //        if (rvPoss1.isEmpty()) {
@@ -250,14 +254,14 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            return Collections.min(rvPoss1);
 //        }
 //        else {
-//            System.out.println("possible indices: " + rvPoss1.toString() + " or " + rvPoss2.toString());
+//            log.log(Level.FINEST,"possible indices: " + rvPoss1.toString() + " or " + rvPoss2.toString());
 //            Integer rvPos1 = Collections.min(rvPoss1);
 //            Integer rvPos2 = Collections.min(rvPoss2);
 //            return (rvPos1 < rvPos2) ? rvPos1 : rvPos2;
 //        }
 //    }
     private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
-        System.out.println(dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = " + curVal.toString());
+        log.log(Level.FINEST,dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = " + curVal.toString());
         Integer rvPos = preVal.getOneKey(dv);
         if (rvPos != null) {
             return rvPos;
@@ -293,7 +297,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
         SuffixValue currentParam = new SuffixValue(type, pId);
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
-        // System.out.println("ifpiv is " + ifPiv.toString());
+        // log.log(Level.FINEST,"ifpiv is " + ifPiv.toString());
 
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 DataWords.<T>valSet(prefix, type),
@@ -311,7 +315,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             currentValues.putAll(values);
             currentValues.put(pId, currentDv);
 
-          //  System.out.println("new values " + currentValues.toString());
+          //  log.log(Level.FINEST,"new values " + currentValues.toString());
             SuffixValuation currentSuffixValues = new SuffixValuation();
             currentSuffixValues.putAll(suffixValues);
             //currentSuffixValues.put(sv, currentDv);
@@ -393,7 +397,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                guard = new BiggerGuard(currentParam, rvLeft);
             }
 
-            System.out.println("Guard: " + guard.toString());
+            log.log(Level.FINEST,"Guard: " + guard.toString());
 
 // for the 1 - last value in the potential
 //            if (i > 0) {
@@ -421,17 +425,17 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 
         }
 
-//        System.out.println("-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
+//        log.log(Level.FINEST,"-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
         // merge the guards
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
 
         // only keep registers that are referenced by the merged guards
         piv.putAll(keepMem(merged.keySet()));
 
-        //System.out.println("temporary guards = " + tempKids.keySet());
-        //System.out.println("temporary pivs = " + tempPiv.keySet());
-        System.out.println("merged guards = " + merged.keySet().toString());
-        //System.out.println("merged pivs = " + addPiv.toString());
+        //log.log(Level.FINEST,"temporary guards = " + tempKids.keySet());
+        //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+        log.log(Level.FINEST,"merged guards = " + merged.keySet().toString());
+        //log.log(Level.FINEST,"merged pivs = " + addPiv.toString());
 
         // clear the temporary map of children
         tempKids.clear();
