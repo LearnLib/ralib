@@ -57,6 +57,8 @@ import net.automatalib.words.Word;
 public class MultiTheoryBranching implements Branching {
 
     public static class Node {
+        
+        private final boolean isLeaf;
 
         private final Parameter parameter;
         private final Map<DataValue, Node> next = new LinkedHashMap<>();
@@ -64,6 +66,7 @@ public class MultiTheoryBranching implements Branching {
 
         public Node(Parameter parameter) {
             this.parameter = parameter;
+            this.isLeaf = true;
         }
 
         public Node(Parameter parameter,
@@ -72,6 +75,7 @@ public class MultiTheoryBranching implements Branching {
             this.parameter = parameter;
             this.next.putAll(next);
             this.guards.putAll(guards);
+            this.isLeaf = false;
         }
 
         @Override
@@ -118,6 +122,10 @@ public class MultiTheoryBranching implements Branching {
         }
         this.pval = pval;
     }
+    
+    public Word<PSymbolInstance> getPrefix() {
+        return prefix;
+    }
 
     public ParValuation getPval() {
         return pval;
@@ -126,39 +134,20 @@ public class MultiTheoryBranching implements Branching {
     public PIV getPiv() {
         return piv;
     }
+    
+    public Set<SDTGuard> getGuards() {
+        return collectGuards(this.node, new HashSet<SDTGuard>());
+    }
 
-    // collects DVs along one branch
-    private List<DataValue[]> collectDataValues(Node n, List<DataValue[]> dvList, DataValue[] dvs, List<Node> visited) {
-
-        // if we are not at a leaf
-        visited.add(n);
-        if (!n.next.isEmpty()) {
-            // get all next nodes
-            System.out.println("next dvs: " + n.next.keySet().toString());
-            // go through each of the 'next' nodes
-            for (DataValue d : n.next.keySet()) {
-                Node nextNode = n.next.get(d);
-                // if the node hasn't been visited previously 
-                if (!visited.contains(nextNode)) {
-                    // add the node's data value to the array
-                    int dvLength = dvs.length;
-                    DataValue[] newDvs = new DataValue[dvLength + 1];
-                    System.arraycopy(dvs, 0, newDvs, 0, dvLength);
-                    newDvs[dvLength] = d;
-                    System.out.println("dvs are currently " + Arrays.toString(newDvs));
-                    System.out.println("marked: " + visited.size());
-                    // proceed down in the tree to the next node
-                    collectDataValues(nextNode, dvList, newDvs, visited);
-
-                }
+    // collects guards
+    private Set<SDTGuard> collectGuards(Node node, Set<SDTGuard> guards) {
+        if (!node.isLeaf) {
+            for (Map.Entry<DataValue,SDTGuard> e : node.guards.entrySet()) {
+                guards.add(e.getValue());
+                collectGuards(node.next.get(e.getKey()),guards);
             }
-
         }
-        if (dvs.length == this.action.getArity()) {
-            //           System.out.println("Just adding: " + Arrays.toString(dvs));
-            dvList.add(dvs);
-        }
-        return dvList;
+        return guards;
     }
 
     private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(

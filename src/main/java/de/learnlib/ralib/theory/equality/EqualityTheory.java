@@ -295,11 +295,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Collection potSet = DataWords.<T>joinValsToSet(
                 DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
-//        if (!potSet.isEmpty()) {
-//            System.out.println("potSet = " + potSet.toString());
-//        } else {
-//            System.out.println("potSet is empty");
-//        }
+        if (!potSet.isEmpty()) {
+            System.out.println("potSet = " + potSet.toString());
+        } else {
+            System.out.println("potSet is empty");
+        }
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
         System.out.println("fresh = " + fresh.toString());
         return fresh;

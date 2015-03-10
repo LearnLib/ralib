@@ -42,16 +42,19 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -188,7 +191,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Node n;
 
         if (sdts.length == 0) {
-            n = createFreshNode(0, prefix, ps, piv, pval, new ParValuation());
+            n = createFreshNode(0, prefix, ps, piv, pval);
         } else {
             for (SDT s : sdts) {
                 for (Register r : s.getRegisters()) {
@@ -200,7 +203,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     }
                 }
             }
-            n = createNode(0, prefix, ps, piv, pval, new ParValuation(), sdts);
+            n = createNode(0, prefix, ps, piv, pval, sdts);
         }
 
         return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
@@ -208,7 +211,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, ParValuation ipval) {
+            PIV piv, ParValuation pval) {
         Map<DataValue, Node> nextMap = new LinkedHashMap<>();
         Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
@@ -219,13 +222,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Parameter p = new Parameter(type, j);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, j));
             Theory teach = teachers.get(type);
-            ParValuation jpval = new ParValuation();
-            jpval.putAll(pval);
-            jpval.putAll(ipval);
-            DataValue dvi = teach.instantiate(prefix, ps, piv, jpval, guard, p);
+            //ParValuation jpval = new ParValuation();
+            //jpval.putAll(pval);
+            //jpval.putAll(ipval);
+            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
             // try commenting out this
-            ipval.put(p,dvi);
-            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval, ipval));
+            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval));
+            //pval.put(p,dvi);
             guardMap.put(dvi, guard);
             return new Node(p, nextMap, guardMap);
 
@@ -235,7 +238,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, ParValuation ipval, SDT... sdts) {
+            PIV piv, ParValuation pval, SDT... sdts) {
 
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
@@ -254,15 +257,15 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     System.out.println("processing guard: " + guard.toString());
                     //System.out.println("...... wh piv is " + piv.toString());
                     Theory teach = teachers.get(type);
-                    ParValuation jpval = new ParValuation();
-                    jpval.putAll(pval);
-                    jpval.putAll(ipval);
-                    DataValue dvi = teach.instantiate(prefix, ps, piv, jpval, guard, p);
+                    //ParValuation jpval = new ParValuation();
+                    //jpval.putAll(pval);
+                    //jpval.putAll(ipval);
+                    DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
                     System.out.println(dvi.toString() + " maps to " + guard.toString());
                     // try commenting out this
-                    ipval.put(p, dvi);
                     //System.out.println("dvi = " + dvi.toString());
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, ipval, children.get(guard)));
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, children.get(guard)));
+                    //pval.put(p, dvi);
                     // another ugly hack because yuck
                     //SDTGuard newGuard = new ElseGuard(s);
                     //if (!guardList.isEmpty()) {
@@ -280,6 +283,48 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
     }
+    
+    private VarValuation generateVarVal(PIV oldPiv, ParValuation oldPval) {
+        // add all parameters in the piv
+        VarValuation oldVal = new VarValuation();
+        for (Parameter rp : oldPiv.keySet()) {
+            for (Parameter pp : oldPval.keySet()) {
+                // ugly equality check
+                if (rp.getId()==pp.getId()) {
+                    System.out.println(rp.toString() + " and " + pp.toString());
+                    oldVal.put(oldPiv.get(rp), oldPval.get(pp));
+                }
+            }
+        }
+        return oldVal;
+    }
+    
+    private List<SDTIfGuard> makeGuardList(Set<SDTGuard> guards) {
+        List<SDTIfGuard> ifs = new ArrayList<>();
+        for (SDTGuard guard : guards) {
+            if (guard instanceof SDTCompoundGuard) {
+                ifs.addAll(((SDTCompoundGuard)guard).getGuards());
+            }
+            else if (guard instanceof SDTIfGuard) {
+                ifs.add((SDTIfGuard)guard);
+            }
+        }
+        return ifs;
+    }
+    
+    private VarValuation updateVarVal(VarValuation oldVal, List<DataValue> oldPrefixValues, MultiTheoryBranching newBranching) {
+        VarValuation updatedVal = new VarValuation();
+        updatedVal.putAll(oldVal);
+
+         // collect all the guards
+        List<SDTIfGuard> guards = makeGuardList(newBranching.getGuards());
+        for (SDTIfGuard s : guards) {
+                 SymbolicDataValue sreg = s.getRegister();
+                 assert sreg instanceof Register;
+                 updatedVal.put((Register) sreg, oldPrefixValues.get(sreg.getId()-1));
+            }
+        return updatedVal;
+    }
 
     /**
      * This method computes the initial branching for an SDT. It re-uses
@@ -293,10 +338,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);
+        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(oldBranching.getPrefix()));
 
         Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
         Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
-
+        
         assert oldBranches.size() <= newBranches.size();
         if (oldBranches.isEmpty()) {
             if (newBranches.isEmpty()) {
@@ -304,60 +350,88 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             }
         }
         
+        // what we need for an updated branching: 
+        // prefix: CHECK, 
+        // ps: CHECK, 
+        // piv: NOT YET, 
+        // sdts: CHECK
+        
+        PIV updatedPiv = new PIV();
+        updatedPiv.putAll(oldBranching.getPiv());
+        
+        
+        Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(),ps, oldBranching.getPiv(), sdts);
+        
         System.out.println(">>>>Updating old branching: " + oldBranching.toString());
         System.out.println(".... according to new SDT: " + newBranching.toString());
-        
+        System.out.println(".... where the new branches are: ");
+        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : newBranches.entrySet()) {
+            System.out.println(e.toString());
+        }
             // parvaluation : param to dv
         // piv : param to reg
         // need: varvaluation (reg to dv), parvaluation
-        VarValuation oldValuation = new VarValuation();
-        ParValuation oldPval = new ParValuation();
-        PIV oldPiv = new PIV();
+//        ParValuation oldPval = new ParValuation();
+//        PIV oldPiv = new PIV();
+//        
+//        oldPval.putAll(oldBranching.getPval());
+//        oldPiv.putAll(oldBranching.getPiv());
+//        VarValuation oldValuation = generateVarVal(oldPiv, oldPval);
+//        System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
+//        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
+//        Map<Word<PSymbolInstance>, TransitionGuard> updated = new LinkedHashMap<>();
+//        
+        //VarValuation updatedOldVarVal = updateVarVal(oldValuation, prefixValues, newBranching);
+        //System.out.println("updating: " + oldValuation.toString() + " to " + updatedOldVarVal.toString());
+  
         
-        oldPval.putAll(oldBranching.getPval());
-        oldPiv.putAll(oldBranching.getPiv());
 
-        System.out.println("old stuff size: " + oldPiv.size() + " " + oldPval.size() + " " + oldBranches.size());
-        
-        if (!oldPiv.isEmpty()) {
-            for (Parameter rp : oldPiv.keySet()) {
-                for (Parameter pp : oldPval.keySet()) {
-                    // ugly equality check
-                    if (rp.getId()==pp.getId()) {
-                        System.out.println(rp.toString() + " and " + pp.toString());
-                        oldValuation.put(oldPiv.get(rp), oldPval.get(pp));
-                    }
-                }
-            }
-        }
-        
-        System.out.println("old piv: " + oldPiv.toString() + " old pval: " + oldPval.toString());
-        Map<Word<PSymbolInstance>, TransitionGuard> updated = new LinkedHashMap<>();
+//        Boolean[] canUseBranching = new Boolean[newBranches.size()];
+//        Boolean canUse = false;
+//        int i = 0;
 
-        Boolean[] canUse = new Boolean[newBranches.size()];
-        int i = 0;
-
-        for (Word<PSymbolInstance> newWord : newBranches.keySet()) {
-            for (Word<PSymbolInstance> oldWord : oldBranches.keySet()) {
-                canUse[i] = false;
-                TransitionGuard newGuard = newBranches.get(newWord);
-                if (newGuard.isSatisfied(oldValuation, oldPval, new Constants())) {
-                    canUse[i] = true;
-                }
-            }
-            i++;
-        }
-
-        if (isArrayTrue(canUse)) {
-            return getInitialBranching(prefix, ps, oldPiv, oldPval, sdts);
-        } else {
-            return oldBranching;
-        }
+        //System.out.println("begin comparison");
+        // for each guard
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> f : oldBranches.entrySet()) {
+//            System.out.println(f);
+//            Word<PSymbolInstance> fword = f.getKey();
+//            for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : newBranches.entrySet()) {
+//                System.out.println(e);
+//                Word<PSymbolInstance> eword = e.getKey();
+//                // if the words are equal (same dvs) we just use the old one
+//                if (fword.lastSymbol().equals(eword.lastSymbol())) {
+//                    canUseBranching[i] = true;
+//                    i++
+//                }
+//                else{
+//                    updatedBranching..put(eword, e.getValue());
+//                }
+//                // if the words are not equal, 
+//                else {
+//                    
+//                }
+//                // if the data values are the same: return the old mapping
+//                // otherwise, return a new instantiation
+//                TransitionGuard newGuard = e.getValue();
+//                System.out.println("checking if " + newGuard.toString() + " is sat. by piv " + updatedOldVarVal.toString() + " and PVal " + oldPval.toString());
+//                if (newGuard.isSatisfied(updatedOldVarVal, oldPval, new Constants())) {
+//                    System.out.println("yes");
+//                    canUse = true;
+//                }
+//            }
+//            i++;
+//        }
+//
+//        if (isArrayTrue(canUse)) {
+//            return getInitialBranching(prefix, ps, oldPiv, oldPval, sdts);
+//        } else {
+//            return oldBranching;
+//        }
+        return updatedBranching;
     }
-            // for each guard in NEW, check if there is a guard in OLD whose data value satisfies the NEW guard under the NEW valuation
-
+    
     //helper method for updateBranching
-    private boolean isArrayTrue(Boolean[] maybeArr) {
+    private boolean hasSomeTrueArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
         for (int c = 0; c < (maybeArr.length); c++) {
             //System.out.println(maybeArr[c]);

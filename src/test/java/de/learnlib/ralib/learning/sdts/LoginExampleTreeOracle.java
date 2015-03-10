@@ -172,7 +172,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
         
-        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
+        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
         DataValue[] vals = DataWords.valsOf(prefix);
         
@@ -195,14 +195,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
                     LogicalOperator.AND, 
                     new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
 
-            Map<SymbolicDataValue, Variable> mapping = new HashMap<>();
+            Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
             mapping.put(rUid, x1);
             mapping.put(rPwd, x2);
             mapping.put(pUid, p1);
             mapping.put(pPwd, p2);
 
             IfGuard ifGuard = new IfGuard(
-                    new DataExpression<>(expression, mapping));
+                    new DataExpression<Boolean>(expression, mapping));
 
             TransitionGuard elseGuard = new ElseGuard(
                     Collections.singletonList(ifGuard));
