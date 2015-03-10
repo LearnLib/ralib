@@ -87,9 +87,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, new SuffixValuation());
 
-        TreeQueryResult tqr = new TreeQueryResult(pir,sdt);
+        TreeQueryResult tqr = new TreeQueryResult(pir, sdt);
         log.finer("PIV: " + pir);
-        
+
         return tqr;
     }
 
@@ -120,8 +120,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
 
-            log.log(Level.FINEST,"Trace = " + trace.toString() + " >>> " + 
-                    (qOut ? "ACCEPT (+)" : "REJECT (-)"));
+            log.log(Level.FINEST, "Trace = " + trace.toString() + " >>> "
+                    + (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
 
             // return accept / reject as a leaf
@@ -163,7 +163,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 prefix, ps, piv, new ParValuation(),
                 new ArrayList<SDTGuard>(), casted);
 
-        log.log(Level.FINEST,mtb.toString());
+        log.log(Level.FINEST, mtb.toString());
 
         return mtb;
     }
@@ -198,8 +198,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     int i = r.getId();
                     //piv.put(new Parameter(r.getType(), r.getId()), r);
                     DataValue[] prefValues = DataWords.valsOf(prefix);
-                    if (prefValues.length !=0) {
-                        pval.put(new Parameter(r.getType(),r.getId()), prefValues[i-1]);
+                    if (prefValues.length != 0) {
+                        pval.put(new Parameter(r.getType(), r.getId()), prefValues[i - 1]);
                     }
                 }
             }
@@ -217,7 +217,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
-            log.log(Level.FINEST,"current type: " + type.getName());
+            log.log(Level.FINEST, "current type: " + type.getName());
             int j = i + 1;
             Parameter p = new Parameter(type, j);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, j));
@@ -227,8 +227,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             //jpval.putAll(ipval);
             DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
             // try commenting out this
-            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, pval));
+            ParValuation otherPval = new ParValuation();
+            otherPval.putAll(pval);
+            otherPval.put(p, dvi);
+
+            nextMap.put(dvi, createFreshNode(j, prefix, ps, piv, otherPval));
             //pval.put(p,dvi);
+
             guardMap.put(dvi, guard);
             return new Node(p, nextMap, guardMap);
 
@@ -242,7 +247,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         if (i < ps.getArity()) {
             DataType type = ps.getPtypes()[i];
-            log.log(Level.FINEST,"current type: " + type.getName());
+            log.log(Level.FINEST, "current type: " + type.getName());
             int j = i + 1;
             Parameter p = new Parameter(type, j);
             Map<DataValue, Node> nextMap = new LinkedHashMap<>();
@@ -251,21 +256,22 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             //for each guard in each sdt
             for (SDT sdt : sdts) {
                 Map<SDTGuard, SDT> children = sdt.getChildren();
-                log.log(Level.FINEST,"guards are: " + children.keySet().toString());
+                log.log(Level.FINEST, "guards are: " + children.keySet().toString());
                 for (SDTGuard guard : children.keySet()) {
                     //if (!visited.contains(nextNode)) {
-                    log.log(Level.FINEST,"processing guard: " + guard.toString());
+                    log.log(Level.FINEST, "processing guard: " + guard.toString());
                     //log.log(Level.FINEST,"...... wh piv is " + piv.toString());
                     Theory teach = teachers.get(type);
-                    //ParValuation jpval = new ParValuation();
-                    //jpval.putAll(pval);
                     //jpval.putAll(ipval);
                     DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
-                    log.log(Level.FINEST,dvi.toString() + " maps to " + guard.toString());
+                    log.log(Level.FINEST, dvi.toString() + " maps to " + guard.toString());
                     // try commenting out this
                     //log.log(Level.FINEST,"dvi = " + dvi.toString());
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, pval, children.get(guard)));
-                    //pval.put(p, dvi);
+                    ParValuation otherPval = new ParValuation();
+                    otherPval.putAll(pval);
+                    otherPval.put(p, dvi);
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, children.get(guard)));
+
                     // another ugly hack because yuck
                     //SDTGuard newGuard = new ElseGuard(s);
                     //if (!guardList.isEmpty()) {
@@ -275,54 +281,53 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     guardMap.put(dvi, guard);
                 }
             }
-            log.log(Level.FINEST,"guardMap: " + guardMap.toString());
-            log.log(Level.FINEST,"nextMap: " + nextMap.toString());
+            log.log(Level.FINEST, "guardMap: " + guardMap.toString());
+            log.log(Level.FINEST, "nextMap: " + nextMap.toString());
             return new Node(p, nextMap, guardMap);
         } else {
             return new Node(new Parameter(null, ps.getArity()));
         }
 
     }
-    
+
     private VarValuation generateVarVal(PIV oldPiv, ParValuation oldPval) {
         // add all parameters in the piv
         VarValuation oldVal = new VarValuation();
         for (Parameter rp : oldPiv.keySet()) {
             for (Parameter pp : oldPval.keySet()) {
                 // ugly equality check
-                if (rp.getId()==pp.getId()) {
-                    log.log(Level.FINEST,rp.toString() + " and " + pp.toString());
+                if (rp.getId() == pp.getId()) {
+                    log.log(Level.FINEST, rp.toString() + " and " + pp.toString());
                     oldVal.put(oldPiv.get(rp), oldPval.get(pp));
                 }
             }
         }
         return oldVal;
     }
-    
+
     private List<SDTIfGuard> makeGuardList(Set<SDTGuard> guards) {
         List<SDTIfGuard> ifs = new ArrayList<>();
         for (SDTGuard guard : guards) {
             if (guard instanceof SDTCompoundGuard) {
-                ifs.addAll(((SDTCompoundGuard)guard).getGuards());
-            }
-            else if (guard instanceof SDTIfGuard) {
-                ifs.add((SDTIfGuard)guard);
+                ifs.addAll(((SDTCompoundGuard) guard).getGuards());
+            } else if (guard instanceof SDTIfGuard) {
+                ifs.add((SDTIfGuard) guard);
             }
         }
         return ifs;
     }
-    
+
     private VarValuation updateVarVal(VarValuation oldVal, List<DataValue> oldPrefixValues, MultiTheoryBranching newBranching) {
         VarValuation updatedVal = new VarValuation();
         updatedVal.putAll(oldVal);
 
-         // collect all the guards
+        // collect all the guards
         List<SDTIfGuard> guards = makeGuardList(newBranching.getGuards());
         for (SDTIfGuard s : guards) {
-                 SymbolicDataValue sreg = s.getRegister();
-                 assert sreg instanceof Register;
-                 updatedVal.put((Register) sreg, oldPrefixValues.get(sreg.getId()-1));
-            }
+            SymbolicDataValue sreg = s.getRegister();
+            assert sreg instanceof Register;
+            updatedVal.put((Register) sreg, oldPrefixValues.get(sreg.getId() - 1));
+        }
         return updatedVal;
     }
 
@@ -342,31 +347,29 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
         Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
-        
+
         assert oldBranches.size() <= newBranches.size();
         if (oldBranches.isEmpty()) {
             if (newBranches.isEmpty()) {
                 return oldBranching;
             }
         }
-        
+
         // what we need for an updated branching: 
         // prefix: CHECK, 
         // ps: CHECK, 
         // piv: NOT YET, 
         // sdts: CHECK
-        
         PIV updatedPiv = new PIV();
         updatedPiv.putAll(oldBranching.getPiv());
-        
-        
-        Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(),ps, oldBranching.getPiv(), sdts);
-        
-        log.log(Level.FINEST,">>>>Updating old branching: " + oldBranching.toString());
-        log.log(Level.FINEST,".... according to new SDT: " + newBranching.toString());
-        log.log(Level.FINEST,".... where the new branches are: ");
+
+        Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(), ps, oldBranching.getPiv(), sdts);
+
+        log.log(Level.FINEST, ">>>>Updating old branching: " + oldBranching.toString());
+        log.log(Level.FINEST, ".... according to new SDT: " + newBranching.toString());
+        log.log(Level.FINEST, ".... where the new branches are: ");
         for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : newBranches.entrySet()) {
-            log.log(Level.FINEST,e.toString());
+            log.log(Level.FINEST, e.toString());
         }
             // parvaluation : param to dv
         // piv : param to reg
@@ -383,13 +386,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //        
         //VarValuation updatedOldVarVal = updateVarVal(oldValuation, prefixValues, newBranching);
         //log.log(Level.FINEST,"updating: " + oldValuation.toString() + " to " + updatedOldVarVal.toString());
-  
-        
 
 //        Boolean[] canUseBranching = new Boolean[newBranches.size()];
 //        Boolean canUse = false;
 //        int i = 0;
-
         //log.log(Level.FINEST,"begin comparison");
         // for each guard
 //        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> f : oldBranches.entrySet()) {
@@ -429,7 +429,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //        }
         return updatedBranching;
     }
-    
+
     //helper method for updateBranching
     private boolean hasSomeTrueArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
