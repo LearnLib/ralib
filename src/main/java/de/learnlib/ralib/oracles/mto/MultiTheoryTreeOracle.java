@@ -363,7 +363,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV updatedPiv = new PIV();
         updatedPiv.putAll(oldBranching.getPiv());
 
-        Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(), ps, oldBranching.getPiv(), sdts);
+        Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(), ps, piv, sdts);
 
         log.log(Level.FINEST, ">>>>Updating old branching: " + oldBranching.toString());
         log.log(Level.FINEST, ".... according to new SDT: " + newBranching.toString());
