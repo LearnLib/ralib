@@ -100,7 +100,7 @@ public class DisequalityGuard extends SDTIfGuard {
             xname = "x" + r.getId();
         }
         else if (r instanceof SuffixValue) {
-            xname = "z" + r.getId();
+            xname = "y" + r.getId();
         }
         String pname = "y" + this.getParameter().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, pname);

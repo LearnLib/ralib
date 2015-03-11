@@ -120,7 +120,8 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         return tseq;        
     }
     
-    protected RALocation getLocation(Word<PSymbolInstance> dw) {
+    @Override
+    public RALocation getLocation(Word<PSymbolInstance> dw) {
         List<Transition> tseq = getTransitions(dw);
         if (tseq == null) {
             return null;

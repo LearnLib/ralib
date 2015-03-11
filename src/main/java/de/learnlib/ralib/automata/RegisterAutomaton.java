@@ -53,6 +53,8 @@ public abstract class RegisterAutomaton
      */
     public abstract boolean accepts(Word<PSymbolInstance> dw);        
 
+    public abstract RALocation getLocation(Word<PSymbolInstance> dw);
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -27,6 +27,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -71,7 +72,7 @@ public class LearnLoginIOTest {
         for (Handler h : root.getHandlers()) {
             h.setLevel(Level.FINEST);
             h.setFilter(new CategoryFilter(EnumSet.of(
-                    //Category.EVENT, Category.SYSTEM)));
+//                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
                     Category.EVENT, Category.PHASE, Category.MODEL)));
         }
 
@@ -131,14 +132,17 @@ public class LearnLoginIOTest {
                 0.1, // reset probability 
                 0.5, // prob. of choosing a fresh data value
                 1000, // 1000 runs 
-                4, // max depth
+                100, // max depth
                 consts,
                 true, // reset runs 
                 teachers,
                 inputs);
+        
+        IOCounterexampleLoopRemover loops = 
+                new IOCounterexampleLoopRemover(inputs, consts, teachers, ioOracle);
 
         int check = 0;
-        while (true && check < 10) {
+        while (true && check < 100) {
 
             check++;
             rastar.learn();
@@ -148,11 +152,13 @@ public class LearnLoginIOTest {
             System.out.println("----------------------------------------------------");
 
             Word<PSymbolInstance> ce = iowalk.findCounterExample(hyp);
-            System.out.println("CE:" + ce);
+            System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }
 
+            ce = loops.removeLoops(ce, hyp);
+            System.out.println("Shorter CE: " + ce);
             rastar.addCounterexample(ce, true);
 
         }
@@ -162,5 +168,6 @@ public class LearnLoginIOTest {
         System.out.println(hyp);
         System.out.println("----------------------------------------------------");
 
+        System.out.println(ioOracle.getQueryCount());
     }
 }

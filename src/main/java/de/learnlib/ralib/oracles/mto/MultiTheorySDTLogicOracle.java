@@ -104,6 +104,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST,"A2': " + expr2r);
         log.log(Level.FINEST,"TEST:" + test);
         
+        System.out.println("HAS CE: " + test.getExpression());
         Result r = solver.isSatisfiable(test.getExpression());
         log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {
@@ -138,6 +139,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST,"MAP: " + remap);
         log.log(Level.FINEST,"TEST:" + test);        
                 
+        System.out.println("DOES REFINE: " + test.getExpression());
         Result r = solver.isSatisfiable(test.getExpression());
         log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {

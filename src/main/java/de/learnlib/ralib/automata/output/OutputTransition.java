@@ -56,14 +56,15 @@ public class OutputTransition extends Transition {
         this(new ElseGuard(), output, label, source, destination, assignment);
     }
     
+    public boolean canBeEnabled(VarValuation registers, Constants consts) {
+        // FIXME: this is not in general safe to do!! (We assume the guard to not have parameters)
+        return this.guard.isSatisfied(registers, new ParValuation(), consts);
+    }
+            
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
         
-        if (!this.guard.isSatisfied(registers, parameters, consts)) {
-            return false;
-        }
-            
-        // check freshness of parameters ...        
+          // check freshness of parameters ...        
         for (Parameter p : output.getFreshParameters()) {
             DataValue pval = parameters.get(p);
             if (registers.containsValue(pval) || consts.containsValue(pval)) {
