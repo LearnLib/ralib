@@ -58,7 +58,8 @@ public class RegisterAutomatonLoader {
     private Alphabet<ParameterizedSymbol> inputs;
     private Alphabet<ParameterizedSymbol> actions;
     
-    private static final LearnLogger log = LearnLogger.getLogger(RegisterAutomatonLoader.class);
+    private static final LearnLogger log = 
+            LearnLogger.getLogger(RegisterAutomatonLoader.class);
     
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
@@ -159,7 +160,7 @@ public class RegisterAutomatonLoader {
                 }
                 
                 OutputMapping outMap = new OutputMapping(outputs);
-                OutputTransition tOut = new OutputTransition(outMap, ps, from, to, assign);
+                OutputTransition tOut = new OutputTransition(p, outMap, ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 log.log(Level.FINEST,"Loading: " + tOut);
             } // input

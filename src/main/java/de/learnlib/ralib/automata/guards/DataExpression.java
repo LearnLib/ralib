@@ -20,6 +20,7 @@
 package de.learnlib.ralib.automata.guards;
 
 import com.google.common.base.Function;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -58,6 +59,8 @@ public class DataExpression<T extends Object> {
             new DataExpression<>(ExpressionUtil.FALSE, 
                     new HashMap<SymbolicDataValue, Variable>());
 
+    private static final LearnLogger log = LearnLogger.getLogger(DataExpression.class);
+    
     private static class MapFunction extends HashMap<String, String> implements Function<String, String> {
         @Override
         public String apply(String f) {
@@ -80,6 +83,10 @@ public class DataExpression<T extends Object> {
         setVals(val, mapping, vars);
         setVals(val, mapping, pars);
         setVals(val, mapping, consts);
+        
+        if (!val.getVariables().containsAll(mapping.values())) {
+            log.warning("trying to evaluate condition without providing all values");
+        }
         
         return this.expression.evaluate(val);
     }

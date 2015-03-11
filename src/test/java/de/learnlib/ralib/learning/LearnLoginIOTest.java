@@ -19,6 +19,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.Category;
+import de.learnlib.logging.LLConsoleFormatter;
 import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
@@ -66,10 +67,12 @@ public class LearnLoginIOTest {
     public void learnLoginExampleIO() {
 
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINE);
+        root.setLevel(Level.FINEST);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINE);
-            h.setFilter(new CategoryFilter(EnumSet.of(Category.EVENT)));
+            h.setLevel(Level.FINEST);
+            h.setFilter(new CategoryFilter(EnumSet.of(
+                    Category.EVENT, Category.SYSTEM)));
+                    //Category.EVENT)));
         }
 
         final ParameterizedSymbol ERROR
@@ -77,7 +80,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login_typed.xml"));
+                        "/de/learnlib/ralib/automata/xml/palindrome.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");

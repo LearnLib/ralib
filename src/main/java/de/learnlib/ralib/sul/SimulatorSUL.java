@@ -100,7 +100,7 @@ public class SimulatorSUL implements DataWordSUL {
             throw new IllegalStateException();
         }
         
-        Transition t = getOutputTransition(loc);
+        Transition t = getOutputTransition(loc, register);
         OutputTransition ot = (OutputTransition) t;
         PSymbolInstance out = createOutputSymbol(ot);
         
@@ -132,8 +132,13 @@ public class SimulatorSUL implements DataWordSUL {
         return new PSymbolInstance(ot.getLabel(), vals);
     }
     
-    private Transition getOutputTransition(RALocation loc) {
-        return loc.getOut().iterator().next();
+    private Transition getOutputTransition(RALocation loc, VarValuation reg) {
+        for (Transition t : loc.getOut()) {
+            if (t.isEnabled(reg, new ParValuation(), consts)) {
+                return t;
+            }
+        }
+        throw new IllegalStateException("No suitable output transition.");
     }
 
     private List<DataValue> computeOld(DataType t, ParValuation pval) {

@@ -22,6 +22,8 @@ package de.learnlib.ralib.automata.output;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
@@ -43,14 +45,24 @@ public class OutputTransition extends Transition {
     
     private final OutputMapping output;
 
-    public OutputTransition(OutputMapping output, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        super(label, source, destination, assignment);
+    public OutputTransition(TransitionGuard guard, OutputMapping output, 
+            ParameterizedSymbol label, RALocation source, RALocation destination, 
+            Assignment assignment) {
+        super(label, guard, source, destination, assignment);
         this.output = output;
+    }
+
+    public OutputTransition(OutputMapping output, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+        this(new ElseGuard(), output, label, source, destination, assignment);
     }
     
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
         
+        if (!this.guard.isSatisfied(registers, parameters, consts)) {
+            return false;
+        }
+            
         // check freshness of parameters ...        
         for (Parameter p : output.getFreshParameters()) {
             DataValue pval = parameters.get(p);
@@ -86,7 +98,8 @@ public class OutputTransition extends Transition {
 
     @Override
     public String toString() {
-        return "(" + source + ", " + label + ", " + output + ", " + assignment + ", " + destination + ")";
+        return "(" + source + ", " + label + ", " + guard + ", " + output + 
+                ", " + assignment + ", " + destination + ")";
     }    
 
     /**

@@ -31,14 +31,11 @@ import java.util.logging.Level;
  * @author falk
  */
 public class InputTransition extends Transition {
-    
-    private final TransitionGuard guard;
-    
+        
     private static final LearnLogger log = LearnLogger.getLogger(InputTransition.class);
 
     public InputTransition(TransitionGuard guard, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        super(label, source, destination, assignment);
-        this.guard = guard;
+        super(label, guard, source, destination, assignment);
     }
 
     @Override

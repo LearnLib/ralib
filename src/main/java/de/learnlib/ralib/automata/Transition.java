@@ -32,15 +32,19 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public abstract class Transition {
        
     protected final ParameterizedSymbol label;
-    
+
+    protected final TransitionGuard guard;
+     
     protected final RALocation source;
     
     protected final RALocation destination;
 
     protected final Assignment assignment;
 
-    public Transition(ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+    public Transition(ParameterizedSymbol label, TransitionGuard guard, 
+            RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
+        this.guard = guard;
         this.source = source;
         this.destination = destination;
         this.assignment = assignment;
@@ -78,6 +82,13 @@ public abstract class Transition {
      */
     public Assignment getAssignment() {
         return assignment;
+    }
+
+    /**
+     * @return the guard
+     */
+    public TransitionGuard getGuard() {
+        return guard;
     }
     
     
