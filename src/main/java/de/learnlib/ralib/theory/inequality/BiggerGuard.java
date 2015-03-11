@@ -49,7 +49,7 @@ public class BiggerGuard extends SDTIfGuard {
    
     @Override
     public String toString() {
-        return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
+        return "(" + this.getParameter().toString() + ">" + this.getRegister().toString() + ")";
         //
         //return super.toString();
     }

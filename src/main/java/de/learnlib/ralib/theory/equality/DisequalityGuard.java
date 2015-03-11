@@ -83,14 +83,31 @@ public class DisequalityGuard extends SDTIfGuard {
 //        }
 //    }
     
+//    @Override
+//    public Expression<Boolean> toExpr() {
+//        String xname = "x" + this.getRegister().getId();
+//        String pname = "y" + this.getParameter().getId();
+//        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+//        Variable x = new Variable(BuiltinTypes.SINT32,xname);
+//        return new NumericBooleanExpression(x, NumericComparator.NE, p);
+//    }
+//    
     @Override
     public Expression<Boolean> toExpr() {
-        String xname = "x" + this.getRegister().getId();
+        SymbolicDataValue r = this.getRegister();
+        String xname = "";
+        if (r instanceof Register) {
+            xname = "x" + r.getId();
+        }
+        else if (r instanceof SuffixValue) {
+            xname = "z" + r.getId();
+        }
         String pname = "y" + this.getParameter().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, pname);
         Variable x = new Variable(BuiltinTypes.SINT32,xname);
         return new NumericBooleanExpression(x, NumericComparator.NE, p);
     }
+    
     
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
