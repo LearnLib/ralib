@@ -298,7 +298,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg instanceof Register) {
-                int idx = (ereg.getId());
+                int idx = piv.getOneKey( (Register)ereg).getId();
                 //return piv.get(param);
                 // trying to not pickup values from prefix
                 return prefixValues.get(idx - 1);

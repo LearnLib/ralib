@@ -145,7 +145,7 @@ public class UntypedBranchingTest {
        
         PIV piv = res.getPiv();
         SymbolicDecisionTree sdt = res.getSdt();
-        
+
         // --- comment this out to make it work again
         
         ParameterGenerator pgen = new ParameterGenerator();
