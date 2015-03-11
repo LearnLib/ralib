@@ -159,7 +159,7 @@ public class CounterexampleAnalysis {
         results[0] = IndexResult.HAS_CE_NO_REFINE;
         results[ce.length()-1] = IndexResult.NO_CE;
         
-        int min = 1;
+        int min = 0;
         int max = ce.length() - 1;
         int mid = -1;
         
@@ -178,12 +178,13 @@ public class CounterexampleAnalysis {
             }            
         }
         
-        assert mid > 0;
+        assert mid >= 0;
         
         int idx = mid;
         // if in the last step there was no counterexample, 
         // we have to move one step to the left
         if (results[idx] == IndexResult.NO_CE) {
+            assert idx > 0;
             idx--;
         }
         
