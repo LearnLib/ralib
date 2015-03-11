@@ -26,6 +26,13 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -135,20 +142,39 @@ public class UntypedBranchingTest {
         System.out.println("######################################################################");
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
         System.out.println(res.getSdt());
+       
+        PIV piv = res.getPiv();
+        SymbolicDecisionTree sdt = res.getSdt();
+        
+        // --- comment this out to make it work again
+        
+        ParameterGenerator pgen = new ParameterGenerator();
+        RegisterGenerator rgen = new RegisterGenerator();        
+        
+        Parameter p1 = pgen.next(intType);
+        Parameter p2 = pgen.next(intType);
+        Register r1 = rgen.next(intType);
+        Register r2 = rgen.next(intType);
+        
+        VarMapping map = new VarMapping();
+        map.put(r1, r2);
+        map.put(r2, r1);
+        
+        piv = new PIV();
+        piv.put(p2, r1);
+        piv.put(p1, r2);
+        
+        sdt = sdt.relabel(map);
+        
+        // --- end of commenting
         
         System.out.println("######################################################################");
-        // initial branching bug
-        Branching bug1 = mto.getInitialBranching(prefix, log, res.getPiv(), res.getSdt());        
-        System.out.println(Arrays.toString(bug1.getBranches().keySet().toArray()));
-        System.out.println("Why does the last word in the set have a password val. of 2");
-
-        System.out.println("######################################################################");
+        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
+        bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);        
+        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
+        System.out.println("This set has only one word, there should be three.");
         
-        // updated branching bug
-//        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
-//        bug2 = mto.updateBranching(prefix, log, bug2, res.getPiv(), res.getSdt());        
-//        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
-//        System.out.println("This set has only one word, there should be three.");
+        System.out.println(piv);
     }
 
     private DataType getType(String name, Collection<DataType> dataTypes) {
