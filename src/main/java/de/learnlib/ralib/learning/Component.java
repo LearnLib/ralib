@@ -143,7 +143,8 @@ class Component {
     private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
         Branching b = branching.get(ps);
         SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
-        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, null, sdts);
+        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, 
+                primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
