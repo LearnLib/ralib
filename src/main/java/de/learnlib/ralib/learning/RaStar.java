@@ -93,6 +93,8 @@ public class RaStar {
 
             AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
             hyp = ab.toRegisterAutomaton();        
+            //FIXME: the default logging appender cannot log models and data structures
+            System.out.println(hyp.toString());
             log.logModel(hyp);
             
         } while (analyzeCounterExample());
@@ -109,6 +111,7 @@ public class RaStar {
     }
     
     private boolean analyzeCounterExample() {
+        log.logPhase("Analyzing Counterexample");        
         if (counterexamples.isEmpty()) {
             return false;
         }

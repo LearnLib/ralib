@@ -72,7 +72,7 @@ public class LearnLoginIOTest {
             h.setLevel(Level.FINEST);
             h.setFilter(new CategoryFilter(EnumSet.of(
                     //Category.EVENT, Category.SYSTEM)));
-                    Category.EVENT)));
+                    Category.EVENT, Category.PHASE, Category.MODEL)));
         }
 
         final ParameterizedSymbol ERROR

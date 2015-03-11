@@ -100,6 +100,7 @@ class ObservationTable {
     }
 
     private boolean checkBranchingCompleteness() {
+        log.logPhase("Checking Branching Completeness");
         boolean ret = true;
         for (Component c : components.values()) {
             boolean ub = c.updateBranching(oracle);
@@ -109,6 +110,7 @@ class ObservationTable {
     }
     
     private boolean checkVariableConsistency() {
+        log.logPhase("Checking Variable Consistency");
         for (Component c : components.values()) {
             if (!c.checkVariableConsistency()) {
                 return false;
