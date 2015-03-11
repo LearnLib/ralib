@@ -85,8 +85,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             if (!(eqSdt.canUse(deqSdt))) {
-                //log.log(Level.FINEST,"Adding if guard: " + ifG.toString());
-                //log.log(Level.FINEST,ifSdt.toString() + " not eq to " + elseSdt.toString());
+                log.log(Level.FINEST,"Adding if guard");
                 retMap.put(eqGuard, eqSdt);
                 deqList.add(eqGuard.toDeqGuard());
             }
@@ -177,21 +176,22 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         for (DataValue<T> newDv : potential) {
             log.log(Level.FINEST, newDv.toString());
 
-            // this is the valuation of the positions in the suffix
-            WordValuation ifValues = new WordValuation();
-            ifValues.putAll(values);
-            ifValues.put(pId, newDv);
-
+            
             // this is the valuation of the suffixvalues in the suffix
             SuffixValuation ifSuffixValues = new SuffixValuation();
             ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
             //ifSuffixValues.put(sv, newDv);
 
-            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, ifValues, pir);
+            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, pir);
+            log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
             diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
             //log.log(Level.FINEST,"this is the piv: " + ifPiv.toString() + " and newDv " + newDv.toString());
             //construct the equality guard
             // find the data value in the prefix
+            // this is the valuation of the positions in the suffix
+            WordValuation ifValues = new WordValuation();
+            ifValues.putAll(values);
+            ifValues.put(pId, newDv);
             SDT eqOracleSdt = oracle.treeQuery(
                     prefix, suffix, ifValues, pir, ifSuffixValues);
 
@@ -263,7 +263,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
-            int smallest = Collections.min(ifValues.getAllKeys(newDv)) + 1;
+            //log.log(Level.FINEST, "looking for smallest index of " + newDv.toString() + " in " + ifValues.toString());
+            
+            int smallest = Collections.min(ifValues.getAllKeys(newDv));
+            log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
             return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
 
