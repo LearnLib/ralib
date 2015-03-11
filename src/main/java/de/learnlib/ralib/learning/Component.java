@@ -19,6 +19,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -34,6 +35,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -227,5 +229,27 @@ class Component {
                 Arrays.toString(this.otherRows.keySet().toArray());
     }
     
+    void toString(StringBuilder sb) {
+        sb.append("********** COMPONENT: ").append(getAccessSequence()).append("\n");
+        sb.append("PIV: ").append(this.primeRow.getParsInVars()).append("\n");        
+        sb.append("******** PREFIXES: ").append("\n");
+        for (Row r : getOtherRows()) {
+            sb.append(r.getPrefix()).append("\n");
+        }
+        sb.append("******** BRANCHING: ").append("\n");
+        for (Entry<ParameterizedSymbol, Branching> b : branching.entrySet()) {
+             sb.append(b.getKey()).append(":\n");
+             for (Entry<Word<PSymbolInstance>, TransitionGuard> e : 
+                     b.getValue().getBranches().entrySet()) {
+                 sb.append(e.getKey()).append(" -> ").append(e.getValue()).append("\n");
+             }
+        }        
+        sb.append("******** ROWS: ").append("\n");
+        this.primeRow.toString(sb);
+        for (Entry<Row, VarMapping> e : otherRows.entrySet()) {
+            e.getKey().toString(sb);
+            sb.append("==== remapping: ").append(e.getValue()).append("\n");
+        }        
+    }
     
 }

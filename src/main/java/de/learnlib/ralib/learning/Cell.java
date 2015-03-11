@@ -123,6 +123,12 @@ final class Cell {
                 "\n" + this.sdt.toString();
     }
 
+    void toString(StringBuilder sb) {
+        sb.append("**** Cell: ").append(this.suffix).append(" : ").
+                append(this.parsInVars).append("\n").
+                append(this.sdt.toString()).append("\n");
+    }
+    
     Cell relabel(VarMapping relabelling) {
         return new Cell(prefix, suffix, 
                 sdt.relabel(relabelling), 

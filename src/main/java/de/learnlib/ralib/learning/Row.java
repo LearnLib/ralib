@@ -195,4 +195,11 @@ class Row {
         return this.prefix.toString();
     }
 
+    void toString(StringBuilder sb) {
+        sb.append("****** ROW: ").append(prefix).append("\n");
+        for (Entry<SymbolicSuffix, Cell> c : this.cells.entrySet()) {
+            c.getValue().toString(sb);
+        }
+    }
+    
 }

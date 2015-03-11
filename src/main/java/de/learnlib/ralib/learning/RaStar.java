@@ -91,6 +91,8 @@ public class RaStar {
             while(!(obs.complete())) {};        
             log.logPhase("completed observation table");
 
+            System.out.println(obs.toString());
+            
             AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
             hyp = ab.toRegisterAutomaton();        
             //FIXME: the default logging appender cannot log models and data structures

@@ -45,62 +45,62 @@ public class CounterexampleAnalysisTest {
     public CounterexampleAnalysisTest() {
     }
 
-    @Test
-    public void testCounterexampleAnalysis1() {
-    
-        TreeOracle mockTreeOracle = new MockTreeOracle();
-        MockSDTLogicOracle logicOracle = new MockSDTLogicOracle(false);
-        
-        final Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));  
-        
-        Hypothesis hyp = new Hypothesis(new Constants()) {
-            
-            @Override
-            public Word<PSymbolInstance> transformAccessSequence(Word<PSymbolInstance> word) {
-                return Word.epsilon();
-            }
-
-            @Override
-            public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
-                return Word.fromSymbols(
-                        new PSymbolInstance(I_LOGIN, 
-                        new DataValue(T_UID, 1),
-                        new DataValue(T_PWD, 1)));  
-            }
-                      
-        };
-        
-        final Branching b = new Branching() {
-            @Override
-            public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-                return new HashMap<Word<PSymbolInstance>,TransitionGuard>();
-            }
-        };
-        
-        Component c = new Component(Row.computeRow(
-                mockTreeOracle, Word.<PSymbolInstance>epsilon(), new ArrayList<SymbolicSuffix>()), null) {
-
-            @Override
-            Branching getBranching(ParameterizedSymbol act) {
-                return b;
-            }                
-        };
-       
-        Map<Word<PSymbolInstance>, Component> components = new HashMap<Word<PSymbolInstance>, Component>();  
-        components.put(Word.<PSymbolInstance>epsilon(), c);
-        
-        CounterexampleAnalysis ceAnalysis = new CounterexampleAnalysis(
-                mockTreeOracle, mockTreeOracle, hyp, logicOracle, components); 
-        
-        CEAnalysisResult cer = ceAnalysis.analyzeCounterexample(ce);
-        System.out.println(cer.getSuffix());
-    }
+//    @Test
+//    public void testCounterexampleAnalysis1() {
+//    
+//        TreeOracle mockTreeOracle = new MockTreeOracle();
+//        MockSDTLogicOracle logicOracle = new MockSDTLogicOracle(false);
+//        
+//        final Word<PSymbolInstance> ce = Word.fromSymbols(
+//                new PSymbolInstance(I_REGISTER, 
+//                    new DataValue(T_UID, 1),
+//                    new DataValue(T_PWD, 1)),
+//                new PSymbolInstance(I_LOGIN, 
+//                    new DataValue(T_UID, 1),
+//                    new DataValue(T_PWD, 1)));  
+//        
+//        Hypothesis hyp = new Hypothesis(new Constants()) {
+//            
+//            @Override
+//            public Word<PSymbolInstance> transformAccessSequence(Word<PSymbolInstance> word) {
+//                return Word.epsilon();
+//            }
+//
+//            @Override
+//            public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
+//                return Word.fromSymbols(
+//                        new PSymbolInstance(I_LOGIN, 
+//                        new DataValue(T_UID, 1),
+//                        new DataValue(T_PWD, 1)));  
+//            }
+//                      
+//        };
+//        
+//        final Branching b = new Branching() {
+//            @Override
+//            public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+//                return new HashMap<Word<PSymbolInstance>,TransitionGuard>();
+//            }
+//        };
+//        
+//        Component c = new Component(Row.computeRow(
+//                mockTreeOracle, Word.<PSymbolInstance>epsilon(), new ArrayList<SymbolicSuffix>()), null) {
+//
+//            @Override
+//            Branching getBranching(ParameterizedSymbol act) {
+//                return b;
+//            }                
+//        };
+//       
+//        Map<Word<PSymbolInstance>, Component> components = new HashMap<Word<PSymbolInstance>, Component>();  
+//        components.put(Word.<PSymbolInstance>epsilon(), c);
+//        
+//        CounterexampleAnalysis ceAnalysis = new CounterexampleAnalysis(
+//                mockTreeOracle, mockTreeOracle, hyp, logicOracle, components); 
+//        
+//        CEAnalysisResult cer = ceAnalysis.analyzeCounterexample(ce);
+//        System.out.println(cer.getSuffix());
+//    }
     
 
     @Test

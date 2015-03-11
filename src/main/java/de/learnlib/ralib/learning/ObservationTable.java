@@ -152,4 +152,15 @@ class ObservationTable {
         return components;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("OBS *******************************************************************\n");
+        for (Component c : getComponents().values()) {            
+            c.toString(sb);
+        } 
+        sb.append("***********************************************************************\n");
+        return sb.toString();
+    }
+    
 }
