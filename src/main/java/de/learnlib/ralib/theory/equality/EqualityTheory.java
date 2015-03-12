@@ -99,7 +99,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private PIV keepMem(Set<SDTGuard> guardSet) {
+    private PIV keepMem(Set<SDTGuard> guardSet, List<DataValue> prefixValues) {
         PIV ret = new PIV();
         for (SDTGuard mg : guardSet) {
             if (mg instanceof EqualityGuard) {
@@ -110,6 +110,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
+                //else {
+                //    assert r instanceof SuffixValue;
+                //    Register new_r = new Register(r.getType(),r.getId()+prefixValues.size());
+                //    ret.put(p, new_r);
+                //}
             }
         }
         return ret;
@@ -229,7 +234,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
 
         // only keep registers that are referenced by the merged guards
-        pir.putAll(keepMem(merged.keySet()));
+        pir.putAll(keepMem(merged.keySet(),prefixValues));
 
         log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
         //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
@@ -240,6 +245,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         tempKids.clear();
 
         SDT returnSDT = new SDT(merged);
+        // this keeps only the REGISTERS
+//        Set<Register> regs = returnSDT.getRegisters();
+//        for (Map.Entry<Parameter, Register> e : pir.entrySet()) {
+//            if (regs.contains(e.getValue())) {
+//                pir.put(e.getKey(), e.getValue());
+//            }
+//        }
         return returnSDT;
 
     }
@@ -303,6 +315,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 // trying to not pickup values from prefix
                 return prefixValues.get(idx - 1);
             } else {
+                assert ereg instanceof SuffixValue;
                 Parameter p = new Parameter(type, ereg.getId());
                 return pval.get(p);
             }

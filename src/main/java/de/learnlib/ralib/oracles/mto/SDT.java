@@ -259,7 +259,7 @@ public class SDT implements SymbolicDecisionTree {
             log.log(Level.FINEST,"regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (this.isAccepting() == other.isAccepting());
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
-            log.log(Level.FINEST,"comparing children : " + this.getChildren().toString() + "\n and " + other.getChildren().toString());
+            log.log(Level.FINEST,"comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
             boolean chiEq = this.chiCanUse((SDT) other);
             //return regEq && accEq && chiEq;

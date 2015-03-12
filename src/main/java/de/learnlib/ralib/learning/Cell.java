@@ -104,16 +104,17 @@ final class Cell {
        
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);       
         
+        // moved ugly hack to EqTheory
         // FIXME: this is a hack, piv should not accumulate the whole potential 
-        PIV piv = new PIV();
-        Set<Register> regs = tqr.getSdt().getRegisters();
-        for (Entry<Parameter, Register> e : tqr.getPiv().entrySet()) {
-            if (regs.contains(e.getValue())) {
-                piv.put(e.getKey(), e.getValue());
-            }
-        }
-        
-        Cell c = new Cell(prefix, suffix, tqr.getSdt(), piv);
+//        PIV piv = new PIV();
+//        Set<Register> regs = tqr.getSdt().getRegisters();
+//        for (Entry<Parameter, Register> e : tqr.getPiv().entrySet()) {
+//            if (regs.contains(e.getValue())) {
+//                piv.put(e.getKey(), e.getValue());
+//            }
+//        }
+//        
+        Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
         log.log(Level.FINE, "{0}", c);
         return c;
     }
