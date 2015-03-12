@@ -27,6 +27,8 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
+import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -81,7 +83,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login.xml"));
+                        "/de/learnlib/ralib/automata/xml/sip.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -126,21 +128,28 @@ public class LearnLoginIOTest {
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, actions);
 
-        IORandomWalk iowalk = new IORandomWalk(new Random(0),
+        IORandomWalk iowalk = new IORandomWalk(new Random(),
                 sul,
                 false, // do not draw symbols uniformly 
-                0.1, // reset probability 
+                0.05, // reset probability 
                 0.5, // prob. of choosing a fresh data value
                 1000, // 1000 runs 
-                100, // max depth
+                10, // max depth
                 consts,
-                true, // reset runs 
+                false, // reset runs 
                 teachers,
                 inputs);
         
         IOCounterexampleLoopRemover loops = 
                 new IOCounterexampleLoopRemover(inputs, consts, teachers, ioOracle);
 
+        IOCounterExamplePrefixReplacer asrep =
+                new IOCounterExamplePrefixReplacer(inputs, consts, teachers, ioOracle);
+                        
+        IOCounterExamplePrefixFinder pref =
+                new IOCounterExamplePrefixFinder(inputs, consts, teachers, ioOracle);
+                        
+                        
         int check = 0;
         while (true && check < 100) {
 
@@ -159,6 +168,13 @@ public class LearnLoginIOTest {
 
             ce = loops.removeLoops(ce, hyp);
             System.out.println("Shorter CE: " + ce);
+            ce = asrep.replacePrefix(ce, hyp);
+            System.out.println("New Prefix CE: " + ce);
+            ce = pref.findPrefix(ce, hyp);
+            System.out.println("Prefix of CE is CE: " + ce);
+            
+            assert ioCache.trace(ce);
+            
             rastar.addCounterexample(ce, true);
 
         }

@@ -118,7 +118,7 @@ public class SimulatorSUL implements DataWordSUL {
         int i = 0;
         for (DataType t : ps.getPtypes()) {
             Parameter p = pgen.next(t);
-            if (mapping.getFreshParameters().contains(p)) {
+            if (!mapping.getOutput().keySet().contains(p)) {
                 List<DataValue> old = computeOld(t, pval);
                 vals[i] = teachers.get(t).getFreshValue(old);
             }

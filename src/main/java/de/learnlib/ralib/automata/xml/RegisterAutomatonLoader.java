@@ -159,7 +159,8 @@ public class RegisterAutomatonLoader {
                     outputs.put(param, source);
                 }
                 
-                OutputMapping outMap = new OutputMapping(outputs);
+                //OutputMapping outMap = new OutputMapping(outputs);
+                OutputMapping outMap = new OutputMapping();                
                 OutputTransition tOut = new OutputTransition(p, outMap, ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 log.log(Level.FINEST,"Loading: " + tOut);

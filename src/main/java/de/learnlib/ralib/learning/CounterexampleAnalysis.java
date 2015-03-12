@@ -29,6 +29,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -69,6 +70,7 @@ public class CounterexampleAnalysis {
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
         
         int idx = binarySearch(ce);
+        //int idx = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
@@ -151,12 +153,48 @@ public class CounterexampleAnalysis {
         return true;
     }
     
+    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
+        
+        assert ce.length() > 1;
+        
+        IndexResult[] results = new IndexResult[ce.length()];
+        results[ce.length()-1] = IndexResult.NO_CE;
+
+        int idx = ce.length()-2;
+        
+        while (idx >= 0) {
+            IndexResult res = computeIndex(ce, idx);
+            results[idx] = res;
+            if (res != IndexResult.NO_CE) {
+                break;
+            }
+            idx--;
+        }
+        
+        assert (idx >= 0);
+        
+        // if in the last step there was no counterexample, 
+        // we have to move one step to the left
+        if (results[idx] == IndexResult.NO_CE) {
+            assert idx > 0;
+            idx--;
+        }
+        
+        // if the current index has no refinement use the 
+        // suffix of the next index
+        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+            idx++;
+        }
+
+        return idx;        
+    }
+    
     private int binarySearch(Word<PSymbolInstance> ce) {
         
         assert ce.length() > 1;
         
         IndexResult[] results = new IndexResult[ce.length()];
-        results[0] = IndexResult.HAS_CE_NO_REFINE;
+        //results[0] = IndexResult.HAS_CE_NO_REFINE;
         results[ce.length()-1] = IndexResult.NO_CE;
         
         int min = 0;
@@ -181,19 +219,24 @@ public class CounterexampleAnalysis {
         assert mid >= 0;
         
         int idx = mid;
-        // if in the last step there was no counterexample, 
-        // we have to move one step to the left
+        
+        System.out.println(Arrays.toString(results));
+        System.out.println(idx + " : " + results[idx]);
+        
         if (results[idx] == IndexResult.NO_CE) {
+            // if in the last step there was no counterexample, 
+            // we have to move one step to the left
             assert idx > 0;
             idx--;
-        }
-        
-        // if the current index has no refinement use the 
-        // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+        }      
+        else if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+            // if the current index has no refinement use the 
+            // suffix of the next index
             idx++;
         }
 
+        System.out.println("IDX: " + idx);
+        
         return idx;
     }
     

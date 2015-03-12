@@ -70,6 +70,11 @@ class Component {
      * @return true if successful
      */
     boolean addRow(Row r) {
+        
+        if (isInputComponent() == isInput(r.getPrefix().lastSymbol().getBaseSymbol())) {
+            return false;
+        }
+        
         if (!primeRow.couldBeEquivalentTo(r)) {
             return false;
         }
@@ -87,7 +92,15 @@ class Component {
     }
 
     void start(TreeOracle oracle, ParameterizedSymbol... inputs) {
+        
+        boolean input = isInputComponent();
+        
         for (ParameterizedSymbol ps : inputs) {
+            
+            if (input ^ isInput(ps)) {
+                continue;
+            }
+            
             SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
                     getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
@@ -251,6 +264,19 @@ class Component {
             e.getKey().toString(sb);
             sb.append("==== remapping: ").append(e.getValue()).append("\n");
         }        
+    }
+
+    private boolean isInputComponent() {
+        if (this.getAccessSequence().length() == 0)
+            return true;
+        
+        ParameterizedSymbol ps = this.getAccessSequence().lastSymbol().getBaseSymbol();
+        return !isInput(ps);
+    }
+
+    private boolean isInput(ParameterizedSymbol ps) {
+        //FIXME: this is a hack that has to be removed
+        return !ps.getName().startsWith("O");
     }
     
 }

@@ -46,6 +46,7 @@ public class SULOracle extends IOOracle {
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         // FIXME: this has to be checking a mapping is needed after every step!
+        countQueries(1);
         Word<PSymbolInstance> act = query;
         log.log(Level.FINEST, "MQ: {0}", query);                    
         sul.pre();
