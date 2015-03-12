@@ -22,11 +22,14 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -99,8 +102,18 @@ final class Cell {
     static Cell computeCell(TreeOracle oracle, 
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
        
-        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);        
-        Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
+        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);       
+        
+        // FIXME: this is a hack, piv should not accumulate the whole potential 
+        PIV piv = new PIV();
+        Set<Register> regs = tqr.getSdt().getRegisters();
+        for (Entry<Parameter, Register> e : tqr.getPiv().entrySet()) {
+            if (regs.contains(e.getValue())) {
+                piv.put(e.getKey(), e.getValue());
+            }
+        }
+        
+        Cell c = new Cell(prefix, suffix, tqr.getSdt(), piv);
         log.log(Level.FINE, "{0}", c);
         return c;
     }
