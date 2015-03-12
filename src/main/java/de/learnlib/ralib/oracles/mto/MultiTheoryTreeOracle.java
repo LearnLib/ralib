@@ -193,16 +193,16 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (sdts.length == 0) {
             n = createFreshNode(0, prefix, ps, piv, pval);
         } else {
-            for (SDT s : sdts) {
-                for (Register r : s.getRegisters()) {
-                    int i = r.getId();
-                    //piv.put(new Parameter(r.getType(), r.getId()), r);
-                    DataValue[] prefValues = DataWords.valsOf(prefix);
-                    if (prefValues.length != 0) {
-                        pval.put(new Parameter(r.getType(), r.getId()), prefValues[i - 1]);
-                    }
-                }
-            }
+//            for (SDT s : sdts) {
+//                for (Register r : s.getRegisters()) {
+//                    int i = r.getId();
+//                    //piv.put(new Parameter(r.getType(), r.getId()), r);
+//                    DataValue[] prefValues = DataWords.valsOf(prefix);
+//                    if (prefValues.length != 0) {
+//                        pval.put(new Parameter(r.getType(), r.getId()), prefValues[i - 1]);
+//                    }
+//                }
+//            }
             n = createNode(0, prefix, ps, piv, pval, sdts);
         }
 
