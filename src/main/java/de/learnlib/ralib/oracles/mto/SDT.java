@@ -320,5 +320,26 @@ public class SDT implements SymbolicDecisionTree {
 
         return ret;
     }
+    
+    public static SDT getFinest(SDT... sdts) {
+        return findFinest(0, Arrays.asList(sdts), sdts[0]);
+    }
+    
+    private static SDT findFinest(int i, List<SDT> sdts, SDT curr) {
+        i++;
+        if (sdts.size() == i) {
+                return curr;
+            } 
+        else {
+                SDT nxt = sdts.get(i);
+                if (curr.getChildren().size() >= nxt.getChildren().size()) {
+                    return findFinest(i, sdts, curr);
+                }
+                else {
+                    return findFinest(i, sdts, nxt);
+                }
+        }
+    }
+    
 
 }

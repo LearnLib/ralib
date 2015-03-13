@@ -21,7 +21,6 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -50,9 +49,12 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,14 +98,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         for (Register r : pir.values()) {
             rename.put(r, gen.next(r.getType()));
         }
-        
+
         PIV piv = new PIV();
         Set<Register> regs = sdt.getRegisters();
         for (Entry<Parameter, Register> e : pir.entrySet()) {
             if (regs.contains(e.getValue())) {
                 piv.put(e.getKey(), (Register) rename.get(e.getValue()));
             }
-        }        
+        }
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
         log.finer("PIV: " + piv);
 
@@ -205,12 +207,15 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             List<SDTGuard> guards, SDT... sdts) {
+        //List<Node> candidateNodes = new ArrayList<>();
         Node n;
 
         if (sdts.length == 0) {
             n = createFreshNode(0, prefix, ps, piv, pval);
+            return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
         } else {
-//            for (SDT s : sdts) {
+//            SDT s = merge(sdts);
+            //for (SDT s : sdts) {
 //                for (Register r : s.getRegisters()) {
 //                    int i = r.getId();
 //                    //piv.put(new Parameter(r.getType(), r.getId()), r);
@@ -221,9 +226,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //                }
 //            }
             n = createNode(0, prefix, ps, piv, pval, sdts);
+//            candidateNodes.add(n);
+            //new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts));
+            //           }
+            return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
         }
-
-        return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
 
     }
 
@@ -259,6 +266,89 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
     }
 
+    public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
+        Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
+        for (SymbolicDataValue s : regsAndParams) {
+            SymbolicDataValue z = s;
+            String xpre = "";
+            if (s instanceof SuffixValue) {
+                xpre = "y" + s.getId();
+                z = new Parameter(s.getType(), s.getId());
+            }
+            if (s instanceof Register) {
+                xpre = "x" + s.getId();
+            }
+//            String xname = xpre + s.getId() + "_" + s.getType().getName();
+            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
+            vars.put(z, x);
+        }
+        return vars;
+    }
+
+    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT sdt, Map<SDTGuard, SDT> giantChildMap) {
+        Map<SDTGuard, SDT> children = sdt.getChildren();
+        giantChildMap.putAll(children);
+        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+            giantChildMap.put(e.getKey(), e.getValue());
+            makeGiantSdtMap(e.getValue(), giantChildMap);
+        }
+        return giantChildMap;
+    }
+
+    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT... sdts) {
+        Map<SDTGuard, SDT> manyChildren = new LinkedHashMap<>();
+        for (SDT sdt : sdts) {
+            manyChildren.putAll(makeGiantSdtMap(sdt, manyChildren));
+        }
+        return manyChildren;
+    }
+
+    private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
+        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
+        currRegsAndParams.add(guard.getParameter());
+        if (guard instanceof SDTCompoundGuard) {
+            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
+        } else {
+            currRegsAndParams.add(((SDTIfGuard) guard).getRegister());
+        }
+        return currRegsAndParams;
+    }
+
+    private List<SDTGuard> getRefinedVersionOf(SDTGuard g, Set<SDTGuard> guards) {
+        SDTGuard guard = g;
+        Set<SDTGuard> retSet = new HashSet<>();
+        Map<SymbolicDataValue, Variable> gVars = makeVarMapping(makeVarSet(g));
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
+        for (SDTGuard n : guards) {
+            Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
+            if (mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV())) {
+                guard = g;
+                retSet.add(n);
+            } else {
+                guard = n;
+                retSet.add(g);
+            }
+
+        }
+        List<SDTGuard> retList = new ArrayList();
+        retList.add(1, guard);
+        retList.addAll(2, retSet);
+        return retList;
+    }
+
+    private Map<SDTGuard, SDT> collectKids(SDT... sdts) {
+        System.out.println("!!!!!!!!!!!!!    " + Arrays.toString(sdts));
+        Map<SDTGuard, SDT> allKids = new LinkedHashMap<>();
+        for (SDT sdt : sdts) {
+            if (sdt != null && !sdt.getChildren().isEmpty()) {
+                for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
+                    allKids.put(e.getKey(), e.getValue());
+                }
+            }
+        }
+        return allKids;
+    }
+
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
             PIV piv, ParValuation pval, SDT... sdts) {
 
@@ -270,12 +360,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Map<DataValue, Node> nextMap = new LinkedHashMap<>();
             Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
-            //for each guard in each sdt
-            for (SDT sdt : sdts) {
-                Map<SDTGuard, SDT> children = sdt.getChildren();
-                log.log(Level.FINEST, "guards are: " + children.keySet().toString());
-                for (SDTGuard guard : children.keySet()) {
-                    //if (!visited.contains(nextNode)) {
+            if (sdts.length == 1) {
+                SDT sdt = sdts[0];
+                for (SDTGuard guard : sdt.getChildren().keySet()) {
                     log.log(Level.FINEST, "processing guard: " + guard.toString());
                     //log.log(Level.FINEST,"...... wh piv is " + piv.toString());
                     Theory teach = teachers.get(type);
@@ -287,20 +374,66 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     ParValuation otherPval = new ParValuation();
                     otherPval.putAll(pval);
                     otherPval.put(p, dvi);
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, children.get(guard)));
-
-                    // another ugly hack because yuck
-                    //SDTGuard newGuard = new ElseGuard(s);
-                    //if (!guardList.isEmpty()) {
-                    //    newGuard = guardList.get(0);
-                    //}
-                    //pval.put(p,dvi);
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, sdts));
                     guardMap.put(dvi, guard);
+
                 }
+                log.log(Level.FINEST, "guardMap: " + guardMap.toString());
+                log.log(Level.FINEST, "nextMap: " + nextMap.toString());
+                return new Node(p, nextMap, guardMap);
+            } else {
+                for (int k = 0; k < sdts.length - 1; k++) {
+                    SDT curr = sdts[k];
+                    SDT[] nxt = new SDT[sdts.length - k];
+                    for (int y = k+1; y < sdts.length; y ++) {
+                        nxt[y] = sdts[y];
+                    }
+
+                    Map<SDTGuard, SDT> currChildren = curr.getChildren();
+                    Map<SDTGuard, SDT> nxtChildren = collectKids(nxt);
+
+                    log.log(Level.FINEST, "guards are: " + currChildren.keySet().toString());
+                    for (SDTGuard cGuard : currChildren.keySet()) {
+                        List<SDTGuard> guardAndFriends = getRefinedVersionOf(cGuard, nxtChildren.keySet());
+                        SDTGuard guard = guardAndFriends.get(1);
+                        List<SDTGuard> friends = new ArrayList<>();
+                        friends.addAll(2, guardAndFriends);
+                        //if (!visited.contains(nextNode)) {
+                        log.log(Level.FINEST, "processing guard: " + guard.toString());
+                        //log.log(Level.FINEST,"...... wh piv is " + piv.toString());
+                        Theory teach = teachers.get(type);
+                        //jpval.putAll(ipval);
+                        DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
+                        log.log(Level.FINEST, dvi.toString() + " maps to " + guard.toString());
+                        // try commenting out this
+                        //log.log(Level.FINEST,"dvi = " + dvi.toString());
+                        ParValuation otherPval = new ParValuation();
+                        otherPval.putAll(pval);
+                        otherPval.put(p, dvi);
+
+                        SDT[] newSdts = new SDT[friends.size()];
+                        for (int x = 0; x < newSdts.length; x++) {
+                            newSdts[x] = nxtChildren.get(friends.get(x + 1));
+                        }
+
+                        nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, newSdts));
+
+                        // another ugly hack because yuck
+                        //SDTGuard newGuard = new ElseGuard(s);
+                        //if (!guardList.isEmpty()) {
+                        //    newGuard = guardList.get(0);
+                        //}
+                        //pval.put(p,dvi);
+                        guardMap.put(dvi, guard);
+                    }
+                    //}
+                }
+                log.log(Level.FINEST, "guardMap: " + guardMap.toString());
+                log.log(Level.FINEST, "nextMap: " + nextMap.toString());
+
+                return new Node(p, nextMap, guardMap);
+
             }
-            log.log(Level.FINEST, "guardMap: " + guardMap.toString());
-            log.log(Level.FINEST, "nextMap: " + nextMap.toString());
-            return new Node(p, nextMap, guardMap);
         } else {
             return new Node(new Parameter(null, ps.getArity()));
         }
@@ -360,7 +493,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(oldBranching.getPrefix()));
+        //List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(oldBranching.getPrefix()));
 
         Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
         Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
@@ -388,7 +521,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : newBranches.entrySet()) {
             log.log(Level.FINEST, e.toString());
         }
-            // parvaluation : param to dv
+        // parvaluation : param to dv
         // piv : param to reg
         // need: varvaluation (reg to dv), parvaluation
 //        ParValuation oldPval = new ParValuation();
