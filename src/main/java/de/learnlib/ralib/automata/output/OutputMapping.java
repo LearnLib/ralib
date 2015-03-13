@@ -38,7 +38,7 @@ import java.util.Collections;
  * @author falk
  */
 public class OutputMapping  {
-    
+     
     private final Collection<Parameter> fresh;
     
     private final VarMapping<Parameter, SymbolicDataValue> piv;

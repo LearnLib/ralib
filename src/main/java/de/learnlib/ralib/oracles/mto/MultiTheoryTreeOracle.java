@@ -19,7 +19,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -32,19 +31,22 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -54,6 +56,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -87,8 +90,22 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, new SuffixValuation());
 
-        TreeQueryResult tqr = new TreeQueryResult(pir, sdt);
-        log.finer("PIV: " + pir);
+        // move registers to 1 ... n
+        VarMapping rename = new VarMapping();
+        RegisterGenerator gen = new RegisterGenerator();
+        for (Register r : pir.values()) {
+            rename.put(r, gen.next(r.getType()));
+        }
+        
+        PIV piv = new PIV();
+        Set<Register> regs = sdt.getRegisters();
+        for (Entry<Parameter, Register> e : pir.entrySet()) {
+            if (regs.contains(e.getValue())) {
+                piv.put(e.getKey(), (Register) rename.get(e.getValue()));
+            }
+        }        
+        TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
+        log.finer("PIV: " + piv);
 
         return tqr;
     }

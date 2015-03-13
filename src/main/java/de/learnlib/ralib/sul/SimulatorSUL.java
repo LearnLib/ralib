@@ -35,6 +35,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import net.automatalib.words.Word;
 
 /**
  *
@@ -59,7 +61,8 @@ public class SimulatorSUL implements DataWordSUL {
     
     private RALocation loc = null;
     private VarValuation register = null;
-
+    private Word<PSymbolInstance> prefix = null;
+    
     private static LearnLogger log = LearnLogger.getLogger(SimulatorSUL.class);
     
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
@@ -74,17 +77,21 @@ public class SimulatorSUL implements DataWordSUL {
     public void pre() {
         loc = this.model.getInitialState();
         register = new VarValuation();
+        prefix = Word.epsilon();
     }
 
     @Override
     public void post() {
         loc = null;
         register = null;
+        prefix = null;
     }
 
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         log.log(Level.FINEST, "step: {0} from {1}", new Object[] {i, loc});
+        prefix = prefix.append(i);
+        
         boolean found = false;
         for (Transition t : this.model.getTransitions(loc, i.getBaseSymbol())) {
             ParValuation pval = new ParValuation(i);
@@ -102,6 +109,7 @@ public class SimulatorSUL implements DataWordSUL {
         
         OutputTransition ot = getOutputTransition(loc, register);
         PSymbolInstance out = createOutputSymbol(ot);
+        prefix = prefix.append(out);
         
         register = ot.execute(register, new ParValuation(out), consts);
         loc = ot.getDestination();
@@ -142,12 +150,8 @@ public class SimulatorSUL implements DataWordSUL {
     }
 
     private List<DataValue> computeOld(DataType t, ParValuation pval) {
-        Set<DataValue> set = new HashSet<>();
-        for (DataValue d : register.values()){
-            if (d.getType().equals(t)) {
-                set.add(d);
-            }
-        }
+        Set<DataValue> set = new HashSet<>();        
+        set.addAll(DataWords.valSet(prefix, t));
         for (DataValue d : pval.values()){
             if (d.getType().equals(t)) {
                 set.add(d);

@@ -64,7 +64,7 @@ public class OutputTransition extends Transition {
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
         
-          // check freshness of parameters ...        
+        // check freshness of parameters ...        
         for (Parameter p : output.getFreshParameters()) {
             DataValue pval = parameters.get(p);
             if (registers.containsValue(pval) || consts.containsValue(pval)) {
