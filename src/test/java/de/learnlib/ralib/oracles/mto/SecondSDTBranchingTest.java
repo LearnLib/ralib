@@ -25,6 +25,12 @@ import de.learnlib.ralib.automata.xml.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -153,13 +159,25 @@ public class SecondSDTBranchingTest {
         
         TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
         TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
+
+        RegisterGenerator rgen = new RegisterGenerator();
+        Register r1 = rgen.next(intType);
+        Register r2 = rgen.next(intType);
+        VarMapping remap = new VarMapping();
+        remap.put(r1, r2);
+        remap.put(r2, r1);
         
-        System.out.println(tqr1.getPiv() + "\n" + tqr1.getSdt());
-        System.out.println(tqr2.getPiv() + "\n" + tqr2.getSdt());
+        PIV piv = tqr2.getPiv();
+        SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
+        SymbolicDecisionTree sdt2 = tqr2.getSdt();
+       
+        System.out.println(piv);
+        System.out.println(sdt1);
+        System.out.println(sdt2);
+     
+        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);
         
-        Branching b = mto.getInitialBranching(prefix, o100, tqr1.getPiv(), tqr1.getSdt());
-        
-        b = mto.updateBranching(prefix, o100, b, tqr2.getPiv(), tqr1.getSdt(), tqr2.getSdt());
+        b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
    
                 
         System.out.println("combined branching 1+2: ");
