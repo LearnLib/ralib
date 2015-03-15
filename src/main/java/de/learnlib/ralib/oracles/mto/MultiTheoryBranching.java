@@ -156,150 +156,152 @@ public class MultiTheoryBranching implements Branching {
 //                Node currNxt = curr.merge(nxt);
 //                return merge(i, nodes, currNxt);}
 //        }
-        
-    }
-        ;
+    };
 
     private final Word<PSymbolInstance> prefix;
 
-        private final ParameterizedSymbol action;
+    private final ParameterizedSymbol action;
 
-        private final Node node;
+    private final Node node;
 
-        private PIV piv;
+    private PIV piv;
 
-        private ParValuation pval;
+    private ParValuation pval;
 
-        private static final LearnLogger log
-                = LearnLogger.getLogger(MultiTheoryBranching.class);
+    private static final LearnLogger log
+            = LearnLogger.getLogger(MultiTheoryBranching.class);
 
-        public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
-            log.log(Level.FINEST, "ps = " + action.toString());
-            this.prefix = prefix;
-            this.action = action;
-            this.node = node;
-            this.piv = new PIV();
-            if (piv != null) {
-                this.piv.putAll(piv);
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
+        log.log(Level.FINEST, "ps = " + action.toString());
+        this.prefix = prefix;
+        this.action = action;
+        this.node = node;
+        this.piv = new PIV();
+        if (piv != null) {
+            this.piv.putAll(piv);
+        }
+        this.pval = pval;
+    }
+
+    public Word<PSymbolInstance> getPrefix() {
+        return prefix;
+    }
+
+    public ParValuation getPval() {
+        return pval;
+    }
+
+    public PIV getPiv() {
+        return piv;
+    }
+
+    public Set<SDTGuard> getGuards() {
+        return collectGuards(this.node, new HashSet<SDTGuard>());
+    }
+
+    // collects guards
+    private Set<SDTGuard> collectGuards(Node node, Set<SDTGuard> guards) {
+        if (!node.isLeaf) {
+            for (Map.Entry<DataValue, SDTGuard> e : node.guards.entrySet()) {
+                guards.add(e.getValue());
+                collectGuards(node.next.get(e.getKey()), guards);
             }
-            this.pval = pval;
         }
+        return guards;
+    }
 
-        public Word<PSymbolInstance> getPrefix() {
-            return prefix;
-        }
-
-        public ParValuation getPval() {
-            return pval;
-        }
-
-        public PIV getPiv() {
-            return piv;
-        }
-
-        public Set<SDTGuard> getGuards() {
-            return collectGuards(this.node, new HashSet<SDTGuard>());
-        }
-
-        // collects guards
-        private Set<SDTGuard> collectGuards(Node node, Set<SDTGuard> guards) {
-            if (!node.isLeaf) {
-                for (Map.Entry<DataValue, SDTGuard> e : node.guards.entrySet()) {
-                    guards.add(e.getValue());
-                    collectGuards(node.next.get(e.getKey()), guards);
-                }
-            }
-            return guards;
-        }
-
-        private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
-                Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
-                DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
-            log.log(Level.FINEST, n.toString());
-            // if we are not at a leaf
-            visited.add(n);
-            if (!n.next.isEmpty()) {
+    private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
+            Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
+            DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
+        log.log(Level.FINEST, n.toString());
+        // if we are not at a leaf
+        visited.add(n);
+        if (!n.next.isEmpty()) {
                 // get all next nodes
-                //         log.log(Level.FINEST,"next dvs: " + n.next.keySet().toString());
-                // go through each of the 'next' nodes
-                for (DataValue d : n.next.keySet()) {
-                    Node nextNode = n.next.get(d);
-                    // if the node hasn't been visited previously 
-                    if (!visited.contains(nextNode)) {
-                        SDTGuard nextGuard = n.guards.get(d);
-                        // add the node's data value to the array
-                        int dvLength = dvs.length;
-                        DataValue[] newDvs = new DataValue[dvLength + 1];
-                        System.arraycopy(dvs, 0, newDvs, 0, dvLength);
-                        newDvs[dvLength] = d;
-                        // add the guard to the guardlist
-                        List newGuards = new ArrayList<>();
-                        newGuards.addAll(guards);
-                        newGuards.add(nextGuard);
+            //         log.log(Level.FINEST,"next dvs: " + n.next.keySet().toString());
+            // go through each of the 'next' nodes
+            for (DataValue d : n.next.keySet()) {
+                Node nextNode = n.next.get(d);
+                // if the node hasn't been visited previously 
+                if (!visited.contains(nextNode)) {
+                    SDTGuard nextGuard = n.guards.get(d);
+                    // add the node's data value to the array
+                    int dvLength = dvs.length;
+                    DataValue[] newDvs = new DataValue[dvLength + 1];
+                    System.arraycopy(dvs, 0, newDvs, 0, dvLength);
+                    newDvs[dvLength] = d;
+                    // add the guard to the guardlist
+                    List newGuards = new ArrayList<>();
+                    newGuards.addAll(guards);
+                    newGuards.add(nextGuard);
                         //                  log.log(Level.FINEST,"dvs are currently " + Arrays.toString(newDvs));
-                        //                log.log(Level.FINEST,"guards are currently " + newGuards.toString());
-                        //              log.log(Level.FINEST,"marked: " + visited.size());
-                        // proceed down in the tree to the next node
-                        collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
+                    //                log.log(Level.FINEST,"guards are currently " + newGuards.toString());
+                    //              log.log(Level.FINEST,"marked: " + visited.size());
+                    // proceed down in the tree to the next node
+                    collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
 
-                    }
                 }
-
             }
-            if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
+
+        }
+        if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
                 //           log.log(Level.FINEST,"Just adding: " + Arrays.toString(dvs));
-                //dvgMap.put(dvs, toTGList(guards,0));
-                dvgMap.put(dvs, guards);
-            }
-            return dvgMap;
+            //dvgMap.put(dvs, toTGList(guards,0));
+            dvgMap.put(dvs, guards);
         }
+        return dvgMap;
+    }
 
-        private Expression<Boolean> toPC(List<Expression<Boolean>> gList, int i) {
-            if (gList.size() == i + 1) {
-                return gList.get(i);
-            } else {
-                return new PropositionalCompound(gList.get(i), LogicalOperator.AND, toPC(gList, i + 1));
-            }
+    private Expression<Boolean> toPC(List<Expression<Boolean>> gList, int i) {
+        if (gList.size() == i + 1) {
+            return gList.get(i);
+        } else {
+            return new PropositionalCompound(gList.get(i), LogicalOperator.AND, toPC(gList, i + 1));
         }
+    }
 
-       
-
-        private TransitionGuard toTG(Expression<Boolean> guard, Map<SymbolicDataValue, Variable> variables) {
+    private TransitionGuard toTG(Expression<Boolean> guard, Map<SymbolicDataValue, Variable> variables) {
+        if (guard == null) {
+            return new IfGuard(
+                    new DataExpression<Boolean>(ExpressionUtil.TRUE,
+                            new LinkedHashMap<SymbolicDataValue, Variable>()));
+        } else {
             DataExpression<Boolean> cond = new DataExpression<>(guard, variables);
             return new IfGuard(cond);
         }
-//        // 1. Create a list of expressions.
-//        List<
-//        SDTGuard sdtGuard = guardList.get(i);
-//        if (sdtGuard instanceof SDTElseGuard) {
-//            
-//        }
-//            return thisExpr;
-//        } else {
-//            return new PropositionalCompound(thisExpr, LogicalOperator.AND, makeExpr(guardList, i + 1));
-//        }
-//    }        
+    }
+        //        // 1. Create a list of expressions.
+        //        List<
+        //        SDTGuard sdtGuard = guardList.get(i);
+        //        if (sdtGuard instanceof SDTElseGuard) {
+        //            
+        //        }
+        //            return thisExpr;
+        //        } else {
+        //            return new PropositionalCompound(thisExpr, LogicalOperator.AND, makeExpr(guardList, i + 1));
+        //        }
+        //    }        
 
-//    
+        //    
         //      Map<DataValue[], List<SDTGuard>> psMap = collectDataValuesAndGuards(this.node, new LinkedHashMap<DataValue[],List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(), new ArrayList<Node>());
-////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
-////        for (DataValue[] d : psList) {
-////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
-////        }
-//        for (DataValue[] d : psMap.keySet()) {
-//            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
-//        }
-// for each next-node
-//        Set<Word<PSymbolInstance>> words = new HashSet<>();
-//        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new LinkedHashMap<>();
-//        for (DataValue d : this.node.guards.keySet()) {
-//            
-//        }
-//  
+        ////        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
+        ////        for (DataValue[] d : psList) {
+        ////            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+        ////        }
+        //        for (DataValue[] d : psMap.keySet()) {
+        //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
+        //        }
+        // for each next-node
+        //        Set<Word<PSymbolInstance>> words = new HashSet<>();
+        //        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new LinkedHashMap<>();
+        //        for (DataValue d : this.node.guards.keySet()) {
+        //            
+        //        }
+        //  
         //    return branches;  
         //}
         
-        private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
+    private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
         Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
         currRegsAndParams.add(guard.getParameter());
         if (guard instanceof SDTCompoundGuard) {
@@ -309,48 +311,47 @@ public class MultiTheoryBranching implements Branching {
         }
         return currRegsAndParams;
     }
-        
-        
-        private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
-            Set<SymbolicDataValue> regsAndParams = new HashSet<>();
-            for (DataValue[] dvs : guardMap.keySet()) {
-                for (SDTGuard guard : guardMap.get(dvs)) {
-                    regsAndParams.add(guard.getParameter());
-                    if (guard instanceof SDTIfGuard) {
-                        regsAndParams.add(((SDTIfGuard) guard).getRegister());
-                    } //else if (guard instanceof SDTElseGuard) {
-                    //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
-                    //} 
-                    else if (guard instanceof SDTCompoundGuard) {
-                        for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
-                            regsAndParams.add(ifGuard.getRegister());
-                        }
+
+    private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
+        Set<SymbolicDataValue> regsAndParams = new HashSet<>();
+        for (DataValue[] dvs : guardMap.keySet()) {
+            for (SDTGuard guard : guardMap.get(dvs)) {
+                regsAndParams.add(guard.getParameter());
+                if (guard instanceof SDTIfGuard) {
+                    regsAndParams.add(((SDTIfGuard) guard).getRegister());
+                } //else if (guard instanceof SDTElseGuard) {
+                //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
+                //} 
+                else if (guard instanceof SDTCompoundGuard) {
+                    for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
+                        regsAndParams.add(ifGuard.getRegister());
                     }
                 }
-
             }
-            return regsAndParams;
 
         }
-        
-        public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
+        return regsAndParams;
+
+    }
+
+    public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
         Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
-            for (SymbolicDataValue s : regsAndParams) {
-                SymbolicDataValue z = s;
-                String xpre = "";
-                if (s instanceof SymbolicDataValue.SuffixValue) {
-                    xpre = "y" + s.getId();
-                    z = new Parameter(s.getType(), s.getId());
-                }
-                if (s instanceof SymbolicDataValue.Register) {
-                    xpre = "x" + s.getId();
-                }
-//            String xname = xpre + s.getId() + "_" + s.getType().getName();
-                Variable x = new Variable(BuiltinTypes.SINT32, xpre);
-                vars.put(z, x);
+        for (SymbolicDataValue s : regsAndParams) {
+            SymbolicDataValue z = s;
+            String xpre = "";
+            if (s instanceof SymbolicDataValue.SuffixValue) {
+                xpre = "y" + s.getId();
+                z = new Parameter(s.getType(), s.getId());
             }
-            return vars;
+            if (s instanceof SymbolicDataValue.Register) {
+                xpre = "x" + s.getId();
+            }
+//            String xname = xpre + s.getId() + "_" + s.getType().getName();
+            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
+            vars.put(z, x);
         }
+        return vars;
+    }
 
 //    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
 //        Set<Register> regs = new HashSet<>();
@@ -380,34 +381,34 @@ public class MultiTheoryBranching implements Branching {
 //        }
 //        return params;
 //    }
-        @Override
-        public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+    @Override
+    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-            log.log(Level.FINEST, "get branches for " + this.action.toString());
+        log.log(Level.FINEST, "get branches for " + this.action.toString());
 
-            Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
+        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
-            if (this.action.getArity() == 0) {
-                TransitionGuard tg = new IfGuard(
-                        new DataExpression<Boolean>(ExpressionUtil.TRUE,
-                                new LinkedHashMap<SymbolicDataValue, Variable>()));
-                PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
-                branches.put(prefix.append(psi), tg);
-                return branches;
-            }
+        if (this.action.getArity() == 0) {
+            TransitionGuard tg = new IfGuard(
+                    new DataExpression<Boolean>(ExpressionUtil.TRUE,
+                            new LinkedHashMap<SymbolicDataValue, Variable>()));
+            PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
+            branches.put(prefix.append(psi), tg);
+            return branches;
+        }
 
-            Map<DataValue[], List<SDTGuard>> tempMap
-                    = collectDataValuesAndGuards(
-                            this.node, new LinkedHashMap<DataValue[], List<SDTGuard>>(),
-                            new DataValue[0], new ArrayList<SDTGuard>(),
-                            new ArrayList<Node>());
+        Map<DataValue[], List<SDTGuard>> tempMap
+                = collectDataValuesAndGuards(
+                        this.node, new LinkedHashMap<DataValue[], List<SDTGuard>>(),
+                        new DataValue[0], new ArrayList<SDTGuard>(),
+                        new ArrayList<Node>());
 //        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
 //        for (DataValue[] d : psList) {
 //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
 //        
-            Set<SymbolicDataValue> regsAndParams = collectRegsAndParams(tempMap);
+        Set<SymbolicDataValue> regsAndParams = collectRegsAndParams(tempMap);
 
-            Map<SymbolicDataValue, Variable> vars = makeVarMapping(regsAndParams);
+        Map<SymbolicDataValue, Variable> vars = makeVarMapping(regsAndParams);
 //            new LinkedHashMap<SymbolicDataValue, Variable>();
 //            for (SymbolicDataValue s : regsAndParams) {
 //                SymbolicDataValue z = s;
@@ -424,29 +425,27 @@ public class MultiTheoryBranching implements Branching {
 //                vars.put(z, x);
 //            }
 
-            log.log(Level.FINEST, "Vars =     " + vars.toString());
+        log.log(Level.FINEST, "Vars =     " + vars.toString());
 
-            for (DataValue[] dvs : tempMap.keySet()) {
-                List<Expression<Boolean>> gExpr = new ArrayList<>();
-                List<SDTGuard> gList = tempMap.get(dvs);
-                for (SDTGuard g : gList) {
-                    if (!(g.toExpr() == null)) {
-                        gExpr.add(g.toExpr());
-                    }
-                }
-                //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
-                //log.log(Level.FINEST,"psWord = " + psWord.toString());
-                TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
-                branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
-                //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
+        for (DataValue[] dvs : tempMap.keySet()) {
+            List<Expression<Boolean>> gExpr = new ArrayList<>();
+            List<SDTGuard> gList = tempMap.get(dvs);
+            for (SDTGuard g : gList) {
+                gExpr.add(g.toExpr());
             }
-
-            return branches;
+                //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
+            //log.log(Level.FINEST,"psWord = " + psWord.toString());
+            TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
+            branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
+            //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
         }
 
-        @Override
-        public String toString() {
-            return "---- Branching for " + action.toString() + " after " + prefix.toString() + " ----\n" + node.toString() + "\n-------------------------------------------------------------------------------------";
-        }
-
+        return branches;
     }
+
+    @Override
+    public String toString() {
+        return "---- Branching for " + action.toString() + " after " + prefix.toString() + " ----\n" + node.toString() + "\n-------------------------------------------------------------------------------------";
+    }
+
+}
