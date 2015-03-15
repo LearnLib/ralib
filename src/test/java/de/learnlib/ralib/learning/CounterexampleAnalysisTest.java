@@ -20,20 +20,20 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.automata.guards.ElseGuard;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.learning.ces.MockSDTLogicOracle;
 import de.learnlib.ralib.learning.ces.MockTreeOracle;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.HashMap;
-import java.util.Map;
-import net.automatalib.words.Word;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 /**
@@ -147,7 +147,7 @@ public class CounterexampleAnalysisTest {
         final Branching b = new Branching() {
             @Override
             public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-                Map<Word<PSymbolInstance>, TransitionGuard> map = new HashMap<Word<PSymbolInstance>, TransitionGuard>();
+                Map<Word<PSymbolInstance>, TransitionGuard> map = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
                 map.put(transId, new ElseGuard());
                 return map;
             }
@@ -162,7 +162,7 @@ public class CounterexampleAnalysisTest {
             }                
         };
        
-        Map<Word<PSymbolInstance>, Component> components = new HashMap<Word<PSymbolInstance>, Component>();  
+        Map<Word<PSymbolInstance>, Component> components = new LinkedHashMap<Word<PSymbolInstance>, Component>();  
         components.put(locId, c);
         
         CounterexampleAnalysis ceAnalysis = new CounterexampleAnalysis(

@@ -19,7 +19,8 @@
 
 package de.learnlib.ralib.learning;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.logging.Category;
+import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
@@ -36,15 +37,14 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.automatalib.words.Word;
-import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
@@ -60,9 +60,12 @@ public class LearnLoginTest {
     public void learnLoginExample() {
         
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
+        root.setLevel(Level.FINEST);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
+            h.setLevel(Level.FINEST);
+            h.setFilter(new CategoryFilter(EnumSet.of(
+//                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
+                    Category.EVENT, Category.PHASE, Category.MODEL)));
         }
         
         Constants consts = new Constants();

@@ -34,8 +34,6 @@ import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -55,7 +53,6 @@ import java.util.Random;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 /**
@@ -84,7 +81,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login.xml"));
+                        "/de/learnlib/ralib/automata/xml/sip.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -99,13 +96,22 @@ public class LearnLoginIOTest {
 
         Constants consts = loader.getConstants();
 
+        long seed = 1423423204823000L; //-3921391701929787366L;// (new Random()).nextLong();
+        System.out.println("SEED=" + seed);
+        final Random random = new Random(seed);
+        
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory() {
+            teachers.put(t, new EqualityTheory<Integer>() {
                 @Override
-                public DataValue getFreshValue(List vals) {
+                public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
-                    return new DataValue(t, vals.size());
+                    int dv = -1;
+                    for (DataValue<Integer> d : vals) {
+                        dv = Math.max(dv, d.getId());
+                    }
+                        
+                    return new DataValue(t, dv + 1);
                 }
             });
         }
@@ -131,10 +137,8 @@ public class LearnLoginIOTest {
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
-        long seed = 1423423204823000L; //-3921391701929787366L;// (new Random()).nextLong();
-        System.out.println("SEED=" + seed);
               
-        IORandomWalk iowalk = new IORandomWalk(new Random(seed),
+        IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
                 false, // do not draw symbols uniformly 
                 0.05, // reset probability 
