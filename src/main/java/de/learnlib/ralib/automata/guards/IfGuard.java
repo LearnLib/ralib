@@ -36,6 +36,7 @@ public class IfGuard implements TransitionGuard {
     private final DataExpression<Boolean> condition;
 
     public IfGuard(DataExpression<Boolean> condition) {
+        assert condition != null;
         this.condition = condition;
     }
     

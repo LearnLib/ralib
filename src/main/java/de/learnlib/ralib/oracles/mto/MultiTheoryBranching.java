@@ -425,19 +425,30 @@ public class MultiTheoryBranching implements Branching {
 //                vars.put(z, x);
 //            }
 
-        log.log(Level.FINEST, "Vars =     " + vars.toString());
-
-        for (DataValue[] dvs : tempMap.keySet()) {
-            List<Expression<Boolean>> gExpr = new ArrayList<>();
-            List<SDTGuard> gList = tempMap.get(dvs);
-            for (SDTGuard g : gList) {
-                gExpr.add(g.toExpr());
-            }
+            log.log(Level.FINEST, "Vars =     " + vars.toString());
+            IfGuard check = null;
+            
+            for (DataValue[] dvs : tempMap.keySet()) {
+                List<Expression<Boolean>> gExpr = new ArrayList<>();
+                List<SDTGuard> gList = tempMap.get(dvs);
+                for (SDTGuard g : gList) {
+                    if (!(g.toExpr() == null)) {
+                        gExpr.add(g.toExpr());
+                    }
+                }
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
-            //log.log(Level.FINEST,"psWord = " + psWord.toString());
-            TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
-            branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
-            //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
+                //log.log(Level.FINEST,"psWord = " + psWord.toString());
+                TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
+                assert tg != null;
+                check = (IfGuard) tg;
+                branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
+                //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
+                System.out.println("G: " + tg);
+            }
+
+            assert branches.size() > 1 || check.toString().contains("[true]");
+            
+            return branches;
         }
 
         return branches;
