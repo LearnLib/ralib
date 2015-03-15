@@ -19,7 +19,6 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.Category;
-import de.learnlib.logging.LLConsoleFormatter;
 import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;

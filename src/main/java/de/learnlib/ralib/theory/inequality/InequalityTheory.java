@@ -260,16 +260,16 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //            return (rvPos1 < rvPos2) ? rvPos1 : rvPos2;
 //        }
 //    }
-    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
-        log.log(Level.FINEST,dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = " + curVal.toString());
-        Integer rvPos = preVal.getOneKey(dv);
-        if (rvPos != null) {
-            return rvPos;
-        } else {
-            List<Integer> rvPositions = new ArrayList(curVal.getAllKeys(dv));
-            return Collections.min(rvPositions) + preVal.size();
-        }
-    }
+//    private int getFirstOcc(WordValuation preVal, WordValuation curVal, DataValue<T> dv) {
+//        log.log(Level.FINEST,dv.toString() + " should be in preVal = " + preVal.toString() + " or in curVal = " + curVal.toString());
+//        Integer rvPos = preVal.getOneKey(dv);
+//        if (rvPos != null) {
+//            return rvPos;
+//        } else {
+//            List<Integer> rvPositions = new ArrayList(curVal.getAllKeys(dv));
+//            return Collections.min(rvPositions) + preVal.size();
+//        }
+//    }
 
     @Override
     public SDT treeQuery(

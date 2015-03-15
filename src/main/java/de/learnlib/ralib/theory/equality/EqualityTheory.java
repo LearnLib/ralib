@@ -96,6 +96,18 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         retMap.put(retDeqGuard, deqSdt);
         return retMap;
     }
+            
+//    private Map<SDTGuard,SDT> truify(Map<SDTGuard,SDT> untrue) {
+//        Map<SDTGuard,SDT> trueMap = new LinkedHashMap<SDTGuard, SDT>();
+//        for (Map.Entry<SDTGuard, SDT> e: untrue.entrySet()) {
+//            SDTGuard guard = e.getKey();
+//            if (guard instanceof SDTCompoundGuard 
+//                    && ((SDTCompoundGuard) guard).getGuards().isEmpty()) {
+//                trueMap.add()
+//                
+//            }
+//        }
+//    }
 
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
@@ -304,13 +316,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //    log.log(Level.FINEST,"pval says " + pval.get(param).toString());
             //    return pval.get(param);
             //} else {
-            log.log(Level.FINEST, "" + param);
                 //log.log(Level.FINEST,"piv = " + piv.toString());
             //log.log(Level.FINEST,"piv says " + piv.get((Parameter)param).toString());
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg instanceof Register) {
-                int idx = piv.getOneKey( (Register)ereg).getId();
+                            log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
+                Parameter p = piv.getOneKey((Register)ereg);
+                            log.log(Level.FINEST, "p: )" + p.toString());
+                int idx = p.getId();
                 //return piv.get(param);
                 // trying to not pickup values from prefix
                 return prefixValues.get(idx - 1);

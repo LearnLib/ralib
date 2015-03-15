@@ -54,7 +54,10 @@ public class SDTCompoundGuard extends SDTGuard {
     }
 
     private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
-        if (eqList.size() == i + 1) {
+        if (eqList.size() == 0) {
+            return ExpressionUtil.TRUE;
+        }
+        else if (eqList.size() == i + 1) {
             return eqList.get(i);
         } else {
             return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));

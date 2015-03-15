@@ -37,6 +37,9 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -49,6 +52,13 @@ public class TestEqualityTheory {
     
     @Test
     public void testLoginExample1() {
+        
+                Logger root = Logger.getLogger("");
+        root.setLevel(Level.ALL);
+        for (Handler h : root.getHandlers()) {
+            h.setLevel(Level.ALL);
+        }
+
     
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
             

@@ -170,15 +170,17 @@ public class MultiSDTBranchingTest {
         
         Branching b = mto.getInitialBranching(prefix, o100, tqr1.getPiv(), tqr1.getSdt(), tqr2.getSdt());
         
-        System.out.println("Branching 1:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b1.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+//        System.out.println("Branching 1:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b1.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        
+//        System.out.println("Branching 2:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b2.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//      
         
-        System.out.println("Branching 2:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b2.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
         
         System.out.println("combined branching 1+2: ");
         for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b.getBranches().entrySet()) {

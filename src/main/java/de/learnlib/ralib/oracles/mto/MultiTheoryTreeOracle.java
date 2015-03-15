@@ -331,8 +331,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         }
         List<SDTGuard> retList = new ArrayList();
-        retList.add(1, guard);
-        retList.addAll(2, retSet);
+        retList.add(guard);
+        System.out.println("!!!!!!! retList " + retList.toString());
+        System.out.println("!!!!!!! retSet " + retSet.toString());
+        retList.addAll(retSet);
         return retList;
     }
 
@@ -356,13 +358,16 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             DataType type = ps.getPtypes()[i];
             log.log(Level.FINEST, "current type: " + type.getName());
             int j = i + 1;
+            int numSdts = sdts.length;
             Parameter p = new Parameter(type, j);
             Map<DataValue, Node> nextMap = new LinkedHashMap<>();
             Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
-
-            if (sdts.length == 1) {
+            log.log(Level.FINEST, "number of sdts: " + numSdts);
+                    
+            if (numSdts == 1) {
                 SDT sdt = sdts[0];
-                for (SDTGuard guard : sdt.getChildren().keySet()) {
+                for (Map.Entry<SDTGuard,SDT> e : sdt.getChildren().entrySet()) {
+                    SDTGuard guard = e.getKey();
                     log.log(Level.FINEST, "processing guard: " + guard.toString());
                     //log.log(Level.FINEST,"...... wh piv is " + piv.toString());
                     Theory teach = teachers.get(type);
@@ -374,7 +379,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     ParValuation otherPval = new ParValuation();
                     otherPval.putAll(pval);
                     otherPval.put(p, dvi);
-                    nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, sdts));
+                    nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, e.getValue()));
                     guardMap.put(dvi, guard);
 
                 }
@@ -382,22 +387,31 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 log.log(Level.FINEST, "nextMap: " + nextMap.toString());
                 return new Node(p, nextMap, guardMap);
             } else {
-                for (int k = 0; k < sdts.length - 1; k++) {
+                for (int k = 0; k < numSdts - 1; k++) {
+                    int l = k+1;
                     SDT curr = sdts[k];
-                    SDT[] nxt = new SDT[sdts.length - k];
-                    for (int y = k+1; y < sdts.length; y ++) {
-                        nxt[y] = sdts[y];
+                    SDT[] nxt = new SDT[numSdts - l];
+                    for (int y = l; y < numSdts; y ++) {
+                        nxt[y-l] = sdts[y];
                     }
+                    
+                    log.log(Level.FINEST, "current: " + curr.toString() +  "\nnext: " + nxt[0].toString());
+                    
 
                     Map<SDTGuard, SDT> currChildren = curr.getChildren();
                     Map<SDTGuard, SDT> nxtChildren = collectKids(nxt);
 
                     log.log(Level.FINEST, "guards are: " + currChildren.keySet().toString());
-                    for (SDTGuard cGuard : currChildren.keySet()) {
+                    for (Map.Entry<SDTGuard,SDT> e : currChildren.entrySet()) {
+                        SDTGuard cGuard = e.getKey();
                         List<SDTGuard> guardAndFriends = getRefinedVersionOf(cGuard, nxtChildren.keySet());
-                        SDTGuard guard = guardAndFriends.get(1);
-                        List<SDTGuard> friends = new ArrayList<>();
-                        friends.addAll(2, guardAndFriends);
+                        log.log(Level.FINEST, "guard and friends: " + guardAndFriends.toString());
+                        SDTGuard guard = guardAndFriends.get(0);
+                        log.log(Level.FINEST,"!!!! guard is: " + guard.toString());
+                        List<SDTGuard> friends = new ArrayList<>(guardAndFriends.subList(1, guardAndFriends.size()));
+                        log.log(Level.FINEST,"!!!! guard and friends: " + guardAndFriends.toString());
+                        
+                        friends.addAll(guardAndFriends);
                         //if (!visited.contains(nextNode)) {
                         log.log(Level.FINEST, "processing guard: " + guard.toString());
                         //log.log(Level.FINEST,"...... wh piv is " + piv.toString());
@@ -413,7 +427,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
                         SDT[] newSdts = new SDT[friends.size()];
                         for (int x = 0; x < newSdts.length; x++) {
-                            newSdts[x] = nxtChildren.get(friends.get(x + 1));
+                            newSdts[x] = nxtChildren.get(friends.get(x));
                         }
 
                         nextMap.put(dvi, createNode(j, prefix, ps, piv, otherPval, newSdts));

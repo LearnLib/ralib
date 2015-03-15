@@ -125,18 +125,5 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         return toString(">");
     }
         
-    //FIXME: this method is bogus. There may be more than one value.
-    public K getOneKey(V value) {
-        K retKey = null;
-        for (K key : this.keySet()) {
-            //log.log(Level.FINEST,"key = " + K);
-            //log.log(Level.FINEST,"value = " + this.get(key).toString());
-            if (this.get(key).equals(value)){
-                //log.log(Level.FINEST,this.get(key).toString() + " equals " + value.toString());
-                retKey = key;
-                break;
-            }
-        }   
-        return retKey;
-    }
+    
 }
