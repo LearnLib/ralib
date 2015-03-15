@@ -283,6 +283,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //} else {
             newDv_r = new Register(type, newDv_i);
             //}
+            log.log(Level.FINEST, "current param = " + currentParam.toString());
+            log.log(Level.FINEST, "New register = " + newDv_r.toString());
             return new EqualityGuard(currentParam, newDv_r);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix

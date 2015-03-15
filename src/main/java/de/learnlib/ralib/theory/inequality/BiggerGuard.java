@@ -78,5 +78,17 @@ public class BiggerGuard extends SDTIfGuard {
     public SDTIfGuard relabel(VarMapping relabelling) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public boolean equals(SDTGuard other) {
+        if (!(other instanceof BiggerGuard)) {
+            return false;
+        }
+        else {
+            BiggerGuard _other = (BiggerGuard) other;
+            return (_other.getParameter().equals(this.getParameter()) &&
+                    _other.getRegister().equals(this.getRegister()));
+    }
+    }
     
 }

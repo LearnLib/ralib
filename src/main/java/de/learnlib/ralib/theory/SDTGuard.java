@@ -86,4 +86,7 @@ public abstract class SDTGuard {
     public abstract Expression<Boolean> toExpr();
     
     public abstract SDTGuard relabel(VarMapping relabelling);
+
+    public abstract boolean equals(SDTGuard other);
+    
 }

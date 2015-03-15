@@ -512,6 +512,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
         Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
 
+        System.out.println( ">>>>Updating old branching: " + oldBranching.toString());
+        System.out.println( ".... according to new SDT: " + newBranching.toString());
+        
+        
         assert oldBranches.size() <= newBranches.size();
         if (oldBranches.isEmpty()) {
             if (newBranches.isEmpty()) {
@@ -529,8 +533,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         Branching updatedBranching = getInitialBranching(oldBranching.getPrefix(), ps, piv, sdts);
 
-        log.log(Level.FINEST, ">>>>Updating old branching: " + oldBranching.toString());
-        log.log(Level.FINEST, ".... according to new SDT: " + newBranching.toString());
         log.log(Level.FINEST, ".... where the new branches are: ");
         for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : newBranches.entrySet()) {
             log.log(Level.FINEST, e.toString());

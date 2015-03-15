@@ -11,6 +11,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -73,6 +74,18 @@ public class SDTCompoundGuard extends SDTGuard {
         else {
             return toExpr(thisList, 0);
         }
+    }
+    
+    @Override
+    public boolean equals(SDTGuard other) {
+        if (!(other instanceof SDTCompoundGuard)) {
+            return false;
+        }
+        else {
+            SDTCompoundGuard _other = (SDTCompoundGuard) other;
+            return (_other.getParameter().equals(this.getParameter()) &&
+                    _other.getGuards().equals(this.getGuards()));
+    }
     }
 
     @Override

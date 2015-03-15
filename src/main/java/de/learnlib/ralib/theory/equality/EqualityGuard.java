@@ -29,6 +29,7 @@ import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -105,6 +106,19 @@ public class EqualityGuard extends SDTIfGuard {
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(this.getParameter(), this.getRegister());
     }
+    
+    @Override
+    public boolean equals(SDTGuard other) {
+        if (!(other instanceof EqualityGuard)) {
+            return false;
+        }
+        else {
+            EqualityGuard _other = (EqualityGuard) other;
+            return (_other.getParameter().equals(this.getParameter()) &&
+                    _other.getRegister().equals(this.getRegister()));
+    }
+    }
+    
     
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {

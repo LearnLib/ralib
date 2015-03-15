@@ -9,6 +9,7 @@ import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -46,6 +47,17 @@ public class SDTTrueGuard extends SDTGuard {
             return new SDTTrueGuard(sv);
         }
         return this;
+    }
+    
+    @Override
+    public boolean equals(SDTGuard other) {
+        if (!(other instanceof SDTTrueGuard)) {
+            return false;
+        }
+        else {
+            SDTTrueGuard _other = (SDTTrueGuard) other;
+            return (_other.getParameter().equals(this.getParameter()));
+    }
     }
 
 }
