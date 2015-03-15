@@ -25,8 +25,6 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;

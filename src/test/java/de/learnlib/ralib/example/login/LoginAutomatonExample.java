@@ -96,25 +96,25 @@ public final class LoginAutomatonExample {
                 LogicalOperator.AND, 
                 new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
         
-        Map<SymbolicDataValue, Variable> mapping = new HashMap<>();
+        Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
         mapping.put(rUid, x1);
         mapping.put(rPwd, x2);
         mapping.put(pUid, p1);
         mapping.put(pPwd, p2);
                 
         DataExpression<Boolean> condition = 
-                new DataExpression<>(expression, mapping);
+                new DataExpression<Boolean>(expression, mapping);
         
         IfGuard   okGuard    = new IfGuard(condition);
         ElseGuard errorGuard = new ElseGuard(Collections.singleton(okGuard));
         ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
         
         // assignments
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
         copyMapping.put(rUid, rUid);
         copyMapping.put(rPwd, rPwd);
         
-        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<>();
+        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
         storeMapping.put(rUid, pUid);
         storeMapping.put(rPwd, pPwd);
         

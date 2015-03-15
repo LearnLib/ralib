@@ -115,7 +115,7 @@ public class LearnLoginTest {
                 new PSymbolInstance(I_LOGIN, 
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
     
-        rastar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        rastar.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, sul.accepts(ce)));
     
         rastar.learn();        
         hyp = rastar.getHypothesis();        

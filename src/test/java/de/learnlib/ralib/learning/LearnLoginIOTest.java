@@ -99,7 +99,7 @@ public class LearnLoginIOTest {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new HashMap<>();
+        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory() {
                 @Override
