@@ -315,27 +315,32 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private List<SDTGuard> getRefinedVersionOf(SDTGuard g, Set<SDTGuard> guards) {
+        if (guards.contains(g)) {
+            log.log(Level.FINEST, "!!!!!!! " + g.toString() + " is in  " + guards.toString());
+            guards.remove(g);
+        }
         SDTGuard guard = g;
         Set<SDTGuard> retSet = new HashSet<>();
         Map<SymbolicDataValue, Variable> gVars = makeVarMapping(makeVarSet(g));
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
         for (SDTGuard n : guards) {
             Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
-                if (mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV())) {
-                    log.log(Level.FINEST,"!!!!!!! " + g.toString() + " refines " + n.toString());
+            
+            if (mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV())) {
+                    log.log(Level.FINEST, "!!!!!!! " + g.toString() + " refines " + n.toString());
                     guard = g;
                     retSet.add(n);
-                    if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
-                        throw new IllegalStateException("Can't refine in the wrong direction");
-                    }
+                    //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
+                    //    throw new IllegalStateException("Can't refine in the wrong direction");
+                    //}
                 } else { //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
-                    log.log(Level.FINEST,"!!!!!!! " + n.toString() + " refines " + g.toString());
+                    log.log(Level.FINEST, "!!!!!!! " + n.toString() + " refines " + g.toString());
                     guard = n;
                     retSet.add(g);
                 }
-            
+                
+            }
 
-        }
         List<SDTGuard> retList = new ArrayList();
 
         retList.add(guard);
@@ -349,7 +354,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Map<SDTGuard, SDT> collectKids(SDT... sdts) {
-        log.log(Level.FINEST,"!!!!!!!!!!!!!    " + Arrays.toString(sdts));
+        log.log(Level.FINEST, "!!!!!!!!!!!!!    " + Arrays.toString(sdts));
         Map<SDTGuard, SDT> allKids = new LinkedHashMap<>();
         for (SDT sdt : sdts) {
             if (sdt != null && !sdt.getChildren().isEmpty()) {
