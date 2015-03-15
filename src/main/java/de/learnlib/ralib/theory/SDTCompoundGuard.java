@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class SDTCompoundGuard extends SDTGuard {
@@ -30,6 +31,28 @@ public class SDTCompoundGuard extends SDTGuard {
     
     public List<SDTIfGuard> getGuards() {
         return guards;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SDTCompoundGuard other = (SDTCompoundGuard) obj;
+        if (!Objects.equals(this.guards, other.guards)) {
+            return false;
+        }
+        return super.equals(obj) && true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.guards);
+        return hash;
     }
     
     public Set<SymbolicDataValue> getAllRegs() {
@@ -76,18 +99,7 @@ public class SDTCompoundGuard extends SDTGuard {
         }
     }
     
-    @Override
-    public boolean equals(SDTGuard other) {
-        if (!(other instanceof SDTCompoundGuard)) {
-            return false;
-        }
-        else {
-            SDTCompoundGuard _other = (SDTCompoundGuard) other;
-            return (_other.getParameter().equals(this.getParameter()) &&
-                    _other.getGuards().equals(this.getGuards()));
-    }
-    }
-
+    
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         Expression<Boolean> expr = toExpr(this.toExprList(), 0);

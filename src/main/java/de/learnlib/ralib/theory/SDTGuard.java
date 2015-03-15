@@ -13,6 +13,7 @@ import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -87,6 +88,23 @@ public abstract class SDTGuard {
     
     public abstract SDTGuard relabel(VarMapping relabelling);
 
-    public abstract boolean equals(SDTGuard other);
-    
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.parameter);
+        return hash;
+    }
+
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        
+        final SDTGuard other = (SDTGuard) obj;
+        if (!Objects.equals(this.parameter, other.parameter)) {
+            return false;
+        }
+        return true;
+    }
+
 }

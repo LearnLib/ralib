@@ -36,6 +36,7 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -106,19 +107,7 @@ public class EqualityGuard extends SDTIfGuard {
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(this.getParameter(), this.getRegister());
     }
-    
-    @Override
-    public boolean equals(SDTGuard other) {
-        if (!(other instanceof EqualityGuard)) {
-            return false;
-        }
-        else {
-            EqualityGuard _other = (EqualityGuard) other;
-            return (_other.getParameter().equals(this.getParameter()) &&
-                    _other.getRegister().equals(this.getRegister()));
-    }
-    }
-    
+
     
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {

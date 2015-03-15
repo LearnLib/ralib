@@ -75,15 +75,5 @@ public class SmallerGuard extends SDTIfGuard {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    @Override
-    public boolean equals(SDTGuard other) {
-        if (!(other instanceof SmallerGuard)) {
-            return false;
-        }
-        else {
-            SmallerGuard _other = (SmallerGuard) other;
-            return (_other.getParameter().equals(this.getParameter()) &&
-                    _other.getRegister().equals(this.getRegister()));
-    }
-    }
+    
 }

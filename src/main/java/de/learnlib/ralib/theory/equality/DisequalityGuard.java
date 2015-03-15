@@ -147,17 +147,7 @@ public class DisequalityGuard extends SDTIfGuard {
 //    }        
     
     
-    @Override
-    public boolean equals(SDTGuard other) {
-        if (!(other instanceof DisequalityGuard)) {
-            return false;
-        }
-        else {
-            DisequalityGuard _other = (DisequalityGuard) other;
-            return (_other.getParameter().equals(this.getParameter()) &&
-                    _other.getRegister().equals(this.getRegister()));
-    }
-    }
+    
     
     
 //        private List<Expression<Boolean>> toExprList() {

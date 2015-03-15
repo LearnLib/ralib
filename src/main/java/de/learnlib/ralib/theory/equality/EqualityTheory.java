@@ -85,7 +85,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             if (!(eqSdt.canUse(deqSdt))) {
-                log.log(Level.FINEST,"Adding if guard");
+                log.log(Level.FINEST,"CANNOT USE: Adding if guard");
                 retMap.put(eqGuard, eqSdt);
                 deqList.add(eqGuard.toDeqGuard());
             }

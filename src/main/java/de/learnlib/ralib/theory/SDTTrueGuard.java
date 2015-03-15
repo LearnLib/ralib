@@ -14,6 +14,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -50,14 +51,20 @@ public class SDTTrueGuard extends SDTGuard {
     }
     
     @Override
-    public boolean equals(SDTGuard other) {
-        if (!(other instanceof SDTTrueGuard)) {
+    public boolean equals(Object obj) {
+        if (obj == null) {
             return false;
         }
-        else {
-            SDTTrueGuard _other = (SDTTrueGuard) other;
-            return (_other.getParameter().equals(this.getParameter()));
-    }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        
+        return super.equals(obj) && true;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        return hash;
+    }
 }
