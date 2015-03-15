@@ -75,7 +75,7 @@ class Component {
      */
     boolean addRow(Row r) {
         
-        if (isInputComponent() == isInput(r.getPrefix().lastSymbol().getBaseSymbol())) {
+        if (ioMode && (isInputComponent() == isInput(r.getPrefix().lastSymbol().getBaseSymbol()))) {
             return false;
         }
         
