@@ -21,8 +21,8 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
@@ -145,7 +145,7 @@ class AutomatonBuilder {
         Assignment assign = new Assignment(assignments);
                 
         // create transition
-        InputTransition t = new InputTransition(guard, action, src_loc, dest_loc, assign);
+        Transition  t = new Transition(action, guard, src_loc, dest_loc, assign);
         log.log(Level.FINER, "computed transition {0}", t);
         this.automaton.addTransition(src_loc, action, t);
         this.automaton.setTransitionSequence(t, r.getPrefix());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,23 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.words;
 
-import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.data.DataType;
 
 /**
  *
  * @author falk
  */
-public class InputTransition extends Transition {
-        
-    public InputTransition(TransitionGuard guard, InputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        super(label, guard, source, destination, assignment);
+public class InputSymbol extends ParameterizedSymbol {
+
+    public InputSymbol(String name, DataType... ptypes) {
+        super(name, ptypes);
     }
 
     @Override
-    public InputSymbol getLabel() {
-        return (InputSymbol) super.getLabel(); 
+    public String toString() {
+        return "?" + super.toString(); 
     }
     
-    
-        
 }

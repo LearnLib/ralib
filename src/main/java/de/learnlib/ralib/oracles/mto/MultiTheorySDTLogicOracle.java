@@ -97,12 +97,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         DataExpression<Boolean> test = DataExpression.or(left, right);
 
-        log.log(Level.FINEST,"A1:  " + expr1);
-        log.log(Level.FINEST,"A2:  " + expr2);
-        log.log(Level.FINEST,"G:   " + exprG);
-        log.log(Level.FINEST,"MAP: " + remap);
-        log.log(Level.FINEST,"A2': " + expr2r);
-        log.log(Level.FINEST,"TEST:" + test);
+        System.out.println("A1:  " + expr1);
+        System.out.println("A2:  " + expr2);
+        System.out.println("G:   " + exprG);
+        System.out.println("MAP: " + remap);
+        System.out.println("A2': " + expr2r);
+        System.out.println("TEST:" + test);
         
         System.out.println("HAS CE: " + test.getExpression());
         Result r = solver.isSatisfiable(test.getExpression());
@@ -155,7 +155,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         // there should not be any register with id > n
         for (Register r : to.values()) {
             if (r.getId() > to.size()) {
-                throw new IllegalStateException("there should not be any register with id > n");
+                throw new IllegalStateException("there should not be any register with id > n: " + to);
             }
         }
         

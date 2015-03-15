@@ -20,17 +20,14 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarsToInternalRegs;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
@@ -69,16 +66,16 @@ public class TestTreeOracle {
         
         // define parameterized symbols
         
-        final ParameterizedSymbol register = new ParameterizedSymbol(
+        final ParameterizedSymbol register = new InputSymbol(
                 "register", new DataType[] {userType, passType});
         
-        final ParameterizedSymbol login = new ParameterizedSymbol(
+        final ParameterizedSymbol login = new InputSymbol(
                 "login", new DataType[] {userType, passType});
         
-        final ParameterizedSymbol change = new ParameterizedSymbol(
+        final ParameterizedSymbol change = new InputSymbol(
                 "change", new DataType[] {passType});
         
-        final ParameterizedSymbol logout = new ParameterizedSymbol(
+        final ParameterizedSymbol logout = new InputSymbol(
                 "logout", new DataType[] {userType});
         
         // create prefix: register(falk[userType], secret[passType])

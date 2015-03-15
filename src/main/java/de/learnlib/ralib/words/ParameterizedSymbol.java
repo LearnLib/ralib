@@ -27,7 +27,7 @@ import java.util.Arrays;
  * 
  * @author falk
  */
-public class ParameterizedSymbol {
+public abstract class ParameterizedSymbol {
 
     /**
      * name of symbol

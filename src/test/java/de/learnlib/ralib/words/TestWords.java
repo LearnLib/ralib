@@ -40,7 +40,7 @@ public class TestWords {
         
         DataType intType = new DataType("int", int.class) {};
                 
-        ParameterizedSymbol a = new ParameterizedSymbol("a", new DataType[]{intType});
+        ParameterizedSymbol a = new InputSymbol("a", new DataType[]{intType});
         
         DataValue<Integer> i1 = new DataValue(intType, 1);
         DataValue<Integer> i2 = new DataValue(intType, 2);

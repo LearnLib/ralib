@@ -27,6 +27,7 @@ import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -55,11 +56,14 @@ class Component {
 
     private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
 
+    private final boolean ioMode;
+    
     private static final LearnLogger log = LearnLogger.getLogger(Component.class);
     
-    public Component(Row primeRow, ObservationTable obs) {
+    public Component(Row primeRow, ObservationTable obs, boolean ioMode) {
         this.primeRow = primeRow;
         this.obs = obs;
+        this.ioMode = ioMode;
     }
 
     /**
@@ -93,11 +97,10 @@ class Component {
 
     void start(TreeOracle oracle, ParameterizedSymbol... inputs) {
         
-        boolean input = isInputComponent();
-        
+        boolean input = isInputComponent();        
         for (ParameterizedSymbol ps : inputs) {
             
-            if (input ^ isInput(ps)) {
+            if (ioMode && (input ^ isInput(ps))) {
                 continue;
             }
             
@@ -134,7 +137,7 @@ class Component {
             }
 
             if (!added) {
-                Component c = new Component(r, obs);
+                Component c = new Component(r, obs, ioMode);
                 newComponents.add(c);
             }
         }
@@ -275,8 +278,7 @@ class Component {
     }
 
     private boolean isInput(ParameterizedSymbol ps) {
-        //FIXME: this is a hack that has to be removed
-        return !ps.getName().startsWith("O");
+        return (ps instanceof InputSymbol);
     }
     
 }

@@ -21,12 +21,13 @@ package de.learnlib.ralib.equivalence;
 
 
 
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -36,15 +37,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class IOCounterexampleLoopRemover {
+public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
     
     private static class Loop {
         private final int min;
@@ -54,22 +53,21 @@ public class IOCounterexampleLoopRemover {
             this.max = max;
         }        
     }
-    
-    private final ParameterizedSymbol[] inputs;
-    private final Constants consts;
-    private final Map<DataType, Theory> teachers;       
+      
     private final IOOracle sulOracle;
     private RegisterAutomaton hypothesis;
 
-    public IOCounterexampleLoopRemover(ParameterizedSymbol[] inputs, Constants consts, Map<DataType, Theory> teachers, IOOracle sulOracle) {
-        this.inputs = inputs;
-        this.consts = consts;
-        this.teachers = teachers;
+    public IOCounterexampleLoopRemover(IOOracle sulOracle) {
         this.sulOracle = sulOracle;
     }
 
-    public Word<PSymbolInstance> removeLoops(
-            Word<PSymbolInstance> ce, RegisterAutomaton hyp) {
+    @Override
+    public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(Word<PSymbolInstance> ce, Hypothesis hyp) {
+        return new DefaultQuery<>(removeLoops(ce, hyp), true);
+    }
+    
+    private Word<PSymbolInstance> removeLoops(
+            Word<PSymbolInstance> ce, Hypothesis hyp) {
         
         this.hypothesis = hyp;
         
@@ -101,11 +99,11 @@ public class IOCounterexampleLoopRemover {
             for (Loop loop : list) {
                 Word<PSymbolInstance> shorter = shorten(ce, loop);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
-                System.out.println(candidate);
+                System.out.println("Cand: " + candidate);
                 if (!hypothesis.accepts(candidate)) {
                     System.out.println("Reduced CE length by " + i + 
                             " to " + candidate.length());
-                    return shorter;
+                    return candidate;
                 }
             }            
         }

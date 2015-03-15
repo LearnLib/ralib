@@ -44,6 +44,8 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
@@ -78,7 +80,7 @@ public class UntypedBranchingTest {
         }
 
         final ParameterizedSymbol ERROR
-                = new ParameterizedSymbol("_io_err", new DataType[]{});
+                = new OutputSymbol("_io_err", new DataType[]{});
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
@@ -111,13 +113,13 @@ public class UntypedBranchingTest {
         
         DataType intType = getType("int", loader.getDataTypes());
         
-        ParameterizedSymbol reg = new ParameterizedSymbol(
+        ParameterizedSymbol reg = new InputSymbol(
                 "IRegister", new DataType[] {intType, intType});
 
-        ParameterizedSymbol log = new ParameterizedSymbol(
+        ParameterizedSymbol log = new InputSymbol(
                 "ILogin", new DataType[] {intType, intType});    
     
-        ParameterizedSymbol ok = new ParameterizedSymbol(
+        ParameterizedSymbol ok = new OutputSymbol(
                 "OOK", new DataType[] {});    
 
         DataValue u = new DataValue(intType, 0);

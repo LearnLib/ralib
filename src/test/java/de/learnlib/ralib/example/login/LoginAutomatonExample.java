@@ -34,6 +34,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -55,14 +56,14 @@ public final class LoginAutomatonExample {
     public static final DataType T_UID = new DataType("T_uid", Integer.class) {};
     public static final DataType T_PWD = new DataType("T_pwd", Integer.class) {};
 
-    public static final ParameterizedSymbol I_REGISTER = 
-            new ParameterizedSymbol("register", new DataType[] {T_UID, T_PWD}); 
+    public static final InputSymbol I_REGISTER = 
+            new InputSymbol("register", new DataType[] {T_UID, T_PWD}); 
     
-    public static final ParameterizedSymbol I_LOGIN = 
-            new ParameterizedSymbol("login", new DataType[] {T_UID, T_PWD});
+    public static final InputSymbol I_LOGIN = 
+            new InputSymbol("login", new DataType[] {T_UID, T_PWD});
     
-    public static final ParameterizedSymbol I_LOGOUT = 
-            new ParameterizedSymbol("logout", new DataType[] {});
+    public static final InputSymbol I_LOGOUT = 
+            new InputSymbol("logout", new DataType[] {});
     
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
     
@@ -95,25 +96,25 @@ public final class LoginAutomatonExample {
                 LogicalOperator.AND, 
                 new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
         
-        Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
+        Map<SymbolicDataValue, Variable> mapping = new HashMap<>();
         mapping.put(rUid, x1);
         mapping.put(rPwd, x2);
         mapping.put(pUid, p1);
         mapping.put(pPwd, p2);
                 
         DataExpression<Boolean> condition = 
-                new DataExpression<Boolean>(expression, mapping);
+                new DataExpression<>(expression, mapping);
         
         IfGuard   okGuard    = new IfGuard(condition);
         ElseGuard errorGuard = new ElseGuard(Collections.singleton(okGuard));
         ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
         
         // assignments
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<>();
         copyMapping.put(rUid, rUid);
         copyMapping.put(rPwd, rPwd);
         
-        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<>();
         storeMapping.put(rUid, pUid);
         storeMapping.put(rPwd, pPwd);
         

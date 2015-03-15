@@ -21,6 +21,7 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.Category;
 import de.learnlib.logging.LLConsoleFormatter;
 import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
@@ -44,6 +45,7 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.EnumSet;
@@ -79,11 +81,11 @@ public class LearnLoginIOTest {
         }
 
         final ParameterizedSymbol ERROR
-                = new ParameterizedSymbol("_io_err", new DataType[]{});
+                = new OutputSymbol("_io_err", new DataType[]{});
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+                        "/de/learnlib/ralib/automata/xml/login.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -98,7 +100,7 @@ public class LearnLoginIOTest {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new HashMap<>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory() {
                 @Override
@@ -111,11 +113,13 @@ public class LearnLoginIOTest {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
 
+        SimulatorOracle oracle = new SimulatorOracle(model);
+        
         IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        //IOCache ioCache = new IOCache(ioOracle);
+        //IOFilter ioFilter = new IOFilter(oracle, inputs);
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
@@ -126,9 +130,12 @@ public class LearnLoginIOTest {
             }
         };
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
-        IORandomWalk iowalk = new IORandomWalk(new Random(),
+        long seed = 1423423204823000L; //-3921391701929787366L;// (new Random()).nextLong();
+        System.out.println("SEED=" + seed);
+              
+        IORandomWalk iowalk = new IORandomWalk(new Random(seed),
                 sul,
                 false, // do not draw symbols uniformly 
                 0.05, // reset probability 
@@ -140,14 +147,9 @@ public class LearnLoginIOTest {
                 teachers,
                 inputs);
         
-        IOCounterexampleLoopRemover loops = 
-                new IOCounterexampleLoopRemover(inputs, consts, teachers, ioOracle);
-
-        IOCounterExamplePrefixReplacer asrep =
-                new IOCounterExamplePrefixReplacer(inputs, consts, teachers, ioOracle);
-                        
-        IOCounterExamplePrefixFinder pref =
-                new IOCounterExamplePrefixFinder(inputs, consts, teachers, ioOracle);
+        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
                         
                         
         int check = 0;
@@ -155,27 +157,30 @@ public class LearnLoginIOTest {
 
             check++;
             rastar.learn();
-            RegisterAutomaton hyp = rastar.getHypothesis();
+            Hypothesis hyp = rastar.getHypothesis();
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
 
-            Word<PSymbolInstance> ce = iowalk.findCounterExample(hyp);
+            DefaultQuery<PSymbolInstance, Boolean> ce = 
+                    iowalk.findCounterExample(hyp, null);
+           
             System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }
 
-            ce = loops.removeLoops(ce, hyp);
+            ce = loops.optimizeCE(ce.getInput(), hyp);
             System.out.println("Shorter CE: " + ce);
-            ce = asrep.replacePrefix(ce, hyp);
-            System.out.println("New Prefix CE: " + ce);
-            ce = pref.findPrefix(ce, hyp);
-            System.out.println("Prefix of CE is CE: " + ce);
+//            ce = asrep.replacePrefix(ce, hyp);
+//            System.out.println("New Prefix CE: " + ce);
+//            ce = pref.findPrefix(ce, hyp);
+//            System.out.println("Prefix of CE is CE: " + ce);
             
-            assert ioCache.trace(ce);
+            assert model.accepts(ce.getInput());
+            assert !hyp.accepts(ce.getInput());
             
-            rastar.addCounterexample(ce, true);
+            rastar.addCounterexample(ce);
 
         }
 
@@ -185,5 +190,6 @@ public class LearnLoginIOTest {
         System.out.println("----------------------------------------------------");
 
         System.out.println(ioOracle.getQueryCount());
+        System.out.println(seed);
     }
 }

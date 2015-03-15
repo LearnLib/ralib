@@ -18,47 +18,38 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class IOCounterExamplePrefixFinder {
+public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
 
-    private final ParameterizedSymbol[] inputs;
-    private final Constants consts;
-    private final Map<DataType, Theory> teachers;
     private final IOOracle sulOracle;
-    private Hypothesis hypothesis;
 
-    public IOCounterExamplePrefixFinder(ParameterizedSymbol[] inputs, Constants consts, Map<DataType, Theory> teachers, IOOracle sulOracle) {
-        this.inputs = inputs;
-        this.consts = consts;
-        this.teachers = teachers;
+    public IOCounterExamplePrefixFinder(IOOracle sulOracle) {
         this.sulOracle = sulOracle;
     }
 
-    public Word<PSymbolInstance> findPrefix(
-            Word<PSymbolInstance> ce, RegisterAutomaton hyp) {
-
-        this.hypothesis = (Hypothesis) hyp;
+    @Override
+    public DefaultQuery<PSymbolInstance, Boolean> optimizeCE
+        (Word<PSymbolInstance> ce, Hypothesis hypothesis) {
+       return new DefaultQuery<>(findPrefix(ce, hypothesis), true);
+    }
+    
+    private Word<PSymbolInstance> findPrefix(
+            Word<PSymbolInstance> ce, Hypothesis hypothesis) {
 
         int prefixLength = 2;
 
         while (prefixLength < ce.length()) {
 
             Word<PSymbolInstance> prefix = ce.prefix(prefixLength);
-
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix);
 
             System.out.println(candidate);
@@ -66,10 +57,9 @@ public class IOCounterExamplePrefixFinder {
                 System.out.println("Found Prefix CE!!!");
                 return candidate;
             }
-
             prefixLength += 2;
         }
-
         return ce;
     }
+
 }

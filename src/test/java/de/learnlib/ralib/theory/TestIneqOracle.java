@@ -30,6 +30,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.inequality.InequalityTheory;
 import de.learnlib.ralib.theory.inequality.Compatibility;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -56,13 +57,13 @@ public class TestIneqOracle {
         final CompTypes cparator = new CompTypes();
 
         // define parameterized symbols
-        final ParameterizedSymbol ini = new ParameterizedSymbol(
+        final ParameterizedSymbol ini = new InputSymbol(
                 "initialize", new DataType[]{intType});
 
-        final ParameterizedSymbol lower = new ParameterizedSymbol(
+        final ParameterizedSymbol lower = new InputSymbol(
                 "lower", new DataType[]{intType});
 
-        final ParameterizedSymbol higher = new ParameterizedSymbol(
+        final ParameterizedSymbol higher = new InputSymbol(
                 "higer", new DataType[]{intType});
 
         // create prefix: register(falk[userType], secret[passType])

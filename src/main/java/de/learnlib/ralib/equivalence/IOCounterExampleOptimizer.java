@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,21 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata;
+package de.learnlib.ralib.equivalence;
 
-import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
- *
+ * Interface for counterexample optimizations
+ * 
  * @author falk
  */
-public class InputTransition extends Transition {
-        
-    public InputTransition(TransitionGuard guard, InputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        super(label, guard, source, destination, assignment);
-    }
-
-    @Override
-    public InputSymbol getLabel() {
-        return (InputSymbol) super.getLabel(); 
-    }
+public interface IOCounterExampleOptimizer {
     
+    public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
+            Word<PSymbolInstance> ce, Hypothesis hyp);
     
-        
 }

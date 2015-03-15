@@ -19,6 +19,7 @@
 package de.learnlib.ralib.equivalence;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -29,6 +30,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -40,7 +42,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class IORandomWalk {
+public class IORandomWalk implements IOEquivalenceOracle {
 
     private final Random rand;
     private RegisterAutomaton hyp;
@@ -60,7 +62,6 @@ public class IORandomWalk {
 
     /**
      * creates an IO random walk
-     * 
      * 
      * @param rand Random 
      * @param target SUL
@@ -91,8 +92,15 @@ public class IORandomWalk {
         this.newDataProbability = newDataProbability;
     }
 
-    public Word<PSymbolInstance> findCounterExample(RegisterAutomaton hyp) {
-        this.hyp = hyp;
+    @Override
+    public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(
+            RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
+
+        if (clctn != null && !clctn.isEmpty()) {
+            log.warning("set of inputs is ignored by this equivalence oracle");
+        }
+        
+        this.hyp = a;
         // reset the counter for number of runs?
         if (resetRuns) {
             runs = 0;
@@ -101,7 +109,7 @@ public class IORandomWalk {
         while (runs < maxRuns) {
             Word ce = run();
             if (ce != null) {
-                return ce;
+                return new DefaultQuery<>(ce, true);
             }
         }
         return null;

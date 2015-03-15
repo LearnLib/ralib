@@ -19,17 +19,19 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.logging.Level;
 
 /**
  * Register Automaton transitions have input symbols, and assignments.
  * 
  * @author falk
  */
-public abstract class Transition {
+public class Transition {
        
     protected final ParameterizedSymbol label;
 
@@ -41,6 +43,8 @@ public abstract class Transition {
 
     protected final Assignment assignment;
 
+    private static final LearnLogger log = LearnLogger.getLogger(Transition.class);
+    
     public Transition(ParameterizedSymbol label, TransitionGuard guard, 
             RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
@@ -50,7 +54,13 @@ public abstract class Transition {
         this.assignment = assignment;
     }
     
-    public abstract boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts);
+    public boolean isEnabled(VarValuation registers, 
+            ParValuation parameters, Constants consts) {
+        log.log(Level.FINEST, "isEnabled..... registers: {0}", registers.toString());
+        log.log(Level.FINEST, " ...... parameters: {0}", parameters.toString());
+        log.log(Level.FINEST, " ..... constants {0}\n", consts.toString());
+        return guard.isSatisfied(registers, parameters, consts);        
+    }
     
     public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {        
         return this.getAssignment().compute(registers, parameters, consts);
@@ -91,6 +101,9 @@ public abstract class Transition {
         return guard;
     }
     
-    
+    @Override
+    public String toString() {
+        return "(" + source + ", " + label + ", " + guard + ", " + assignment + ", " + destination + ")";
+    }    
     
 }

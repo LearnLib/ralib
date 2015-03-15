@@ -31,6 +31,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -82,6 +83,7 @@ public class CounterexampleAnalysis {
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
                 
         Word<PSymbolInstance> prefix = ce.prefix(idx);
+        System.out.println(idx + "  " + prefix);        
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         
@@ -104,6 +106,18 @@ public class CounterexampleAnalysis {
         log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
         log.log(Level.FINEST,"------------------------------------------------------");
         
+        System.out.println("------------------------------------------------------");
+        System.out.println("Computing index: " + idx);
+        System.out.println("Prefix: " + prefix);
+        System.out.println("SymSuffix: " + symSuffix);
+        System.out.println("Location: " + location);
+        System.out.println("Transition: " + transition);
+        System.out.println("PIV HYP: " + resHyp.getPiv());
+        System.out.println("SDT HYP: " + resHyp.getSdt());
+        System.out.println("PIV SYS: " + resSul.getPiv());
+        System.out.println("SDT SYS: " + resSul.getSdt());        
+        System.out.println("------------------------------------------------------");
+        
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
         TransitionGuard g = c.getBranching(act).getBranches().get(transition);
@@ -124,6 +138,9 @@ public class CounterexampleAnalysis {
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         
+        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
+        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
+        
         return (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
     }
@@ -134,6 +151,15 @@ public class CounterexampleAnalysis {
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
         Component c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
+        
+        System.out.println("Branching Hyp:");
+        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
+            System.out.println(e.getKey() + " -> " + e.getValue());
+        }
+        System.out.println("Branching Sys:");
+        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
+            System.out.println(e.getKey() + " -> " + e.getValue());
+        }
         
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
@@ -195,7 +221,7 @@ public class CounterexampleAnalysis {
         
         IndexResult[] results = new IndexResult[ce.length()];
         //results[0] = IndexResult.HAS_CE_NO_REFINE;
-        results[ce.length()-1] = IndexResult.NO_CE;
+        //results[ce.length()-1] = IndexResult.NO_CE;
         
         int min = 0;
         int max = ce.length() - 1;
@@ -223,15 +249,16 @@ public class CounterexampleAnalysis {
         System.out.println(Arrays.toString(results));
         System.out.println(idx + " : " + results[idx]);
         
+        // if in the last step there was no counterexample, 
+        // we have to move one step to the left
         if (results[idx] == IndexResult.NO_CE) {
-            // if in the last step there was no counterexample, 
-            // we have to move one step to the left
             assert idx > 0;
             idx--;
         }      
-        else if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
-            // if the current index has no refinement use the 
-            // suffix of the next index
+
+        // if the current index has no refinement use the 
+        // suffix of the next index
+        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
             idx++;
         }
 
