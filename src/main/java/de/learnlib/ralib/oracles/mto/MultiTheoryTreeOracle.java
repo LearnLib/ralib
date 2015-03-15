@@ -46,6 +46,8 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -214,6 +216,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             n = createFreshNode(0, prefix, ps, piv, pval);
             return new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts);
         } else {
+            log.log(Level.FINEST, "THESE ARE THE " + sdts.length + " SDTS WE'RE USING!!!: ----\n" + Arrays.toString(sdts));
+            
+            
 //            SDT s = merge(sdts);
             //for (SDT s : sdts) {
 //                for (Register r : s.getRegisters()) {
@@ -313,8 +318,43 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
         return currRegsAndParams;
     }
+    
+    private int getEqId(SDTGuard g) {
+        int i = 0;
+        if (g instanceof SDTCompoundGuard) {
+            for (SDTIfGuard x : ((SDTCompoundGuard)g).getGuards()) {
+                if ((x instanceof EqualityGuard) || (x instanceof DisequalityGuard)) {
+                    i = x.getRegister().getId();
+                }
+            }
+        }
+        else if (g instanceof SDTIfGuard) {
+            i = ((SDTIfGuard)g).getRegister().getId();
+            
+        }
+        return i;
+    }
+    
+    private Set<SDTGuard> preprocess(int i, Set<SDTGuard> guards) {
+        Set<SDTGuard> processed = new HashSet<>();
+        for (SDTGuard guard : guards) {
+            if (guard instanceof EqualityGuard) {
+                processed.add(new EqualityGuard(guard.getParameter(),((EqualityGuard)guard).getRegister()));
+            }
+            else if (guard instanceof DisequalityGuard) {
+                processed.add(new DisequalityGuard(guard.getParameter(),((DisequalityGuard)guard).getRegister()));
+            }
+            else {
+                processed.add(guard);
+            }
+        }
+        return processed;
+    }
 
     private List<SDTGuard> getRefinedVersionOf(SDTGuard g, Set<SDTGuard> guards) {
+        
+        //Set<SDTGuard> guards = preprocess(getEqId(g), unrefined);
+        
         if (guards.contains(g)) {
             log.log(Level.FINEST, "!!!!!!! " + g.toString() + " is in  " + guards.toString());
             guards.remove(g);
@@ -326,14 +366,17 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         for (SDTGuard n : guards) {
             Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
             
-            if (mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV())) {
-                    log.log(Level.FINEST, "!!!!!!! " + g.toString() + " refines " + n.toString());
+            if (mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV()) 
+                    && (!mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV()))) {
                     guard = g;
+                    log.log(Level.FINEST, "!!!!!!! " + g.toString() + " refines " + n.toString());
                     retSet.add(n);
                     //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
                     //    throw new IllegalStateException("Can't refine in the wrong direction");
                     //}
-                } else { //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
+           } else if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV()) 
+                    && (!mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV()))) {
+               //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
                     log.log(Level.FINEST, "!!!!!!! " + n.toString() + " refines " + g.toString());
                     guard = n;
                     retSet.add(g);
@@ -405,9 +448,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 for (int k = 0; k < numSdts - 1; k++) {
                     int l = k + 1;
                     SDT curr = sdts[k];
-                    SDT[] nxt = new SDT[numSdts - l];
-                    for (int y = l; y < numSdts; y++) {
-                        nxt[y - l] = sdts[y];
+                    SDT[] nxt = new SDT[numSdts - k];
+                    for (int y = k; y < numSdts; y++) {
+                        nxt[y - k] = sdts[y];
                     }
 
                     log.log(Level.FINEST, "current: " + curr.toString() + "\nnext: " + nxt[0].toString());
@@ -529,7 +572,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         System.out.println(">>>>Updating old branching: " + oldBranching.toString());
         System.out.println(".... according to new SDT: " + newBranching.toString());
 
-        assert oldBranches.size() <= newBranches.size();
+//        assert oldBranches.size() <= newBranches.size();
         if (oldBranches.isEmpty()) {
             if (newBranches.isEmpty()) {
                 return oldBranching;

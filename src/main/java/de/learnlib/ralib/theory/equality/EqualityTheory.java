@@ -325,7 +325,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (ereg instanceof Register) {
                             log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
                 Parameter p = piv.getOneKey((Register)ereg);
-                            log.log(Level.FINEST, "p: )" + p.toString());
+                            log.log(Level.FINEST, "p: " + p.toString());
                 int idx = p.getId();
                 //return piv.get(param);
                 // trying to not pickup values from prefix
