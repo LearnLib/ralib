@@ -73,6 +73,7 @@ public class DataExpression<T extends Object> {
 
     public DataExpression(Expression<T> expression, 
             Map<SymbolicDataValue, Variable> mapping) {
+        assert expression != null;
         this.expression = expression;
         this.mapping = mapping;
     }
