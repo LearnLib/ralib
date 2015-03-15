@@ -11,6 +11,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class SDTCompoundGuard extends SDTGuard {
@@ -29,6 +31,28 @@ public class SDTCompoundGuard extends SDTGuard {
     
     public List<SDTIfGuard> getGuards() {
         return guards;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SDTCompoundGuard other = (SDTCompoundGuard) obj;
+        if (!Objects.equals(this.guards, other.guards)) {
+            return false;
+        }
+        return super.equals(obj) && true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.guards);
+        return hash;
     }
     
     public Set<SymbolicDataValue> getAllRegs() {
@@ -74,7 +98,8 @@ public class SDTCompoundGuard extends SDTGuard {
             return toExpr(thisList, 0);
         }
     }
-
+    
+    
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
         Expression<Boolean> expr = toExpr(this.toExprList(), 0);

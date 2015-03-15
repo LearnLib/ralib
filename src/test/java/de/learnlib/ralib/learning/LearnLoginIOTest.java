@@ -71,9 +71,9 @@ public class LearnLoginIOTest {
         root.setLevel(Level.FINEST);
         for (Handler h : root.getHandlers()) {
             h.setLevel(Level.FINEST);
-            h.setFilter(new CategoryFilter(EnumSet.of(
+     //       h.setFilter(new CategoryFilter(EnumSet.of(
 //                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-                    Category.EVENT, Category.PHASE, Category.MODEL)));
+     //               Category.EVENT, Category.PHASE, Category.MODEL)));
         }
 
         final ParameterizedSymbol ERROR
@@ -81,7 +81,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+                        "/de/learnlib/ralib/automata/xml/login.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");

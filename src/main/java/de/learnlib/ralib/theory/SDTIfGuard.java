@@ -14,6 +14,7 @@ import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
+import java.util.Objects;
 
 
 public abstract class SDTIfGuard extends SDTGuard {
@@ -31,18 +32,39 @@ public abstract class SDTIfGuard extends SDTGuard {
         return this.relation;
     }
     
-    public boolean equals(SDTIfGuard other) {
-        return (this.getParameter() == other.getParameter() &&
-                this.register == other.getRegister() &&
-                this.relation == other.getRelation());
-//                this.regrels == other.getRegsAndRels());
-    }
-    
     public SDTIfGuard(SuffixValue param, SymbolicDataValue reg, Relation rel) {
         super(param);
         this.relation = rel;
         this.register = reg;
     }   
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.register);
+        hash = 97 * hash + Objects.hashCode(this.relation);
+        return hash;
+    }
+
+   
+   @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SDTIfGuard other = (SDTIfGuard) obj;
+        if (!Objects.equals(this.register, other.register)) {
+            return false;
+        }
+        if (!Objects.equals(this.relation, other.relation)) {
+            return false;
+        }
+        return super.equals(obj) && true;
+    } 
+
     
     @Override
     public abstract TransitionGuard toTG(Map<SymbolicDataValue, Variable> variables);
