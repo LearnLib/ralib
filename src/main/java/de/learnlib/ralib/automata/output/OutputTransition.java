@@ -32,7 +32,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import java.util.Map.Entry;
 
 /**
@@ -46,13 +46,13 @@ public class OutputTransition extends Transition {
     private final OutputMapping output;
 
     public OutputTransition(TransitionGuard guard, OutputMapping output, 
-            ParameterizedSymbol label, RALocation source, RALocation destination, 
+            OutputSymbol label, RALocation source, RALocation destination, 
             Assignment assignment) {
         super(label, guard, source, destination, assignment);
         this.output = output;
     }
 
-    public OutputTransition(OutputMapping output, ParameterizedSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+    public OutputTransition(OutputMapping output, OutputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         this(new ElseGuard(), output, label, source, destination, assignment);
     }
     
@@ -109,5 +109,11 @@ public class OutputTransition extends Transition {
     public OutputMapping getOutput() {
         return output;
     }
+
+    @Override
+    public OutputSymbol getLabel() {
+        return (OutputSymbol) super.getLabel(); 
+    }
+
 
 }

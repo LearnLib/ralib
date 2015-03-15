@@ -154,7 +154,7 @@ public class CounterexampleAnalysisTest {
         };
         
         Component c = new Component(Row.computeRow(
-                mockTreeOracle, locId, new ArrayList<SymbolicSuffix>()), null) {
+                mockTreeOracle, locId, new ArrayList<SymbolicSuffix>()), null, false) {
 
             @Override
             Branching getBranching(ParameterizedSymbol act) {

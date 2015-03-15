@@ -41,7 +41,8 @@ public class ObservationsTest {
      public void testLearnLoginExample() {
      
          LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
-         ObservationTable obs = new ObservationTable(oracle, I_REGISTER, I_LOGIN, I_LOGOUT);
+         ObservationTable obs = new ObservationTable(
+                 oracle, false, I_REGISTER, I_LOGIN, I_LOGOUT);
 
         Word<PSymbolInstance> epsPrefix = Word.epsilon();
         obs.addPrefix(epsPrefix);

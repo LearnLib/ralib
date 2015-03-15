@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,23 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.words;
+
+import de.learnlib.ralib.data.DataType;
 
 /**
  *
  * @author falk
  */
-@Deprecated
-public class VarsToInternalRegs extends Mapping<SymbolicDataValue, SymbolicDataValue> {
+public class OutputSymbol extends ParameterizedSymbol {
+
+    public OutputSymbol(String name, DataType... ptypes) {
+        super(name, ptypes);
+    }
+
+    @Override
+    public String toString() {
+        return "!" + super.toString(); 
+    }
     
 }

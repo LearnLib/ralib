@@ -29,19 +29,17 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.automata.guards.IfGuard;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,20 +54,20 @@ public final class MapAutomatonExample {
     public static final DataType T_KEY = new DataType("T_key", Integer.class) {};
     public static final DataType T_VAL = new DataType("T_val", Integer.class) {};
 
-    public static final ParameterizedSymbol I_PUT = 
-            new ParameterizedSymbol("put", new DataType[] {T_VAL}); 
+    public static final InputSymbol I_PUT = 
+            new InputSymbol("put", new DataType[] {T_VAL}); 
     
-    public static final ParameterizedSymbol I_GET = 
-            new ParameterizedSymbol("get", new DataType[] {T_KEY});
+    public static final InputSymbol I_GET = 
+            new InputSymbol("get", new DataType[] {T_KEY});
     
-    public static final ParameterizedSymbol O_PUT = 
-            new ParameterizedSymbol("o_p", new DataType[] {T_KEY});
+    public static final OutputSymbol O_PUT = 
+            new OutputSymbol("o_p", new DataType[] {T_KEY});
 
-    public static final ParameterizedSymbol O_GET = 
-            new ParameterizedSymbol("o_g", new DataType[] {T_VAL});
+    public static final OutputSymbol O_GET = 
+            new OutputSymbol("o_g", new DataType[] {T_VAL});
 
-    public static final ParameterizedSymbol O_NULL = 
-            new ParameterizedSymbol("null", new DataType[] {});
+    public static final OutputSymbol O_NULL = 
+            new OutputSymbol("null", new DataType[] {});
     
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 
@@ -107,16 +105,16 @@ public final class MapAutomatonExample {
         Expression<Boolean> expression = 
                 new NumericBooleanExpression(x1, NumericComparator.EQ, p1);
         
-        Map<SymbolicDataValue, Variable> mapping1 = new HashMap<SymbolicDataValue, Variable>();
+        Map<SymbolicDataValue, Variable> mapping1 = new HashMap<>();
         mapping1.put(rKey1, x1);
         mapping1.put(pKey, p1);
 
-        Map<SymbolicDataValue, Variable> mapping2 = new HashMap<SymbolicDataValue, Variable>();
+        Map<SymbolicDataValue, Variable> mapping2 = new HashMap<>();
         mapping2.put(rKey2, x1);
         mapping2.put(pKey, p1);
         
-        DataExpression<Boolean> condition1 = new DataExpression<Boolean>(expression, mapping1);
-        DataExpression<Boolean> condition2 = new DataExpression<Boolean>(expression, mapping2);
+        DataExpression<Boolean> condition1 = new DataExpression<>(expression, mapping1);
+        DataExpression<Boolean> condition2 = new DataExpression<>(expression, mapping2);
         
         IfGuard   get1Guard    = new IfGuard(condition1);
         IfGuard   get2Guard    = new IfGuard(condition2);
@@ -125,31 +123,31 @@ public final class MapAutomatonExample {
         ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
         
         // assignments
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<>();
         store1IMapping.put(rVal1, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1OMapping = new VarMapping<>();
         store1OMapping.put(rVal1, rVal1);
         store1OMapping.put(rKey1, pKey);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2IMapping = new VarMapping<>();
         store2IMapping.put(rKey1, rKey1);
         store2IMapping.put(rVal1, rVal1);
         store2IMapping.put(rVal2, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2OMapping = new VarMapping<>();
         store2OMapping.put(rKey1, rKey1);
         store2OMapping.put(rVal1, rVal1);
         store2OMapping.put(rVal2, rVal2);
         store2OMapping.put(rKey2, pKey);
         
-        VarMapping<Register, SymbolicDataValue> copy2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register, SymbolicDataValue> copy2Mapping = new VarMapping<>();
         copy2Mapping.put(rKey1, rKey1);
         copy2Mapping.put(rVal1, rVal1);
         copy2Mapping.put(rKey2, rKey2);
         copy2Mapping.put(rVal2, rVal2);
         
-        VarMapping<Register, SymbolicDataValue> copy1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register, SymbolicDataValue> copy1Mapping = new VarMapping<>();
         copy1Mapping.put(rKey1, rKey1);
         copy1Mapping.put(rVal1, rVal1);
         

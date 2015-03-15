@@ -36,6 +36,8 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collection;
@@ -68,7 +70,7 @@ public class MultiSDTBranchingTest {
         }
 
         final ParameterizedSymbol ERROR
-                = new ParameterizedSymbol("_io_err", new DataType[]{});
+                = new OutputSymbol("_io_err", new DataType[]{});
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
@@ -109,16 +111,16 @@ public class MultiSDTBranchingTest {
         DataType intType = getType("int", loader.getDataTypes());
   
         
-        ParameterizedSymbol ipr = new ParameterizedSymbol(
+        ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[] {intType});
 
-        ParameterizedSymbol inv = new ParameterizedSymbol(
+        ParameterizedSymbol inv = new InputSymbol(
                 "IINVITE", new DataType[] {intType});
 
-        ParameterizedSymbol o100 = new ParameterizedSymbol(
+        ParameterizedSymbol o100 = new OutputSymbol(
                 "O100", new DataType[] {intType});    
 
-        ParameterizedSymbol o200 = new ParameterizedSymbol(
+        ParameterizedSymbol o200 = new OutputSymbol(
                 "O200", new DataType[] {intType});    
         
 

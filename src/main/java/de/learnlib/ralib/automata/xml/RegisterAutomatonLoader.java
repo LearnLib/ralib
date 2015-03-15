@@ -28,11 +28,15 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import javax.xml.bind.JAXB;
 import net.automatalib.words.Alphabet;
@@ -55,7 +59,7 @@ public class RegisterAutomatonLoader {
     private final Constants consts = new Constants();
     
     private MutableRegisterAutomaton iora;
-    private Alphabet<ParameterizedSymbol> inputs;
+    private Alphabet<InputSymbol> inputs;
     private Alphabet<ParameterizedSymbol> actions;
     
     private static final LearnLogger log = 
@@ -138,7 +142,7 @@ public class RegisterAutomatonLoader {
             Assignment assign = new Assignment(assignments);
 
             // output
-            if (((String) ps.getName()).startsWith("O")) {
+            if (ps instanceof OutputSymbol) {
 
                 VarMapping<Parameter, SymbolicDataValue> outputs = new VarMapping<>();
                 for (String s : pnames) {
@@ -159,14 +163,21 @@ public class RegisterAutomatonLoader {
                     outputs.put(param, source);
                 }
                 
-                OutputMapping outMap = new OutputMapping(outputs);                
-                OutputTransition tOut = new OutputTransition(p, outMap, ps, from, to, assign);
+                // all unassigned parameters have to be fresh by convention,
+                // we do not allow "don't care" in outputs
+                Set<Parameter> fresh = new HashSet<>(paramMap.values());
+                fresh.removeAll(outputs.keySet());
+                OutputMapping outMap = new OutputMapping(fresh, outputs);                
+                
+                OutputTransition tOut = new OutputTransition(p, outMap, 
+                        (OutputSymbol) ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 log.log(Level.FINEST,"Loading: " + tOut);
             } // input
             else {
                 log.log(Level.FINEST,"Guard: " + gstring);
-                InputTransition tIn = new InputTransition(p, ps, from, to, assign);
+                InputTransition tIn = new InputTransition(p, (InputSymbol) ps, 
+                        from, to, assign);
                 log.log(Level.FINEST,"Loading: " + tIn);
                 iora.addTransition(from, ps, tIn);
             }
@@ -186,8 +197,8 @@ public class RegisterAutomatonLoader {
                 pTypes[idx] = getOrCreateType(p.type);
                 idx++; 
             }
-            String sName = s.getName().startsWith("I") ? s.getName() : "I" + s.getName();
-            ParameterizedSymbol ps = new ParameterizedSymbol(sName, pTypes);
+            String sName = s.getName();
+            InputSymbol ps = new InputSymbol(sName, pTypes);
             inputs.add(ps);
             actions.add(ps);            
             sigmaMap.put(s.getName(), ps);
@@ -204,8 +215,8 @@ public class RegisterAutomatonLoader {
                 pTypes[idx] = getOrCreateType(p.type);
                 idx++; 
             }
-            String sName = s.getName().startsWith("O") ? s.getName() : "O" + s.getName();
-            ParameterizedSymbol ps = new ParameterizedSymbol(sName, pTypes);
+            String sName = s.getName();
+            ParameterizedSymbol ps = new OutputSymbol(sName, pTypes);
             actions.add(ps);
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
@@ -282,7 +293,7 @@ public class RegisterAutomatonLoader {
     /**
      * @return the inputs
      */
-    public Alphabet<ParameterizedSymbol> getInputs() {
+    public Alphabet<InputSymbol> getInputs() {
         return inputs;
     }
 

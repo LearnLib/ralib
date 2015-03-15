@@ -23,6 +23,7 @@ import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
+import de.learnlib.ralib.words.OutputSymbol;
 import java.util.Collection;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -33,7 +34,10 @@ import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
- *
+ * The IO-Cache can be used to reduce queries for deterministic 
+ * IO-Systems, i.e., where even fresh values are chosen 
+ * deterministically!
+ * 
  * @author falk
  */
 public class IOCache extends QueryCounter implements DataWordOracle {
@@ -70,7 +74,7 @@ public class IOCache extends QueryCounter implements DataWordOracle {
         }
         Word<PSymbolInstance> test = query;
         if(query.length() % 2 != 0) {
-            test = query.append(new PSymbolInstance(new ParameterizedSymbol("")));
+            test = query.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         Word<PSymbolInstance> trace = sul.trace(test);
         addToCache(trace);

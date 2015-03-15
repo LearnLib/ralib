@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -50,10 +51,9 @@ public class RaStar {
     
     private final Constants consts;
 
-    private final Deque<Word<PSymbolInstance>> counterexamples = new LinkedList<>();
-    
-    private final Map<Word<PSymbolInstance>, Boolean> ceMap = new HashMap<>();
-    
+    private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples = 
+            new LinkedList<>();
+        
     private Hypothesis hyp = null;
     
     private final TreeOracle sulOracle;
@@ -62,13 +62,16 @@ public class RaStar {
     
     private final TreeOracleFactory hypOracleFactory;
     
-    private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
+    private final boolean ioMode;
     
+    private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
+
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
-            SDTLogicOracle sdtLogicOracle, Constants consts, 
+            SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             ParameterizedSymbol ... inputs) {
         
-        this.obs = new ObservationTable(oracle, inputs);
+        this.ioMode = ioMode;
+        this.obs = new ObservationTable(oracle, ioMode, inputs);
         this.consts = consts;
         
         this.obs.addPrefix(EMPTY_PREFIX);
@@ -76,10 +79,16 @@ public class RaStar {
         
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
-        this.hypOracleFactory = hypOracleFactory;
+        this.hypOracleFactory = hypOracleFactory;        
+    }   
+    
+    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
+            SDTLogicOracle sdtLogicOracle, Constants consts, 
+            ParameterizedSymbol ... inputs) {
+        
+        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
     }
-    
-    
+        
     public void learn() {
         if (hyp != null) {
             analyzeCounterExample();
@@ -91,7 +100,7 @@ public class RaStar {
             while(!(obs.complete())) {};        
             log.logPhase("completed observation table");
 
-            //System.out.println(obs.toString());
+            System.out.println(obs.toString());
             
             AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
             hyp = ab.toRegisterAutomaton();        
@@ -106,10 +115,9 @@ public class RaStar {
     }
     
     
-    public void addCounterexample(Word<PSymbolInstance> ce, boolean accepted) {
-        log.logEvent("adding counterexample: " + ce + " - " + accepted);
+    public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
+        log.logEvent("adding counterexample: " + ce);
         counterexamples.add(ce);
-        ceMap.put(ce, accepted);
     }
     
     private boolean analyzeCounterExample() {
@@ -123,25 +131,26 @@ public class RaStar {
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
                 sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents());
         
-        Word<PSymbolInstance> ce = counterexamples.peek();    
+        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
         // check if ce still is a counterexample ...
-        boolean hypce = hyp.accepts(ce);
-        boolean sulce = ceMap.get(ce);        
+        boolean hypce = hyp.accepts(ce.getInput());
+        boolean sulce = ce.getOutput();
         if (hypce == sulce) {
             log.logEvent("word is not a counterexample: " + ce + " - " + sulce);           
             counterexamples.poll();
-            ceMap.remove(ce);
             return false;
         }
         
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce);        
+        System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
+        
+        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
         obs.addSuffix(res.getSuffix());       
         return true;
     }
             
     
-    public RegisterAutomaton getHypothesis() {
+    public Hypothesis getHypothesis() {
         return hyp;
     }
     

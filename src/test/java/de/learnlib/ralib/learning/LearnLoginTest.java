@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -114,7 +115,7 @@ public class LearnLoginTest {
                 new PSymbolInstance(I_LOGIN, 
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
     
-        rastar.addCounterexample(ce, sul.accepts(ce));
+        rastar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
     
         rastar.learn();        
         hyp = rastar.getHypothesis();        

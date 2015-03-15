@@ -1,5 +1,3 @@
-package de.learnlib.ralib.oracles.mto;
-
 /*
  * Copyright (C) 2015 falk.
  *
@@ -18,20 +16,17 @@ package de.learnlib.ralib.oracles.mto;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+package de.learnlib.ralib.automata.xml;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
+import de.learnlib.logging.Category;
+import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -41,8 +36,8 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,26 +45,23 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.automatalib.words.Word;
-import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class LoginBranchingTest {
+public class OutputTest {
     
-    public LoginBranchingTest() {
-    }
-
-
     @Test
-    public void testBranching() {
-    
+    public void testModelswithOutput() {
+ 
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
+        root.setLevel(Level.FINEST);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
+            h.setLevel(Level.FINEST);
+            h.setFilter(new CategoryFilter(EnumSet.of(
+                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
         }
 
         final ParameterizedSymbol ERROR
@@ -77,12 +69,19 @@ public class LoginBranchingTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login_typed.xml"));
+                        "/de/learnlib/ralib/automata/xml/sip.xml"));
 
-        RegisterAutomaton model = loader.getRegisterAutomaton();
+        de.learnlib.ralib.automata.RegisterAutomaton model = loader.getRegisterAutomaton();
+        System.out.println("SYS:------------------------------------------------");
+        System.out.println(model);
+        System.out.println("----------------------------------------------------");
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
-        
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
         Constants consts = loader.getConstants();
 
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
@@ -90,7 +89,7 @@ public class LoginBranchingTest {
             teachers.put(t, new EqualityTheory() {
                 @Override
                 public DataValue getFreshValue(List vals) {
-                    System.out.println("GENERATING FRESH: " + vals.size());
+                    //System.out.println("GENERATING FRESH: " + vals.size());
                     return new DataValue(t, vals.size());
                 }
             });
@@ -101,57 +100,37 @@ public class LoginBranchingTest {
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
-
+        
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
         
-        DataType uid = getType("uid", loader.getDataTypes());
-        DataType pwd = getType("pwd", loader.getDataTypes());
+        DataType intType = getType("int", loader.getDataTypes());
         
-        ParameterizedSymbol reg = new InputSymbol(
-                "IRegister", new DataType[] {uid, pwd});
+        ParameterizedSymbol inv = new InputSymbol(
+                "IINVITE", new DataType[] {intType});
 
-        ParameterizedSymbol log = new InputSymbol(
-                "ILogin", new DataType[] {uid, pwd});    
+        ParameterizedSymbol o100 = new OutputSymbol(
+                "O100", new DataType[] {intType});    
     
-        ParameterizedSymbol ok = new OutputSymbol(
-                "OOK", new DataType[] {});    
 
-        DataValue u = new DataValue(uid, 0);
-        DataValue p = new DataValue(pwd, 0);
+        DataValue d0 = new DataValue(intType, 0);
+        DataValue d1 = new DataValue(intType, 1);
         
-        Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(reg, new DataValue[] {u, p}),
-                new PSymbolInstance(ok, new DataValue[] {}));
+        Word<PSymbolInstance> test1 = Word.fromSymbols(
+                new PSymbolInstance(inv, new DataValue[] {d0}),
+                new PSymbolInstance(o100, new DataValue[] {d0}));
 
-        Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(log, new DataValue[] {u, p}),
-                new PSymbolInstance(ok, new DataValue[] {}));        
-        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        
-        System.out.println(prefix);
-        System.out.println(suffix);
-        System.out.println(symSuffix);
+        Word<PSymbolInstance> test2 = Word.fromSymbols(
+                new PSymbolInstance(inv, new DataValue[] {d0}),
+                new PSymbolInstance(o100, new DataValue[] {d1}));        
+                
+        System.out.println(test1);
+        System.out.println(test2);
  
-        System.out.println("MQ: " + ioOracle.trace(prefix.concat(suffix)));
+        System.out.println("SYS: " + test1 + " - " + model.accepts(test1));
+        System.out.println("SYS: " + test2 + " - " + model.accepts(test2));
         
-        System.out.println("######################################################################");
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
-        System.out.println(res.getSdt());
-        
-        System.out.println("######################################################################");
-        // initial branching bug
-        Branching bug1 = mto.getInitialBranching(prefix, log, res.getPiv(), res.getSdt());        
-        System.out.println(Arrays.toString(bug1.getBranches().keySet().toArray()));
-        System.out.println("Why does the last word in the set have a password val. of 2");
-
-        System.out.println("######################################################################");
-        
-        // updated branching bug
-        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
-        bug2 = mto.updateBranching(prefix, log, bug2, res.getPiv(), res.getSdt());        
-        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
-        System.out.println("This set has only one word, there should be three.");
+        System.out.println("SUL: " + test1 + " - " + ioOracle.trace(test1));
+        System.out.println("SUL: " + test2 + " - " + ioOracle.trace(test2));
     }
 
     private DataType getType(String name, Collection<DataType> dataTypes) {
@@ -161,5 +140,6 @@ public class LoginBranchingTest {
             }
         }
         return null;
-    }
+    }        
+        
 }

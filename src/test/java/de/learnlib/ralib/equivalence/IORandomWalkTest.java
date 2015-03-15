@@ -90,6 +90,6 @@ public class IORandomWalkTest {
                  teachers, 
                  inputs);
          
-         iowalk.findCounterExample(model);
+         iowalk.findCounterExample(model, null);
      }
 }

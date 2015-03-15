@@ -53,11 +53,15 @@ class ObservationTable {
     
     private final ParameterizedSymbol[] inputs;
     
+    private final boolean ioMode;
+    
     private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
     
-    public ObservationTable(TreeOracle oracle, ParameterizedSymbol ... inputs) {
+    public ObservationTable(TreeOracle oracle, boolean ioMode, 
+            ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
+        this.ioMode = ioMode;
     }
         
     void addComponent(Component c) {
@@ -137,7 +141,7 @@ class ObservationTable {
                 return;
             }
         }
-        Component c = new Component(r, this);
+        Component c = new Component(r, this, ioMode);
         addComponent(c);
     }
 

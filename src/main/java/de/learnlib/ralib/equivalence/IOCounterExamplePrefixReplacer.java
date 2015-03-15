@@ -18,43 +18,35 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class IOCounterExamplePrefixReplacer {
+public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer {
 
-    private final ParameterizedSymbol[] inputs;
-    private final Constants consts;
-    private final Map<DataType, Theory> teachers;
     private final IOOracle sulOracle;
-    private Hypothesis hypothesis;
 
-    public IOCounterExamplePrefixReplacer(ParameterizedSymbol[] inputs, Constants consts, Map<DataType, Theory> teachers, IOOracle sulOracle) {
-        this.inputs = inputs;
-        this.consts = consts;
-        this.teachers = teachers;
+    public IOCounterExamplePrefixReplacer(IOOracle sulOracle) {
         this.sulOracle = sulOracle;
     }
 
-    public Word<PSymbolInstance> replacePrefix(
-            Word<PSymbolInstance> ce, RegisterAutomaton hyp) {
-
-        this.hypothesis = (Hypothesis) hyp;
+    @Override
+    public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
+            Word<PSymbolInstance> ce, Hypothesis hyp) {
+        
+        return new DefaultQuery<>(replacePrefix(ce, hyp), true);
+    }
+    
+    private Word<PSymbolInstance> replacePrefix(
+            Word<PSymbolInstance> ce, Hypothesis hypothesis) {
 
         int suffixLength = ce.length() - 2;
-
         while (suffixLength > 2) {
 
             int prefixLength = ce.length() - suffixLength;
@@ -70,10 +62,9 @@ public class IOCounterExamplePrefixReplacer {
                 System.out.println("Reduced Prefix!!!");
                 ce = candidate;
             }
-
             suffixLength -= 2;
         }
-
         return ce;
     }
+
 }
