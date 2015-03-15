@@ -33,8 +33,8 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -48,12 +48,12 @@ import net.automatalib.words.impl.SimpleAlphabet;
  */
 public class RegisterAutomatonLoader {
 
-    private final Map<String, ParameterizedSymbol> sigmaMap = new HashMap<>();
-    private final Map<ParameterizedSymbol, String[]> paramNames = new HashMap<>();
-    private final Map<String, RALocation> stateMap = new HashMap<>();
-    private final Map<String, Constant> constMap = new HashMap<>();
-    private final Map<String, Register> regMap = new HashMap<>();   
-    private final Map<String, DataType> typeMap = new HashMap<>();
+    private final Map<String, ParameterizedSymbol> sigmaMap = new LinkedHashMap<>();
+    private final Map<ParameterizedSymbol, String[]> paramNames = new LinkedHashMap<>();
+    private final Map<String, RALocation> stateMap = new LinkedHashMap<>();
+    private final Map<String, Constant> constMap = new LinkedHashMap<>();
+    private final Map<String, Register> regMap = new LinkedHashMap<>();   
+    private final Map<String, DataType> typeMap = new LinkedHashMap<>();
     
     private final VarValuation initialRegs = new VarValuation();
     private final Constants consts = new Constants();
@@ -165,7 +165,7 @@ public class RegisterAutomatonLoader {
                 
                 // all unassigned parameters have to be fresh by convention,
                 // we do not allow "don't care" in outputs
-                Set<Parameter> fresh = new HashSet<>(paramMap.values());
+                Set<Parameter> fresh = new LinkedHashSet<>(paramMap.values());
                 fresh.removeAll(outputs.keySet());
                 OutputMapping outMap = new OutputMapping(fresh, outputs);                
                 
@@ -266,7 +266,7 @@ public class RegisterAutomatonLoader {
     
     private Map<String, SymbolicDataValue> buildValueMap(
             Map<String, ? extends SymbolicDataValue> ... maps) {        
-        Map<String, SymbolicDataValue> ret = new HashMap<>();
+        Map<String, SymbolicDataValue> ret = new LinkedHashMap<>();
         for (Map<String, ? extends SymbolicDataValue> m : maps) {
             ret.putAll(m);
         }
@@ -280,7 +280,7 @@ public class RegisterAutomatonLoader {
             pNames = paramNames.get(ps);
         }        
         
-        Map<String, Parameter> ret = new HashMap<>();
+        Map<String, Parameter> ret = new LinkedHashMap<>();
         ParameterGenerator pgen = new ParameterGenerator();
         int idx = 0;
         for (String name : pNames) {

@@ -21,13 +21,10 @@ package de.learnlib.ralib.data;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import net.automatalib.words.Word;
 
 /**
  * A mapping from parameters to registers. 
@@ -50,7 +47,7 @@ public class PIV extends VarMapping<Parameter, Register> {
     }
     
     public Map<DataType, Integer> typedSize() {
-        Map<DataType, Integer> ret = new HashMap<>();
+        Map<DataType, Integer> ret = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
             Integer i = ret.get(p.getType());
             i = (i == null) ? 1 : i+1;
@@ -60,7 +57,7 @@ public class PIV extends VarMapping<Parameter, Register> {
     } 
 
     public Map<DataType, Parameter[]> asTypedArrays() {
-        Map<DataType, List<Parameter>> tmp = new HashMap<>();
+        Map<DataType, List<Parameter>> tmp = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
             List<Parameter> list = tmp.get(p.getType());
             if (list == null) {
@@ -70,7 +67,7 @@ public class PIV extends VarMapping<Parameter, Register> {
             list.add(p);
         } 
         
-        Map<DataType, Parameter[]> ret = new HashMap<>();
+        Map<DataType, Parameter[]> ret = new LinkedHashMap<>();
         for (Map.Entry<DataType, List<Parameter>> e : tmp.entrySet()) {
             ret.put(e.getKey(), e.getValue().toArray(new Parameter[] {}));
         }

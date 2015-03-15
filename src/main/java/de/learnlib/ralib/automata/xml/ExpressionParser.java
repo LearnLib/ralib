@@ -8,13 +8,12 @@ package de.learnlib.ralib.automata.xml;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -28,7 +27,8 @@ public class ExpressionParser {
     
     private final String expLine;
     private final Map<String, SymbolicDataValue> pMap;
-    private Map<SymbolicDataValue, gov.nasa.jpf.constraints.api.Variable> vars = new HashMap<>();    
+    private final Map<SymbolicDataValue, gov.nasa.jpf.constraints.api.Variable> vars = 
+            new LinkedHashMap<>();    
     private DataExpression<Boolean> predicate;
     
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {

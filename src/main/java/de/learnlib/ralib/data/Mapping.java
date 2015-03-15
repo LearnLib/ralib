@@ -21,7 +21,7 @@ package de.learnlib.ralib.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -107,7 +107,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     }
     
     public Set<K> getAllKeys(V value) {
-        Set<K> retKeySet = new HashSet();
+        Set<K> retKeySet = new LinkedHashSet();
         for (K key : this.keySet()) {
             //log.log(Level.FINEST,"key = " + K);
             //log.log(Level.FINEST,"value = " + this.get(key).toString());

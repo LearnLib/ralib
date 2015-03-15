@@ -26,7 +26,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import net.automatalib.automata.MutableDeterministic;
@@ -46,7 +46,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     
     private RALocation initial;
     
-    private final Set<RALocation> locations = new HashSet<>();
+    private final Set<RALocation> locations = new LinkedHashSet<>();
     
     public MutableRegisterAutomaton(Constants consts, VarValuation initialRegisters) {
         super(initialRegisters);

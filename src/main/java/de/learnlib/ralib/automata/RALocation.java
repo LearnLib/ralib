@@ -22,7 +22,7 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -35,7 +35,7 @@ public class RALocation {
     
     private boolean accepting;
     
-    private final Map<ParameterizedSymbol, Collection<Transition>> out = new HashMap<>();
+    private final Map<ParameterizedSymbol, Collection<Transition>> out = new LinkedHashMap<>();
 
     public RALocation(int id, boolean accepting) {
         this.id = id;

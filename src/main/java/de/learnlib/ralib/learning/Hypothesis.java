@@ -26,7 +26,7 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -38,9 +38,9 @@ import net.automatalib.words.Word;
 public class Hypothesis extends MutableRegisterAutomaton 
 implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransformer<PSymbolInstance> {
 
-    private final Map<RALocation, Word<PSymbolInstance>> accessSequences = new HashMap<>();
+    private final Map<RALocation, Word<PSymbolInstance>> accessSequences = new LinkedHashMap<>();
 
-    private final Map<Transition, Word<PSymbolInstance>> transitionSequences = new HashMap<>();
+    private final Map<Transition, Word<PSymbolInstance>> transitionSequences = new LinkedHashMap<>();
     
     public Hypothesis(Constants consts) {
         super(consts);

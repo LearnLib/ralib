@@ -26,8 +26,8 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import net.automatalib.words.Word;
@@ -74,10 +74,10 @@ public class SymbolicSuffix {
         
         this.actions = DataWords.actsOf(suffix);
         
-        this.dataValues = new HashMap<>();
-        this.freeValues = new HashSet<>();
+        this.dataValues = new LinkedHashMap<>();
+        this.freeValues = new LinkedHashSet<>();
         
-        Map<DataValue, SuffixValue> groups = new HashMap<>();
+        Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
         
@@ -107,13 +107,13 @@ public class SymbolicSuffix {
         this.actions = symSuffix.actions.prepend(
                 DataWords.actsOf(prefix).lastSymbol());
         
-        this.dataValues = new HashMap<>();
-        this.freeValues = new HashSet<>();
+        this.dataValues = new LinkedHashMap<>();
+        this.freeValues = new LinkedHashSet<>();
         
         Word<PSymbolInstance> suffix = prefix.suffix(1);
         prefix = prefix.prefix(prefix.length() - 1);
         
-        Map<DataValue, SuffixValue> groups = new HashMap<>();
+        Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
         

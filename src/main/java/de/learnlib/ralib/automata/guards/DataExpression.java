@@ -36,8 +36,8 @@ import gov.nasa.jpf.constraints.expressions.Negation;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -53,15 +53,15 @@ public class DataExpression<T extends Object> {
 
     public static DataExpression<Boolean> TRUE = 
             new DataExpression<>(ExpressionUtil.TRUE, 
-                    new HashMap<SymbolicDataValue, Variable>());
+                    new LinkedHashMap<SymbolicDataValue, Variable>());
     
     public static DataExpression<Boolean> FALSE = 
             new DataExpression<>(ExpressionUtil.FALSE, 
-                    new HashMap<SymbolicDataValue, Variable>());
+                    new LinkedHashMap<SymbolicDataValue, Variable>());
 
     private static final LearnLogger log = LearnLogger.getLogger(DataExpression.class);
     
-    private static class MapFunction extends HashMap<String, String> implements Function<String, String> {
+    private static class MapFunction extends LinkedHashMap<String, String> implements Function<String, String> {
         @Override
         public String apply(String f) {
             return get(f);
@@ -129,7 +129,7 @@ public class DataExpression<T extends Object> {
     public DataExpression<T> relabel(
             VarMapping<SymbolicDataValue, SymbolicDataValue> renaming) {
 
-        Map<SymbolicDataValue, Variable> newMap = new HashMap<>();
+        Map<SymbolicDataValue, Variable> newMap = new LinkedHashMap<>();
         for (Entry<SymbolicDataValue, Variable> e : mapping.entrySet()) {
             SymbolicDataValue sdv = renaming.get(e.getKey());
             if (sdv == null) {
@@ -145,7 +145,7 @@ public class DataExpression<T extends Object> {
     } 
     
     public static DataExpression<Boolean> and(DataExpression<Boolean> ... conj) {
-        Set<SymbolicDataValue> vals = new HashSet<>();
+        Set<SymbolicDataValue> vals = new LinkedHashSet<>();
         for (DataExpression<Boolean> expr : conj) {
             vals.addAll(expr.mapping.keySet());
         }
@@ -153,7 +153,7 @@ public class DataExpression<T extends Object> {
     }
 
     public static DataExpression<Boolean> or(DataExpression<Boolean> ... disj) {
-        Set<SymbolicDataValue> vals = new HashSet<>();
+        Set<SymbolicDataValue> vals = new LinkedHashSet<>();
         for (DataExpression<Boolean> expr : disj) {
             vals.addAll(expr.mapping.keySet());
         }
@@ -163,7 +163,7 @@ public class DataExpression<T extends Object> {
     public static DataExpression<Boolean> combine(LogicalOperator op, 
             Collection<SymbolicDataValue> join, DataExpression<Boolean> ... conj) {
         
-        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        Map<SymbolicDataValue, Variable> map = new LinkedHashMap<>();
         Expression<Boolean> and = null;
         
         int eIdx = 0;

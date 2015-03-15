@@ -33,7 +33,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -48,7 +48,7 @@ class AutomatonBuilder {
     
     private final Map<Word<PSymbolInstance>, Component> components;
 
-    private final Map<Word<PSymbolInstance>, RALocation> locations = new HashMap<>();
+    private final Map<Word<PSymbolInstance>, RALocation> locations = new LinkedHashMap<>();
     
     private final Hypothesis automaton;
     
