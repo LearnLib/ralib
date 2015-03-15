@@ -518,6 +518,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
             PIV piv, SymbolicDecisionTree... sdts) {
+        
+        System.out.println(Arrays.toString(sdts));
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);

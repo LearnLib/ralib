@@ -40,7 +40,7 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = super.hashCode();
         hash = 97 * hash + Objects.hashCode(this.register);
         hash = 97 * hash + Objects.hashCode(this.relation);
         return hash;
