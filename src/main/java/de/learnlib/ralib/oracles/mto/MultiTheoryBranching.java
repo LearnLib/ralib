@@ -298,6 +298,19 @@ public class MultiTheoryBranching implements Branching {
 //  
         //    return branches;  
         //}
+        
+        private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
+        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
+        currRegsAndParams.add(guard.getParameter());
+        if (guard instanceof SDTCompoundGuard) {
+            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
+        } else {
+            currRegsAndParams.add(((SDTIfGuard) guard).getRegister());
+        }
+        return currRegsAndParams;
+    }
+        
+        
         private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
             Set<SymbolicDataValue> regsAndParams = new HashSet<>();
             for (DataValue[] dvs : guardMap.keySet()) {
