@@ -84,6 +84,8 @@ public class SDT implements SymbolicDecisionTree {
 //            if (g.isEmpty)
 //        }
 //}
+    
+    
 
     @Override
     public boolean isAccepting() {
@@ -97,15 +99,16 @@ public class SDT implements SymbolicDecisionTree {
             //    System.out.println(s == null);
             //    System.out.println(s.getClass().toString());
            // }
-            assert !this.children.isEmpty();
-        for (SDT child : children.values()) {
-            if (!child.isAccepting()) {
+//            assert !this.children.isEmpty();
+        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+            if (!e.getValue().isAccepting()) {
                 return false;
             }
         }
         }
 
         return true;
+        //return false;
     }
 
     protected Map<SDTGuard, SDT> getChildren() {
@@ -135,6 +138,7 @@ public class SDT implements SymbolicDecisionTree {
                     (SDT) e.getValue().relabel(relabelling));
         }
         SDT relabelled = new SDT(reChildren);
+        assert !relabelled.isEmpty();
         return relabelled;
     }
 
@@ -148,7 +152,8 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     void toString(StringBuilder sb, String indentation) {
-        sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]");
+//        sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]");
+          sb.append(indentation).append("[]");
         final int childCount = children.size();
         int count = 1;
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
@@ -280,13 +285,14 @@ public class SDT implements SymbolicDecisionTree {
             log.log(Level.FINEST,"no sdt leaf");
             boolean regEq = this.regCanUse((SDT) other);
             log.log(Level.FINEST,"regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
-            boolean accEq = (this.isAccepting() == other.isAccepting());
+            //boolean accEq = (this.isAccepting() == other.isAccepting());
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
             log.log(Level.FINEST,"comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
             boolean chiEq = this.chiCanUse((SDT) other);
             //return regEq && accEq && chiEq;
-            return accEq && chiEq;
+            //return accEq && chiEq;
+            return chiEq;
         }
     }
 
