@@ -87,14 +87,16 @@ public class SDT implements SymbolicDecisionTree {
 
     @Override
     public boolean isAccepting() {
+//        System.out.println("isAccepting for :   " + this.toString());
         if (this instanceof SDTLeaf) {
         return ((SDTLeaf)this).isAccepting();
         }
         else {
-            System.out.println("HEY KIDS!!" + this.children.keySet());
-            for (SDTGuard s : children.keySet()) {
-                System.out.println(s.getClass().toString());
-            }
+            //System.out.println("HEY KIDS!!" + this.children.keySet());
+            //for (SDTGuard s : children.keySet()) {
+            //    System.out.println(s == null);
+            //    System.out.println(s.getClass().toString());
+           // }
             assert !this.children.isEmpty();
         for (SDT child : children.values()) {
             if (!child.isAccepting()) {

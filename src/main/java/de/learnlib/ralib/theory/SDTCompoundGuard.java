@@ -135,6 +135,7 @@ public class SDTCompoundGuard extends SDTGuard {
         for (SDTIfGuard g : this.guards) {
             gg.add(g.relabel(relabelling));
         }
-        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        throw new IllegalStateException("not supposed to happen");
+        //return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }    
 }

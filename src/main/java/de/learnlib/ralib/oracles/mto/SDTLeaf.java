@@ -80,7 +80,7 @@ public class SDTLeaf extends SDT {
     
     @Override
     void toString(StringBuilder sb, String indentation) {
-        sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]").append("\n");
+        sb.append(indentation).append("[Leaf").append(isAccepting() ? "+" : "-").append("]").append("\n");
     }
     
     @Override

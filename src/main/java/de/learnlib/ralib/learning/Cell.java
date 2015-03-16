@@ -104,7 +104,7 @@ final class Cell {
        
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);          
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
-        log.log(Level.FINE, "{0}", c);
+        log.log(Level.FINE, "computeCell ...... {0}", c);
         
         System.out.println(c);
         assert tqr.getPiv().size() <= 2;
