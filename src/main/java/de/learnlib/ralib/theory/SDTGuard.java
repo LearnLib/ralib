@@ -22,7 +22,7 @@ import java.util.Objects;
 public abstract class SDTGuard {
     
     //TODO: this should probably be a special sdtparameter
-    private final SuffixValue parameter;
+    protected final SuffixValue parameter;
     
     //TODO: this should be either a register or a special sdtregister
     //private final Register register;
@@ -88,23 +88,6 @@ public abstract class SDTGuard {
     
     public abstract SDTGuard relabel(VarMapping relabelling);
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.parameter);
-        return hash;
-    }
 
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        
-        final SDTGuard other = (SDTGuard) obj;
-        if (!Objects.equals(this.parameter, other.parameter)) {
-            return false;
-        }
-        return true;
-    }
 
 }

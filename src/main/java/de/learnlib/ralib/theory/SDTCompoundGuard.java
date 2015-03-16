@@ -8,10 +8,8 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -20,6 +18,7 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,12 +27,25 @@ import java.util.Set;
 public class SDTCompoundGuard extends SDTGuard {
 
     private final List<SDTIfGuard> guards;
+    private final Set<SDTIfGuard> guardSet;
     
     public List<SDTIfGuard> getGuards() {
         return guards;
     }
-
+    
+    
     @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.parameter);
+        hash = 59 * hash + Objects.hashCode(this.guardSet);
+        hash = 59 * hash + Objects.hashCode(this.getClass());
+        
+        return hash;
+    }
+
+   
+   @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -42,18 +54,12 @@ public class SDTCompoundGuard extends SDTGuard {
             return false;
         }
         final SDTCompoundGuard other = (SDTCompoundGuard) obj;
-        if (!Objects.equals(this.guards, other.guards)) {
+        
+        if (!Objects.equals(this.guardSet, other.guardSet)) {
             return false;
         }
-        return super.equals(obj) && true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.guards);
-        return hash;
-    }
+        return Objects.equals(this.parameter, other.parameter);
+    } 
     
     public Set<SymbolicDataValue> getAllRegs() {
         Set<SymbolicDataValue> allRegs = new HashSet<SymbolicDataValue>();
@@ -67,6 +73,7 @@ public class SDTCompoundGuard extends SDTGuard {
         super(param);
         this.guards = new ArrayList<>();
         this.guards.addAll(Arrays.asList(ifGuards));
+        this.guardSet = new LinkedHashSet<>(guards);
     }
 
     private List<Expression<Boolean>> toExprList() {
@@ -78,12 +85,11 @@ public class SDTCompoundGuard extends SDTGuard {
     }
 
     private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
-        if (eqList.size() == 0) {
-            return ExpressionUtil.TRUE;
-        }
-        else if (eqList.size() == i + 1) {
+        //assert !eqList.isEmpty();
+        if (eqList.size() == i + 1) {
             return eqList.get(i);
         } else {
+            System.out.println("here is the xpr: " + eqList.toString());
             return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
         }
     }
@@ -94,7 +100,11 @@ public class SDTCompoundGuard extends SDTGuard {
         if (thisList.isEmpty()) {
             return ExpressionUtil.TRUE;
         }
+        if (thisList.size() == 1) {
+            return thisList.get(0);
+        }
         else {
+            System.out.println("here is the list: " + thisList.toString());
             return toExpr(thisList, 0);
         }
     }
@@ -102,14 +112,18 @@ public class SDTCompoundGuard extends SDTGuard {
     
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        Expression<Boolean> expr = toExpr(this.toExprList(), 0);
+        Expression<Boolean> expr = this.toExpr();
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
     }
 
     @Override
     public String toString() {
-        return this.guards.toString();
+        String p = parameter.toString();
+        if (this.guards.isEmpty()) {
+            return p + "empty";
+        }
+        return p +  this.guards.toString();
     }
     
     @Override

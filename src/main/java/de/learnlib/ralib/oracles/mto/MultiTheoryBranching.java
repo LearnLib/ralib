@@ -40,6 +40,7 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -225,6 +226,7 @@ public class MultiTheoryBranching implements Branching {
                 // if the node hasn't been visited previously 
                 if (!visited.contains(nextNode)) {
                     SDTGuard nextGuard = n.guards.get(d);
+                    System.out.println("here is the next guard: " + nextGuard.toString());
                     // add the node's data value to the array
                     int dvLength = dvs.length;
                     DataValue[] newDvs = new DataValue[dvLength + 1];
@@ -261,14 +263,10 @@ public class MultiTheoryBranching implements Branching {
     }
 
     private TransitionGuard toTG(Expression<Boolean> guard, Map<SymbolicDataValue, Variable> variables) {
-        if (guard == null) {
-            return new IfGuard(
-                    new DataExpression<Boolean>(ExpressionUtil.TRUE,
-                            new LinkedHashMap<SymbolicDataValue, Variable>()));
-        } else {
-            DataExpression<Boolean> cond = new DataExpression<>(guard, variables);
+        assert guard != null;
+        DataExpression<Boolean> cond = new DataExpression<>(guard, variables);
             return new IfGuard(cond);
-        }
+        
     }
         //        // 1. Create a list of expressions.
         //        List<
@@ -384,7 +382,7 @@ public class MultiTheoryBranching implements Branching {
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-        log.log(Level.FINEST, "get branches for " + this.action.toString());
+        System.out.println("!!get branches for " + this.action.toString());
 
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
@@ -402,6 +400,12 @@ public class MultiTheoryBranching implements Branching {
                         this.node, new LinkedHashMap<DataValue[], List<SDTGuard>>(),
                         new DataValue[0], new ArrayList<SDTGuard>(),
                         new ArrayList<Node>());
+        
+        System.out.println("tempMap: ------- ");
+                for (DataValue[] d: tempMap.keySet()) {
+                    System.out.println("dvs: " + Arrays.toString(d));
+                }
+        System.out.println("---- NODE ----\n" + this.node.toString() + "\n ------------");
 //        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
 //        for (DataValue[] d : psList) {
 //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
@@ -429,30 +433,32 @@ public class MultiTheoryBranching implements Branching {
             IfGuard check = null;
             
             for (DataValue[] dvs : tempMap.keySet()) {
+                System.out.println("!!!! current data value array is: " + Arrays.toString(dvs));
                 List<Expression<Boolean>> gExpr = new ArrayList<>();
                 List<SDTGuard> gList = tempMap.get(dvs);
                 for (SDTGuard g : gList) {
-                    if (!(g.toExpr() == null)) {
-                        gExpr.add(g.toExpr());
-                    }
-                }
+                gExpr.add(g.toExpr());
+            }
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
                 //log.log(Level.FINEST,"psWord = " + psWord.toString());
                 TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
                 assert tg != null;
                 check = (IfGuard) tg;
-                branches.put(prefix.append(new PSymbolInstance(action, dvs)), tg);
+                
+                Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, dvs));
+                System.out.println("!!!the branch is " + branch.toString());
+                branches.put(branch, tg);
                 //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
                 System.out.println("G: " + tg);
             }
+            
+            assert !branches.isEmpty();
 
             assert branches.size() > 1 || check.toString().contains("[true]");
             
+            System.out.println(branches.toString());
             return branches;
         }
-
-        return branches;
-    }
 
     @Override
     public String toString() {

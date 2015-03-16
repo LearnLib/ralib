@@ -19,8 +19,8 @@ import java.util.Objects;
 
 public abstract class SDTIfGuard extends SDTGuard {
     
-    private final SymbolicDataValue register;
-    private final Relation relation;
+    protected final SymbolicDataValue register;
+    protected final Relation relation;
     
     
     public SymbolicDataValue getRegister() {
@@ -37,34 +37,7 @@ public abstract class SDTIfGuard extends SDTGuard {
         this.relation = rel;
         this.register = reg;
     }   
-
-    @Override
-    public int hashCode() {
-        int hash = super.hashCode();
-        hash = 97 * hash + Objects.hashCode(this.register);
-        hash = 97 * hash + Objects.hashCode(this.relation);
-        return hash;
-    }
-
-   
-   @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final SDTIfGuard other = (SDTIfGuard) obj;
-        if (!Objects.equals(this.register, other.register)) {
-            return false;
-        }
-        if (!Objects.equals(this.relation, other.relation)) {
-            return false;
-        }
-        return super.equals(obj) && true;
-    } 
-
+    
     
     @Override
     public abstract TransitionGuard toTG(Map<SymbolicDataValue, Variable> variables);

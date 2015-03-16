@@ -58,13 +58,16 @@ public class SDTTrueGuard extends SDTGuard {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        
-        return super.equals(obj) && true;
+        final SDTTrueGuard other = (SDTTrueGuard) obj;
+        return Objects.equals(this.parameter, other.parameter);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.parameter);
+        hash = 59 * hash + Objects.hashCode(this.getClass());
+        
         return hash;
     }
 }

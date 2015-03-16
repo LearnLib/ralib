@@ -35,6 +35,7 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
+import java.util.Objects;
 /**
  *
  * @author falk
@@ -214,4 +215,34 @@ public class DisequalityGuard extends SDTIfGuard {
 //    }
 //    
 // 
+    
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.parameter);
+        hash = 59 * hash + Objects.hashCode(this.register);
+        hash = 59 * hash + Objects.hashCode(this.relation);
+        hash = 59 * hash + Objects.hashCode(this.getClass());
+        
+        return hash;
+    }
+
+   
+   @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DisequalityGuard other = (DisequalityGuard) obj;
+        if (!Objects.equals(this.register, other.register)) {
+            return false;
+        }
+        if (!Objects.equals(this.relation, other.relation)) {
+            return false;
+        }
+        return Objects.equals(this.parameter, other.parameter);
+    } 
 }

@@ -78,14 +78,26 @@ public class SDT implements SymbolicDecisionTree {
         
         return registers;
     }
+    
+//    public SDT truify() {
+//        for (Entry<SDTGuard,SDT> e : children.entrySet()) {
+//            if (g.isEmpty)
+//        }
+//}
 
     @Override
     public boolean isAccepting() {
-        assert !this.children.isEmpty();
+        if (this instanceof SDTLeaf) {
+        return ((SDTLeaf)this).isAccepting();
+        }
+        else {
+            System.out.println("HEY KIDS!!" + this.children.keySet());
+            assert !this.children.isEmpty();
         for (SDT child : children.values()) {
             if (!child.isAccepting()) {
                 return false;
             }
+        }
         }
 
         return true;
@@ -137,9 +149,14 @@ public class SDT implements SymbolicDecisionTree {
             SDTGuard g = e.getKey();
             String gString = g.toString();
             //TODO: replace lists of guards by guards
-            if (gString.length() < 3) {
-                gString = "[else]";
-            }
+//            if (gString.length() < 3) {
+//                if (g instanceof SDTCompoundGuard) {
+//                gString = "[else]";
+//                }
+//                else {
+//                    gString = "[uncaptured]";
+//                }
+//            }
             String nextIndent;
             if (count == childCount) {
                 nextIndent = indentation + "      ";
