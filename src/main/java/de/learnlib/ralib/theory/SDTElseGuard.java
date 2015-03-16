@@ -13,7 +13,7 @@ import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
 import java.util.Set;
 
-
+@Deprecated
 public abstract class SDTElseGuard extends SDTGuard {
     
     private final Set<SymbolicDataValue.Register> registers;

@@ -13,9 +13,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
-import de.learnlib.ralib.theory.SDTElseGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTTrueGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
@@ -63,9 +63,9 @@ public class SDT implements SymbolicDecisionTree {
                         registers.add((Register) ifr);
                     }
                 }
-            } else if (g instanceof SDTElseGuard) {
-                registers.addAll(((SDTElseGuard) g).getRegisters());
-            } else {
+//            } else if (g instanceof SDTTrueGuard) {
+//                registers.addAll(((SDTTrueGuard) g).getRegisters());
+            } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
             }
             SDT child = e.getValue();
@@ -92,6 +92,9 @@ public class SDT implements SymbolicDecisionTree {
         }
         else {
             System.out.println("HEY KIDS!!" + this.children.keySet());
+            for (SDTGuard s : children.keySet()) {
+                System.out.println(s.getClass().toString());
+            }
             assert !this.children.isEmpty();
         for (SDT child : children.values()) {
             if (!child.isAccepting()) {
@@ -125,6 +128,7 @@ public class SDT implements SymbolicDecisionTree {
         //log.log(Level.FINEST,"RELABEL: " + relabelling);        
         Map<SDTGuard, SDT> reChildren = new HashMap<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+            assert !(e.getKey() instanceof SDTCompoundGuard);
             reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
         }

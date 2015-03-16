@@ -214,19 +214,19 @@ public class MultiTheoryBranching implements Branching {
     private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
             Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
             DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
-        log.log(Level.FINEST, n.toString());
+        System.out.println("!!!node: " + n.toString());
         // if we are not at a leaf
         visited.add(n);
         if (!n.next.isEmpty()) {
                 // get all next nodes
-            //         log.log(Level.FINEST,"next dvs: " + n.next.keySet().toString());
+                     System.out.println("!!!next dvs: " + n.next.keySet().toString());
             // go through each of the 'next' nodes
             for (DataValue d : n.next.keySet()) {
                 Node nextNode = n.next.get(d);
                 // if the node hasn't been visited previously 
                 if (!visited.contains(nextNode)) {
                     SDTGuard nextGuard = n.guards.get(d);
-                    System.out.println("here is the next guard: " + nextGuard.toString());
+                    System.out.println("!!!here is the next guard: " + nextGuard.toString());
                     // add the node's data value to the array
                     int dvLength = dvs.length;
                     DataValue[] newDvs = new DataValue[dvLength + 1];
@@ -382,11 +382,13 @@ public class MultiTheoryBranching implements Branching {
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-        System.out.println("!!get branches for " + this.action.toString());
+        System.out.println("!!get branches for " + this.action.toString() + " with arity " + this.action.getArity());
+        System.out.println(this.toString());
 
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
         if (this.action.getArity() == 0) {
+            System.out.println("arity 0");
             TransitionGuard tg = new IfGuard(
                     new DataExpression<Boolean>(ExpressionUtil.TRUE,
                             new LinkedHashMap<SymbolicDataValue, Variable>()));

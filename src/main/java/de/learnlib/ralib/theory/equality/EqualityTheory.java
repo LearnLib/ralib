@@ -34,7 +34,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -74,6 +74,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT>
             mergeGuards(Map<EqualityGuard, SDT> eqs, SDTCompoundGuard deqGuard, SDT deqSdt) {
 
+                System.out.println("PPPPP " + eqs.toString());
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
         List<DisequalityGuard> deqList = new ArrayList<>();
 
@@ -90,10 +91,19 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 deqList.add(eqGuard.toDeqGuard());
             }
         }
-        SDTCompoundGuard retDeqGuard = new SDTCompoundGuard(
-                deqGuard.getParameter(),
-                deqList.toArray(new DisequalityGuard[]{}));
-        retMap.put(retDeqGuard, deqSdt);
+        if (deqList.isEmpty()) {
+            retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
+        }
+        else if (deqList.size() == 1) {
+            retMap.put(deqList.get(0), deqSdt);
+        }
+        else {
+            throw new IllegalStateException("not supposed to happen...");
+        }
+        //SDTCompoundGuard retDeqGuard = new SDTCompoundGuard(
+        //        deqGuard.getParameter(),
+        //        deqList.toArray(new DisequalityGuard[]{}));
+        //retMap.put(retDeqGuard, deqSdt);
         return retMap;
     }
             
@@ -256,6 +266,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // clear the temporary map of children
         tempKids.clear();
 
+        for (SDTGuard g : merged.keySet()) {
+            assert !(g instanceof SDTCompoundGuard);
+            assert !(g == null);
+        }
+        
         SDT returnSDT = new SDT(merged);
         // this keeps only the REGISTERS
 //        Set<Register> regs = returnSDT.getRegisters();
