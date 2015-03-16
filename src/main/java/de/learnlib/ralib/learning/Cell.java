@@ -106,7 +106,7 @@ final class Cell {
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
         log.log(Level.FINE, "computeCell ...... {0}", c);
         
-        System.out.println(c);
+        //System.out.println(c);
         assert tqr.getPiv().size() <= 2;
 
         return c;

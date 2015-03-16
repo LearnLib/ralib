@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
@@ -102,6 +103,20 @@ public class SymbolicSuffix {
         }
     }
 
+    public SymbolicSuffix(ParameterizedSymbol ps) {
+        this.actions = Word.fromSymbols(ps);
+        this.dataValues = new LinkedHashMap<>();
+        this.freeValues = new LinkedHashSet<>();
+
+        SuffixValueGenerator valgen = new SuffixValueGenerator();
+        int idx = 1;
+        for (DataType t : ps.getPtypes()) {
+            SuffixValue sv = valgen.next(t);
+            this.freeValues.add(sv);
+            this.dataValues.put(idx++, sv);
+        }        
+    }
+    
     public SymbolicSuffix(Word<PSymbolInstance> prefix, SymbolicSuffix symSuffix) {
         
         this.actions = symSuffix.actions.prepend(

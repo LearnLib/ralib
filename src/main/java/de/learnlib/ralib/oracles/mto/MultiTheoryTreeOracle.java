@@ -175,7 +175,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         //TODO: check if this casting can be avoided by proper use of generics
         //TODO: the problem seems to be 
-            System.out.println("using " + sdts.length + " SDTs");
+            //System.out.println("using " + sdts.length + " SDTs");
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {
             if (sdts[i] instanceof SDTLeaf) {
@@ -355,7 +355,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     && (!mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV()))) {
                 finer = g;
                 coarser = n;
-                System.out.println("!!!!!!! " + g.toString() + " refines " + n.toString());
+                //System.out.println("!!!!!!! " + g.toString() + " refines " + n.toString());
 
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
                 //    throw new IllegalStateException("Can't refine in the wrong direction");
@@ -363,7 +363,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             } else if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())
                     && (!mlo.doesRefine(g.toTG(gVars), new PIV(), n.toTG(nVars), new PIV()))) {
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
-                System.out.println("!!!!!!! " + n.toString() + " refines " + g.toString());
+                //System.out.println("!!!!!!! " + n.toString() + " refines " + g.toString());
                 finer = n;
                 coarser = g;
             }
@@ -456,7 +456,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
         //  if (i < ps.getArity()) {
-        System.out.println("!!!Psymbol: " + ps.toString() + " i " + i);
+        //System.out.println("!!!Psymbol: " + ps.toString() + " i " + i);
         DataType type = ps.getPtypes()[i - 1];
         log.log(Level.FINEST, "current type: " + type.getName());
         int numSdts = sdts.length;
@@ -509,7 +509,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             Map<SDTGuard, SDT> currChildren = curr.getChildren();
             Map<SDTGuard, SDT> nxtChildren = collectKids(nxt);
-            System.out.println("!!!!! keySet " + nxtChildren.keySet());
+            //System.out.println("!!!!! keySet " + nxtChildren.keySet());
             Set<SDTGuard> finest = new LinkedHashSet<>();
             List<SDTGuard> friends = new ArrayList<>();
             log.log(Level.FINEST, "curr guards are: " + currChildren.keySet().toString());
@@ -534,7 +534,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     friends.add(new SDTTrueGuard(new SuffixValue(p.getType(),p.getId())));
                 }
                 else {
-                System.out.println("!!!!!! friends " + friends.toString());}
+                //System.out.println("!!!!!! friends " + friends.toString());
+                }
                         //List<SDTGuard> friends = new ArrayList<>(guardAndFriends.subList(1, guardAndFriends.size()));
                 //log.log(Level.FINEST, "!!!! friends are: " + guardAndFriends.toString());
                 //if (!visited.contains(nextNode)) {
@@ -563,10 +564,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     //friendSdts.add(nxtChildren.get(friendGuard));
                 }
                 
-                System.out.println("!!!!!friendList size " + friendSdts.size());
+                //System.out.println("!!!!!friendList size " + friendSdts.size());
                 
                 SDT[] newSdts = friendSdts.toArray(new SDT[friendSdts.size()]);
-		System.out.println("!!!!!newSdts  " + Arrays.toString(newSdts));
+		//System.out.println("!!!!!newSdts  " + Arrays.toString(newSdts));
                 
                 nextMap.put(dvi, createNode(i + 1, prefix, ps, piv, otherPval, newSdts));
     guardMap.put(dvi, guard);
@@ -607,8 +608,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Map<Word<PSymbolInstance>, TransitionGuard> oldBranches = oldBranching.getBranches();
         Map<Word<PSymbolInstance>, TransitionGuard> newBranches = newBranching.getBranches();
 
-        System.out.println(">>>>Updating old branching: " + oldBranching.toString());
-        System.out.println(".... according to new SDT: " + newBranching.toString());
+        //System.out.println(">>>>Updating old branching: " + oldBranching.toString());
+        //System.out.println(".... according to new SDT: " + newBranching.toString());
 
 //        assert oldBranches.size() <= newBranches.size();
         //if (oldBranches.isEmpty()) {

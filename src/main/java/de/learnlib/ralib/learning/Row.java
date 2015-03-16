@@ -106,7 +106,7 @@ class Row {
         for (Entry<SymbolicSuffix, Cell> c: cells.entrySet()) {
             Word<ParameterizedSymbol> acts = c.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
-                System.out.println("Using " + c.getKey() + " for branching of " + ps);
+                System.out.println("Using " + c.getKey() + " for branching of " + ps + " after " + prefix);
                 sdts.add(c.getValue().getSDT());
             }
         } 

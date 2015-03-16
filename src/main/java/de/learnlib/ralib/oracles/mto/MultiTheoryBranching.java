@@ -214,19 +214,19 @@ public class MultiTheoryBranching implements Branching {
     private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
             Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
             DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
-        System.out.println("!!!node: " + n.toString());
+        //System.out.println("!!!node: " + n.toString());
         // if we are not at a leaf
         visited.add(n);
         if (!n.next.isEmpty()) {
                 // get all next nodes
-                     System.out.println("!!!next dvs: " + n.next.keySet().toString());
+                     //System.out.println("!!!next dvs: " + n.next.keySet().toString());
             // go through each of the 'next' nodes
             for (DataValue d : n.next.keySet()) {
                 Node nextNode = n.next.get(d);
                 // if the node hasn't been visited previously 
                 if (!visited.contains(nextNode)) {
                     SDTGuard nextGuard = n.guards.get(d);
-                    System.out.println("!!!here is the next guard: " + nextGuard.toString());
+                    //System.out.println("!!!here is the next guard: " + nextGuard.toString());
                     // add the node's data value to the array
                     int dvLength = dvs.length;
                     DataValue[] newDvs = new DataValue[dvLength + 1];
@@ -382,13 +382,13 @@ public class MultiTheoryBranching implements Branching {
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-        System.out.println("!!get branches for " + this.action.toString() + " with arity " + this.action.getArity());
-        System.out.println(this.toString());
+        //System.out.println("!!get branches for " + this.action.toString() + " with arity " + this.action.getArity());
+        //System.out.println(this.toString());
 
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
         if (this.action.getArity() == 0) {
-            System.out.println("arity 0");
+            //System.out.println("arity 0");
             TransitionGuard tg = new IfGuard(
                     new DataExpression<Boolean>(ExpressionUtil.TRUE,
                             new LinkedHashMap<SymbolicDataValue, Variable>()));
@@ -403,11 +403,11 @@ public class MultiTheoryBranching implements Branching {
                         new DataValue[0], new ArrayList<SDTGuard>(),
                         new ArrayList<Node>());
         
-        System.out.println("tempMap: ------- ");
+        //System.out.println("tempMap: ------- ");
                 for (DataValue[] d: tempMap.keySet()) {
-                    System.out.println("dvs: " + Arrays.toString(d));
+                    //System.out.println("dvs: " + Arrays.toString(d));
                 }
-        System.out.println("---- NODE ----\n" + this.node.toString() + "\n ------------");
+        //System.out.println("---- NODE ----\n" + this.node.toString() + "\n ------------");
 //        List<DataValue[]> psList = collectDataValues(this.node, new ArrayList<DataValue[]>(), new DataValue[0], new ArrayList<Node>());
 //        for (DataValue[] d : psList) {
 //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
@@ -435,7 +435,7 @@ public class MultiTheoryBranching implements Branching {
             IfGuard check = null;
             
             for (DataValue[] dvs : tempMap.keySet()) {
-                System.out.println("!!!! current data value array is: " + Arrays.toString(dvs));
+                //System.out.println("!!!! current data value array is: " + Arrays.toString(dvs));
                 List<Expression<Boolean>> gExpr = new ArrayList<>();
                 List<SDTGuard> gList = tempMap.get(dvs);
                 for (SDTGuard g : gList) {
@@ -448,17 +448,17 @@ public class MultiTheoryBranching implements Branching {
                 check = (IfGuard) tg;
                 
                 Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, dvs));
-                System.out.println("!!!the branch is " + branch.toString());
+                //System.out.println("!!!the branch is " + branch.toString());
                 branches.put(branch, tg);
                 //log.log(Level.FINEST,"guard: " + ((IfGuard)tg).toString());
-                System.out.println("G: " + tg);
+                //System.out.println("G: " + tg);
             }
             
             assert !branches.isEmpty();
 
-            assert branches.size() > 1 || check.toString().contains("[true]");
+            //assert branches.size() > 1 || check.toString().contains("[true]");
             
-            System.out.println(branches.toString());
+            //System.out.println(branches.toString());
             return branches;
         }
 

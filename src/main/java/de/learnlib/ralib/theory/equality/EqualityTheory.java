@@ -74,7 +74,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT>
             mergeGuards(Map<EqualityGuard, SDT> eqs, SDTCompoundGuard deqGuard, SDT deqSdt) {
 
-                System.out.println("PPPPP " + eqs.toString());
+                //System.out.println("PPPPP " + eqs.toString());
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
         List<DisequalityGuard> deqList = new ArrayList<>();
 

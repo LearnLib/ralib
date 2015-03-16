@@ -77,6 +77,10 @@ public class RaStar {
         this.obs.addPrefix(EMPTY_PREFIX);
         this.obs.addSuffix(EMPTY_SUFFIX);
         
+        for (ParameterizedSymbol ps : inputs) {
+            this.obs.addSuffix(new SymbolicSuffix(ps));
+        }
+        
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;        

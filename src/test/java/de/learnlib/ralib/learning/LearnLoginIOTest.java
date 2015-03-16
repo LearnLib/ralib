@@ -34,6 +34,7 @@ import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -68,12 +69,12 @@ public class LearnLoginIOTest {
     public void learnLoginExampleIO() {
 
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINEST);
+        root.setLevel(Level.INFO);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINEST);
-//            h.setFilter(new CategoryFilter(EnumSet.of(
+            h.setLevel(Level.INFO);
+            h.setFilter(new CategoryFilter(EnumSet.of(
 //                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-//                    Category.EVENT, Category.PHASE, Category.MODEL)));
+                    Category.EVENT, Category.PHASE, Category.MODEL)));
         }
 
         final ParameterizedSymbol ERROR
@@ -81,7 +82,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+                        "/de/learnlib/ralib/automata/xml/login.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -122,9 +123,9 @@ public class LearnLoginIOTest {
         
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         //IOCache ioCache = new IOCache(ioOracle);
-        //IOFilter ioFilter = new IOFilter(oracle, inputs);
+        IOFilter ioFilter = new IOFilter(oracle, inputs);
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
@@ -141,10 +142,10 @@ public class LearnLoginIOTest {
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
                 false, // do not draw symbols uniformly 
-                0.05, // reset probability 
-                0.5, // prob. of choosing a fresh data value
+                0.1, // reset probability 
+                0.8, // prob. of choosing a fresh data value
                 1000, // 1000 runs 
-                10, // max depth
+                100, // max depth
                 consts,
                 false, // reset runs 
                 teachers,
@@ -175,10 +176,10 @@ public class LearnLoginIOTest {
 
             ce = loops.optimizeCE(ce.getInput(), hyp);
             System.out.println("Shorter CE: " + ce);
-//            ce = asrep.replacePrefix(ce, hyp);
-//            System.out.println("New Prefix CE: " + ce);
-//            ce = pref.findPrefix(ce, hyp);
-//            System.out.println("Prefix of CE is CE: " + ce);
+            ce = asrep.optimizeCE(ce.getInput(), hyp);
+            System.out.println("New Prefix CE: " + ce);
+            ce = pref.optimizeCE(ce.getInput(), hyp);
+            System.out.println("Prefix of CE is CE: " + ce);
             
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());
