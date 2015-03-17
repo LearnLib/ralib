@@ -83,7 +83,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/abp.output.xml"));
+                        "/de/learnlib/ralib/automata/xml/palindrome.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
