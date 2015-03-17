@@ -85,7 +85,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (valsetPrefix.contains(d)) {
+            if (prefix.length() == 0 || valsetPrefix.contains(d)) {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
