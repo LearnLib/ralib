@@ -28,7 +28,7 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public String toString() {
-        return "TRUE";
+        return "TRUE: " + parameter.toString();
     }
 
     @Override

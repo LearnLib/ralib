@@ -119,7 +119,7 @@ public class SDTCompoundGuard extends SDTGuard {
 
     @Override
     public String toString() {
-        String p = parameter.toString();
+        String p = "COMPOUND: " +parameter.toString();
         if (this.guards.isEmpty()) {
             return p + "empty";
         }
