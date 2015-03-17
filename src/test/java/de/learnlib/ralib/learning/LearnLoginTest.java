@@ -92,14 +92,14 @@ public class LearnLoginTest {
             }
         });
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle();
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 
             @Override
             public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers);
+                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants());
             }
         };
         

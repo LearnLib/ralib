@@ -19,12 +19,11 @@
 
 package de.learnlib.ralib.oracles.mto;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -41,7 +40,7 @@ public interface SDTConstructor {
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, PIV piv,
-            SuffixValuation suffixValues);
+            Constants constants, SuffixValuation suffixValues);
     
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 

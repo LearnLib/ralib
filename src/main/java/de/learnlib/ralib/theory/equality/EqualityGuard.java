@@ -21,15 +21,14 @@ package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.inequality.SmallerGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -97,6 +96,10 @@ public class EqualityGuard extends SDTIfGuard {
         }
         else if (r instanceof SuffixValue) {
             xname = "y" + r.getId();
+        }
+        
+        else if (r instanceof Constant) {
+            xname = "c" + r.getId();
         }
         String pname = "y" + this.getParameter().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, pname);

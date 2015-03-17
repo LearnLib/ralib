@@ -102,7 +102,7 @@ public class LoginBranchingTest {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
         
         DataType uid = getType("uid", loader.getDataTypes());
         DataType pwd = getType("pwd", loader.getDataTypes());

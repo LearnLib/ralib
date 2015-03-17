@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
@@ -85,7 +86,7 @@ public class TestEqualityTheory {
         theories.put(T_UID, uidTheory);
         theories.put(T_PWD, pwdTheory);
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, new Constants());
         
 //        final Word<PSymbolInstance> prefix = Word.fromSymbols(
 //                new PSymbolInstance(I_REGISTER, 

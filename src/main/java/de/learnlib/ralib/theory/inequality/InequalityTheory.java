@@ -6,10 +6,10 @@
 package de.learnlib.ralib.theory.inequality;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -277,6 +277,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values,
             PIV piv,
+            Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
 
@@ -419,7 +420,7 @@ public abstract class InequalityTheory<T> implements Theory<T> {
 //                guardSet.add(new BiggerGuard(sv, rvPrev));
 //            }
             SDT oracleSdt = oracle.treeQuery(
-                    prefix, suffix, currentValues, piv, currentSuffixValues);
+                    prefix, suffix, currentValues, piv, constants, currentSuffixValues);
 
             tempKids.put(guard, oracleSdt);
 

@@ -21,6 +21,7 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -31,7 +32,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -46,8 +46,6 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -73,14 +71,17 @@ import net.automatalib.words.Word;
 public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final DataWordOracle oracle;
+    
+    private final Constants constants;
 
     private final Map<DataType, Theory> teachers;
 
     private static LearnLogger log = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
 
-    public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers) {
+    public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants) {
         this.oracle = oracle;
         this.teachers = teachers;
+        this.constants = constants;
     }
 
     @Override
@@ -93,7 +94,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //}
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
-                new WordValuation(), pir, new SuffixValuation());
+                new WordValuation(), pir, constants, new SuffixValuation());
 
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
@@ -119,6 +120,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, PIV pir,
+            Constants constants,
             SuffixValuation suffixValues) {
 
         //log.log(Level.FINEST,"suffix length: " + DataWords.paramLength(suffix.getActions()) + ", values size: " + values.size() + ", suffixValues size " + suffixValues.size());
@@ -159,7 +161,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         //log.log(Level.FINEST,"Teacher theory: " + sd.getType().toString());
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, pir, suffixValues, this);
+        return teach.treeQuery(prefix, suffix, values, pir, constants, suffixValues, this);
     }
 
     /**
@@ -188,7 +190,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             //log.log(Level.FINE, "Using SDT \n{0}", sdts[i].toString());
 
         MultiTheoryBranching mtb = getInitialBranching(
-                prefix, ps, piv, new ParValuation(),
+                prefix, ps, piv, new ParValuation(),  
                 new ArrayList<SDTGuard>(), casted);
 
         log.log(Level.FINEST, mtb.toString());
@@ -266,23 +268,23 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return vars;
     }
 
-    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT sdt, Map<SDTGuard, SDT> giantChildMap) {
-        Map<SDTGuard, SDT> children = sdt.getChildren();
-        giantChildMap.putAll(children);
-        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-            giantChildMap.put(e.getKey(), e.getValue());
-            makeGiantSdtMap(e.getValue(), giantChildMap);
-        }
-        return giantChildMap;
-    }
+//    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT sdt, Map<SDTGuard, SDT> giantChildMap) {
+//        Map<SDTGuard, SDT> children = sdt.getChildren();
+//        giantChildMap.putAll(children);
+//        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+//            giantChildMap.put(e.getKey(), e.getValue());
+//            makeGiantSdtMap(e.getValue(), giantChildMap);
+//        }
+//        return giantChildMap;
+//    }
 
-    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT... sdts) {
-        Map<SDTGuard, SDT> manyChildren = new LinkedHashMap<>();
-        for (SDT sdt : sdts) {
-            manyChildren.putAll(makeGiantSdtMap(sdt, manyChildren));
-        }
-        return manyChildren;
-    }
+//    private Map<SDTGuard, SDT> makeGiantSdtMap(SDT... sdts) {
+//        Map<SDTGuard, SDT> manyChildren = new LinkedHashMap<>();
+//        for (SDT sdt : sdts) {
+//            manyChildren.putAll(makeGiantSdtMap(sdt, manyChildren));
+//        }
+//        return manyChildren;
+//    }
 
     private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
         Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
@@ -434,7 +436,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             //ParValuation jpval = new ParValuation();
             //jpval.putAll(pval);
             //jpval.putAll(ipval);
-            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
+            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p);
             // try commenting out this
             ParValuation otherPval = new ParValuation();
             otherPval.putAll(pval);
@@ -484,8 +486,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 nxt[y - 1] = sdts[y];
             }
             
-            System.out.println("sdts " + Arrays.toString(sdts));
-            System.out.println("here are the NEXT sdts " + Arrays.toString(nxt));
+//            System.out.println("sdts " + Arrays.toString(sdts));
+//            System.out.println("here are the NEXT sdts " + Arrays.toString(nxt));
             // end test -------
             
             // get the children of the current sdt (this may be empty)
@@ -498,12 +500,12 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             // initialize set of finest guards; initialize list of coarser guards
             Set<SDTGuard> finest = new LinkedHashSet<>();
             
-            System.out.println("curr guards are: " + currChildren.keySet().toString());
-            System.out.println("next guards are: " + nxtChildren.keySet().toString());
+ //           System.out.println("curr guards are: " + currChildren.keySet().toString());
+ //           System.out.println("next guards are: " + nxtChildren.keySet().toString());
             
             // populate the map of which guards refine each other (may be empty)
             Map<SDTGuard, SDTGuard> refines = mapGuards(allChildren.keySet(), p);
-            System.out.println(" refines : " + refines.toString());
+ //           System.out.println(" refines : " + refines.toString());
             
             //if (refines.isEmpty()) {
             SDTGuard c = new SDTTrueGuard(new SuffixValue(p.getType(), p.getId()));
@@ -521,14 +523,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 //System.out.print
             }
             
-            System.out.println(" c guard is " + c.toString() + " with " + c.hashCode());
+  //          System.out.println(" c guard is " + c.toString() + " with " + c.hashCode());
             
             
             
             //assert currChildren.keySet().contains(c);
 
             for (SDTGuard guard : finest) {
-                log.log(Level.FINEST, "!!!! guard is: " + guard.toString());
+   //             log.log(Level.FINEST, "!!!! guard is: " + guard.toString());
                 
                 // initialize list of coarser guards
                 // add all guards that are coarser than this one
@@ -538,8 +540,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 coarser.addAll(getAllCoarser(guard, refines));
                 
                 // instantiate the parameter p according to guard and values
-                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, guard, p);
-                log.log(Level.FINEST, dvi.toString() + " maps to " + guard.toString());
+                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p);
+      //          log.log(Level.FINEST, dvi.toString() + " maps to " + guard.toString());
                 
                 // add instantiated value to new ParValuation
                 ParValuation otherPval = new ParValuation();

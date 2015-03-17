@@ -19,17 +19,16 @@
 
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.mto.MultiTheoryBranching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
@@ -72,12 +71,14 @@ public interface Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values, 
             PIV pir,
+            Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
         
        
     public DataValue instantiate(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
+            ParameterizedSymbol ps, PIV piv, ParValuation pval,
+            Constants constants,
             SDTGuard guard, Parameter param);
 
 //    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 

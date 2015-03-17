@@ -19,12 +19,14 @@
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -74,7 +76,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT>
             mergeGuards(Map<EqualityGuard, SDT> eqs, SDTCompoundGuard deqGuard, SDT deqSdt) {
 
-                //System.out.println("PPPPP " + eqs.toString());
+        //System.out.println("PPPPP " + eqs.toString());
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
         List<DisequalityGuard> deqList = new ArrayList<>();
 
@@ -86,19 +88,20 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             if (!(eqSdt.canUse(deqSdt))) {
-                log.log(Level.FINEST,"CANNOT USE: Adding if guard");
+                log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 retMap.put(eqGuard, eqSdt);
                 deqList.add(eqGuard.toDeqGuard());
             }
         }
         if (deqList.isEmpty()) {
             retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        }
-        else if (deqList.size() == 1) {
+        } else if (deqList.size() == 1) {
             retMap.put(deqList.get(0), deqSdt);
-        }
-        else {
-            throw new IllegalStateException("not supposed to happen...");
+        } else {
+
+            String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
+            System.out.println(e);
+            throw new IllegalStateException(e);
         }
         //SDTCompoundGuard retDeqGuard = new SDTCompoundGuard(
         //        deqGuard.getParameter(),
@@ -106,7 +109,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //retMap.put(retDeqGuard, deqSdt);
         return retMap;
     }
-            
+
 //    private Map<SDTGuard,SDT> truify(Map<SDTGuard,SDT> untrue) {
 //        Map<SDTGuard,SDT> trueMap = new LinkedHashMap<SDTGuard, SDT>();
 //        for (Map.Entry<SDTGuard, SDT> e: untrue.entrySet()) {
@@ -118,7 +121,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //            }
 //        }
 //    }
-
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
     private PIV keepMem(Set<SDTGuard> guardSet, List<DataValue> prefixValues) {
@@ -148,9 +150,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SymbolicSuffix suffix,
             WordValuation values,
             PIV pir,
+            Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
-
+        
         int pId = values.size() + 1;
 
         SuffixValue sv = suffix.getDataValue(pId);
@@ -168,6 +171,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //ParsInVars ifPiv = new ParsInVars();
         //ifPiv.putAll(piv);
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
+                constants.<T>values(type),
                 DataWords.<T>valSet(prefix, type),
                 suffixValues.<T>values(type));
 
@@ -203,13 +207,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         for (DataValue<T> newDv : potential) {
             log.log(Level.FINEST, newDv.toString());
 
-            
             // this is the valuation of the suffixvalues in the suffix
             SuffixValuation ifSuffixValues = new SuffixValuation();
             ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
             //ifSuffixValues.put(sv, newDv);
 
-            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, pir);
+            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, pir, constants);
             log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
             diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
             //log.log(Level.FINEST,"this is the piv: " + ifPiv.toString() + " and newDv " + newDv.toString());
@@ -220,7 +223,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             ifValues.putAll(values);
             ifValues.put(pId, newDv);
             SDT eqOracleSdt = oracle.treeQuery(
-                    prefix, suffix, ifValues, pir, ifSuffixValues);
+                    prefix, suffix, ifValues, pir, constants, ifSuffixValues);
 
             tempKids.put(eqGuard, eqOracleSdt);
         }
@@ -237,7 +240,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         elseSuffixValues.put(sv, fresh);
 
         SDT elseOracleSdt = oracle.treeQuery(
-                prefix, suffix, elseValues, pir, elseSuffixValues);
+                prefix, suffix, elseValues, pir, constants, elseSuffixValues);
 
 //        ParsInVars diseqPiv = new ParsInVars();
 //        for (Register rg : ifPiv.keySet()) {
@@ -256,7 +259,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
 
         // only keep registers that are referenced by the merged guards
-        pir.putAll(keepMem(merged.keySet(),prefixValues));
+        pir.putAll(keepMem(merged.keySet(), prefixValues));
 
         log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
         //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
@@ -270,7 +273,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             assert !(g instanceof SDTCompoundGuard);
             assert !(g == null);
         }
-        
+
         SDT returnSDT = new SDT(merged);
         // this keeps only the REGISTERS
 //        Set<Register> regs = returnSDT.getRegisters();
@@ -283,9 +286,14 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     }
 
-    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir) {
+    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir, Constants constants) {
         DataType type = currentParam.getType();
         int newDv_i;
+        for (Constant c : constants.keySet()) {
+            if (constants.get(c).equals(newDv)) {
+                return new EqualityGuard(currentParam, c);
+            }
+        }
         if (prefixValues.contains(newDv)) {
             // first index of the data value in the prefixvalues list
             newDv_i = prefixValues.indexOf(newDv) + 1;
@@ -305,12 +313,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
             //log.log(Level.FINEST, "looking for smallest index of " + newDv.toString() + " in " + ifValues.toString());
-            
+
             int smallest = Collections.min(ifValues.getAllKeys(newDv));
             log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
             return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
-
     }
 
     @Override
@@ -318,8 +325,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv,
             ParValuation pval,
+            Constants constants,
             SDTGuard guard,
-            Parameter param) {
+            Parameter param
+    ) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
@@ -333,22 +342,23 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //    log.log(Level.FINEST,"pval says " + pval.get(param).toString());
             //    return pval.get(param);
             //} else {
-                //log.log(Level.FINEST,"piv = " + piv.toString());
+            //log.log(Level.FINEST,"piv = " + piv.toString());
             //log.log(Level.FINEST,"piv says " + piv.get((Parameter)param).toString());
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg instanceof Register) {
-                            log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
-                Parameter p = piv.getOneKey((Register)ereg);
-                            log.log(Level.FINEST, "p: " + p.toString());
+                log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
+                Parameter p = piv.getOneKey((Register) ereg);
+                log.log(Level.FINEST, "p: " + p.toString());
                 int idx = p.getId();
                 //return piv.get(param);
                 // trying to not pickup values from prefix
                 return prefixValues.get(idx - 1);
-            } else {
-                assert ereg instanceof SuffixValue;
+            } else if (ereg instanceof SuffixValue) {
                 Parameter p = new Parameter(type, ereg.getId());
                 return pval.get(p);
+            } else if (ereg instanceof Constant) {
+                return constants.get((Constant) ereg);
             }
             //}
         }

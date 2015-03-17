@@ -22,6 +22,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -191,7 +192,7 @@ public class TestTreeOracle {
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories, new Constants());
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 //        System.out.println(res.getSdt().isAccepting());

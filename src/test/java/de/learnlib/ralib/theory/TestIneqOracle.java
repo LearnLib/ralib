@@ -21,6 +21,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.api.Query;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -192,8 +193,9 @@ public class TestIneqOracle {
             public DataValue<DoubType> getFreshValue(List<DataValue<DoubType>> vals) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
-
-            public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval, SDTGuard guard, SymbolicDataValue.Parameter param) {
+            
+            @Override
+            public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval, Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
@@ -202,7 +204,7 @@ public class TestIneqOracle {
         Map<DataType, Theory> theories = new HashMap();
         theories.put(doubType, doubTheory);
 
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories);
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories, new Constants());
 
         //Word<PSymbolInstance>newPrefix = Compatibility.reinstantiatePrefix(prefix,DataWords.paramLength(symSuffix.getActions()));
         //System.out.println("reinstantiated prefix: " + newPrefix.toString());        

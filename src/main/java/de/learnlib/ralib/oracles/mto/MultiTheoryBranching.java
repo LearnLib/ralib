@@ -40,7 +40,6 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -299,16 +298,16 @@ public class MultiTheoryBranching implements Branching {
         //    return branches;  
         //}
         
-    private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
-        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
-        currRegsAndParams.add(guard.getParameter());
-        if (guard instanceof SDTCompoundGuard) {
-            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
-        } else {
-            currRegsAndParams.add(((SDTIfGuard) guard).getRegister());
-        }
-        return currRegsAndParams;
-    }
+//    private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
+//        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
+//        currRegsAndParams.add(guard.getParameter());
+//        if (guard instanceof SDTCompoundGuard) {
+//            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
+//        } else {
+//            currRegsAndParams.add(((SDTIfGuard) guard).getRegister());
+//        }
+//        return currRegsAndParams;
+//    }
 
     private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
         Set<SymbolicDataValue> regsAndParams = new HashSet<>();
@@ -337,6 +336,9 @@ public class MultiTheoryBranching implements Branching {
         for (SymbolicDataValue s : regsAndParams) {
             SymbolicDataValue z = s;
             String xpre = "";
+            if (s instanceof SymbolicDataValue.Constant) {
+                xpre = "c" + s.getId();
+            }
             if (s instanceof SymbolicDataValue.SuffixValue) {
                 xpre = "y" + s.getId();
                 z = new Parameter(s.getType(), s.getId());
