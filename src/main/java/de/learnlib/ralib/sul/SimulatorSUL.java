@@ -30,6 +30,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
@@ -133,8 +135,21 @@ public class SimulatorSUL extends DataWordSUL {
                 vals[i] = teachers.get(t).getFreshValue(old);
             }
             else {
-                vals[i] = register.get( (Register) mapping.getOutput().get(p));
+                SymbolicDataValue sv = mapping.getOutput().get(p);                
+                if (sv.isRegister()) {                
+                    vals[i] = register.get( (Register) sv);
+                }
+                else if (sv.isConstant()) {
+                    vals[i] = consts.get( (Constant) sv);                    
+                }
+                else if (sv.isParameter()) {
+                    throw new UnsupportedOperationException("not supported yet.");
+                }
+                else {
+                    throw new IllegalStateException("this case is not supported.");
+                }
             }
+            assert vals[i] != null;
             pval.put(p, vals[i]);
             i++;
         }
