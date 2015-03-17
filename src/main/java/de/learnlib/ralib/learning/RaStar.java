@@ -21,18 +21,15 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -76,9 +73,12 @@ public class RaStar {
         
         this.obs.addPrefix(EMPTY_PREFIX);
         this.obs.addSuffix(EMPTY_SUFFIX);
-        
+  
+        //TODO: make this optional
         for (ParameterizedSymbol ps : inputs) {
-            this.obs.addSuffix(new SymbolicSuffix(ps));
+            if (ps instanceof OutputSymbol) {
+                this.obs.addSuffix(new SymbolicSuffix(ps));
+            }
         }
         
         this.sulOracle = oracle;

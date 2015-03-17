@@ -34,6 +34,7 @@ import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -82,7 +83,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+                        "/de/learnlib/ralib/automata/xml/palindome.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -97,7 +98,8 @@ public class LearnLoginIOTest {
 
         Constants consts = loader.getConstants();
 
-        long seed = 1423423204823000L; //-3921391701929787366L;// (new Random()).nextLong();
+        long seed = -1386796323025681754L; 
+        //long seed = (new Random()).nextLong();
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
         
@@ -119,11 +121,11 @@ public class LearnLoginIOTest {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
 
-        SimulatorOracle oracle = new SimulatorOracle(model);
+        //SimulatorOracle oracle = new SimulatorOracle(model);
         
         IOOracle ioOracle = new SULOracle(sul, ERROR);
-        //IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(oracle, inputs);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
@@ -144,7 +146,7 @@ public class LearnLoginIOTest {
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
-                1000, // 1000 runs 
+                10000, // 1000 runs 
                 100, // max depth
                 consts,
                 false, // reset runs 
@@ -193,7 +195,11 @@ public class LearnLoginIOTest {
         System.out.println(hyp);
         System.out.println("----------------------------------------------------");
 
-        System.out.println(ioOracle.getQueryCount());
-        System.out.println(seed);
+        System.out.println("Seed:" + seed);
+        System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
+        System.out.println("SUL resets: " + sul.getResets());
+        System.out.println("SUL inputs: " + sul.getInputs());
+        System.out.println("Rounds: " + check);
+        
     }
 }

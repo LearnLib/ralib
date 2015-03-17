@@ -51,7 +51,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class SimulatorSUL implements DataWordSUL {
+public class SimulatorSUL extends DataWordSUL {
 
     private final RegisterAutomaton model;
     private final Set<ParameterizedSymbol> inputs;
@@ -75,6 +75,7 @@ public class SimulatorSUL implements DataWordSUL {
 
     @Override
     public void pre() {
+        countResets(1);
         loc = this.model.getInitialState();
         register = new VarValuation();
         prefix = Word.epsilon();
@@ -89,6 +90,7 @@ public class SimulatorSUL implements DataWordSUL {
 
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
+        countInputs(1);
         log.log(Level.FINEST, "step: {0} from {1}", new Object[] {i, loc});
         prefix = prefix.append(i);
         
