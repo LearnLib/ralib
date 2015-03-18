@@ -40,7 +40,7 @@ public class SDT implements SymbolicDecisionTree {
     private final Map<SDTGuard, SDT> children;
 
     private static final LearnLogger log = LearnLogger.getLogger(SDT.class);
-    
+
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
@@ -76,36 +76,32 @@ public class SDT implements SymbolicDecisionTree {
                 registers.addAll(child.getRegisters());
             }
         }
-        
+
         return registers;
     }
-    
+
 //    public SDT truify() {
 //        for (Entry<SDTGuard,SDT> e : children.entrySet()) {
 //            if (g.isEmpty)
 //        }
 //}
-    
-    
-
     @Override
     public boolean isAccepting() {
 //        System.out.println("isAccepting for :   " + this.toString());
         if (this instanceof SDTLeaf) {
-        return ((SDTLeaf)this).isAccepting();
-        }
-        else {
+            return ((SDTLeaf) this).isAccepting();
+        } else {
             //System.out.println("HEY KIDS!!" + this.children.keySet());
             //for (SDTGuard s : children.keySet()) {
             //    System.out.println(s == null);
             //    System.out.println(s.getClass().toString());
-           // }
+            // }
 //            assert !this.children.isEmpty();
-        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-            if (!e.getValue().isAccepting()) {
-                return false;
+            for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+                if (!e.getValue().isAccepting()) {
+                    return false;
+                }
             }
-        }
         }
 
         return true;
@@ -154,7 +150,7 @@ public class SDT implements SymbolicDecisionTree {
 
     void toString(StringBuilder sb, String indentation) {
 //        sb.append(indentation).append("[").append(isAccepting() ? "+" : "-").append("]");
-          sb.append(indentation).append("[]");
+        sb.append(indentation).append("[]");
         final int childCount = children.size();
         int count = 1;
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
@@ -232,13 +228,13 @@ public class SDT implements SymbolicDecisionTree {
         Set<Register> otherRegisters = other.getRegisters();
         Set<Register> thisRegisters = this.getRegisters();
 
-        log.log(Level.FINEST,thisRegisters.toString() + " vs " + otherRegisters.toString());
+        log.log(Level.FINEST, thisRegisters.toString() + " vs " + otherRegisters.toString());
 
         if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
-            log.log(Level.FINEST,"no regs anywhere");
+            log.log(Level.FINEST, "no regs anywhere");
             return true;
         } else {
-            log.log(Level.FINEST,"regs");
+            log.log(Level.FINEST, "regs");
             Boolean[] regEqArr = new Boolean[thisRegisters.size()];
             Integer i = 0;
             for (SymbolicDataValue thisReg : thisRegisters) { // if the trees have the same type and size
@@ -255,27 +251,64 @@ public class SDT implements SymbolicDecisionTree {
         }
     }
 
-    // Returns true if this SDT can use the children of another SDT.
-    private boolean chiCanUse(SDT other) {
-        Map<SDTGuard, SDT> thisChildren = this.getChildren();
-        Map<SDTGuard, SDT> otherChildren = other.getChildren();
-        Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
-        Integer i = 0;
-        for (SDTGuard thisGuard : thisChildren.keySet()) {
-            SDT thisBranch = thisChildren.get(thisGuard);
-            chiEqArr[i] = false;
-            for (SDTGuard otherGuard : otherChildren.keySet()) {
-//                log.log(Level.FINEST,"comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
-                if (thisBranch.canUse(otherChildren.get(otherGuard))) {
-                    chiEqArr[i] = true;
-//                    log.log(Level.FINEST,"... OK");
-                    break;
+    private boolean hasPair(SDTGuard thisGuard, SDT thisSdt, Map<SDTGuard, SDT> otherBranches) {
+        for (Map.Entry<SDTGuard, SDT> otherB : otherBranches.entrySet()) {
+            if (thisGuard.equals(otherB.getKey())) {
+                System.out.println(thisGuard.toString() + " equals " + otherB.getKey().toString());
+                if (thisSdt.canUse(otherB.getValue())) {
+                    return true;
                 }
+            }
+            System.out.println(thisGuard.toString() + " NOT equals " + otherB.getKey().toString());
+        }
+        return false;
+    }
+
+    private boolean canPairBranches(Map<SDTGuard, SDT> thisBranches, Map<SDTGuard, SDT> otherBranches) {
+        System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
+        if (thisBranches.size() != otherBranches.size()) {
+            return false;
+        }
+        Boolean[] pairedArray = new Boolean[thisBranches.size()];
+        Integer i = 0;
+        for (Map.Entry<SDTGuard, SDT> thisB : thisBranches.entrySet()) {
+            pairedArray[i] = hasPair(thisB.getKey(), thisB.getValue(), otherBranches);
+            if (pairedArray[i] == true) {
             }
             i++;
         }
-        return isArrayTrue(chiEqArr);
+        return isArrayTrue(pairedArray);
+
     }
+
+    // Returns true if this SDT can use the children of another SDT.
+//    private boolean chiCanUse(SDT other) {
+//        Map<SDTGuard, SDT> thisChildren = this.getChildren();
+//        Map<SDTGuard, SDT> otherChildren = other.getChildren();
+//        Boolean[] chiEqArr = new Boolean[thisChildren.keySet().size()];
+//        Integer i = 0;
+//        // for each guard
+//        for (SDTGuard thisGuard : thisChildren.keySet()) {
+//            SDT thisBranch = thisChildren.get(thisGuard);
+//            // initially, assume there is no equivalent branch
+//            chiEqArr[i] = false;
+//            for (SDTGuard otherGuard : otherChildren.keySet()) {
+////                log.log(Level.FINEST,"comparing " + thisGuard.toString() + " to " + otherGuard.toString() + "...");    
+//// comparing guards and sdts
+//                System.out.println(thisGuard.toString() + " equals " + otherGuard.toString() + "?");
+//                if (thisGuard.equals(otherGuard)) {
+//                    System.out.println("YEP!");
+//                    if (thisBranch.canUse(otherChildren.get(otherGuard))) {
+//                        chiEqArr[i] = true;
+//                    }
+////                    log.log(Level.FINEST,"... OK");
+//                    break;
+//                }
+//            }
+//            i++;
+//        }
+//        return isArrayTrue(chiEqArr);
+//    }
 
     // Returns true if this SDT can use another SDT's registers and children, 
     // and if additionally they are either both rejecting and accepting.
@@ -283,17 +316,17 @@ public class SDT implements SymbolicDecisionTree {
         if (other instanceof SDTLeaf) { // trees with incompatible sizes can't use each other
             return false;
         } else {
-            log.log(Level.FINEST,"no sdt leaf");
+            log.log(Level.FINEST, "no sdt leaf");
             boolean regEq = this.regCanUse((SDT) other);
-            log.log(Level.FINEST,"regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
-            //boolean accEq = (this.isAccepting() == other.isAccepting());
+            log.log(Level.FINEST, "regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
+            boolean accEq = (this.isAccepting() == other.isAccepting());
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
-            log.log(Level.FINEST,"comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
+            System.out.println("canUse, comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
-            boolean chiEq = this.chiCanUse((SDT) other);
+            boolean chiEq = canPairBranches(this.getChildren(), ((SDT)other).getChildren());
             //return regEq && accEq && chiEq;
-            //return accEq && chiEq;
-            return chiEq;
+            return accEq && chiEq;
+            //return chiEq;
         }
     }
 
@@ -321,11 +354,11 @@ public class SDT implements SymbolicDecisionTree {
             for (SDTGuard g : list) {
                 expr.add(g.toExpr(consts));
                 svals.add(g.getParameter());
-            } 
+            }
             Expression<Boolean> con = ExpressionUtil.and(expr);
             dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
-        
+
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         for (Register r : getRegisters()) {
             Variable x = new Variable(BuiltinTypes.SINT32, "x" + r.getId());
@@ -335,7 +368,7 @@ public class SDT implements SymbolicDecisionTree {
             Variable p = new Variable(BuiltinTypes.SINT32, "y" + s.getId());
             map.put(s, p);
         }
-        
+
         return new DataExpression<>(dis, map);
     }
 
@@ -350,26 +383,23 @@ public class SDT implements SymbolicDecisionTree {
 
         return ret;
     }
-    
+
     public static SDT getFinest(SDT... sdts) {
         return findFinest(0, Arrays.asList(sdts), sdts[0]);
     }
-    
+
     private static SDT findFinest(int i, List<SDT> sdts, SDT curr) {
         i++;
         if (sdts.size() == i) {
-                return curr;
-            } 
-        else {
-                SDT nxt = sdts.get(i);
-                if (curr.getChildren().size() >= nxt.getChildren().size()) {
-                    return findFinest(i, sdts, curr);
-                }
-                else {
-                    return findFinest(i, sdts, nxt);
-                }
+            return curr;
+        } else {
+            SDT nxt = sdts.get(i);
+            if (curr.getChildren().size() >= nxt.getChildren().size()) {
+                return findFinest(i, sdts, curr);
+            } else {
+                return findFinest(i, sdts, nxt);
+            }
         }
     }
-    
 
 }

@@ -127,6 +127,24 @@ public class EqualityGuard extends SDTIfGuard {
         
         return hash;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final EqualityGuard other = (EqualityGuard) obj;
+        if (!Objects.equals(this.register, other.register)) {
+            return false;
+        }
+        if (!Objects.equals(this.relation, other.relation)) {
+            return false;
+        }
+        return Objects.equals(this.parameter, other.parameter);
+    } 
 
    
    @Override
