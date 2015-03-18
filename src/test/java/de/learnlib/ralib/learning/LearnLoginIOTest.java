@@ -83,7 +83,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/palindrome.xml"));
+                        "/de/learnlib/ralib/automata/xml/abp_output.xml"));
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -128,7 +128,7 @@ public class LearnLoginIOTest {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 

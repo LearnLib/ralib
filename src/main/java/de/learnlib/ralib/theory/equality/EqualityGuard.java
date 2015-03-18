@@ -22,10 +22,11 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -87,25 +88,6 @@ public class EqualityGuard extends SDTIfGuard {
 //        }
 //    }
     
-    @Override
-    public Expression<Boolean> toExpr() {
-        SymbolicDataValue r = this.getRegister();
-        String xname = "";
-        if (r instanceof Register) {
-            xname = "x" + r.getId();
-        }
-        else if (r instanceof SuffixValue) {
-            xname = "y" + r.getId();
-        }
-        
-        else if (r instanceof Constant) {
-            xname = "c" + r.getId();
-        }
-        String pname = "y" + this.getParameter().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, pname);
-        Variable x = new Variable(BuiltinTypes.SINT32,xname);
-        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
-    }
     
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(this.getParameter(), this.getRegister());
@@ -113,8 +95,8 @@ public class EqualityGuard extends SDTIfGuard {
 
     
     @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        Expression<Boolean> expr = this.toExpr();
+    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
+        Expression<Boolean> expr = this.toExpr(consts);
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
                 
@@ -123,6 +105,7 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        
         SymbolicDataValue r = (Register) relabelling.get(getRegister());
         
         sv = (sv == null) ? getParameter() : sv;
@@ -147,21 +130,28 @@ public class EqualityGuard extends SDTIfGuard {
 
    
    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+    public Expression<Boolean> toExpr(Constants consts) {
+        SymbolicDataValue r = this.getRegister();
+         String pname = "y" + this.getParameter().getId();
+        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+        
+        if (r instanceof SymbolicDataValue.Constant) {
+            DataValue<Integer> dv = (DataValue<Integer>) consts.get((Constant)r);
+            Integer dv_i = dv.getId();
+            gov.nasa.jpf.constraints.expressions.Constant c = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.SINT32,dv_i);
+            return new NumericBooleanExpression(c, NumericComparator.EQ, p);
         }
-        if (getClass() != obj.getClass()) {
-            return false;
+        else {
+            String xname = "";
+            if (r instanceof SymbolicDataValue.Register) {
+            xname = "x" + r.getId();
+            }
+            else if (r instanceof SymbolicDataValue.SuffixValue) {
+            xname = "y" + r.getId();
+            }
+        Variable x = new Variable(BuiltinTypes.SINT32,xname);
+        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
         }
-        final EqualityGuard other = (EqualityGuard) obj;
-        if (!Objects.equals(this.register, other.register)) {
-            return false;
-        }
-        if (!Objects.equals(this.relation, other.relation)) {
-            return false;
-        }
-        return Objects.equals(this.parameter, other.parameter);
     } 
 
     

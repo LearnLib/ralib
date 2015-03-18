@@ -20,10 +20,9 @@ package de.learnlib.ralib.theory.inequality;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -56,7 +55,7 @@ public class SmallerGuard extends SDTIfGuard {
     }
 
     @Override
-    public Expression<Boolean> toExpr() {
+    public Expression<Boolean> toExpr(Constants consts) {
         String xname = "x" + this.getRegister().getId();
         Variable p = new Variable(BuiltinTypes.SINT32, "y");
         Variable x = new Variable(BuiltinTypes.SINT32, xname);
@@ -64,8 +63,8 @@ public class SmallerGuard extends SDTIfGuard {
     }
 
     @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        Expression<Boolean> expr = this.toExpr();
+    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
+        Expression<Boolean> expr = this.toExpr(consts);
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
     }

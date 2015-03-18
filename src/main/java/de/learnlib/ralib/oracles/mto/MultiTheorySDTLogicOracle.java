@@ -23,6 +23,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -47,11 +48,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     private final ConstraintSolver solver;
     
+    private final Constants consts;
+    
     private static LearnLogger log = LearnLogger.getLogger(MultiTheorySDTLogicOracle.class);
 
-    public MultiTheorySDTLogicOracle() {
+    public MultiTheorySDTLogicOracle(Constants consts) {
         ConstraintSolverFactory fact = new ConstraintSolverFactory();
         this.solver = fact.createSolver("z3");
+        this.consts = consts;
     }    
     
     @Override
@@ -70,8 +74,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt2 = (SDT) sdt2;
         IfGuard _guard = (IfGuard) guard;
         
-        DataExpression<Boolean> expr1 = _sdt1.getAcceptingPaths();
-        DataExpression<Boolean> expr2 = _sdt2.getAcceptingPaths();        
+        DataExpression<Boolean> expr1 = _sdt1.getAcceptingPaths(consts);
+        DataExpression<Boolean> expr2 = _sdt2.getAcceptingPaths(consts);        
         DataExpression<Boolean> exprG = _guard.getCondition();
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 

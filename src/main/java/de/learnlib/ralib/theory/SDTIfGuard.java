@@ -7,14 +7,13 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.Map;
-import java.util.Objects;
 
 
 public abstract class SDTIfGuard extends SDTGuard {
@@ -40,10 +39,10 @@ public abstract class SDTIfGuard extends SDTGuard {
     
     
     @Override
-    public abstract TransitionGuard toTG(Map<SymbolicDataValue, Variable> variables);
+    public abstract TransitionGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts);
     
     @Override
-    public abstract Expression<Boolean> toExpr();
+    public abstract Expression<Boolean> toExpr(Constants consts);
         
     @Override
     public abstract SDTIfGuard relabel(VarMapping relabelling);

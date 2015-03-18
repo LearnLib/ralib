@@ -22,6 +22,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
@@ -165,18 +166,21 @@ public class MultiTheoryBranching implements Branching {
     private final Node node;
 
     private PIV piv;
+    
+    private Constants constants;
 
     private ParValuation pval;
 
     private static final LearnLogger log
             = LearnLogger.getLogger(MultiTheoryBranching.class);
 
-    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, SDT... sdts) {
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv, ParValuation pval, Constants constants, SDT... sdts) {
         log.log(Level.FINEST, "ps = " + action.toString());
         this.prefix = prefix;
         this.action = action;
         this.node = node;
         this.piv = new PIV();
+        this.constants = constants;
         if (piv != null) {
             this.piv.putAll(piv);
         }
@@ -441,7 +445,7 @@ public class MultiTheoryBranching implements Branching {
                 List<Expression<Boolean>> gExpr = new ArrayList<>();
                 List<SDTGuard> gList = tempMap.get(dvs);
                 for (SDTGuard g : gList) {
-                gExpr.add(g.toExpr());
+                gExpr.add(g.toExpr(constants));
             }
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
                 //log.log(Level.FINEST,"psWord = " + psWord.toString());
