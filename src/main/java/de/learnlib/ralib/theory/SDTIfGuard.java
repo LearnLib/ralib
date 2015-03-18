@@ -9,6 +9,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -20,7 +21,6 @@ public abstract class SDTIfGuard extends SDTGuard {
     
     protected final SymbolicDataValue register;
     protected final Relation relation;
-    
     
     public SymbolicDataValue getRegister() {
         return this.register;

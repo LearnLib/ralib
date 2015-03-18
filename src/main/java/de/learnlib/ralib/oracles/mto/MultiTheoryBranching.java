@@ -323,7 +323,7 @@ public class MultiTheoryBranching implements Branching {
                 regsAndParams.add(guard.getParameter());
                 if (guard instanceof SDTIfGuard) {
                     SymbolicDataValue r = ((SDTIfGuard)guard).getRegister();
-                    if (!(r instanceof SymbolicDataValue.Constant)) {
+                    if (!(r.isConstant())) {
                         regsAndParams.add(r);
                     }
                 } //else if (guard instanceof SDTElseGuard) {
@@ -332,7 +332,7 @@ public class MultiTheoryBranching implements Branching {
                 else if (guard instanceof SDTCompoundGuard) {
                     for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
                         SymbolicDataValue r = ifGuard.getRegister();
-                        if (!(r instanceof SymbolicDataValue.Constant)) {
+                        if (!(r.isConstant())) {
                         regsAndParams.add(r);
                     }
                         regsAndParams.add(ifGuard.getRegister());
@@ -350,14 +350,14 @@ public class MultiTheoryBranching implements Branching {
         for (SymbolicDataValue s : regsAndParams) {
             SymbolicDataValue z = s;
             String xpre = "";
-            if (s instanceof SymbolicDataValue.Constant) {
+            if (s.isConstant()) {
                 throw new IllegalStateException(s.toString() + "is a constant, not supposed to happen!");
             }
-            if (s instanceof SymbolicDataValue.SuffixValue) {
+            if (s.isSuffixValue()) {
                 xpre = "y" + s.getId();
                 z = new Parameter(s.getType(), s.getId());
             }
-            if (s instanceof SymbolicDataValue.Register) {
+            if (s.isRegister()) {
                 xpre = "x" + s.getId();
             }
 //            String xname = xpre + s.getId() + "_" + s.getType().getName();
