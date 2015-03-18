@@ -364,9 +364,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         }
 
 //        log.log(Level.FINEST,"base case");
+//        Collection potSet = DataWords.<T>joinValsToSet(
+//                DataWords.<T>valSet(prefix, type),
+//                pval.<T>values(type));
+        
         Collection potSet = DataWords.<T>joinValsToSet(
+                constants.<T>values(type),
                 DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
+        
         if (!potSet.isEmpty()) {
             log.log(Level.FINEST, "potSet = " + potSet.toString());
         } else {
