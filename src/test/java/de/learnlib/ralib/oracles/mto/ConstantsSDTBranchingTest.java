@@ -117,70 +117,47 @@ public class ConstantsSDTBranchingTest {
         DataType intType = getType("int", loader.getDataTypes());
   
         
-        ParameterizedSymbol ipr = new InputSymbol(
+        ParameterizedSymbol iack = new InputSymbol(
                 "IAck", new DataType[] {intType});
 
-        ParameterizedSymbol inv = new InputSymbol(
+        ParameterizedSymbol iin = new InputSymbol(
                 "IIn", new DataType[] {intType});
 
-        ParameterizedSymbol o100 = new OutputSymbol(
+        ParameterizedSymbol ook = new OutputSymbol(
                 "OOK", new DataType[] {});    
 
-        ParameterizedSymbol o200 = new OutputSymbol(
+        ParameterizedSymbol isend = new OutputSymbol(
                 "ISendFrame", new DataType[] {});    
 
-        ParameterizedSymbol o481 = new OutputSymbol(
+        ParameterizedSymbol oframe = new OutputSymbol(
                 "OFrame", new DataType[] {intType, intType});         
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d2 = new DataValue(intType, 2);
 
         //****** ROW:  IIn OOK ISendFrame
         Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(inv, d0),
-                new PSymbolInstance(o100, d0),
-                new PSymbolInstance(ipr, d1));
+                new PSymbolInstance(iin, d2),
+                new PSymbolInstance(ook),
+                new PSymbolInstance(isend));
         
         //**** [s1, s2]((OFrame[s1, s2]))
         Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
-                new PSymbolInstance(o481, d0));
+                new PSymbolInstance(oframe, d2, d2));
         SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
-        
-        //[s1, s2, s3]((O481[s1] IPRACK[s2] O200[s3]))
-        Word<PSymbolInstance> suffix2 =  Word.fromSymbols(
-                new PSymbolInstance(o481, d0),
-                new PSymbolInstance(ipr, d0),
-                new PSymbolInstance(o200, d0));
-        SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix, suffix2);
         
         System.out.println(prefix);
         System.out.println(symSuffix1);
-        System.out.println(symSuffix2);
         
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
-
-        RegisterGenerator rgen = new RegisterGenerator();
-        Register r1 = rgen.next(intType);
-        Register r2 = rgen.next(intType);
-        VarMapping remap = new VarMapping();
-        remap.put(r1, r2);
-        remap.put(r2, r1);
-        
-        PIV piv = tqr2.getPiv();
-        SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
-        SymbolicDecisionTree sdt2 = tqr2.getSdt();
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
        
-        System.out.println(piv);
-        System.out.println(sdt1);
-        System.out.println(sdt2);
+        System.out.println(tqr.getPiv());
+        System.out.println(tqr.getSdt());
      
-        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);
+        Branching b = mto.getInitialBranching(prefix, oframe, tqr.getPiv(), tqr.getSdt());
         
-        b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
+        //b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
    
                 
-        System.out.println("combined branching 1+2: ");
         for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b.getBranches().entrySet()) {
             System.out.println(e.getKey() + " -> " + e.getValue());
         }
