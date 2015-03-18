@@ -346,7 +346,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //log.log(Level.FINEST,"piv says " + piv.get((Parameter)param).toString());
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
-            if (ereg instanceof Register) {
+            if (ereg.isRegister()) {
                 log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
                 Parameter p = piv.getOneKey((Register) ereg);
                 log.log(Level.FINEST, "p: " + p.toString());
@@ -354,10 +354,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 //return piv.get(param);
                 // trying to not pickup values from prefix
                 return prefixValues.get(idx - 1);
-            } else if (ereg instanceof SuffixValue) {
+            } else if (ereg.isSuffixValue()) {
                 Parameter p = new Parameter(type, ereg.getId());
                 return pval.get(p);
-            } else if (ereg instanceof Constant) {
+            } else if (ereg.isConstant()) {
                 return constants.get((Constant) ereg);
             }
             //}

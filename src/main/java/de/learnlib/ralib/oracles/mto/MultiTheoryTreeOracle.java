@@ -285,14 +285,23 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //        }
 //        return manyChildren;
 //    }
+    
 
     private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
         Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
         currRegsAndParams.add(guard.getParameter());
         if (guard instanceof SDTCompoundGuard) {
-            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
+            Set<SymbolicDataValue> allRegs = ((SDTCompoundGuard) guard).getAllRegs();
+            for (SymbolicDataValue r : allRegs) {
+                if (!(r.isConstant())) {
+                    currRegsAndParams.add(r);
+                }
+            }
         } else if (guard instanceof SDTIfGuard) {
-            currRegsAndParams.add(((SDTIfGuard) guard).getRegister());
+            SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
+            if (!(r.isConstant())) {
+                    currRegsAndParams.add(r);
+                }
         }
         return currRegsAndParams;
     }
@@ -357,7 +366,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         for (SDTGuard n : guards) {
             System.out.println("testing " + g.toString() + " against " + n.toString());
             Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
-
+            System.out.println("using varMapping " + gVars.toString() + " against " + nVars.toString() + " and constants " + constants.toString());
             if (mlo.doesRefine(g.toTG(gVars, constants), new PIV(), n.toTG(nVars, constants), new PIV())
                     && (!mlo.doesRefine(n.toTG(nVars, constants), new PIV(), g.toTG(gVars, constants), new PIV()))) {
                 finer = g;
