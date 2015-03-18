@@ -126,13 +126,14 @@ public class SDT implements SymbolicDecisionTree {
 
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
+        SDT thisSdt = this;
         if (relabelling.isEmpty()) {
             return this;
         }
 
         //log.log(Level.FINEST,"RELABEL: " + relabelling);        
         Map<SDTGuard, SDT> reChildren = new HashMap<>();
-        for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+        for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
             reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
         }
@@ -276,6 +277,7 @@ public class SDT implements SymbolicDecisionTree {
         for (Map.Entry<SDTGuard, SDT> thisB : thisBranches.entrySet()) {
             pairedArray[i] = hasPair(thisB.getKey(), thisB.getValue(), otherBranches);
             if (pairedArray[i] == true) {
+                System.out.println(thisB.getKey().toString() + " has a friend");
             }
             i++;
         }
@@ -315,18 +317,20 @@ public class SDT implements SymbolicDecisionTree {
     // Returns true if this SDT can use another SDT's registers and children, 
     // and if additionally they are either both rejecting and accepting.
     public boolean canUse(SDT other) {
+        SDT thisSdt = this;
         if (other instanceof SDTLeaf) { // trees with incompatible sizes can't use each other
             return false;
         } else {
             log.log(Level.FINEST, "no sdt leaf");
             boolean regEq = this.regCanUse((SDT) other);
-            log.log(Level.FINEST, "regs " + this.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
-            boolean accEq = (this.isAccepting() == other.isAccepting());
+            log.log(Level.FINEST, "regs " + thisSdt.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
+            boolean accEq = (thisSdt.isAccepting() == other.isAccepting());
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
-            System.out.println("canUse, comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
+            System.out.println("canUse, comparing children : \n" + thisSdt.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
-            boolean chiEq = canPairBranches(this.getChildren(), ((SDT)other).getChildren());
-            System.out.println("can pair");
+            boolean chiEq = canPairBranches(thisSdt.getChildren(), ((SDT)other).getChildren())
+                    && canPairBranches(((SDT)other).getChildren(), thisSdt.getChildren());
+            System.out.println("can pair: " + chiEq);
             //return regEq && accEq && chiEq;
             return accEq && chiEq;
             //return chiEq;
