@@ -350,12 +350,14 @@ public class SDT implements SymbolicDecisionTree {
         Set<SuffixValue> svals = new HashSet<>();
         Expression<Boolean> dis = null;
         for (List<SDTGuard> list : paths) {
+            System.out.println("Path: " + Arrays.toString(list.toArray()));
             List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr(consts));
                 svals.add(g.getParameter());
             }
             Expression<Boolean> con = ExpressionUtil.and(expr);
+            System.out.println(expr);
             dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
 
