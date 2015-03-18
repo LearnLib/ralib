@@ -90,16 +90,18 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (!(eqSdt.canUse(deqSdt))) {
                 log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 retMap.put(eqGuard, eqSdt);
+                retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
             }
+                
         }
         if (deqList.isEmpty()) {
             retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        } else if (deqList.size() == 1) {
-            retMap.put(deqList.get(0), deqSdt);
-        } else {
-
-            String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
+        } //else if (deqList.size() == 1) {
+      //      retMap.put(deqList.get(0), deqSdt);
+        //} 
+        else if (retMap.size() > 2) {
+         String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
             System.out.println(e);
             throw new IllegalStateException(e);
         }
@@ -107,6 +109,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //        deqGuard.getParameter(),
         //        deqList.toArray(new DisequalityGuard[]{}));
         //retMap.put(retDeqGuard, deqSdt);
+        System.out.println("retmap " + retMap.toString());
         return retMap;
     }
 
@@ -282,6 +285,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                pir.put(e.getKey(), e.getValue());
 //            }
 //        }
+        System.out.println("RETURN SDT::::  " + returnSDT.toString());
         return returnSDT;
 
     }

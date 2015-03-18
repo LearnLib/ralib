@@ -73,9 +73,9 @@ public class LearnLoginIOTest {
         root.setLevel(Level.INFO);
         for (Handler h : root.getHandlers()) {
             h.setLevel(Level.INFO);
-            h.setFilter(new CategoryFilter(EnumSet.of(
+//            h.setFilter(new CategoryFilter(EnumSet.of(
 //                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-                    Category.EVENT, Category.PHASE, Category.MODEL)));
+//                    Category.EVENT, Category.PHASE, Category.MODEL)));
         }
 
         final ParameterizedSymbol ERROR

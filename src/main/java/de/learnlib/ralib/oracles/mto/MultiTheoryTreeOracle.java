@@ -225,7 +225,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             n = createFreshNode(1, prefix, ps, piv, pval);
             return new MultiTheoryBranching(prefix, ps, n, piv, pval, constants, sdts);
         } else {
-            //System.out.println("THESE ARE THE " + sdts.length + " SDTS WE'RE USING!!!: ----\n" + Arrays.toString(sdts));
+            System.out.println("THESE ARE THE " + sdts.length + " SDTS WE'RE USING!!!: ----\n" + Arrays.toString(sdts));
 
 //            SDT s = merge(sdts);
             //for (SDT s : sdts) {

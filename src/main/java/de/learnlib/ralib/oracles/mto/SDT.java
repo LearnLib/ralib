@@ -268,7 +268,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     private boolean canPairBranches(Map<SDTGuard, SDT> thisBranches, Map<SDTGuard, SDT> otherBranches) {
-        System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
+       // System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
         if (thisBranches.size() != otherBranches.size()) {
             return false;
         }
@@ -277,7 +277,7 @@ public class SDT implements SymbolicDecisionTree {
         for (Map.Entry<SDTGuard, SDT> thisB : thisBranches.entrySet()) {
             pairedArray[i] = hasPair(thisB.getKey(), thisB.getValue(), otherBranches);
             if (pairedArray[i] == true) {
-                System.out.println(thisB.getKey().toString() + " has a friend");
+            //    System.out.println(thisB.getKey().toString() + " has a friend");
             }
             i++;
         }
@@ -328,11 +328,11 @@ public class SDT implements SymbolicDecisionTree {
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
             System.out.println("canUse, comparing children : \n" + thisSdt.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
-            boolean chiEq = canPairBranches(thisSdt.getChildren(), ((SDT)other).getChildren())
-                    && canPairBranches(((SDT)other).getChildren(), thisSdt.getChildren());
+            boolean chiEq = canPairBranches(thisSdt.getChildren(), ((SDT)other).getChildren());
+                    //&& canPairBranches(((SDT)other).getChildren(), thisSdt.getChildren());
             System.out.println("can pair: " + chiEq);
-            //return regEq && accEq && chiEq;
-            return accEq && chiEq;
+            return regEq && accEq && chiEq;
+            //return accEq && chiEq;
             //return chiEq;
         }
     }
