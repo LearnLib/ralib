@@ -7,6 +7,7 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -76,10 +77,10 @@ public class SDTCompoundGuard extends SDTGuard {
         this.guardSet = new LinkedHashSet<>(guards);
     }
 
-    private List<Expression<Boolean>> toExprList() {
+    private List<Expression<Boolean>> toExprList(Constants consts) {
         List<Expression<Boolean>> exprs = new ArrayList<>();
         for (SDTIfGuard guard : this.guards) {
-            exprs.add(guard.toExpr());
+            exprs.add(guard.toExpr(consts));
         }
         return exprs;
     }
@@ -95,8 +96,8 @@ public class SDTCompoundGuard extends SDTGuard {
     }
     
     @Override
-    public Expression<Boolean> toExpr() {
-        List<Expression<Boolean>> thisList = this.toExprList();
+    public Expression<Boolean> toExpr(Constants consts) {
+        List<Expression<Boolean>> thisList = this.toExprList(consts);
         if (thisList.isEmpty()) {
             return ExpressionUtil.TRUE;
         }
@@ -111,8 +112,8 @@ public class SDTCompoundGuard extends SDTGuard {
     
     
     @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables) {
-        Expression<Boolean> expr = this.toExpr();
+    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
+        Expression<Boolean> expr = this.toExpr(consts);
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
     }

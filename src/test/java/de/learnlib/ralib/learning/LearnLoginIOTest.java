@@ -128,7 +128,7 @@ public class LearnLoginIOTest {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle();
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 

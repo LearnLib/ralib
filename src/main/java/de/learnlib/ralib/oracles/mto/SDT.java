@@ -7,6 +7,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -307,7 +308,7 @@ public class SDT implements SymbolicDecisionTree {
         return this.getChildren().isEmpty();
     }
 
-    DataExpression<Boolean> getAcceptingPaths() {
+    DataExpression<Boolean> getAcceptingPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
@@ -318,7 +319,7 @@ public class SDT implements SymbolicDecisionTree {
         for (List<SDTGuard> list : paths) {
             List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
-                expr.add(g.toExpr());
+                expr.add(g.toExpr(consts));
                 svals.add(g.getParameter());
             } 
             Expression<Boolean> con = ExpressionUtil.and(expr);

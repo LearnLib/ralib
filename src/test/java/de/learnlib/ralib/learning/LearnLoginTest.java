@@ -93,7 +93,7 @@ public class LearnLoginTest {
         });
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle();
+        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 
