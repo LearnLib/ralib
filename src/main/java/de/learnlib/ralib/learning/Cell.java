@@ -76,9 +76,12 @@ final class Cell {
             return false;
         }
         
-        return this.suffix.equals(other.suffix) &&
+        boolean check = this.suffix.equals(other.suffix) &&
                 this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
                 this.sdt.isEquivalent(other.sdt, renaming);
+        
+        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
+        return check;
     }
     
     /**
