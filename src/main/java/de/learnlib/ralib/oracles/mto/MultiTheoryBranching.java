@@ -36,7 +36,10 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.Constant;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -319,12 +322,19 @@ public class MultiTheoryBranching implements Branching {
             for (SDTGuard guard : guardMap.get(dvs)) {
                 regsAndParams.add(guard.getParameter());
                 if (guard instanceof SDTIfGuard) {
-                    regsAndParams.add(((SDTIfGuard) guard).getRegister());
+                    SymbolicDataValue r = ((SDTIfGuard)guard).getRegister();
+                    if (!(r instanceof SymbolicDataValue.Constant)) {
+                        regsAndParams.add(r);
+                    }
                 } //else if (guard instanceof SDTElseGuard) {
                 //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
                 //} 
                 else if (guard instanceof SDTCompoundGuard) {
                     for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
+                        SymbolicDataValue r = ifGuard.getRegister();
+                        if (!(r instanceof SymbolicDataValue.Constant)) {
+                        regsAndParams.add(r);
+                    }
                         regsAndParams.add(ifGuard.getRegister());
                     }
                 }
@@ -341,7 +351,7 @@ public class MultiTheoryBranching implements Branching {
             SymbolicDataValue z = s;
             String xpre = "";
             if (s instanceof SymbolicDataValue.Constant) {
-                xpre = "c" + s.getId();
+                throw new IllegalStateException(s.toString() + "is a constant, not supposed to happen!");
             }
             if (s instanceof SymbolicDataValue.SuffixValue) {
                 xpre = "y" + s.getId();
@@ -356,7 +366,7 @@ public class MultiTheoryBranching implements Branching {
         }
         return vars;
     }
-
+    
 //    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
 //        Set<Register> regs = new HashSet<>();
 //        for (DataValue[] dvs : guardMap.keySet()) {
