@@ -48,7 +48,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public static final class Constant extends SymbolicDataValue {
         public Constant(DataType dataType, int id) {
             super(dataType, id);
-        }        
+        }
     };   
     
     public static final class SuffixValue extends SymbolicDataValue {
@@ -75,6 +75,9 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         }
         else if (this.isSuffixValue()) {
             s+= "s";
+        }
+        else if (this.isConstant()) {
+            s+= "c";
         }
         return s + this.id;
     }
