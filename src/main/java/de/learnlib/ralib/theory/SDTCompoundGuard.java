@@ -129,8 +129,8 @@ public class SDTCompoundGuard extends SDTGuard {
     
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        sv = (sv == null) ? getParameter() : sv;
+        //SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        //sv = (sv == null) ? getParameter() : sv;
         
         List<SDTIfGuard> gg = new ArrayList<>();
         for (SDTIfGuard g : this.guards) {

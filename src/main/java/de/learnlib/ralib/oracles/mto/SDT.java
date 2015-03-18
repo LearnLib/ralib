@@ -111,6 +111,7 @@ public class SDT implements SymbolicDecisionTree {
     protected Map<SDTGuard, SDT> getChildren() {
         return this.children;
     }
+    
 
     @Override
     public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
@@ -118,7 +119,9 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         SDT otherSDT = (SDT) other;
-        return this.canUse(otherSDT) && otherSDT.canUse(this);
+//        return this.canUse(otherSDT);
+        SDT thisRelabeled = (SDT)(this.relabel(renaming));
+        return thisRelabeled.canUse(otherSDT) && otherSDT.canUse(thisRelabeled);
     }
 
     @Override
@@ -130,7 +133,6 @@ public class SDT implements SymbolicDecisionTree {
         //log.log(Level.FINEST,"RELABEL: " + relabelling);        
         Map<SDTGuard, SDT> reChildren = new HashMap<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
-            assert !(e.getKey() instanceof SDTCompoundGuard);
             reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
         }
@@ -324,6 +326,7 @@ public class SDT implements SymbolicDecisionTree {
             System.out.println("canUse, comparing children : \n" + this.getChildren().toString() + "\n and " + other.getChildren().toString());
             // both must use each other
             boolean chiEq = canPairBranches(this.getChildren(), ((SDT)other).getChildren());
+            System.out.println("can pair");
             //return regEq && accEq && chiEq;
             return accEq && chiEq;
             //return chiEq;

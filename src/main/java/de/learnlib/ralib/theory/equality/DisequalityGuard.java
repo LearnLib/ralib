@@ -128,16 +128,38 @@ public class DisequalityGuard extends SDTIfGuard {
                 
                 }
  
+//    @Override
+//    public SDTIfGuard relabel(VarMapping relabelling) {
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        SymbolicDataValue r = (SymbolicDataValue.Register) relabelling.get(getRegister());
+//        
+//        sv = (sv == null) ? getParameter() : sv;
+//        r = (r == null) ? getRegister() : r;
+//        
+//        return new DisequalityGuard(sv, r);
+//    }    
+//    
+    
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        SymbolicDataValue r = (SymbolicDataValue.Register) relabelling.get(getRegister());
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
         
-        sv = (sv == null) ? getParameter() : sv;
-        r = (r == null) ? getRegister() : r;
-        
-        return new DisequalityGuard(sv, r);
-    }    
+        if (register.isConstant()) {
+            return new EqualityGuard(sv,register);
+        }
+        else {
+            if (register.isSuffixValue()) {
+            r = (SymbolicDataValue) relabelling.get(register);
+            }
+            else if (register.isRegister()) {
+            r = (SymbolicDataValue.Register) relabelling.get(register);
+            }
+        r = (r == null) ? parameter : r;
+        return new EqualityGuard(sv, r);
+        }
+    }   
 
 //    @Override
 //    public SDTGuard relabel(VarMapping relabelling) {

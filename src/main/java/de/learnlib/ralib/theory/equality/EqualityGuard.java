@@ -90,7 +90,7 @@ public class EqualityGuard extends SDTIfGuard {
     
     
     public DisequalityGuard toDeqGuard() {
-        return new DisequalityGuard(this.getParameter(), this.getRegister());
+        return new DisequalityGuard(parameter, register);
     }
 
     
@@ -104,14 +104,23 @@ public class EqualityGuard extends SDTIfGuard {
  
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
         
-        SymbolicDataValue r = (Register) relabelling.get(getRegister());
-        
-        sv = (sv == null) ? getParameter() : sv;
-        r = (r == null) ? getRegister() : r;
-        
+        if (register.isConstant()) {
+            return new EqualityGuard(sv,register);
+        }
+        else {
+            if (register.isSuffixValue()) {
+            r = (SymbolicDataValue) relabelling.get(register);
+            }
+            else if (register.isRegister()) {
+            r = (Register) relabelling.get(register);
+            }
+        r = (r == null) ? parameter : r;
         return new EqualityGuard(sv, r);
+        }
     }    
     
     
@@ -120,10 +129,10 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.parameter);
-        hash = 59 * hash + Objects.hashCode(this.register);
-        hash = 59 * hash + Objects.hashCode(this.relation);
-        hash = 59 * hash + Objects.hashCode(this.getClass());
+        hash = 59 * hash + Objects.hashCode(parameter);
+        hash = 59 * hash + Objects.hashCode(register);
+        hash = 59 * hash + Objects.hashCode(relation);
+        hash = 59 * hash + Objects.hashCode(getClass());
         
         return hash;
     }
