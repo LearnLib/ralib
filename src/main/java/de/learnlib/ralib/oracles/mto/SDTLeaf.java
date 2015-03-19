@@ -71,6 +71,10 @@ public class SDTLeaf extends SDT {
     public SymbolicDecisionTree relabel(VarMapping relabeling) {
         return this;
     }
+    
+    public SymbolicDecisionTree relabelLoosely(VarMapping other) {
+        return this;
+    }
 
     @Override
     public boolean isAccepting() {

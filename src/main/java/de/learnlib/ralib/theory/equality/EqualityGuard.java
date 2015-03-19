@@ -121,7 +121,24 @@ public class EqualityGuard extends SDTIfGuard {
         r = (r == null) ? parameter : r;
         return new EqualityGuard(sv, r);
         }
-    }    
+    }
+    
+    @Override
+    public SDTIfGuard relabelLoosely(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
+        
+        if (register.isConstant()) {
+            return new EqualityGuard(sv,register);
+        }
+        else {
+            r = (SymbolicDataValue)relabelling.get(register);
+            }
+            
+        r = (r == null) ? parameter : r;
+        return new EqualityGuard(sv, r);
+    }
     
     
     

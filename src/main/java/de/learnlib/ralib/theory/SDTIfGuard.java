@@ -47,4 +47,7 @@ public abstract class SDTIfGuard extends SDTGuard {
     @Override
     public abstract SDTIfGuard relabel(VarMapping relabelling);
     
+    @Override
+    public abstract SDTIfGuard relabelLoosely(VarMapping relabelling);
+    
 }

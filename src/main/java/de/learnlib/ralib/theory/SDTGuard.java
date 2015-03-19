@@ -89,6 +89,6 @@ public abstract class SDTGuard {
     
     public abstract SDTGuard relabel(VarMapping relabelling);
 
-
+    public abstract SDTGuard relabelLoosely(VarMapping relabelling);
 
 }

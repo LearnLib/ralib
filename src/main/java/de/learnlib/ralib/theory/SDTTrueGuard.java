@@ -51,6 +51,11 @@ public class SDTTrueGuard extends SDTGuard {
     }
     
     @Override
+    public SDTGuard relabelLoosely(VarMapping relabelling) {
+        return this.relabel(relabelling);
+    }
+    
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

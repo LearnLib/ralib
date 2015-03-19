@@ -30,12 +30,14 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -71,6 +73,61 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return vals;
     }
 
+    private VarMapping makeVarMapping(Set<SDTGuard> gSet1, Set<SDTGuard> gSet2) {
+        VarMapping vars = new VarMapping();
+        SDTIfGuard ifg1;
+        SymbolicDataValue r1;
+        for (SDTGuard g1 : gSet1) {
+            if (g1 instanceof SDTIfGuard) {
+                ifg1 = (SDTIfGuard) g1;
+                r1 = ifg1.getRegister();
+                SuffixValue p1 = g1.getParameter();
+                for (SDTGuard g2 : gSet2) {
+                    if (g2 instanceof SDTIfGuard) {
+                        SDTIfGuard ifg2 = (SDTIfGuard) g2;
+                        if ((p1.getId() == g2.getParameter().getId()) && (ifg1.getRelation().equals(ifg2.getRelation()))) {
+                            vars.put(r1, ifg2.getRegister());
+                        }
+                    }
+                }
+            }
+        }
+        return vars;
+    }
+
+    private List<SDTIfGuard> mgG(SDTIfGuard e, List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+        List<SDTIfGuard> merged = new ArrayList<>();
+        merged.add(e);
+        SymbolicDataValue r = e.getRegister();
+        for (int i = 1; i < eqs.size(); i++) {
+            SDTIfGuard other = eqs.get(i);
+            VarMapping vars = new VarMapping();
+            vars.put(r, other.getRegister());
+            if (!(eqMap.get(e).isEquivalent(eqMap.get(other), vars))) {
+ //               System.out.println("NOT EQ::: " + e.toString() + "   " + other.toString());
+                merged.add(other);
+            }
+        }
+        return merged;
+    }
+
+    private List<SDTIfGuard> mggG(List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+        // eqs is at least size 1
+        List<SDTIfGuard> m1 = mgG(eqs.get(0), eqs, eqMap);
+//        if (m1.size() == 1) {
+//            return m1;
+//        }
+ //       System.out.println("m1 " + m1.toString());
+        List<SDTIfGuard> m2 = mgG(m1.get(0), m1, eqMap);
+//        if (m2.size() == 1) {
+//            return m2;
+        if (m1.size() == m2.size()) {
+            return m1;
+        } else {
+            return mggG(m1, eqMap);
+        }
+    }
+
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
@@ -79,7 +136,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //System.out.println("PPPPP " + eqs.toString());
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
         List<DisequalityGuard> deqList = new ArrayList<>();
-
+        List<EqualityGuard> eqList = new ArrayList<>();
+        Set<SDTGuard> deqGuards = deqSdt.getGuards();
         // 2. see which of the equality guards can use the else guard
         for (Map.Entry<EqualityGuard, SDT> e : eqs.entrySet()) {
             SDT eqSdt = e.getValue();
@@ -87,21 +145,38 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            if (!(eqSdt.canUse(deqSdt))) {
-                log.log(Level.FINEST, "CANNOT USE: Adding if guard");
-                retMap.put(eqGuard, eqSdt);
-                retMap.put(eqGuard.toDeqGuard(), deqSdt);
+            VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
+            if (!(eqSdt.isLooselyEquivalent(deqSdt,vars))) {
+                //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
+                //retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
+                eqList.add(eqGuard);
             }
-                
+
         }
         if (deqList.isEmpty()) {
             retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
         } //else if (deqList.size() == 1) {
-      //      retMap.put(deqList.get(0), deqSdt);
+        //      retMap.put(deqList.get(0), deqSdt);
         //} 
-        else if (retMap.size() > 2) {
-         String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
+        else if (eqList.size() == 1) {
+//            System.out.println("eqList " + eqList.toString());
+//            if (eqList.size() == 1) {
+            EqualityGuard q = eqList.get(0);
+            retMap.put(q, eqs.get(q));
+            retMap.put(q.toDeqGuard(), deqSdt);
+//            } else {
+//                List<EqualityGuard> newEqGuards = mergeEqualities(eqList, eqs);
+//                System.out.println("newEqGuards " + newEqGuards.toString());
+//                for (EqualityGuard ne : newEqGuards) {
+//                    retMap.put(ne, eqs.get(ne));
+//                    retMap.put(ne.toDeqGuard(), deqSdt);
+//                }
+//            }
+        }
+
+        if (retMap.size() > 3) {
+            String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
             System.out.println(e);
             throw new IllegalStateException(e);
         }
@@ -109,7 +184,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //        deqGuard.getParameter(),
         //        deqList.toArray(new DisequalityGuard[]{}));
         //retMap.put(retDeqGuard, deqSdt);
-        System.out.println("retmap " + retMap.toString());
+        //System.out.println("retmap " + retMap.toString());
         return retMap;
     }
 
@@ -156,7 +231,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
-        
+
         int pId = values.size() + 1;
 
         SuffixValue sv = suffix.getDataValue(pId);
@@ -285,7 +360,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                pir.put(e.getKey(), e.getValue());
 //            }
 //        }
-        System.out.println("RETURN SDT::::  " + returnSDT.toString());
+        //      System.out.println("P::  " + prefix.toString() + "    S::  " + suffix.toString() + "    RETURN SDT::::  " + returnSDT.toString());
         return returnSDT;
 
     }
@@ -319,7 +394,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //log.log(Level.FINEST, "looking for smallest index of " + newDv.toString() + " in " + ifValues.toString());
 
             int smallest = Collections.min(ifValues.getAllKeys(newDv));
-            log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
+            //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
             return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
     }
@@ -371,12 +446,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //        Collection potSet = DataWords.<T>joinValsToSet(
 //                DataWords.<T>valSet(prefix, type),
 //                pval.<T>values(type));
-        
         Collection potSet = DataWords.<T>joinValsToSet(
                 constants.<T>values(type),
                 DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
-        
+
         if (!potSet.isEmpty()) {
             log.log(Level.FINEST, "potSet = " + potSet.toString());
         } else {

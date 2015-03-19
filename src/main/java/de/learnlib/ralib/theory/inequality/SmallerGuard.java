@@ -73,6 +73,11 @@ public class SmallerGuard extends SDTIfGuard {
     public SDTIfGuard relabel(VarMapping relabelling) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public SDTIfGuard relabelLoosely(VarMapping relabelling) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
     
 }

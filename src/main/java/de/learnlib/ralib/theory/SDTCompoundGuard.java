@@ -90,7 +90,7 @@ public class SDTCompoundGuard extends SDTGuard {
         if (eqList.size() == i + 1) {
             return eqList.get(i);
         } else {
-            System.out.println("here is the xpr: " + eqList.toString());
+//            System.out.println("here is the xpr: " + eqList.toString());
             return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
         }
     }
@@ -105,7 +105,7 @@ public class SDTCompoundGuard extends SDTGuard {
             return thisList.get(0);
         }
         else {
-            System.out.println("here is the list: " + thisList.toString());
+ //           System.out.println("here is the list: " + thisList.toString());
             return toExpr(thisList, 0);
         }
     }
@@ -129,14 +129,27 @@ public class SDTCompoundGuard extends SDTGuard {
     
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
-        //SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        //sv = (sv == null) ? getParameter() : sv;
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        sv = (sv == null) ? getParameter() : sv;
         
         List<SDTIfGuard> gg = new ArrayList<>();
         for (SDTIfGuard g : this.guards) {
             gg.add(g.relabel(relabelling));
         }
-        throw new IllegalStateException("not supposed to happen");
-        //return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        //throw new IllegalStateException("not supposed to happen");
+        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+    }    
+    
+    @Override
+    public SDTGuard relabelLoosely(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        sv = (sv == null) ? getParameter() : sv;
+        
+        List<SDTIfGuard> gg = new ArrayList<>();
+        for (SDTIfGuard g : this.guards) {
+            gg.add(g.relabelLoosely(relabelling));
+        }
+        //throw new IllegalStateException("not supposed to happen");
+        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }    
 }

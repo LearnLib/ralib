@@ -110,6 +110,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 piv.put(e.getKey(), (Register) rename.get(e.getValue()));
             }
         }
+        //System.out.println("Renaming...");
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
         log.finer("PIV: " + piv);
 
@@ -225,7 +226,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             n = createFreshNode(1, prefix, ps, piv, pval);
             return new MultiTheoryBranching(prefix, ps, n, piv, pval, constants, sdts);
         } else {
-            System.out.println("THESE ARE THE " + sdts.length + " SDTS WE'RE USING!!!: ----\n" + Arrays.toString(sdts));
+           // System.out.println("THESE ARE THE " + sdts.length + " SDTS WE'RE USING!!!: ----\n" + Arrays.toString(sdts));
 
 //            SDT s = merge(sdts);
             //for (SDT s : sdts) {
@@ -243,7 +244,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             //new MultiTheoryBranching(prefix, ps, n, piv, pval, sdts));
             //           }
             MultiTheoryBranching fluff =  new MultiTheoryBranching(prefix, ps, n, piv, pval, constants, sdts);
-            System.out.println(" fluff!!!! " + fluff.getBranches().toString());
+          //  System.out.println(" fluff!!!! " + fluff.getBranches().toString());
             return fluff;
         }
 
@@ -364,14 +365,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Map<SymbolicDataValue, Variable> gVars = makeVarMapping(makeVarSet(g));
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(constants);
         for (SDTGuard n : guards) {
-            System.out.println("testing " + g.toString() + " against " + n.toString());
+//            System.out.println("testing " + g.toString() + " against " + n.toString());
             Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
-            System.out.println("using varMapping " + gVars.toString() + " against " + nVars.toString() + " and constants " + constants.toString());
+//            System.out.println("using varMapping " + gVars.toString() + " against " + nVars.toString() + " and constants " + constants.toString());
             if (mlo.doesRefine(g.toTG(gVars, constants), new PIV(), n.toTG(nVars, constants), new PIV())
                     && (!mlo.doesRefine(n.toTG(nVars, constants), new PIV(), g.toTG(gVars, constants), new PIV()))) {
                 finer = g;
                 coarser = n;
-                System.out.println("!!!!!!! " + g.toString() + " refines " + n.toString());
+//                System.out.println("!!!!!!! " + g.toString() + " refines " + n.toString());
 
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
                 //    throw new IllegalStateException("Can't refine in the wrong direction");
@@ -379,7 +380,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             } else if (mlo.doesRefine(n.toTG(nVars, constants), new PIV(), g.toTG(gVars, constants), new PIV())
                     && (!mlo.doesRefine(g.toTG(gVars, constants), new PIV(), n.toTG(nVars, constants), new PIV()))) {
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
-                System.out.println("!!!!!!! " + n.toString() + " refines " + g.toString());
+//                System.out.println("!!!!!!! " + n.toString() + " refines " + g.toString());
                 finer = n;
                 coarser = g;
             }
@@ -523,12 +524,12 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 finest.add(c);
             }
             
-            System.out.println(currChildren.keySet().size());
-            System.out.println(currChildren.keySet().isEmpty());
+//            System.out.println(currChildren.keySet().size());
+//            System.out.println(currChildren.keySet().isEmpty());
             
             for (SDTGuard gx : currChildren.keySet()) {
                 //System.out.println(gx.hashCode());
-                System.out.println(c.getParameter().equals(gx.getParameter()));
+//                System.out.println(c.getParameter().equals(gx.getParameter()));
                 //System.out.print
             }
             
@@ -572,7 +573,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                     }
                 }
                 
-                System.out.println("next level sdts: " + nextLevelSdts.toString());
+//                System.out.println("next level sdts: " + nextLevelSdts.toString());
                 // at this point, nextLevelSdts must contain exactly one sdt
                 assert nextLevelSdts.size() == 1;
                 
@@ -613,7 +614,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             ParameterizedSymbol ps, Branching current,
             PIV piv, SymbolicDecisionTree... sdts) {
 
-        System.out.println("here are the sdts " + Arrays.toString(sdts));
+//        System.out.println("here are the sdts " + Arrays.toString(sdts));
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         MultiTheoryBranching newBranching = (MultiTheoryBranching) getInitialBranching(prefix, ps, piv, sdts);

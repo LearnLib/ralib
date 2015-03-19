@@ -147,7 +147,7 @@ public class DisequalityGuard extends SDTIfGuard {
         sv = (sv == null) ? parameter : sv;
         
         if (register.isConstant()) {
-            return new EqualityGuard(sv,register);
+            return new DisequalityGuard(sv,register);
         }
         else {
             if (register.isSuffixValue()) {
@@ -157,9 +157,25 @@ public class DisequalityGuard extends SDTIfGuard {
             r = (SymbolicDataValue.Register) relabelling.get(register);
             }
         r = (r == null) ? parameter : r;
-        return new EqualityGuard(sv, r);
+        return new DisequalityGuard(sv, r);
         }
     }   
+    
+    @Override
+    public SDTIfGuard relabelLoosely(VarMapping relabelling) {
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
+        
+        if (register.isConstant()) {
+            return new DisequalityGuard(sv,register);
+        }
+        else {
+             r = (SymbolicDataValue) relabelling.get(register);
+            }
+        r = (r == null) ? parameter : r;
+        return new DisequalityGuard(sv, r);
+    } 
 
 //    @Override
 //    public SDTGuard relabel(VarMapping relabelling) {
