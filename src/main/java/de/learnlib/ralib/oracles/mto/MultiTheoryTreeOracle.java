@@ -95,6 +95,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
+        System.out.println("tree query for " + prefix.toString() + " AND " + suffix.toString());
 
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
@@ -143,6 +144,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             DefaultQuery<PSymbolInstance, Boolean> query
                     = new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
+            System.out.println(query.getInput().toString() + " ......____>>> ");
+            System.out.println(query.getOutput().toString());
             boolean qOut = query.getOutput();
 
             log.log(Level.FINEST, "Trace = " + trace.toString() + " >>> "

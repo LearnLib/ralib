@@ -31,6 +31,7 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -40,6 +41,10 @@ public class SmallerGuard extends SDTIfGuard {
 
     public SmallerGuard(SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.SMALLER);
+    }
+    
+    public BiggerGuard toDeqGuard() {
+        return new BiggerGuard(parameter,register);
     }
 
     public boolean contradicts(SDTIfGuard other) {
@@ -69,15 +74,76 @@ public class SmallerGuard extends SDTIfGuard {
         return new IfGuard(cond);
     }
 
-    @Override
+     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
+        
+        if (register.isConstant()) {
+            return new SmallerGuard(sv,register);
+        }
+        else {
+            if (register.isSuffixValue()) {
+            r = (SymbolicDataValue) relabelling.get(register);
+            }
+            else if (register.isRegister()) {
+            r = (SymbolicDataValue.Register) relabelling.get(register);
+            }
+        r = (r == null) ? parameter : r;
+        return new SmallerGuard(sv, r);
+        }
     }
-
+    
     @Override
     public SDTIfGuard relabelLoosely(VarMapping relabelling) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+        SymbolicDataValue r = null;
+        sv = (sv == null) ? parameter : sv;
+        
+        if (register.isConstant()) {
+            return new SmallerGuard(sv,register);
+        }
+        else {
+            r = (SymbolicDataValue)relabelling.get(register);
+            }
+            
+        r = (r == null) ? parameter : r;
+        return new SmallerGuard(sv, r);
     }
+    
+    
+    
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + Objects.hashCode(parameter);
+        hash = 59 * hash + Objects.hashCode(register);
+        hash = 59 * hash + Objects.hashCode(relation);
+        hash = 59 * hash + Objects.hashCode(getClass());
+        
+        return hash;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SmallerGuard other = (SmallerGuard) obj;
+        if (!Objects.equals(this.register, other.register)) {
+            return false;
+        }
+        if (!Objects.equals(this.relation, other.relation)) {
+            return false;
+        }
+        return Objects.equals(this.parameter, other.parameter);
+    } 
+
     
     
 }
