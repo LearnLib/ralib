@@ -34,7 +34,7 @@ public abstract class RegisterAutomaton
         extends AbstractDeterministicAutomaton<RALocation, ParameterizedSymbol, Transition>
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
     
-    protected final VarValuation initialRegisters;
+    private final VarValuation initialRegisters;
 
     public RegisterAutomaton(VarValuation initialRegisters) {
         this.initialRegisters = initialRegisters;
@@ -67,6 +67,12 @@ public abstract class RegisterAutomaton
         }
         return sb.toString();
     }
-    
 
+    /**
+     * @return the initialRegisters
+     */
+    public VarValuation getInitialRegisters() {
+        return initialRegisters;
+    }
+    
 }

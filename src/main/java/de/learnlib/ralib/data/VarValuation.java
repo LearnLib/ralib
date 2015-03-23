@@ -27,7 +27,9 @@ package de.learnlib.ralib.data;
 public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue<?>> {
 
     public VarValuation(VarValuation other) {
-        putAll(other);
+        if (other != null) { 
+            putAll(other);
+        }
     }
 
     public VarValuation() {
