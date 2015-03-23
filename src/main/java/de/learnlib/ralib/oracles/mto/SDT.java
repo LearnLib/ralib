@@ -434,6 +434,8 @@ public class SDT implements SymbolicDecisionTree {
             map.put(s, p);
         }
 
+        System.out.println("AP map: " + map.toString());
+        System.out.println("AP dis: " + dis.toString());
         return new DataExpression<>(dis, map);
     }
 

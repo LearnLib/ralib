@@ -21,6 +21,7 @@ package de.learnlib.ralib.theory.inequality;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.Relation;
@@ -58,14 +59,40 @@ public class SmallerGuard extends SDTIfGuard {
         return "(" + this.getParameter().toString() + "<" + this.getRegister().toString() + ")";
         //return super.toString();
     }
-
+    
+    
     @Override
     public Expression<Boolean> toExpr(Constants consts) {
-        String xname = "x" + this.getRegister().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, "y");
-        Variable x = new Variable(BuiltinTypes.SINT32, xname);
+        SymbolicDataValue r = this.getRegister();
+         String pname = "y" + this.getParameter().getId();
+        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+        
+        if (r instanceof SymbolicDataValue.Constant) {
+            DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
+            Integer dv_i = dv.getId();
+            gov.nasa.jpf.constraints.expressions.Constant c = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.SINT32,dv_i);
+            return new NumericBooleanExpression(c, NumericComparator.GT, p);
+        }
+        else {
+            String xname = "";
+            if (r instanceof SymbolicDataValue.Register) {
+            xname = "x" + r.getId();
+            }
+            else if (r instanceof SymbolicDataValue.SuffixValue) {
+            xname = "y" + r.getId();
+            }
+        Variable x = new Variable(BuiltinTypes.SINT32,xname);
         return new NumericBooleanExpression(x, NumericComparator.GT, p);
-    }
+        }
+    } 
+    
+//    @Override
+//    public Expression<Boolean> toExpr(Constants consts) {
+//        String xname = "x" + this.getRegister().getId();
+//        Variable p = new Variable(BuiltinTypes.SINT32, "y");
+//        Variable x = new Variable(BuiltinTypes.SINT32, xname);
+//        return new NumericBooleanExpression(x, NumericComparator.GT, p);
+//    }
 
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
