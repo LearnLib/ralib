@@ -101,24 +101,26 @@ public class DisequalityGuard extends SDTIfGuard {
     @Override
     public Expression<Boolean> toExpr(Constants consts) {
         SymbolicDataValue r = this.getRegister();
-         String pname = "y" + this.getParameter().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, pname);
+        // String pname = "y" + this.getParameter().getId();
+        Variable p = this.getParameter().toVariable(); //new Variable(BuiltinTypes.SINT32, pname);
         
-        if (r instanceof SymbolicDataValue.Constant) {
+        if (r.isConstant()) {
             DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
             Integer dv_i = dv.getId();
             Constant c = new Constant(BuiltinTypes.SINT32,dv_i);
                 return new NumericBooleanExpression(c, NumericComparator.NE, p);
         }
         else {
-            String xname = "";
-            if (r instanceof SymbolicDataValue.Register) {
-            xname = "x" + r.getId();
-            }
-            else if (r instanceof SymbolicDataValue.SuffixValue) {
-            xname = "y" + r.getId();
-            }
-        Variable x = new Variable(BuiltinTypes.SINT32,xname);
+//            String xname = "";
+//            if (r instanceof SymbolicDataValue.Register) {
+//            xname = "x" + r.getId();
+//            }
+//            else if (r instanceof SymbolicDataValue.SuffixValue) {
+//            xname = "y" + r.getId();
+            Variable x = r.toVariable();
+        
+        
+//        Variable x = new Variable(BuiltinTypes.SINT32,xname);
         return new NumericBooleanExpression(x, NumericComparator.NE, p);
         }
     }

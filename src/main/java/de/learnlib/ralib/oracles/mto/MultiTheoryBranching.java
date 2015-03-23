@@ -29,7 +29,7 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -329,8 +329,8 @@ public class MultiTheoryBranching implements Branching {
                 } //else if (guard instanceof SDTElseGuard) {
                 //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
                 //} 
-                else if (guard instanceof SDTCompoundGuard) {
-                    for (SDTIfGuard ifGuard : ((SDTCompoundGuard) guard).getGuards()) {
+                else if (guard instanceof SDTAndGuard) {
+                    for (SDTIfGuard ifGuard : ((SDTAndGuard) guard).getGuards()) {
                         SymbolicDataValue r = ifGuard.getRegister();
                         if (!(r.isConstant())) {
                         regsAndParams.add(r);

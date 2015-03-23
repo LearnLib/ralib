@@ -35,7 +35,7 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -131,7 +131,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
-            mergeGuards(Map<EqualityGuard, SDT> eqs, SDTCompoundGuard deqGuard, SDT deqSdt) {
+            mergeGuards(Map<EqualityGuard, SDT> eqs, SDTAndGuard deqGuard, SDT deqSdt) {
 
         //System.out.println("PPPPP " + eqs.toString());
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
@@ -328,7 +328,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //            }
 //        }
 //        
-        SDTCompoundGuard deqGuard = new SDTCompoundGuard(currentParam, (diseqList.toArray(new DisequalityGuard[]{})));
+        SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[]{})));
         log.log(Level.FINEST, "diseq guard = " + deqGuard.toString());
         // tempKids is the temporary SDT (sort of)
         //tempKids.put(deqGuard, elseOracleSdt);
@@ -348,7 +348,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         tempKids.clear();
 
         for (SDTGuard g : merged.keySet()) {
-            assert !(g instanceof SDTCompoundGuard);
+            assert !(g instanceof SDTAndGuard);
             assert !(g == null);
         }
 

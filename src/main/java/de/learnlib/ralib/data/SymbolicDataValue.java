@@ -19,6 +19,9 @@
 
 package de.learnlib.ralib.data;
 
+import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Objects;
 
 /**
@@ -107,6 +110,16 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         hash = 97 * hash + Objects.hashCode(this.id);
         hash = 97 * hash + Objects.hashCode(this.getClass());
         return hash;
+    }
+    
+    public Variable toVariable() {
+                String rname = "";
+                if (this.isSuffixValue()) {
+                    rname = "y" + this.id;
+                } else if (this.isRegister()) {
+                    rname = "x" + this.id;
+                }
+                return new Variable(BuiltinTypes.SINT32, rname);
     }
 
     public boolean isRegister() {

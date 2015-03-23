@@ -80,11 +80,12 @@ public class LearnPQTest {
         teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
             @Override
             public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
-                return new DataValue(doubleType, vals.size() + 1.0);
+                return new DataValue(doubleType, vals.size() + 0.1);
             }
 
             @Override
             public DataValue<Double> makeSmallerValue(DataValue<Double> x, DataValue<Double> y) {
+                System.out.println("makeSmaller: " + x.toString() + "   " + y.toString());
                 assert y.getId() > x.getId();
                 Double v = y.getId() - x.getId();
                 return new DataValue<Double>(doubleType, x.getId() - (v * 0.5));
@@ -113,6 +114,9 @@ public class LearnPQTest {
             public DataValue<Double> makeBiggerValue(DataValue<Double> x) {
                 return new DataValue<Double>(doubleType, (x.getId() * 2.0));
             }
+            
+            
+            
 
             @Override
             public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
@@ -126,6 +130,7 @@ public class LearnPQTest {
                     }
                 });
 
+                //System.out.println("I'm sorted!  " + sortedList.toString());
                 return sortedList;
             }
 

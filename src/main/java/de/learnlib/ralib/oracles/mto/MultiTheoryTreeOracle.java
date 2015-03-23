@@ -41,7 +41,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
-import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -294,8 +294,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
         Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
         currRegsAndParams.add(guard.getParameter());
-        if (guard instanceof SDTCompoundGuard) {
-            Set<SymbolicDataValue> allRegs = ((SDTCompoundGuard) guard).getAllRegs();
+        if (guard instanceof SDTAndGuard) {
+            Set<SymbolicDataValue> allRegs = ((SDTAndGuard) guard).getAllRegs();
             for (SymbolicDataValue r : allRegs) {
                 if (!(r.isConstant())) {
                     currRegsAndParams.add(r);

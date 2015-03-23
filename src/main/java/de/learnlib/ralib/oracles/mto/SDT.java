@@ -14,7 +14,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.theory.SDTCompoundGuard;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -72,8 +72,8 @@ public class SDT implements SymbolicDecisionTree {
                 if (r instanceof Register) {
                     registers.add((Register) r);
                 }
-            } else if (g instanceof SDTCompoundGuard) {
-                for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
+            } else if (g instanceof SDTAndGuard) {
+                for (SDTIfGuard ifG : ((SDTAndGuard) g).getGuards()) {
                     SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
                     if (ifr instanceof Register) {
                         registers.add((Register) ifr);
