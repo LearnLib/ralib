@@ -25,6 +25,8 @@ import static de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -32,9 +34,15 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -78,52 +86,38 @@ public class LearnPQTest {
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
 
         teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
+            Valuation val = new Valuation();
+            private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
+            private final ConstraintSolver solver = fact.createSolver("z3");
+
             @Override
             public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
-                return new DataValue(doubleType, vals.size() + 0.1);
+                return new DataValue(doubleType, vals.size() + 1.0);
             }
 
             @Override
-            public DataValue<Double> makeSmallerValue(DataValue<Double> x, DataValue<Double> y) {
-                System.out.println("makeSmaller: " + x.toString() + "   " + y.toString());
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() - (v * 0.5));
+            public DataValue<Double> instantiate(SDTGuard g, Valuation val, Parameter p, Constants c) {
+                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + val.toString());
+                solver.solve(g.toExpr(c), val);
+                Double d = (Double) val.getValue(p.toVariable());
+                return new DataValue<Double>(doubleType, d);
             }
-
-            @Override
-            public DataValue<Double> makeSmallerValue(DataValue<Double> x) {
-                return new DataValue<Double>(doubleType, (x.getId() * 0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeMiddleValue(DataValue<Double> x, DataValue<Double> y) {
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() + (v *0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeBiggerValue(DataValue<Double> x, DataValue<Double> y) {
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() + (v *0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeBiggerValue(DataValue<Double> x) {
-                return new DataValue<Double>(doubleType, (x.getId() * 2.0));
-            }
-            
-            
-            
 
             @Override
             public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
                 //assume we can just sort the list and get the values
                 List<DataValue<Double>> sortedList = new ArrayList<DataValue<Double>>();
-                sortedList.addAll(dvs);
+                for (DataValue d : dvs) {
+                    if (d.getId() instanceof Integer) {
+                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
+                    } else if (d.getId() instanceof Double) {
+                        sortedList.add(d);
+                    } else {
+                        throw new IllegalStateException("not supposed to happen");
+                    }
+                }
 
+                //sortedList.addAll(dvs);
                 Collections.sort(sortedList, new Comparator<DataValue<Double>>() {
                     public int compare(DataValue<Double> one, DataValue<Double> other) {
                         return one.getId().compareTo(other.getId());
@@ -134,7 +128,8 @@ public class LearnPQTest {
                 return sortedList;
             }
 
-        });
+        }
+        );
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts);

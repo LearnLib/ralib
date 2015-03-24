@@ -87,10 +87,10 @@ public final class LoginAutomatonExample {
         Parameter pPwd = pgen.next(T_PWD);
         
         // guards
-        Variable x1 = new Variable(BuiltinTypes.SINT32, "x1");
-        Variable x2 = new Variable(BuiltinTypes.SINT32, "x2");
-        Variable p1 = new Variable(BuiltinTypes.SINT32, "p1");
-        Variable p2 = new Variable(BuiltinTypes.SINT32, "p2");
+        Variable x1 = new Variable(BuiltinTypes.DOUBLE, "x1");
+        Variable x2 = new Variable(BuiltinTypes.DOUBLE, "x2");
+        Variable p1 = new Variable(BuiltinTypes.DOUBLE, "p1");
+        Variable p2 = new Variable(BuiltinTypes.DOUBLE, "p2");
         Expression<Boolean> expression = new PropositionalCompound(
                 new NumericBooleanExpression(x1, NumericComparator.EQ, p1), 
                 LogicalOperator.AND, 

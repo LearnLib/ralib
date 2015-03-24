@@ -8,15 +8,14 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -72,8 +71,8 @@ public class SDT implements SymbolicDecisionTree {
                 if (r instanceof Register) {
                     registers.add((Register) r);
                 }
-            } else if (g instanceof SDTAndGuard) {
-                for (SDTIfGuard ifG : ((SDTAndGuard) g).getGuards()) {
+            } else if (g instanceof SDTMultiGuard) {
+                for (SDTIfGuard ifG : ((SDTMultiGuard) g).getGuards()) {
                     SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
                     if (ifr instanceof Register) {
                         registers.add((Register) ifr);
@@ -426,11 +425,11 @@ public class SDT implements SymbolicDecisionTree {
 
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         for (Register r : getRegisters()) {
-            Variable x = new Variable(BuiltinTypes.SINT32, "x" + r.getId());
+            Variable x = new Variable(BuiltinTypes.DOUBLE, "x" + r.getId());
             map.put(r, x);
         }
         for (SuffixValue s : svals) {
-            Variable p = new Variable(BuiltinTypes.SINT32, "y" + s.getId());
+            Variable p = new Variable(BuiltinTypes.DOUBLE, "y" + s.getId());
             map.put(s, p);
         }
 

@@ -28,18 +28,17 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.Constant;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -315,57 +314,89 @@ public class MultiTheoryBranching implements Branching {
 //        }
 //        return currRegsAndParams;
 //    }
-
-    private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
-        Set<SymbolicDataValue> regsAndParams = new HashSet<>();
-        for (DataValue[] dvs : guardMap.keySet()) {
-            for (SDTGuard guard : guardMap.get(dvs)) {
-                regsAndParams.add(guard.getParameter());
+//
+//    private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
+//        Set<SymbolicDataValue> regsAndParams = new HashSet<>();
+//        for (DataValue[] dvs : guardMap.keySet()) {
+//            for (SDTGuard guard : guardMap.get(dvs)) {
+//                regsAndParams.add(guard.getParameter());
+//                if (guard instanceof SDTIfGuard) {
+//                    SymbolicDataValue r = ((SDTIfGuard)guard).getRegister();
+//                    if (!(r.isConstant())) {
+//                        regsAndParams.add(r);
+//                    }
+//                } //else if (guard instanceof SDTElseGuard) {
+//                //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
+//                //} 
+//                else if (guard instanceof SDTAndGuard) {
+//                    for (SDTIfGuard ifGuard : ((SDTAndGuard) guard).getGuards()) {
+//                        SymbolicDataValue r = ifGuard.getRegister();
+//                        if (!(r.isConstant())) {
+//                        regsAndParams.add(r);
+//                    }
+//                        regsAndParams.add(ifGuard.getRegister());
+//                    }
+//                }
+//            }
+//
+//        }
+//        return regsAndParams;
+//
+//    }
+//    
+    public Map<SymbolicDataValue, Variable> makeVarMapping(Map<DataValue[], List<SDTGuard>> guardMap) {
+        Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
+        for (Map.Entry<DataValue[],List<SDTGuard>> e : guardMap.entrySet()) {
+            System.out.println("branching guard list: " + e.getValue().toString());
+            for (SDTGuard guard : e.getValue()) {
+                SuffixValue ps = guard.getParameter();
+                Parameter p = new Parameter(ps.getType(),ps.getId());
+                Variable px = ps.toVariable();
+                vars.put(p,px);
                 if (guard instanceof SDTIfGuard) {
-                    SymbolicDataValue r = ((SDTIfGuard)guard).getRegister();
-                    if (!(r.isConstant())) {
-                        regsAndParams.add(r);
-                    }
-                } //else if (guard instanceof SDTElseGuard) {
-                //    regsAndParams.addAll(((SDTElseGuard) guard).getRegisters());
-                //} 
-                else if (guard instanceof SDTAndGuard) {
-                    for (SDTIfGuard ifGuard : ((SDTAndGuard) guard).getGuards()) {
-                        SymbolicDataValue r = ifGuard.getRegister();
-                        if (!(r.isConstant())) {
-                        regsAndParams.add(r);
-                    }
-                        regsAndParams.add(ifGuard.getRegister());
+                    SymbolicDataValue s = ((SDTIfGuard)guard).getRegister();
+                    //if (!s.isConstant()) {
+                        Variable sx = s.toVariable();
+                        System.out.println("s,sx: " + s.toString() + " " + sx.toString());
+                        vars.put(s,sx);
+                    //}
+                }
+                else if (guard instanceof SDTMultiGuard) {
+                    for (SymbolicDataValue z : ((SDTMultiGuard)guard).getAllRegs()) {
+                      //  if (!z.isConstant()) {
+                            Variable zx = z.toVariable();
+                            System.out.println("s,sx: " + z.toString() + " " + zx.toString());
+                            vars.put(z,zx);
+                       // }
                     }
                 }
-            }
-
         }
-        return regsAndParams;
-
     }
-
-    public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
-        Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
-        for (SymbolicDataValue s : regsAndParams) {
-            SymbolicDataValue z = s;
-            String xpre = "";
-            if (s.isConstant()) {
-                throw new IllegalStateException(s.toString() + "is a constant, not supposed to happen!");
-            }
-            if (s.isSuffixValue()) {
-                xpre = "y" + s.getId();
-                z = new Parameter(s.getType(), s.getId());
-            }
-            if (s.isRegister()) {
-                xpre = "x" + s.getId();
-            }
-//            String xname = xpre + s.getId() + "_" + s.getType().getName();
-            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
-            vars.put(z, x);
-        }
+        System.out.println("vars in branching: " + vars.toString());
         return vars;
     }
+
+//    public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
+//        Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
+//        for (SymbolicDataValue s : regsAndParams) {
+//            SymbolicDataValue z = s;
+//            String xpre = "";
+//            if (s.isConstant()) {
+//                throw new IllegalStateException(s.toString() + "is a constant, not supposed to happen!");
+//            }
+//            if (s.isSuffixValue()) {
+//                xpre = "y" + s.getId();
+//                z = new Parameter(s.getType(), s.getId());
+//            }
+//            if (s.isRegister()) {
+//                xpre = "x" + s.getId();
+//            }
+////            String xname = xpre + s.getId() + "_" + s.getType().getName();
+//            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
+//            vars.put(z, x);
+//        }
+//        return vars;
+//    }
     
 //    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
 //        Set<Register> regs = new HashSet<>();
@@ -428,9 +459,9 @@ public class MultiTheoryBranching implements Branching {
 //        for (DataValue[] d : psList) {
 //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
 //        
-        Set<SymbolicDataValue> regsAndParams = collectRegsAndParams(tempMap);
+        //Set<SymbolicDataValue> regsAndParams = collectRegsAndParams(tempMap);
 
-        Map<SymbolicDataValue, Variable> vars = makeVarMapping(regsAndParams);
+        Map<SymbolicDataValue, Variable> vars = makeVarMapping(tempMap);
 //            new LinkedHashMap<SymbolicDataValue, Variable>();
 //            for (SymbolicDataValue s : regsAndParams) {
 //                SymbolicDataValue z = s;
@@ -459,7 +490,9 @@ public class MultiTheoryBranching implements Branching {
             }
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
                 //log.log(Level.FINEST,"psWord = " + psWord.toString());
-                TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
+                Expression<Boolean> xpr = toPC(gExpr, 0);
+                System.out.println("toTG expr: " + xpr.toString() + " and vars: " + vars.toString());
+                TransitionGuard tg = toTG(xpr, vars);
                 assert tg != null;
                 check = (IfGuard) tg;
                 

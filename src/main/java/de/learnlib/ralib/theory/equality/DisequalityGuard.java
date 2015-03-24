@@ -102,12 +102,13 @@ public class DisequalityGuard extends SDTIfGuard {
     public Expression<Boolean> toExpr(Constants consts) {
         SymbolicDataValue r = this.getRegister();
         // String pname = "y" + this.getParameter().getId();
-        Variable p = this.getParameter().toVariable(); //new Variable(BuiltinTypes.SINT32, pname);
+        Variable p = this.getParameter().toVariable(); 
+//new Variable(BuiltinTypes.SINT32, pname);
         
         if (r.isConstant()) {
             DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
             Integer dv_i = dv.getId();
-            Constant c = new Constant(BuiltinTypes.SINT32,dv_i);
+            Constant c = new Constant(BuiltinTypes.DOUBLE,dv_i);
                 return new NumericBooleanExpression(c, NumericComparator.NE, p);
         }
         else {

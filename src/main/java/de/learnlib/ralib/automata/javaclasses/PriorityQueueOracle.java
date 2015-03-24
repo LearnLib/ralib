@@ -56,7 +56,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
                 Boolean[] answer = new Boolean[query.getInput().length()];
 
                 for (int i = 0; i < query.getInput().length(); i++) {
-                    System.out.println("index in query: " + i);
+//                    System.out.println("index in query: " + i);
                     //query.answer(false);
                     answer[i] = false;
                     try {
@@ -67,15 +67,15 @@ public final class PriorityQueueOracle implements DataWordOracle {
                             queue.offer(d.getId());
                             //query.answer(true);
                             answer[i] = true;
-                            System.out.println("queue is : " + queue.toString());
+//                            System.out.println("queue is : " + queue.toString());
                         } else if (psi.getBaseSymbol().equals(POLL)) {
-                            System.out.println("polling; queue is : " + queue.toString());
+//                            System.out.println("polling; queue is : " + queue.toString());
                             Double val = queue.poll();
-                            System.out.println("Val: " + val.toString());
+//                            System.out.println("Val: " + val.toString());
                             if (val!=null) {
-                                System.out.println("executing: queue.poll(), which returns " + val.toString());
+//                                System.out.println("executing: queue.poll(), which returns " + val.toString());
                                 if (val.equals(d.getId())) {
-                                    System.out.println("... and equals " + d.toString());
+//                                    System.out.println("... and equals " + d.toString());
                                     //query.answer(true);
                                     answer[i] = true;
                                 }
@@ -90,8 +90,8 @@ public final class PriorityQueueOracle implements DataWordOracle {
                     }
                 }
                 query.answer(isArrayTrue(answer));
-                System.out.println("queue : " + queue.toString());
-                System.out.println("query : " + query.toString());
+//                System.out.println("queue : " + queue.toString());
+//                System.out.println("query : " + query.toString());
             }
         }
     }

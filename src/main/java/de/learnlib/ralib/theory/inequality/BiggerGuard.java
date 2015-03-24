@@ -62,15 +62,16 @@ public class BiggerGuard extends SDTIfGuard {
     public Expression<Boolean> toExpr(Constants consts) {
         SymbolicDataValue r = this.getRegister();
        //  String pname = "y" + this.getParameter().getId();
-        Variable p = this.getParameter().toVariable(); //new Variable(BuiltinTypes.SINT32, pname);
+        Variable p = this.getParameter().toVariable(); 
+//new Variable(BuiltinTypes.SINT32, pname);
         
-        if (r.isConstant()) {
-            DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
-            Integer dv_i = dv.getId();
-            gov.nasa.jpf.constraints.expressions.Constant c = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.SINT32,dv_i);
-            return new NumericBooleanExpression(c, NumericComparator.LT, p);
-        }
-        else {
+   //     if (r.isConstant()) {
+   //         DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
+   //         Integer dv_i = dv.getId();
+   //         gov.nasa.jpf.constraints.expressions.Constant c = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE,dv_i);
+   //         return new NumericBooleanExpression(c, NumericComparator.LT, p);
+   //     }
+   //     else {
 //            String xname = "";
 //            if (r instanceof SymbolicDataValue.Register) {
 //            xname = "x" + r.getId();
@@ -81,7 +82,7 @@ public class BiggerGuard extends SDTIfGuard {
         //Variable x = new Variable(BuiltinTypes.SINT32,xname);
         Variable x = r.toVariable();
             return new NumericBooleanExpression(x, NumericComparator.LT, p);
-        }
+    //    }
     } 
 //    
 //    

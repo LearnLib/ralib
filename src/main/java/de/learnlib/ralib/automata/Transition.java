@@ -62,7 +62,7 @@ public class Transition {
         return guard.isSatisfied(registers, parameters, consts);        
     }
     
-    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {        
+    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {    
         return this.getAssignment().compute(registers, parameters, consts);
     }
     

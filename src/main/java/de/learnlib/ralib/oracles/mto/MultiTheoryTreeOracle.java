@@ -44,6 +44,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -52,7 +53,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -256,19 +256,21 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Map<SymbolicDataValue, Variable> makeVarMapping(Set<SymbolicDataValue> regsAndParams) {
         Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
         for (SymbolicDataValue s : regsAndParams) {
-            SymbolicDataValue z = s;
-            String xpre = "";
-            if (s instanceof SuffixValue) {
-                xpre = "y" + s.getId();
-                z = new Parameter(s.getType(), s.getId());
-            }
-            if (s instanceof Register) {
-                xpre = "x" + s.getId();
-            }
-//            String xname = xpre + s.getId() + "_" + s.getType().getName();
-            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
-            vars.put(z, x);
+            
+            //SymbolicDataValue z = s;
+//            String xpre = "";
+//            if (s instanceof SuffixValue) {
+//                xpre = "y" + s.getId();
+//                z = new Parameter(s.getType(), s.getId());
+//            }
+//            if (s instanceof Register) {
+//                xpre = "x" + s.getId();
+//            }
+////            String xname = xpre + s.getId() + "_" + s.getType().getName();
+//            Variable x = new Variable(BuiltinTypes.SINT32, xpre);
+            vars.put(s, s.toVariable());
         }
+        System.out.println("MakeVarMapping: " + vars.toString());
         return vars;
     }
 
@@ -294,8 +296,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
         Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
         currRegsAndParams.add(guard.getParameter());
-        if (guard instanceof SDTAndGuard) {
-            Set<SymbolicDataValue> allRegs = ((SDTAndGuard) guard).getAllRegs();
+        if (guard instanceof SDTMultiGuard) {
+            Set<SymbolicDataValue> allRegs = ((SDTMultiGuard) guard).getAllRegs();
             for (SymbolicDataValue r : allRegs) {
                 if (!(r.isConstant())) {
                     currRegsAndParams.add(r);

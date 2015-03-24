@@ -101,7 +101,7 @@ public class ExpressionParser {
         gov.nasa.jpf.constraints.api.Variable var = vars.get(key);
         if (var == null) {
             var = new gov.nasa.jpf.constraints.api.Variable(
-                    BuiltinTypes.SINT32, key.toString());
+                    BuiltinTypes.DOUBLE, key.toString());
             vars.put(key, var);
         }
         return var;

@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.data;
 
 import gov.nasa.jpf.constraints.api.Valuation;
@@ -26,40 +25,44 @@ import java.util.Objects;
 
 /**
  * Symbolic Data Values (Parameters, registers, etc.).
- * 
+ *
  * @author falk
  */
 public abstract class SymbolicDataValue extends DataValue<Integer> {
 
-        
     public static final class Parameter extends SymbolicDataValue {
+
         public Parameter(DataType dataType, int id) {
             super(dataType, id);
         }
+
         public boolean equals(Parameter other) {
             return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
-            
+
         }
-    }; 
-            
+    };
+
     public static final class Register extends SymbolicDataValue {
+
         public Register(DataType dataType, int id) {
             super(dataType, id);
-        }        
-    };         
+        }
+    };
 
     public static final class Constant extends SymbolicDataValue {
+
         public Constant(DataType dataType, int id) {
             super(dataType, id);
         }
-    };   
-    
+    };
+
     public static final class SuffixValue extends SymbolicDataValue {
+
         public SuffixValue(DataType dataType, int id) {
             super(dataType, id);
-        }        
-    };     
-    
+        }
+    };
+
     private SymbolicDataValue(DataType dataType, int id) {
         super(dataType, id);
     }
@@ -72,19 +75,17 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public String toString() {
         String s = "";
         if (this.isParameter()) {
-            s += "p"; 
+            s += "p";
         } else if (this.isRegister()) {
-            s += "r";             
-        }
-        else if (this.isSuffixValue()) {
-            s+= "s";
-        }
-        else if (this.isConstant()) {
-            s+= "c";
+            s += "r";
+        } else if (this.isSuffixValue()) {
+            s += "s";
+        } else if (this.isConstant()) {
+            s += "c";
         }
         return s + this.id;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -111,15 +112,17 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         hash = 97 * hash + Objects.hashCode(this.getClass());
         return hash;
     }
-    
+
     public Variable toVariable() {
-                String rname = "";
-                if (this.isSuffixValue()) {
-                    rname = "y" + this.id;
-                } else if (this.isRegister()) {
-                    rname = "x" + this.id;
-                }
-                return new Variable(BuiltinTypes.SINT32, rname);
+        String rname = "";
+        if (this.isSuffixValue()) {
+            rname = "y" + this.id;
+        } else if (this.isRegister()) {
+            rname = "x" + this.id;
+        } else if (this.isConstant()) {
+            rname = "z" + this.id;
+        }
+        return new Variable(BuiltinTypes.DOUBLE, rname);
     }
 
     public boolean isRegister() {
@@ -128,12 +131,12 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
 
     public boolean isParameter() {
         return this.getClass().equals(Parameter.class);
-    }    
+    }
 
     public boolean isConstant() {
         return this.getClass().equals(Constant.class);
     }
-    
+
     public boolean isSuffixValue() {
         return this.getClass().equals(SuffixValue.class);
     }

@@ -100,8 +100,8 @@ public final class MapAutomatonExample {
         SymbolicDataValue.Parameter pVal = pgen.next(T_VAL);
         
         // guards
-        Variable x1 = new Variable(BuiltinTypes.SINT32, "x1");
-        Variable p1 = new Variable(BuiltinTypes.SINT32, "p1");
+        Variable x1 = new Variable(BuiltinTypes.DOUBLE, "x1");
+        Variable p1 = new Variable(BuiltinTypes.DOUBLE, "p1");
         Expression<Boolean> expression = 
                 new NumericBooleanExpression(x1, NumericComparator.EQ, p1);
         
