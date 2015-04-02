@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -80,42 +81,42 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         return vars;
     }
 
-    private Set<SDTGuard> removeContradictions(SDTGuard... gs) {
-        Set<SDTGuard> guardSet = new HashSet<>();
-        for (SDTGuard g : gs) {
-            if (g instanceof SDTIfGuard) {
-                SDTIfGuard x = (SDTIfGuard) g;
-                if (guardSet.contains(x.toDeqGuard())) {
-                    guardSet.remove(x.toDeqGuard());
-                    if (!(g instanceof EqualityGuard)) {
-                        guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
-                    }
-                } else {
-                    guardSet.add(x);
-                }
-            } else if (g instanceof SDTAndGuard) {
-                SDTAndGuard ag = (SDTAndGuard) g;
-                List<SDTIfGuard> ifs = new ArrayList();
-                for (SDTIfGuard x : ag.getGuards()) {
-                    if (guardSet.contains(x.toDeqGuard())) {
-                        guardSet.remove(x.toDeqGuard());
-                        if (!(g instanceof EqualityGuard)) {
-                            guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
-                        }
-                    } else {
-                        ifs.add(x);
-                    }
-                }
-                if (ifs.size() == 1) {
-                    guardSet.add(ifs.get(0));
-                } else if (ifs.size() > 1) {
-                    guardSet.add(new SDTAndGuard(g.getParameter(), ifs.toArray(new SDTIfGuard[]{})));
-                }
-
-            }
-        }
-        return guardSet;
-    }
+//    private Set<SDTGuard> removeContradictions(SDTGuard... gs) {
+//        Set<SDTGuard> guardSet = new HashSet<>();
+//        for (SDTGuard g : gs) {
+//            if (g instanceof SDTIfGuard) {
+//                SDTIfGuard x = (SDTIfGuard) g;
+//                if (guardSet.contains(x.toDeqGuard())) {
+//                    guardSet.remove(x.toDeqGuard());
+//                    if (!(g instanceof EqualityGuard)) {
+//                        guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
+//                    }
+//                } else {
+//                    guardSet.add(x);
+//                }
+//            } else if (g instanceof SDTAndGuard) {
+//                SDTAndGuard ag = (SDTAndGuard) g;
+//                List<SDTIfGuard> ifs = new ArrayList();
+//                for (SDTIfGuard x : ag.getGuards()) {
+//                    if (guardSet.contains(x.toDeqGuard())) {
+//                        guardSet.remove(x.toDeqGuard());
+//                        if (!(g instanceof EqualityGuard)) {
+//                            guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
+//                        }
+//                    } else {
+//                        ifs.add(x);
+//                    }
+//                }
+//                if (ifs.size() == 1) {
+//                    guardSet.add(ifs.get(0));
+//                } else if (ifs.size() > 1) {
+//                    guardSet.add(new SDTAndGuard(g.getParameter(), ifs.toArray(new SDTIfGuard[]{})));
+//                }
+//
+//            }
+//        }
+//        return guardSet;
+//    }
 
  
     private Set<SDTGuard> setify(SDTGuard... gs) {
@@ -166,7 +167,18 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
     private SDTGuard mergeGuardLists(SDTGuard g1, SDTGuard g2) {
         Set<SDTGuard> guardSet = (setify(g1, g2));
-        return new SDTOrGuard(g1.getParameter(), guardSet.toArray(new SDTIfGuard[]{}));
+        if (guardSet.isEmpty()) {
+            return new SDTTrueGuard(g1.getParameter());
+        }
+        else {
+            SDTIfGuard[] guardArray = guardSet.toArray(new SDTIfGuard[]{});
+            if (guardArray.length == 1) {
+                return guardArray[0];
+            }
+            else {
+                return new SDTOrGuard(g1.getParameter(), guardSet.toArray(new SDTIfGuard[]{}));
+            }
+        }
     }
 
 //    private boolean canMerge(SDTGuard th, SDTGuard other) {
@@ -180,14 +192,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private Map<SDTGuard, SDT> tryToMerge(SDTGuard guard,
             List<SDTGuard> targetList, Map<SDTGuard, SDT> refSDTMap,
             Map<SDTGuard, SDT> finalMap, Map<SDTGuard, SDT> contMap) {
-        log.log(Level.FINEST, "---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
+//        log.log(Level.FINEST, "---- Merging ----\nguard: " + guard.toString() + "\ntargetList: " + targetList.toString() + "\nfinalMap " + finalMap.toString() + "\ncontMap " + contMap.toString());
         Map<SDTGuard, SDT> cMap = new LinkedHashMap();
         cMap.putAll(contMap);
         if (targetList.isEmpty()) {
             //finalMap.put(guard, refSDTMap.get(guard));
             finalMap.put(guard, refSDTMap.get(guard));
             finalMap.putAll(cMap);
-            log.log(Level.FINEST, " ---> " + finalMap.toString());
+//            log.log(Level.FINEST, " ---> " + finalMap.toString());
             return finalMap;
         } else {
             Map<SDTGuard, SDT> newSDTMap = new LinkedHashMap();
@@ -204,9 +216,19 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (guardSDT.isLooselyEquivalent(otherSDT, vars)) {
                 // if yes, then merge them
                 SDTGuard merged = mergeGuardLists(guard, other);
-//                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
-                // add the merged guard and SDT to merged map
-                newSDTMap.put(merged, guardSDT);
+                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
+                
+                // if merged is an or guard: add all components
+//                if (merged instanceof SDTOrGuard) {
+//                    for (SDTIfGuard subguard : ((SDTOrGuard)merged).getGuards()) {
+//                        newSDTMap.put(subguard, guardSDT);
+//                    }
+//                }
+//                else {
+                    // add the merged guard and SDT to merged map
+                    newSDTMap.put(merged, guardSDT);
+                //}
+                System.out.println("newSDTMap: " + newSDTMap);
                 cMap.remove(other);
 
                 return tryToMerge(merged, newTargetList, newSDTMap, new LinkedHashMap(), cMap);
@@ -224,23 +246,38 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         if (unmerged.isEmpty()) {
             return unmerged;
         }
-        log.log(Level.FINEST, "master merge...");
+//        log.log(Level.FINEST, "master merge...");
         Map<SDTGuard, SDT> tempMap = new LinkedHashMap();
 
         List<SDTGuard> guardList = new ArrayList(unmerged.keySet());
-        log.log(Level.FINEST, "unmerged: " + unmerged.toString());
+//        log.log(Level.FINEST, "unmerged: " + unmerged.toString());
         //int i = 0;
         List<SDTGuard> jGuardList = new ArrayList();
         jGuardList.addAll(guardList);
         Map<SDTGuard, SDT> gMerged = tryToMerge(guardList.get(0), jGuardList.subList(1, guardList.size()), unmerged, new LinkedHashMap(), new LinkedHashMap());
-        tempMap.putAll(gMerged);
+        
+        // expand or guards before adding to the map
+        
+        for (Entry<SDTGuard,SDT> e : gMerged.entrySet()) {
+            SDTGuard guard = e.getKey();
+            SDT sdt = e.getValue();
+            if (guard instanceof SDTOrGuard) {
+                for (SDTIfGuard subguard : ((SDTOrGuard)guard).getGuards()) {
+                        tempMap.put(subguard, sdt);
+                    }
+            }
+            else {
+                tempMap.put(guard,sdt);
+            }
+        }
+        //tempMap.putAll(gMerged);
 
-        log.log(Level.FINEST, tempMap.toString());
+//        log.log(Level.FINEST, tempMap.toString());
         if (tempMap.size() == unmerged.size()) {
-            log.log(Level.FINEST, "unchanged");
+//            log.log(Level.FINEST, "unchanged");
             return tempMap;
         } else {
-            log.log(Level.FINEST, "another round");
+//            log.log(Level.FINEST, "another round");
             return mergeGuards(tempMap);
         }
     }
@@ -420,67 +457,99 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
         } // process each '<' case
         else {
-            for (int i = 0; i < potSize; i++) {
+//            System.out.println("STARTING ITERATION " + pId + ": " + potential.toString());
+            Parameter p = new Parameter(currentParam.getType(), currentParam.getId());
+                
+            // smallest case
+            WordValuation smValues = new WordValuation();
+                smValues.putAll(values);
+                SuffixValuation smSuffixValues = new SuffixValuation();
+                smSuffixValues.putAll(suffixValues);
+                
+                Valuation smVal = new Valuation();
+            DataValue<T> dvRight = potential.get(0);
+//                    System.out.println("dvRight = " + dvRight.toString());
+                    SmallerGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, smValues, piv);
+                    SymbolicDataValue rsm = sguard.getRegister();
+
+                    smVal.setValue(rsm.toVariable(), dvRight);
+            DataValue<T> smcv = instantiate(sguard, smVal, constants,potential);
+                smValues.put(pId, smcv);
+                smSuffixValues.put(sv, smcv);
+//                System.out.println("smallerGuard: " + sguard.toString());
+                
+                
+                SDT smoracleSdt = oracle.treeQuery(
+                        prefix, suffix, smValues, piv, constants, smSuffixValues);
+
+                tempKids.put(sguard, smoracleSdt);
+                
+                // biggest case
+                WordValuation bgValues = new WordValuation();
+                bgValues.putAll(values);
+                SuffixValuation bgSuffixValues = new SuffixValuation();
+                bgSuffixValues.putAll(suffixValues);
+                
+                Valuation bgVal = new Valuation();
+                
+             DataValue<T> dvLeft = potential.get(potSize-1);
+//             System.out.println("potential = " + potential.toString() + "; get #" + (potSize-1) + " = " + dvLeft.toString());   
+             BiggerGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv);
+                    SymbolicDataValue rbg  = bguard.getRegister();
+
+                    bgVal.setValue(rbg.toVariable(), dvLeft);
+            DataValue<T> bgcv = instantiate(bguard, bgVal, constants,potential);
+                bgValues.put(pId, bgcv);
+                bgSuffixValues.put(sv, bgcv);
+//                log.log(Level.FINEST, "Guard: " + sguard.toString());
+                
+                SDT bgoracleSdt = oracle.treeQuery(
+                        prefix, suffix, bgValues, piv, constants, bgSuffixValues);
+
+                tempKids.put(bguard, bgoracleSdt);
+                    
+                    
+            if(potSize > 1 ) {        //middle cases
+            for (int i = 1; i < potSize; i++) {
                 //DataValue<T> currentDv = potential.get(i);
 
                 WordValuation currentValues = new WordValuation();
                 currentValues.putAll(values);
-                Parameter p = new Parameter(currentParam.getType(), currentParam.getId());
+                //Parameter p = new Parameter(currentParam.getType(), currentParam.getId());
                 //  log.log(Level.FINEST,"new values " + currentValues.toString());
                 SuffixValuation currentSuffixValues = new SuffixValuation();
                 currentSuffixValues.putAll(suffixValues);
                 SDTGuard guard;
-                System.out.println(potential.toString());
                 Valuation val = new Valuation();
-                // SMALLEST case
-                if (i == 0) {
-                    // find the data value we're comparing to
-                    DataValue<T> dvRight = potential.get(i);
-//                    System.out.println("dvRight = " + dvRight.toString());
-                    guard = makeSmallerGuard(dvRight, prefixValues, currentParam, currentValues, piv);
-                    SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
+                    DataValue<T> dvMRight = potential.get(i);
+                    DataValue<T> dvMLeft = potential.get(i - 1);
 
-                    val.setValue(r.toVariable(), dvRight);
-                    //cv = makeSmallerValue(dvRight);
-                    //                  System.out.println("smaller, " + dvRight.toString() + "  vs  " + cv.toString() + "  becomes  " + guard.toString());
-
-                } // MIDDLE cases
-                else if (i > 0 && i < potSize - 1) {
-                    DataValue<T> dvRight = potential.get(i);
-                    DataValue<T> dvLeft = potential.get(i - 1);
-
-                    SmallerGuard smallerGuard = makeSmallerGuard(dvRight, prefixValues, currentParam, currentValues, piv);
-                    BiggerGuard biggerGuard = makeBiggerGuard(dvLeft, prefixValues, currentParam, currentValues, piv);
+                    SmallerGuard smallerGuard = makeSmallerGuard(dvMRight, prefixValues, currentParam, currentValues, piv);
+                    BiggerGuard biggerGuard = makeBiggerGuard(dvMLeft, prefixValues, currentParam, currentValues, piv);
                     guard = new SDTAndGuard(currentParam, smallerGuard, biggerGuard);
                     SymbolicDataValue rs = smallerGuard.getRegister();
                     SymbolicDataValue rb = biggerGuard.getRegister();
 
-                    val.setValue(rs.toVariable(), dvRight);
-                    val.setValue(rb.toVariable(), dvLeft);
+                    val.setValue(rs.toVariable(), dvMRight);
+                    val.setValue(rb.toVariable(), dvMLeft);
 
 //                    currentValues.put(pId, makeMiddleValue(dvLeft, dvRight));
-                } // BIGGEST case
-                else {
-                    DataValue<T> dvLeft = potential.get(i);
-                    guard = makeBiggerGuard(dvLeft, prefixValues, currentParam, currentValues, piv);
-                    SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
-
-                    val.setValue(r.toVariable(), dvLeft);
-                }
-               System.out.println("IneqValuation: " + val.toString());
-                DataValue<T> cv = instantiate(guard, val, p, constants);
+//                System.out.println("IneqValuation: " + val.toString());
+                DataValue<T> cv = instantiate(guard, val, constants,potential);
                 currentValues.put(pId, cv);
-                log.log(Level.FINEST, "Guard: " + guard.toString());
-
+                currentSuffixValues.put(sv, cv);
+//                log.log(Level.FINEST, "Guard: " + guard.toString());
+                
                 SDT oracleSdt = oracle.treeQuery(
                         prefix, suffix, currentValues, piv, constants, currentSuffixValues);
 
                 tempKids.put(guard, oracleSdt);
 
+            } 
             }
 
             for (DataValue<T> newDv : potential) {
-                log.log(Level.FINEST, newDv.toString());
+//                log.log(Level.FINEST, newDv.toString());
 
                 // this is the valuation of the suffixvalues in the suffix
                 SuffixValuation ifSuffixValues = new SuffixValuation();
@@ -488,10 +557,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 //ifSuffixValues.put(sv, newDv);
 
                 EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, piv, constants);
-                log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
+//                log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
                 WordValuation ifValues = new WordValuation();
                 ifValues.putAll(values);
                 ifValues.put(pId, newDv);
+    //            ifSuffixValues.put(sv,newDv);
                 SDT eqOracleSdt = oracle.treeQuery(
                         prefix, suffix, ifValues, piv, constants, ifSuffixValues);
 
@@ -502,15 +572,16 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 //        log.log(Level.FINEST,"-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
         // merge the guards
-        System.out.println("temporary guards = " + tempKids.keySet());
+        System.out.println("TEMPORARY guards = " + tempKids.keySet());
 
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
-
+        System.out.println("MERGED guards = " + merged.keySet());
+        System.out.println("MERGED children: " + merged);
         // only keep registers that are referenced by the merged guards
         piv.putAll(keepMem(merged.keySet()));
 
         //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
-        log.log(Level.FINEST, "merged guards = " + merged.keySet().toString());
+//        log.log(Level.FINEST, "merged guards = " + merged.keySet().toString());
         //log.log(Level.FINEST,"merged pivs = " + addPiv.toString());
 
         // clear the temporary map of children
@@ -518,12 +589,12 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         SDT returnSDT = new SDT(merged);
 
-        System.out.println("returnsdt: " + returnSDT.toString());
+      System.out.println("returnsdt: " + returnSDT.toString());
 
         return returnSDT;
 
     }
-
+    
     //public abstract DataValue<T> makeSmallerValue(DataValue<T> x, DataValue<T> y);
     //public abstract DataValue<T> makeSmallerValue(DataValue<T> x);
     //public abstract DataValue<T> makeMiddleValue(DataValue<T> x, DataValue<T> y);
@@ -549,8 +620,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             //} else {
             newDv_r = new Register(type, newDv_i);
             //}
-            log.log(Level.FINEST, "current param = " + currentParam.toString());
-            log.log(Level.FINEST, "New register = " + newDv_r.toString());
+//            log.log(Level.FINEST, "current param = " + currentParam.toString());
+//            log.log(Level.FINEST, "New register = " + newDv_r.toString());
             return new EqualityGuard(currentParam, newDv_r);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
@@ -566,9 +637,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private SmallerGuard makeSmallerGuard(DataValue<T> smallerDv, List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir) {
         DataType type = currentParam.getType();
         int newDv_i;
-        System.out.println("prefixValues are: " + prefixValues.toString());
+//        System.out.println("prefixValues are: " + prefixValues.toString());
         if (prefixValues.contains(smallerDv)) {
-            System.out.println("dv in prefixvalues");
+//            System.out.println("dv in prefixvalues");
             newDv_i = prefixValues.indexOf(smallerDv) + 1;
             SymbolicDataValue.Parameter newDv_p = new SymbolicDataValue.Parameter(type, newDv_i);
             Register newDv_r;
@@ -581,9 +652,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
-            System.out.println("current wordvaluation: " + ifValues.toString() + " -- looking for: " + smallerDv.toString());
+//            System.out.println("current wordvaluation: " + ifValues.toString() + " -- looking for: " + smallerDv.toString());
             int smallest = Collections.min(ifValues.getAllKeys(smallerDv));
-            return new SmallerGuard(currentParam, new SuffixValue(type, smallest));
+            SmallerGuard sg = new SmallerGuard(currentParam, new SuffixValue(type, smallest));
+//            System.out.println("SmallerGuard is " + sg.toString());
+            return sg;
         }
     }
 
@@ -604,7 +677,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
             int smallest = Collections.min(ifValues.getAllKeys(biggerDv));
-            return new BiggerGuard(currentParam, new SuffixValue(type, smallest));
+            BiggerGuard bg = new BiggerGuard(currentParam, new SuffixValue(type, smallest));
+//            System.out.println("BiggerGuard is " + bg.toString());
+            return bg;
         }
     }
 
@@ -612,7 +687,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        return vals;
 //    }
 
-    private DataValue getRegisterValue(SymbolicDataValue r, PIV piv, List<DataValue> prefixValues, Constants constants, ParValuation pval) {
+    private DataValue getRegisterValue(SymbolicDataValue r, PIV piv, List<DataValue<T>> prefixValues, Constants constants, ParValuation pval) {
         if (r.isRegister()) {
             //log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
             Parameter p = piv.getOneKey((Register) r);
@@ -631,8 +706,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    public abstract DataValue instantiate(SDTGuard guard, Valuation val, Parameter param, Constants constants);
-
+    public abstract DataValue instantiate(SDTGuard guard, Valuation val, Constants constants, Collection<DataValue<T>> alreadyUsedValues);
+    
     @Override
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
@@ -645,37 +720,42 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         DataType type = param.getType();
 
         //Variable px = param.toVariable();
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue<T>> prefixValues = Arrays.asList(DataWords.<T>valsOf(prefix,type));
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
 
         if (guard instanceof EqualityGuard) {
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
             return getRegisterValue(ereg, piv, prefixValues, constants, pval);
-        } else if (guard instanceof SDTTrueGuard) {
+        } else if ((guard instanceof SDTTrueGuard) || guard instanceof DisequalityGuard) {
 
-            Collection potSet = DataWords.<T>joinValsToSet(
+            Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),
                     DataWords.<T>valSet(prefix, type),
                     pval.<T>values(type));
 
             return this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
         } else {
+            Collection<DataValue<T>> alreadyUsedValues = DataWords.<T>joinValsToSet(
+                    constants.<T>values(type),
+                    DataWords.<T>valSet(prefix, type),
+                    pval.<T>values(type));
             Valuation val = new Valuation();
             if (guard instanceof SDTIfGuard) {
                 SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
-                DataValue regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
+                DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 
                 val.setValue(r.toVariable(), regVal);
                 //instantiate(guard, val, param, constants);
             } else if (guard instanceof SDTMultiGuard) {
                 for (SDTIfGuard ifGuard : ((SDTMultiGuard) guard).getGuards()) {
                     SymbolicDataValue r = ifGuard.getRegister();
-                    DataValue regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
+                    DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
                     val.setValue(r.toVariable(), regVal);
                 }
             }
-            instantiate(guard, val, param, constants);
+            // make all other disequality guards for prefix
+            instantiate(guard, val, constants, alreadyUsedValues);
             //solver.solve(guard.toExpr(constants), val);
             return new DataValue(type, val.getValue(param.toVariable()));
         }

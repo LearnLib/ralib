@@ -81,7 +81,7 @@ public class DataExpression<T extends Object> {
         
         this.expression = expression;
         this.mapping = mapping;
-        System.out.println("new data expression: " + expression.toString() + "    +    " + mapping.toString());
+        //System.out.println("new data expression: " + expression.toString() + "    +    " + mapping.toString());
     }
         
     public T evaluate(VarValuation vars, ParValuation pars, Constants consts) {
@@ -96,7 +96,7 @@ public class DataExpression<T extends Object> {
             throw new IllegalStateException("what the...???");
             
         }
-        
+        //System.out.println("let's try to evaluate: " + val.toString());
         return this.expression.evaluate(val);
     }
     
@@ -113,7 +113,7 @@ public class DataExpression<T extends Object> {
             Object value = e.getValue().getId();
             valuation.setValue(var, value);
         }
-        System.out.println("setvals: " + mapping.toString() + "  ...  " + vals.toString() + "  ...  " + valuation.toString());
+        //System.out.println("setvals: " + mapping.toString() + "  ...  " + vals.toString() + "  ...  " + valuation.toString());
         return valuation;
     }
 

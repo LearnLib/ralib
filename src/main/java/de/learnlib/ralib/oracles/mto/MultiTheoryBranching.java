@@ -347,7 +347,7 @@ public class MultiTheoryBranching implements Branching {
     public Map<SymbolicDataValue, Variable> makeVarMapping(Map<DataValue[], List<SDTGuard>> guardMap) {
         Map<SymbolicDataValue, Variable> vars = new LinkedHashMap<SymbolicDataValue, Variable>();
         for (Map.Entry<DataValue[],List<SDTGuard>> e : guardMap.entrySet()) {
-            System.out.println("branching guard list: " + e.getValue().toString());
+//            System.out.println("branching guard list: " + e.getValue().toString());
             for (SDTGuard guard : e.getValue()) {
                 SuffixValue ps = guard.getParameter();
                 Parameter p = new Parameter(ps.getType(),ps.getId());
@@ -357,7 +357,7 @@ public class MultiTheoryBranching implements Branching {
                     SymbolicDataValue s = ((SDTIfGuard)guard).getRegister();
                     //if (!s.isConstant()) {
                         Variable sx = s.toVariable();
-                        System.out.println("s,sx: " + s.toString() + " " + sx.toString());
+//                        System.out.println("s,sx: " + s.toString() + " " + sx.toString());
                         vars.put(s,sx);
                     //}
                 }
@@ -365,14 +365,14 @@ public class MultiTheoryBranching implements Branching {
                     for (SymbolicDataValue z : ((SDTMultiGuard)guard).getAllRegs()) {
                       //  if (!z.isConstant()) {
                             Variable zx = z.toVariable();
-                            System.out.println("s,sx: " + z.toString() + " " + zx.toString());
+//                            System.out.println("s,sx: " + z.toString() + " " + zx.toString());
                             vars.put(z,zx);
                        // }
                     }
                 }
         }
     }
-        System.out.println("vars in branching: " + vars.toString());
+//        System.out.println("vars in branching: " + vars.toString());
         return vars;
     }
 
@@ -478,7 +478,7 @@ public class MultiTheoryBranching implements Branching {
 //                vars.put(z, x);
 //            }
 
-            log.log(Level.FINEST, "Vars =     " + vars.toString());
+//            log.log(Level.FINEST, "Vars =     " + vars.toString());
             IfGuard check = null;
             
             for (DataValue[] dvs : tempMap.keySet()) {
@@ -491,7 +491,7 @@ public class MultiTheoryBranching implements Branching {
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
                 //log.log(Level.FINEST,"psWord = " + psWord.toString());
                 Expression<Boolean> xpr = toPC(gExpr, 0);
-                System.out.println("toTG expr: " + xpr.toString() + " and vars: " + vars.toString());
+//                System.out.println("toTG expr: " + xpr.toString() + " and vars: " + vars.toString());
                 TransitionGuard tg = toTG(xpr, vars);
                 assert tg != null;
                 check = (IfGuard) tg;

@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
@@ -36,25 +35,25 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
 import java.util.Objects;
+
 /**
  *
  * @author falk
  */
 public class DisequalityGuard extends SDTIfGuard {
-    
+
     public DisequalityGuard(SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
-        super(param, reg, Relation.NOT_EQUALS);     
+        super(param, reg, Relation.NOT_EQUALS);
     }
-    
+
 //    @Override
 //    public Equality createCopy(VarMapping renaming) {
 //        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
 //    }
-    
     public EqualityGuard toDeqGuard() {
         return new EqualityGuard(parameter, register);
     }
-   
+
     @Override
     public String toString() {
 //        String ret = "";
@@ -64,9 +63,9 @@ public class DisequalityGuard extends SDTIfGuard {
 //        return ret;
 //        //}
         return "(" + this.getParameter().toString() + "!=" + this.getRegister().toString() + ")";
-        
+
     }
-    
+
 //    private List<Expression<Boolean>> toExprList() {
 //        List<Expression<Boolean>> eqs = new ArrayList<>();
 //        Variable p = new Variable(BuiltinTypes.SINT32, "p");
@@ -88,7 +87,6 @@ public class DisequalityGuard extends SDTIfGuard {
 //            return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList,i+1));
 //        }
 //    }
-    
 //    @Override
 //    public Expression<Boolean> toExpr() {
 //        String xname = "x" + this.getRegister().getId();
@@ -102,16 +100,15 @@ public class DisequalityGuard extends SDTIfGuard {
     public Expression<Boolean> toExpr(Constants consts) {
         SymbolicDataValue r = this.getRegister();
         // String pname = "y" + this.getParameter().getId();
-        Variable p = this.getParameter().toVariable(); 
+        Variable p = this.getParameter().toVariable();
 //new Variable(BuiltinTypes.SINT32, pname);
-        
+
         if (r.isConstant()) {
-            DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant)r);
+            DataValue<Integer> dv = (DataValue<Integer>) consts.get((SymbolicDataValue.Constant) r);
             Integer dv_i = dv.getId();
-            Constant c = new Constant(BuiltinTypes.DOUBLE,dv_i);
-                return new NumericBooleanExpression(c, NumericComparator.NE, p);
-        }
-        else {
+            Constant c = new Constant(BuiltinTypes.DOUBLE, dv_i);
+            return new NumericBooleanExpression(c, NumericComparator.NE, p);
+        } else {
 //            String xname = "";
 //            if (r instanceof SymbolicDataValue.Register) {
 //            xname = "x" + r.getId();
@@ -119,22 +116,20 @@ public class DisequalityGuard extends SDTIfGuard {
 //            else if (r instanceof SymbolicDataValue.SuffixValue) {
 //            xname = "y" + r.getId();
             Variable x = r.toVariable();
-        
-        
+
 //        Variable x = new Variable(BuiltinTypes.SINT32,xname);
-        return new NumericBooleanExpression(x, NumericComparator.NE, p);
+            return new NumericBooleanExpression(x, NumericComparator.NE, p);
         }
     }
-    
-    
+
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
         Expression<Boolean> expr = this.toExpr(consts);
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
-                
-                }
- 
+
+    }
+
 //    @Override
 //    public SDTIfGuard relabel(VarMapping relabelling) {
 //        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
@@ -146,43 +141,37 @@ public class DisequalityGuard extends SDTIfGuard {
 //        return new DisequalityGuard(sv, r);
 //    }    
 //    
-    
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
         SymbolicDataValue r = null;
         sv = (sv == null) ? parameter : sv;
-        
+
         if (register.isConstant()) {
-            return new DisequalityGuard(sv,register);
-        }
-        else {
-            if (register.isSuffixValue()) {
+            return new DisequalityGuard(sv, register);
+        } else {
             r = (SymbolicDataValue) relabelling.get(register);
-            }
-            else if (register.isRegister()) {
-            r = (SymbolicDataValue.Register) relabelling.get(register);
-            }
-        r = (r == null) ? parameter : r;
-        return new DisequalityGuard(sv, r);
         }
-    }   
-    
+        r = (r == null) ? register : r;
+        return new DisequalityGuard(sv, r);
+    }
+
     @Override
     public SDTIfGuard relabelLoosely(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        sv = (sv == null) ? parameter : sv;
-        
-        if (register.isConstant()) {
-            return new DisequalityGuard(sv,register);
-        }
-        else {
-             r = (SymbolicDataValue) relabelling.get(register);
-            }
-        r = (r == null) ? parameter : r;
-        return new DisequalityGuard(sv, r);
-    } 
+        return this.relabel(relabelling);
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+//        SymbolicDataValue r = null;
+//        sv = (sv == null) ? parameter : sv;
+//        
+//        if (register.isConstant()) {
+//            return new DisequalityGuard(sv,register);
+//        }
+//        else {
+//             r = (SymbolicDataValue) relabelling.get(register);
+//            }
+//        r = (r == null) ? parameter : r;
+//        return new DisequalityGuard(sv, r);
+    }
 
 //    @Override
 //    public SDTGuard relabel(VarMapping relabelling) {
@@ -199,11 +188,6 @@ public class DisequalityGuard extends SDTIfGuard {
 //        
 //        return new DisequalityGuard(sv, regs);
 //    }        
-    
-    
-    
-    
-    
 //        private List<Expression<Boolean>> toExprList() {
 //        List<Expression<Boolean>> deqs = new ArrayList<>();
 //        String pname = "y" + this.getParameter().getId();
@@ -268,7 +252,6 @@ public class DisequalityGuard extends SDTIfGuard {
 //    }
 //    
 // 
-    
     @Override
     public int hashCode() {
         int hash = 5;
@@ -276,12 +259,11 @@ public class DisequalityGuard extends SDTIfGuard {
         hash = 59 * hash + Objects.hashCode(this.register);
         hash = 59 * hash + Objects.hashCode(this.relation);
         hash = 59 * hash + Objects.hashCode(this.getClass());
-        
+
         return hash;
     }
 
-   
-   @Override
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -297,5 +279,5 @@ public class DisequalityGuard extends SDTIfGuard {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
-    } 
+    }
 }

@@ -98,14 +98,15 @@ public class SDTAndGuard extends SDTMultiGuard {
     
     @Override
     public SDTGuard relabelLoosely(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        sv = (sv == null) ? getParameter() : sv;
-        
-        List<SDTIfGuard> gg = new ArrayList<>();
-        for (SDTIfGuard g : this.guards) {
-            gg.add(g.relabelLoosely(relabelling));
-        }
-        //throw new IllegalStateException("not supposed to happen");
-        return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        return this.relabel(relabelling);
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        sv = (sv == null) ? getParameter() : sv;
+//        
+//        List<SDTIfGuard> gg = new ArrayList<>();
+//        for (SDTIfGuard g : this.guards) {
+//            gg.add(g.relabelLoosely(relabelling));
+//        }
+//        //throw new IllegalStateException("not supposed to happen");
+//        return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }    
 }

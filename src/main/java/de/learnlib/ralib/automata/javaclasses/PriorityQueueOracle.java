@@ -63,7 +63,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
                         PSymbolInstance psi = query.getInput().getSymbol(i);
                         DataValue<Double> d = psi.getParameterValues()[0];
                         if (psi.getBaseSymbol().equals(OFFER) && queue.size() < 3) {
-                            System.out.println("executing:  queue.offer(" + d.toString() + ")");
+                            //System.out.println("executing:  queue.offer(" + d.toString() + ")");
                             queue.offer(d.getId());
                             //query.answer(true);
                             answer[i] = true;

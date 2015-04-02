@@ -59,7 +59,7 @@ public abstract class SDTMultiGuard extends SDTGuard {
     @Override
     public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
         Expression<Boolean> expr = this.toExpr(consts);
-        System.out.println("vars: " + variables.toString() + " expr: " + expr.toString());
+//        System.out.println("vars: " + variables.toString() + " expr: " + expr.toString());
         DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
         return new IfGuard(cond);
     }
