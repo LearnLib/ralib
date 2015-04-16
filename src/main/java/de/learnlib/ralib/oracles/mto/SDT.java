@@ -169,7 +169,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
-        System.out.println("JUST RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
+//        System.out.println("JUST RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
         return relabelled;
     }
     
@@ -191,7 +191,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
-        System.out.println("JUST L-RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
+//        System.out.println("JUST L-RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
         return relabelled;
     }
 

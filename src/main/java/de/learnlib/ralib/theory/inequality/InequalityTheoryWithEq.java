@@ -216,7 +216,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (guardSDT.isLooselyEquivalent(otherSDT, vars)) {
                 // if yes, then merge them
                 SDTGuard merged = mergeGuardLists(guard, other);
-                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
+//                System.out.println(guard.toString() + " and " + other.toString() + " are compatible, become " + merged.toString() + " using SDT " + otherSDT.toString());
                 
                 // if merged is an or guard: add all components
 //                if (merged instanceof SDTOrGuard) {
@@ -228,7 +228,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     // add the merged guard and SDT to merged map
                     newSDTMap.put(merged, guardSDT);
                 //}
-                System.out.println("newSDTMap: " + newSDTMap);
+//                System.out.println("newSDTMap: " + newSDTMap);
                 cMap.remove(other);
 
                 return tryToMerge(merged, newTargetList, newSDTMap, new LinkedHashMap(), cMap);
@@ -572,11 +572,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 //        log.log(Level.FINEST,"-------> Level finished!\nTemporary guards = " + tempKids.keySet().toString());
         // merge the guards
-        System.out.println("TEMPORARY guards = " + tempKids.keySet());
+//        System.out.println("TEMPORARY guards = " + tempKids.keySet());
 
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
-        System.out.println("MERGED guards = " + merged.keySet());
-        System.out.println("MERGED children: " + merged);
+//        System.out.println("MERGED guards = " + merged.keySet());
+//        System.out.println("MERGED children: " + merged);
         // only keep registers that are referenced by the merged guards
         piv.putAll(keepMem(merged.keySet()));
 
@@ -589,7 +589,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         SDT returnSDT = new SDT(merged);
 
-      System.out.println("returnsdt: " + returnSDT.toString());
+//      System.out.println("returnsdt: " + returnSDT.toString());
 
         return returnSDT;
 
