@@ -104,13 +104,14 @@ final class Cell {
      */
     static Cell computeCell(TreeOracle oracle, 
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-       
+        System.out.println("START: computecell for " + prefix.toString() + "   .    " + suffix.toString());
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);          
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
-        log.log(Level.FINE, "computeCell ...... {0}", c);
+        System.out.println("END: computecell " + c.toString());
+        //log.log(Level.FINE, "computeCell ...... {0}", c);
         
         //System.out.println(c);
-        assert tqr.getPiv().size() <= 2;
+//        assert tqr.getPiv().size() <= 2;
 
         return c;
     }

@@ -6,7 +6,6 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.guards.Conjuction;
-import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -14,32 +13,19 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
-public class SDTCompoundGuard extends SDTGuard {
+public class SDTAndGuard extends SDTMultiGuard {
 
-    private final List<SDTIfGuard> guards;
-    private final Set<SDTIfGuard> guardSet;
-    
-    public List<SDTIfGuard> getGuards() {
-        return guards;
-    }
-    
-    
     @Override
     public int hashCode() {
         int hash = 5;
+        hash = 59 * hash + Objects.hashCode(this.condis);
         hash = 59 * hash + Objects.hashCode(this.parameter);
         hash = 59 * hash + Objects.hashCode(this.guardSet);
         hash = 59 * hash + Objects.hashCode(this.getClass());
@@ -47,7 +33,6 @@ public class SDTCompoundGuard extends SDTGuard {
         return hash;
     }
 
-   
    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -56,7 +41,7 @@ public class SDTCompoundGuard extends SDTGuard {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SDTCompoundGuard other = (SDTCompoundGuard) obj;
+        final SDTAndGuard other = (SDTAndGuard) obj;
         
         if (!Objects.equals(this.guardSet, other.guardSet)) {
             return false;
@@ -64,19 +49,8 @@ public class SDTCompoundGuard extends SDTGuard {
         return Objects.equals(this.parameter, other.parameter);
     } 
     
-    public Set<SymbolicDataValue> getAllRegs() {
-        Set<SymbolicDataValue> allRegs = new HashSet<SymbolicDataValue>();
-        for (SDTIfGuard g : guards) {
-            allRegs.add(g.getRegister());
-        }
-        return allRegs;
-    }
-
-    public SDTCompoundGuard(SuffixValue param, SDTIfGuard... ifGuards) {
-        super(param);
-        this.guards = new ArrayList<>();
-        this.guards.addAll(Arrays.asList(ifGuards));
-        this.guardSet = new LinkedHashSet<>(guards);
+    public SDTAndGuard(SuffixValue param, SDTIfGuard... ifGuards) {
+        super(param, ConDis.AND, ifGuards);
     }
 
     private List<GuardExpression> toExprList() {
@@ -103,15 +77,6 @@ public class SDTCompoundGuard extends SDTGuard {
     }
     
     @Override
-    public String toString() {
-        String p = "COMPOUND: " +parameter.toString();
-        if (this.guards.isEmpty()) {
-            return p + "empty";
-        }
-        return p +  this.guards.toString();
-    }
-    
-    @Override
     public SDTGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
@@ -121,19 +86,20 @@ public class SDTCompoundGuard extends SDTGuard {
             gg.add(g.relabel(relabelling));
         }
         //throw new IllegalStateException("not supposed to happen");
-        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }    
     
     @Override
     public SDTGuard relabelLoosely(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        sv = (sv == null) ? getParameter() : sv;
-        
-        List<SDTIfGuard> gg = new ArrayList<>();
-        for (SDTIfGuard g : this.guards) {
-            gg.add(g.relabelLoosely(relabelling));
-        }
-        //throw new IllegalStateException("not supposed to happen");
-        return new SDTCompoundGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        return this.relabel(relabelling);
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        sv = (sv == null) ? getParameter() : sv;
+//        
+//        List<SDTIfGuard> gg = new ArrayList<>();
+//        for (SDTIfGuard g : this.guards) {
+//            gg.add(g.relabelLoosely(relabelling));
+//        }
+//        //throw new IllegalStateException("not supposed to happen");
+//        return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }    
 }

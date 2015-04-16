@@ -18,13 +18,16 @@
  */
 package de.learnlib.ralib.learning;
 
+//import de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-//import de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import static de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -32,10 +35,24 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.expressions.LogicalOperator;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -60,9 +77,9 @@ public class LearnPQTest {
     public void PQExample() {
 
         Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINEST);
+        root.setLevel(Level.FINE);
         for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINEST);
+            h.setLevel(Level.FINE);
 //            h.setFilter(new CategoryFilter(EnumSet.of(
 //                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
 //                    Category.EVENT, Category.PHASE, Category.MODEL)));
@@ -77,59 +94,114 @@ public class LearnPQTest {
 
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
 
+        class Cpr implements Comparator<DataValue<Double>> {
+
+            public int compare(DataValue<Double> one, DataValue<Double> other) {
+                return one.getId().compareTo(other.getId());
+            }
+        }
+
         teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
+            Valuation val = new Valuation();
+            private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
+            private final ConstraintSolver solver = fact.createSolver("z3");
+
             @Override
             public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
-                return new DataValue(doubleType, vals.size() + 1.0);
+                if (vals.isEmpty()) {
+                    return new DataValue(doubleType, 1.0);
+                }
+                List<DataValue<Double>> potential = getPotential(vals);
+                //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
+                DataValue<Double> biggestDv = Collections.max(potential, new Cpr());
+                return new DataValue(doubleType, biggestDv.getId() + 1.0);
             }
 
             @Override
-            public DataValue<Double> makeSmallerValue(DataValue<Double> x, DataValue<Double> y) {
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() - (v * 0.5));
+            public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
+                throw new UnsupportedOperationException("commented");
+//                SuffixValue sp = g.getParameter();
+//                Valuation newVal = new Valuation();
+//                newVal.putAll(val);
+//                GuardExpression x = g.toExpr();
+//                if (g instanceof EqualityGuard) {
+//                    solver.solve(x., newVal);
+//                } else {
+//                    List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
+//                    // add the guard
+//                    eList.add(g.toExpr(c));
+//                    if (g instanceof SDTMultiGuard) {
+//                        // for all registers, pick them up
+//                        for (SymbolicDataValue s : ((SDTMultiGuard) g).getAllRegs()) {
+//                            // get register value from valuation
+//                            DataValue<Double> sdv = (DataValue<Double>) val.getValue(s.toVariable());
+//                            // add register value as a constant
+//                            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdv.getId());
+//                            // add constant equivalence expression to the list
+//                            Expression<Boolean> multiExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, s.toVariable());
+//                            eList.add(multiExpr);
+//                        }
+//
+//                    } else if (g instanceof SDTIfGuard) {
+//                        // pick up the register
+//                        SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+//                        // get the register value from the valuation
+//                        DataValue<Double> sdi = (DataValue<Double>) val.getValue(si.toVariable());
+//                        // add the register value as a constant
+//                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
+//                        // add the constant equivalence expression to the list
+//                        Expression<Boolean> ifExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, si.toVariable());
+//                        eList.add(ifExpr);
+//                    }
+//                    // add disequalities
+//                    for (DataValue<Double> au : alreadyUsedValues) {
+//                        gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
+//                        Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
+//                        eList.add(auExpr);
+//                    }
+//                    x = toExpr(eList, 0);
+//                    solver.solve(x,newVal);
+//                }
+////                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
+////                System.out.println("x is " + x.toString());
+//                Double d = (Double) newVal.getValue(sp.toVariable());
+////                System.out.println("return d: " + d.toString());
+//                return new DataValue<Double>(doubleType, d);
             }
 
-            @Override
-            public DataValue<Double> makeSmallerValue(DataValue<Double> x) {
-                return new DataValue<Double>(doubleType, (x.getId() * 0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeMiddleValue(DataValue<Double> x, DataValue<Double> y) {
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() + (v *0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeBiggerValue(DataValue<Double> x, DataValue<Double> y) {
-                assert y.getId() > x.getId();
-                Double v = y.getId() - x.getId();
-                return new DataValue<Double>(doubleType, x.getId() + (v *0.5));
-            }
-
-            @Override
-            public DataValue<Double> makeBiggerValue(DataValue<Double> x) {
-                return new DataValue<Double>(doubleType, (x.getId() * 2.0));
+            private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
+                //assert !eqList.isEmpty();
+                if (eqList.size() == i + 1) {
+                    return eqList.get(i);
+                } else {
+//            System.out.println("here is the xpr: " + eqList.toString());
+                    return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
+                }
             }
 
             @Override
             public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
                 //assume we can just sort the list and get the values
                 List<DataValue<Double>> sortedList = new ArrayList<DataValue<Double>>();
-                sortedList.addAll(dvs);
-
-                Collections.sort(sortedList, new Comparator<DataValue<Double>>() {
-                    public int compare(DataValue<Double> one, DataValue<Double> other) {
-                        return one.getId().compareTo(other.getId());
+                for (DataValue d : dvs) {
+                    if (d.getId() instanceof Integer) {
+                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
+                    } else if (d.getId() instanceof Double) {
+                        sortedList.add(d);
+                    } else {
+                        throw new IllegalStateException("not supposed to happen");
                     }
-                });
+                }
 
+                //sortedList.addAll(dvs);
+                Collections.sort(sortedList, new Cpr());
+
+                //System.out.println("I'm sorted!  " + sortedList.toString());
                 return sortedList;
             }
 
-        });
+        }
+        );
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts);
@@ -155,11 +227,13 @@ public class LearnPQTest {
                 new PSymbolInstance(OFFER,
                         new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 2.0)),
-                new PSymbolInstance(POLL,
                         new DataValue(doubleType, 1.0)),
+//                new PSymbolInstance(POLL,
+//                        new DataValue(doubleType, 1.0)),
+//                new PSymbolInstance(OFFER,
+//                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 2.0)));
+                        new DataValue(doubleType, 1.0)));
 
         DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery(ce);
         dwOracle.processQueries(Collections.singleton(ceQuery));

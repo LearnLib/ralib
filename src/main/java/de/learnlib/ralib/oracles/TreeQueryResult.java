@@ -54,6 +54,7 @@ public class TreeQueryResult {
      * @return the sdt
      */
     public SymbolicDecisionTree getSdt() {
+        System.out.println("getSdt() " + sdt);
         return sdt;
     }
 

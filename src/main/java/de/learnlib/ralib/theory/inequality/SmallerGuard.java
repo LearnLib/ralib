@@ -35,9 +35,9 @@ public class SmallerGuard extends SDTIfGuard {
     public SmallerGuard(SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.SMALLER);
     }
-    
+
     public BiggerGuard toDeqGuard() {
-        return new BiggerGuard(parameter,register);
+        return new BiggerGuard(parameter, register);
     }
 
     public boolean contradicts(SDTIfGuard other) {
@@ -57,47 +57,46 @@ public class SmallerGuard extends SDTIfGuard {
         return new AtomicGuardExpression(register, Relation.BIGGER, parameter);
     }
 
-
-     @Override
+    @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
         SymbolicDataValue r = null;
         sv = (sv == null) ? parameter : sv;
-        
+
         if (register.isConstant()) {
-            return new SmallerGuard(sv,register);
-        }
-        else {
-            if (register.isSuffixValue()) {
+            return new SmallerGuard(sv, register);
+        } else {
+//            if (register.isSuffixValue()) {
+//            r = (SymbolicDataValue) relabelling.get(register);
+//            }
+//            else if (register.isRegister()) {
+//            r = (SymbolicDataValue.Register) relabelling.get(register);
+//            }
             r = (SymbolicDataValue) relabelling.get(register);
-            }
-            else if (register.isRegister()) {
-            r = (SymbolicDataValue.Register) relabelling.get(register);
-            }
-        r = (r == null) ? parameter : r;
-        return new SmallerGuard(sv, r);
         }
+        r = (r == null) ? register : r;
+        return new SmallerGuard(sv, r);
+        //    }
     }
-    
+
     @Override
     public SDTIfGuard relabelLoosely(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        sv = (sv == null) ? parameter : sv;
-        
-        if (register.isConstant()) {
-            return new SmallerGuard(sv,register);
-        }
-        else {
-            r = (SymbolicDataValue)relabelling.get(register);
-            }
-            
-        r = (r == null) ? parameter : r;
-        return new SmallerGuard(sv, r);
+        return this.relabelLoosely(relabelling);
+//        SymbolicDataValue r = null;
+//        sv = (sv == null) ? parameter : sv;
+//        
+//        if (register.isConstant()) {
+//            return new SmallerGuard(sv,register);
+//        }
+//        else {
+//            r = (SymbolicDataValue)relabelling.get(register);
+//            }
+//            
+//        r = (r == null) ? parameter : r;
+//        return new SmallerGuard(sv, r);
+//       
     }
-    
-    
-    
 
     @Override
     public int hashCode() {
@@ -106,10 +105,10 @@ public class SmallerGuard extends SDTIfGuard {
         hash = 59 * hash + Objects.hashCode(register);
         hash = 59 * hash + Objects.hashCode(relation);
         hash = 59 * hash + Objects.hashCode(getClass());
-        
+
         return hash;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -126,8 +125,6 @@ public class SmallerGuard extends SDTIfGuard {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
-    } 
+    }
 
-    
-    
 }

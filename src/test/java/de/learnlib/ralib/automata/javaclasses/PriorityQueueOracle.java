@@ -50,44 +50,62 @@ public final class PriorityQueueOracle implements DataWordOracle {
 
             if (query.getInput().length() < 1) {
                 query.answer(true);
-            }
-            PriorityQueue<Double> queue = new PriorityQueue<Double>();
-            PSymbolInstance[] trace = new PSymbolInstance[query.getInput().length()];
+            } else {
+                PriorityQueue<Double> queue = new PriorityQueue<Double>();
+                PSymbolInstance[] trace = new PSymbolInstance[query.getInput().length()];
+                Boolean[] answer = new Boolean[query.getInput().length()];
 
-            for (int i = 0; i < query.getInput().length(); i++) {
-                System.out.println("index in query: " + i);
-                query.answer(false);
-                try {
-                    PSymbolInstance psi = query.getInput().getSymbol(i);
-                    DataValue<Double> d = psi.getParameterValues()[0];
-                    if (psi.getBaseSymbol().equals(OFFER) && queue.size() < 3) {
-                        System.out.println("executing:  queue.offer(" + d.toString() + ")");
-                        queue.offer(d.getId());
-                        query.answer(true);
-                        System.out.println("queue is : " + queue.toString());
-                    } else if (psi.getBaseSymbol().equals(POLL)) {
-                        System.out.println("polling; queue is : " + queue.toString());
-                        Double val = queue.poll();
-                        System.out.println("Val: " + val.toString());
-                        if (!val.equals(null)) {
-                            System.out.println("executing: queue.poll(), which returns " + val.toString());
-                            if (val.equals(d.getId())) {
-                                System.out.println("... and equals "+ d.toString());
-                                query.answer(true);
-                            }
-                            else{
-                                query.answer(false);
+                for (int i = 0; i < query.getInput().length(); i++) {
+//                    System.out.println("index in query: " + i);
+                    //query.answer(false);
+                    answer[i] = false;
+                    try {
+                        PSymbolInstance psi = query.getInput().getSymbol(i);
+                        DataValue<Double> d = psi.getParameterValues()[0];
+                        if (psi.getBaseSymbol().equals(OFFER) && queue.size() < 3) {
+                            //System.out.println("executing:  queue.offer(" + d.toString() + ")");
+                            queue.offer(d.getId());
+                            //query.answer(true);
+                            answer[i] = true;
+//                            System.out.println("queue is : " + queue.toString());
+                        } else if (psi.getBaseSymbol().equals(POLL)) {
+//                            System.out.println("polling; queue is : " + queue.toString());
+                            Double val = queue.poll();
+//                            System.out.println("Val: " + val.toString());
+                            if (val!=null) {
+//                                System.out.println("executing: queue.poll(), which returns " + val.toString());
+                                if (val.equals(d.getId())) {
+//                                    System.out.println("... and equals " + d.toString());
+                                    //query.answer(true);
+                                    answer[i] = true;
+                                }
+//                            else{
+//                                query.answer(false);
+//                            }
                             }
                         }
+                    } catch (Exception e) {
+                        System.out.print("Exception caught: ");
+                        System.out.println(e.getMessage());
                     }
-                } catch (Exception e) {
-                    System.out.print("Exception caught: ");
-                    System.out.println(e.getMessage());
                 }
+                query.answer(isArrayTrue(answer));
+//                System.out.println("queue : " + queue.toString());
+//                System.out.println("query : " + query.toString());
             }
-            System.out.println("queue : " + queue.toString());
-            System.out.println("query : " + query.toString());
         }
+    }
+    
+     private boolean isArrayTrue(Boolean[] maybeArr) {
+        boolean maybe = true;
+        for (int c = 0; c < (maybeArr.length); c++) {
+            //log.log(Level.FINEST,maybeArr[c]);
+            if (!maybeArr[c]) {
+                maybe = false;
+                break;
+            }
+        }
+        return maybe;
     }
 
 }

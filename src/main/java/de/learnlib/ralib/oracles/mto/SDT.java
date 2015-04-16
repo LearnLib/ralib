@@ -8,7 +8,6 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -16,9 +15,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  *
@@ -74,8 +72,8 @@ public class SDT implements SymbolicDecisionTree {
                 if (r instanceof Register) {
                     registers.add((Register) r);
                 }
-            } else if (g instanceof SDTCompoundGuard) {
-                for (SDTIfGuard ifG : ((SDTCompoundGuard) g).getGuards()) {
+            } else if (g instanceof SDTMultiGuard) {
+                for (SDTIfGuard ifG : ((SDTMultiGuard) g).getGuards()) {
                     SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
                     if (ifr instanceof Register) {
                         registers.add((Register) ifr);
@@ -173,7 +171,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
-        //System.out.println("JUST RELABELED: \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
+        System.out.println("JUST RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
         return relabelled;
     }
     
@@ -195,7 +193,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
-        //System.out.println("JUST RELABELED: \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
+        System.out.println("JUST L-RELABELED with " + relabelling.toString() + " : \n" + thisSdt.toString() + "\n!!!TO:   \n" + relabelled.toString());
         return relabelled;
     }
 
@@ -289,13 +287,13 @@ public class SDT implements SymbolicDecisionTree {
         Set<Register> otherRegisters = other.getRegisters();
         Set<Register> thisRegisters = this.getRegisters();
 
-        log.log(Level.FINEST, thisRegisters.toString() + " vs " + otherRegisters.toString());
+//        log.log(Level.FINEST, thisRegisters.toString() + " vs " + otherRegisters.toString());
 
         if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
-            log.log(Level.FINEST, "no regs anywhere");
+//            log.log(Level.FINEST, "no regs anywhere");
             return true;
         } else {
-            log.log(Level.FINEST, "regs");
+//            log.log(Level.FINEST, "regs");
             Boolean[] regEqArr = new Boolean[thisRegisters.size()];
             Integer i = 0;
             for (SymbolicDataValue thisReg : thisRegisters) { // if the trees have the same type and size
@@ -415,14 +413,14 @@ public class SDT implements SymbolicDecisionTree {
         Set<SuffixValue> svals = new HashSet<>();
         Expression<Boolean> dis = null;
         for (List<SDTGuard> list : paths) {
-            System.out.println("Path: " + Arrays.toString(list.toArray()));
+//            System.out.println("Path: " + Arrays.toString(list.toArray()));
             List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr().toDataExpression().getExpression());
                 svals.add(g.getParameter());
             }
             Expression<Boolean> con = ExpressionUtil.and(expr);
-            System.out.println(expr);
+//            System.out.println(expr);
             dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
 
@@ -440,6 +438,8 @@ public class SDT implements SymbolicDecisionTree {
             map.put(c, _c);            
         }
 
+//        System.out.println("AP map: " + map.toString());
+//        System.out.println("AP dis: " + dis.toString());
         return new DataExpression<>(dis, map);
     }
 

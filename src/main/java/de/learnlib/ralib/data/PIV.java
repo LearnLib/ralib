@@ -78,10 +78,10 @@ public class PIV extends VarMapping<Parameter, Register> {
     public Parameter getOneKey(Register value) {
         Parameter retKey = null;
         for (Parameter key : this.keySet()) {
-            System.out.println("key = " + key.toString());
-            System.out.println("value = " + this.get(key).toString());
+//            System.out.println("key = " + key.toString());
+//            System.out.println("value = " + this.get(key).toString());
             if (this.get(key).getId().equals(value.getId())){
-                System.out.println(this.get(key).toString() + " equals " + value.toString());
+//                System.out.println(this.get(key).toString() + " equals " + value.toString());
                 retKey = key;
                 break;
             }

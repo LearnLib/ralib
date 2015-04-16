@@ -16,15 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.theory.equality;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -35,17 +32,15 @@ import java.util.Objects;
  * @author falk
  */
 public class EqualityGuard extends SDTIfGuard {
-    
+
     public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.EQUALS);
     }
-    
+
 //    @Override
 //    public Equality createCopy(VarMapping renaming) {
 //        return new Equality(this.getParameter(), renaming.get(this.getRegister()));
 //    }
-    
-   
     @Override
     public String toString() {
 //        String ret = "";
@@ -55,9 +50,9 @@ public class EqualityGuard extends SDTIfGuard {
 //        return ret;
 //        //}
         return "(" + this.getParameter().toString() + "=" + this.getRegister().toString() + ")";
-        
+
     }
-    
+
 //    private List<Expression<Boolean>> toExprList() {
 //        List<Expression<Boolean>> eqs = new ArrayList<>();
 //        Variable p = new Variable(BuiltinTypes.SINT32, "p");
@@ -79,8 +74,6 @@ public class EqualityGuard extends SDTIfGuard {
 //            return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList,i+1));
 //        }
 //    }
-    
-    
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(parameter, register);
     }
@@ -90,41 +83,40 @@ public class EqualityGuard extends SDTIfGuard {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
         SymbolicDataValue r = null;
         sv = (sv == null) ? parameter : sv;
-        
+
         if (register.isConstant()) {
-            return new EqualityGuard(sv,register);
-        }
-        else {
-            if (register.isSuffixValue()) {
+            return new EqualityGuard(sv, register);
+        } else {
+//            if (register.isSuffixValue()) {
+//            r = (SymbolicDataValue) relabelling.get(register);
+//            }
+//            else if (register.isRegister()) {
+//            r = (Register) relabelling.get(register);
+//            }
             r = (SymbolicDataValue) relabelling.get(register);
-            }
-            else if (register.isRegister()) {
-            r = (Register) relabelling.get(register);
-            }
-        r = (r == null) ? parameter : r;
-        return new EqualityGuard(sv, r);
         }
+        r = (r == null) ? register : r;
+        return new EqualityGuard(sv, r);
+//        }
     }
-    
+
     @Override
     public SDTIfGuard relabelLoosely(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        sv = (sv == null) ? parameter : sv;
-        
-        if (register.isConstant()) {
-            return new EqualityGuard(sv,register);
-        }
-        else {
-            r = (SymbolicDataValue)relabelling.get(register);
-            }
-            
-        r = (r == null) ? parameter : r;
-        return new EqualityGuard(sv, r);
+        return this.relabel(relabelling);
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+//        SymbolicDataValue r = null;
+//        sv = (sv == null) ? parameter : sv;
+//        
+//        if (register.isConstant()) {
+//            return new EqualityGuard(sv,register);
+//        }
+//        else {
+//            r = (SymbolicDataValue)relabelling.get(register);
+//            }
+//            
+//        r = (r == null) ? parameter : r;
+//        return new EqualityGuard(sv, r);
     }
-    
-    
-    
 
     @Override
     public int hashCode() {
@@ -133,10 +125,10 @@ public class EqualityGuard extends SDTIfGuard {
         hash = 59 * hash + Objects.hashCode(register);
         hash = 59 * hash + Objects.hashCode(relation);
         hash = 59 * hash + Objects.hashCode(getClass());
-        
+
         return hash;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -153,13 +145,11 @@ public class EqualityGuard extends SDTIfGuard {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
-    } 
+    }
 
-   
    @Override
     public GuardExpression toExpr() {
         return new AtomicGuardExpression<>(this.register, Relation.EQUALS, parameter);
     } 
 
-    
 }

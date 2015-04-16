@@ -103,8 +103,7 @@ public final class MapAutomatonExample {
         SymbolicDataValue.Parameter pVal = pgen.next(T_VAL);
         
         // guards
-
-        
+     
         GuardExpression condition1 = new AtomicGuardExpression(rKey1, Relation.EQUALS, pKey);
         GuardExpression condition2 = new AtomicGuardExpression(rKey2, Relation.EQUALS, pKey);
         

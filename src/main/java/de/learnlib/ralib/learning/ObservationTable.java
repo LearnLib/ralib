@@ -20,6 +20,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -28,7 +29,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -97,6 +97,11 @@ class ObservationTable {
         }
         
         if (!checkVariableConsistency()) {
+            AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());            
+            Hypothesis hyp = ab.toRegisterAutomaton();        
+            
+            //FIXME: the default logging appender cannot log models and data structures
+            System.out.println(hyp.toString());            
             return false;
         }
         

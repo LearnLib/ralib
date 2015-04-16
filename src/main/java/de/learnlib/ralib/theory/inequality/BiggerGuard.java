@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.theory.inequality;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
@@ -25,6 +24,7 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -32,7 +32,6 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,16 +40,16 @@ import java.util.Objects;
  * @author falk
  */
 public class BiggerGuard extends SDTIfGuard {
-    
+
     public BiggerGuard(SuffixValue param, SymbolicDataValue reg) {
-        super(param,reg,Relation.BIGGER);
+        super(param, reg, Relation.BIGGER);
     }
-    
+
     @Override
     public SmallerGuard toDeqGuard() {
-        return new SmallerGuard(parameter,register);
+        return new SmallerGuard(parameter, register);
     }
-   
+
     @Override
     public String toString() {
         return "(" + this.getParameter().toString() + ">" + this.getRegister().toString() + ")";
@@ -64,51 +63,49 @@ public class BiggerGuard extends SDTIfGuard {
     }
         
     public boolean contradicts(SDTIfGuard other) {
-        boolean samePR = (this.getParameter().getId() == other.getParameter().getId() && 
-                this.getRegister().getId() == other.getRegister().getId());
+        boolean samePR = (this.getParameter().getId() == other.getParameter().getId()
+                && this.getRegister().getId() == other.getRegister().getId());
         return samePR && (other instanceof SmallerGuard);
     }
 
-     @Override
+    @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
         SymbolicDataValue r = null;
         sv = (sv == null) ? parameter : sv;
-        
+
         if (register.isConstant()) {
-            return new BiggerGuard(sv,register);
-        }
-        else {
-            if (register.isSuffixValue()) {
+            return new BiggerGuard(sv, register);
+        } else {
             r = (SymbolicDataValue) relabelling.get(register);
-            }
-            else if (register.isRegister()) {
-            r = (SymbolicDataValue.Register) relabelling.get(register);
-            }
-        r = (r == null) ? parameter : r;
-        return new BiggerGuard(sv, r);
+//            if (register.isSuffixValue()) {
+//            r = (SuffixValue) relabelling.get(register);
+//            }
+//            else if (register.isRegister()) {
+//            r = (Register) relabelling.get(register);
         }
+        r = (r == null) ? register : r;
+        return new BiggerGuard(sv, r);
+        //     }
     }
-    
+
     @Override
     public SDTIfGuard relabelLoosely(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        sv = (sv == null) ? parameter : sv;
-        
-        if (register.isConstant()) {
-            return new BiggerGuard(sv,register);
-        }
-        else {
-            r = (SymbolicDataValue)relabelling.get(register);
-            }
-            
-        r = (r == null) ? parameter : r;
-        return new BiggerGuard(sv, r);
+        return this.relabel(relabelling);
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+//        SymbolicDataValue r = null;
+//        sv = (sv == null) ? parameter : sv;
+//        
+//        if (register.isConstant()) {
+//            return new BiggerGuard(sv,register);
+//        }
+//        else {
+//            r = (SymbolicDataValue)relabelling.get(register);
+//            }
+//            
+//        r = (r == null) ? parameter : r;
+//        return new BiggerGuard(sv, r);
     }
-    
-    
-    
 
     @Override
     public int hashCode() {
@@ -117,10 +114,10 @@ public class BiggerGuard extends SDTIfGuard {
         hash = 59 * hash + Objects.hashCode(register);
         hash = 59 * hash + Objects.hashCode(relation);
         hash = 59 * hash + Objects.hashCode(getClass());
-        
+
         return hash;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -139,6 +136,4 @@ public class BiggerGuard extends SDTIfGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    
-    
 }

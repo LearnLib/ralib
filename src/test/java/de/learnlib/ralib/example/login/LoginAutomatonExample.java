@@ -79,7 +79,7 @@ public final class LoginAutomatonExample {
         Parameter pPwd = pgen.next(T_PWD);
         
         // guards
-                
+               
         GuardExpression condition = new Conjuction(
                 new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
