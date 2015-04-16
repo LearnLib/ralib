@@ -114,15 +114,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     }
 
     public Variable toVariable() {
-        String rname = "";
-        if (this.isSuffixValue()) {
-            rname = "y" + this.id;
-        } else if (this.isRegister()) {
-            rname = "x" + this.id;
-        } else if (this.isConstant()) {
-            rname = "z" + this.id;
-        }
-        return new Variable(BuiltinTypes.DOUBLE, rname);
+        return new Variable(BuiltinTypes.DOUBLE, this.toString());
     }
 
     public boolean isRegister() {
