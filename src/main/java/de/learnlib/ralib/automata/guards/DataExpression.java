@@ -20,7 +20,6 @@
 package de.learnlib.ralib.automata.guards;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Sets;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
@@ -36,6 +35,7 @@ import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.Negation;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -75,6 +75,8 @@ public class DataExpression<T extends Object> {
 
     public DataExpression(Expression<T> expression, 
             Map<SymbolicDataValue, Variable> mapping) {
+        
+        //System.out.println ("de: " + expression  + " : " + Arrays.toString(mapping.values().toArray()));
         assert expression != null;      
         assert (new HashSet<>(mapping.values())).containsAll(
                 ExpressionUtil.freeVariables(expression));

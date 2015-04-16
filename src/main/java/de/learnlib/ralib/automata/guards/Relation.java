@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 falk.
+ * Copyright (C) 2014 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,40 +17,33 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.tools;
-
-import de.learnlib.ralib.tools.config.Configuration;
-import java.util.Random;
-
 /**
  *
- * @author falk
+ * @author Sofia Cassel
  */
-public class IOSimulator implements RaLibTool {
 
-    private Random random;
+package de.learnlib.ralib.automata.guards;
+
+public enum Relation {
     
-    @Override
-    public String description() {
-        return "uses an IORA model as SUL";
-    }
-
-    @Override
-    public void setup(Configuration config) {
-        config.list(System.out);
-        
-        this.random = null;
-    }
-
-    @Override
-    public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String help() {
-        return "";
-    }
+    EQUALS("=="), 
+    SMALLER("<"), 
+    // PLUS_ONE("+1=="), 
+    // MEMBER_OF(" in "),
+    BIGGER(">"),
+    // ELSE("else"),
+    //TRUE("true"),
+    NOT_EQUALS("!=");
     
-    
+    private final String name;       
+
+    private Relation(String s) {
+        name = s;
+    }
+
+    @Override
+    public String toString(){
+       return name;
+    }    
 }
+

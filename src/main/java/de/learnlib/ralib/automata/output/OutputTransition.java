@@ -23,7 +23,6 @@ import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
@@ -53,7 +52,7 @@ public class OutputTransition extends Transition {
     }
 
     public OutputTransition(OutputMapping output, OutputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        this(new ElseGuard(), output, label, source, destination, assignment);
+        this( new TransitionGuard(), output, label, source, destination, assignment);
     }
     
     public boolean canBeEnabled(VarValuation registers, Constants consts) {

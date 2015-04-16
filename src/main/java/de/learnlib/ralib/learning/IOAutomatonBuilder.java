@@ -24,7 +24,7 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
@@ -34,7 +34,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -83,8 +82,8 @@ class IOAutomatonBuilder extends AutomatonBuilder {
             return super.createTransition(action, guard, src_loc, dest_loc, assign);
         }       
         
-        IfGuard _guard = (IfGuard) guard;        
-        DataExpression<Boolean> expr = _guard.getCondition();
+        //IfGuard _guard = (IfGuard) guard;        
+        DataExpression<Boolean> expr = guard.getCondition().toDataExpression();
         
         Map<Expression, SymbolicDataValue> exprmap = new HashMap<>();
         for (Entry<SymbolicDataValue, Variable> e : expr.getMapping().entrySet()) {
@@ -104,9 +103,8 @@ class IOAutomatonBuilder extends AutomatonBuilder {
         }
                 
         OutputMapping outMap = new OutputMapping(fresh, outmap);
-        return new OutputTransition(
-                new IfGuard(new DataExpression<>(ExpressionUtil.TRUE, 
-                        new HashMap<SymbolicDataValue, Variable>())), 
+        
+        return new OutputTransition(new TransitionGuard(), 
                 outMap, (OutputSymbol) action, src_loc, dest_loc, assign);
     }
     

@@ -19,7 +19,12 @@
 package de.learnlib.ralib.learning.sdts;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjuction;
 import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParsInVars;
@@ -27,8 +32,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.automata.guards.ElseGuard;
-import de.learnlib.ralib.automata.guards.IfGuard;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 import de.learnlib.ralib.learning.sdts.LoginExampleSDT.SDTClass;
 import de.learnlib.ralib.oracles.Branching;
@@ -186,33 +189,23 @@ public class LoginExampleTreeOracle implements TreeOracle {
             SymbolicDataValue.Parameter pPwd = pgen.next(T_PWD);
 
             // guards
-            Variable x1 = new Variable(BuiltinTypes.SINT32, "x1");
-            Variable x2 = new Variable(BuiltinTypes.SINT32, "x2");
-            Variable p1 = new Variable(BuiltinTypes.SINT32, "p1");
-            Variable p2 = new Variable(BuiltinTypes.SINT32, "p2");
-            Expression<Boolean> expression = new PropositionalCompound(
-                    new NumericBooleanExpression(x1, NumericComparator.EQ, p1), 
-                    LogicalOperator.AND, 
-                    new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
+        GuardExpression condition = new Conjuction(
+                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
+                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
+        
+        GuardExpression elseCond = new Disjunction(
+                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
+                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
 
-            Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
-            mapping.put(rUid, x1);
-            mapping.put(rPwd, x2);
-            mapping.put(pUid, p1);
-            mapping.put(pPwd, p2);
-
-            IfGuard ifGuard = new IfGuard(
-                    new DataExpression<Boolean>(expression, mapping));
-
-            TransitionGuard elseGuard = new ElseGuard(
-                    Collections.singletonList(ifGuard));
+            TransitionGuard ifGuard = new TransitionGuard(condition);
+            TransitionGuard elseGuard = new TransitionGuard(elseCond);
 
             branches.put(getDefaultExtension(prefix, ps), elseGuard);
             branches.put(prefix.append(new PSymbolInstance(ps, vals)), ifGuard);
             
         } else {
             
-            TransitionGuard guard = new ElseGuard();
+            TransitionGuard guard = new TransitionGuard();
             branches.put(getDefaultExtension(prefix, ps), guard);
             
         }

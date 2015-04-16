@@ -19,16 +19,30 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 
 /**
- * General interface for transition guards.
+ * Transition Guard.
  * 
  * @author falk
  */
-public interface TransitionGuard {
+public class TransitionGuard {
+    
+    private final GuardExpression condition;
+
+    public TransitionGuard() {
+        this.condition = TrueGuardExpression.TRUE;
+    }
+
+    public TransitionGuard(GuardExpression condition) {
+        assert condition != null;
+        this.condition = condition;
+    }
     
     /**
      * Checks if the guard is satisfied for the given assignments of 
@@ -39,7 +53,25 @@ public interface TransitionGuard {
      * @param consts
      * @return 
      */
-    public boolean isSatisfied(VarValuation registers, 
-            ParValuation parameters, Constants consts); 
+    public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
+        VarMapping val = new VarMapping();
+        val.putAll(registers);
+        val.putAll(parameters);
+        val.putAll(consts);
+                
+        return condition.isSatisfied(val);
+    }
+
+    @Override
+    public String toString() {
+        return condition.toString();
+    }
+
+    /**
+     * @return the condition
+     */
+    public GuardExpression getCondition() {
+        return condition;
+    }
         
 }

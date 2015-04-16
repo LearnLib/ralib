@@ -20,29 +20,24 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTCompoundGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.Constant;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -260,20 +255,20 @@ public class MultiTheoryBranching implements Branching {
         return dvgMap;
     }
 
-    private Expression<Boolean> toPC(List<Expression<Boolean>> gList, int i) {
-        if (gList.size() == i + 1) {
-            return gList.get(i);
-        } else {
-            return new PropositionalCompound(gList.get(i), LogicalOperator.AND, toPC(gList, i + 1));
-        }
-    }
+//    private Expression<Boolean> toPC(List<Expression<Boolean>> gList, int i) {
+//        if (gList.size() == i + 1) {
+//            return gList.get(i);
+//        } else {
+//            return new PropositionalCompound(gList.get(i), LogicalOperator.AND, toPC(gList, i + 1));
+//        }
+//    }
 
-    private TransitionGuard toTG(Expression<Boolean> guard, Map<SymbolicDataValue, Variable> variables) {
-        assert guard != null;
-        DataExpression<Boolean> cond = new DataExpression<>(guard, variables);
-            return new IfGuard(cond);
-        
-    }
+//    private TransitionGuard toTG(Expression<Boolean> guard, Map<SymbolicDataValue, Variable> variables) {
+//        assert guard != null;
+//        DataExpression<Boolean> cond = new DataExpression<>(guard, variables);
+//            return new IfGuard(cond);
+//        
+//    }
         //        // 1. Create a list of expressions.
         //        List<
         //        SDTGuard sdtGuard = guardList.get(i);
@@ -405,9 +400,7 @@ public class MultiTheoryBranching implements Branching {
 
         if (this.action.getArity() == 0) {
             //System.out.println("arity 0");
-            TransitionGuard tg = new IfGuard(
-                    new DataExpression<Boolean>(ExpressionUtil.TRUE,
-                            new LinkedHashMap<SymbolicDataValue, Variable>()));
+            TransitionGuard tg = new TransitionGuard();
             PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
             branches.put(prefix.append(psi), tg);
             return branches;
@@ -448,20 +441,21 @@ public class MultiTheoryBranching implements Branching {
 //            }
 
             log.log(Level.FINEST, "Vars =     " + vars.toString());
-            IfGuard check = null;
+            TransitionGuard check = null;
             
             for (DataValue[] dvs : tempMap.keySet()) {
                 //System.out.println("!!!! current data value array is: " + Arrays.toString(dvs));
-                List<Expression<Boolean>> gExpr = new ArrayList<>();
+                List<GuardExpression> gExpr = new ArrayList<>();
                 List<SDTGuard> gList = tempMap.get(dvs);
                 for (SDTGuard g : gList) {
-                gExpr.add(g.toExpr(constants));
+                gExpr.add( renameSuffixValues(g.toExpr()));
             }
                 //Word<PSymbolInstance> psWord = Word.fromLetter(new PSymbolInstance(action, dvs));
                 //log.log(Level.FINEST,"psWord = " + psWord.toString());
-                TransitionGuard tg = toTG(toPC(gExpr, 0), vars);
-                assert tg != null;
-                check = (IfGuard) tg;
+                TransitionGuard tg = new TransitionGuard(
+                        new Conjuction(gExpr.toArray(new GuardExpression[] {})));
+                assert tg != null; 
+               check = tg;
                 
                 Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, dvs));
                 //System.out.println("!!!the branch is " + branch.toString());
@@ -478,6 +472,17 @@ public class MultiTheoryBranching implements Branching {
             return branches;
         }
 
+    private GuardExpression renameSuffixValues(GuardExpression expr) {
+        Set<SymbolicDataValue> svals = expr.getSymbolicDataValues();
+        VarMapping vmap = new VarMapping();        
+        for (SymbolicDataValue sv : svals) {
+            if (sv instanceof SuffixValue) {
+                vmap.put(sv, new Parameter(sv.getType(), sv.getId()));
+            }
+        }
+        return expr.relabel(vmap);
+    }
+    
     @Override
     public String toString() {
         return "---- Branching for " + action.toString() + " after " + prefix.toString() + " ----\n" + node.toString() + "\n-------------------------------------------------------------------------------------";

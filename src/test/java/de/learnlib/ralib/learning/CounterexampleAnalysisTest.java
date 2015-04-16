@@ -20,7 +20,6 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
@@ -148,7 +147,7 @@ public class CounterexampleAnalysisTest {
             @Override
             public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
                 Map<Word<PSymbolInstance>, TransitionGuard> map = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
-                map.put(transId, new ElseGuard());
+                map.put(transId, new TransitionGuard());
                 return map;
             }
         };

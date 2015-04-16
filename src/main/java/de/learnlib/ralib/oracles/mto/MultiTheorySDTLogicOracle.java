@@ -22,7 +22,6 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -72,11 +71,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
-        IfGuard _guard = (IfGuard) guard;
         
         DataExpression<Boolean> expr1 = _sdt1.getAcceptingPaths(consts);
         DataExpression<Boolean> expr2 = _sdt2.getAcceptingPaths(consts);        
-        DataExpression<Boolean> exprG = _guard.getCondition();
+        DataExpression<Boolean> exprG = guard.getCondition().toDataExpression();
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
                 new VarMapping<>();
@@ -120,21 +118,18 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     @Override
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining, 
             TransitionGuard refined, PIV pivRefined) {
-
-        IfGuard _refining = (IfGuard) refining;
-        IfGuard _refined = (IfGuard) refined;
         
-        log.log(Level.FINEST, "refining: {0}", _refining);
-        log.log(Level.FINEST, "refined: {0}", _refined);
+        log.log(Level.FINEST, "refining: {0}", refining);
+        log.log(Level.FINEST, "refined: {0}", refined);
         log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
         log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
         
         VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
                 createRemapping(pivRefined, pivRefining);
         
-        DataExpression<Boolean> exprRefining = _refining.getCondition();
+        DataExpression<Boolean> exprRefining = refining.getCondition().toDataExpression();
         DataExpression<Boolean> exprRefined = 
-                _refined.getCondition().relabel(remap);
+                refined.getCondition().toDataExpression().relabel(remap);
         
         // is there any case for which refining is true but refined is false?
         DataExpression<Boolean> test = DataExpression.and(

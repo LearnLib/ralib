@@ -19,13 +19,14 @@
 
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -58,20 +59,10 @@ public class BiggerGuard extends SDTIfGuard {
     }
 
     @Override
-    public Expression<Boolean> toExpr(Constants consts) {
-        String xname = "x" + this.getRegister().getId();
-        Variable p = new Variable(BuiltinTypes.SINT32, "y");
-        Variable x = new Variable(BuiltinTypes.SINT32,xname);
-        return new NumericBooleanExpression(p, NumericComparator.LT, x);
+    public GuardExpression toExpr() {
+        return new AtomicGuardExpression(register, Relation.BIGGER, parameter);
     }
-    
-    @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
-        Expression<Boolean> expr = this.toExpr(consts);
-        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
-        return new IfGuard(cond);
-    }
-    
+        
     public boolean contradicts(SDTIfGuard other) {
         boolean samePR = (this.getParameter().getId() == other.getParameter().getId() && 
                 this.getRegister().getId() == other.getRegister().getId());

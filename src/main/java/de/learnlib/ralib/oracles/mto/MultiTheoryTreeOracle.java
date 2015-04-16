@@ -371,8 +371,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //            System.out.println("testing " + g.toString() + " against " + n.toString());
             Map<SymbolicDataValue, Variable> nVars = makeVarMapping(makeVarSet(n));
 //            System.out.println("using varMapping " + gVars.toString() + " against " + nVars.toString() + " and constants " + constants.toString());
-            if (mlo.doesRefine(g.toTG(gVars, constants), new PIV(), n.toTG(nVars, constants), new PIV())
-                    && (!mlo.doesRefine(n.toTG(nVars, constants), new PIV(), g.toTG(gVars, constants), new PIV()))) {
+            if (mlo.doesRefine(g.toTG(), new PIV(), n.toTG(), new PIV())
+                    && (!mlo.doesRefine(n.toTG(), new PIV(), g.toTG(), new PIV()))) {
                 finer = g;
                 coarser = n;
 //                System.out.println("!!!!!!! " + g.toString() + " refines " + n.toString());
@@ -380,8 +380,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())) {
                 //    throw new IllegalStateException("Can't refine in the wrong direction");
                 //}
-            } else if (mlo.doesRefine(n.toTG(nVars, constants), new PIV(), g.toTG(gVars, constants), new PIV())
-                    && (!mlo.doesRefine(g.toTG(gVars, constants), new PIV(), n.toTG(nVars, constants), new PIV()))) {
+            } else if (mlo.doesRefine(n.toTG(), new PIV(), g.toTG(), new PIV())
+                    && (!mlo.doesRefine(g.toTG(), new PIV(), n.toTG(), new PIV()))) {
                 //if (mlo.doesRefine(n.toTG(nVars), new PIV(), g.toTG(gVars), new PIV())){
 //                System.out.println("!!!!!!! " + n.toString() + " refines " + g.toString());
                 finer = n;

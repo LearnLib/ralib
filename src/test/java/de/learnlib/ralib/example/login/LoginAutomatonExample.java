@@ -19,14 +19,17 @@
 
 package de.learnlib.ralib.example.login;
 
-import de.learnlib.ralib.automata.guards.IfGuard;
-import de.learnlib.ralib.automata.guards.ElseGuard;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -35,17 +38,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -87,27 +79,18 @@ public final class LoginAutomatonExample {
         Parameter pPwd = pgen.next(T_PWD);
         
         // guards
-        Variable x1 = new Variable(BuiltinTypes.SINT32, "x1");
-        Variable x2 = new Variable(BuiltinTypes.SINT32, "x2");
-        Variable p1 = new Variable(BuiltinTypes.SINT32, "p1");
-        Variable p2 = new Variable(BuiltinTypes.SINT32, "p2");
-        Expression<Boolean> expression = new PropositionalCompound(
-                new NumericBooleanExpression(x1, NumericComparator.EQ, p1), 
-                LogicalOperator.AND, 
-                new NumericBooleanExpression(x2, NumericComparator.EQ, p2)); 
-        
-        Map<SymbolicDataValue, Variable> mapping = new HashMap<SymbolicDataValue, Variable>();
-        mapping.put(rUid, x1);
-        mapping.put(rPwd, x2);
-        mapping.put(pUid, p1);
-        mapping.put(pPwd, p2);
                 
-        DataExpression<Boolean> condition = 
-                new DataExpression<Boolean>(expression, mapping);
+        GuardExpression condition = new Conjuction(
+                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
+                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
         
-        IfGuard   okGuard    = new IfGuard(condition);
-        ElseGuard errorGuard = new ElseGuard(Collections.singleton(okGuard));
-        ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
+        GuardExpression elseCond = new Disjunction(
+                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
+                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
+
+        TransitionGuard okGuard    = new TransitionGuard(condition);
+        TransitionGuard errorGuard = new TransitionGuard(elseCond);
+        TransitionGuard trueGuard  = new TransitionGuard();
         
         // assignments
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
