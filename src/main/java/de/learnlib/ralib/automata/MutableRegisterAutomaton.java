@@ -88,7 +88,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
     
     protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation(initialRegisters);
+        VarValuation vars = new VarValuation(getInitialRegisters());
         RALocation current = initial;
         List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {

@@ -18,20 +18,13 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
-import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.Relation;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -83,14 +76,6 @@ public class EqualityGuard extends SDTIfGuard {
 //    }
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(parameter, register);
-    }
-
-    @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
-        Expression<Boolean> expr = this.toExpr(consts);
-        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
-        return new IfGuard(cond);
-
     }
 
     @Override
@@ -162,30 +147,9 @@ public class EqualityGuard extends SDTIfGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    @Override
-    public Expression<Boolean> toExpr(Constants consts) {
-        SymbolicDataValue r = this.getRegister();
-        // String pname = "y" + this.getParameter().getId();
-        Variable p = this.getParameter().toVariable();
-
-//        if (r.isConstant()) {
-//            DataValue<Integer> dv = (DataValue<Integer>) consts.get((Constant)r);
-//            Integer dv_i = dv.getId();
-//            gov.nasa.jpf.constraints.expressions.Constant c = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE,dv_i);
-//            return new NumericBooleanExpression(c, NumericComparator.EQ, p);
-//        }
-//        else {
-//            String xname = "";
-//            if (r instanceof SymbolicDataValue.Register) {
-//            xname = "x" + r.getId();
-//            }
-//            else if (r instanceof SymbolicDataValue.SuffixValue) {
-//            xname = "y" + r.getId();
-//            }
-        //Variable x = new Variable(BuiltinTypes.SINT32,xname);
-        Variable x = r.toVariable();
-        return new NumericBooleanExpression(x, NumericComparator.EQ, p);
-//        }
-    }
+   @Override
+    public GuardExpression toExpr() {
+        return new AtomicGuardExpression<>(this.register, Relation.EQUALS, parameter);
+    } 
 
 }

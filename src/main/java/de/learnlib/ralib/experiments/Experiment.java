@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,32 +17,12 @@
  * MA 02110-1301  USA
  */
 
+package de.learnlib.ralib.experiments;
+
 /**
  *
- * @author Sofia Cassel
+ * @author falk
  */
-
-package de.learnlib.ralib.theory;
-
-public enum Relation {
-    EQUALS("=="), 
-    SMALLER("<"), 
-    PLUS_ONE("+1=="), 
-    MEMBER_OF(" in "),
-    BIGGER(">"),
-    ELSE("else"),
-    TRUE("true"),
-    NOT_EQUALS("!=");
+public class Experiment {
     
-    private final String name;       
-
-    private Relation(String s) {
-        name = s;
-    }
-
-    @Override
-    public String toString(){
-       return name;
-    }    
 }
-

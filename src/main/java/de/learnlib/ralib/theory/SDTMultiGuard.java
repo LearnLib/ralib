@@ -6,7 +6,7 @@
 package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.guards.DataExpression;
-import de.learnlib.ralib.automata.guards.IfGuard;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -55,17 +55,9 @@ public abstract class SDTMultiGuard extends SDTGuard {
         this.guards.addAll(Arrays.asList(ifGuards));
         this.guardSet = new LinkedHashSet<>(guards);
     }
-
-    @Override
-    public IfGuard toTG(Map<SymbolicDataValue, Variable> variables, Constants consts) {
-        Expression<Boolean> expr = this.toExpr(consts);
-//        System.out.println("vars: " + variables.toString() + " expr: " + expr.toString());
-        DataExpression<Boolean> cond = new DataExpression<>(expr, variables);
-        return new IfGuard(cond);
-    }
     
     @Override
-    public abstract Expression<Boolean> toExpr(Constants consts);
+    public abstract GuardExpression toExpr();
 
     @Override
     public String toString() {

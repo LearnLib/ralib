@@ -26,14 +26,17 @@ import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Negation;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.automata.guards.ElseGuard;
-import de.learnlib.ralib.automata.guards.IfGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -100,27 +103,14 @@ public final class MapAutomatonExample {
         SymbolicDataValue.Parameter pVal = pgen.next(T_VAL);
         
         // guards
-        Variable x1 = new Variable(BuiltinTypes.DOUBLE, "x1");
-        Variable p1 = new Variable(BuiltinTypes.DOUBLE, "p1");
-        Expression<Boolean> expression = 
-                new NumericBooleanExpression(x1, NumericComparator.EQ, p1);
+     
+        GuardExpression condition1 = new AtomicGuardExpression(rKey1, Relation.EQUALS, pKey);
+        GuardExpression condition2 = new AtomicGuardExpression(rKey2, Relation.EQUALS, pKey);
         
-        Map<SymbolicDataValue, Variable> mapping1 = new HashMap<SymbolicDataValue, Variable>();
-        mapping1.put(rKey1, x1);
-        mapping1.put(pKey, p1);
-
-        Map<SymbolicDataValue, Variable> mapping2 = new HashMap<SymbolicDataValue, Variable>();
-        mapping2.put(rKey2, x1);
-        mapping2.put(pKey, p1);
-        
-        DataExpression<Boolean> condition1 = new DataExpression<Boolean>(expression, mapping1);
-        DataExpression<Boolean> condition2 = new DataExpression<Boolean>(expression, mapping2);
-        
-        IfGuard   get1Guard    = new IfGuard(condition1);
-        IfGuard   get2Guard    = new IfGuard(condition2);
-        ElseGuard error1Guard = new ElseGuard(Collections.singleton(get1Guard));        
-        
-        ElseGuard trueGuard  = new ElseGuard(Collections.EMPTY_SET);        
+        TransitionGuard get1Guard   = new TransitionGuard(condition1);
+        TransitionGuard get2Guard   = new TransitionGuard(condition2);
+        TransitionGuard error1Guard = new TransitionGuard(new Negation(condition1));                
+        TransitionGuard trueGuard   = new TransitionGuard();
         
         // assignments
         VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();

@@ -1,17 +1,30 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 falk.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package de.learnlib.ralib.automata.xml;
 
 
-import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +42,8 @@ public class ExpressionParser {
     private final Map<String, SymbolicDataValue> pMap;
     private final Map<SymbolicDataValue, gov.nasa.jpf.constraints.api.Variable> vars = 
             new LinkedHashMap<>();    
-    private DataExpression<Boolean> predicate;
+    
+    private GuardExpression predicate;
     
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {
         expLine = exp.trim();
@@ -40,35 +54,34 @@ public class ExpressionParser {
     
     private void buildExpression() 
     {
-        Expression<Boolean> disjunction = buildDisjunction(expLine);
-        this.predicate = new DataExpression<>(disjunction, vars);
+        this.predicate = buildDisjunction(expLine);
     }
     
-    private Expression<Boolean> buildDisjunction(String dis) {
+    private GuardExpression buildDisjunction(String dis) {
         StringTokenizer tok = new StringTokenizer(dis, "||");
         if (tok.countTokens() < 2) {
             return buildConjunction(dis);
         }
-        List<Expression<Boolean>> disjuncts = new ArrayList<>();        
+        List<GuardExpression> disjuncts = new ArrayList<>();        
         while (tok.hasMoreTokens()) {
             disjuncts.add(buildConjunction(tok.nextToken().trim()));
         }
-        return ExpressionUtil.or(disjuncts);
+        return new Disjunction(disjuncts.toArray(new GuardExpression[] {}));
     }
 
-    private Expression<Boolean> buildConjunction(String con) {
+    private GuardExpression buildConjunction(String con) {
         StringTokenizer tok = new StringTokenizer(con, "&&");
         if (tok.countTokens() < 2) {
             return buildPredicate(con);
         }
-        List<Expression<Boolean>> conjuncts = new ArrayList<>();        
+        List<GuardExpression> conjuncts = new ArrayList<>();        
         while (tok.hasMoreTokens()) {
             conjuncts.add(buildPredicate(tok.nextToken().trim()));
         }
-        return ExpressionUtil.and(conjuncts);            
+        return new Conjuction(conjuncts.toArray(new GuardExpression[] {}));            
     }
 
-    private Expression<Boolean> buildPredicate(String pred) 
+    private GuardExpression buildPredicate(String pred) 
     {
         pred = pred.replace("!=", "<>");
         
@@ -76,15 +89,13 @@ public class ExpressionParser {
             String[] related = pred.split("==");
             SymbolicDataValue left = pMap.get(related[0].trim());
             SymbolicDataValue right = pMap.get(related[1].trim());
-            return new NumericBooleanExpression(
-                    getOrCreate(left), NumericComparator.EQ, getOrCreate(right));            
+            return new AtomicGuardExpression(left, Relation.EQUALS, right);            
         } 
         else if (pred.contains("<>")) {
             String[] related = pred.split("<>");
             SymbolicDataValue left = pMap.get(related[0].trim());
             SymbolicDataValue right = pMap.get(related[1].trim());
-            return new NumericBooleanExpression(
-                    getOrCreate(left), NumericComparator.NE, getOrCreate(right));            
+            return new AtomicGuardExpression(left, Relation.NOT_EQUALS, right);            
         }
         throw new IllegalStateException(
                 "this should not happen!!! " + pred + " in " + expLine);
@@ -93,18 +104,8 @@ public class ExpressionParser {
     /**
      * @return the predicate
      */
-    public DataExpression<Boolean> getPredicate() {
+    public GuardExpression getPredicate() {
         return predicate;
-    }
-    
-    private gov.nasa.jpf.constraints.api.Variable getOrCreate(SymbolicDataValue key) {
-        gov.nasa.jpf.constraints.api.Variable var = vars.get(key);
-        if (var == null) {
-            var = new gov.nasa.jpf.constraints.api.Variable(
-                    BuiltinTypes.DOUBLE, key.toString());
-            vars.put(key, var);
-        }
-        return var;
     }
     
 }

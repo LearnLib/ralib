@@ -9,6 +9,8 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -414,7 +416,7 @@ public class SDT implements SymbolicDecisionTree {
 //            System.out.println("Path: " + Arrays.toString(list.toArray()));
             List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
-                expr.add(g.toExpr(consts));
+                expr.add(g.toExpr().toDataExpression().getExpression());
                 svals.add(g.getParameter());
             }
             Expression<Boolean> con = ExpressionUtil.and(expr);
@@ -424,12 +426,16 @@ public class SDT implements SymbolicDecisionTree {
 
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         for (Register r : getRegisters()) {
-            Variable x = new Variable(BuiltinTypes.DOUBLE, "x" + r.getId());
+            Variable x = new Variable(BuiltinTypes.DOUBLE, r.toString());
             map.put(r, x);
         }
         for (SuffixValue s : svals) {
-            Variable p = new Variable(BuiltinTypes.DOUBLE, "y" + s.getId());
+            Variable p = new Variable(BuiltinTypes.DOUBLE, s.toString());
             map.put(s, p);
+        }
+        for (Constant c : consts.keySet()) {
+            Variable _c = new Variable(BuiltinTypes.DOUBLE, c.toString());
+            map.put(c, _c);            
         }
 
 //        System.out.println("AP map: " + map.toString());

@@ -19,11 +19,38 @@
 
 package de.learnlib.ralib.tools;
 
+import de.learnlib.ralib.tools.config.Configuration;
+import java.util.Random;
+
 /**
  *
  * @author falk
  */
-public class IOSimulator {
+public class IOSimulator implements RaLibTool {
+
+    private Random random;
+    
+    @Override
+    public String description() {
+        return "uses an IORA model as SUL";
+    }
+
+    @Override
+    public void setup(Configuration config) {
+        config.list(System.out);
+        
+        this.random = null;
+    }
+
+    @Override
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String help() {
+        return "";
+    }
     
     
 }

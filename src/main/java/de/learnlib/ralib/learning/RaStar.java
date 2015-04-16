@@ -106,16 +106,15 @@ public class RaStar {
 
             System.out.println(obs.toString());
             
-            AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
+            AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);            
             hyp = ab.toRegisterAutomaton();        
+            
             //FIXME: the default logging appender cannot log models and data structures
             System.out.println(hyp.toString());
             log.logModel(hyp);
             
         } while (analyzeCounterExample());
-    
-        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
-        hyp = ab.toRegisterAutomaton();        
+         
     }
     
     
@@ -155,7 +154,11 @@ public class RaStar {
             
     
     public Hypothesis getHypothesis() {
-        return hyp;
+        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
+        if (ioMode) {
+            ab = new IOAutomatonBuilder(obs.getComponents(), consts);
+        }
+        return ab.toRegisterAutomaton();   
     }
     
 }

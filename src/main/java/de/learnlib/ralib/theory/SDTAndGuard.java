@@ -5,6 +5,9 @@
  */
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -50,36 +53,26 @@ public class SDTAndGuard extends SDTMultiGuard {
         super(param, ConDis.AND, ifGuards);
     }
 
-    private List<Expression<Boolean>> toExprList(Constants consts) {
-        List<Expression<Boolean>> exprs = new ArrayList<>();
+    private List<GuardExpression> toExprList() {
+        List<GuardExpression> exprs = new ArrayList<>();
         for (SDTIfGuard guard : this.guards) {
-            exprs.add(guard.toExpr(consts));
+            exprs.add(guard.toExpr());
         }
         return exprs;
     }
-
-    private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
-        //assert !eqList.isEmpty();
-        if (eqList.size() == i + 1) {
-            return eqList.get(i);
-        } else {
-//            System.out.println("here is the xpr: " + eqList.toString());
-            return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
-        }
-    }
     
     @Override
-    public Expression<Boolean> toExpr(Constants consts) {
-        List<Expression<Boolean>> thisList = this.toExprList(consts);
+    public GuardExpression toExpr() {
+        List<GuardExpression> thisList = this.toExprList();
         if (thisList.isEmpty()) {
-            return ExpressionUtil.TRUE;
+            return TrueGuardExpression.TRUE;
         }
         if (thisList.size() == 1) {
             return thisList.get(0);
         }
         else {
  //           System.out.println("here is the list: " + thisList.toString());
-            return toExpr(thisList, 0);
+            return new Conjuction(thisList.toArray(new GuardExpression[] {}));
         }
     }
     

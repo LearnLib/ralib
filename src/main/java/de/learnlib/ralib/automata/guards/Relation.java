@@ -17,22 +17,33 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.data;
-
 /**
- * A valuation of registers.
- * 
- * @author falk
+ *
+ * @author Sofia Cassel
  */
-public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue<?>> {
 
-    public VarValuation(VarValuation other) {
-        if (other != null) { 
-            putAll(other);
-        }
+package de.learnlib.ralib.automata.guards;
+
+public enum Relation {
+    
+    EQUALS("=="), 
+    SMALLER("<"), 
+    // PLUS_ONE("+1=="), 
+    // MEMBER_OF(" in "),
+    BIGGER(">"),
+    // ELSE("else"),
+    //TRUE("true"),
+    NOT_EQUALS("!=");
+    
+    private final String name;       
+
+    private Relation(String s) {
+        name = s;
     }
 
-    public VarValuation() {
-    }
-     
+    @Override
+    public String toString(){
+       return name;
+    }    
 }
+

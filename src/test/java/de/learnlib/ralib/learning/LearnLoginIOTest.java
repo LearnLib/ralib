@@ -27,6 +27,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -140,7 +141,9 @@ public class LearnLoginIOTest {
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
-              
+            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
+                    model, teachers, consts, true, actions);
+        
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
                 false, // do not draw symbols uniformly 
@@ -167,6 +170,16 @@ public class LearnLoginIOTest {
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
+
+              
+            DefaultQuery<PSymbolInstance, Boolean> _ce = 
+                    ioEquiv.findCounterExample(hyp, null);
+
+            if (_ce != null) {
+                System.out.println("EQ-TEST found counterexample: " + _ce);
+            } else {
+                System.out.println("EQ-TEST did not find counterexample!");                
+            }
 
             DefaultQuery<PSymbolInstance, Boolean> ce = 
                     iowalk.findCounterExample(hyp, null);

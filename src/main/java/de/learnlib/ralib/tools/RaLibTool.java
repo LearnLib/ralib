@@ -17,12 +17,22 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.tools.factories;
+package de.learnlib.ralib.tools;
+
+import de.learnlib.ralib.tools.config.Configuration;
 
 /**
  *
  * @author falk
  */
-public class IORandomWalkFactory {
+public interface RaLibTool {
+
+    public String description();
+    
+    public String help();
+    
+    public void setup(Configuration config);
+    
+    public void run();
     
 }

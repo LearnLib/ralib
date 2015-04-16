@@ -52,7 +52,7 @@ class AutomatonBuilder {
     
     private final Hypothesis automaton;
     
-    private final Constants consts;
+    protected final Constants consts;
     
     private static LearnLogger log = LearnLogger.getLogger(AutomatonBuilder.class);
     
@@ -148,10 +148,18 @@ class AutomatonBuilder {
         Assignment assign = new Assignment(assignments);
                 
         // create transition
-        Transition  t = new Transition(action, guard, src_loc, dest_loc, assign);
-        log.log(Level.FINER, "computed transition {0}", t);
-        this.automaton.addTransition(src_loc, action, t);
-        this.automaton.setTransitionSequence(t, r.getPrefix());
+        Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
+        if (t != null) {
+            log.log(Level.FINER, "computed transition {0}", t);
+            this.automaton.addTransition(src_loc, action, t);
+            this.automaton.setTransitionSequence(t, r.getPrefix());
+        }
     }
+
+    protected Transition createTransition(ParameterizedSymbol action, TransitionGuard guard, 
+            RALocation src_loc, RALocation dest_loc, Assignment assign) {
+        return new Transition(action, guard, src_loc, dest_loc, assign);
+    }
+    
     
 }

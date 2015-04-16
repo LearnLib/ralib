@@ -21,6 +21,7 @@ package de.learnlib.ralib.learning;
 //import de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import static de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -118,53 +119,54 @@ public class LearnPQTest {
 
             @Override
             public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
-                SuffixValue sp = g.getParameter();
-                Valuation newVal = new Valuation();
-                newVal.putAll(val);
-                Expression<Boolean> x = g.toExpr(c);
-                if (g instanceof EqualityGuard) {
-                    solver.solve(x, newVal);
-                } else {
-                    List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
-                    // add the guard
-                    eList.add(g.toExpr(c));
-                    if (g instanceof SDTMultiGuard) {
-                        // for all registers, pick them up
-                        for (SymbolicDataValue s : ((SDTMultiGuard) g).getAllRegs()) {
-                            // get register value from valuation
-                            DataValue<Double> sdv = (DataValue<Double>) val.getValue(s.toVariable());
-                            // add register value as a constant
-                            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdv.getId());
-                            // add constant equivalence expression to the list
-                            Expression<Boolean> multiExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, s.toVariable());
-                            eList.add(multiExpr);
-                        }
-
-                    } else if (g instanceof SDTIfGuard) {
-                        // pick up the register
-                        SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
-                        // get the register value from the valuation
-                        DataValue<Double> sdi = (DataValue<Double>) val.getValue(si.toVariable());
-                        // add the register value as a constant
-                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
-                        // add the constant equivalence expression to the list
-                        Expression<Boolean> ifExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, si.toVariable());
-                        eList.add(ifExpr);
-                    }
-                    // add disequalities
-                    for (DataValue<Double> au : alreadyUsedValues) {
-                        gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
-                        Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
-                        eList.add(auExpr);
-                    }
-                    x = toExpr(eList, 0);
-                    solver.solve(x,newVal);
-                }
-//                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
-//                System.out.println("x is " + x.toString());
-                Double d = (Double) newVal.getValue(sp.toVariable());
-//                System.out.println("return d: " + d.toString());
-                return new DataValue<Double>(doubleType, d);
+                throw new UnsupportedOperationException("commented");
+//                SuffixValue sp = g.getParameter();
+//                Valuation newVal = new Valuation();
+//                newVal.putAll(val);
+//                GuardExpression x = g.toExpr();
+//                if (g instanceof EqualityGuard) {
+//                    solver.solve(x., newVal);
+//                } else {
+//                    List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
+//                    // add the guard
+//                    eList.add(g.toExpr(c));
+//                    if (g instanceof SDTMultiGuard) {
+//                        // for all registers, pick them up
+//                        for (SymbolicDataValue s : ((SDTMultiGuard) g).getAllRegs()) {
+//                            // get register value from valuation
+//                            DataValue<Double> sdv = (DataValue<Double>) val.getValue(s.toVariable());
+//                            // add register value as a constant
+//                            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdv.getId());
+//                            // add constant equivalence expression to the list
+//                            Expression<Boolean> multiExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, s.toVariable());
+//                            eList.add(multiExpr);
+//                        }
+//
+//                    } else if (g instanceof SDTIfGuard) {
+//                        // pick up the register
+//                        SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+//                        // get the register value from the valuation
+//                        DataValue<Double> sdi = (DataValue<Double>) val.getValue(si.toVariable());
+//                        // add the register value as a constant
+//                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
+//                        // add the constant equivalence expression to the list
+//                        Expression<Boolean> ifExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, si.toVariable());
+//                        eList.add(ifExpr);
+//                    }
+//                    // add disequalities
+//                    for (DataValue<Double> au : alreadyUsedValues) {
+//                        gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
+//                        Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
+//                        eList.add(auExpr);
+//                    }
+//                    x = toExpr(eList, 0);
+//                    solver.solve(x,newVal);
+//                }
+////                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
+////                System.out.println("x is " + x.toString());
+//                Double d = (Double) newVal.getValue(sp.toVariable());
+////                System.out.println("return d: " + d.toString());
+//                return new DataValue<Double>(doubleType, d);
             }
 
             private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
