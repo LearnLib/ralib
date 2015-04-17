@@ -16,7 +16,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-
 package de.learnlib.ralib.tools;
 
 import de.learnlib.ralib.tools.config.Configuration;
@@ -25,106 +24,111 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author falk
  */
 public class ConsoleClient {
-    
+
     private static final Map<String, Class<? extends RaLibTool>> tools = new HashMap<>();
-    
+
     static {
         tools.put("iosimulator", IOSimulator.class);
     }
-    
+
     private final String[] args;
-    
+
+    private String toolname = null;
+
     private Configuration config = null;
-    
+
     private RaLibTool tool = null;
-    
+
     public ConsoleClient(String[] args) {
         this.args = args;
     }
-    
+
     public void run() {
         try {
             parseTool();
             if (tool == null) {
                 System.err.println("Could not find tool.");
                 usage();
-                return;                                
+                return;
             }
-            
+  
             parseConfig();
             if (config == null) {
                 System.err.println("Could not parse configuration.");
                 usage();
-                return;                
+                return;
             }
+        
+            tool.setup(config);
+
         } catch (Throwable ex) {
-            usage();    
+            System.err.println("Execution terminated abnormally: " + ex.getMessage());
+            ex.printStackTrace();
+            usage();
             return;
         }
-            
+
         try {
             System.err.println("Running " + args[0]);
-            tool.setup(config);
-            tool.run();            
+            tool.run();
         } catch (Throwable ex) {
             System.err.println("Execution terminated abnormally: " + ex.getMessage());
             ex.printStackTrace(System.err);
         }
     }
-    
+
     private void usage() {
-        
-        String usage = "\nUsage: ralib <tool> [-f] <arg> where \n" +
-                "    - <tool> is the name of the tool to run\n" + 
-                "    - if -f is provided, <arg> has to be a file name of the configuration\n" +
-                "    - otherwise <arg> has to contain the configuration options.\n\n" +
-                "    Implemented Tools:\n" +
-                "    " + Arrays.toString(tools.keySet().toArray());
-        
+
+        String usage = "\nUsage: ralib <tool> [-f <file>] [<arg>], where \n"
+                + "    - <tool> is the name of the tool to run\n"
+                + "    - if -f is provided, <file> has to be a file name of the configuration\n"
+                + "    - <arg> has to contain configuration options, separated by ;.\n\n"
+                + "    Implemented Tools:\n"
+                + "    " + Arrays.toString(tools.keySet().toArray());
+
         System.err.println(usage);
+
+        if (tool != null && toolname != null) {
+            System.err.println();
+            System.err.println("Info on " + toolname);
+            System.err.println();
+            System.err.println(tool.description());
+            System.err.println();
+            System.err.println("Options");
+            System.err.println();
+            System.err.println(tool.help());
+        }
     }
-    
+
     private void parseTool() throws InstantiationException, IllegalAccessException {
         if (args.length < 1) {
             return;
         }
-        
-        String toolname = args[0];
+
+        toolname = args[0];
         Class<? extends RaLibTool> toolClass = tools.get(toolname);
         this.tool = toolClass.newInstance();
     }
-    
+
     private void parseConfig() throws IOException {
-        if (args.length == 3 && args[1].equals("-f")) {
-            this.config =  new Configuration(new File(args[2]));
+        if (args.length == 4 && args[1].equals("-f")) {
+            this.config = new Configuration(new File(args[2]));
+            Configuration temp = new Configuration(args[3].replaceAll(";", "\n"));
+            for (String s : temp.stringPropertyNames()) {
+                this.config.put(s, temp.get(s));
+            }
         }
-        else if (args.length == 2) {
+        else if (args.length == 3 && args[1].equals("-f")) {
+            this.config = new Configuration(new File(args[2]));
+        } else if (args.length == 2) {
             this.config = new Configuration(args[1].replaceAll(";", "\n"));
         }
     }
-    
-
-    public static void main(String[] args) {
-        
-        ConsoleClient cl = new ConsoleClient(new String[] {
-            "iosimulator",
-            "x=y;z=p;random.seed=36842364238534534"
-        });
-        
-        cl.run();
-    }
-
 
 }
-
-
-
-

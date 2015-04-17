@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  *
@@ -38,14 +37,6 @@ public class Configuration extends Properties {
 
     public Configuration(String args) throws IOException {
         super.load(new StringReader(args));
-    }
-    
-    public Random getRandom() {
-        throw new UnsupportedOperationException("not implemented yet.");
-    }
-    
-    public void setRandom(Random r) {
-        
     }
     
 }

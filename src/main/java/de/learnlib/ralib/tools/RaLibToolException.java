@@ -19,21 +19,13 @@
 
 package de.learnlib.ralib.tools;
 
-import de.learnlib.ralib.tools.config.Configuration;
-import de.learnlib.ralib.tools.config.ConfigurationException;
-
 /**
  *
  * @author falk
  */
-public interface RaLibTool {
-
-    public String description();
+class RaLibToolException extends Exception {
     
-    public String help();
-    
-    public void setup(Configuration config) throws ConfigurationException;
-    
-    public void run() throws RaLibToolException;
-    
+    public RaLibToolException(String message) {
+        super(message);
+    }    
 }
