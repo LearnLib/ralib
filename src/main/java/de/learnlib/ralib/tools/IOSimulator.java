@@ -219,6 +219,8 @@ public class IOSimulator implements RaLibTool {
     
     private int maxRounds = -1; 
     
+    private long resets = 0;
+    private long inputs = 0;
     
     @Override
     public String description() {
@@ -402,6 +404,9 @@ public class IOSimulator implements RaLibTool {
                 break;
             }
 
+            resets = sulTest.getResets();
+            inputs = sulTest.getInputs();
+            
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());
             
@@ -449,12 +454,12 @@ public class IOSimulator implements RaLibTool {
         
         // tests during search
         // resets + inputs
-        System.out.println("Resets Testing: " + sulTest.getResets());
-        System.out.println("Inputs Testing: " + sulTest.getInputs());
+        System.out.println("Resets Testing: " + resets);
+        System.out.println("Inputs Testing: " + inputs);
         
         // + sums
-        System.out.println("Resets: " + (sulTest.getResets() + sulLearn.getResets()));
-        System.out.println("Inputs: " + (sulTest.getInputs() + sulLearn.getInputs()));
+        System.out.println("Resets: " + (resets + sulLearn.getResets()));
+        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
         
     }
 
