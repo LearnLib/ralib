@@ -324,7 +324,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     private boolean canPairBranches(Map<SDTGuard, SDT> thisBranches, Map<SDTGuard, SDT> otherBranches) {
-       // System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
+        System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
         if (thisBranches.size() != otherBranches.size()) {
             return false;
         }
@@ -333,7 +333,7 @@ public class SDT implements SymbolicDecisionTree {
         for (Map.Entry<SDTGuard, SDT> thisB : thisBranches.entrySet()) {
             pairedArray[i] = hasPair(thisB.getKey(), thisB.getValue(), otherBranches);
             if (pairedArray[i] == true) {
-            //    System.out.println(thisB.getKey().toString() + " has a friend");
+               System.out.println(thisB.getKey().toString() + " has a friend");
             }
             i++;
         }

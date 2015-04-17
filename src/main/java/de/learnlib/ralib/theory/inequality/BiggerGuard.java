@@ -59,7 +59,7 @@ public class BiggerGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-        return new AtomicGuardExpression(register, Relation.BIGGER, parameter);
+        return new AtomicGuardExpression(parameter, Relation.BIGGER, register);
     }
         
     public boolean contradicts(SDTIfGuard other) {
