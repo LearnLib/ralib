@@ -110,7 +110,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         }
         
         Comparable lc = (Comparable) l.getId();
-        int result = lc.compareTo(r);        
+        int result = lc.compareTo(r.getId());        
         switch (relation) {
             case SMALLER:
                 return result < 0;

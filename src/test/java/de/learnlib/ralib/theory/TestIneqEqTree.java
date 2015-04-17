@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 falk.
+ * Copyright (C) 2014 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,37 +16,34 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.learning;
 
-import de.learnlib.oracles.DefaultQuery;
+package de.learnlib.ralib.theory;
+
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import static de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle.doubleType;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
-import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SimulatorOracle;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.PriorityQueueSUL;
-import de.learnlib.ralib.sul.PriorityQueueSUL.Actions;
 import de.learnlib.ralib.sul.SULOracle;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.words.InputSymbol;
@@ -70,40 +67,30 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class LearnPQIOTest {
+public class TestIneqEqTree {
 
     public static final DataType doubleType = new DataType("DOUBLE", Double.class) {
     };
-
-    public LearnPQIOTest() {
-    }
     
-    
-
     @Test
-    public void learnLoginExampleIO() {
-
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.INFO);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.INFO);
-//            h.setFilter(new CategoryFilter(EnumSet.of(
-//                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-//                    Category.EVENT, Category.PHASE, Category.MODEL)));
-        }
+    public void testIneqEqTree() {
         
+//                Logger root = Logger.getLogger("");
+//        root.setLevel(Level.ALL);
+//        for (Handler h : root.getHandlers()) {
+//            h.setLevel(Level.ALL);
+//        }
         
-
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
 //        final ParameterizedSymbol VOID
@@ -138,30 +125,18 @@ public class LearnPQIOTest {
         actionList.addAll(outputList);
         final ParameterizedSymbol[] actionArray = actionList.toArray(new ParameterizedSymbol[actionList.size()]);
         
-        //RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
-        //        RegisterAutomatonLoaderTest.class.getResourceAsStream(
-        //                "/de/learnlib/ralib/automata/xml/abp.output.xml"));
-        //RegisterAutomaton model = loader.getRegisterAutomaton();
-        //System.out.println("SYS:------------------------------------------------");
-        //System.out.println(model);
-        //System.out.println("----------------------------------------------------");
         Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
-        inputs.put(Actions.POLL,POLL);
-        inputs.put(Actions.OFFER,OFFER);
+        inputs.put(PriorityQueueSUL.Actions.POLL,POLL);
+        inputs.put(PriorityQueueSUL.Actions.OFFER,OFFER);
         
         Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
-        outputs.put(Actions.ERROR,ERROR);
+        outputs.put(PriorityQueueSUL.Actions.ERROR,ERROR);
         //outputs.put(Actions.VOID,VOID);
-        outputs.put(Actions.OUTPUT,OUTPUT);
-        outputs.put(Actions.OK,OK);
-        outputs.put(Actions.NOK,NOK);
+        outputs.put(PriorityQueueSUL.Actions.OUTPUT,OUTPUT);
+        outputs.put(PriorityQueueSUL.Actions.OK,OK);
+        outputs.put(PriorityQueueSUL.Actions.NOK,NOK);
         
         final Constants consts = new Constants();
-
-        long seed = -1386796323025681754L;
-        //long seed = (new Random()).nextLong();
-        System.out.println("SEED=" + seed);
-        final Random random = new Random(seed);
 
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
         class Cpr implements Comparator<DataValue<Double>> {
@@ -188,13 +163,13 @@ public class LearnPQIOTest {
 
             @Override
             public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
-                System.out.println("INSTANTIATING: " + g.toString());
+//                System.out.println("INSTANTIATING: " + g.toString());
                 SymbolicDataValue.SuffixValue sp = g.getParameter();
                 Valuation newVal = new Valuation();
                 newVal.putAll(val);
                 GuardExpression x = g.toExpr();
                 if (g instanceof EqualityGuard) {                    
-                    System.out.println("SOLVING: " + x);                    
+//                    System.out.println("SOLVING: " + x);                    
                     solver.solve(x.toDataExpression().getExpression(), newVal);
                 } else {
                     List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
@@ -274,8 +249,7 @@ public class LearnPQIOTest {
 
         }
         );
-        
-
+    
         DataWordSUL sul = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
 
         //SimulatorOracle oracle = new SimulatorOracle(model);
@@ -293,67 +267,64 @@ public class LearnPQIOTest {
                 return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts);
             }
         };
-
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actionArray);
-
-        IORandomWalk iowalk = new IORandomWalk(random,
-                sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
-                0.8, // prob. of choosing a fresh data value
-                10000, // 1000 runs 
-                100, // max depth
-                consts,
-                false, // reset runs 
-                teachers,
-                inputArray);
-
-        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-
-        int check = 0;
-        while (true && check < 100) {
-
-            check++;
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
-            System.out.println("HYP:------------------------------------------------");
-            System.out.println(hyp);
-            System.out.println("----------------------------------------------------");
-
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
-
-            System.out.println("CE: " + ce);
-            if (ce == null) {
-                break;
-            }
-
-            ce = loops.optimizeCE(ce.getInput(), hyp);
-            System.out.println("Shorter CE: " + ce);
-            ce = asrep.optimizeCE(ce.getInput(), hyp);
-            System.out.println("New Prefix CE: " + ce);
-            ce = pref.optimizeCE(ce.getInput(), hyp);
-            System.out.println("Prefix of CE is CE: " + ce);
-
-//            assert model.accepts(ce.getInput());
-//            assert !hyp.accepts(ce.getInput());
-
-            rastar.addCounterexample(ce);
-
-        }
-
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        System.out.println("LAST:------------------------------------------------");
-        System.out.println(hyp);
-        System.out.println("----------------------------------------------------");
-
-        System.out.println("Seed:" + seed);
-        System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
-        System.out.println("SUL resets: " + sul.getResets());
-        System.out.println("SUL inputs: " + sul.getInputs());
-        System.out.println("Rounds: " + check);
-
+//        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+//                new PSymbolInstance(I_REGISTER, 
+//                    new DataValue(T_UID, 1),
+//                    new DataValue(T_PWD, 1)),
+//                new PSymbolInstance(I_LOGIN, 
+//                    new DataValue(T_UID, 2),
+//                    new DataValue(T_PWD, 2)));           
+//        
+        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+                new PSymbolInstance(OFFER, 
+                    new DataValue(doubleType,3.0)),
+                new PSymbolInstance(OK),
+                new PSymbolInstance(POLL),
+                new PSymbolInstance(OUTPUT,
+                    new DataValue(doubleType, 3.0)));
+        
+//        Prefix: offer[2.0[DOUBLE]] ok[] offer[1.0[DOUBLE]] ok[]
+//SymSuffix: [s2]((offer[s1] ok[] poll[] out[s2]))
+        
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(OFFER, 
+                    new DataValue(doubleType, 2.0)),
+                new PSymbolInstance(OK),
+                new PSymbolInstance(OFFER,
+                    new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(OK));
+        
+        
+        // create a symbolic suffix from the concrete suffix
+        // symbolic data values: s1, s2 (userType, passType)
+        
+        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        System.out.println("Prefix: " + prefix);
+        System.out.println("Suffix: " + symSuffix);        
+        
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
+        SymbolicDecisionTree sdt = res.getSdt();
+//        System.out.println(res.getSdt().isAccepting());
+        System.out.println("final SDT: \n" + sdt.toString());
+        
+        Parameter p1 = new Parameter(doubleType, 1);
+        Parameter p2 = new Parameter(doubleType, 2);
+        DataValue d1 = new DataValue(doubleType, 6.0);
+        DataValue d2 = new DataValue(doubleType, 9.0);
+        
+        PIV testPiv =  new PIV();
+        testPiv.put(p1, new Register(doubleType, 1));
+        testPiv.put(p2, new Register(doubleType, 2));
+        
+        ParValuation testPval = new ParValuation();
+        testPval.put(p1, d1);
+        testPval.put(p2,d2);
+    
+        Branching branching = mto.getInitialBranching(prefix, OFFER, testPiv, testPval, sdt);
+        System.out.println("Branching: \n" + branching.toString());
+        System.out.println("Get initial branching: \n" + branching.getBranches().toString());
     }
+//    
+    
+    
 }
