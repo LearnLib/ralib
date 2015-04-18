@@ -65,6 +65,7 @@ public abstract class RegisterAutomaton
             }
             sb.append("\n");
         }
+        sb.append("Init:").append(initialRegisters).append("\n");
         return sb.toString();
     }
 

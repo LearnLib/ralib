@@ -79,7 +79,7 @@ public class SimulatorSUL extends DataWordSUL {
     public void pre() {
         countResets(1);
         loc = this.model.getInitialState();
-        register = new VarValuation();
+        register = this.model.getInitialRegisters();
         prefix = Word.epsilon();
     }
 

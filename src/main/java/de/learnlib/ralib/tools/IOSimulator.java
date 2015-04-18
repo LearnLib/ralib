@@ -268,6 +268,7 @@ public class IOSimulator implements RaLibTool {
         }
         System.out.println("RANDOM SEED=" + seed);
         Random random = new Random(seed);
+        config.setProperty("__seed", "" + seed);
         
         // create teachers
         final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();

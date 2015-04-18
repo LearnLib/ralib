@@ -22,6 +22,7 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
@@ -52,9 +53,9 @@ public class Assignment {
                 val.put(e.getKey(), parameters.get( (Parameter) valp));
             }
             //TODO: check if we want to copy constant values into vars
-            //else if (valp.isConstant()) {
-            //    val.put(e.getKey(), consts.get( (Constant) valp));
-            //}
+            else if (valp.isConstant()) {
+                val.put(e.getKey(), consts.get( (Constant) valp));
+            }
             else {
                 throw new IllegalStateException("Illegal assignment: " +
                         e.getKey() + " := " + valp);

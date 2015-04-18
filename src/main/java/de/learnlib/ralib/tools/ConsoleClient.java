@@ -81,6 +81,8 @@ public class ConsoleClient {
             System.err.println("Execution terminated abnormally: " + ex.getMessage());
             ex.printStackTrace(System.err);
         }
+        
+        System.err.println("Random seed: " + config.getProperty("__seed"));
     }
 
     private void usage() {

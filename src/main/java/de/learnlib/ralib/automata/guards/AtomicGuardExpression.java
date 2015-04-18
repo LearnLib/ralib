@@ -87,6 +87,9 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         DataValue lv = val.get(left);
         DataValue rv = val.get(right);
         
+        //System.out.println(this);
+        //System.out.println(val.toString());
+        
         assert lv != null && rv != null;
                         
         switch (relation) {
