@@ -153,7 +153,7 @@ public class DisequalityGuard extends SDTIfGuard {
 //        
 //        sv = (sv == null) ? getParameter() : sv;
 //  
-//        Set<Register> regs = new HashSet<>();
+//        Set<Register> regs = new LinkedHashSet<>();
 //        for (Register r : getRegisters()) {
 //            Register rNew = (Register) relabelling.get(r);
 //            rNew = (rNew == null) ? r : rNew;

@@ -18,7 +18,7 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public abstract class SDTMultiGuard extends SDTGuard {
     
     
    public Set<SymbolicDataValue> getAllRegs() {
-        Set<SymbolicDataValue> allRegs = new HashSet<SymbolicDataValue>();
+        Set<SymbolicDataValue> allRegs = new LinkedHashSet<SymbolicDataValue>();
         for (SDTIfGuard g : guards) {
             allRegs.add(g.getRegister());
         }

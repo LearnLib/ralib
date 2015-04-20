@@ -30,7 +30,7 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -64,7 +64,7 @@ public class IORandomWalkTest {
               
          Constants consts = loader.getConstants();
          
-         Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+         Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
          for (final DataType t : loader.getDataTypes()) {
              teachers.put(t, new EqualityTheory() {
                  @Override

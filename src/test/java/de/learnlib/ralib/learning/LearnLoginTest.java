@@ -38,7 +38,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -76,7 +76,7 @@ public class LearnLoginTest {
         System.out.println(sul);
         System.out.println("----------------------------------------------------");
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         
         teachers.put(T_UID, new EqualityTheory() {
             @Override

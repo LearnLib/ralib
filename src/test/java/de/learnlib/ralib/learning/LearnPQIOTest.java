@@ -67,7 +67,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -145,11 +145,11 @@ public class LearnPQIOTest {
         //System.out.println("SYS:------------------------------------------------");
         //System.out.println(model);
         //System.out.println("----------------------------------------------------");
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
+        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
         inputs.put(Actions.POLL,POLL);
         inputs.put(Actions.OFFER,OFFER);
         
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
+        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
         outputs.put(Actions.ERROR,ERROR);
         //outputs.put(Actions.VOID,VOID);
         outputs.put(Actions.OUTPUT,OUTPUT);
@@ -163,7 +163,7 @@ public class LearnPQIOTest {
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         class Cpr implements Comparator<DataValue<Double>> {
 
             public int compare(DataValue<Double> one, DataValue<Double> other) {

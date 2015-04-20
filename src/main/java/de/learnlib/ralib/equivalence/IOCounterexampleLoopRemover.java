@@ -33,7 +33,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
         
         this.hypothesis = hyp;
         
-        Map<Integer, List<Loop>> loops = new HashMap<>();
+        Map<Integer, List<Loop>> loops = new LinkedHashMap<>();
         List<Integer> sizes = new ArrayList<>();
         RALocation[] trace = execute(ce);
         for (int i=0; i<trace.length; i++) {

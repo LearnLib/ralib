@@ -42,7 +42,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +72,7 @@ public class SimulatorSUL extends DataWordSUL {
         this.model = model;
         this.teachers = teachers;
         this.consts = consts;
-        this.inputs = new HashSet<>(Arrays.asList(inputs));
+        this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class SimulatorSUL extends DataWordSUL {
     }
 
     private List<DataValue> computeOld(DataType t, ParValuation pval) {
-        Set<DataValue> set = new HashSet<>();        
+        Set<DataValue> set = new LinkedHashSet<>();        
         set.addAll(DataWords.valSet(prefix, t));
         for (DataValue d : pval.values()){
             if (d.getType().equals(t)) {

@@ -31,7 +31,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -89,7 +89,7 @@ public class DataWordSULConnector implements DataWordOracle {
         }
         
         AbstractMethodInput ret = new AbstractMethodInput(
-                p.getName(), m, new HashMap<String, Integer>(), params);
+                p.getName(), m, new LinkedHashMap<String, Integer>(), params);
         
         return ret;
     }

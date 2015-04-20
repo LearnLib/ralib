@@ -29,7 +29,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
 
@@ -50,7 +50,7 @@ public class MockTreeOracle implements TreeOracle {
 
             @Override
             public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-                return new HashMap<Word<PSymbolInstance>, TransitionGuard>();
+                return new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
             }
         };
     }

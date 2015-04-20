@@ -64,7 +64,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -125,11 +125,11 @@ public class TestIneqEqTree {
         actionList.addAll(outputList);
         final ParameterizedSymbol[] actionArray = actionList.toArray(new ParameterizedSymbol[actionList.size()]);
         
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
+        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
         inputs.put(PriorityQueueSUL.Actions.POLL,POLL);
         inputs.put(PriorityQueueSUL.Actions.OFFER,OFFER);
         
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new HashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
+        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
         outputs.put(PriorityQueueSUL.Actions.ERROR,ERROR);
         //outputs.put(Actions.VOID,VOID);
         outputs.put(PriorityQueueSUL.Actions.OUTPUT,OUTPUT);
@@ -138,7 +138,7 @@ public class TestIneqEqTree {
         
         final Constants consts = new Constants();
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         class Cpr implements Comparator<DataValue<Double>> {
 
             public int compare(DataValue<Double> one, DataValue<Double> other) {

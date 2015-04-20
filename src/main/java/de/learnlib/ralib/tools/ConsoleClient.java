@@ -22,7 +22,7 @@ import de.learnlib.ralib.tools.config.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class ConsoleClient {
 
-    private static final Map<String, Class<? extends RaLibTool>> tools = new HashMap<>();
+    private static final Map<String, Class<? extends RaLibTool>> tools = new LinkedHashMap<>();
 
     static {
         tools.put("iosimulator", IOSimulator.class);

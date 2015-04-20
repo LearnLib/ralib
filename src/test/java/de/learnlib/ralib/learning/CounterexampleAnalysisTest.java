@@ -78,7 +78,7 @@ public class CounterexampleAnalysisTest {
 //        final Branching b = new Branching() {
 //            @Override
 //            public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-//                return new HashMap<Word<PSymbolInstance>,TransitionGuard>();
+//                return new LinkedHashMap<Word<PSymbolInstance>,TransitionGuard>();
 //            }
 //        };
 //        
@@ -91,7 +91,7 @@ public class CounterexampleAnalysisTest {
 //            }                
 //        };
 //       
-//        Map<Word<PSymbolInstance>, Component> components = new HashMap<Word<PSymbolInstance>, Component>();  
+//        Map<Word<PSymbolInstance>, Component> components = new LinkedHashMap<Word<PSymbolInstance>, Component>();  
 //        components.put(Word.<PSymbolInstance>epsilon(), c);
 //        
 //        CounterexampleAnalysis ceAnalysis = new CounterexampleAnalysis(

@@ -35,7 +35,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -82,7 +82,7 @@ public class TestEqualityTheory {
 
         };  
     
-        Map<DataType, Theory> theories = new HashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_UID, uidTheory);
         theories.put(T_PWD, pwdTheory);
         

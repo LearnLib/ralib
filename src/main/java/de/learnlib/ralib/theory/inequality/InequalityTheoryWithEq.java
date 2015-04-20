@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +80,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //    }
 
 //    private Set<SDTGuard> removeContradictions(SDTGuard... gs) {
-//        Set<SDTGuard> guardSet = new HashSet<>();
+//        Set<SDTGuard> guardSet = new LinkedHashSet<>();
 //        for (SDTGuard g : gs) {
 //            if (g instanceof SDTIfGuard) {
 //                SDTIfGuard x = (SDTIfGuard) g;
@@ -116,7 +116,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        return guardSet;
 //    }
     private Set<SDTGuard> setify(SDTGuard... gs) {
-        Set<SDTGuard> guardSet = new HashSet<>();
+        Set<SDTGuard> guardSet = new LinkedHashSet<>();
         for (SDTGuard g : gs) {
             if (g instanceof SDTOrGuard) {
                 SDTOrGuard cg = (SDTOrGuard) g;
@@ -176,7 +176,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     }
 
 //    private boolean canMerge(SDTGuard th, SDTGuard other) {
-//        Set<SymbolicDataValue> regs = new HashSet();
+//        Set<SymbolicDataValue> regs = new LinkedHashSet();
 //        Set<SDTGuard> guardSet = setify(th, other);
 //        for (SDTIfGuard g : guardSet) {
 //            regs.add(g.getRegister());
@@ -310,13 +310,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                Map<Set<Guard>, SDT> mergingMap = new LinkedHashMap<>();
 //        log.log(Level.FINEST,"---- Merging! ---- " + unmerged.toString());
 //        // guards we've already tried
-//        Set<Set<Guard>> tried = new HashSet();
+//        Set<Set<Guard>> tried = new LinkedHashSet();
 //        List<Set<Guard>> guardList = new ArrayList(unmerged.keySet());
 ////        for (Set<Guard> g : guardList) {
 ////            untried.add(g);
 ////        }
 ////        //untried.removeAll(finalMap.keySet());
-//        //Set<Guard> tried = new HashSet();
+//        //Set<Guard> tried = new LinkedHashSet();
 //
 //        // for each guard: check against all other guards, merge each one
 //        // if all guards merge into one: replace this by TRUE
@@ -377,7 +377,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         PIV ret = new PIV();
 
         // 1. create guard list
-        Set<SDTIfGuard> ifGuards = new HashSet<>();
+        Set<SDTIfGuard> ifGuards = new LinkedHashSet<>();
         for (SDTGuard g : guardSet) {
             if (g instanceof SDTIfGuard) {
                 ifGuards.add((SDTIfGuard) g);

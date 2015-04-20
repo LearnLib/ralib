@@ -50,8 +50,8 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -82,7 +82,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         if (prefix.length() < 1) {
             return new TreeQueryResult(new PIV(),
-                    new LoginExampleSDT(SDTClass.REJECT, suffix, new HashSet<Register>()));
+                    new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
         }
 
         DataValue uid = null;
@@ -122,7 +122,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
             if (state == State.ERROR) {
                 return new TreeQueryResult(new PIV(),
-                        new LoginExampleSDT(SDTClass.REJECT, suffix, new HashSet<Register>()));
+                        new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
             }
 
             idx++;
@@ -156,7 +156,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
         }
 
         return new TreeQueryResult(piv,
-                new LoginExampleSDT(clazz, suffix, new HashSet<Register>()));
+                new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>()));
     }
 
     

@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
@@ -93,7 +93,7 @@ public class LearnPQTest {
 //        System.out.println(sul);
 //        System.out.println("----------------------------------------------------");
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
 
         class Cpr implements Comparator<DataValue<Double>> {
 

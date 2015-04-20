@@ -36,13 +36,12 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -138,7 +137,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 //        log.log(Level.FINEST,t2.sys2reg);
         
         // compare registers
-        HashMap<Object,Object> vMap = new HashMap<>();
+        LinkedHashMap<Object,Object> vMap = new LinkedHashMap<>();
         
         return compareRegister(t1.sys1reg, t2.sys1reg, vMap) &&
                compareRegister(t1.sys2reg, t2.sys2reg, vMap);
@@ -248,7 +247,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         
         q.offer(start);
         
-        HashMap<Tuple,ArrayList<Tuple>> visited = new HashMap<>();
+        LinkedHashMap<Tuple,ArrayList<Tuple>> visited = new LinkedHashMap<>();
         Tuple st = new Tuple(start.sys1loc, start.sys2loc, start.sys1reg, start.sys2reg);
         visited.put(st, new ArrayList<Tuple>());
         visited.get(st).add(st);
@@ -337,7 +336,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private static boolean hasDoubles(VarValuation r) {
         return false;
         
-//        Set<Object> s = new HashSet<>();
+//        Set<Object> s = new LinkedHashSet<>();
 //        int x=0;
 //        for (String key : r.getKeys()) {
 //            if (!key.startsWith("r")) {
@@ -426,7 +425,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             ParameterizedSymbol ps, VarValuation r1, VarValuation r2,
             boolean checkForEqualParameters) {
         
-        Set<DataValue<?>> potential = new HashSet<>();
+        Set<DataValue<?>> potential = new LinkedHashSet<>();
         potential.addAll(r1.values());        
         //  this is maybe ok during learning        
         //potential.addAll(r2.values());
@@ -458,7 +457,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         DataType t = ps.getPtypes()[idx];
         
         Set<DataValue> next = valSet(potential, t);        
-        Set<DataValue> forFresh = new HashSet<>(Sets.union(next, valSet(val, t)));
+        Set<DataValue> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
         if (checkForEqualParameters) {
             next = forFresh;
         }
@@ -475,7 +474,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     }
 
     private Set<DataValue> valSet(Collection<DataValue<?>> in, DataType t) {
-        Set<DataValue> out = new HashSet<>();
+        Set<DataValue> out = new LinkedHashSet<>();
         for (DataValue dv : in) {
             if (dv.getType().equals(t)) {
                 out.add(dv);
