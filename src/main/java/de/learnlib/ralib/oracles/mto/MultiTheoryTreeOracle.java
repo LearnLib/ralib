@@ -95,26 +95,24 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
-//        System.out.println("tree query for " + prefix.toString() + " AND " + suffix.toString());
-
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
         RegisterGenerator gen = new RegisterGenerator();
-        for (Register r : pir.values()) {
-            rename.put(r, gen.next(r.getType()));
-        }
-
+        Set<Register> regs = sdt.getRegisters();     
         PIV piv = new PIV();
-        Set<Register> regs = sdt.getRegisters();
+
         for (Entry<Parameter, Register> e : pir.entrySet()) {
             if (regs.contains(e.getValue())) {
-                piv.put(e.getKey(), (Register) rename.get(e.getValue()));
+                Register r = e.getValue();
+                rename.put(r, gen.next(r.getType()));
+                piv.put(e.getKey(), (Register) rename.get(r));
             }
         }
+
         //System.out.println("Renaming...");
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
         log.finer("PIV: " + piv);
-
+        
         return tqr;
     }
 
