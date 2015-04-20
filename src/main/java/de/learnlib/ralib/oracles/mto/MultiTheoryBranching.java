@@ -38,7 +38,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Variable;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -197,7 +197,7 @@ public class MultiTheoryBranching implements Branching {
     }
 
     public Set<SDTGuard> getGuards() {
-        return collectGuards(this.node, new HashSet<SDTGuard>());
+        return collectGuards(this.node, new LinkedHashSet<SDTGuard>());
     }
 
     // collects guards
@@ -290,7 +290,7 @@ public class MultiTheoryBranching implements Branching {
         //            branches.put(Word.fromLetter(new PSymbolInstance(action,d)),null);
         //        }
         // for each next-node
-        //        Set<Word<PSymbolInstance>> words = new HashSet<>();
+        //        Set<Word<PSymbolInstance>> words = new LinkedHashSet<>();
         //        Map<Word<PSymbolInstance>, TransitionGuard> returnMap = new LinkedHashMap<>();
         //        for (DataValue d : this.node.guards.keySet()) {
         //            
@@ -300,7 +300,7 @@ public class MultiTheoryBranching implements Branching {
         //}
         
 //    private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
-//        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
+//        Set<SymbolicDataValue> currRegsAndParams = new LinkedHashSet<>();
 //        currRegsAndParams.add(guard.getParameter());
 //        if (guard instanceof SDTCompoundGuard) {
 //            currRegsAndParams.addAll(((SDTCompoundGuard) guard).getAllRegs());
@@ -311,7 +311,7 @@ public class MultiTheoryBranching implements Branching {
 //    }
 //
 //    private Set<SymbolicDataValue> collectRegsAndParams(Map<DataValue[], List<SDTGuard>> guardMap) {
-//        Set<SymbolicDataValue> regsAndParams = new HashSet<>();
+//        Set<SymbolicDataValue> regsAndParams = new LinkedHashSet<>();
 //        for (DataValue[] dvs : guardMap.keySet()) {
 //            for (SDTGuard guard : guardMap.get(dvs)) {
 //                regsAndParams.add(guard.getParameter());
@@ -394,7 +394,7 @@ public class MultiTheoryBranching implements Branching {
 //    }
     
 //    private Set<Register> collectRegisters(Map<DataValue[], List<SDTGuard>> guardMap) {
-//        Set<Register> regs = new HashSet<>();
+//        Set<Register> regs = new LinkedHashSet<>();
 //        for (DataValue[] dvs : guardMap.keySet()) {
 //            for (SDTGuard guard : guardMap.get(dvs)) {
 //                if (guard instanceof SDTIfGuard) {
@@ -413,7 +413,7 @@ public class MultiTheoryBranching implements Branching {
 //    }
 //
 //    private Set<SuffixValue> collectParameters(Map<DataValue[], List<SDTGuard>> guardMap) {
-//        Set<SuffixValue> params = new HashSet<>();
+//        Set<SuffixValue> params = new LinkedHashSet<>();
 //        for (DataValue[] dvs : guardMap.keySet()) {
 //            for (SDTGuard guard : guardMap.get(dvs)) {
 //                params.add(guard.getParameter());

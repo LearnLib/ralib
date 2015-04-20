@@ -37,7 +37,7 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class DataExpression<T extends Object> {
         
         //System.out.println ("de: " + expression  + " : " + Arrays.toString(mapping.values().toArray()));
         assert expression != null;      
-        assert (new HashSet<>(mapping.values())).containsAll(
+        assert (new LinkedHashSet<>(mapping.values())).containsAll(
                 ExpressionUtil.freeVariables(expression));
         
         this.expression = expression;

@@ -33,7 +33,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -188,7 +188,7 @@ public class TestTreeOracle {
 
         };
         
-        Map<DataType, Theory> theories = new HashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         

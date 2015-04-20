@@ -31,7 +31,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -180,7 +180,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
 
     private ParameterizedSymbol nextSymbol(Word<PSymbolInstance> run) {
         ParameterizedSymbol ps = null;
-        Map<DataType, Integer> tCount = new HashMap<>();
+        Map<DataType, Integer> tCount = new LinkedHashMap<>();
         if (uniform) {
             ps = inputs[rand.nextInt(inputs.length)];
         } else {

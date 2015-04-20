@@ -27,7 +27,7 @@ import de.learnlib.ralib.words.OutputSymbol;
 import java.util.Collection;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Level;
@@ -43,8 +43,8 @@ import net.automatalib.words.Word;
 public class IOCache extends QueryCounter implements DataWordOracle {
     
     private static class CacheNode {        
-        final Map<PSymbolInstance, PSymbolInstance> output = new HashMap<>();
-        final Map<PSymbolInstance, CacheNode> next = new HashMap<>();
+        final Map<PSymbolInstance, PSymbolInstance> output = new LinkedHashMap<>();
+        final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
     }
     
     private final CacheNode root = new CacheNode();    

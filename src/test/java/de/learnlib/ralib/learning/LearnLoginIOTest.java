@@ -49,7 +49,7 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -104,7 +104,7 @@ public class LearnLoginIOTest {
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
         
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory<Integer>() {
                 @Override

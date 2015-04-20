@@ -42,7 +42,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -89,7 +89,7 @@ public class MultiSDTBranchingTest {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new HashMap<DataType, Theory>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory() {
                 @Override

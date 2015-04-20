@@ -44,8 +44,8 @@ import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -63,7 +63,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
             Constants consts) {
         super(components, consts);
         
-        this.reverseConsts = new HashMap<>();
+        this.reverseConsts = new LinkedHashMap<>();
         for (Entry<Constant, DataValue<?>> c : consts) {
             reverseConsts.put(c.getValue().getId(), c.getKey());
         }
@@ -85,7 +85,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
         //IfGuard _guard = (IfGuard) guard;        
         DataExpression<Boolean> expr = guard.getCondition().toDataExpression();
         
-        Map<Expression, SymbolicDataValue> exprmap = new HashMap<>();
+        Map<Expression, SymbolicDataValue> exprmap = new LinkedHashMap<>();
         for (Entry<SymbolicDataValue, Variable> e : expr.getMapping().entrySet()) {
             exprmap.put(e.getValue(), e.getKey());
         }
@@ -93,7 +93,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
         VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();        
         analyzeExpression(expr.getExpression(), outmap, exprmap);
         
-        Set<Parameter> fresh = new HashSet<>();
+        Set<Parameter> fresh = new LinkedHashSet<>();
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataType t : action.getPtypes()) {
             Parameter p = pgen.next(t);

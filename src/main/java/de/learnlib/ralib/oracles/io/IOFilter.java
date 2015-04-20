@@ -28,7 +28,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -47,7 +47,7 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
     private static LearnLogger log = LearnLogger.getLogger(IOFilter.class);
         
     public IOFilter(DataWordOracle back, ParameterizedSymbol ... inputs) {
-        this.inputs = new HashSet<>(Arrays.asList(inputs));
+        this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));
         this.back = back;
     }        
     

@@ -24,7 +24,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -98,6 +98,6 @@ public class SDTLeaf extends SDT {
            
     @Override
     public Set<SymbolicDataValue.Register> getRegisters() {
-        return new HashSet<>();    
+        return new LinkedHashSet<>();    
     }
 }

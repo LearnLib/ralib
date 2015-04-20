@@ -54,7 +54,7 @@ import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -294,7 +294,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     
 
     private Set<SymbolicDataValue> makeVarSet(SDTGuard guard) {
-        Set<SymbolicDataValue> currRegsAndParams = new HashSet<>();
+        Set<SymbolicDataValue> currRegsAndParams = new LinkedHashSet<>();
         currRegsAndParams.add(guard.getParameter());
         if (guard instanceof SDTMultiGuard) {
             Set<SymbolicDataValue> allRegs = ((SDTMultiGuard) guard).getAllRegs();
@@ -328,7 +328,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //    }
 //
 //    private Set<SDTGuard> preprocess(int i, Set<SDTGuard> guards) {
-//        Set<SDTGuard> processed = new HashSet<>();
+//        Set<SDTGuard> processed = new LinkedHashSet<>();
 //        for (SDTGuard guard : guards) {
 //            if (guard instanceof EqualityGuard) {
 //                processed.add(new EqualityGuard(guard.getParameter(), ((EqualityGuard) guard).getRegister()));
@@ -355,7 +355,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     // (the entry <g1,g2> means that g1 refines g2
     private Map<SDTGuard, SDTGuard> mapGuards(Set<SDTGuard> unmapped, Parameter param) {
 
-        Set<SDTGuard> guards = new HashSet<>();
+        Set<SDTGuard> guards = new LinkedHashSet<>();
         guards.addAll(unmapped);
         //SDTIfGuard[] ifg = new SDTIfGuard[0];
         SDTGuard g = new SDTTrueGuard(new SuffixValue(param.getType(), param.getId()));
@@ -413,13 +413,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private List<SDTGuard> getAllCoarser(SDTGuard finer, Map<SDTGuard, SDTGuard> guardChain) {
-        Set<SDTGuard> retSet = accGuards(new HashSet<SDTGuard>(), guardChain);
+        Set<SDTGuard> retSet = accGuards(new LinkedHashSet<SDTGuard>(), guardChain);
 
         return new ArrayList<>(retSet);
     }
 
     private Set<SDTGuard> accGuards(Set<SDTGuard> acc, Map<SDTGuard, SDTGuard> guardChain) {
-        Set<SDTGuard> retSet = new HashSet<>();
+        Set<SDTGuard> retSet = new LinkedHashSet<>();
         boolean flag = false;
         for (Map.Entry<SDTGuard, SDTGuard> e : guardChain.entrySet()) {
             if (retSet.contains(e.getKey())) {
@@ -572,7 +572,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 
                 // initialize set of sdts
                 // try to find the sdt that this guard maps to
-                Set<SDT> nextLevelSdts = new HashSet<>();
+                Set<SDT> nextLevelSdts = new LinkedHashSet<>();
                 SDT cSdt = currChildren.get(guard);
                 // if we can find it in the 'current' sdt, then add it
                 if (cSdt != null) {

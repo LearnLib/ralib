@@ -25,8 +25,8 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -48,9 +48,9 @@ public class SDT implements SymbolicDecisionTree {
     
     public Set<SDTGuard> getGuards() {
         if (this instanceof SDTLeaf) {
-            return new HashSet<>();
+            return new LinkedHashSet<>();
         }
-        Set<SDTGuard> guards = new HashSet<>();
+        Set<SDTGuard> guards = new LinkedHashSet<>();
         for (Map.Entry<SDTGuard, SDT> e : this.children.entrySet()) {
                 guards.add(e.getKey());
                 if (!(e.getValue() instanceof SDTLeaf)) {
@@ -62,7 +62,7 @@ public class SDT implements SymbolicDecisionTree {
 
     @Override
     public Set<Register> getRegisters() {
-        Set<Register> registers = new HashSet<>();
+        Set<Register> registers = new LinkedHashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
 //            log.log(Level.FINEST,e.getKey().toString() + " " + e.getValue().toString());
 
@@ -162,7 +162,7 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         //log.log(Level.FINEST,"RELABEL: " + relabelling);        
-        Map<SDTGuard, SDT> reChildren = new HashMap<>();
+        Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
             //SDTGuard newKey = e.getKey().relabel(relabelling);
@@ -184,7 +184,7 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         //log.log(Level.FINEST,"RELABEL: " + relabelling);        
-        Map<SDTGuard, SDT> reChildren = new HashMap<>();
+        Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
             //SDTGuard newKey = e.getKey().relabel(relabelling);
@@ -255,12 +255,12 @@ public class SDT implements SymbolicDecisionTree {
 //    public SymbolicDecisionTree createCopy(VarMapping<SymbolicDataValue, SymbolicDataValue> renaming) {
 //        boolean acc = this.isAccepting();
 //        // registers: add the ones that are mapped
-//        Set<SymbolicDataValue> newRegs = new HashSet<>();
+//        Set<SymbolicDataValue> newRegs = new LinkedHashSet<>();
 //        for (SymbolicDataValue reg : (Set<SymbolicDataValue>) this.getRegisters()) {
 //            newRegs.add(renaming.get(reg));
 //        }
 //        // children (map from guards to trees): change the guards
-//        Map<Guard, SymbolicDecisionTree> newChildren = new HashMap<>();
+//        Map<Guard, SymbolicDecisionTree> newChildren = new LinkedHashMap<>();
 //        Map<Guard, SymbolicDecisionTree> currChildren = this.getChildren();
 //        for (Guard guard : (Set<Guard>) currChildren.keySet()) {
 //            newChildren.put(guard.createCopy(renaming), currChildren.get(guard).createCopy(renaming));
@@ -411,7 +411,7 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return DataExpression.FALSE;
         }
-        Set<SuffixValue> svals = new HashSet<>();
+        Set<SuffixValue> svals = new LinkedHashSet<>();
         Expression<Boolean> dis = null;
         for (List<SDTGuard> list : paths) {
 //            System.out.println("Path: " + Arrays.toString(list.toArray()));
@@ -425,7 +425,7 @@ public class SDT implements SymbolicDecisionTree {
             dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
 
-        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        Map<SymbolicDataValue, Variable> map = new LinkedHashMap<>();
         for (Register r : getRegisters()) {
             Variable x = new Variable(BuiltinTypes.DOUBLE, r.toString());
             map.put(r, x);

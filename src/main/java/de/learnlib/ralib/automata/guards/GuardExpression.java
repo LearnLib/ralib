@@ -25,8 +25,8 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +38,7 @@ import java.util.Set;
 public abstract class GuardExpression {
         
     public DataExpression toDataExpression() {
-        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        Map<SymbolicDataValue, Variable> map = new LinkedHashMap<>();
         Expression<Boolean> expr = toExpression(map);
         return new DataExpression(expr, map);
     }
@@ -50,7 +50,7 @@ public abstract class GuardExpression {
     public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val); 
    
     public Set<SymbolicDataValue> getSymbolicDataValues() {
-        Set<SymbolicDataValue> set = new HashSet<>();
+        Set<SymbolicDataValue> set = new LinkedHashSet<>();
         getSymbolicDataValues(set);
         return set;
     }
