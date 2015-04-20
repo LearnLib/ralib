@@ -126,7 +126,7 @@ public class RegisterAutomatonLoader {
             TransitionGuard p = new TransitionGuard();            
             if (gstring != null) {
                 Map<String, SymbolicDataValue> map = buildValueMap(
-                        constMap, regMap, paramMap);
+                        constMap, regMap, (ps instanceof OutputSymbol) ? new LinkedHashMap<String, Parameter>() : paramMap);
                 ExpressionParser parser = new ExpressionParser(gstring, map);
                 p = new TransitionGuard(parser.getPredicate());
             }
