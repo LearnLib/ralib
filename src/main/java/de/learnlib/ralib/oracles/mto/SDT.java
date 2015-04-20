@@ -140,6 +140,7 @@ public class SDT implements SymbolicDecisionTree {
         return thisRelabeled.canUse(otherSDT) && otherSDT.canUse(thisRelabeled);
     }
     
+   @Deprecated 
    public boolean isLooselyEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
         if (!(other instanceof SDT)) {
             return false;

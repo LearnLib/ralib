@@ -6,19 +6,14 @@
 package de.learnlib.ralib.sul;
 
 import de.learnlib.api.SULException;
-import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import static java.lang.StrictMath.log;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.logging.Level;
 
 public class PriorityQueueSUL extends DataWordSUL {
 
@@ -65,23 +60,22 @@ public class PriorityQueueSUL extends DataWordSUL {
         if (x instanceof Boolean) {
             if ((Boolean) x) {
                 System.out.println("returns OK");
-                
+
                 return new PSymbolInstance(outputs.get(Actions.OK));
             } else {
                 System.out.println("returns NOK");
-                
+
                 return new PSymbolInstance(outputs.get(Actions.NOK));
             }
         } else if (x instanceof java.lang.Exception) {
             System.out.println("returns ERR");
-                
+
             return new PSymbolInstance(outputs.get(Actions.ERROR));
         } else if (x == null) {
             System.out.println("returns NOK");
-                
+
             return new PSymbolInstance(outputs.get(Actions.NOK));
-        }
-        else {
+        } else {
             assert !(x == null);
             System.out.println("returns OUTPUT " + x.toString());
             ParameterizedSymbol op = outputs.get(Actions.OUTPUT);
@@ -96,11 +90,10 @@ public class PriorityQueueSUL extends DataWordSUL {
         if (i.getBaseSymbol().equals(inputs.get(Actions.OFFER))) {
             //DataValue<Double> d = i.getParameterValues()[0];
             if (pqueue.size() < limit) {
-            Object x = pqueue.offer(i.getParameterValues()[0].getId());
-            
-             return createOutputSymbol(x);
-            }
-            else {
+                Object x = pqueue.offer(i.getParameterValues()[0].getId());
+
+                return createOutputSymbol(x);
+            } else {
                 System.out.println("returns NOK");
                 return new PSymbolInstance(outputs.get(Actions.NOK));
             }
@@ -108,8 +101,7 @@ public class PriorityQueueSUL extends DataWordSUL {
         } else if (i.getBaseSymbol().equals(inputs.get(Actions.POLL))) {
             Object x = pqueue.poll();
             return createOutputSymbol(x);
-        }
-        else {
+        } else {
             throw new IllegalStateException("i must be instance of poll or offer");
         }
 
