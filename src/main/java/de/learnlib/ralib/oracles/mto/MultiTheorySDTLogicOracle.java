@@ -139,7 +139,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST,"TEST:" + test);        
                 
         Result r = solver.isSatisfiable(test.getExpression());
-        System.out.println("DOES REFINE: " + test.getExpression() + " : " + r);
+        //System.out.println("DOES REFINE: " + test.getExpression() + " : " + r);
         log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {
             throw new IllegalStateException("could not solve constraint.");

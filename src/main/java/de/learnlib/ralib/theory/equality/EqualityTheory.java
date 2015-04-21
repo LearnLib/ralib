@@ -363,7 +363,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                pir.put(e.getKey(), e.getValue());
 //            }
 //        }
-              System.out.println("P::  " + prefix.toString() + "    S::  " + suffix.toString() + "    RETURN SDT::::  " + returnSDT.toString());
+              //System.out.println("P::  " + prefix.toString() + "    S::  " + suffix.toString() + "    RETURN SDT::::  " + returnSDT.toString());
         return returnSDT;
 
     }

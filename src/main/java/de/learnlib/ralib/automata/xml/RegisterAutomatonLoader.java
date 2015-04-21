@@ -43,6 +43,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -155,9 +156,12 @@ public class RegisterAutomatonLoader {
             // output
             if (ps instanceof OutputSymbol) {
 
+                Parameter[] pList = paramList(ps);
+                int idx = 0;
                 VarMapping<Parameter, SymbolicDataValue> outputs = new VarMapping<>();
                 for (String s : pnames) {
-                    Parameter param = paramMap.get(s);
+                    //Parameter param = paramMap.get(s);
+                    Parameter param = pList[idx++];
                     SymbolicDataValue source = null;
                     // check if there was an assignment,
                     // these seem to be meant to 
@@ -173,7 +177,7 @@ public class RegisterAutomatonLoader {
                     }
                     outputs.put(param, source);
                 }
-                
+                                
                 // all unassigned parameters have to be fresh by convention,
                 // we do not allow "don't care" in outputs
                 Set<Parameter> fresh = new LinkedHashSet<>(paramMap.values());
@@ -301,6 +305,19 @@ public class RegisterAutomatonLoader {
         return ret;
     }
 
+    private Parameter[] paramList(ParameterizedSymbol ps) {
+               
+        
+        Parameter[] ret = new Parameter[ps.getArity()];
+        ParameterGenerator pgen = new ParameterGenerator();
+        int idx = 0;
+        for (DataType t : ps.getPtypes()) {
+            ret[idx] = pgen.next(t);
+            idx++;
+        }
+        return ret;
+    }
+    
     /**
      * @return the inputs
      */
