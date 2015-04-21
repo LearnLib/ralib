@@ -10,7 +10,6 @@ import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -19,6 +18,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
@@ -61,23 +61,61 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     @Override
+//    public Set<Register> getRegisters() {
+//        Set<Register> registers = new LinkedHashSet<>();
+//        for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+////            log.log(Level.FINEST,e.getKey().toString() + " " + e.getValue().toString());
+//
+//            SDTGuard g = e.getKey();
+//            if (g instanceof SDTIfGuard) {
+//                SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
+//                if (r instanceof Register) {
+//                    registers.add((Register) r);
+//                }
+//            } else if (g instanceof SDTMultiGuard) {
+//                for (SDTIfGuard ifG : ((SDTMultiGuard) g).getGuards()) {
+//                    SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
+//                    if (ifr instanceof Register) {
+//                        registers.add((Register) ifr);
+//                    }
+//                }
+////            } else if (g instanceof SDTTrueGuard) {
+////                registers.addAll(((SDTTrueGuard) g).getRegisters());
+//            } else if (!(g instanceof SDTTrueGuard)) {
+//                throw new RuntimeException("unexpected case");
+//            }
+//            SDT child = e.getValue();
+//            // FIXME: this is bad style: it will break if the tree is only a leaf! I added code to SDTLeaf to prevent this 
+//            if (child.getChildren() != null) {
+//                //    Set<Register> chiRegs = child.getRegisters
+//                registers.addAll(child.getRegisters());
+//            }
+//        }
+//
+//        return registers;
+//    }
     public Set<Register> getRegisters() {
         Set<Register> registers = new LinkedHashSet<>();
+        for (SymbolicDataValue x : this.getVariables()) {
+            if (x.isRegister()) {
+                registers.add((Register)x);
+            }
+        }
+    return registers;
+    }
+    
+    
+    public Set<SymbolicDataValue> getVariables() {
+        Set<SymbolicDataValue> variables = new LinkedHashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
-//            log.log(Level.FINEST,e.getKey().toString() + " " + e.getValue().toString());
-
             SDTGuard g = e.getKey();
             if (g instanceof SDTIfGuard) {
                 SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
-                if (r instanceof Register) {
-                    registers.add((Register) r);
-                }
+                variables.add(r);
             } else if (g instanceof SDTMultiGuard) {
                 for (SDTIfGuard ifG : ((SDTMultiGuard) g).getGuards()) {
                     SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
-                    if (ifr instanceof Register) {
-                        registers.add((Register) ifr);
-                    }
+                    variables.add(ifr);
                 }
 //            } else if (g instanceof SDTTrueGuard) {
 //                registers.addAll(((SDTTrueGuard) g).getRegisters());
@@ -88,11 +126,10 @@ public class SDT implements SymbolicDecisionTree {
             // FIXME: this is bad style: it will break if the tree is only a leaf! I added code to SDTLeaf to prevent this 
             if (child.getChildren() != null) {
                 //    Set<Register> chiRegs = child.getRegisters
-                registers.addAll(child.getRegisters());
+                variables.addAll(child.getVariables());
             }
         }
-
-        return registers;
+        return variables;
     }
 
 //    public SDT truify() {
@@ -135,21 +172,24 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT otherSDT = (SDT) other;
 //        return this.canUse(otherSDT);
-        SDT thisRelabeled = (SDT)(this.relabel(renaming));
+        SDT otherRelabeled = (SDT) otherSDT.relabel(renaming);
    //     System.out.println(" relabeled   " + thisRelabeled.toString());
-        return thisRelabeled.canUse(otherSDT) && otherSDT.canUse(thisRelabeled);
+        boolean regEq = this.regCanUse(otherSDT) && otherSDT.regCanUse(this);
+        return regEq && this.canUse(otherRelabeled) && otherRelabeled.canUse(this);
     }
     
-   @Deprecated 
-   public boolean isLooselyEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
-        if (!(other instanceof SDT)) {
+   public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, EqualityGuard eqGuard) {
+        if (!(deqSDT instanceof SDT)) {
             return false;
         }
-        SDT otherSDT = (SDT) other;
-//        return this.canUse(otherSDT);
-        SDT thisRelabeled = (SDT)(this.relabelLoosely(renaming));
-  //      System.out.println(" relabeled   " + thisRelabeled.toString());
-        return thisRelabeled.canUse(otherSDT) && otherSDT.canUse(thisRelabeled);
+        VarMapping eqRenaming = new VarMapping<>();
+        eqRenaming.putAll(renaming);
+        eqRenaming.put(eqGuard.getParameter(), eqGuard.getRegister());
+        SDT deqRelabeled = (SDT) deqSDT.relabel(eqRenaming);
+        
+        SDT thisRelabeled = (SDT) this.relabel(renaming);
+        return thisRelabeled.canUse(deqRelabeled);
+            
     }
     
     
@@ -325,7 +365,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     private boolean canPairBranches(Map<SDTGuard, SDT> thisBranches, Map<SDTGuard, SDT> otherBranches) {
-        //System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
+//        System.out.println("checking eq. for " + thisBranches.toString() + "\nagainst " + otherBranches.toString());
         if (thisBranches.size() != otherBranches.size()) {
             return false;
         }
@@ -333,9 +373,9 @@ public class SDT implements SymbolicDecisionTree {
         Integer i = 0;
         for (Map.Entry<SDTGuard, SDT> thisB : thisBranches.entrySet()) {
             pairedArray[i] = hasPair(thisB.getKey(), thisB.getValue(), otherBranches);
-            if (pairedArray[i] == true) {
-               //System.out.println(thisB.getKey().toString() + " has a friend");
-            }
+//            if (pairedArray[i] == true) {
+//               System.out.println(thisB.getKey().toString() + " has a friend");
+//            }
             i++;
         }
         return isArrayTrue(pairedArray);
@@ -379,7 +419,7 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         } else {
             //log.log(Level.FINEST, "no sdt leaf");
-            boolean regEq = this.regCanUse((SDT) other);
+            //boolean regEq = this.regCanUse((SDT) other);
             //log.log(Level.FINEST, "regs " + thisSdt.getRegisters().toString() + ", " + other.getRegisters() + (regEq ? " eq." : " not eq."));
             boolean accEq = (thisSdt.isAccepting() == other.isAccepting());
 //            log.log(Level.FINEST,accEq ? "acc eq." : "acc not eq.");
@@ -388,7 +428,7 @@ public class SDT implements SymbolicDecisionTree {
             boolean chiEq = canPairBranches(thisSdt.getChildren(), ((SDT)other).getChildren());
                     //&& canPairBranches(((SDT)other).getChildren(), thisSdt.getChildren());
             //System.out.println("can pair: " + chiEq);
-            return regEq && accEq && chiEq;
+            return accEq && chiEq;
             //return accEq && chiEq;
             //return chiEq;
         }
