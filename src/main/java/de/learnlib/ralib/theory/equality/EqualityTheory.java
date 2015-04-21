@@ -146,18 +146,21 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
-            if (!(eqSdt.isLooselyEquivalent(deqSdt,vars))) {
+            if (!(eqSdt.isLooselyEquivalent(deqSdt,vars, eqGuard))) {
+                
             //if (!(eqSdt.canUse(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 //retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
                 eqList.add(eqGuard);
             }
+            else {System.out.println(eqSdt.toString() + " LOOSELY EQ TO " + deqSdt.toString() + " UNDER " + vars.toString() + " AND " + eqGuard.toString());
+            }
 
         }
-        //if (deqList.isEmpty()) {
-        //    retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        //} //else if (deqList.size() == 1) {
+        if (deqList.isEmpty()) {
+            retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
+        } //else if (deqList.size() == 1) {
         //      retMap.put(deqList.get(0), deqSdt);
         //} 
         if (eqList.size() == 1) {
@@ -204,9 +207,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //    }
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
-    private PIV keepMem(Set<SDTGuard> guardSet, List<DataValue> prefixValues) {
+    private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
         PIV ret = new PIV();
-        for (SDTGuard mg : guardSet) {
+        for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
+            SDTGuard mg = e.getKey();
             if (mg instanceof EqualityGuard) {
                 log.log(Level.FINEST, mg.toString());
                 //for (Register k : mg.getRegisters()) {
@@ -340,7 +344,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
 
         // only keep registers that are referenced by the merged guards
-        pir.putAll(keepMem(merged.keySet(), prefixValues));
+        pir.putAll(keepMem(merged));
 
         log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
         //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
