@@ -19,8 +19,6 @@
 
 package de.learnlib.ralib.tools;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
@@ -34,7 +32,6 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -59,78 +56,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author falk
  */
-public class IOSimulator implements RaLibTool {
-
-    private static final ConfigurationOption.LongOption OPTION_RANDOM_SEED = 
-            new ConfigurationOption.LongOption("random.seed", "Seed for RNG", 0L, true);
-        
-    private static final ConfigurationOption<Level> OPTION_LOGGING_LEVEL =
-            new ConfigurationOption<Level>("logging.level", "Log Level", Level.INFO, true) {
-
-            @Override
-            public Level parse(Configuration c) throws ConfigurationException {
-                if (!c.containsKey(this.getKey())) {
-                    if (!this.isOptional()) {
-                        throw new ConfigurationException("Missing config value for " + this.getKey());
-                    }
-                    return this.getDefaultValue();
-                }
-                Level lvl = Level.parse(c.getProperty(this.getKey()));
-                return lvl;
-            }
-        };
-    
-    private static final ConfigurationOption<EnumSet<Category>> OPTION_LOGGING_CATEGORY =
-            new ConfigurationOption<EnumSet<Category>>("logging.category", "Log category", 
-                    EnumSet.allOf(Category.class), true) {
-
-            @Override
-            public EnumSet<Category> parse(Configuration c) throws ConfigurationException {
-                if (!c.containsKey(this.getKey())) {
-                    if (!this.isOptional()) {
-                        throw new ConfigurationException("Missing config value for " + this.getKey());
-                    }
-                    return this.getDefaultValue();
-                }
-                String[] names = c.getProperty(this.getKey()).split(",");
-                List<Category> list = new ArrayList<>();
-                for (String n : names) {
-                    list.add(parseCategory(n));
-                }
-                EnumSet<Category> ret = EnumSet.copyOf(list);
-                return ret;
-            }
-
-            private Category parseCategory(String n) throws ConfigurationException {
-                n = n.toUpperCase();
-                switch (n) {
-                    case "CONFIG": return Category.CONFIG;
-                    case "COUNTEREXAMPLE": return Category.COUNTEREXAMPLE;
-                    case "DATASTRUCTURE": return Category.DATASTRUCTURE;
-                    case "EVENT": return Category.EVENT;
-                    case "MODEL": return Category.MODEL;
-                    case "PHASE": return Category.PHASE;
-                    case "PROFILING": return Category.PROFILING;
-                    case "QUERY": return Category.QUERY;
-                    case "STATISTIC": return Category.STATISTIC;
-                    case "SYSTEM": return Category.SYSTEM;
-                }
-                throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
-            }
-        };
+public class IOSimulator extends AbstractToolWithRandomWalk {
             
     private static final ConfigurationOption.StringOption OPTION_TARGET = 
             new ConfigurationOption.StringOption("target", 
@@ -139,44 +73,7 @@ public class IOSimulator implements RaLibTool {
     private static final ConfigurationOption.BooleanOption OPTION_USE_EQTEST =
             new ConfigurationOption.BooleanOption("use.eqtest", 
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
-    
-    private static final ConfigurationOption.BooleanOption OPTION_USE_RWALK =
-            new ConfigurationOption.BooleanOption("use.rwalk", 
-                    "Use random walk for finding counterexamples. "
-                    + "This will override any ces produced by the eq test", Boolean.FALSE, true);
-    
-    private static final ConfigurationOption.BooleanOption OPTION_USE_CEOPT =
-            new ConfigurationOption.BooleanOption("use.ceopt", 
-                    "Use counterexample optimizers", Boolean.FALSE, true);
-    
-    private static final ConfigurationOption.IntegerOption OPTION_MAX_ROUNDS =
-            new ConfigurationOption.IntegerOption("max.rounds", 
-                    "Maximum number of rounds", -1, true);
-
-    private static final ConfigurationOption.BooleanOption OPTION_RWALK_DRAW =
-            new ConfigurationOption.BooleanOption("rwalk.draw.uniform", 
-                    "Draw next input uniformly", null, false);
-    
-    private static final ConfigurationOption.BooleanOption OPTION_RWALK_RESET =
-            new ConfigurationOption.BooleanOption("rwalk.reset.count", 
-                    "Reset limit counters after each counterexample", null, false);
-
-    private static final ConfigurationOption.DoubleOption OPTION_RWALK_RESET_PROB = 
-            new ConfigurationOption.DoubleOption("rwalk.prob.reset", 
-                    "Probability of performing reset instead of step", null, false);
-    
-    private static final ConfigurationOption.DoubleOption OPTION_RWALK_FRESH_PROB = 
-            new ConfigurationOption.DoubleOption("rwalk.prob.fresh", 
-                    "Probability of using a fresh data value", null, false);
-
-    private static final ConfigurationOption.LongOption OPTION_RWALK_MAX_RUNS = 
-            new ConfigurationOption.LongOption("rwalk.max.runs", 
-                    "Maximum number of random walks", null, false);
-    
-    private static final ConfigurationOption.IntegerOption OPTION_RWALK_MAX_DEPTH =
-            new ConfigurationOption.IntegerOption("rwalk.max.depth", 
-                    "Maximum length of each random walk", null, false);
-            
+                
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
@@ -210,15 +107,9 @@ public class IOSimulator implements RaLibTool {
     private IOCounterExamplePrefixReplacer ceOptAsrep;                      
     
     private IOCounterExamplePrefixFinder ceOptPref;
-        
-    private boolean useCeOptimizers;
     
     private boolean useEqTest;
-    
-    private boolean findCounterexamples;
-    
-    private int maxRounds = -1; 
-    
+ 
     private long resets = 0;
     private long inputs = 0;
     
@@ -229,18 +120,9 @@ public class IOSimulator implements RaLibTool {
 
     @Override
     public void setup(Configuration config) throws ConfigurationException {
+        super.setup(config);
         
         config.list(System.out);
-        
-        // logging
-        Logger root = Logger.getLogger("");
-        Level lvl = OPTION_LOGGING_LEVEL.parse(config);
-        root.setLevel(lvl);
-        EnumSet<Category> cat = OPTION_LOGGING_CATEGORY.parse(config);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(lvl);
-            h.setFilter(new CategoryFilter(cat));
-        }
         
         // target
         String filename = OPTION_TARGET.parse(config);
@@ -253,7 +135,7 @@ public class IOSimulator implements RaLibTool {
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(fsi);
         this.model = loader.getRegisterAutomaton();
         
-        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+        ParameterizedSymbol[] inputSymbols = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
         ParameterizedSymbol[] actions = loader.getActions().toArray(
@@ -261,14 +143,6 @@ public class IOSimulator implements RaLibTool {
 
         final Constants consts = loader.getConstants();
 
-        // random
-        Long seed = (new Random()).nextLong();
-        if (config.containsKey(OPTION_RANDOM_SEED.getKey())) {
-            seed = OPTION_RANDOM_SEED.parse(config);
-        }
-        System.out.println("RANDOM SEED=" + seed);
-        Random random = new Random(seed);
-        config.setProperty("__seed", "" + seed);
         
         // create teachers
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
@@ -288,15 +162,15 @@ public class IOSimulator implements RaLibTool {
         }
 
         // oracles
-        this.sulLearn = new SimulatorSUL(model, teachers, consts, inputs);
-        this.sulTest  = new SimulatorSUL(model, teachers, consts, inputs);
+        this.sulLearn = new SimulatorSUL(model, teachers, consts, inputSymbols);
+        this.sulTest  = new SimulatorSUL(model, teachers, consts, inputSymbols);
         
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
         
        IOOracle back = new SULOracle(sulLearn, ERROR);
        IOCache ioCache = new IOCache(back);
-       IOFilter ioOracle = new IOFilter(ioCache, inputs);
+       IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
@@ -311,9 +185,7 @@ public class IOSimulator implements RaLibTool {
         this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
-        this.useCeOptimizers = OPTION_USE_CEOPT.parse(config);
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
-        this.findCounterexamples = OPTION_USE_RWALK.parse(config);
       
         if (findCounterexamples) {
 
@@ -334,15 +206,13 @@ public class IOSimulator implements RaLibTool {
                     consts,
                     resetRuns, // reset runs 
                     teachers,
-                    inputs);
+                    inputSymbols);
             
         }
           
         this.ceOptLoops = new IOCounterexampleLoopRemover(back);
         this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);                        
         this.ceOptPref = new IOCounterExamplePrefixFinder(back);
-        
-        this.maxRounds = OPTION_MAX_ROUNDS.parse(config);
     }
     
     @Override
