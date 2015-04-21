@@ -38,6 +38,7 @@ import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -48,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -148,7 +150,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
             if (!(eqSdt.isLooselyEquivalent(deqSdt,vars, eqGuard))) {
                 
-            //if (!(eqSdt.canUse(deqSdt))) {
+//            if (!(eqSdt.rcU(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 //retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
@@ -158,12 +160,32 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
 
         }
-        if (deqList.isEmpty()) {
+        if (eqList.isEmpty()) {
             retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        } //else if (deqList.size() == 1) {
-        //      retMap.put(deqList.get(0), deqSdt);
-        //} 
-        if (eqList.size() == 1) {
+        }
+        // NEW CODE HERE
+//        else if (eqList.size() == 1) {
+//            EqualityGuard q = eqList.get(0);
+//            retMap.put(q, eqs.get(q));
+//            retMap.put(q.toDeqGuard(), deqSdt);
+//        }
+//        else {
+//            for (EqualityGuard q : eqList) {
+//                retMap.put(q, eqs.get(q));
+//            }
+//            SDTAndGuard aGuard = new SDTAndGuard(deqGuard.getParameter(), deqList.toArray(new SDTIfGuard[]{}));
+//            retMap.put(aGuard, deqSdt);
+//        }
+        
+        
+        
+//        // OLD CODE HERE
+        //if (eqList.isEmpty()) {
+        //    retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
+        //} //else if (deqList.size() == 1) {
+//              retMap.put(deqList.get(0), deqSdt);
+//        } 
+        else if (eqList.size() == 1) {
 //            System.out.println("eqList " + eqList.toString());
 //            if (eqList.size() == 1) {
             EqualityGuard q = eqList.get(0);
@@ -178,10 +200,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                }
 //            }
         }
+        else {
+            System.out.println("eqList is: " + eqList.toString());
+        }
         if (retMap.isEmpty()) {
             retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
         }
-        else if (retMap.size() > 3) {
+        else 
+        assert !retMap.isEmpty();
+        if (retMap.size() > 3) {
             String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
             System.out.println(e);
             throw new IllegalStateException(e);
@@ -190,7 +217,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         //        deqGuard.getParameter(),
         //        deqList.toArray(new DisequalityGuard[]{}));
         //retMap.put(retDeqGuard, deqSdt);
-        //System.out.println("retmap " + retMap.toString());
+        System.out.println("retmap " + retMap.toString());
         return retMap;
     }
 

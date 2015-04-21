@@ -80,7 +80,7 @@ final class Cell {
                 this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
                 this.sdt.isEquivalent(other.sdt, renaming);
         
-        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
+//        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
         return check;
     }
     

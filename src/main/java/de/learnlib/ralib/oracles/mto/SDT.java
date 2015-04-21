@@ -179,15 +179,19 @@ public class SDT implements SymbolicDecisionTree {
     }
     
    public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, EqualityGuard eqGuard) {
-        if (!(deqSDT instanceof SDT)) {
+        if (deqSDT instanceof SDTLeaf) {
+            if (this instanceof SDTLeaf) {
+                System.out.println(this.isAccepting() + " == " + deqSDT.isAccepting());
+                return (this.isAccepting() == deqSDT.isAccepting());
+            }
             return false;
         }
         VarMapping eqRenaming = new VarMapping<>();
         eqRenaming.putAll(renaming);
         eqRenaming.put(eqGuard.getParameter(), eqGuard.getRegister());
-        SDT deqRelabeled = (SDT) deqSDT.relabel(eqRenaming);
-        
-        SDT thisRelabeled = (SDT) this.relabel(renaming);
+        SDT deqRelabeled = (SDT) deqSDT.relabel(renaming);
+        System.out.println("!!!RELABELED DEQ-TREE:   \n" + deqSDT.toString() + " ....TO.... " + deqRelabeled.toString());
+        SDT thisRelabeled = (SDT) this.relabel(eqRenaming);
         return thisRelabeled.canUse(deqRelabeled);
             
     }
@@ -195,7 +199,7 @@ public class SDT implements SymbolicDecisionTree {
     
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
-        //System.out.println("!!!RELABELING:   \n" + this.toString());
+        
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
             return this;
@@ -410,6 +414,10 @@ public class SDT implements SymbolicDecisionTree {
 //        }
 //        return isArrayTrue(chiEqArr);
 //    }
+    
+    public boolean rcU(SDT other) {
+        return this.canUse(other) && this.regCanUse(other);
+    }
 
     // Returns true if this SDT can use another SDT's registers and children, 
     // and if additionally they are either both rejecting and accepting.
