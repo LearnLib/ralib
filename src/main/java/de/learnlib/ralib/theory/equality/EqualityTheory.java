@@ -145,8 +145,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            //VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
-            if (!(eqSdt.canUse(deqSdt))) {
+            VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
+            if (!(eqSdt.isLooselyEquivalent(deqSdt,vars))) {
+            //if (!(eqSdt.canUse(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 //retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
