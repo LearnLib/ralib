@@ -187,12 +187,12 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         VarMapping eqRenaming = new VarMapping<>();
-        eqRenaming.putAll(renaming);
+        //eqRenaming.putAll(renaming);
         eqRenaming.put(eqGuard.getParameter(), eqGuard.getRegister());
         SDT deqRelabeled = (SDT) deqSDT.relabel(renaming);
         System.out.println("!!!RELABELED DEQ-TREE:   \n" + deqSDT.toString() + " ....TO.... " + deqRelabeled.toString());
-        SDT thisRelabeled = (SDT) this.relabel(eqRenaming);
-        return thisRelabeled.canUse(deqRelabeled);
+        SDT thisRelabeled = (SDT) this.relabel(renaming);
+        return this.canUse((SDT)deqRelabeled.relabel(eqRenaming));
             
     }
     
