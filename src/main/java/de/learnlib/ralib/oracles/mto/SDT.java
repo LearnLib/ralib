@@ -181,7 +181,7 @@ public class SDT implements SymbolicDecisionTree {
    public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, EqualityGuard eqGuard) {
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
-                System.out.println(this.isAccepting() + " == " + deqSDT.isAccepting());
+//                System.out.println(this.isAccepting() + " == " + deqSDT.isAccepting());
                 return (this.isAccepting() == deqSDT.isAccepting());
             }
             return false;
@@ -190,7 +190,7 @@ public class SDT implements SymbolicDecisionTree {
         //eqRenaming.putAll(renaming);
         eqRenaming.put(eqGuard.getParameter(), eqGuard.getRegister());
         SDT deqRelabeled = (SDT) deqSDT.relabel(renaming);
-        System.out.println("!!!RELABELED DEQ-TREE:   \n" + deqSDT.toString() + " ....TO.... " + deqRelabeled.toString());
+//        System.out.println("!!!RELABELED DEQ-TREE:   \n" + deqSDT.toString() + " ....TO.... " + deqRelabeled.toString());
         SDT thisRelabeled = (SDT) this.relabel(renaming);
         return this.canUse((SDT)deqRelabeled.relabel(eqRenaming));
             
