@@ -35,6 +35,7 @@ public class ConsoleClient {
 
     static {
         tools.put("iosimulator", IOSimulator.class);
+        tools.put("class-analyzer", ClassAnalyzer.class);
     }
 
     private final String[] args;
