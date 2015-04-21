@@ -51,7 +51,7 @@ public class SDTLeaf extends SDT {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
-
+    
     @Override
     public boolean canUse(SDT other) {
         if (!(other instanceof SDTLeaf)) {
