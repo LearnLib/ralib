@@ -44,7 +44,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -84,7 +84,9 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/abp.output.xml"));
+                        "/de/learnlib/ralib/automata/xml/passport.xml"));
+//                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -106,7 +108,7 @@ public class LearnLoginIOTest {
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory<Integer>() {
+            teachers.put(t, new EqualityTheoryMS<Integer>() {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
@@ -181,8 +183,8 @@ public class LearnLoginIOTest {
                 System.out.println("EQ-TEST did not find counterexample!");                
             }
 
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    iowalk.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = _ce;
+//                    iowalk.findCounterExample(hyp, null);
            
             System.out.println("CE: " + ce);
             if (ce == null) {
