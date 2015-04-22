@@ -178,7 +178,8 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled) && otherRelabeled.canUse(this);
     }
     
-   public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, EqualityGuard eqGuard) {
+   public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, Set<SDTIfGuard> ds) {
+//       System.out.println("trying with " + ds);
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
 //                System.out.println(this.isAccepting() + " == " + deqSDT.isAccepting());
@@ -188,12 +189,15 @@ public class SDT implements SymbolicDecisionTree {
         }
         VarMapping eqRenaming = new VarMapping<>();
         //eqRenaming.putAll(renaming);
-        eqRenaming.put(eqGuard.getParameter(), eqGuard.getRegister());
+        for (SDTIfGuard d : ds) {
+            eqRenaming.put(d.getParameter(), d.getRegister());
+        }
         SDT deqRelabeled = (SDT) deqSDT.relabel(renaming);
 //        System.out.println("!!!RELABELED DEQ-TREE:   \n" + deqSDT.toString() + " ....TO.... " + deqRelabeled.toString());
         SDT thisRelabeled = (SDT) this.relabel(renaming);
-        return this.canUse((SDT)deqRelabeled.relabel(eqRenaming));
-            
+        boolean x =  this.canUse((SDT)deqRelabeled.relabel(eqRenaming));
+//            System.out.println(x);
+            return x;
     }
     
     
@@ -380,6 +384,9 @@ public class SDT implements SymbolicDecisionTree {
 //            if (pairedArray[i] == true) {
 //               System.out.println(thisB.getKey().toString() + " has a friend");
 //            }
+//            else {
+//                System.out.println(thisB.getKey().toString() + " has no friend");
+//            }
             i++;
         }
         return isArrayTrue(pairedArray);
@@ -435,7 +442,7 @@ public class SDT implements SymbolicDecisionTree {
             // both must use each other
             boolean chiEq = canPairBranches(thisSdt.getChildren(), ((SDT)other).getChildren());
                     //&& canPairBranches(((SDT)other).getChildren(), thisSdt.getChildren());
-            //System.out.println("can pair: " + chiEq);
+//            System.out.println("can pair: " + chiEq);
             return accEq && chiEq;
             //return accEq && chiEq;
             //return chiEq;

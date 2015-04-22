@@ -39,6 +39,23 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return guards;
     }
     
+    public boolean isSingle() {
+        return guards.size() == 1;
+    }
+    
+    public boolean isEmpty() {
+        return guards.isEmpty();
+    }
+    
+    public SDTTrueGuard asTrueGuard() {
+        return new SDTTrueGuard(parameter);
+    }
+    
+    public SDTIfGuard getSingle() {
+        assert isSingle();
+        return guards.get(0);
+    }
+    
     
    public Set<SymbolicDataValue> getAllRegs() {
         Set<SymbolicDataValue> allRegs = new LinkedHashSet<SymbolicDataValue>();
