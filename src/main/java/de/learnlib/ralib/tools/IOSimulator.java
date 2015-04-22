@@ -80,9 +80,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_TARGET,
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
+        OPTION_USE_SUFFIXOPT,
         OPTION_USE_EQTEST,
         OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
+        OPTION_TIMEOUT,
         OPTION_RWALK_FRESH_PROB,
         OPTION_RWALK_RESET_PROB,
         OPTION_RWALK_MAX_DEPTH,
@@ -147,7 +149,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         // create teachers
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory<Integer>() {
+            teachers.put(t, new EqualityTheory<Integer>(this.useSuffixOpt) {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
@@ -163,7 +165,13 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         // oracles
         this.sulLearn = new SimulatorSUL(model, teachers, consts, inputSymbols);
+        if (this.timeoutMillis > 0L) {
+           this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
+        }
         this.sulTest  = new SimulatorSUL(model, teachers, consts, inputSymbols);
+        if (this.timeoutMillis > 0L) {
+           this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+        }
         
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});

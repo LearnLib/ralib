@@ -63,8 +63,6 @@ public class SpecialSymbols {
         
     public static final OutputSymbol VOID = new OutputSymbol("V");
 
-    public static final OutputSymbol DEPTH = new OutputSymbol("MAXD");
-
     public static final OutputSymbol TRUE = new OutputSymbol("TRUE");
 
     public static final OutputSymbol FALSE = new OutputSymbol("FALSE");

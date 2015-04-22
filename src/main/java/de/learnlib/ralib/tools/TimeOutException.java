@@ -16,39 +16,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.tools.classanalyzer;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
-import java.util.List;
+package de.learnlib.ralib.tools;
 
 /**
  *
  * @author falk
  */
-public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
+class TimeOutException extends RuntimeException {
 
-    private DataType type = null;
+    public TimeOutException() {
+    }
     
-    @Override
-    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-        int dv = -1;
-        for (DataValue<Integer> d : vals) {
-            dv = Math.max(dv, d.getId());
-        }
-
-        return new DataValue(type, dv + 1);
-    }
-
-    @Override
-    public void setType(DataType type) {
-        this.type = type;
-    }
-
-    @Override
-    public void setUseSuffixOpt(boolean useit) {
-        this.useNonFreeOptimization = useit;
-    }
-
 }

@@ -34,10 +34,11 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        if (sv != null) {
-            return new SDTTrueGuard(sv);
-        }
+//        System.out.println("relabel " + this + " with " + relabelling.get(getParameter()));        
+//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+//        if (sv != null) {
+//            return new SDTTrueGuard(sv);
+//        }
         return this;
     }
     
@@ -55,13 +56,14 @@ public class SDTTrueGuard extends SDTGuard {
             return false;
         }
         final SDTTrueGuard other = (SDTTrueGuard) obj;
-        return Objects.equals(this.parameter, other.parameter);
+        //return Objects.equals(this.parameter, other.parameter);
+        return true;
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.parameter);
+        //hash = 59 * hash + Objects.hashCode(this.parameter);
         hash = 59 * hash + Objects.hashCode(this.getClass());
         
         return hash;

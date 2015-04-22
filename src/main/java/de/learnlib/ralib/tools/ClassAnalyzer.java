@@ -75,21 +75,18 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             = new ConfigurationOption.StringOption("teachers",
                     "teachers. format: type:class + type:class + ...", null, false);
 
-    private static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
-            = new ConfigurationOption.IntegerOption("max.depth", 
-                    "maximum depth up to which system should be explored", -1, true);
-    
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
-        OPTION_MAX_DEPTH,
         OPTION_METHODS,
         OPTION_TEACHERS,
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
+        OPTION_USE_SUFFIXOPT,
         OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
+        OPTION_TIMEOUT,
         OPTION_RWALK_FRESH_PROB,
         OPTION_RWALK_RESET_PROB,
         OPTION_RWALK_MAX_DEPTH,
@@ -149,17 +146,21 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             }
             
-            Integer md = OPTION_MAX_DEPTH.parse(config);
 
-            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods);
+            if (this.timeoutMillis > 0L) {
+               this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
+            }            
+            sulTest = new ClasssAnalyzerDataWordSUL(target, methods);
+            if (this.timeoutMillis > 0L) {
+               this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+            }            
 
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
 
             actList.add(SpecialSymbols.ERROR);
             actList.add(SpecialSymbols.NULL);
             actList.add(SpecialSymbols.VOID);
-            actList.add(SpecialSymbols.DEPTH);
             actList.add(SpecialSymbols.TRUE);
             actList.add(SpecialSymbols.FALSE);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
@@ -176,7 +177,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             }
 
-            IOOracle back = new SULOracle(sulLearn, SpecialSymbols.ERROR);
+            IOOracle back = new SULOracle(sulLearn, SpecialSymbols.ERROR);       
             IOCache ioCache = new IOCache(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
@@ -235,6 +236,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         TypedTheory th = (TypedTheory) cl.newInstance();
         DataType t = types.get(parts[0].trim());
         th.setType(t);
+        th.setUseSuffixOpt(this.useSuffixOpt);
         
         return new Pair<DataType, TypedTheory>(t, th);
     }

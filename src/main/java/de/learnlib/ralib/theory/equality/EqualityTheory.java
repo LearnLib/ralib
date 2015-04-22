@@ -63,14 +63,26 @@ import net.automatalib.words.Word;
  */
 public abstract class EqualityTheory<T> implements Theory<T> {
 
-    private static final LearnLogger log = LearnLogger.getLogger(EqualityTheory.class);
+    protected boolean useNonFreeOptimization;
 
+    private static final LearnLogger log = LearnLogger.getLogger(EqualityTheory.class);
+    
+    public EqualityTheory(boolean useNonFreeOptimization) {
+        this.useNonFreeOptimization = useNonFreeOptimization;
+    }
+
+    public EqualityTheory() {
+        this(false);
+    }
+    
+    
     //@Override
 //    public List<DataValue<T>> getPotential(
 //            Collection<DataValue<T>> vals) {        
 //        Set<DataValue<T>> set = new LinkedHashSet<>(vals);
 //        return new ArrayList<>(set);
 //    }
+    
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
     }
@@ -296,25 +308,25 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                    DataWords.<T>valSet(prefix, type),
 //                    suffixValues.<T>values(type)));
 //      
-//        boolean free = suffix.getFreeValues().contains(sv);
-//        if (!free) {  // for now, we assume that all values are free.
-//            DataValue d = suffixValues.get(sv);
-//            if (d == null) {
-//                d = getFreshValue(potential);
-//                //suffixValues.put(sv, d);
-//            }
-//            values.put(pId, d);
-//            WordValuation trueValues = new WordValuation();
-//            trueValues.putAll(values);         
-//            SuffixValuation trueSuffixValues = new SuffixValuation();
-//            trueSuffixValues.putAll(suffixValues);            
-//            SDT sdt = oracle.treeQuery(
-//                    prefix, suffix, trueValues, pir, constants, trueSuffixValues);            
-//            
-//            Map<SDTGuard, SDT> map = new LinkedHashMap<>();
-//            map.put(new SDTTrueGuard(sv), sdt);
-//            return new SDT(map);
-//        }
+        boolean free = suffix.getFreeValues().contains(sv);
+        if (!free && useNonFreeOptimization) {  
+            DataValue d = suffixValues.get(sv);
+            if (d == null) {
+                d = getFreshValue(potential);
+                //suffixValues.put(sv, d);
+            }
+            values.put(pId, d);
+            WordValuation trueValues = new WordValuation();
+            trueValues.putAll(values);         
+            SuffixValuation trueSuffixValues = new SuffixValuation();
+            trueSuffixValues.putAll(suffixValues);            
+            SDT sdt = oracle.treeQuery(
+                    prefix, suffix, trueValues, pir, constants, trueSuffixValues);            
+            
+            Map<SDTGuard, SDT> map = new LinkedHashMap<>();
+            map.put(new SDTTrueGuard(sv), sdt);
+            return new SDT(map);
+        }
 
         log.log(Level.FINEST, "potential " + potential.toString());
 

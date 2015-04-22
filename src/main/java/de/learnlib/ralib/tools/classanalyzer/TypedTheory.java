@@ -31,4 +31,5 @@ public interface TypedTheory<T> extends Theory<T> {
  
     public void setType(DataType type);
     
+    public void setUseSuffixOpt(boolean useit);
 }

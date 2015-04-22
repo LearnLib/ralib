@@ -41,23 +41,17 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     private final Map<ParameterizedSymbol, MethodConfig> methods;
     
     private Object sul = null;
+   
     
-    private final int maxDepth;
-
-    private int depth = 0;
-    
-    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, 
-            MethodConfig> methods, int d) {
+    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods) {
         this.sulClass = sulClass;
         this.methods = methods;
-        this.maxDepth = d;
     }
     
     
     @Override
     public void pre() {
         countResets(1);
-        depth = 0;
         try {
             sul = sulClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
@@ -73,11 +67,6 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        
-        if (depth > maxDepth && (maxDepth > 0)) {
-            return new PSymbolInstance(SpecialSymbols.DEPTH);
-        }
-        depth++;
         
         MethodConfig in = methods.get(i.getBaseSymbol());
         Method act = in.getMethod();

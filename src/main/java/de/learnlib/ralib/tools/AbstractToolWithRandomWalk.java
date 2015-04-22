@@ -104,6 +104,14 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.BooleanOption OPTION_USE_CEOPT =
             new ConfigurationOption.BooleanOption("use.ceopt", 
                     "Use counterexample optimizers", Boolean.FALSE, true);
+
+    protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT =
+            new ConfigurationOption.BooleanOption("use.suffixopt", 
+                    "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
+
+    protected static final ConfigurationOption.LongOption OPTION_TIMEOUT =
+            new ConfigurationOption.LongOption("max.time.millis", 
+                    "Maximal run time for experiment in milliseconds", -1L, true);
     
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_ROUNDS =
             new ConfigurationOption.IntegerOption("max.rounds", 
@@ -133,15 +141,19 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             new ConfigurationOption.IntegerOption("rwalk.max.depth", 
                     "Maximum length of each random walk", null, false);
     
-    
+
     protected Random random = null;
         
     protected boolean useCeOptimizers;
         
     protected boolean findCounterexamples;
+
+    protected boolean useSuffixOpt;
     
     protected int maxRounds = -1; 
-
+    
+    protected long timeoutMillis = -1L;
+    
     @Override
     public void setup(Configuration config) throws ConfigurationException {
         
@@ -168,8 +180,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         config.setProperty("__seed", "" + seed);
         
         this.useCeOptimizers = OPTION_USE_CEOPT.parse(config);
-        this.findCounterexamples = OPTION_USE_RWALK.parse(config);
-      
-        this.maxRounds = OPTION_MAX_ROUNDS.parse(config);
+        this.findCounterexamples = OPTION_USE_RWALK.parse(config);      
+        this.maxRounds = OPTION_MAX_ROUNDS.parse(config);        
+        this.useSuffixOpt = OPTION_USE_SUFFIXOPT.parse(config);
+        this.timeoutMillis = OPTION_TIMEOUT.parse(config);
     }    
 }

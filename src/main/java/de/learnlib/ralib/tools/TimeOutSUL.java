@@ -16,39 +16,47 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.tools.classanalyzer;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
-import java.util.List;
+package de.learnlib.ralib.tools;
+
+import de.learnlib.api.SULException;
+import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  *
  * @author falk
  */
-public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
+public class TimeOutSUL extends DataWordSUL {
 
-    private DataType type = null;
+    private final DataWordSUL back;
     
+    private final long timeoutMillis;
+    
+    public TimeOutSUL(DataWordSUL back, long timeoutMillis) {
+        this.back = back;
+        this.timeoutMillis = System.currentTimeMillis() + timeoutMillis;
+    }
+
     @Override
-    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-        int dv = -1;
-        for (DataValue<Integer> d : vals) {
-            dv = Math.max(dv, d.getId());
+    public void pre() {
+        if (System.currentTimeMillis() > timeoutMillis) {
+            throw new TimeOutException();
         }
-
-        return new DataValue(type, dv + 1);
+        back.pre();
     }
 
     @Override
-    public void setType(DataType type) {
-        this.type = type;
+    public void post() {
+        back.post();
     }
 
     @Override
-    public void setUseSuffixOpt(boolean useit) {
-        this.useNonFreeOptimization = useit;
+    public PSymbolInstance step(PSymbolInstance i) throws SULException {
+        return back.step(i);
     }
-
+    
+    
+    
+    
 }
