@@ -22,6 +22,7 @@ package de.learnlib.ralib.learning;
 import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -53,19 +54,22 @@ public class CounterexampleAnalysis {
 
     private final Map<Word<PSymbolInstance>, Component> components;
     
+    private final Constants consts;
+    
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
     private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
     
     CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
-            Map<Word<PSymbolInstance>, Component> components) {
+            Map<Word<PSymbolInstance>, Component> components, Constants consts) {
         
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
         this.hypothesis = hypothesis;
         this.sdtOracle = sdtOracle;
         this.components = components;
+        this.consts = consts;
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
@@ -75,7 +79,7 @@ public class CounterexampleAnalysis {
         
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);        
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);        
         
         return new CEAnalysisResult(prefix, symSuffix);        
     } 
@@ -89,7 +93,7 @@ public class CounterexampleAnalysis {
             ce.prefix(idx+1));         
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
         
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);

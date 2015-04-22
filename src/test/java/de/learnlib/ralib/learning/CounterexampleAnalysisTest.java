@@ -165,7 +165,7 @@ public class CounterexampleAnalysisTest {
         components.put(locId, c);
         
         CounterexampleAnalysis ceAnalysis = new CounterexampleAnalysis(
-                mockTreeOracle, mockTreeOracle, hyp, logicOracle, components); 
+                mockTreeOracle, mockTreeOracle, hyp, logicOracle, components, new Constants()); 
         
         CEAnalysisResult cer = ceAnalysis.analyzeCounterexample(ce);
         System.out.println(cer.getSuffix());

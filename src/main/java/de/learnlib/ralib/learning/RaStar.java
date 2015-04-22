@@ -132,7 +132,7 @@ public class RaStar {
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
         
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
-                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents());
+                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), consts);
         
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         

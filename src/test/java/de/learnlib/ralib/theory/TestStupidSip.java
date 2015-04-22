@@ -48,7 +48,7 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class TestEqualityTheory {
+public class TestStupidSip {
 
     
     @Test

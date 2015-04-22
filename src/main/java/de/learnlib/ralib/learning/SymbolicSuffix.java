@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -55,6 +56,11 @@ public class SymbolicSuffix {
      * actions
      */
     private final Word<ParameterizedSymbol> actions;
+
+    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+            Word<PSymbolInstance> suffix) {
+        this(prefix, suffix, new Constants());
+    }    
     
     /**
      * creates a symbolic suffix from a prefix and a suffix
@@ -67,9 +73,10 @@ public class SymbolicSuffix {
      * 
      * @param prefix
      * @param suffix 
+     * @param consts 
      */
     public SymbolicSuffix(Word<PSymbolInstance> prefix, 
-            Word<PSymbolInstance> suffix) {
+            Word<PSymbolInstance> suffix, Constants consts) {
         
 //        log.log(Level.FINEST,prefix.toString() + "\n" + suffix.toString());
         
@@ -85,7 +92,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (prefix.length() == 0 || valsetPrefix.contains(d)) {
+            if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d)) {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
