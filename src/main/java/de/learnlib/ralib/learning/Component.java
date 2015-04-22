@@ -20,6 +20,7 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -58,12 +59,15 @@ class Component {
 
     private final boolean ioMode;
     
+    private final Constants consts;
+    
     private static final LearnLogger log = LearnLogger.getLogger(Component.class);
     
-    public Component(Row primeRow, ObservationTable obs, boolean ioMode) {
+    public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts) {
         this.primeRow = primeRow;
         this.obs = obs;
         this.ioMode = ioMode;
+        this.consts = consts;
     }
 
     /**
@@ -137,7 +141,7 @@ class Component {
             }
 
             if (!added) {
-                Component c = new Component(r, obs, ioMode);
+                Component c = new Component(r, obs, ioMode, consts);
                 newComponents.add(c);
             }
         }
@@ -204,10 +208,15 @@ class Component {
         for (Parameter p : memRow.keySet()) {
             // p is used by next but not stored by this and is from this word
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                SymbolicSuffix suffix = r.getSuffixForMemorable(p);
+                SymbolicSuffix suffix = r.getSuffixForMemorable(p);                
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
-                        r.getPrefix(), suffix);
+                        r.getPrefix(), suffix, consts);
                 
+                System.out.println("Found inconsistency. msissing " + p +
+                        " in mem. of " + prefix);                
+                System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
+                System.out.println("New symbolic suffix: " + newSuffix);
+
                 obs.addSuffix(newSuffix);
                 return false;
             }

@@ -68,7 +68,7 @@ public class RaStar {
             ParameterizedSymbol ... inputs) {
         
         this.ioMode = ioMode;
-        this.obs = new ObservationTable(oracle, ioMode, inputs);
+        this.obs = new ObservationTable(oracle, ioMode, consts, inputs);
         this.consts = consts;
         
         this.obs.addPrefix(EMPTY_PREFIX);
