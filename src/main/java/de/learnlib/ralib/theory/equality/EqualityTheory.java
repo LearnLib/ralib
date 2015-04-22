@@ -296,15 +296,25 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 //                    DataWords.<T>valSet(prefix, type),
 //                    suffixValues.<T>values(type)));
 //      
-        boolean free = suffix.getFreeValues().contains(sv);
-        if (!free) {  // for now, we assume that all values are free.
-            DataValue d = suffixValues.get(sv);
-            if (d == null) {
-                d = getFreshValue(potential);
-                //suffixValues.put(sv, d);
-            }
-            values.put(pId, d);
-        }
+//        boolean free = suffix.getFreeValues().contains(sv);
+//        if (!free) {  // for now, we assume that all values are free.
+//            DataValue d = suffixValues.get(sv);
+//            if (d == null) {
+//                d = getFreshValue(potential);
+//                //suffixValues.put(sv, d);
+//            }
+//            values.put(pId, d);
+//            WordValuation trueValues = new WordValuation();
+//            trueValues.putAll(values);         
+//            SuffixValuation trueSuffixValues = new SuffixValuation();
+//            trueSuffixValues.putAll(suffixValues);            
+//            SDT sdt = oracle.treeQuery(
+//                    prefix, suffix, trueValues, pir, constants, trueSuffixValues);            
+//            
+//            Map<SDTGuard, SDT> map = new LinkedHashMap<>();
+//            map.put(new SDTTrueGuard(sv), sdt);
+//            return new SDT(map);
+//        }
 
         log.log(Level.FINEST, "potential " + potential.toString());
 

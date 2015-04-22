@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IFailBAC"/>
+         <symbol name="ICompleteBAC"/>
+         <symbol name="IReset"/>
+         <symbol name="ICA"/>
+         <symbol name="IAA"/>
+         <symbol name="ITA"/>
+         <symbol name="IReadFile"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="IGetChallenge"/>
+         <symbol name="IFailEAC"/>
+      </inputs>
+      <outputs>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+      <constant type="int" name="const258">258</constant>
+      <constant type="int" name="const259">259</constant>
+      <constant type="int" name="const257">257</constant>
+   </constants>
+   <globals>
+      <variable type="int" name="v_file">0</variable>
+   </globals>
+   <locations>
+      <location name="id8"/> 
+      <location name="id9"/> 
+      <location name="id6"/> 
+      <location name="id7"/> 
+      <location name="id4"/> 
+      <location name="id5"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+      <location name="id10"/> 
+      <location name="id11"/> 
+      <location name="id12"/> 
+      <location name="id13"/> 
+      <location name="id14"/> 
+      <location name="id15"/> 
+      <location name="id16"/> 
+      <location name="id17"/> 
+      <location name="id18"/> 
+      <location name="id19"/> 
+      <location name="id34" initial="true"/> 
+      <location name="id32"/> 
+      <location name="id33"/> 
+      <location name="id30"/> 
+      <location name="id31"/> 
+      <location name="id29"/> 
+      <location name="id28"/> 
+      <location name="id21"/> 
+      <location name="id20"/> 
+      <location name="id23"/> 
+      <location name="id22"/> 
+      <location name="id25"/> 
+      <location name="id24"/> 
+      <location name="id27"/> 
+      <location name="id26"/> 
+   </locations>
+   <transitions>
+      <transition from="id1" to="id4" symbol="ONOK" >
+         <!--guard>v_file&lt;257 || v_file&gt;259</guard-->
+         <guard>v_file!=257 &amp;&amp; v_file!=258 &amp;&amp; v_file!=259</guard>
+      </transition>
+      <transition from="id1" to="id4" symbol="OOK" >
+         <!--guard>v_file&gt;=257 &amp;&amp; v_file&lt;=259</guard-->
+         <guard>v_file==257 || v_file==258 || v_file==259</guard>
+      </transition>
+      <transition from="id4" to="id1" symbol="IReadFile" params="file">
+         <assignments>
+            <assign to="v_file">file</assign>
+         </assignments>
+      </transition>
+      <transition from="id0" to="id4" symbol="OOK" />
+      <transition from="id4" to="id0" symbol="ITA" />
+      <transition from="id2" to="id4" symbol="OOK" />
+      <transition from="id4" to="id2" symbol="ICA" />
+      <transition from="id3" to="id4" symbol="OOK" />
+      <transition from="id4" to="id3" symbol="IAA" />
+      <transition from="id4" to="id10" symbol="IFailEAC" />
+      <transition from="id4" to="id15" symbol="ICompleteBAC" />
+      <transition from="id4" to="id16" symbol="IGetChallenge" />
+      <transition from="id4" to="id29" symbol="IFailBAC" />
+      <transition from="id9" to="id29" symbol="IFailBAC" />
+      <transition from="id22" to="id29" symbol="IFailBAC" />
+      <transition from="id31" to="id29" symbol="IFailBAC" />
+      <transition from="id31" to="id33" symbol="IReset" />
+      <transition from="id4" to="id33" symbol="IReset" />
+      <transition from="id9" to="id33" symbol="IReset" />
+      <transition from="id22" to="id33" symbol="IReset" />
+      <transition from="id6" to="id9" symbol="ONOK" >
+         <!-- guard>v_file&lt;257 || v_file&gt;258</guard -->
+         <guard>v_file!=257 &amp;&amp; v_file!=258</guard>
+      </transition>
+      <transition from="id6" to="id9" symbol="OOK" >
+         <guard>v_file==257 || v_file==258</guard>
+      </transition>
+      <transition from="id31" to="id32" symbol="IGetChallenge" />
+      <transition from="id9" to="id10" symbol="IFailEAC" />
+      <transition from="id9" to="id6" symbol="IReadFile" params="file">
+         <assignments>
+            <assign to="v_file">file</assign>
+         </assignments>
+      </transition>
+      <transition from="id5" to="id4" symbol="OOK" />
+      <transition from="id9" to="id5" symbol="ITA" />
+      <transition from="id7" to="id9" symbol="OOK" />
+      <transition from="id9" to="id7" symbol="ICA" />
+      <transition from="id8" to="id9" symbol="OOK" />
+      <transition from="id9" to="id8" symbol="IAA" />
+      <transition from="id9" to="id15" symbol="ICompleteBAC" />
+      <transition from="id9" to="id16" symbol="IGetChallenge" />
+      <transition from="id14" to="id22" symbol="ONOK" >
+         <!-- guard>v_file&lt;257 || v_file&gt;258</guard -->
+         <guard>v_file!=257 &amp;&amp; v_file!=258</guard>
+      </transition>
+      <transition from="id14" to="id22" symbol="OOK" >
+         <guard>v_file==257 || v_file==258</guard>
+      </transition>
+      <transition from="id22" to="id14" symbol="IReadFile" params="file">
+         <assignments>
+            <assign to="v_file">file</assign>
+         </assignments>
+      </transition>
+      <transition from="id10" to="id9" symbol="ONOK" />
+      <transition from="id13" to="id9" symbol="OOK" />
+      <transition from="id22" to="id10" symbol="IFailEAC" />
+      <transition from="id22" to="id13" symbol="ICA" />
+      <transition from="id11" to="id22" symbol="ONOK" />
+      <transition from="id22" to="id11" symbol="ITA" />
+      <transition from="id12" to="id22" symbol="OOK" />
+      <transition from="id22" to="id12" symbol="IAA" />
+      <transition from="id15" to="id34" symbol="ONOK" />
+      <transition from="id22" to="id15" symbol="ICompleteBAC" />
+      <transition from="id16" to="id34" symbol="ONOK" />
+      <transition from="id22" to="id16" symbol="IGetChallenge" />
+      <transition from="id19" to="id31" symbol="ONOK" />
+      <transition from="id31" to="id19" symbol="IFailEAC" />
+      <transition from="id20" to="id31" symbol="ONOK" />
+      <transition from="id31" to="id20" symbol="ITA" />
+      <transition from="id21" to="id31" symbol="ONOK" />
+      <transition from="id31" to="id21" symbol="ICA" />
+      <transition from="id18" to="id31" symbol="ONOK" />
+      <transition from="id31" to="id18" symbol="IReadFile" params="file">
+         <assignments>
+            <assign to="v_file">file</assign>
+         </assignments>
+      </transition>
+      <transition from="id17" to="id31" symbol="ONOK" />
+      <transition from="id31" to="id17" symbol="IAA" />
+      <transition from="id23" to="id22" symbol="OOK" />
+      <transition from="id31" to="id23" symbol="ICompleteBAC" />
+      <transition from="id24" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id24" symbol="ITA" />
+      <transition from="id26" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id26" symbol="IFailEAC" />
+      <transition from="id25" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id25" symbol="ICA" />
+      <transition from="id27" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id27" symbol="IAA" />
+      <transition from="id28" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id28" symbol="IReadFile" params="file">
+         <assignments>
+            <assign to="v_file">file</assign>
+         </assignments>
+      </transition>
+      <transition from="id29" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id29" symbol="IFailBAC" />
+      <transition from="id30" to="id34" symbol="ONOK" />
+      <transition from="id34" to="id30" symbol="ICompleteBAC" />
+      <transition from="id32" to="id31" symbol="OOK" />
+      <transition from="id34" to="id32" symbol="IGetChallenge" />
+      <transition from="id33" to="id34" symbol="OOK" />
+      <transition from="id34" to="id33" symbol="IReset" />
+   </transitions>
+</register-automaton>
