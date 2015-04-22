@@ -93,6 +93,7 @@ public class SymbolicSuffix {
         
         for (DataValue d : DataWords.valsOf(suffix)) {
             if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d)) {
+            //if (valsetPrefix.contains(d) || consts.containsValue(d)) {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);

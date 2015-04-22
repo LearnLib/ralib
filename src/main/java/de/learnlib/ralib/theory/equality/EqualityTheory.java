@@ -161,16 +161,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
             if (!(eqSdt.isLooselyEquivalent(deqSdt,vars, eqGuard))) {
-                
+                log.log(Level.FINEST, "--> not eq.");
 //            if (!(eqSdt.rcU(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
                 //retMap.put(eqGuard.toDeqGuard(), deqSdt);
                 deqList.add(eqGuard.toDeqGuard());
                 eqList.add(eqGuard);
             }
-//            else {
+            else {
+                log.log(Level.FINEST, "--> equivalent");
 //                System.out.println(eqSdt.toString() + " LOOSELY EQ TO " + deqSdt.toString() + " UNDER " + vars.toString() + " AND " + eqGuard.toString());
-//            }
+            }
 
         }
         if (eqList.isEmpty()) {
@@ -313,19 +314,27 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             DataValue d = suffixValues.get(sv);
             if (d == null) {
                 d = getFreshValue(potential);
-                //suffixValues.put(sv, d);
             }
             values.put(pId, d);
             WordValuation trueValues = new WordValuation();
             trueValues.putAll(values);         
             SuffixValuation trueSuffixValues = new SuffixValuation();
             trueSuffixValues.putAll(suffixValues);            
+            trueSuffixValues.put(sv, d);
             SDT sdt = oracle.treeQuery(
                     prefix, suffix, trueValues, pir, constants, trueSuffixValues);            
+
+            log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
             
-            Map<SDTGuard, SDT> map = new LinkedHashMap<>();
-            map.put(new SDTTrueGuard(sv), sdt);
-            return new SDT(map);
+            Map<SDTGuard, SDT> merged = mergeGuards(tempKids, 
+                    new SDTAndGuard(currentParam), sdt);
+            
+            log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
+            //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+            log.log(Level.FINEST, "merged guards = " + merged.keySet());
+            log.log(Level.FINEST, "merged pivs = " + pir.toString());            
+
+            return new SDT(merged);
         }
 
         log.log(Level.FINEST, "potential " + potential.toString());
