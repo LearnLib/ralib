@@ -124,8 +124,14 @@ public class SymbolicSuffix {
             this.dataValues.put(idx++, sv);
         }        
     }
+
+    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+            SymbolicSuffix symSuffix) {
+        this(prefix, symSuffix, new Constants());
+    }   
     
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, SymbolicSuffix symSuffix) {
+    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+            SymbolicSuffix symSuffix, Constants consts) {
         
         this.actions = symSuffix.actions.prepend(
                 DataWords.actsOf(prefix).lastSymbol());
@@ -143,7 +149,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (valsetPrefix.contains(d)) {
+            if (valsetPrefix.contains(d) || consts.containsValue(d)) {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
@@ -160,9 +166,14 @@ public class SymbolicSuffix {
             idx++;
         }
         
+        Map<SuffixValue, SuffixValue> symValues = new LinkedHashMap<>();        
         for (int i=1; i<=DataWords.paramLength(symSuffix.actions); i++) {
             SuffixValue symValue = symSuffix.getDataValue(i);
-            SuffixValue shifted = valgen.next(symValue.getType());
+            SuffixValue shifted = symValues.get(symValue);
+            if (shifted == null) {
+                shifted = valgen.next(symValue.getType());
+                symValues.put(symValue, shifted);
+            }
             this.dataValues.put(idx++, shifted);
             if (symSuffix.freeValues.contains(symValue)) {
                 this.freeValues.add(shifted);
