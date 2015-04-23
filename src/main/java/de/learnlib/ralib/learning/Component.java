@@ -121,6 +121,12 @@ class Component {
 
     void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
 
+        if (ioMode && suffix.getActions().length() > 0 && 
+                getAccessSequence().length() > 0 && !isAccepting()) {
+            log.log(Level.INFO, "Not adding suffix " + suffix + " to error component " + getAccessSequence());
+            return;
+        }
+        
         primeRow.addSuffix(suffix, oracle);
         Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
         otherRows.clear();

@@ -71,8 +71,8 @@ public class RowTest {
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
         
-        Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes));
-        Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes));
+        Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes), false);
+        Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes), false);
         
         VarMapping renaming = null;
         for (VarMapping map : new PIVRemappingIterator(r1.getParsInVars(), r2.getParsInVars())) {

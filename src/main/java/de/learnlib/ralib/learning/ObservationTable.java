@@ -143,7 +143,7 @@ class ObservationTable {
     private void processNewPrefix() {
         Word<PSymbolInstance> prefix = newPrefixes.poll();
         log.logEvent("Adding prefix to obs: " + prefix);
-        Row r = Row.computeRow(oracle, prefix, suffixes);
+        Row r = Row.computeRow(oracle, prefix, suffixes, ioMode);
         for (Component c : components.values()) {
             if (c.addRow(r)) {
                 return;

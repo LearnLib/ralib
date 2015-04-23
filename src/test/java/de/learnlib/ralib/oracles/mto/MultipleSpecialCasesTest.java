@@ -20,19 +20,11 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.xml.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -41,7 +33,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS1;
+import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -51,7 +43,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +88,7 @@ public class MultipleSpecialCasesTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS1<Integer>() {
+            teachers.put(t, new EqualityTheoryMS<Integer>() {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
