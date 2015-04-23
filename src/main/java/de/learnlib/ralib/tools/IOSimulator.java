@@ -45,6 +45,7 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -149,7 +150,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         // create teachers
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory<Integer>(this.useSuffixOpt) {
+            teachers.put(t, new EqualityTheoryMS<Integer>(this.useSuffixOpt) {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
