@@ -10,6 +10,8 @@ import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,6 +27,13 @@ public class SDTTrueGuard extends SDTGuard {
     @Override
     public String toString() {
         return "TRUE: " + parameter.toString();
+    }
+    
+    @Override
+    public List<SDTGuard> unwrap() {
+        List<SDTGuard> s = new ArrayList();
+        s.add(this);
+        return s;
     }
 
     @Override

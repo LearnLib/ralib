@@ -39,6 +39,21 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return guards;
     }
     
+    @Override
+    public List<SDTGuard> unwrap() {
+        List<SDTGuard> unwrapped = new ArrayList();
+        if (isEmpty()) {
+            unwrapped.add(asTrueGuard());
+        }
+        else if (isSingle()) {
+            unwrapped.add(getSingle());
+        }
+        else {
+            unwrapped.addAll(guards);
+        }
+        return unwrapped;
+    }
+    
     public boolean isSingle() {
         return guards.size() == 1;
     }

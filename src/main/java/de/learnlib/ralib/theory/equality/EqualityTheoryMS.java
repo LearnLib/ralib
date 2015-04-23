@@ -38,7 +38,6 @@ import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
@@ -76,30 +75,20 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
         this(false);
     }
 
+    //@Override
+//    public List<DataValue<T>> getPotential(
+//            Collection<DataValue<T>> vals) {        
+//        Set<DataValue<T>> set = new LinkedHashSet<>(vals);
+//        return new ArrayList<>(set);
+//    }
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
     }
-    
-    private Set<SDTGuard> openGuardLists(Set<SDTGuard> gs) {
-        Set<SDTGuard> retSet = new LinkedHashSet();
-        for (SDTGuard g : gs) {
-            if (g instanceof SDTMultiGuard) {
-                retSet.addAll(((SDTMultiGuard)g).getGuards());
-            }
-            else {
-                retSet.add(g);
-            }
-        }
-        return retSet;
-    }
 
-    private VarMapping makeVarMapping(Set<SDTGuard> _gSet1, Set<SDTGuard> _gSet2) {
+    private VarMapping makeVarMapping(Set<SDTGuard> gSet1, Set<SDTGuard> gSet2) {
         VarMapping vars = new VarMapping();
         SDTIfGuard ifg1;
         SymbolicDataValue r1;
-        Set<SDTGuard> gSet1 = openGuardLists(_gSet1);
-        Set<SDTGuard> gSet2 = openGuardLists(_gSet2);
-        
         for (SDTGuard g1 : gSet1) {
             if (g1 instanceof SDTIfGuard) {
                 ifg1 = (SDTIfGuard) g1;
@@ -118,218 +107,130 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
         return vars;
     }
 
-    private Set<SDTGuard> setify(SDTGuard... gs) {
-        Set<SDTGuard> guardSet = new LinkedHashSet<>();
-        for (SDTGuard g : gs) {
-//            System.out.println(g);
-            if (g instanceof SDTOrGuard) {
-                SDTOrGuard cg = (SDTOrGuard) g;
-                for (SDTIfGuard x : cg.getGuards()) {
-                    if (guardSet.contains(x.toDeqGuard())) {
-                        guardSet.remove(x.toDeqGuard());
-                    } else {
-                        guardSet.add(x);
-                    }
-                }
-            } else if (g instanceof SDTIfGuard) {
-//                System.out.println("if");
-                SDTIfGuard x = (SDTIfGuard) g;
-                if (guardSet.contains(x.toDeqGuard())) {
-                    guardSet.remove(x.toDeqGuard());
-//                    if (!((g instanceof EqualityGuard) || (g instanceof DisequalityGuard))) {
-//                        guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
-//                    }
-                } else {
-                    guardSet.add(x);
-                }
-            } else if (g instanceof SDTAndGuard) {
-//                System.out.println("and");
-                SDTAndGuard ag = (SDTAndGuard) g;
-                List<SDTIfGuard> ifs = new ArrayList();
-                for (SDTIfGuard x : ag.getGuards()) {
-                    if (guardSet.contains(x.toDeqGuard())) {
-                        guardSet.remove(x.toDeqGuard());
-//                        if (!((g instanceof EqualityGuard) || (g instanceof DisequalityGuard))) {
-//                            guardSet.add(new DisequalityGuard(x.getParameter(), x.getRegister()));
-//                        }
-                    } else {
-                        ifs.add(x);
-                    }
-                }
-                if (ifs.size() == 1) {
-                    guardSet.add(ifs.get(0));
-                } else if (ifs.size() > 1) {
-                    guardSet.add(new SDTAndGuard(g.getParameter(), ifs.toArray(new SDTIfGuard[]{})));
-                }
-
-            }
-//            System.out.println("curr guard set: " + guardSet);
-        }
-        return guardSet;
-    }
-
-    private SDTGuard[] toGuardArray(Set<SDTGuard> guards) {
-        Set<SDTGuard> newGuards = new LinkedHashSet<>();
-        for (SDTGuard g : guards) {
-            if (g instanceof SDTMultiGuard) {
-                SDTMultiGuard ag = (SDTMultiGuard) g;
-                List<SDTIfGuard> agList = ag.getGuards();
-                if (agList.isEmpty()) {
-                    newGuards.add(new SDTTrueGuard(ag.getParameter()));
-                } else if (agList.size() == 1) {
-                    newGuards.add(agList.get(0));
-                } else {
-                    newGuards.add(g);
-                }
-            } else {
-                newGuards.add(g);
+    private List<SDTIfGuard> mgG(SDTIfGuard e, List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+        List<SDTIfGuard> merged = new ArrayList<>();
+        merged.add(e);
+        SymbolicDataValue r = e.getRegister();
+        for (int i = 1; i < eqs.size(); i++) {
+            SDTIfGuard other = eqs.get(i);
+            VarMapping vars = new VarMapping();
+            vars.put(r, other.getRegister());
+            if (!(eqMap.get(e).isEquivalent(eqMap.get(other), vars))) {
+                //               System.out.println("NOT EQ::: " + e.toString() + "   " + other.toString());
+                merged.add(other);
             }
         }
-        return newGuards.toArray(new SDTGuard[]{});
-
+        return merged;
     }
 
-    private SDTGuard mergeGuardLists(SDTGuard g1, SDTGuard g2) {
-//        System.out.println("g1 = " + g1 + ", g2 = " + g2);
-        Set<SDTGuard> guardSet = (setify(g1, g2));
-        if (guardSet.isEmpty()) {
-            return new SDTTrueGuard(g1.getParameter());
+    private List<SDTIfGuard> mggG(List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+        // eqs is at least size 1
+        List<SDTIfGuard> m1 = mgG(eqs.get(0), eqs, eqMap);
+//        if (m1.size() == 1) {
+//            return m1;
+//        }
+        //       System.out.println("m1 " + m1.toString());
+        List<SDTIfGuard> m2 = mgG(m1.get(0), m1, eqMap);
+//        if (m2.size() == 1) {
+//            return m2;
+        if (m1.size() == m2.size()) {
+            return m1;
         } else {
-            SDTGuard[] guardArray = toGuardArray(guardSet);
-//            System.out.println("guard array: " + Arrays.toString(guardArray));
-            if (guardArray.length == 1) {
-                return guardArray[0];
-            } else {
-                return new SDTOrGuard(g1.getParameter(), guardSet.toArray(new SDTIfGuard[]{}));
-            }
+            return mggG(m1, eqMap);
         }
     }
-    
-    private Set<SDTIfGuard> makeGuardSet(SDTGuard target) {
-        Set<SDTIfGuard> ds = new LinkedHashSet();
-                if (target instanceof SDTMultiGuard) {
-                    List<SDTIfGuard> tSubs = ((SDTMultiGuard)target).getGuards();
-                    if (target instanceof SDTOrGuard) {
-                        ds.add(tSubs.get(0));
-                    }
-                    else {
-                        ds.addAll(tSubs);
-                    }
-                }
-                else if (target instanceof SDTIfGuard) {
-                    
-                    ds.add((SDTIfGuard)target);
-                }
-                return ds;
-    }
 
-    private List<SDTGuard> mergeWithMany(SDTGuard target, SDT targetSDT, List<SDTGuard> guards, Map<SDTGuard, SDT> reference, List<SDTGuard> tried) {
-        // check if the target guard is equivalent to the guard in the list.
-        for (SDTGuard guard : guards) {
-            if (!(tried.contains(guard))) {
-                // if they are:
-                System.out.println("merging " + target.toString() + " with " + guard.toString());
-                SDT otherSDT = reference.get(guard);
-//                System.out.println("merging: can " + targetSDT.toString() + " use " + otherSDT.toString() + " ??");
-                
-               // if (target instanceof SDTMultiGuard && ((SDTMultiGuard) target).isSingle()) {
-               //     target = ((SDTMultiGuard) target).getSingle();
-               // }
-                // if we are dealing with an equality guard somewhere
-                
-                
-                VarMapping vars2 = makeVarMapping(targetSDT.getGuards(), otherSDT.getGuards());
-                VarMapping vars1 = makeVarMapping(otherSDT.getGuards(), targetSDT.getGuards());
-                
-                Set<SDTIfGuard> preEq = new LinkedHashSet();
-                if (target instanceof EqualityGuard && guard instanceof DisequalityGuard) {
-                    preEq = makeGuardSet(target);
-                }
-                else if (guard instanceof EqualityGuard && target instanceof DisequalityGuard) {
-                    preEq = makeGuardSet(guard); 
-                }
-                
-//                System.out.println("under " + vars1 + " or " + vars2);
-                if (targetSDT.isLooselyEquivalent(otherSDT, vars1, makeGuardSet(target)) ||
-                        otherSDT.isLooselyEquivalent(targetSDT, vars2, makeGuardSet(guard))) {
-                    
-                        tried.add(guard);
-                    System.out.println("yes!!");
-                        // let newTarget be the new target guard
-                        SDTGuard newTarget = mergeGuardLists(target, guard);
-//                        System.out.println("target guard: " + newTarget);
-                        return mergeWithMany(newTarget, targetSDT, guards, reference, tried);
-                    }
-                
-                }
-            }
-            List<SDTGuard> targetList = new ArrayList<>();
-            targetList.add(target);
-            targetList.addAll(tried);
-            return targetList;
-        }
-    
-    
-
-    private Map<SDTGuard, SDT> expandGuards(Map<SDTGuard, SDT> tempMap) {
-        Map<SDTGuard, SDT> finalMap = new LinkedHashMap();
-        for (Map.Entry<SDTGuard, SDT> e : tempMap.entrySet()) {
-            SDTGuard guard = e.getKey();
-            SDT sdt = e.getValue();
-            if (guard instanceof SDTOrGuard) {
-                for (SDTIfGuard subguard : ((SDTOrGuard) guard).getGuards()) {
-                    finalMap.put(subguard, sdt);
-                }
-            } else if (guard instanceof SDTMultiGuard) {
-                SDTMultiGuard ag = (SDTMultiGuard) guard;
-                // ugly hack!
-                if (ag.isEmpty()) {
-                    finalMap.put(ag.asTrueGuard(),sdt);
-                }
-                else if (ag.isSingle()) {
-                    finalMap.put(ag.getSingle(), sdt);
-                } else {
-                    finalMap.put(guard, sdt);
-                }
-            } else {
-                finalMap.put(guard, sdt);
-            }
-        }
-        return finalMap;
-    }
-
+// given a map from guards to SDTs, merge guards based on whether they can
+    // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
-            mergeGuards(Map<SDTGuard, SDT> unmerged) {
-        if (unmerged.isEmpty()) {
-            return unmerged;
-        }
-//        log.log(Level.FINEST, "master merge...");
-        Map<SDTGuard, SDT> tempMap = new LinkedHashMap();
-        //Map<SDTGuard, SDT> finalMap = new LinkedHashMap();
-        // list of unmerged guards
-        List<SDTGuard> guardList = new ArrayList(unmerged.keySet());
-        List<SDTGuard> consumedGuards = new ArrayList<>();
+            mergeGuards(Map<EqualityGuard, SDT> eqs, SDTAndGuard deqGuard, SDT deqSdt) {
 
-        // for each guard in the list
-        for (SDTGuard guard : guardList) {
-            if (!consumedGuards.contains(guard)) {
-                consumedGuards.add(guard);
-                SDT guardSDT = unmerged.get(guard);
-//                System.out.println("merging " + guard.toString() + " with " + guardList.toString());
-                List<SDTGuard> mergedGuardList = mergeWithMany(guard, guardSDT, guardList, unmerged, consumedGuards);
-                //consumedGuards.addAll(mergedGuardList);
-//                System.out.println("returned " + mergedGuardList.get(0).toString());
-                tempMap.put(mergedGuardList.get(0), guardSDT);
+        //System.out.println("PPPPP " + eqs.toString());
+        Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
+        List<DisequalityGuard> deqList = new ArrayList<>();
+        List<EqualityGuard> eqList = new ArrayList<>();
+        //Set<SDTGuard> deqGuards = deqSdt.getGuards();
+        // 2. see which of the equality guards can use the else guard
+        for (Map.Entry<EqualityGuard, SDT> e : eqs.entrySet()) {
+            SDT eqSdt = e.getValue();
+            EqualityGuard eqGuard = e.getKey();
+            log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
+                    + " to " + deqGuard.toString() + "\nSDT    : "
+                    + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
+            VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
+            List<SDTIfGuard> ds = new ArrayList();
+            ds.add(eqGuard);
+            if (!(eqSdt.isLooselyEquivalent(deqSdt, vars, ds))) {
+                log.log(Level.FINEST, "--> not eq.");
+//            if (!(eqSdt.rcU(deqSdt))) {
+                //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
+                //retMap.put(eqGuard.toDeqGuard(), deqSdt);
+                deqList.add(eqGuard.toDeqGuard());
+                eqList.add(eqGuard);
+            } else {
+                log.log(Level.FINEST, "--> equivalent");
+//                System.out.println(eqSdt.toString() + " LOOSELY EQ TO " + deqSdt.toString() + " UNDER " + vars.toString() + " AND " + eqGuard.toString());
             }
-        }
-        //        log.log(Level.FINEST, "unmerged: " + unmerged.toString());
-        //int i = 0;
 
-        // expand or guards before adding to the map
-        //tempMap.putAll(gMerged);
-        return expandGuards(tempMap);
+        }
+        if (eqList.isEmpty()) {
+            retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
+        } else if (eqList.size() == 1) {
+            EqualityGuard q = eqList.get(0);
+            retMap.put(q, eqs.get(q));
+            retMap.put(q.toDeqGuard(), deqSdt);
+//          
+        } else if (eqList.size() > 1) {
+            for (EqualityGuard q : eqList) {
+                retMap.put(q, eqs.get(q));
+            }
+            retMap.put(new SDTAndGuard(deqGuard.getParameter(), deqList.toArray(new SDTIfGuard[]{})), deqSdt);
+        }
+//            retMap.put()
+//                retMap.put(eqG.toDeqGuard(),deqSdt);
+////            System.out.println("eqList " + eqList.toString());
+////            if (eqList.size() == 1) {
+//            EqualityGuard q = eqList.get(0);
+//            retMap.put(q, eqs.get(q));
+//            retMap.put(q.toDeqGuard(), deqSdt);
+//            } else {
+//                List<EqualityGuard> newEqGuards = mergeEqualities(eqList, eqs);
+//                System.out.println("newEqGuards " + newEqGuards.toString());
+//                for (EqualityGuard ne : newEqGuards) {
+//                    retMap.put(ne, eqs.get(ne));
+//                    retMap.put(ne.toDeqGuard(), deqSdt);
+//                }
+//            }
+//        }
+//        else {
+//            System.out.println("eqList is: " + eqList.toString());
+//        }
+        assert !retMap.isEmpty();
+        
+//        if (retMap.size() > 3) {
+//            String e = "not supposed to happen " + deqList.toString() + "\n" + deqSdt.toString() + "\n" + retMap.toString();
+//            System.out.println(e);
+//            throw new IllegalStateException(e);
+//        }
+        //SDTCompoundGuard retDeqGuard = new SDTCompoundGuard(
+        //        deqGuard.getParameter(),
+        //        deqList.toArray(new DisequalityGuard[]{}));
+        //retMap.put(retDeqGuard, deqSdt);
+//        System.out.println("retmap " + retMap.toString());
+        return retMap;
     }
 
+//    private Map<SDTGuard,SDT> truify(Map<SDTGuard,SDT> untrue) {
+//        Map<SDTGuard,SDT> trueMap = new LinkedHashMap<SDTGuard, SDT>();
+//        for (Map.Entry<SDTGuard, SDT> e: untrue.entrySet()) {
+//            SDTGuard guard = e.getKey();
+//            if (guard instanceof SDTCompoundGuard 
+//                    && ((SDTCompoundGuard) guard).getGuards().isEmpty()) {
+//                trueMap.add()
+//                
+//            }
+//        }
+//    }
     // given a set of registers and a set of guards, keep only the registers
     // that are mentioned in any guard
     private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
@@ -371,7 +272,7 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
 
         SuffixValue currentParam = new SuffixValue(type, pId);
 
-        Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
+        Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
 
         // store temporary values here
 //        PIV paramsToRegs = new PIV();
@@ -407,10 +308,11 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
             trueSuffixValues.put(sv, d);
             SDT sdt = oracle.treeQuery(
                     prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-            tempKids.put(new SDTTrueGuard(currentParam), sdt);
+
             log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
-            Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
+            Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
+                    new SDTAndGuard(currentParam), sdt);
 
             log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
             //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
@@ -482,10 +384,8 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
         // tempKids is the temporary SDT (sort of)
         //tempKids.put(deqGuard, elseOracleSdt);
 
-        tempKids.put(deqGuard, elseOracleSdt);
-
         // merge the guards
-        Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
+        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
 
         // only keep registers that are referenced by the merged guards
         pir.putAll(keepMem(merged));

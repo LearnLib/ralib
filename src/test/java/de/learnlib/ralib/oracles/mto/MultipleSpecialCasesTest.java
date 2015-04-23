@@ -41,7 +41,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.theory.equality.EqualityTheoryMS1;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -97,7 +97,7 @@ public class MultipleSpecialCasesTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>() {
+            teachers.put(t, new EqualityTheoryMS1<Integer>() {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());

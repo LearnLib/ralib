@@ -178,7 +178,7 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled) && otherRelabeled.canUse(this);
     }
     
-   public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, Set<SDTIfGuard> ds) {
+   public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, List<SDTIfGuard> ds) {
 //       System.out.println("trying with " + ds);
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {

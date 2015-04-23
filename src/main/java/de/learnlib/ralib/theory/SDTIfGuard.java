@@ -10,6 +10,8 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public abstract class SDTIfGuard extends SDTGuard {
@@ -24,6 +26,13 @@ public abstract class SDTIfGuard extends SDTGuard {
     public Relation getRelation() {
     //    return regrels.get(reg);
         return this.relation;
+    }
+    
+    @Override
+    public List<SDTGuard> unwrap() {
+        List<SDTGuard> s = new ArrayList();
+        s.add(this);
+        return s;
     }
     
     public SDTIfGuard(SuffixValue param, SymbolicDataValue reg, Relation rel) {

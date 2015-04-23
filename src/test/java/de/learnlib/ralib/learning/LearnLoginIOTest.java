@@ -18,8 +18,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
@@ -48,7 +46,6 @@ import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +82,7 @@ public class LearnLoginIOTest {
         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/passport.xml"));
-//                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+//                       "/de/learnlib/ralib/automata/xml/sip.xml"));
 
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
@@ -195,6 +192,7 @@ public class LearnLoginIOTest {
             System.out.println("Shorter CE: " + ce);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             System.out.println("New Prefix CE: " + ce);
+           
             ce = pref.optimizeCE(ce.getInput(), hyp);
             System.out.println("Prefix of CE is CE: " + ce);
             

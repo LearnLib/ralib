@@ -8,12 +8,9 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Variable;
-import java.util.Map;
+import java.util.List;
 
 /**
  *
@@ -30,6 +27,7 @@ public abstract class SDTGuard {
 //    private final Register register;
 //    private final Relation relation;
 //    
+    public abstract List<SDTGuard> unwrap();
     
     public SuffixValue getParameter() {
         return this.parameter;
