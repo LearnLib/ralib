@@ -20,7 +20,7 @@ package de.learnlib.ralib.oracles.mto;
  */
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -75,7 +75,7 @@ public class LoginBranchingTest {
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
 
-        RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/login_typed.xml"));
 

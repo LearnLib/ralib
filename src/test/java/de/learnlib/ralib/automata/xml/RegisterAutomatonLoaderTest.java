@@ -37,7 +37,7 @@ public class RegisterAutomatonLoaderTest {
      @Test
      public void testLoadingAutomaton1() {
      
-         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/login.xml"));
          
@@ -47,7 +47,7 @@ public class RegisterAutomatonLoaderTest {
      @Test
      public void testLoadingAutomaton2() {
      
-         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/abp.output.xml"));
          

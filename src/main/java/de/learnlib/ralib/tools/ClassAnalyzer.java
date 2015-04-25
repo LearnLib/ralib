@@ -20,6 +20,7 @@ package de.learnlib.ralib.tools;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
@@ -50,6 +51,8 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -88,6 +91,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
+        OPTION_EXPORT_MODEL,
         OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
         OPTION_MAX_DEPTH,
@@ -332,6 +336,21 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         // model
         if (hyp != null) {            
             System.out.println("Locations: " + hyp.getStates().size());
+            System.out.println("Transitions: " + hyp.getTransitions().size());
+        
+            // input locations + transitions            
+            System.out.println("Input Locations: " + hyp.getInputStates().size());
+            System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
+            
+            if (this.exportModel) {
+                System.out.println("exporting model to model.xml");
+                try {
+                    FileOutputStream fso = new FileOutputStream("model.xml");
+                    RegisterAutomatonExporter.wtite(hyp, new Constants(), fso);
+                } catch (FileNotFoundException ex) {
+                    System.out.println("... export failed");
+                }
+            }
         }
         
         // tests during learning

@@ -20,7 +20,7 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -79,7 +79,7 @@ public class LearnLoginIOTest {
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
 
-        RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/passport.xml"));
 //                       "/de/learnlib/ralib/automata/xml/sip.xml"));

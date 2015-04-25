@@ -20,7 +20,7 @@
 package de.learnlib.ralib.equivalence;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -54,7 +54,7 @@ public class IORandomWalkTest {
             h.setLevel(Level.ALL);
         }
         
-         RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/login.xml"));
          

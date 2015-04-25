@@ -21,7 +21,8 @@ package de.learnlib.ralib.tools;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoader;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -44,7 +45,6 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -55,6 +55,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -82,6 +83,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
+        OPTION_EXPORT_MODEL,
         OPTION_USE_EQTEST,
         OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
@@ -116,6 +118,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     private long resets = 0;
     private long inputs = 0;
     
+    private Constants consts;
+    
     @Override
     public String description() {
         return "uses an IORA model as SUL";
@@ -135,7 +139,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         } catch (FileNotFoundException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
-        RegisterAutomatonLoader loader = new RegisterAutomatonLoader(fsi);
+        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(fsi);
         this.model = loader.getRegisterAutomaton();
         
         ParameterizedSymbol[] inputSymbols = loader.getInputs().toArray(
@@ -144,7 +148,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
 
-        final Constants consts = loader.getConstants();
+        consts = loader.getConstants();
 
         
         // create teachers
@@ -325,6 +329,22 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         // model
         if (hyp != null) {            
             System.out.println("Locations: " + hyp.getStates().size());
+            System.out.println("Transitions: " + hyp.getTransitions().size());
+        
+            // input locations + transitions            
+            System.out.println("Input Locations: " + hyp.getInputStates().size());
+            System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
+            
+            if (this.exportModel) {
+                System.out.println("exporting model to model.xml");
+                try {
+                    FileOutputStream fso = new FileOutputStream("model.xml");
+                    RegisterAutomatonExporter.wtite(hyp, consts, fso);
+                    
+                } catch (FileNotFoundException ex) {
+                    System.out.println("... export failed");
+                }
+            }
         }
         
         // tests during learning

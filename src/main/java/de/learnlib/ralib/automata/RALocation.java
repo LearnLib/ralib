@@ -98,6 +98,10 @@ public class RALocation {
         return "l" + id + " (" + (this.accepting ? "+" : "-") +")";
     }
     
+    public String getName() {
+        return "l" + id;
+    }
+    
     public boolean isAccepting() {
         return this.accepting;
     }

@@ -19,9 +19,16 @@
 
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import net.automatalib.automata.DeterministicAutomaton;
 import net.automatalib.automata.abstractimpl.AbstractDeterministicAutomaton;
 import net.automatalib.words.Word;
@@ -76,4 +83,39 @@ public abstract class RegisterAutomaton
         return initialRegisters;
     }
     
+    public List<Transition> getTransitions() {
+        List<Transition> tList = new ArrayList<>();
+        for (RALocation loc : getStates()) {
+            tList.addAll(loc.getOut());
+        }
+        return tList;
+    }
+    
+    public List<Transition> getInputTransitions() {
+        List<Transition> tList = new ArrayList<>();
+        for (RALocation loc : getStates()) {
+            for (Transition t : loc.getOut()) {
+                if (!(t instanceof OutputTransition)) {
+                    tList.add( t);
+                }
+            }
+        }
+        return tList;
+    }    
+    
+    public Collection<RALocation> getInputStates() { 
+        Set<RALocation> ret = new HashSet<>();
+        for (Transition t : getInputTransitions()) {
+            ret.add(t.getSource());
+        }
+        return ret;
+    }
+    
+    public Collection<Register> getRegisters() {
+        Set<Register> regs = new HashSet<>();
+        for (Transition t : getTransitions()) {
+            regs.addAll(t.getAssignment().getAssignment().keySet());
+        }
+        return regs;
+    }
 }

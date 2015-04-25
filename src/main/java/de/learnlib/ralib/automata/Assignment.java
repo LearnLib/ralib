@@ -68,7 +68,9 @@ public class Assignment {
     public String toString() {
         return assignment.toString(":=");
     }
-    
 
+    public VarMapping<Register, ? extends SymbolicDataValue> getAssignment() {
+        return assignment;
+    }
     
 }

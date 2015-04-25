@@ -58,7 +58,7 @@ import net.automatalib.words.impl.SimpleAlphabet;
  *
  * @author falk
  */
-public class RegisterAutomatonLoader {
+public class RegisterAutomatonImporter {
 
     private final Map<String, ParameterizedSymbol> sigmaMap = new LinkedHashMap<>();
     private final Map<ParameterizedSymbol, String[]> paramNames = new LinkedHashMap<>();
@@ -75,13 +75,13 @@ public class RegisterAutomatonLoader {
     private Alphabet<ParameterizedSymbol> actions;
     
     private static final LearnLogger log = 
-            LearnLogger.getLogger(RegisterAutomatonLoader.class);
+            LearnLogger.getLogger(RegisterAutomatonImporter.class);
     
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
     }
     
-    public RegisterAutomatonLoader(InputStream is) {
+    public RegisterAutomatonImporter(InputStream is) {
         loadModel(is);
     }
 

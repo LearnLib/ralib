@@ -78,7 +78,7 @@ public class SIPSDTMergingTest {
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
 
-        RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
+        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
                         "/de/learnlib/ralib/automata/xml/sip.xml"));
 
