@@ -80,7 +80,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
                     continue;
                 }
                 int length = j-i;
-                System.out.println("Found loop of length " + length);
+               //System.out.println("Found loop of length " + length);
                 List<Loop> list = loops.get(length);
                 if (list == null) {
                     list = new LinkedList<>();
@@ -94,12 +94,12 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
         Collections.sort(sizes);
         Collections.reverse(sizes);
         for (Integer i : sizes) {
-            System.out.println("Checking length " + i);            
+           //System.out.println("Checking length " + i);            
             List<Loop> list = loops.get(i);
             for (Loop loop : list) {
                 Word<PSymbolInstance> shorter = shorten(ce, loop);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
-                System.out.println("Cand: " + candidate);
+               //System.out.println("Cand: " + candidate);
                 if (!hypothesis.accepts(candidate)) {
                     System.out.println("Reduced CE length by " + i + 
                             " to " + candidate.length());

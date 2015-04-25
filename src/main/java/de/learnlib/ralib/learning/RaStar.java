@@ -104,7 +104,7 @@ public class RaStar {
             while(!(obs.complete())) {};        
             log.logPhase("completed observation table");
 
-            System.out.println(obs.toString());
+            //System.out.println(obs.toString());
             
             AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);            
             hyp = ab.toRegisterAutomaton();        

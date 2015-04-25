@@ -218,10 +218,10 @@ class Component {
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
                         r.getPrefix(), suffix, consts);
                 
-                System.out.println("Found inconsistency. msissing " + p +
-                        " in mem. of " + prefix);                
-                System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
-                System.out.println("New symbolic suffix: " + newSuffix);
+               //System.out.println("Found inconsistency. msissing " + p +
+               //         " in mem. of " + prefix);                
+               //System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
+               //System.out.println("New symbolic suffix: " + newSuffix);
 
                 obs.addSuffix(newSuffix);
                 return false;

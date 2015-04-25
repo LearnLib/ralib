@@ -52,7 +52,7 @@ public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
             Word<PSymbolInstance> prefix = ce.prefix(prefixLength);
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix);
 
-            System.out.println(candidate);
+           //System.out.println(candidate);
             if (!hypothesis.accepts(candidate)) {
                 System.out.println("Found Prefix CE!!!");
                 return candidate;

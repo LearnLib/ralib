@@ -57,7 +57,7 @@ public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer
             prefix = hypothesis.transformAccessSequence(prefix);
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix.concat(suffix));
 
-            System.out.println(candidate);
+           //System.out.println(candidate);
             if (!hypothesis.accepts(candidate)) {
                 System.out.println("Reduced Prefix!!!");
                 ce = candidate;
