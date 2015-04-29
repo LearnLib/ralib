@@ -100,11 +100,11 @@ class ObservationTable {
         }
         
         if (!checkVariableConsistency()) {
-            AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());            
-            Hypothesis hyp = ab.toRegisterAutomaton();        
+            //AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());            
+            //Hypothesis hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
-            System.out.println(hyp.toString());            
+            //System.out.println(hyp.toString());            
             return false;
         }
         
@@ -134,6 +134,7 @@ class ObservationTable {
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
         log.logEvent("Adding suffix to obs: " + suffix);
+        System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);
@@ -155,7 +156,7 @@ class ObservationTable {
 
     private void processNewComponent() {
         Component c = newComponents.poll();
-        log.logEvent("Adding component to obs: " + c);
+        System.out.println("Adding component to obs: " + c);
         components.put(c.getAccessSequence(), c);
         c.start(oracle, inputs);
     }

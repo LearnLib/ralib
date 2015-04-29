@@ -24,6 +24,7 @@ import de.learnlib.ralib.automata.guards.Conjuction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -84,8 +85,10 @@ public class ExpressionParser {
     private GuardExpression buildPredicate(String pred) 
     {
         pred = pred.replace("!=", "<>");
-        
-        if (pred.contains("==")) {
+        if (pred.trim().length() < 1) {
+            return new TrueGuardExpression();
+        }
+        else if (pred.contains("==")) {
             String[] related = pred.split("==");
             SymbolicDataValue left = pMap.get(related[0].trim());
             SymbolicDataValue right = pMap.get(related[1].trim());

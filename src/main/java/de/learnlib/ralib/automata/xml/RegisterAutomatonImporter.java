@@ -45,6 +45,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -133,13 +134,18 @@ public class RegisterAutomatonImporter {
             }
             
             // assignment
+            Set<Register> freshRegs = new HashSet<>();
             VarMapping<Register, SymbolicDataValue> assignments = new VarMapping<>();
             if (t.getAssignments() != null) {
                 for (RegisterAutomaton.Transitions.Transition.Assignments.Assign ass : 
                         t.getAssignments().getAssign()) {
                     Register left = regMap.get(ass.to);
                     SymbolicDataValue right; 
-                    if (paramMap.containsKey(ass.value)) {                        
+                    if ( ("__fresh__").equals(ass.value)) {
+                        freshRegs.add(left);
+                        continue;
+                    }
+                    else if (paramMap.containsKey(ass.value)) {                        
                         right = paramMap.get(ass.value);
                     }
                     else if (constMap.containsKey(ass.value)) {
@@ -163,13 +169,20 @@ public class RegisterAutomatonImporter {
                     //Parameter param = paramMap.get(s);
                     Parameter param = pList[idx++];
                     SymbolicDataValue source = null;
-                    // check if there was an assignment,
-                    // these seem to be meant to 
-                    // happen before the output
                     if (regMap.containsKey(s)) {
                         Register r = regMap.get(s);
-                        source = assignments.containsKey(r) ?
-                                assignments.get(r) : r;
+                        if (freshRegs.contains(r)) {
+                            // add assigment to store fresh value
+                            assignments.put(r, param);
+                            continue;
+                        }
+                        else {
+                            // check if there was an assignment,
+                            // these seem to be meant to 
+                            // happen before the output
+                            source = assignments.containsKey(r) ?
+                                    assignments.get(r) : r;
+                        }
                     } else if (constMap.containsKey(s)) {
                         source = constMap.get(s);
                     } else {
@@ -190,6 +203,8 @@ public class RegisterAutomatonImporter {
                 log.log(Level.FINEST,"Loading: " + tOut);
             } // input
             else {
+                assert freshRegs.isEmpty();
+                
                 log.log(Level.FINEST,"Guard: " + gstring);
                 InputTransition tIn = new InputTransition(p, (InputSymbol) ps, 
                         from, to, assign);

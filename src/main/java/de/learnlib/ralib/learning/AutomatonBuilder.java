@@ -142,6 +142,7 @@ class AutomatonBuilder {
                 assignments.put(rNew, pNew);
             } else {
                 Register rOld = parsInVars_Src.get(p);
+                assert rOld != null;
                 assignments.put(rNew, rOld);
             }
         }
