@@ -45,8 +45,8 @@ import de.learnlib.ralib.words.InputSymbol;
  */
 public final class LoginAutomatonExample {
     
-    public static final DataType T_UID = new DataType("T_uid", Integer.class) {};
-    public static final DataType T_PWD = new DataType("T_pwd", Integer.class) {};
+    public static final DataType T_UID = new DataType("T_uid", Integer.class);
+    public static final DataType T_PWD = new DataType("T_pwd", Integer.class);
 
     public static final InputSymbol I_REGISTER = 
             new InputSymbol("register", new DataType[] {T_UID, T_PWD}); 

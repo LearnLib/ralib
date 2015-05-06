@@ -26,7 +26,7 @@ import java.util.Objects;
  * 
  * @author falk
  */
-public abstract class DataType {
+public final class DataType {
 
     /**
      * name of type (defining member)
@@ -38,7 +38,7 @@ public abstract class DataType {
      */
     protected final Class base;
 
-    protected DataType(String name, Class base) {
+    public DataType(String name, Class base) {
         this.name = name;
         this.base = base;
     }

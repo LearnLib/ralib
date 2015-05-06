@@ -22,6 +22,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
@@ -33,15 +34,16 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -49,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,12 +66,21 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
 
     protected boolean useNonFreeOptimization;
 
+    protected boolean freshValues = false;
+    
+    protected IOOracle ioOracle;
+    
     private static final LearnLogger log = LearnLogger.getLogger(EqualityTheoryMS.class);
 
     public EqualityTheoryMS(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
     }
 
+    public void setFreshValues(boolean freshValues, IOOracle ioOracle) {
+        this.ioOracle = ioOracle;
+        this.freshValues = freshValues;
+    }
+    
     public EqualityTheoryMS() {
         this(false);
     }
@@ -321,6 +331,50 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
 
             return new SDT(merged);
         }
+        
+        // special case: fresh values in outputs
+        if (freshValues) {            
+            
+            ParameterizedSymbol ps = computeSymbol(suffix, pId);
+            
+            if (ps instanceof OutputSymbol && ps.getArity() > 0) {
+                
+                int idx = computeLocalIndex(suffix, pId);
+                Word<PSymbolInstance> query = buildQuery(prefix, suffix, pId, values);
+                Word<PSymbolInstance> trace = ioOracle.trace(query);
+                //System.out.println("TESTING FOR FRESH VALUES: " + trace);
+                PSymbolInstance out = trace.lastSymbol();
+                
+                if (out.getBaseSymbol().equals(ps)) {
+                    
+                    DataValue d = out.getParameterValues()[idx];
+
+                    if (d instanceof FreshValue) {
+                        d = getFreshValue(potential);
+                        values.put(pId, d);
+                        WordValuation trueValues = new WordValuation();
+                        trueValues.putAll(values);
+                        SuffixValuation trueSuffixValues = new SuffixValuation();
+                        trueSuffixValues.putAll(suffixValues);
+                        trueSuffixValues.put(sv, d);
+                        SDT sdt = oracle.treeQuery(
+                                prefix, suffix, trueValues, pir, constants, trueSuffixValues);
+
+                        log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+
+                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
+                                new SDTAndGuard(currentParam), sdt);
+
+                        log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
+                        //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+                        log.log(Level.FINEST, "merged guards = " + merged.keySet());
+                        log.log(Level.FINEST, "merged pivs = " + pir.toString());
+
+                        return new SDT(merged);   
+                    }
+                }         
+            }
+        }
 
         log.log(Level.FINEST, "potential " + potential.toString());
 
@@ -511,6 +565,47 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
         log.log(Level.FINEST, "fresh = " + fresh.toString());
         return fresh;
 
+    }
+
+    private ParameterizedSymbol computeSymbol(SymbolicSuffix suffix, int pId) {
+        int idx = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            idx += a.getArity();
+            if (idx >= pId) {
+                return a;
+            }
+        }
+        return suffix.getActions().size() > 0 ? suffix.getActions().firstSymbol() : null;
+    }
+
+    private int computeLocalIndex(SymbolicSuffix suffix, int pId) {
+        int idx = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            idx += a.getArity();
+            if (idx >= pId) {
+                return pId - (idx - a.getArity()) - 1;
+            }
+        }
+        return pId - 1;
+    }
+
+    private Word<PSymbolInstance> buildQuery(Word<PSymbolInstance> prefix, 
+            SymbolicSuffix suffix, int pId, WordValuation values) {
+
+        Word<PSymbolInstance> query = prefix;
+        int base = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            if (base + a.getArity() > values.size()) {
+                break;
+            }
+            DataValue[] vals = new DataValue[a.getArity()];
+            for (int i=0; i<a.getArity(); i++) {
+                vals[i] = values.get(base + i +1);
+            }
+            query = query.append(new PSymbolInstance(a, vals));
+            base += a.getArity();
+        }
+        return query;
     }
 
 }

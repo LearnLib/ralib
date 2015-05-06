@@ -20,7 +20,6 @@
 package de.learnlib.ralib.automata.xml;
 
 import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -33,8 +32,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -192,14 +189,27 @@ public class RegisterAutomatonExporter {
         for (DataType type : t.getLabel().getPtypes()) {
             Parameter p = pgen.next(type);
             if (outMap.getFreshParameters().contains(p)) {
-                params += p.toString() + ",";
+                
+                // find out register that stores paramater
+                boolean found = false;
+                for (RegisterAutomaton.Transitions.Transition.Assignments.Assign a : assign.getAssign()) {
+                    if (a.getValue().equals(p.toString())) {
+                        found = true;                        
+                        params += a.getTo() + ",";
+                        a.setValue("__fresh__");
+                    }
+                }
+                
+                if (!found) {
+                    throw new IllegalStateException("Exporter does not support fresh values that are not stored.");
+                }
             }
             else {
                 SymbolicDataValue out = outMap.getOutput().get(p);
                 // assignments are assumed to happen before 
                 // output by the parser
                 if (out instanceof Register) {
-                    String tmpName = "tmp_" + out.getType() + "_" + idx;
+                    String tmpName = "tmp_" + out.getType().getName() + "_" + idx;
                     tmp.put(tmpName, out.getType());
                     RegisterAutomaton.Transitions.Transition.Assignments.Assign a =
                             factory.createRegisterAutomatonTransitionsTransitionAssignmentsAssign();

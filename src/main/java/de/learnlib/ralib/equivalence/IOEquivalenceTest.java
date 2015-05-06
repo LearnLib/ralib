@@ -360,58 +360,64 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         
         ParValuation pval = new ParValuation(psi);
         
-        // first sys
-        RALocation loc = null;
+        // first sys input
+        RALocation loc1 = null;
         //System.out.println(psi + " from " + in.sys1loc);
         for (Transition t : in.sys1loc.getOut(psi.getBaseSymbol()))
         {
             if ( t.isEnabled(out.sys1reg, pval, consts) )
             {
-                loc = t.getDestination();
+                loc1 = t.getDestination();
                 out.sys1reg = t.execute(out.sys1reg, pval, consts);
                 break;
             }
         }
             
-        if (loc == null)
+        if (loc1 == null)
             throw new IllegalStateException("No transition enabled (sys1):" + in.as + psi);
 
-        OutputTransition ot = getOutputTransition(loc, out.sys1reg);
-        if (ot == null) 
-            throw new IllegalStateException("No output transition enabled (sys1)");
-        
-        PSymbolInstance ret1 = createOutputSymbol(ot, out.sys1reg);
-        out.sys1reg = ot.execute(out.sys1reg, new ParValuation(ret1), consts);
-        out.sys1loc = ot.getDestination();
-                           
-        if (out.sys1loc == null) {
-            throw new IllegalStateException("No transition enabled (sys1/o): " + in.as + "(" + loc + ")" + psi);
-        }
-        
-        // second sys
-        loc = null;
+        // second sys input
+        RALocation loc2 = null;
         for (Transition t : in.sys2loc.getOut(psi.getBaseSymbol()))
         {
             if ( t.isEnabled(out.sys2reg, pval, consts) )
             {
-                loc = t.getDestination();
+                loc2 = t.getDestination();
                 out.sys2reg = t.execute(out.sys2reg, pval, consts);
                 break;
             }
         }
             
-        if (loc == null) {                       
+        if (loc2 == null) {                       
             throw new IllegalStateException("No transition enabled (sys2): " + in.as + " (" + in.sys2loc + ") " + psi);
         }
 
-        // output
-        ot = getOutputTransition(loc, out.sys2reg);
-        if (ot == null) {
+        // first sys output prepare
+        OutputTransition ot1 = getOutputTransition(loc1, out.sys1reg);
+        if (ot1 == null) 
+            throw new IllegalStateException("No output transition enabled (sys1)");
+        
+        PSymbolInstance ret1 = createOutputSymbol(ot1, out.sys1reg, out.sys2reg);
+
+        // second sys output prepare
+        OutputTransition ot2 = getOutputTransition(loc2, out.sys2reg);
+        if (ot2 == null) {
             return new Pair<>(ret1, null);
         }
-        PSymbolInstance ret2 = createOutputSymbol(ot, out.sys2reg);
-        out.sys2reg = ot.execute(out.sys2reg, new ParValuation(ret2), consts);
-        out.sys2loc = ot.getDestination();
+        PSymbolInstance ret2 = createOutputSymbol(ot2, out.sys2reg, out.sys1reg);
+
+        
+        // first sys output commit
+        out.sys1reg = ot1.execute(out.sys1reg, new ParValuation(ret1), consts);
+        out.sys1loc = ot1.getDestination();
+                           
+        if (out.sys1loc == null) {
+            throw new IllegalStateException("No transition enabled (sys1/o): " + in.as + "(" + loc1 + ")" + psi);
+        }
+        
+        // second sys output commit
+        out.sys2reg = ot2.execute(out.sys2reg, new ParValuation(ret2), consts);
+        out.sys2loc = ot2.getDestination();
             
         if (out.sys2loc == null) {
             throw new IllegalStateException("No transition enabled (sys2/o): " + in.as + psi);      
@@ -476,14 +482,14 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private Set<DataValue> valSet(Collection<DataValue<?>> in, DataType t) {
         Set<DataValue> out = new LinkedHashSet<>();
         for (DataValue dv : in) {
-            if (dv.getType().equals(t)) {
-                out.add(dv);
+                if (dv.getType().equals(t)) {
+                    out.add(dv);
+                }
             }
-        }
         return out;
     }    
  
-    private PSymbolInstance createOutputSymbol(OutputTransition ot, VarValuation register) {
+    private PSymbolInstance createOutputSymbol(OutputTransition ot, VarValuation register, VarValuation register2) {
         ParameterizedSymbol ps = ot.getLabel();
         OutputMapping mapping = ot.getOutput();
         DataValue[] vals = new DataValue[ps.getArity()];
@@ -494,7 +500,11 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         for (DataType t : ps.getPtypes()) {
             SymbolicDataValue.Parameter p = pgen.next(t);
             if (!mapping.getOutput().keySet().contains(p)) {
-                List<DataValue> old = computeOld(t, pval, valSet(register.values(), t));
+                
+                Set<DataValue<?>> forFresh = new LinkedHashSet<>();
+                forFresh.addAll(register.values());
+                forFresh.addAll(register2.values());                
+                List<DataValue> old = computeOld(t, pval, valSet(forFresh, t));
                 vals[i] = teacher.get(t).getFreshValue(old);
             }
             else {

@@ -105,6 +105,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             new ConfigurationOption.BooleanOption("use.ceopt", 
                     "Use counterexample optimizers", Boolean.FALSE, true);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_USE_FRESH_VALUES =
+            new ConfigurationOption.BooleanOption("use.fresh", 
+                    "Allow fresh values in output", Boolean.FALSE, true);
+    
     protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_MODEL =
             new ConfigurationOption.BooleanOption("export.model", 
                     "Export final model to model.xml", Boolean.FALSE, true);
@@ -160,6 +164,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     
     protected boolean exportModel = false;
     
+    protected boolean useFresh = false;
+    
     @Override
     public void setup(Configuration config) throws ConfigurationException {
         
@@ -191,5 +197,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.useSuffixOpt = OPTION_USE_SUFFIXOPT.parse(config);
         this.timeoutMillis = OPTION_TIMEOUT.parse(config);
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
+        this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
     }    
 }

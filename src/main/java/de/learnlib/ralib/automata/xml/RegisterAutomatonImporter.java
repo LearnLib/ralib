@@ -288,7 +288,7 @@ public class RegisterAutomatonImporter {
     private DataType getOrCreateType(String name) {
         DataType t = typeMap.get(name);
         if (t == null) {
-            t = new DataType(name, Integer.class) {};
+            t = new DataType(name, Integer.class);
             typeMap.put(name, t);
         }
         return t;

@@ -69,5 +69,5 @@ public class SpecialSymbols {
 
     public static final OutputSymbol FALSE = new OutputSymbol("FALSE");
     
-    public static final DataType BOOLEAN_TYPE = new DataType("boolean", boolean.class) {};    
+    public static final DataType BOOLEAN_TYPE = new DataType("boolean", boolean.class);    
 }

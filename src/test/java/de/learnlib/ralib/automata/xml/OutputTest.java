@@ -95,7 +95,7 @@ public class OutputTest {
             });
         }
 
-        DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);

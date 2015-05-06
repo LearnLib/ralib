@@ -23,8 +23,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import net.automatalib.commons.util.Pair;
 
@@ -130,7 +128,7 @@ public class MethodConfig {
     private DataType getOrCreate(String name, Class<?> base, Map<String, DataType> map) {
         DataType ret = map.get(name);
         if (ret == null) {
-            ret = new DataType(name, base) {}; 
+            ret = new DataType(name, base); 
             map.put(name, ret);
         }
         return ret;

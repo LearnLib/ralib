@@ -29,6 +29,7 @@ import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
@@ -41,7 +42,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +56,6 @@ import net.automatalib.words.Word;
 public class SimulatorSUL extends DataWordSUL {
 
     private final RegisterAutomaton model;
-    private final Set<ParameterizedSymbol> inputs;
     
     private final Constants consts;
     private final Map<DataType, Theory> teachers;
@@ -68,11 +67,10 @@ public class SimulatorSUL extends DataWordSUL {
     private static LearnLogger log = LearnLogger.getLogger(SimulatorSUL.class);
     
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
-            Constants consts, ParameterizedSymbol[] inputs) {
+            Constants consts) {
         this.model = model;
         this.teachers = teachers;
         this.consts = consts;
-        this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));
     }
 
     @Override
@@ -93,7 +91,7 @@ public class SimulatorSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        log.log(Level.FINEST, "step: {0} from {1}", new Object[] {i, loc});
+        log.log(Level.FINEST, "step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
         prefix = prefix.append(i);
         
         boolean found = false;
@@ -132,7 +130,8 @@ public class SimulatorSUL extends DataWordSUL {
             Parameter p = pgen.next(t);
             if (!mapping.getOutput().keySet().contains(p)) {
                 List<DataValue> old = computeOld(t, pval);
-                vals[i] = teachers.get(t).getFreshValue(old);
+                DataValue dv = teachers.get(t).getFreshValue(old);
+                vals[i] = new FreshValue(dv.getType(), dv.getId());
             }
             else {
                 SymbolicDataValue sv = mapping.getOutput().get(p);                

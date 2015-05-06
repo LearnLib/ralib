@@ -81,7 +81,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/passport.xml"));
+                        "/de/learnlib/ralib/automata/xml/keygen.xml"));
 //                       "/de/learnlib/ralib/automata/xml/sip.xml"));
 
 
@@ -119,7 +119,7 @@ public class LearnLoginIOTest {
             });
         }
 
-        DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         //SimulatorOracle oracle = new SimulatorOracle(model);
         
@@ -127,6 +127,10 @@ public class LearnLoginIOTest {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
+        for (Theory t : teachers.values()) {
+            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
+        }
+        
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 

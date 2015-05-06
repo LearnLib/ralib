@@ -46,24 +46,13 @@ import org.testng.annotations.Test;
 @Test
 public class TestTreeOracle {
    
-    private static final class UserType extends DataType {
-        UserType() {
-            super("userType", String.class);
-        }
-    }
-   
-    private static final class PassType extends DataType {
-        PassType() {
-            super("passType", String.class);
-        }
-    }
 
     public void testTreeOracle() {
         
         // define types
         
-        final UserType userType = new UserType();
-        final PassType passType = new PassType();
+        final DataType userType = new DataType("userType", String.class);
+        final DataType passType = new DataType("passType", String.class);
         
         // define parameterized symbols
         
@@ -164,10 +153,10 @@ public class TestTreeOracle {
             }
         };
         
-        Theory<UserType> userTheory = new EqualityTheory<UserType>() {
+        Theory<String> userTheory = new EqualityTheory<String>() {
 
             @Override
-            public DataValue<UserType> getFreshValue(List<DataValue<UserType>> vals) {
+            public DataValue getFreshValue(List<DataValue<String>> vals) {
                 DataValue v = vals.get(0);
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());
@@ -176,10 +165,10 @@ public class TestTreeOracle {
             
         };
 
-        Theory<PassType> passTheory = new EqualityTheory<PassType>() {
+        Theory<String> passTheory = new EqualityTheory<String>() {
 
             @Override
-            public DataValue<PassType> getFreshValue(List<DataValue<PassType>> vals) {
+            public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
                 DataValue v = vals.get(0);
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());

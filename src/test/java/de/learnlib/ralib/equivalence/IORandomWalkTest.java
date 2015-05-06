@@ -74,7 +74,7 @@ public class IORandomWalkTest {
              });
          }
          
-         DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
+         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
          
          IORandomWalk iowalk = new IORandomWalk(new Random(0), 
                  sul, 

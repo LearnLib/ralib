@@ -28,7 +28,6 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.automata.guards.Relation;
@@ -39,14 +38,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  *
@@ -54,8 +45,8 @@ import java.util.Map;
  */
 public final class MapAutomatonExample {
     
-    public static final DataType T_KEY = new DataType("T_key", Integer.class) {};
-    public static final DataType T_VAL = new DataType("T_val", Integer.class) {};
+    public static final DataType T_KEY = new DataType("T_key", Integer.class);
+    public static final DataType T_VAL = new DataType("T_val", Integer.class);
 
     public static final InputSymbol I_PUT = 
             new InputSymbol("put", new DataType[] {T_VAL}); 

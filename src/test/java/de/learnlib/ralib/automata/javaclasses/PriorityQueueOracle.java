@@ -22,8 +22,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
 
     //private RegisterAutomaton.Alphabet<ParameterizedSymbol> sigma = 
     //        new Alphabet<ParameterizedSymbol>();
-    public static final DataType doubleType = new DataType("DOUBLE", Double.class) {
-    };
+    public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 //    
 //    private final PSymbolInstance ok = new PSymbolInstance(
 //            new ParameterizedSymbol("ok", 0), new Object[] {});

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 falk.
+ * Copyright (C) 2015 falk.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,11 +23,10 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-@Deprecated
-public class ParsInVars extends VarValuation {
-   
-//    public ParsInVars then(Mapping<SymbolicDataValue, SymbolicDataValue> other) {
-//        throw new UnsupportedOperationException("Not implemented");
-//    }    
+public class FreshValue<T> extends DataValue<T> {
 
+    public FreshValue(DataType type, T id) {
+        super(type, id);
+    }
+    
 }

@@ -33,7 +33,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -53,9 +53,7 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class NonFreeSuffixValuesTest {
-    
-    private final boolean useSuffixOpt = true;
+public class FreshValuesTest {
     
     @Test
     public void testModelswithOutput() {
@@ -73,7 +71,7 @@ public class NonFreeSuffixValuesTest {
 
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/fifo7.xml"));
+                        "/de/learnlib/ralib/automata/xml/keygen.xml"));
 
         de.learnlib.ralib.automata.RegisterAutomaton model = loader.getRegisterAutomaton();
         System.out.println("SYS:------------------------------------------------");
@@ -90,7 +88,7 @@ public class NonFreeSuffixValuesTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory<Integer>(useSuffixOpt) {
+            teachers.put(t, new EqualityTheoryMS<Integer>() {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
@@ -108,10 +106,7 @@ public class NonFreeSuffixValuesTest {
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
-        
+                
         DataType intType = getType("int", loader.getDataTypes());
   
         
@@ -119,56 +114,26 @@ public class NonFreeSuffixValuesTest {
                 "IPut", new DataType[] {intType});
 
         ParameterizedSymbol iget = new InputSymbol(
-                "IGet", new DataType[] {});
+                "IGet", new DataType[] {intType});
 
-         ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", new DataType[] {intType}); 
+         ParameterizedSymbol oput = new OutputSymbol(
+                "OPut", new DataType[] {intType}); 
          
-         ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});    
+         ParameterizedSymbol oget = new OutputSymbol(
+                "OGet", new DataType[] {intType});    
          
          DataValue d0 = new DataValue(intType, 0);
          DataValue d1 = new DataValue(intType, 1);
-         DataValue d2 = new DataValue(intType, 2);
-         DataValue d3 = new DataValue(intType, 3);
-         DataValue d4 = new DataValue(intType, 4);
-         DataValue d5 = new DataValue(intType, 5);
-         DataValue d6 = new DataValue(intType, 6);
 
-        //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
-        Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(iput,d0),
-                new PSymbolInstance(ook)
-                ,new PSymbolInstance(iput,d1),
-                new PSymbolInstance(ook)
-                );
+        Word<PSymbolInstance> test = Word.fromSymbols(
+                new PSymbolInstance(iput, d0),
+                new PSymbolInstance(oput, d1),
+                new PSymbolInstance(iget, d1),
+                new PSymbolInstance(oget, d0));
         
-        //**** [s2, s3, s4, s5]((IPut[s1] OOK[] IPut[s2] OOK[] IGet[] OGet[s3] IGet[] OGet[s4] IGet[] OGet[s1] IGet[] OGet[s5]))
-        Word<PSymbolInstance> suffix =  Word.fromSymbols(
-                new PSymbolInstance(iput, d6),
-                new PSymbolInstance(ook),
-                new PSymbolInstance(iput,d0),
-                new PSymbolInstance(ook),
-                
-                new PSymbolInstance(iget),
-                new PSymbolInstance(oget,d0),
-                new PSymbolInstance(iget),
-                new PSymbolInstance(oget,d0),
-                new PSymbolInstance(iget),
-                new PSymbolInstance(oget, d6),
-                new PSymbolInstance(iget),
-                new PSymbolInstance(oget,d0));
         
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        System.out.println(ioCache.trace(test));
         
-        System.out.println(prefix);
-        System.out.println(symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);       
-        
-        System.out.println(tqr.getPiv());
-        
-        System.out.println(tqr.getSdt());
     }
 
     private DataType getType(String name, Collection<DataType> dataTypes) {

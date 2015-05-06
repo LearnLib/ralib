@@ -21,7 +21,6 @@ package de.learnlib.ralib.learning.ces;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParsInVars;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;

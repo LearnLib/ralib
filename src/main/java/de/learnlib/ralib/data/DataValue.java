@@ -56,7 +56,7 @@ public class DataValue<T> {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof DataValue)) {
             return false;
         }
         final DataValue other = (DataValue) obj;

@@ -67,9 +67,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -79,8 +76,7 @@ import org.testng.annotations.Test;
  */
 public class TestIneqEqTree {
 
-    public static final DataType doubleType = new DataType("DOUBLE", Double.class) {
-    };
+    public static final DataType doubleType = new DataType("DOUBLE", Double.class);
     
     @Test
     public void testIneqEqTree() {

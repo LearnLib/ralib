@@ -83,6 +83,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
+        OPTION_USE_FRESH_VALUES,
         OPTION_EXPORT_MODEL,
         OPTION_USE_EQTEST,
         OPTION_USE_RWALK,
@@ -169,11 +170,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
 
         // oracles
-        this.sulLearn = new SimulatorSUL(model, teachers, consts, inputSymbols);
+        this.sulLearn = new SimulatorSUL(model, teachers, consts);
         if (this.timeoutMillis > 0L) {
            this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
         }
-        this.sulTest  = new SimulatorSUL(model, teachers, consts, inputSymbols);
+        this.sulTest  = new SimulatorSUL(model, teachers, consts);
         if (this.timeoutMillis > 0L) {
            this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
         }
@@ -185,6 +186,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        IOCache ioCache = new IOCache(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
+       if (useFresh) {
+           for (Theory t : teachers.values()) {
+               ((EqualityTheoryMS) t).setFreshValues(true, ioCache);
+           }
+       }
+       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 

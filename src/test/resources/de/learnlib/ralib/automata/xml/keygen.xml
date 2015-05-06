@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IGet">
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="IPut"> 
+            <param type="int" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OGet"> 
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="OPut"> 
+            <param type="int" name="p1"/> 
+         </symbol>         
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+   </constants>
+   <globals>
+      <variable type="int" name="key1">0</variable>
+      <variable type="int" name="key2">0</variable>
+      <variable type="int" name="val1">0</variable>
+      <variable type="int" name="val2">0</variable>
+   </globals>
+   <locations>
+      <location name="ms"/>
+      <location name="s0" initial="true"/>
+      <location name="m0_1"/>
+      <location name="m1_0"/>
+      <location name="m1_1"/>
+      <location name="s1"/>
+      <location name="m1_2"/>
+      <location name="m2_0"/>
+      <location name="m2_1"/>
+      <location name="m2_2"/>
+      <location name="m2_3"/>
+      <location name="s2"/>
+   </locations>
+   <transitions>
+
+      <!-- from s0 --> 
+      <transition from="s0" to="ms" symbol="IGet" />
+      <transition from="ms" to="s0" symbol="ONOK" />
+
+      <transition from="s0" to="m0_1" symbol="IPut" params="p">
+         <assignments>
+            <assign to="val1">p</assign>
+         </assignments>
+      </transition>      
+      <transition from="m0_1" to="s1" symbol="OPut" params="key1">                                                               
+         <assignments>
+            <assign to="key1">__fresh__</assign>
+         </assignments>
+      </transition>      
+      
+      <!-- from s1 --> 
+      <transition from="s1" to="m1_2" symbol="IPut" params="p">
+         <assignments>
+            <assign to="val2">p</assign>
+         </assignments>
+      </transition>      
+      <transition from="m1_2" to="s2" symbol="OPut" params="key2">                                                               
+         <assignments>
+            <assign to="key2">__fresh__</assign>
+         </assignments>
+      </transition>      
+ 
+      <transition from="s1" to="m1_0" symbol="IGet" params="p">
+         <guard>key1==p</guard>
+      </transition>         
+      <transition from="m1_0" to="s1" symbol="OGet" params="val1" />
+
+      <transition from="s1" to="m1_1" symbol="IGet" params="p">
+         <guard>key1!=p</guard>
+      </transition>         
+      <transition from="m1_1" to="s1" symbol="ONOK" />
+     
+      <!-- from s2 --> 
+      <transition from="s2" to="m2_2" symbol="IPut" params="p" />
+      <transition from="m2_2" to="s2" symbol="ONOK" />
+
+
+      <transition from="s2" to="m2_0" symbol="IGet" params="p">
+         <guard>key1==p</guard>
+      </transition>         
+      <transition from="m2_0" to="s2" symbol="OGet" params="val1" />
+
+      <transition from="s2" to="m2_1" symbol="IGet" params="p">
+         <guard>key2==p</guard>
+      </transition>         
+      <transition from="m2_1" to="s2" symbol="OGet" params="val2" />
+
+      <transition from="s2" to="m2_3" symbol="IGet" params="p">
+         <guard>key1!=p &amp;&amp; key1!=p</guard>
+      </transition>         
+      <transition from="m2_3" to="s2" symbol="ONOK" />
+
+   </transitions>
+</register-automaton>

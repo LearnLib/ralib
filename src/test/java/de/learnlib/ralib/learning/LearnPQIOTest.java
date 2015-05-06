@@ -82,8 +82,7 @@ import org.testng.annotations.Test;
  */
 public class LearnPQIOTest {
 
-    public static final DataType doubleType = new DataType("DOUBLE", Double.class) {
-    };
+    public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 
     public LearnPQIOTest() {
     }
@@ -188,13 +187,13 @@ public class LearnPQIOTest {
 
             @Override
             public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
-                System.out.println("INSTANTIATING: " + g.toString());
+                //System.out.println("INSTANTIATING: " + g.toString());
                 SymbolicDataValue.SuffixValue sp = g.getParameter();
                 Valuation newVal = new Valuation();
                 newVal.putAll(val);
                 GuardExpression x = g.toExpr();
                 if (g instanceof EqualityGuard) {                    
-                    System.out.println("SOLVING: " + x);                    
+                    //System.out.println("SOLVING: " + x);                    
                     solver.solve(x.toDataExpression().getExpression(), newVal);
                 } else {
                     List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
@@ -230,14 +229,14 @@ public class LearnPQIOTest {
                         eList.add(auExpr);
                     }
                     Expression<Boolean> _x = ExpressionUtil.and(eList);
-                    System.out.println("SOLVING: " + _x);
+                    //System.out.println("SOLVING: " + _x);
                     solver.solve(_x,newVal);
                 }
-                 System.out.println("VAL: " + newVal);
+                 //System.out.println("VAL: " + newVal);
 //                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
 //                System.out.println("x is " + x.toString());
                 Double d = (Double) newVal.getValue(sp.toVariable());
-                System.out.println("return d: " + d.toString());
+                //System.out.println("return d: " + d.toString());
                 return new DataValue<Double>(doubleType, d);
             }
 

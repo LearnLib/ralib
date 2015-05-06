@@ -20,19 +20,11 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.xml.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -51,7 +43,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,7 +97,7 @@ public class SIPSDTMergingTest {
             });
         }
 
-        DataWordSUL sul = new SimulatorSUL(model, teachers, consts, inputs);
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);

@@ -27,7 +27,6 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -41,9 +40,7 @@ public class ExpressionParser {
     
     private final String expLine;
     private final Map<String, SymbolicDataValue> pMap;
-    private final Map<SymbolicDataValue, gov.nasa.jpf.constraints.api.Variable> vars = 
-            new LinkedHashMap<>();    
-    
+      
     private GuardExpression predicate;
     
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {
