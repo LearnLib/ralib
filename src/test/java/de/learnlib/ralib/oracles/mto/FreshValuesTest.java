@@ -88,7 +88,7 @@ public class FreshValuesTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>() {
+            teachers.put(t, new EqualityTheoryMS<Integer>(true){
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
@@ -106,7 +106,14 @@ public class FreshValuesTest {
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
                 
+        for (Theory t : teachers.values()) {
+            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
+        }
+        
         DataType intType = getType("int", loader.getDataTypes());
   
         
@@ -122,17 +129,45 @@ public class FreshValuesTest {
          ParameterizedSymbol oget = new OutputSymbol(
                 "OGet", new DataType[] {intType});    
          
+         ParameterizedSymbol onok = new OutputSymbol(
+                "ONOK", new DataType[] {});   
+         
          DataValue d0 = new DataValue(intType, 0);
          DataValue d1 = new DataValue(intType, 1);
+         DataValue d2 = new DataValue(intType, 2);
 
-        Word<PSymbolInstance> test = Word.fromSymbols(
+        // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []  
+        Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(iput, d0),
                 new PSymbolInstance(oput, d1),
-                new PSymbolInstance(iget, d1),
-                new PSymbolInstance(oget, d0));
+                new PSymbolInstance(iget, d2),
+                new PSymbolInstance(onok));
+
+         DataValue d3 = new DataValue(intType, 3);
+         DataValue d4 = new DataValue(intType, 4);
+         DataValue d5 = new DataValue(intType, 5);
+        
+        // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
+        Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(iget, d3),
+                new PSymbolInstance(onok),
+                new PSymbolInstance(iput, d0),
+                new PSymbolInstance(oput, d4),
+                new PSymbolInstance(iget, d0),
+                new PSymbolInstance(onok),
+                new PSymbolInstance(iput, d5),
+                new PSymbolInstance(onok));
         
         
-        System.out.println(ioCache.trace(test));
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix1, suffix);
+        
+        System.out.println(prefix1);
+        System.out.println(symSuffix);
+        
+        TreeQueryResult tqr1 = mto.treeQuery(prefix1, symSuffix);
+
+        System.out.println(tqr1.getSdt());
+        
         
     }
 
