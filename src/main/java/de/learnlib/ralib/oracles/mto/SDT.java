@@ -178,6 +178,26 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled) && otherRelabeled.canUse(this);
     }
     
+   public boolean isEquivalentUnder(SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
+//       System.out.println("trying with " + ds);
+        if (deqSDT instanceof SDTLeaf) {
+            if (this instanceof SDTLeaf) {
+//                System.out.println(this.isAccepting() + " == " + deqSDT.isAccepting());
+                return (this.isAccepting() == deqSDT.isAccepting());
+            }
+            return false;
+        }
+        VarMapping eqRenaming = new VarMapping<>();
+        //eqRenaming.putAll(renaming);
+        for (SDTIfGuard d : ds) {
+            eqRenaming.put(d.getParameter(), d.getRegister());
+        }
+        boolean x =  this.canUse((SDT)deqSDT.relabel(eqRenaming));
+//            System.out.println(x);
+            return x;
+    } 
+   
+   @Deprecated
    public boolean isLooselyEquivalent(SymbolicDecisionTree deqSDT, VarMapping renaming, List<SDTIfGuard> ds) {
 //       System.out.println("trying with " + ds);
         if (deqSDT instanceof SDTLeaf) {

@@ -94,61 +94,62 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
     public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
         return vals;
     }
-
-    private VarMapping makeVarMapping(Set<SDTGuard> gSet1, Set<SDTGuard> gSet2) {
-        VarMapping vars = new VarMapping();
-        SDTIfGuard ifg1;
-        SymbolicDataValue r1;
-        for (SDTGuard g1 : gSet1) {
-            if (g1 instanceof SDTIfGuard) {
-                ifg1 = (SDTIfGuard) g1;
-                r1 = ifg1.getRegister();
-                SuffixValue p1 = g1.getParameter();
-                for (SDTGuard g2 : gSet2) {
-                    if (g2 instanceof SDTIfGuard) {
-                        SDTIfGuard ifg2 = (SDTIfGuard) g2;
-                        if ((p1.getId() == g2.getParameter().getId()) && (ifg1.getRelation().equals(ifg2.getRelation()))) {
-                            vars.put(r1, ifg2.getRegister());
-                        }
-                    }
-                }
-            }
-        }
-        return vars;
-    }
-
-    private List<SDTIfGuard> mgG(SDTIfGuard e, List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
-        List<SDTIfGuard> merged = new ArrayList<>();
-        merged.add(e);
-        SymbolicDataValue r = e.getRegister();
-        for (int i = 1; i < eqs.size(); i++) {
-            SDTIfGuard other = eqs.get(i);
-            VarMapping vars = new VarMapping();
-            vars.put(r, other.getRegister());
-            if (!(eqMap.get(e).isEquivalent(eqMap.get(other), vars))) {
-                //               System.out.println("NOT EQ::: " + e.toString() + "   " + other.toString());
-                merged.add(other);
-            }
-        }
-        return merged;
-    }
-
-    private List<SDTIfGuard> mggG(List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
-        // eqs is at least size 1
-        List<SDTIfGuard> m1 = mgG(eqs.get(0), eqs, eqMap);
-//        if (m1.size() == 1) {
-//            return m1;
+//
+//    private VarMapping makeVarMapping(Set<SDTGuard> gSet1, Set<SDTGuard> gSet2) {
+//        log.log(Level.FINEST,"guard sets: " + gSet1.toString() + "\n            " + gSet2.toString());
+//        VarMapping vars = new VarMapping();
+//        SDTIfGuard ifg1;
+//        SymbolicDataValue r1;
+//        for (SDTGuard g1 : gSet1) {
+//            if (g1 instanceof SDTIfGuard) {
+//                ifg1 = (SDTIfGuard) g1;
+//                r1 = ifg1.getRegister();
+//                SuffixValue p1 = g1.getParameter();
+//                for (SDTGuard g2 : gSet2) {
+//                    if (g2 instanceof SDTIfGuard) {
+//                        SDTIfGuard ifg2 = (SDTIfGuard) g2;
+//                        if ((p1.getId() == g2.getParameter().getId()) && (ifg1.getRelation().equals(ifg2.getRelation()))) {
+//                            vars.put(r1, ifg2.getRegister());
+//                        }
+//                    }
+//                }
+//            }
 //        }
-        //       System.out.println("m1 " + m1.toString());
-        List<SDTIfGuard> m2 = mgG(m1.get(0), m1, eqMap);
-//        if (m2.size() == 1) {
-//            return m2;
-        if (m1.size() == m2.size()) {
-            return m1;
-        } else {
-            return mggG(m1, eqMap);
-        }
-    }
+//        return vars;
+//    }
+
+//    private List<SDTIfGuard> mgG(SDTIfGuard e, List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+//        List<SDTIfGuard> merged = new ArrayList<>();
+//        merged.add(e);
+//        SymbolicDataValue r = e.getRegister();
+//        for (int i = 1; i < eqs.size(); i++) {
+//            SDTIfGuard other = eqs.get(i);
+//            VarMapping vars = new VarMapping();
+//            vars.put(r, other.getRegister());
+//            if (!(eqMap.get(e).isEquivalent(eqMap.get(other), vars))) {
+//                //               System.out.println("NOT EQ::: " + e.toString() + "   " + other.toString());
+//                merged.add(other);
+//            }
+//        }
+//        return merged;
+//    }
+
+//    private List<SDTIfGuard> mggG(List<SDTIfGuard> eqs, Map<SDTIfGuard, SDT> eqMap) {
+//        // eqs is at least size 1
+//        List<SDTIfGuard> m1 = mgG(eqs.get(0), eqs, eqMap);
+////        if (m1.size() == 1) {
+////            return m1;
+////        }
+//        //       System.out.println("m1 " + m1.toString());
+//        List<SDTIfGuard> m2 = mgG(m1.get(0), m1, eqMap);
+////        if (m2.size() == 1) {
+////            return m2;
+//        if (m1.size() == m2.size()) {
+//            return m1;
+//        } else {
+//            return mggG(m1, eqMap);
+//        }
+//    }
 
 // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
@@ -167,10 +168,12 @@ public abstract class EqualityTheoryMS<T> implements Theory<T> {
             log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
+            //VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
+            //VarMapping vars = new VarMapping();
             List<SDTIfGuard> ds = new ArrayList();
             ds.add(eqGuard);
-            if (!(eqSdt.isLooselyEquivalent(deqSdt, vars, ds))) {
+            log.log(Level.FINEST, "remapping: " + ds.toString());
+            if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
                 log.log(Level.FINEST, "--> not eq.");
 //            if (!(eqSdt.rcU(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");
