@@ -55,6 +55,17 @@ public class TimeOutSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         return back.step(i);
     }
+
+    @Override
+    public long getResets() {
+        return back.getResets(); 
+    }
+
+    @Override
+    public long getInputs() {
+        return back.getInputs(); 
+    }
+
     
     
     
