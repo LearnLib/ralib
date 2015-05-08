@@ -706,11 +706,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        return vals;
 //    }
 
-    private DataValue getRegisterValue(SymbolicDataValue r, PIV piv, List<DataValue<T>> prefixValues, Constants constants, ParValuation pval) {
+    private DataValue getRegisterValue(SymbolicDataValue r, PIV piv, List<DataValue> prefixValues, Constants constants, ParValuation pval) {
         if (r.isRegister()) {
-            //log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
+            log.log(Level.FINEST, "piv: " + piv + " " + r.toString() + " " + prefixValues);
             Parameter p = piv.getOneKey((Register) r);
-            //log.log(Level.FINEST, "p: " + p.toString());
+            log.log(Level.FINEST, "p: " + p.toString());
             int idx = p.getId();
             //return piv.get(param);
             // trying to not pickup values from prefix
@@ -739,7 +739,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         DataType type = param.getType();
 
         //Variable px = param.toVariable();
-        List<DataValue<T>> prefixValues = Arrays.asList(DataWords.<T>valsOf(prefix, type));
+        List<DataValue<T>> typedPrefixValues = Arrays.asList(DataWords.<T>valsOf(prefix, type));
+        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
 
         if (guard instanceof EqualityGuard) {
