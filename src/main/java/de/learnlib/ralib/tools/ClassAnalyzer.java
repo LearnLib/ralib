@@ -29,6 +29,7 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
+import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -195,13 +196,18 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 
+            final long timeout = this.timeoutMillis;
             TreeOracleFactory hypFactory = new TreeOracleFactory() {
                 @Override
                 public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                    return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts);
+                    DataWordOracle hypOracle = new SimulatorOracle(hyp);
+                    if (timeout > 0L) {
+                        hypOracle = new TimeOutOracle(hypOracle, timeout);
+                    }
+                    return new MultiTheoryTreeOracle(hypOracle, teachers, consts);
                 }
             };
-
+        
             this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
             if (findCounterexamples) {
