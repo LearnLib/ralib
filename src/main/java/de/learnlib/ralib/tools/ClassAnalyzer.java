@@ -74,10 +74,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             = new ConfigurationOption.StringOption("methods",
                     "traget method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
 
-    private static final ConfigurationOption.StringOption OPTION_TEACHERS
-            = new ConfigurationOption.StringOption("teachers",
-                    "teachers. format: type:class + type:class + ...", null, false);
-
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH =
             new ConfigurationOption.IntegerOption("max.depth", 
                     "Maximum depth to explore", -1, true);
@@ -180,13 +176,16 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             // create teachers
-            String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
             final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-            for (String s : parsed) {
-
-                Pair<DataType, TypedTheory> pair = parseTeacherConfig(s);
-                teachers.put(pair.getFirst(), pair.getSecond());
-
+            // create teachers
+            for (String tName : teacherClasses.keySet()) {
+                DataType t = types.get(tName);
+                TypedTheory theory = teacherClasses.get(t.getName());            
+                theory.setType(t);
+                if (this.useSuffixOpt) {
+                    theory.setUseSuffixOpt(this.useSuffixOpt);
+                }            
+                teachers.put(t, theory);
             }
 
             IOOracle back = new SULOracle(sulLearn, SpecialSymbols.ERROR);        
@@ -232,25 +231,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);
             this.ceOptPref = new IOCounterExamplePrefixFinder(back);
 
-        } catch (ClassNotFoundException | NoSuchMethodException | 
-                InstantiationException | IllegalAccessException ex) {
+        } catch (ClassNotFoundException | NoSuchMethodException ex) {
             ex.printStackTrace();
             throw new ConfigurationException(ex.getMessage());
         }
 
-    }
-
-    private Pair<DataType, TypedTheory> parseTeacherConfig(String config)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        String[] parts = config.trim().split(":");
-        Class<?> cl = Class.forName(parts[1].trim());
-
-        TypedTheory th = (TypedTheory) cl.newInstance();
-        DataType t = types.get(parts[0].trim());
-        th.setType(t);
-        th.setUseSuffixOpt(this.useSuffixOpt);
-        
-        return new Pair<DataType, TypedTheory>(t, th);
     }
 
     @Override

@@ -16,12 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.tools.classanalyzer;
+package de.learnlib.ralib.tools.theories;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import java.util.List;
 
 /**
@@ -51,5 +53,12 @@ public class IntegerEqualityTheory  extends EqualityTheoryMS<Integer> implements
     public void setUseSuffixOpt(boolean useit) {
         this.useNonFreeOptimization = useit;
     }
+
+    @Override
+    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
+        super.setFreshValues(doit, oracle);
+    }
+    
+    
 
 }

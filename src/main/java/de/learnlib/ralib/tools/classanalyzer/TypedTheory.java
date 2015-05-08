@@ -20,6 +20,7 @@
 package de.learnlib.ralib.tools.classanalyzer;
 
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
 
 /**
@@ -32,4 +33,6 @@ public interface TypedTheory<T> extends Theory<T> {
     public void setType(DataType type);
     
     public void setUseSuffixOpt(boolean useit);
+    
+    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle);
 }

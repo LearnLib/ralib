@@ -46,6 +46,7 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -61,6 +62,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  *
@@ -81,6 +83,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
         OPTION_RANDOM_SEED,
+        OPTION_TEACHERS,
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
         OPTION_USE_FRESH_VALUES,
@@ -121,6 +124,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private Constants consts;
     
+    private final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+    
     @Override
     public String description() {
         return "uses an IORA model as SUL";
@@ -150,23 +155,15 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 new ParameterizedSymbol[]{});
 
         consts = loader.getConstants();
-
         
         // create teachers
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>(this.useSuffixOpt) {
-                @Override
-                public DataValue getFreshValue(List<DataValue<Integer>> vals) {
-                    //System.out.println("GENERATING FRESH: " + vals.size());
-                    int dv = -1;
-                    for (DataValue<Integer> d : vals) {
-                        dv = Math.max(dv, d.getId());
-                    }
-                        
-                    return new DataValue(t, dv + 1);
-                }
-            });
+        for (final DataType t : loader.getDataTypes()) {            
+            TypedTheory theory = teacherClasses.get(t.getName());            
+            theory.setType(t);
+            if (this.useSuffixOpt) {
+                theory.setUseSuffixOpt(this.useSuffixOpt);
+            }            
+            teachers.put(t, theory);
         }
 
         // oracles
@@ -188,7 +185,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 
        if (useFresh) {
            for (Theory t : teachers.values()) {
-               ((EqualityTheoryMS) t).setFreshValues(true, ioCache);
+               ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
            }
        }
        
@@ -320,6 +317,10 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
+        
+        for (Entry<DataType, Theory> e : teachers.entrySet()) {
+            System.out.println("Theory: " + e.getKey() + " -> " + e.getValue().getClass().getName());
+        }
         
         if (useEqTest) {
             System.out.println("Last EQ Test found a counterexample: " + eqTestfoundCE);
