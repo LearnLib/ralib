@@ -81,7 +81,7 @@ public class ExpressionParser {
 
     private GuardExpression buildPredicate(String pred) 
     {
-        pred = pred.replace("!=", "<>");
+        pred = pred.replace("!=", "!!");
         if (pred.trim().length() < 1) {
             return new TrueGuardExpression();
         }
@@ -91,12 +91,25 @@ public class ExpressionParser {
             SymbolicDataValue right = pMap.get(related[1].trim());
             return new AtomicGuardExpression(left, Relation.EQUALS, right);            
         } 
-        else if (pred.contains("<>")) {
-            String[] related = pred.split("<>");
+        else if (pred.contains("!!")) {
+            String[] related = pred.split("!!");
             SymbolicDataValue left = pMap.get(related[0].trim());
             SymbolicDataValue right = pMap.get(related[1].trim());
             return new AtomicGuardExpression(left, Relation.NOT_EQUALS, right);            
         }
+        else if (pred.contains(">")) {
+            String[] related = pred.split(">");
+            SymbolicDataValue left = pMap.get(related[0].trim());
+            SymbolicDataValue right = pMap.get(related[1].trim());
+            return new AtomicGuardExpression(left, Relation.BIGGER, right);                        
+        }
+        else if (pred.contains("<")) {
+            String[] related = pred.split("<");
+            SymbolicDataValue left = pMap.get(related[0].trim());
+            SymbolicDataValue right = pMap.get(related[1].trim());
+            return new AtomicGuardExpression(left, Relation.SMALLER, right);             
+        }
+        
         throw new IllegalStateException(
                 "this should not happen!!! " + pred + " in " + expLine);
     }

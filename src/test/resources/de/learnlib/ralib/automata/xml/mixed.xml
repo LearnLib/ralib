@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IFrame"> 
+            <param type="int" name="p0"/>
+            <param type="double" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+   </constants>   
+   <globals>
+      <variable type="int" name="sid">0</variable>
+      <variable type="double" name="seq">0</variable>
+   </globals>
+   <locations>
+      <location name="id4" initial="true"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+   </locations>
+   <transitions>
+ 
+      <transition from="id4" to="id3" symbol="IFrame" params="i,s">
+         <assignments>
+            <assign to="sid">i</assign>
+            <assign to="seq">s</assign>
+         </assignments>
+      </transition>
+ 
+      <transition from="id3" to="id2" symbol="OOK" />
+ 
+       <transition from="id2" to="id3" symbol="IFrame" params="i,s">
+         <guard> sid == i &amp;&amp; seq &lt; s </guard>
+         <assignments>
+            <assign to="sid">i</assign>
+            <assign to="seq">s</assign>
+         </assignments>
+      </transition>
+
+       <transition from="id2" to="id1" symbol="IFrame" params="i,s">
+         <guard> sid != i || seq &gt; s || seq == s </guard>
+         <assignments>
+            <assign to="sid">i</assign>
+            <assign to="seq">s</assign>
+         </assignments>
+      </transition>
+
+      <transition from="id1" to="id0" symbol="ONOK" />
+
+       <transition from="id0" to="id1" symbol="IFrame" params="i,s">
+      </transition>
+
+   </transitions>
+</register-automaton>

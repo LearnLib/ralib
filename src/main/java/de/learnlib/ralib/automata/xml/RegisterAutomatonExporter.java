@@ -237,7 +237,7 @@ public class RegisterAutomatonExporter {
     
     private static String exportGuard(TransitionGuard guard) {
         String g = guard.toString();
-        if (!g.contains("=")) {
+        if (!g.contains("=") && !g.contains("<") && !g.contains(">")) {
             return null;
         }
         g = g.replaceAll("TRUE", "true");
