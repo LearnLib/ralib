@@ -87,6 +87,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
+        
+        System.out.println(prefix + " . " + suffix);
+        System.out.println(sdt);
+        
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
         RegisterGenerator gen = new RegisterGenerator();

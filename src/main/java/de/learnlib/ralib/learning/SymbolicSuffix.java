@@ -91,8 +91,15 @@ public class SymbolicSuffix {
         
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         
+        int arityFirst = 0;
+        if (this.actions.length() > 0) {
+            ParameterizedSymbol first = this.actions.firstSymbol();
+            arityFirst = first.getArity();
+        }
+        
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d)) {
+            if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d) ||
+                    (groups.containsKey(d) && idx <= arityFirst)) {
             //if (valsetPrefix.contains(d) || consts.containsValue(d)) {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
