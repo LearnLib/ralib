@@ -47,7 +47,8 @@ public class SDTLeaf extends SDT {
     }
             
     @Override
-    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
+    public boolean isEquivalent(
+            SymbolicDecisionTree other, VarMapping renaming) {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
@@ -72,9 +73,6 @@ public class SDTLeaf extends SDT {
         return this;
     }
     
-    public SymbolicDecisionTree relabelLoosely(VarMapping other) {
-        return this;
-    }
 
     @Override
     public boolean isAccepting() {
@@ -84,7 +82,8 @@ public class SDTLeaf extends SDT {
     
     @Override
     void toString(StringBuilder sb, String indentation) {
-        sb.append(indentation).append("[Leaf").append(isAccepting() ? "+" : "-").append("]").append("\n");
+        sb.append(indentation).append("[Leaf").
+                append(isAccepting() ? "+" : "-").append("]").append("\n");
     }
     
     @Override

@@ -162,7 +162,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             VarMapping vars = makeVarMapping(eqSdt.getGuards(), deqSdt.getGuards());
             List<SDTIfGuard> ds = new ArrayList();
             ds.add(eqGuard);
-            if (!(eqSdt.isLooselyEquivalent(deqSdt,vars, ds))) {
+            if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
                 log.log(Level.FINEST, "--> not eq.");
 //            if (!(eqSdt.rcU(deqSdt))) {
                 //    log.log(Level.FINEST, "CANNOT USE: Adding if guard");

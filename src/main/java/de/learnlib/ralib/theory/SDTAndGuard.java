@@ -8,14 +8,9 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.Conjuction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,11 +24,11 @@ public class SDTAndGuard extends SDTMultiGuard {
         hash = 59 * hash + Objects.hashCode(this.parameter);
         hash = 59 * hash + Objects.hashCode(this.guardSet);
         hash = 59 * hash + Objects.hashCode(this.getClass());
-        
+
         return hash;
     }
 
-   @Override
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;
@@ -42,13 +37,13 @@ public class SDTAndGuard extends SDTMultiGuard {
             return false;
         }
         final SDTAndGuard other = (SDTAndGuard) obj;
-        
+
         if (!Objects.equals(this.guardSet, other.guardSet)) {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
-    } 
-    
+    }
+
     public SDTAndGuard(SuffixValue param, SDTIfGuard... ifGuards) {
         super(param, ConDis.AND, ifGuards);
     }
@@ -60,7 +55,7 @@ public class SDTAndGuard extends SDTMultiGuard {
         }
         return exprs;
     }
-    
+
     @Override
     public GuardExpression toExpr() {
         List<GuardExpression> thisList = this.toExprList();
@@ -69,37 +64,21 @@ public class SDTAndGuard extends SDTMultiGuard {
         }
         if (thisList.size() == 1) {
             return thisList.get(0);
-        }
-        else {
- //           System.out.println("here is the list: " + thisList.toString());
-            return new Conjuction(thisList.toArray(new GuardExpression[] {}));
+        } else {
+            return new Conjuction(thisList.toArray(new GuardExpression[]{}));
         }
     }
-    
+
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+        SymbolicDataValue.SuffixValue sv
+                = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
-        
+
         List<SDTIfGuard> gg = new ArrayList<>();
         for (SDTIfGuard g : this.guards) {
             gg.add(g.relabel(relabelling));
         }
-        //throw new IllegalStateException("not supposed to happen");
         return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
-    }    
-    
-    @Override
-    public SDTGuard relabelLoosely(VarMapping relabelling) {
-        return this.relabel(relabelling);
-//        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-//        sv = (sv == null) ? getParameter() : sv;
-//        
-//        List<SDTIfGuard> gg = new ArrayList<>();
-//        for (SDTIfGuard g : this.guards) {
-//            gg.add(g.relabelLoosely(relabelling));
-//        }
-//        //throw new IllegalStateException("not supposed to happen");
-//        return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
-    }    
+    }
 }
