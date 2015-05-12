@@ -1,0 +1,36 @@
+RALib
+=========================
+
+RALib is a library for learning register automata.
+
+Installation
+-------------------------
+
+RALib uses the [*jConstraints*][1] library as an abstraction layer for interfacing
+the solver (*jConstraints* uses plugins for supporting multiple constraint solvers.
+For licensing reasons no plugin is included in RALib. In order to run RALib you 
+have to install a plugin for at least one constraint solver.
+
+There exists a closed source plugin for Microsoft's [Z3][2]). For obtaining and 
+installing *jConstraints-z3*, follow the instructions on the [BitBucket page][1].
+
+Installing RALib is then as simple as just running `mvn clean install` and 
+`mvn assembly:assembly` in the RALib directory. 
+
+
+Using RALib
+-------------------------
+
+RALib can be used as a library from Java. The test cases that come with RALib
+demonstrate how this can be done. RALib currently also provides two tools
+that can be run from the shell. A 'simulator' for inferring RA models from 
+simulated systems (automata) and a 'class analyzer' for inferring RA models
+of Java classes. Running
+
+`java -ea -jar ../../lib/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar`
+
+will show some help and available options to the tools.
+
+
+[1]: https://bitbucket.org/psycopaths/jConstraints-z3
+[2]: https://z3.codeplex.com
