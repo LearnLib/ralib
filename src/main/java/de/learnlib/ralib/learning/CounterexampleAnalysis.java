@@ -232,7 +232,7 @@ public class CounterexampleAnalysis {
         int mid = -1;
         
         while (max >= min) {
-            //TODO: check that +1 does no harm
+
             mid = (max+min+1) / 2;
          
             IndexResult res = computeIndex(ce, mid);
