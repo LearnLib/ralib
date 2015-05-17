@@ -32,6 +32,8 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
+import java.util.Set;
+import java.util.Set;
 import net.automatalib.words.Word;
 
 
@@ -79,7 +81,7 @@ public interface Theory<T> {
     public DataValue instantiate(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
-            SDTGuard guard, Parameter param);
+            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
 
 //    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
 //            ParameterizedSymbol ps, MultiTheoryBranching current, 

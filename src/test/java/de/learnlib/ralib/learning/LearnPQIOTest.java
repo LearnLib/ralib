@@ -20,9 +20,7 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.guards.DataExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import static de.learnlib.ralib.automata.javaclasses.PriorityQueueOracle.doubleType;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -54,6 +52,7 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -157,7 +156,7 @@ public class LearnPQIOTest {
         
         final Constants consts = new Constants();
 
-        long seed = -1386796323025681754L;
+        long seed = 7471397892490097694L;
         //long seed = (new Random()).nextLong();
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
@@ -192,9 +191,10 @@ public class LearnPQIOTest {
                 Valuation newVal = new Valuation();
                 newVal.putAll(val);
                 GuardExpression x = g.toExpr();
+                Result res;
                 if (g instanceof EqualityGuard) {                    
                     //System.out.println("SOLVING: " + x);                    
-                    solver.solve(x.toDataExpression().getExpression(), newVal);
+                    res = solver.solve(x.toDataExpression().getExpression(), newVal);
                 } else {
                     List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
                     // add the guard
@@ -228,27 +228,35 @@ public class LearnPQIOTest {
                         Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
                         eList.add(auExpr);
                     }
+                    
+                    if (newVal.containsValueFor(sp.toVariable())) {
+                        DataValue<Double> spDouble = (DataValue<Double>) newVal.getValue(sp.toVariable());
+                        gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+                        Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp.toVariable());
+                        eList.add(spExpr);
+                    }
+                    
                     Expression<Boolean> _x = ExpressionUtil.and(eList);
-                    //System.out.println("SOLVING: " + _x);
-                    solver.solve(_x,newVal);
+//                    System.out.println("SOLVING: " + _x + " with " + newVal);
+                    res = solver.solve(_x,newVal);
+                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
                 }
                  //System.out.println("VAL: " + newVal);
 //                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
 //                System.out.println("x is " + x.toString());
+                if (res == Result.SAT) {
+//                    System.out.println("SAT!!");
                 Double d = (Double) newVal.getValue(sp.toVariable());
                 //System.out.println("return d: " + d.toString());
                 return new DataValue<Double>(doubleType, d);
-            }
-
-            private Expression<Boolean> toExpr(List<Expression<Boolean>> eqList, int i) {
-                //assert !eqList.isEmpty();
-                if (eqList.size() == i + 1) {
-                    return eqList.get(i);
-                } else {
-//            System.out.println("here is the xpr: " + eqList.toString());
-                    return new PropositionalCompound(eqList.get(i), LogicalOperator.AND, toExpr(eqList, i + 1));
+                }
+                else {
+//                    System.out.println("UNSAT: " + _x + " with " + newVal);
+                    return null;
                 }
             }
+
+            
 
             @Override
             public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {

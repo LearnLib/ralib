@@ -178,6 +178,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 finalMap.put(guard, sdt);
             }
         }
+        assert !finalMap.isEmpty();
         return finalMap;
     }
 
@@ -370,7 +371,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
 
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids);
-
         // only keep registers that are referenced by the merged guards
         piv.putAll(keepMem(merged.keySet()));
 
@@ -480,7 +480,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
     public abstract DataValue instantiate(SDTGuard guard, Valuation val,
             Constants constants, Collection<DataValue<T>> alreadyUsedValues);
-
+    
     @Override
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
@@ -488,7 +488,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             ParValuation pval,
             Constants constants,
             SDTGuard guard,
-            Parameter param) {
+            Parameter param,
+            Set<DataValue<T>> oldDvs) {
 
         DataType type = param.getType();
 
@@ -502,8 +503,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             DataValue x = getRegisterValue(
                     ereg, piv, prefixValues, constants, pval);
             return x;
-        } else if ((guard instanceof SDTTrueGuard)
-                || guard instanceof DisequalityGuard) {
+        } else if (guard instanceof SDTTrueGuard) {
 
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),
@@ -533,8 +533,81 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     val.setValue(r.toVariable(), regVal);
                 }
             }
-            return instantiate(guard, val, constants, alreadyUsedValues);
+            
+            if (!(oldDvs.isEmpty())) {
+                for (DataValue<T> oldDv : oldDvs) {
+                    Valuation newVal = new Valuation();
+                    newVal.putAll(val);
+                    newVal.setValue(new SuffixValue(param.getType(),param.getId()).toVariable(), oldDv);
+                    System.out.println("instantiating " + guard + " with " + newVal);
+                    DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
+                    if (inst != null) {
+                        System.out.println("returning (reused): " + inst);
+                        return inst;
+                    }
+                }
+            }
+            DataValue ret = instantiate(guard, val, constants, alreadyUsedValues);
+            System.out.println("returning (no reuse): " + ret);
+            return ret;
         }
 
     }
+    
+//    @Override
+//    public DataValue instantiate(
+//            Word<PSymbolInstance> prefix,
+//            ParameterizedSymbol ps, PIV piv,
+//            ParValuation pval,
+//            Constants constants,
+//            SDTGuard guard,
+//            Parameter param) {
+//
+//        DataType type = param.getType();
+//
+//        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+//
+//        log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
+//
+//        if (guard instanceof EqualityGuard) {
+//            EqualityGuard eqGuard = (EqualityGuard) guard;
+//            SymbolicDataValue ereg = eqGuard.getRegister();
+//            DataValue x = getRegisterValue(
+//                    ereg, piv, prefixValues, constants, pval);
+//            return x;
+//        } else if ((guard instanceof SDTTrueGuard)
+//                || guard instanceof DisequalityGuard) {
+//
+//            Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
+//                    constants.<T>values(type),
+//                    DataWords.<T>valSet(prefix, type),
+//                    pval.<T>values(type));
+//
+//            return this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+//        } else {
+//            Collection<DataValue<T>> alreadyUsedValues
+//                    = DataWords.<T>joinValsToSet(
+//                            constants.<T>values(type),
+//                            DataWords.<T>valSet(prefix, type),
+//                            pval.<T>values(type));
+//            Valuation val = new Valuation();
+//            if (guard instanceof SDTIfGuard) {
+//                SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
+//                DataValue<T> regVal = getRegisterValue(r, piv,
+//                        prefixValues, constants, pval);
+//
+//                val.setValue(r.toVariable(), regVal);
+//                //instantiate(guard, val, param, constants);
+//            } else if (guard instanceof SDTMultiGuard) {
+//                for (SDTIfGuard ifGuard : ((SDTMultiGuard) guard).getGuards()) {
+//                    SymbolicDataValue r = ifGuard.getRegister();
+//                    DataValue<T> regVal = getRegisterValue(r, piv,
+//                            prefixValues, constants, pval);
+//                    val.setValue(r.toVariable(), regVal);
+//                }
+//            }
+//            return instantiate(guard, val, constants, alreadyUsedValues);
+//        }
+//
+//    }
 }

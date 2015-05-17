@@ -474,7 +474,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             ParValuation pval,
             Constants constants,
             SDTGuard guard,
-            Parameter param
+            Parameter param,
+            Set<DataValue<T>> oldDvs
     ) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));

@@ -96,6 +96,18 @@ public class MultiTheoryBranching implements Branching {
                 e.getValue().toString(sb, nextIndent);
             }
         }
+        
+        
+        protected Map<Parameter, Set<DataValue>> collectDVs() {
+        Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
+        if (!(this.next.keySet()).isEmpty()) {
+            dvs.put(this.parameter, this.next.keySet());
+            for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+                dvs.putAll(e.getValue().collectDVs());
+            }
+        }
+        return dvs;
+    }
 
     };
 
@@ -132,6 +144,10 @@ public class MultiTheoryBranching implements Branching {
     public Word<PSymbolInstance> getPrefix() {
         return prefix;
     }
+    
+    public Map<Parameter, Set<DataValue>> getDVs() {
+    return this.node.collectDVs();
+}
 
     public ParValuation getPval() {
         return pval;
@@ -239,9 +255,6 @@ public class MultiTheoryBranching implements Branching {
                         new DataValue[0],
                         new ArrayList<SDTGuard>(),
                         new ArrayList<Node>());
-
-        for (DataValue[] d : tempMap.keySet()) {
-        }
 
         Map<SymbolicDataValue, Variable> vars = makeVarMapping(tempMap);
 

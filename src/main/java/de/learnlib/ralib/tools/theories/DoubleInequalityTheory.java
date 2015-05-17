@@ -31,6 +31,7 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
@@ -94,10 +95,11 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
         newVal.putAll(val);
-        GuardExpression x = g.toExpr();
+        GuardExpression x = g.toExpr();       
+        Result res;
         if (g instanceof EqualityGuard) {
             //System.out.println("SOLVING: " + x);                    
-            solver.solve(x.toDataExpression().getExpression(), newVal);
+            res = solver.solve(x.toDataExpression().getExpression(), newVal);
         } else {
             List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
             // add the guard
@@ -131,16 +133,31 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
                 Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
                 eList.add(auExpr);
             }
+            
+            if (newVal.containsValueFor(sp.toVariable())) {
+                        DataValue<Double> spDouble = (DataValue<Double>) newVal.getValue(sp.toVariable());
+                        gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+                        Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp.toVariable());
+                        eList.add(spExpr);
+                    }
+            
             Expression<Boolean> _x = ExpressionUtil.and(eList);
             //System.out.println("SOLVING: " + _x);
-            solver.solve(_x, newVal);
+            res = solver.solve(_x, newVal);
+//            System.out.println("RETURNS:  " + res + "   " + g + "   " + newVal);
         }
         //System.out.println("VAL: " + newVal);
 //                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
 //                System.out.println("x is " + x.toString());
-        Double d = (Double) newVal.getValue(sp.toVariable());
+        if (res == Result.SAT) {
+            Double d = (Double) newVal.getValue(sp.toVariable());
         //System.out.println("return d: " + d.toString());
-        return new DataValue<Double>(type, d);
+            return new DataValue<Double>(type, d);
+        }
+        else {
+            return null;
+        }
+        
     }
 
     @Override
