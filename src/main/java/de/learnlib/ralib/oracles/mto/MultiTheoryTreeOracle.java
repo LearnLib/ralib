@@ -406,7 +406,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 
                 DataValue dvi = null;
                 
-                System.out.println(oldDvs.toString());
+//                System.out.println(oldDvs.toString());
                 if (oldDvs.containsKey(p)) {
                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(p));
                 } else {

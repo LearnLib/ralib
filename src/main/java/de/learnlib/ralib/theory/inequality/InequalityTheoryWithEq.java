@@ -539,16 +539,16 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     Valuation newVal = new Valuation();
                     newVal.putAll(val);
                     newVal.setValue(new SuffixValue(param.getType(),param.getId()).toVariable(), oldDv);
-                    System.out.println("instantiating " + guard + " with " + newVal);
+//                    System.out.println("instantiating " + guard + " with " + newVal);
                     DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
                     if (inst != null) {
-                        System.out.println("returning (reused): " + inst);
+//                        System.out.println("returning (reused): " + inst);
                         return inst;
                     }
                 }
             }
             DataValue ret = instantiate(guard, val, constants, alreadyUsedValues);
-            System.out.println("returning (no reuse): " + ret);
+//            System.out.println("returning (no reuse): " + ret);
             return ret;
         }
 

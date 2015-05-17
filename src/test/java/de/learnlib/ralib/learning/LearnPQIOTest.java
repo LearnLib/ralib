@@ -239,7 +239,7 @@ public class LearnPQIOTest {
                     Expression<Boolean> _x = ExpressionUtil.and(eList);
 //                    System.out.println("SOLVING: " + _x + " with " + newVal);
                     res = solver.solve(_x,newVal);
-                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
+//                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
                 }
                  //System.out.println("VAL: " + newVal);
 //                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
