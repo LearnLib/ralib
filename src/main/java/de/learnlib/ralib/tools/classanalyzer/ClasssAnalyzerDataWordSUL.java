@@ -92,13 +92,13 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         try {
             ret = act.invoke(sul, params);
         } catch (Throwable ex) {
-            if (ex instanceof IllegalAccessException || 
-                    ex instanceof IllegalArgumentException || 
-                    ex instanceof InvocationTargetException) {
-                throw new RuntimeException(ex);
+            if (ex instanceof InvocationTargetException) {
+                InvocationTargetException iex = (InvocationTargetException) ex;
+                return new PSymbolInstance(new SpecialSymbols.ErrorSymbol(
+                        iex.getTargetException()));
             }
             else {
-                return new PSymbolInstance(new SpecialSymbols.ErrorSymbol(ex));
+                throw new RuntimeException(ex);
             }
         }
         

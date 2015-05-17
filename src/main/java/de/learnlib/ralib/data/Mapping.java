@@ -37,14 +37,6 @@ import java.util.Set;
 public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         implements Iterable<Map.Entry<K, V>> {
 
-    //TODO: remove this - it seems to be unused
-    @Deprecated
-    public Mapping<K, V> createCopy() {
-        Mapping val = new Mapping();
-        val.putAll(this);
-        return val;
-    }    
-    
     /**
      * returns the contained values of some type.
      * 

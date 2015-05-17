@@ -31,7 +31,6 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-//TODO: this should be moved to test packages
 public class LoggingOracle implements TreeOracle {
     
     private final TreeOracle treeoracle;
