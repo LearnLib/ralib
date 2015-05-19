@@ -21,11 +21,11 @@ public abstract class SDTMultiGuard extends SDTGuard {
         AND, OR
     }
 
-    protected final List<SDTIfGuard> guards;
-    protected final Set<SDTIfGuard> guardSet;
+    protected final List<SDTGuard> guards;
+    protected final Set<SDTGuard> guardSet;
     protected final ConDis condis;
 
-    public List<SDTIfGuard> getGuards() {
+    public List<SDTGuard> getGuards() {
         return guards;
     }
 
@@ -54,20 +54,25 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return new SDTTrueGuard(parameter);
     }
 
-    public SDTIfGuard getSingle() {
+    public SDTGuard getSingle() {
         assert isSingle();
         return guards.get(0);
     }
 
     public Set<SymbolicDataValue> getAllRegs() {
         Set<SymbolicDataValue> allRegs = new LinkedHashSet<SymbolicDataValue>();
-        for (SDTIfGuard g : guards) {
-            allRegs.add(g.getRegister());
+        for (SDTGuard g : guards) {
+            if (g instanceof SDTIfGuard) {
+                allRegs.add(((SDTIfGuard)g).getRegister());
+            }
+            else if (g instanceof SDTMultiGuard) {
+                allRegs.addAll(((SDTMultiGuard)g).getAllRegs());
+            }
         }
         return allRegs;
     }
 
-    public SDTMultiGuard(SuffixValue param, ConDis condis, SDTIfGuard... ifGuards) {
+    public SDTMultiGuard(SuffixValue param, ConDis condis, SDTGuard... ifGuards) {
         super(param);
         this.condis = condis;
         this.guards = new ArrayList<>();

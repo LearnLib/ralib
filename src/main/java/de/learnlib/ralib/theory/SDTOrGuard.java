@@ -12,8 +12,10 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class SDTOrGuard extends SDTMultiGuard {
 
@@ -44,13 +46,13 @@ public class SDTOrGuard extends SDTMultiGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    public SDTOrGuard(SuffixValue param, SDTIfGuard... ifGuards) {
+    public SDTOrGuard(SuffixValue param, SDTGuard... ifGuards) {
         super(param, ConDis.OR, ifGuards);
     }
 
     private List<GuardExpression> toExprList() {
         List<GuardExpression> exprs = new ArrayList<>();
-        for (SDTIfGuard guard : this.guards) {
+        for (SDTGuard guard : this.guards) {
             exprs.add(guard.toExpr());
         }
         return exprs;
@@ -74,11 +76,36 @@ public class SDTOrGuard extends SDTMultiGuard {
         SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
 
-        List<SDTIfGuard> gg = new ArrayList<>();
-        for (SDTIfGuard g : this.guards) {
+        List<SDTGuard> gg = new ArrayList<>();
+        for (SDTGuard g : this.guards) {
             gg.add(g.relabel(relabelling));
         }
-        return new SDTOrGuard(sv, gg.toArray(new SDTIfGuard[]{}));
+        return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
     }
+    
 
+    //@Override
+    //public SDTGuard mergeWith(Set<SDTGuard> _merged) {
+    //    return null;
+    //}
+//        Set<SDTGuard> merged = new LinkedHashSet<>();
+//        merged.addAll(_merged);
+//        for (SDTGuard x : this.getGuards()) {
+//            if (x instanceof SDTIfGuard) {
+//                SDTGuard newGuard = x.mergeWith(merged);
+//            }
+//        }
+//        if (merged.isEmpty()) {
+//            return new SDTTrueGuard(this.parameter);
+//        } else {
+//            SDTGuard[] mergedArr = merged.toArray(new SDTGuard[]{});
+//            if (mergedArr.length == 1) {
+//                return mergedArr[0];
+//            }
+//            else {
+//                return new SDTOrGuard(this.parameter, mergedArr);
+//            }
+//
+//        }
+//    }
 }

@@ -9,8 +9,12 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class SDTIfGuard extends SDTGuard {
 
@@ -42,5 +46,17 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     @Override
     public abstract SDTIfGuard relabel(VarMapping relabelling);
+
+    
+
+    @Override
+    public boolean isSingle() {
+        return true;
+    }
+
+    @Override
+    public SDTGuard getSingle() {
+        return this;
+    }
 
 }

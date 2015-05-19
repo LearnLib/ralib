@@ -78,9 +78,14 @@ public class SDT implements SymbolicDecisionTree {
                 SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
                 variables.add(r);
             } else if (g instanceof SDTMultiGuard) {
-                for (SDTIfGuard ifG : ((SDTMultiGuard) g).getGuards()) {
-                    SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
-                    variables.add(ifr);
+                for (SDTGuard ifG : ((SDTMultiGuard) g).getGuards()) {
+                    if (ifG instanceof SDTIfGuard) {
+                        SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
+                        variables.add(ifr);
+                    } else if (ifG instanceof SDTMultiGuard) {
+                        Set<SymbolicDataValue> rSet = ((SDTMultiGuard) ifG).getAllRegs();
+                        variables.addAll(rSet);
+                    }
                 }
             } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");

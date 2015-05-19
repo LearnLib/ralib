@@ -11,8 +11,10 @@ import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -64,4 +66,20 @@ public class SDTTrueGuard extends SDTGuard {
 
         return hash;
     }
+
+    @Override
+    public boolean isSingle() {
+        return true;
+    }
+    
+    @Override
+    public SDTGuard getSingle() {
+        return this;
+    }
+    
+//    @Override
+//    public SDTGuard mergeWith(Set<SDTGuard> _merged) {
+//        return new SDTOrGuard(this.parameter, _merged.toArray(new SDTGuard[]{}));
+//        
+//    }
 }

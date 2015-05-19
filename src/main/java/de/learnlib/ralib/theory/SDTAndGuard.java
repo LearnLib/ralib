@@ -11,9 +11,13 @@ import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class SDTAndGuard extends SDTMultiGuard {
 
@@ -50,7 +54,7 @@ public class SDTAndGuard extends SDTMultiGuard {
 
     private List<GuardExpression> toExprList() {
         List<GuardExpression> exprs = new ArrayList<>();
-        for (SDTIfGuard guard : this.guards) {
+        for (SDTGuard guard : this.guards) {
             exprs.add(guard.toExpr());
         }
         return exprs;
@@ -75,10 +79,14 @@ public class SDTAndGuard extends SDTMultiGuard {
                 = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
 
-        List<SDTIfGuard> gg = new ArrayList<>();
-        for (SDTIfGuard g : this.guards) {
+        List<SDTGuard> gg = new ArrayList<>();
+        for (SDTGuard g : this.guards) {
             gg.add(g.relabel(relabelling));
         }
         return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }
+
+    
+    
+    
 }
