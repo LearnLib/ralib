@@ -14,7 +14,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Map;
-import java.util.PriorityQueue;
 
 public class PriorityQueueSUL extends DataWordSUL {
 
@@ -28,28 +27,26 @@ public class PriorityQueueSUL extends DataWordSUL {
         NOK
     }
 
-    private PriorityQueue pqueue;
+    private PQWrapper pqueue;
     private final Map<DataType, Theory> teachers;
     private final Constants consts;
-    private final int limit;
-
+    
     private Map<Actions, ParameterizedSymbol> inputs;
     private Map<Actions, ParameterizedSymbol> outputs;
 
     public PriorityQueueSUL(Map<DataType, Theory> teachers,
-            Constants consts, Map<Actions, ParameterizedSymbol> inputs, Map<Actions, ParameterizedSymbol> outputs, int limit) {
-        this.pqueue = new PriorityQueue<>();
+            Constants consts, Map<Actions, ParameterizedSymbol> inputs, Map<Actions, ParameterizedSymbol> outputs) {
+        this.pqueue = new PQWrapper();
         this.teachers = teachers;
         this.consts = consts;
         this.inputs = inputs;
         this.outputs = outputs;
-        this.limit = limit;
     }
 
     @Override
     public void pre() {
         countResets(1);
-        this.pqueue = new PriorityQueue<>();
+        this.pqueue = new PQWrapper();
     }
 
     @Override
@@ -90,15 +87,9 @@ public class PriorityQueueSUL extends DataWordSUL {
         System.out.println("executing:  " + i.toString() + " on " + pqueue.toString());
         if (i.getBaseSymbol().equals(inputs.get(Actions.OFFER))) {
             //DataValue<Double> d = i.getParameterValues()[0];
-            if (pqueue.size() < limit) {
                 Object x = pqueue.offer(i.getParameterValues()[0].getId());
 
                 return createOutputSymbol(x);
-            } else {
-                System.out.println("returns NOK");
-                return new PSymbolInstance(outputs.get(Actions.NOK));
-            }
-
         } else if (i.getBaseSymbol().equals(inputs.get(Actions.POLL))) {
             Object x = pqueue.poll();
             return createOutputSymbol(x);

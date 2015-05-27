@@ -49,14 +49,4 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     
 
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
-
-    @Override
-    public SDTGuard getSingle() {
-        return this;
-    }
-
 }

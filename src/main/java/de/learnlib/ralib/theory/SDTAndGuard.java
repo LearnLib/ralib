@@ -86,6 +86,11 @@ public class SDTAndGuard extends SDTMultiGuard {
         return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
     }
 
+    @Override
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     
     
     

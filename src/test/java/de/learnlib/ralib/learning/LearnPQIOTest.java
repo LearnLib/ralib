@@ -43,10 +43,11 @@ import de.learnlib.ralib.example.priority.PriorityQueueSUL.Actions;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -55,10 +56,9 @@ import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
+import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -85,8 +85,6 @@ public class LearnPQIOTest {
 
     public LearnPQIOTest() {
     }
-    
-    
 
     @Test
     public void learnLoginExampleIO() {
@@ -99,8 +97,6 @@ public class LearnPQIOTest {
 //                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
 //                    Category.EVENT, Category.PHASE, Category.MODEL)));
         }
-        
-        
 
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
@@ -112,15 +108,13 @@ public class LearnPQIOTest {
                 = new OutputSymbol("_ok", new DataType[]{});
         final ParameterizedSymbol NOK
                 = new OutputSymbol("_not_ok", new DataType[]{});
-        
 
         final ParameterizedSymbol POLL = new InputSymbol("poll", new DataType[]{});
         final ParameterizedSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
-        
-        
+
         List<ParameterizedSymbol> inputList = new ArrayList<ParameterizedSymbol>();
         List<ParameterizedSymbol> outputList = new ArrayList<ParameterizedSymbol>();
-        
+
         inputList.add(POLL);
         inputList.add(OFFER);
         outputList.add(ERROR);
@@ -130,12 +124,12 @@ public class LearnPQIOTest {
 
         final ParameterizedSymbol[] inputArray = inputList.toArray(new ParameterizedSymbol[inputList.size()]);
         final ParameterizedSymbol[] outputArray = outputList.toArray(new ParameterizedSymbol[outputList.size()]);
-        
+
         List<ParameterizedSymbol> actionList = new ArrayList<ParameterizedSymbol>();
         actionList.addAll(inputList);
         actionList.addAll(outputList);
         final ParameterizedSymbol[] actionArray = actionList.toArray(new ParameterizedSymbol[actionList.size()]);
-        
+
         //RegisterAutomatonLoader loader = new RegisterAutomatonLoader(
         //        RegisterAutomatonLoaderTest.class.getResourceAsStream(
         //                "/de/learnlib/ralib/automata/xml/abp.output.xml"));
@@ -143,20 +137,20 @@ public class LearnPQIOTest {
         //System.out.println("SYS:------------------------------------------------");
         //System.out.println(model);
         //System.out.println("----------------------------------------------------");
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> inputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
-        inputs.put(Actions.POLL,POLL);
-        inputs.put(Actions.OFFER,OFFER);
-        
-        Map<PriorityQueueSUL.Actions,ParameterizedSymbol> outputs = new LinkedHashMap<PriorityQueueSUL.Actions,ParameterizedSymbol>();
-        outputs.put(Actions.ERROR,ERROR);
+        Map<PriorityQueueSUL.Actions, ParameterizedSymbol> inputs = new LinkedHashMap<PriorityQueueSUL.Actions, ParameterizedSymbol>();
+        inputs.put(Actions.POLL, POLL);
+        inputs.put(Actions.OFFER, OFFER);
+
+        Map<PriorityQueueSUL.Actions, ParameterizedSymbol> outputs = new LinkedHashMap<PriorityQueueSUL.Actions, ParameterizedSymbol>();
+        outputs.put(Actions.ERROR, ERROR);
         //outputs.put(Actions.VOID,VOID);
-        outputs.put(Actions.OUTPUT,OUTPUT);
-        outputs.put(Actions.OK,OK);
-        outputs.put(Actions.NOK,NOK);
-        
+        outputs.put(Actions.OUTPUT, OUTPUT);
+        outputs.put(Actions.OK, OK);
+        outputs.put(Actions.NOK, NOK);
+
         final Constants consts = new Constants();
 
-        long seed = 7471397892490097694L;
+        long seed = -4750580074638681533L;
         //long seed = (new Random()).nextLong();
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
@@ -168,7 +162,7 @@ public class LearnPQIOTest {
                 return one.getId().compareTo(other.getId());
             }
         }
-            teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
+        teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
             Valuation val = new Valuation();
             private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
             private final ConstraintSolver solver = fact.createSolver("z3");
@@ -179,9 +173,46 @@ public class LearnPQIOTest {
                     return new DataValue(doubleType, 1.0);
                 }
                 List<DataValue<Double>> potential = getPotential(vals);
+                if (potential.isEmpty()) {
+                    return new DataValue(doubleType, 1.0);
+                }
                 //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
                 DataValue<Double> biggestDv = Collections.max(potential, new Cpr());
                 return new DataValue(doubleType, biggestDv.getId() + 1.0);
+            }
+
+            private List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
+                List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
+                if (g instanceof SDTIfGuard) {
+                    // pick up the register
+                    SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+                    // get the register value from the valuation
+                    DataValue<Double> sdi = new DataValue(doubleType, val.getValue(si.toVariable()));
+                    // add the register value as a constant
+                    gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
+                    // add the constant equivalence expression to the list
+                    eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si.toVariable()));
+
+                } else if (g instanceof IntervalGuard) {
+                    IntervalGuard iGuard = (IntervalGuard) g;
+                    if (!iGuard.isBiggerGuard()) {
+                        SymbolicDataValue r = iGuard.getRightReg();
+                        DataValue<Double> ri = new DataValue(doubleType, val.getValue(r.toVariable()));
+                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, ri.getId());
+                        // add the constant equivalence expression to the list
+                        eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r.toVariable()));
+
+                    }
+                    if (!iGuard.isSmallerGuard()) {
+                        SymbolicDataValue l = iGuard.getLeftReg();
+                        DataValue<Double> li = new DataValue(doubleType, val.getValue(l.toVariable()));
+                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, li.getId());
+                        // add the constant equivalence expression to the list
+                        eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l.toVariable()));
+
+                    }
+                }
+                return eList;
             }
 
             @Override
@@ -192,84 +223,69 @@ public class LearnPQIOTest {
                 newVal.putAll(val);
                 GuardExpression x = g.toExpr();
                 Result res;
-                if (g instanceof EqualityGuard) {                    
+                if (g instanceof EqualityGuard) {
                     //System.out.println("SOLVING: " + x);                    
                     res = solver.solve(x.toDataExpression().getExpression(), newVal);
                 } else {
                     List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
                     // add the guard
                     eList.add(g.toExpr().toDataExpression().getExpression());
-                    if (g instanceof SDTMultiGuard) {
+                    eList.addAll(instantiateGuard(g, val));
+                    if (g instanceof SDTOrGuard) {
                         // for all registers, pick them up
-                        for (SymbolicDataValue s : ((SDTMultiGuard) g).getAllRegs()) {
-                            // get register value from valuation
-                            DataValue<Double> sdv = (DataValue<Double>) val.getValue(s.toVariable());
-                            // add register value as a constant
-                            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdv.getId());
-                            // add constant equivalence expression to the list
-                            Expression<Boolean> multiExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, s.toVariable());
-                            eList.add(multiExpr);
+                        for (SDTGuard subg : ((SDTOrGuard) g).getGuards()) {
+                            if (!(subg instanceof EqualityGuard)) {
+                                eList.addAll(instantiateGuard(subg, val));
+                            }
                         }
-
-                    } else if (g instanceof SDTIfGuard) {
-                        // pick up the register
-                        SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
-                        // get the register value from the valuation
-                        DataValue<Double> sdi = (DataValue<Double>) val.getValue(si.toVariable());
-                        // add the register value as a constant
-                        gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
-                        // add the constant equivalence expression to the list
-                        Expression<Boolean> ifExpr = new NumericBooleanExpression(wm, NumericComparator.EQ, si.toVariable());
-                        eList.add(ifExpr);
                     }
+
                     // add disequalities
                     for (DataValue<Double> au : alreadyUsedValues) {
                         gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
                         Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp.toVariable());
                         eList.add(auExpr);
                     }
-                    
+
                     if (newVal.containsValueFor(sp.toVariable())) {
-                        DataValue<Double> spDouble = (DataValue<Double>) newVal.getValue(sp.toVariable());
+                        DataValue<Double> spDouble = new DataValue(doubleType, newVal.getValue(sp.toVariable()));
                         gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
                         Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp.toVariable());
                         eList.add(spExpr);
                     }
-                    
+
                     Expression<Boolean> _x = ExpressionUtil.and(eList);
 //                    System.out.println("SOLVING: " + _x + " with " + newVal);
-                    res = solver.solve(_x,newVal);
+                    res = solver.solve(_x, newVal);
 //                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
                 }
-                 //System.out.println("VAL: " + newVal);
+//                System.out.println("VAL: " + newVal);
 //                System.out.println("g toExpr is: " + g.toExpr(c).toString() + " and vals " + newVal.toString() + " and param-variable " + sp.toVariable().toString());
 //                System.out.println("x is " + x.toString());
                 if (res == Result.SAT) {
 //                    System.out.println("SAT!!");
-                Double d = (Double) newVal.getValue(sp.toVariable());
-                //System.out.println("return d: " + d.toString());
-                return new DataValue<Double>(doubleType, d);
-                }
-                else {
+//                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
+                    DataValue<Double> d = new DataValue(doubleType, (newVal.getValue(sp.toVariable())));
+                    System.out.println("return d: " + d.toString());
+                    return d;//new DataValue<Double>(doubleType, d);
+                } else {
 //                    System.out.println("UNSAT: " + _x + " with " + newVal);
                     return null;
                 }
             }
 
-            
-
             @Override
             public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
                 //assume we can just sort the list and get the values
                 List<DataValue<Double>> sortedList = new ArrayList<DataValue<Double>>();
-                for (DataValue d : dvs) {
-                    if (d.getId() instanceof Integer) {
-                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
-                    } else if (d.getId() instanceof Double) {
+                for (DataValue<Double> d : dvs) {
+//                    if (d.getId() instanceof Integer) {
+//                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
+//                    } else if (d.getId() instanceof Double) {
                         sortedList.add(d);
-                    } else {
-                        throw new IllegalStateException("not supposed to happen");
-                    }
+//                    } else {
+//                        throw new IllegalStateException("not supposed to happen");
+//                    }
                 }
 
                 //sortedList.addAll(dvs);
@@ -281,14 +297,13 @@ public class LearnPQIOTest {
 
         }
         );
-        
 
-        DataWordSUL sul = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
+        DataWordSUL sul = new PriorityQueueSUL(teachers, consts, inputs, outputs);
 
         //SimulatorOracle oracle = new SimulatorOracle(model);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache,inputArray);
+        IOFilter ioFilter = new IOFilter(ioCache, inputArray);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
@@ -320,7 +335,8 @@ public class LearnPQIOTest {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         int check = 0;
-        while (true && check < 100) {
+        while (true && check
+                < 100) {
 
             check++;
             rastar.learn();
@@ -346,21 +362,29 @@ public class LearnPQIOTest {
 
 //            assert model.accepts(ce.getInput());
 //            assert !hyp.accepts(ce.getInput());
-
             rastar.addCounterexample(ce);
 
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
-        System.out.println("LAST:------------------------------------------------");
-        System.out.println(hyp);
-        System.out.println("----------------------------------------------------");
 
-        System.out.println("Seed:" + seed);
-        System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
-        System.out.println("SUL resets: " + sul.getResets());
-        System.out.println("SUL inputs: " + sul.getInputs());
-        System.out.println("Rounds: " + check);
+        System.out.println(
+                "LAST:------------------------------------------------");
+        System.out.println(hyp);
+
+        System.out.println(
+                "----------------------------------------------------");
+
+        System.out.println(
+                "Seed:" + seed);
+        System.out.println(
+                "IO-Oracle MQ: " + ioOracle.getQueryCount());
+        System.out.println(
+                "SUL resets: " + sul.getResets());
+        System.out.println(
+                "SUL inputs: " + sul.getInputs());
+        System.out.println(
+                "Rounds: " + check);
 
     }
 }

@@ -118,6 +118,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             WordValuation values, PIV pir,
             Constants constants,
             SuffixValuation suffixValues) {
+        
+        System.out.println("prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
 
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
@@ -129,7 +131,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
 
-            log.log(Level.FINEST, "Trace = " + trace.toString() + " >>> "
+            System.out.println("Trace = " + trace.toString() + " >>> "
                     + (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
 

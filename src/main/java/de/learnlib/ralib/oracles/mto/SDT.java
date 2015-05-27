@@ -18,6 +18,8 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
@@ -87,6 +89,14 @@ public class SDT implements SymbolicDecisionTree {
                         variables.addAll(rSet);
                     }
                 }
+            } else if (g instanceof IntervalGuard) {
+                IntervalGuard iGuard = (IntervalGuard) g;
+                if (!iGuard.isBiggerGuard()) {
+                    variables.add(iGuard.getRightReg());
+                }
+                if (!iGuard.isSmallerGuard()) {
+                    variables.add(iGuard.getLeftReg());
+                }
             } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
             }
@@ -131,7 +141,7 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled)
                 && otherRelabeled.canUse(this);
     }
-
+    
     public boolean isEquivalentUnder(
             SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
@@ -144,13 +154,23 @@ public class SDT implements SymbolicDecisionTree {
         for (SDTIfGuard d : ds) {
             eqRenaming.put(d.getParameter(), d.getRegister());
         }
+//        System.out.println(eqRenaming);
+//        System.out.println(this + " vs " + deqSDT);
         boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
         return x;
     }
-
+    
+    public SDT relabelUnderEq(List<SDTIfGuard> ds) {
+        VarMapping eqRenaming = new VarMapping<>();
+        for (SDTIfGuard d : ds) {
+            eqRenaming.put(d.getParameter(), d.getRegister());
+        }
+        return (SDT) this.relabel(eqRenaming);
+    }
+    
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
-
+//        System.out.println("relabeling " + relabelling);
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
             return this;
@@ -159,9 +179,9 @@ public class SDT implements SymbolicDecisionTree {
         Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
-            reChildren.put(e.getKey().relabel(relabelling),
+                reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
-        }
+            }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
         return relabelled;

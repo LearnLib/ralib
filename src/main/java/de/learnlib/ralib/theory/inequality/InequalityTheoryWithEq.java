@@ -20,13 +20,13 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -40,7 +40,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -127,131 +126,669 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        }
 //    }
 //    }
-    private Set<SDTGuard> mergeWithOthers(SDTGuard target, SDT targetSDT,
-            Set<SDTGuard> guards, Map<SDTGuard, SDT> reference,
-            List<SDTGuard> tried) {
-        // check if the target guard is equivalent to the guard in the list.
-        for (SDTGuard guard : guards) {
-            if (!(tried.contains(guard))) {
-                // if they are:
-                SDT otherSDT = reference.get(guard);
-                if (targetSDT.canUse(otherSDT) && otherSDT.canUse(targetSDT)) {
-                    tried.add(guard);
-                    // let newTarget be the new target guard
-                    Set<SDTGuard> newTargetSet = target.mergeWith(guard);
-                    SDTGuard newTarget = new SDTOrGuard(target.getParameter(), newTargetSet.toArray(new SDTGuard[]{}));
-                    SDTGuard nextTarget = newTarget;
-//                    System.out.println("merging " + target + " + " + guard + " into " + newTargetSet);
-                    if (newTarget.isSingle()) {
-                        nextTarget = newTarget.getSingle();
-                    }
-                    else if (newTargetSet.isEmpty()) {
-                        nextTarget = new SDTTrueGuard(target.getParameter());
-                    }
-                    return mergeWithOthers(nextTarget, targetSDT, guards,
-                            reference, tried);
-                    
-                }
+//    private List<SDTGuard> preprocess(List<SDTGuard> guardList) {
+//        for (SDTGuard g : guardList) {
+//            
+//        }
+//    }
+    private void addAllSafely(Collection<SDTGuard> guards, Collection<SDTGuard> toAdd, List<SymbolicDataValue> regPotential) {
+//        System.out.println("adding " + toAdd + " to " + guards);
+        for (SDTGuard t : toAdd) {
+            if (t instanceof SDTOrGuard) {
+//                System.out.println("or guard");
+                addAllSafely(guards, ((SDTOrGuard) t).getGuards(), regPotential);
+//                System.out.println(guards);
+            } else {
+                addSafely(guards, t, regPotential);
             }
         }
-        Set<SDTGuard> targetList = new LinkedHashSet<>();
-        targetList.add(target);
-        targetList.addAll(tried);
-        return targetList;
-    
+        return;
     }
 
-            //    private List<SDTGuard> mergeWithMany(SDTGuard target, SDT targetSDT,
-    //            List<SDTGuard> guards, Map<SDTGuard, SDT> reference,
-    //            List<SDTGuard> tried) {
-    //        // check if the target guard is equivalent to the guard in the list.
-    //        for (SDTGuard guard : guards) {
-    //            if (!(tried.contains(guard))) {
-    //                // if they are:
-    //                SDT otherSDT = reference.get(guard);
-    //                if (targetSDT.canUse(otherSDT) && otherSDT.canUse(targetSDT)) {
-    //                    tried.add(guard);
-    //                    // let newTarget be the new target guard
-    //                    SDTGuard newTarget = mergeGuardLists(target, guard);
-    //                    return mergeWithMany(newTarget, targetSDT, guards,
-    //                            reference, tried);
-    //                }
-    //            }
-    //        }
-    //        List<SDTGuard> targetList = new ArrayList<>();
-    //        targetList.add(target);
-    //        targetList.addAll(tried);
-    //        return targetList;
-    //    }
-            // given a map from guards to SDTs, merge guards based on whether they can
-    // use another SDT.  
-    private Map<SDTGuard, SDT>
-            mergeGuards(Map<SDTGuard, SDT> unmerged, SuffixValue currentParam) {
-        if (unmerged.isEmpty()) {
+    private void addSafely(Collection<SDTGuard> guards, SDTGuard guard, List<SymbolicDataValue> regPotential) {
+        boolean processed = false;
+        if (guard instanceof SDTIfGuard) {
+            SDTIfGuard oGuard = ((SDTIfGuard) guard).toDeqGuard();
+//            System.out.println(guard + ": checking if guards contains " + oGuard);
+            if (guards.contains(oGuard)) {
+//                System.out.println("yes, removing " + oGuard);
+                guards.remove(oGuard);
+                processed = true;
+            }
+        } else if (guard instanceof IntervalGuard) {
+//            System.out.println("guard is intervalguard");
+            IntervalGuard iGuard = (IntervalGuard) guard;
+            if (!iGuard.isIntervalGuard()) {
+                IntervalGuard flipped = iGuard.flip();
+//                System.out.println("flipped: " + flipped);
+                if (guards.contains(flipped)) {
+                    guards.remove(flipped);
+                    addAllSafely(guards, iGuard.mergeWith(flipped, regPotential), regPotential);
+                    processed = true;
+                }
+            }
+        } else if (guard instanceof SDTOrGuard) {
+//            System.out.println("found or guard");
+            SDTOrGuard oGuard = (SDTOrGuard) guard;
+            addAllSafely(guards, oGuard.getGuards(), regPotential);
+        }
+
+        if (processed == false) {
+            guards.add(guard);
+        }
+        System.out.println("added safely: " + guard + " to " + guards);
+        return;
+    }
+
+    private void removeProhibited(Collection<SDTGuard> guards, Collection<SDTGuard> prohibited) {
+        for (SDTGuard p : prohibited) {
+            if (guards.contains(p)) {
+                guards.remove(p);
+            }
+        }
+        //System.out.println("guards after removing " + prohibited + " :: " + guards);
+        return;
+    }
+
+//    private Set<SDTGuard> mergeSetWithSet(Set<SDTGuard> guardSet, Set<SDTGuard> targets, Set<SDTGuard> prohibited) {
+//        System.out.println("set-merging " + targets + " with " + guardSet);
+//        Set<SDTGuard> newGuardSet = new LinkedHashSet<>();
+//        for (SDTGuard s : targets) {
+//            newGuardSet = mergeOneWithSet(guardSet, s, new ArrayList<SymbolicDataValue>(), prohibited);
+//        }
+//        return newGuardSet;
+//    }
+    private Set<SDTGuard> mergeOneWithSet(Set<SDTGuard> guardSet, SDTGuard target, List<SymbolicDataValue> regPotential) {
+        List<Set<SDTGuard>> inAndOut = new ArrayList<Set<SDTGuard>>();
+        inAndOut.add(guardSet);
+        inAndOut.add(new LinkedHashSet<SDTGuard>());
+        return mergeOneWithSet(inAndOut, target, regPotential).get(0);
+    }
+
+    private List<Set<SDTGuard>> mergeOneWithSet(List<Set<SDTGuard>> inAndOut, SDTGuard target, List<SymbolicDataValue> regPotential) {
+        Set<SDTGuard> guardSet = inAndOut.get(0);
+        Set<SDTGuard> prohibited = inAndOut.get(1);
+
+        Set<SDTGuard> newGuardSet = new LinkedHashSet<SDTGuard>();
+
+        List<Set<SDTGuard>> newInAndOut = new ArrayList<Set<SDTGuard>>();
+        newInAndOut.addAll(inAndOut);
+        Boolean[] addedSomething = new Boolean[guardSet.size()];
+        boolean processed = false;
+        newGuardSet.addAll(guardSet);
+
+        int i = -1;
+        for (SDTGuard m : guardSet) {
+//            System.out.println("guards: " + newGuardSet);
+            i++;
+            addedSomething[i] = false;
+            if (!(guardSet.contains(target)) && !(prohibited.contains(target))) {
+
+                assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
+
+                if (target instanceof SDTIfGuard) {
+                    SDTIfGuard oGuard = ((SDTIfGuard) target).toDeqGuard();
+//            System.out.println(guard + ": checking if guards contains " + oGuard);
+                    if (guardSet.contains(oGuard)) {
+//                System.out.println("yes, removing " + oGuard);
+                        prohibited.add(oGuard);
+                        prohibited.add(target);
+                        processed = true;
+                    }
+                } else if (target instanceof IntervalGuard) {
+                    IntervalGuard iGuard = (IntervalGuard) target;
+                    if (!iGuard.isIntervalGuard()) {
+                        IntervalGuard flipped = iGuard.flip();
+//                        System.out.println("flipped: " + flipped);
+                        if (guardSet.contains(flipped)) {
+                            prohibited.add(flipped);
+                            prohibited.add(target);
+                            newInAndOut.add(0, newGuardSet);
+                            newInAndOut.add(1, prohibited);
+                            List<Set<SDTGuard>> nextInAndOut = mergeOneWithSet(newInAndOut, iGuard.toDeqGuard(), regPotential);
+                            newGuardSet = nextInAndOut.get(0);
+                            prohibited = nextInAndOut.get(1);//  
+                            processed = true;
+                        }
+                    }
+                }
+                if (!processed) {
+                    Set<SDTGuard> refSet = new LinkedHashSet<>();
+                    refSet.add(target);
+                    refSet.add(m);
+                    Set<SDTGuard> mWithTarget = target.mergeWith(m, regPotential);
+//                    System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget + ", " + refSet.equals(mWithTarget));
+                    if (!mWithTarget.contains(target)) {
+                        prohibited.add(target);
+                        //modified[i] = true;
+//                guardSet.remove(target);
+                    }
+                    if (!mWithTarget.contains(m)) {
+                        prohibited.add(m);
+                        //modified[i] = true;
+//                guardSet.remove(target);
+                    }
+                    addedSomething[i] = !(refSet.containsAll(mWithTarget));
+//                    System.out.println("g: " + guardSet);
+//                    System.out.println("n: " + newGuardSet);
+
+                    if (addedSomething[i]) { // && !(newGuardSet.containsAll(mWithTarget))) {
+                        for (SDTGuard x : mWithTarget) {
+//                            List<Set<SDTGuard>> newInAndOut = new ArrayList<Set<SDTGuard>>();
+                            newInAndOut.add(0, newGuardSet);
+                            newInAndOut.add(1, prohibited);
+                            List<Set<SDTGuard>> nextInAndOut = mergeOneWithSet(newInAndOut, x, regPotential);
+                            newGuardSet = nextInAndOut.get(0);
+                            prohibited = nextInAndOut.get(1);
+                        }
+                    } else {
+                        newGuardSet.addAll(mWithTarget);
+                    }
+
+//                    newGuardSet.addAll(mWithTarget);
+//                    System.out.println("into: " + newGuardSet);
+                }
+            }
+            newInAndOut.add(0, newGuardSet);
+            newInAndOut.add(1, prohibited);
+
+        }
+//        Set<SDTGuard> temp = new LinkedHashSet<>();
+//        Set<SDTGuard> prohibited = new LinkedHashSet<>();
+//            System.out.println("temp is: " + temp + " and prohibited: " + prohibited);
+//        for (SDTGuard m : merged) {
+//            assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
+//            Set<SDTGuard> mWithTarget = target.mergeWith(m);
+//            System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget);
+//            if (!mWithTarget.contains(target)) {
+//                prohibited.add(target);
+//                temp.remove(target);
+//            }
+//            if (!mWithTarget.contains(m)) {
+//                prohibited.add(m);
+//                temp.remove(target);
+//            }
+//            addAllSafely(temp, mWithTarget, prohibited);
+//            System.out.println("... but after adding " + mWithTarget + " safely: " + temp + " with " + prohibited);
+//        }
+//        System.out.println("return: " + temp);
+//        return temp;
+//        System.out.println("removing: " + prohibited);
+        removeProhibited(newGuardSet, prohibited);
+//        System.out.println("... and after removing :: " + newGuardSet);
+//        System.out.println("modified is " + Arrays.toString(addedSomething));
+        if (hasTrue(addedSomething) && !(guardSet.equals(newGuardSet))) {
+//            System.out.println("try again");
+            return mergeOneWithSet(newInAndOut, target, regPotential);
+        } else {
+            return newInAndOut;
+        }
+    }
+
+//    private Set<SDTGuard> mergeOneWithSet(Set<SDTGuard> guardSet, SDTGuard target, List<SymbolicDataValue> regPotential, Set<SDTGuard> prohibited) {
+//
+//        //Set<SDTGuard> prohibited = new LinkedHashSet<>();
+//        Set<SDTGuard> newGuardSet = new LinkedHashSet<>();
+//        Boolean[] modified = new Boolean[guardSet.size()];
+//        boolean processed = false;
+//        newGuardSet.addAll(guardSet);
+//        
+//        int i = -1;
+//        for (SDTGuard m : guardSet) {
+//            System.out.println("guards: " + newGuardSet);
+//            i++;
+//            modified[i] = false;
+//            if (!(guardSet.contains(target)) && !(prohibited.contains(target))) {
+//
+//                assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
+//
+//                if (target instanceof SDTIfGuard) {
+//                    SDTIfGuard oGuard = ((SDTIfGuard) target).toDeqGuard();
+////            System.out.println(guard + ": checking if guards contains " + oGuard);
+//                    if (guardSet.contains(oGuard)) {
+////                System.out.println("yes, removing " + oGuard);
+//                        prohibited.add(oGuard);
+//                        prohibited.add(target);
+//                        processed = true;
+//                    }
+//                } else if (target instanceof IntervalGuard) {
+//                    IntervalGuard iGuard = (IntervalGuard) target;
+//                    if (!iGuard.isIntervalGuard()) {
+//                        IntervalGuard flipped = iGuard.flip();
+//                System.out.println("flipped: " + flipped);
+//                        if (guardSet.contains(flipped)) {
+//                            prohibited.add(flipped);
+//                            prohibited.add(target);
+//                            processed = true;
+//                        }
+//                    }
+//                }
+//                if (!processed) {
+//                    Set<SDTGuard> refSet = new LinkedHashSet<>();
+//                    refSet.add(target);
+//                    refSet.add(m);
+//                    Set<SDTGuard> mWithTarget = target.mergeWith(m, regPotential);
+//                    System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget + ", " + refSet.equals(mWithTarget));
+//                    if (!mWithTarget.contains(target)) {
+//                        prohibited.add(target);
+//                        //modified[i] = true;
+////                guardSet.remove(target);
+//                    }
+//                    if (!mWithTarget.contains(m)) {
+//                        prohibited.add(m);
+//                        //modified[i] = true;
+////                guardSet.remove(target);
+//                    }
+//                    modified[i] = !(refSet.equals(mWithTarget));
+//                    System.out.println("g: " + guardSet);
+//                    System.out.println("n: " + newGuardSet);
+//                    
+//                    
+//                    if (modified[i] && !(newGuardSet.containsAll(mWithTarget))) {
+//                        for (SDTGuard x : mWithTarget) {
+//                            newGuardSet = mergeOneWithSet(newGuardSet, x, regPotential, prohibited);
+//                        }
+//                    }
+//                    else {
+//                        newGuardSet.addAll(mWithTarget);
+//                    }
+//        
+////                    newGuardSet.addAll(mWithTarget);
+//                    System.out.println("into: " + newGuardSet);
+//                }
+//            }
+//        }
+////        Set<SDTGuard> temp = new LinkedHashSet<>();
+////        Set<SDTGuard> prohibited = new LinkedHashSet<>();
+////            System.out.println("temp is: " + temp + " and prohibited: " + prohibited);
+////        for (SDTGuard m : merged) {
+////            assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
+////            Set<SDTGuard> mWithTarget = target.mergeWith(m);
+////            System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget);
+////            if (!mWithTarget.contains(target)) {
+////                prohibited.add(target);
+////                temp.remove(target);
+////            }
+////            if (!mWithTarget.contains(m)) {
+////                prohibited.add(m);
+////                temp.remove(target);
+////            }
+////            addAllSafely(temp, mWithTarget, prohibited);
+////            System.out.println("... but after adding " + mWithTarget + " safely: " + temp + " with " + prohibited);
+////        }
+////        System.out.println("return: " + temp);
+////        return temp;
+//        System.out.println("removing: " + prohibited);
+//        removeProhibited(newGuardSet, prohibited);
+//        System.out.println("... and after removing :: " + newGuardSet);
+//        System.out.println("modified is " + Arrays.toString(modified));
+//        if (hasTrue(modified) && !(guardSet.equals(newGuardSet))) {
+//            System.out.println("try again");
+//            return mergeOneWithSet(newGuardSet, target, regPotential, prohibited);
+//        } else {
+//            return newGuardSet;
+//        }
+//    }
+    // Returns true if all elements of a boolean array are true.
+    private boolean hasTrue(Boolean[] maybeArr) {
+        boolean maybe = false;
+        for (int c = 0; c < (maybeArr.length); c++) {
+            //log.log(Level.FINEST,maybeArr[c]);
+            if (maybeArr[c]) {
+                maybe = true;
+                break;
+            }
+        }
+        return maybe;
+    }
+
+    private SDTGuard GuardSetFromList(Set<SDTGuard> merged, List<SDTGuard> remaining, SuffixValue currentParam, List<SymbolicDataValue> regPotential) {
+//        merge list of guards with a set of guards.  Initially, the set is empty and the list is full
+//        System.out.println("rem = " + remaining + ", merged = " + merged);
+
+        //if the set is empty
+        // and the set is also empty: return true guard
+        // and the set is NOT empty: return either 
+        //if the set is empty
+        if (remaining.isEmpty()) {
+            if (merged.isEmpty()) {
+                return new SDTTrueGuard(currentParam);
+            } else {
+                SDTGuard[] guardArray = merged.toArray(new SDTGuard[]{});
+                if ((merged.size() == 1)) { // || hasOnlyEqs(merged)) {
+                    return guardArray[0];
+                } else {
+                    return new SDTOrGuard(currentParam, guardArray);
+                }
+
+            }
+        }
+        if (merged.isEmpty()) {
+            merged.add(remaining.remove(0));
+            return GuardSetFromList(merged, remaining, currentParam, regPotential);
+        }
+        SDTGuard target = remaining.remove(0);
+        Set<SDTGuard> temp = mergeOneWithSet(merged, target, regPotential);
+
+        return GuardSetFromList(temp, remaining, currentParam, regPotential);
+//         ensure that a new OrGuard is returned if there is nothing remaining
+    }
+
+//    private Set<SDTGuard> getHeads(Set<List<SDTGuard>> listSets) {
+//        Set<SDTGuard> retSet = new LinkedHashSet<>();
+//        for (List<SDTGuard> l : listSets) {
+//            retSet.add(l.get(0));
+//        }
+//        return retSet;
+//    }
+//    private List<SDTGuard> getListFromHead(SDTGuard guard, Set<List<SDTGuard>> listSets) {
+//        Set<SDTGuard> heads = getHeads(listSets);
+//        if (heads.contains(guard)) {
+//            for (List<SDTGuard> l : listSets) {
+//                if (l.get(0).equals(guard)) {
+//                    return l;
+//                }
+//            }
+//        }
+//        throw new IllegalStateException("not found");
+//    }
+    private Map<List<SDTGuard>, SDT> modGuardLists(SDTGuard refGuard, SDT refSDT, Map<List<SDTGuard>, SDT> partitionedMap) {
+        boolean merged = false;
+        Map<List<SDTGuard>, SDT> newParMap = new LinkedHashMap<>();
+//        System.out.println("modGuardLists for refGuard " + refGuard + ", refSDT " + refSDT + ", map: " + partitionedMap);
+        for (Map.Entry<List<SDTGuard>, SDT> par : partitionedMap.entrySet()) {
+//            merged = false;
+//            System.out.println("par: " + par);
+            List<SDTGuard> headList = par.getKey();
+            List<SDTGuard> newHeadList = new ArrayList<>();
+            newHeadList.addAll(headList);
+            //addAllSafely(newHeadList, headList, new LinkedHashSet<SDTGuard>());
+            SDT headSDT = par.getValue();
+            assert headSDT.getClass().equals(refSDT.getClass());
+            //assert !(headSDT.isEmpty());
+            //assert !(refSDT.isEmpty());
+            SDTGuard headGuard = headList.get(0);
+            SDT newSDT = headSDT;
+//            System.out.println("head: " + headGuard + " against " + refGuard);
+            if (headSDT instanceof SDTLeaf) {
+//                System.out.println("sdt leaves");
+                assert refSDT instanceof SDTLeaf;
+                if (headSDT.isAccepting() == refSDT.isAccepting() && !merged) {
+                    merged = true;
+                    newHeadList.add(refGuard);
+//                    System.out.println("added ref " + refSDT + " eq to " + headSDT);
+                }
+                //newParMap.put(newHeadList, newSDT);
+
+            }
+            if (headGuard instanceof EqualityGuard && refGuard instanceof DisequalityGuard && !merged) {
+                SDT joinedSDT = getJoinedSDT((EqualityGuard) headGuard, refSDT, headSDT);
+                if (joinedSDT != null) {
+//                    System.out.println("can merge: " + refGuard + " with EQ" + headList);
+                    newHeadList.add(refGuard);
+                    newSDT = joinedSDT;
+                    //newSDT = refSDT.relabelUnderEq((EqualityGuard) headGuard);
+                    merged = true;
+                    //newParMap.put(newHeadList, newSDT);
+                }
+            }
+            if (refGuard instanceof EqualityGuard && headGuard instanceof DisequalityGuard && !merged) {
+                SDT joinedSDT = getJoinedSDT((EqualityGuard) refGuard, headSDT, refSDT);
+                if (joinedSDT != null) {
+//                    System.out.println("can merge: EQ" + refGuard + " with " + headList);
+                    newHeadList.add(0, refGuard);
+                    newSDT = joinedSDT;
+                    merged = true;
+                    //newParMap.put(newHeadList, newSDT);
+                }
+            }
+            if (refSDT.canUse(headSDT) && headSDT.canUse(refSDT) && !merged) {
+//                System.out.println("LAST RESORT: can use");
+                newHeadList.add(refGuard);
+                merged = true;
+                //newParMap.put(newHeadList, newSDT);
+            }
+
+            newParMap.put(newHeadList, newSDT);
+
+        }
+
+        if (!merged) {
+//            System.out.println(refGuard + " cannot merge with anything in " + partitionedMap);
+            List<SDTGuard> newUnmergedList = new ArrayList<>();
+            newUnmergedList.add(refGuard);
+//            newParMap.putAll(partitionedMap);
+//            System.out.println("adding " + newUnmergedList + " ---> " + refSDT);
+
+            newParMap.put(newUnmergedList, refSDT);
+//            System.out.println("newParMap is now " + newParMap);
+        }
+
+        //newParMap.putAll(partitionedMap);
+        assert !newParMap.isEmpty();
+
+//        System.out.println("RETURNED: newParMap " + newParMap);
+        return newParMap;
+    }
+
+    private Map<List<SDTGuard>, SDT> partitionGuards(Map<SDTGuard, SDT> refMap) {
+
+//        System.out.println("partitioning " + refMap);
+        // start with an empty map
+        Map<List<SDTGuard>, SDT> parMap = new LinkedHashMap<>();
+        for (Map.Entry<SDTGuard, SDT> ref : refMap.entrySet()) {
+            SDTGuard refGuard = ref.getKey();
+            SDT refSDT = ref.getValue();
+
+//            if (refGuard instanceof SDTTrueGuard) {
+//                assert refMap.size() == 1;
+//                List<SDTGuard> trueList = new ArrayList<SDTGuard>();
+//                trueList.add(refGuard);
+//                parMap = new LinkedHashMap<List<SDTGuard>, SDT>();
+//                parMap.put(trueList, refSDT);
+//                return parMap;
+//            }
+//            System.out.println("pre par map = " + parMap);
+            parMap = modGuardLists(refGuard, refSDT, parMap);
+            // get the heads of all lists in the partitioned map
+            //System.out.println("partitioned map parMap: " + parMap);
+
+        }
+//        System.out.println("partitioned map parMap: " + parMap);
+
+        return parMap;
+    }
+
+    // for each element in the map
+    // check if it can merge with the head of any of the lists in the set
+    // if yes, then add to that list
+    // if no, then start a new list
+//}
+    private SDT getJoinedSDT(EqualityGuard guard, SDT deqSDT, SDT eqSDT) {
+        //boolean canJoin = false;
+
+        EqualityGuard eqGuard = (EqualityGuard) guard;
+        List<SDTIfGuard> ds = new ArrayList();
+        ds.add(eqGuard);
+        SDT newTargetSDT = deqSDT.relabelUnderEq(ds);
+        assert newTargetSDT != null;
+
+//        System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT + " under " + ds);
+        if (eqSDT.isEquivalentUnder(deqSDT, ds)) {
+//            System.out.println("yes");
+//            System.out.println("return target: " + deqSDT + " eq under " + ds);
+            return deqSDT;
+
+//        } else {
+//            System.out.println("checking if O" + otherSDT + " is eq to NT" + newTargetSDT + " under " + ds);
+//
+//            if (newTargetSDT.canUse(otherSDT)) {
+//                System.out.println("return newTarget: " + newTargetSDT + " canUse ");
+////                System.out.println("yes");
+//                return otherSDT;
+//            }
+//               
+        }
+//        } //else if (guard instanceof IntervalGuard) {
+//            IntervalGuard iGuard = (IntervalGuard) guard;
+//            List<SDTIfGuard> ds = new ArrayList();
+//            if (!iGuard.isSmallerGuard()) {
+//                ds.add(new EqualityGuard(iGuard.getParameter(), iGuard.getLeftReg()));
+//            }
+//            if (!iGuard.isBiggerGuard()) {
+//                ds.add(new EqualityGuard(iGuard.getParameter(), iGuard.getRightReg()));
+//            }
+//            if (otherSDT.isEquivalentUnder(targetSDT, ds)) {
+//                return true;
+//            }
+//        }
+        return null;
+    }
+
+    private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> unmerged, SuffixValue currentParam, List<SymbolicDataValue> regPotential) {
+        if (unmerged.keySet().size() == 1) {
+            assert unmerged.containsKey(new SDTTrueGuard(currentParam));
             return unmerged;
         }
-        Map<SDTGuard, SDT> tempMap = new LinkedHashMap();
-        Map<SDTGuard, SDT> finalMap = new LinkedHashMap();
-        // list of unmerged guards
-        Set<SDTGuard> guardList = unmerged.keySet();
-        List<SDTGuard> consumedGuards = new ArrayList<>();
+        Map<SDTGuard, SDT> merged = mergeGuards(new LinkedHashMap<SDTGuard, SDT>(), currentParam, unmerged, regPotential);
 
-        // for each guard in the list
-        for (SDTGuard guard : guardList) {
-            if (!consumedGuards.contains(guard)) {
-                consumedGuards.add(guard);
-                SDT guardSDT = unmerged.get(guard);
-                Set<SDTGuard> mergedGuardSet = mergeWithOthers(guard, guardSDT,
-                        guardList, unmerged, consumedGuards);
-                List<SDTGuard> mergedGuardList = new ArrayList<>(mergedGuardSet);
-                tempMap.put(mergedGuardList.get(0), guardSDT);
-            }
+        if (merged.keySet().size() == 1) {
+
+//            System.out.println("unmerged: " + merged);
+            // hack??
+//            SDTGuard onlyGuard = merged.keySet().iterator().next();
+//            SDT onlySDT = merged.get(onlyGuard);
+//            if (!(onlyGuard instanceof SDTTrueGuard)) {
+//                assert onlyGuard instanceof SDTIfGuard;
+//                merged.remove(onlyGuard);
+//                merged.put(new SDTTrueGuard(currentParam), onlySDT);
+//            }
+            assert merged.containsKey(new SDTTrueGuard(currentParam));
+
         }
-//        System.out.println("tempMap: " + tempMap);
-        // expand or guards before adding to the map
-        for (Entry<SDTGuard, SDT> e : tempMap.entrySet()) {
-            SDTGuard guard = e.getKey();
-            SDT sdt = e.getValue();
-            if (guard instanceof SDTOrGuard) {
-                for (SDTGuard subguard : ((SDTOrGuard) guard).getGuards()) {
-                    finalMap.put(subguard, sdt);
-                }
-            } else {
-                finalMap.put(guard, sdt);
-            }
+//        System.out.println("merged: " + merged);
+        return merged;
+    }
+
+    private Map<SDTGuard, SDT>
+            mergeGuards(Map<SDTGuard, SDT> first, SuffixValue currentParam, Map<SDTGuard, SDT> second, List<SymbolicDataValue> regPotential) {
+//        System.out.println("comparing " + first + " with " + second);
+//        if (!first.keySet().isEmpty() && first.keySet().size() <= second.keySet().size()) {
+//            System.out.println("return " + first);
+//            return first;
+//        } else {
+        // if they are not the same size, we want to keep merging them
+        Map<SDTGuard, SDT> newSecond = mgGuards(second, currentParam, regPotential);
+//            return mergeGuards(second, currentParam, newSecond);
+        //      }
+        return newSecond;
+    }
+
+    // given a map from guards to SDTs, merge guards based on whether they can
+    // use another SDT.  
+    private Map<SDTGuard, SDT>
+            mgGuards(Map<SDTGuard, SDT> unmerged, SuffixValue currentParam, List<SymbolicDataValue> regPotential) {
+        assert !unmerged.isEmpty();
+
+        Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
+//        System.out.println("unmerged: " + unmerged);
+        Map<List<SDTGuard>, SDT> partitionedMap = partitionGuards(unmerged);
+        System.out.println("partitionedMap: " + partitionedMap);
+        for (Map.Entry<List<SDTGuard>, SDT> par : partitionedMap.entrySet()) {
+
+//            List<SDTGuard> preprocessed = new ArrayList<SDTGuard>();
+//            preprocessed.addAll(par.getKey());
+//            System.out.println("preprocessed: " + preprocessed);
+//            addAllSafely(new ArrayList<SDTGuard>(), preprocessed, new LinkedHashSet<SDTGuard>());
+//            System.out.println("postprocessed: " + preprocessed);
+//            System.out.println("partitioned map entry: " + par.getKey());
+            SDTGuard newSDTGuard = GuardSetFromList(new LinkedHashSet<SDTGuard>(), par.getKey(), currentParam, regPotential);
+//            System.out.println("--> Guard: " + newSDTGuard);
+//            if (newSDTGuard instanceof SDTOrGuard) {
+//                for (SDTGuard subguard : ((SDTOrGuard) newSDTGuard).getGuards()) {
+//                    retMap.put(subguard, par.getValue());
+//                }
+//            } else {
+            retMap.put(newSDTGuard, par.getValue());
+//            }
         }
-        assert !finalMap.isEmpty();
-        return finalMap;
+        assert !retMap.isEmpty();
+//        System.out.println("retMap: " + retMap);
+        //System.out.println("-----------------------------------\n" + partitionedMap + "\n-----------------------PARTITIONING-------------------\n" + retMap + "\n---------------------------------");
+        return retMap;
     }
 
     // given a set of registers and a set of guards, keep only the registers
-    // that are mentioned in any guard
-    private PIV keepMem(Set<SDTGuard> guardSet) {
+// that are mentioned in any guard
+//    private PIV keepMem(Set<SDTGuard> guardSet) {
+//        PIV ret = new PIV();
+//
+//        // 1. create guard list
+//        Set<SDTGuard> ifGuards = new LinkedHashSet<>();
+//        for (SDTGuard g : guardSet) {
+//            if (g instanceof SDTIfGuard) {
+//                ifGuards.add((SDTIfGuard) g);
+//            } else if (g instanceof SDTOrGuard) {
+//                ifGuards.addAll(((SDTOrGuard) g).getGuards());
+//            }
+//        }
+//
+//        // 2. determine which registers to keep
+//        Set<SymbolicDataValue> tempRegs = new LinkedHashSet<>();
+//        for (SDTGuard g : ifGuards) {
+//            if (g instanceof SDTAndGuard) {
+//                tempRegs.addAll(((SDTAndGuard) g).getAllRegs());
+//            } else if (g instanceof SDTIfGuard) {
+//                tempRegs.add(((SDTIfGuard) g).getRegister());
+//            }
+//        }
+//        for (SymbolicDataValue r : tempRegs) {
+//            Parameter p = new Parameter(r.getType(), r.getId());
+//            if (r instanceof Register) {
+//                ret.put(p, (Register) r);
+//            }
+//        }
+//        return ret;
+//    }
+//    
+    private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
         PIV ret = new PIV();
+        for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
+            SDTGuard mg = e.getKey();
+            if (mg instanceof SDTIfGuard) {
+                log.log(Level.FINEST, mg.toString());
+                SymbolicDataValue r = ((SDTIfGuard) mg).getRegister();
+                Parameter p = new Parameter(r.getType(), r.getId());
+                if (r instanceof Register) {
+                    ret.put(p, (Register) r);
+                }
+            } else if (mg instanceof IntervalGuard) {
+                IntervalGuard iGuard = (IntervalGuard) mg;
+                if (!iGuard.isBiggerGuard()) {
+                    SymbolicDataValue r = iGuard.getRightReg();
+                    Parameter p = new Parameter(r.getType(), r.getId());
+                    if (r instanceof Register) {
+                        ret.put(p, (Register) r);
+                    }
 
-        // 1. create guard list
-        Set<SDTGuard> ifGuards = new LinkedHashSet<>();
-        for (SDTGuard g : guardSet) {
-            if (g instanceof SDTIfGuard) {
-                ifGuards.add((SDTIfGuard) g);
-            } else if (g instanceof SDTOrGuard) {
-                ifGuards.addAll(((SDTOrGuard) g).getGuards());
-            }
-        }
-
-        // 2. determine which registers to keep
-        Set<SymbolicDataValue> tempRegs = new LinkedHashSet<>();
-        for (SDTGuard g : ifGuards) {
-            if (g instanceof SDTAndGuard) {
-                tempRegs.addAll(((SDTAndGuard) g).getAllRegs());
-            } else if (g instanceof SDTIfGuard) {
-                tempRegs.add(((SDTIfGuard) g).getRegister());
-            }
-        }
-        for (SymbolicDataValue r : tempRegs) {
-            Parameter p = new Parameter(r.getType(), r.getId());
-            if (r instanceof Register) {
-                ret.put(p, (Register) r);
+                }
+                if (!iGuard.isSmallerGuard()) {
+                    SymbolicDataValue r = iGuard.getLeftReg();
+                    Parameter p = new Parameter(r.getType(), r.getId());
+                    if (r instanceof Register) {
+                        ret.put(p, (Register) r);
+                    }
+                }
+            } else if (mg instanceof SDTOrGuard) {
+                Set<SymbolicDataValue> rSet = ((SDTOrGuard) mg).getAllRegs();
+                for (SymbolicDataValue r : rSet) {
+                    Parameter p = new Parameter(r.getType(), r.getId());
+                    if (r instanceof Register) {
+                        ret.put(p, (Register) r);
+                    }
+                }
+            } else if (!(mg instanceof SDTTrueGuard)) {
+                throw new IllegalStateException("wrong kind of guard");
             }
         }
         return ret;
@@ -268,7 +805,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             SDTConstructor oracle) {
 
         int pId = values.size() + 1;
-
+        List<SymbolicDataValue> regPotential = new ArrayList<>();
         SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
 
@@ -285,14 +822,19 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
+                constants.<T>values(type),
                 DataWords.<T>valSet(prefix, type),
                 suffixValues.<T>values(type));
 
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
+        // WE ASSUME THE POTENTIAL IS SORTED
+
         int potSize = potential.size();
 
+//        System.out.println("potential " + potential);
         if (potential.isEmpty()) {
+//            System.out.println("empty potential");
             WordValuation elseValues = new WordValuation();
             DataValue<T> fresh = getFreshValue(potential);
             elseValues.putAll(values);
@@ -309,8 +851,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
         } // process each '<' case
         else {
-            Parameter p = new Parameter(
-                    currentParam.getType(), currentParam.getId());
+            //Parameter p = new Parameter(
+            //      currentParam.getType(), currentParam.getId());
 
             // smallest case
             WordValuation smValues = new WordValuation();
@@ -320,11 +862,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
             Valuation smVal = new Valuation();
             DataValue<T> dvRight = potential.get(0);
-            SmallerGuard sguard = makeSmallerGuard(
+            IntervalGuard sguard = makeSmallerGuard(
                     dvRight, prefixValues, currentParam, smValues, piv);
-            SymbolicDataValue rsm = sguard.getRegister();
-
-            smVal.setValue(rsm.toVariable(), dvRight);
+            SymbolicDataValue rsm = sguard.getRightReg();
+//            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
+            smVal.setValue(rsm.toVariable(), dvRight.getId());
             DataValue<T> smcv = instantiate(
                     sguard, smVal, constants, potential);
             smValues.put(pId, smcv);
@@ -344,11 +886,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             Valuation bgVal = new Valuation();
 
             DataValue<T> dvLeft = potential.get(potSize - 1);
-            BiggerGuard bguard = makeBiggerGuard(
+            IntervalGuard bguard = makeBiggerGuard(
                     dvLeft, prefixValues, currentParam, bgValues, piv);
-            SymbolicDataValue rbg = bguard.getRegister();
+            SymbolicDataValue rbg = bguard.getLeftReg();
 
-            bgVal.setValue(rbg.toVariable(), dvLeft);
+            bgVal.setValue(rbg.toVariable(), dvLeft.getId());
             DataValue<T> bgcv = instantiate(
                     bguard, bgVal, constants, potential);
             bgValues.put(pId, bgcv);
@@ -366,27 +908,30 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     currentValues.putAll(values);
                     SuffixValuation currentSuffixValues = new SuffixValuation();
                     currentSuffixValues.putAll(suffixValues);
-                    SDTGuard guard;
+                    //SDTGuard guard;
                     Valuation val = new Valuation();
                     DataValue<T> dvMRight = potential.get(i);
                     DataValue<T> dvMLeft = potential.get(i - 1);
 
-                    SmallerGuard smallerGuard = makeSmallerGuard(
-                            dvMRight, prefixValues,
-                            currentParam, currentValues, piv);
-                    BiggerGuard biggerGuard = makeBiggerGuard(
-                            dvMLeft, prefixValues, currentParam,
-                            currentValues, piv);
-                    guard = new SDTAndGuard(
-                            currentParam, smallerGuard, biggerGuard);
-                    SymbolicDataValue rs = smallerGuard.getRegister();
-                    SymbolicDataValue rb = biggerGuard.getRegister();
+//                    IntervalGuard smallerGuard = makeSmallerGuard(
+//                            dvMRight, prefixValues,
+//                            currentParam, currentValues, piv);
+//                    IntervalGuard biggerGuard = makeBiggerGuard(
+//                            dvMLeft, prefixValues, currentParam,
+//                            currentValues, piv);
+                    IntervalGuard intervalGuard = makeIntervalGuard(
+                            dvMLeft, dvMRight, prefixValues, currentParam, currentValues, piv);
 
-                    val.setValue(rs.toVariable(), dvMRight);
-                    val.setValue(rb.toVariable(), dvMLeft);
+//                    IntervalGuard guard = new IntervalGuard(
+//                            currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
+                    SymbolicDataValue rs = intervalGuard.getRightReg();
+                    SymbolicDataValue rb = intervalGuard.getLeftReg();
+
+                    val.setValue(rs.toVariable(), dvMRight.getId());
+                    val.setValue(rb.toVariable(), dvMLeft.getId());
 
                     DataValue<T> cv = instantiate(
-                            guard, val, constants, potential);
+                            intervalGuard, val, constants, potential);
                     currentValues.put(pId, cv);
                     currentSuffixValues.put(sv, cv);
 
@@ -394,12 +939,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                             prefix, suffix, currentValues, piv,
                             constants, currentSuffixValues);
 
-                    tempKids.put(guard, oracleSdt);
-
+                    tempKids.put(intervalGuard, oracleSdt);
+                    regPotential.add(i - 1, rb);
+                    regPotential.add(i, rs);
                 }
             }
-
+//            System.out.println("eq potential is: " + potential);
             for (DataValue<T> newDv : potential) {
+                log.log(Level.FINEST, newDv.toString());
 
                 // this is the valuation of the suffixvalues in the suffix
                 SuffixValuation ifSuffixValues = new SuffixValuation();
@@ -407,21 +954,27 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
                 EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues,
                         currentParam, values, constants);
+                log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
+                //construct the equality guard
+                // find the data value in the prefix
+                // this is the valuation of the positions in the suffix
                 WordValuation ifValues = new WordValuation();
                 ifValues.putAll(values);
                 ifValues.put(pId, newDv);
                 SDT eqOracleSdt = oracle.treeQuery(
-                        prefix, suffix, ifValues, piv,
-                        constants, ifSuffixValues);
+                        prefix, suffix, ifValues, piv, constants, ifSuffixValues);
 
                 tempKids.put(eqGuard, eqOracleSdt);
             }
 
         }
 
-        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, currentParam);
+        System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
+        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, currentParam, regPotential);
         // only keep registers that are referenced by the merged guards
-        piv.putAll(keepMem(merged.keySet()));
+        System.out.println("MERGED = " + merged);
+        assert !merged.keySet().isEmpty();
+        piv.putAll(keepMem(merged));
 
         // clear the temporary map of children
         tempKids.clear();
@@ -453,7 +1006,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    private SmallerGuard makeSmallerGuard(DataValue<T> smallerDv,
+    private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
         DataType type = currentParam.getType();
@@ -468,18 +1021,27 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else {
                 newDv_r = new Register(type, newDv_i);
             }
-            return new SmallerGuard(currentParam, newDv_r);
+            return new IntervalGuard(currentParam, null, newDv_r);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
             int smallest = Collections.min(ifValues.getAllKeys(smallerDv));
-            SmallerGuard sg = new SmallerGuard(
-                    currentParam, new SuffixValue(type, smallest));
+            IntervalGuard sg = new IntervalGuard(
+                    currentParam, null, new SuffixValue(type, smallest));
             return sg;
         }
     }
 
-    private BiggerGuard makeBiggerGuard(DataValue<T> biggerDv,
+    private IntervalGuard makeIntervalGuard(DataValue<T> biggerDv,
+            DataValue<T> smallerDv,
+            List<DataValue> prefixValues, SuffixValue currentParam,
+            WordValuation ifValues, PIV pir) {
+        IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir);
+        IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir);
+        return new IntervalGuard(currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
+    }
+
+    private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
         DataType type = currentParam.getType();
@@ -494,13 +1056,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else {
                 newDv_r = new Register(type, newDv_i);
             }
-            return new BiggerGuard(currentParam, newDv_r);
+            return new IntervalGuard(currentParam, newDv_r, null);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
             int smallest = Collections.min(ifValues.getAllKeys(biggerDv));
-            BiggerGuard bg = new BiggerGuard(
-                    currentParam, new SuffixValue(type, smallest));
+            IntervalGuard bg = new IntervalGuard(
+                    currentParam, new SuffixValue(type, smallest), null);
             return bg;
         }
     }
@@ -527,7 +1089,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    public abstract DataValue instantiate(SDTGuard guard, Valuation val,
+    public abstract DataValue<T> instantiate(SDTGuard guard, Valuation val,
             Constants constants, Collection<DataValue<T>> alreadyUsedValues);
 
     @Override
@@ -541,7 +1103,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             Set<DataValue<T>> oldDvs) {
 
         DataType type = param.getType();
-
+        DataValue<T> returnThis = null;
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
@@ -549,9 +1111,19 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         if (guard instanceof EqualityGuard) {
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
-            DataValue x = getRegisterValue(
-                    ereg, piv, prefixValues, constants, pval);
-            return x;
+            if (ereg.isRegister()) {
+                log.log(Level.FINEST, "piv: " + piv.toString()
+                        + " " + ereg.toString() + " " + param.toString());
+                Parameter p = piv.getOneKey((Register) ereg);
+                log.log(Level.FINEST, "p: " + p.toString());
+                int idx = p.getId();
+                returnThis = prefixValues.get(idx - 1);
+            } else if (ereg.isSuffixValue()) {
+                Parameter p = new Parameter(type, ereg.getId());
+                returnThis = (DataValue<T>) pval.get(p);
+            } else if (ereg.isConstant()) {
+                returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
+            }
         } else if (guard instanceof SDTTrueGuard) {
 
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
@@ -559,7 +1131,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     DataWords.<T>valSet(prefix, type),
                     pval.<T>values(type));
 
-            return this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+            returnThis = this.getFreshValue(new ArrayList<>(potSet));
         } else {
             Collection<DataValue<T>> alreadyUsedValues
                     = DataWords.<T>joinValsToSet(
@@ -567,49 +1139,70 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                             DataWords.<T>valSet(prefix, type),
                             pval.<T>values(type));
             Valuation val = new Valuation();
-            if (guard instanceof SDTIfGuard) {
-                SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
+            if (guard instanceof IntervalGuard) {
+                IntervalGuard iGuard = (IntervalGuard) guard;
+                if (!iGuard.isBiggerGuard()) {
+                    SymbolicDataValue r = iGuard.getRightReg();
+                    DataValue<T> regVal = getRegisterValue(r, piv,
+                            prefixValues, constants, pval);
+
+                    val.setValue(r.toVariable(), regVal.getId());
+                }
+                if (!iGuard.isSmallerGuard()) {
+                    SymbolicDataValue l = iGuard.getLeftReg();
+                    DataValue regVal = getRegisterValue(l, piv,
+                            prefixValues, constants, pval);
+
+                    val.setValue(l.toVariable(), regVal.getId());
+                }
+                //instantiate(guard, val, param, constants);
+            } else if (guard instanceof SDTIfGuard) {
+                SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
                 DataValue<T> regVal = getRegisterValue(r, piv,
                         prefixValues, constants, pval);
+                val.setValue(r.toVariable(), regVal.getId());
+            } else if (guard instanceof SDTOrGuard) {
+                SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
 
-                val.setValue(r.toVariable(), regVal);
-                //instantiate(guard, val, param, constants);
-            } else if (guard instanceof SDTMultiGuard) {
-                for (SDTGuard iGuard : ((SDTMultiGuard) guard).getGuards()) {
-                    if (iGuard instanceof SDTMultiGuard) {
-                        for (SymbolicDataValue r : ((SDTMultiGuard)iGuard).getAllRegs()) {
-                            DataValue<T> rVal = getRegisterValue(r, piv, prefixValues, constants, pval);
-                            val.setValue(r.toVariable(), rVal);
-                        }
-                    }
-                    else if (iGuard instanceof SDTIfGuard) {
-                        SymbolicDataValue r = ((SDTIfGuard)iGuard).getRegister();
-                        DataValue<T> regVal = getRegisterValue(r, piv,
-                            prefixValues, constants, pval);
-                        val.setValue(r.toVariable(), regVal);
-                }
-            }
-        }
-
-        if (!(oldDvs.isEmpty())) {
-            for (DataValue<T> oldDv : oldDvs) {
-                Valuation newVal = new Valuation();
-                newVal.putAll(val);
-                newVal.setValue(new SuffixValue(param.getType(), param.getId()).toVariable(), oldDv);
-//                    System.out.println("instantiating " + guard + " with " + newVal);
-                DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
-                if (inst != null) {
-//                        System.out.println("returning (reused): " + inst);
-                    return inst;
-                }
-            }
-        }
-        DataValue ret = instantiate(guard, val, constants, alreadyUsedValues);
-//            System.out.println("returning (no reuse): " + ret);
-        return ret;
+                returnThis = instantiate(iGuard, val, constants, alreadyUsedValues);
+            } else {
+                throw new IllegalStateException("only =, != or interval allowed");
     }
+        
+    
+
+    
+        
+//                        }
+//                    } else if (iGuard instanceof SDTIfGuard) {
+//                        SymbolicDataValue r = ((SDTIfGuard) iGuard).getRegister();
+//                        DataValue<T> regVal = getRegisterValue(r, piv,
+//                                prefixValues, constants, pval);
+//                        val.setValue(r.toVariable(), regVal);
+//                    }
+//                }
+//            }
+
+    if (!(oldDvs.isEmpty () 
+        )) {
+                for (DataValue<T> oldDv : oldDvs) {
+            Valuation newVal = new Valuation();
+            newVal.putAll(val);
+            newVal.setValue(new SuffixValue(param.getType(), param.getId()).toVariable(), oldDv.getId());
+            System.out.println("instantiating " + guard + " with " + newVal);
+            DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
+            if (inst != null) {
+//                        System.out.println("returning (reused): " + inst);
+                returnThis = inst;
+            }
+        }
+    }
+    returnThis  = instantiate(guard, val, constants, alreadyUsedValues);
+//            System.out.println("returning (no reuse): " + ret);
 
 }
+return returnThis;
+    }
 
 //    @Override
 //    public DataValue instantiate(

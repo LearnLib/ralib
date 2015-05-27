@@ -66,16 +66,12 @@ public class SDTTrueGuard extends SDTGuard {
 
         return hash;
     }
-
-    @Override
-    public boolean isSingle() {
-        return true;
-    }
     
     @Override
-    public SDTGuard getSingle() {
-        return this;
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+        throw new IllegalStateException("trying to merge true guard");
     }
+
     
 //    @Override
 //    public SDTGuard mergeWith(Set<SDTGuard> _merged) {

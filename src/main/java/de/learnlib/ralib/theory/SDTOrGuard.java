@@ -83,6 +83,10 @@ public class SDTOrGuard extends SDTMultiGuard {
         return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
     }
     
+    @Override
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+        return other.mergeWith(this, regPotential);
+    }
 
     //@Override
     //public SDTGuard mergeWith(Set<SDTGuard> _merged) {

@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -73,6 +74,9 @@ public class SDTLeaf extends SDT {
         return this;
     }
     
+    public SDT relabelUnderEq(EqualityGuard e) {
+        return this;
+    }
 
     @Override
     public boolean isAccepting() {

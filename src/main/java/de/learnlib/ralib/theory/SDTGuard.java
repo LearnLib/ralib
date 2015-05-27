@@ -7,11 +7,9 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -43,124 +41,77 @@ public abstract class SDTGuard {
     public abstract GuardExpression toExpr();
 
     public abstract SDTGuard relabel(VarMapping relabelling);
+    
+    public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
 
-    public Set<SDTGuard> mergeWith(SDTGuard other) {
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        if (this instanceof SDTIfGuard) {
-            SDTIfGuard thisIf = (SDTIfGuard) this;
-            if (other instanceof SDTIfGuard) {
-                return mergeIfWith(thisIf, (SDTIfGuard) other);
-            }
-            if (other instanceof SDTOrGuard) {
-                return mergeIfWith(thisIf, ((SDTOrGuard) other).guardSet);
-            }
-            if (other instanceof SDTAndGuard) {
-                return mergeIfWith(thisIf, (SDTAndGuard) other);
-            }
-        } else if (this instanceof SDTOrGuard) {
-//            System.out.println("this is or");
-            SDTOrGuard thisOr = (SDTOrGuard) this;
-            if (other instanceof SDTIfGuard) {
-                return mergeIfWith((SDTIfGuard) other, thisOr.guardSet);
-            }
-            if (other instanceof SDTAndGuard) {
-                return mergeAndWith((SDTAndGuard) other, thisOr.guardSet);
-            }
-        } else if (this instanceof SDTAndGuard) {
-            SDTAndGuard thisAnd = (SDTAndGuard) this;
-            if (other instanceof SDTIfGuard) {
-                return mergeIfWith((SDTIfGuard) other, thisAnd);
-            }
-            if (other instanceof SDTOrGuard) {
-                return mergeAndWith(thisAnd, ((SDTOrGuard) other).guardSet);
-            }
-            if (other instanceof SDTAndGuard) {
-                if (thisAnd.equals((SDTAndGuard) other)) {
-                    guards.add(this);
-                } else {
-                    SDTOrGuard orand = new SDTOrGuard(this.getParameter(), thisAnd, other);
-                    guards.add(orand);
-                }
-                return guards;
-            }
-        } else if (this instanceof SDTTrueGuard) {
-            guards.add(other);
-            return guards;
-        } else if (other instanceof SDTTrueGuard) {
-            guards.add(this);
-            return guards;
-        }
-
-        throw new IllegalStateException("not supposed to happen, wrong kind of guard");
-    }
-
-    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {
-        Set<SDTGuard> ifGuard = new LinkedHashSet<>();
-        ifGuard.add(otherIf);
-        return mergeIfWith(thisIf, ifGuard);
-    }
-
-    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, Set<SDTGuard> otherOr) {
-//        System.out.println("mergeIfWith Set: thisIf " + thisIf + ", otherOr " + otherOr);
-        Set<SDTGuard> otherGuards = new LinkedHashSet<>();
-        otherGuards.addAll(otherOr);
-        if (otherGuards.contains(thisIf.toDeqGuard())) {
-//            System.out.println("contradiction");
-            otherGuards.remove(thisIf.toDeqGuard());
-            // disequality + equality = true
-            if (!((thisIf instanceof EqualityGuard) || thisIf instanceof DisequalityGuard)) {
-//                System.out.println("neither is eq or deq");
-                otherGuards.add(new DisequalityGuard(
-                        thisIf.getParameter(), thisIf.getRegister()));
-            }
-        } else {
-            otherGuards.add(thisIf);
-        }
-//        System.out.println("otherGuards " + otherGuards);
-        return otherGuards;
-    }
-
-    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTAndGuard otherAnd) {
-        Set<SDTGuard> ifGuard = new LinkedHashSet<>();
-        ifGuard.add(thisIf);
-        return mergeAndWith(otherAnd, ifGuard);
-    }
-
-//    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, SDTAndGuard otherAnd) {
-//        Set<SDTGuard> andGuard = new LinkedHashSet<>();
-//        andGuard.add(otherAnd);
-//        return mergeAndWith(thisAnd, andGuard);
+//    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {
+//        Set<SDTGuard> ifGuard = new LinkedHashSet<>();
+//        ifGuard.add(otherIf);
+//        return mergeIfWith(thisIf, ifGuard);
 //    }
 //
-//    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, SDTIfGuard otherIf) {
-//        return mergeIfWith(otherIf, thisAnd);
+//    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, Set<SDTGuard> otherOr) {
+////        System.out.println("mergeIfWith Set: thisIf " + thisIf + ", otherOr " + otherOr);
+//        Set<SDTGuard> otherGuards = new LinkedHashSet<>();
+//        otherGuards.addAll(otherOr);
+//        if (otherGuards.contains(thisIf.toDeqGuard())) {
+////            System.out.println("contradiction");
+//            otherGuards.remove(thisIf.toDeqGuard());
+//            // disequality + equality = true
+//            if (!((thisIf instanceof EqualityGuard) || thisIf instanceof DisequalityGuard)) {
+////                System.out.println("neither is eq or deq");
+//                otherGuards.add(new DisequalityGuard(
+//                        thisIf.getParameter(), thisIf.getRegister()));
+//            }
+//        } else {
+//            otherGuards.add(thisIf);
+//        }
+////        System.out.println("otherGuards " + otherGuards);
+//        return otherGuards;
 //    }
-    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, Set<SDTGuard> _merged) {
-        Set<SDTIfGuard> ifs = new LinkedHashSet<>();
-        List<SDTGuard> thisGuards = thisAnd.getGuards();
-        Set<SDTGuard> merged = new LinkedHashSet<>();
-        merged.addAll(_merged);
-        for (SDTGuard x : thisGuards) {
-            assert x instanceof SDTIfGuard;
-            SDTIfGuard ifX = (SDTIfGuard) x;
-            if (merged.contains(ifX.toDeqGuard())) {
-                merged.remove(ifX.toDeqGuard());
-                if (!((ifX instanceof EqualityGuard) || ifX instanceof DisequalityGuard)) {
-                    merged.add(new DisequalityGuard(ifX.getParameter(), ifX.getRegister()));
-                }
-            } else {
-                ifs.add(ifX);
-            }
-        }
-        if (ifs.size() == 1) {
-            merged.addAll(ifs);
-        } else if (ifs.size() > 1) {
-            merged.add(new SDTAndGuard(thisAnd.parameter, ifs.toArray(new SDTIfGuard[]{})));
-
-        }
-
-        return merged;
-    }
+//
+//    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTAndGuard otherAnd) {
+//        Set<SDTGuard> ifGuard = new LinkedHashSet<>();
+//        ifGuard.add(thisIf);
+//        return mergeAndWith(otherAnd, ifGuard);
+//    }
+//
+////    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, SDTAndGuard otherAnd) {
+////        Set<SDTGuard> andGuard = new LinkedHashSet<>();
+////        andGuard.add(otherAnd);
+////        return mergeAndWith(thisAnd, andGuard);
+////    }
+////
+////    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, SDTIfGuard otherIf) {
+////        return mergeIfWith(otherIf, thisAnd);
+////    }
+//    private Set<SDTGuard> mergeAndWith(SDTAndGuard thisAnd, Set<SDTGuard> _merged) {
+//        //System.out.println(thisAnd + " merges with " + _merged);
+//        Set<SDTIfGuard> ifs = new LinkedHashSet<>();
+//        List<SDTGuard> thisGuards = thisAnd.getGuards();
+//        Set<SDTGuard> merged = new LinkedHashSet<>();
+//        merged.addAll(_merged);
+//        for (SDTGuard x : thisGuards) {
+//            assert x instanceof SDTIfGuard;
+//            SDTIfGuard ifX = (SDTIfGuard) x;
+//            if (merged.contains(ifX.toDeqGuard())) {
+//                merged.remove(ifX.toDeqGuard());
+//                if (!((ifX instanceof EqualityGuard) || ifX instanceof DisequalityGuard)) {
+//                    merged.add(new DisequalityGuard(ifX.getParameter(), ifX.getRegister()));
+//                }
+//            } else {
+//                ifs.add(ifX);
+//            }
+//        }
+//        if (ifs.size() == 1) {
+//            merged.addAll(ifs);
+//        } else if (ifs.size() > 1) {
+//            merged.add(new SDTAndGuard(thisAnd.parameter, ifs.toArray(new SDTIfGuard[]{})));
+//
+//        }
+//        //System.out.println("result: " + merged);
+//        return merged;
+//    }
 
 //    private Set<SDTGuard> mergeOrWith(SDTOrGuard thisOr, SDTIfGuard otherIf) {
 //        return mergeIfWith(otherIf, thisOr.guardSet);
@@ -170,8 +121,5 @@ public abstract class SDTGuard {
 //        return mergeAndWith(otherAnd, thisOr.guardSet);
 //    }
     //public abstract SDTGuard mergeWith(Set<SDTGuard> others);
-    public abstract boolean isSingle();
-
-    public abstract SDTGuard getSingle();
 
 }
