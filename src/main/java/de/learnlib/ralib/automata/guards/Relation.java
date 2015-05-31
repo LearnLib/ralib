@@ -27,12 +27,6 @@ package de.learnlib.ralib.automata.guards;
 public enum Relation {
     
     EQUALS("=="), 
-    SMALLER("<"), 
-    // PLUS_ONE("+1=="), 
-    // MEMBER_OF(" in "),
-    BIGGER(">"),
-    // ELSE("else"),
-    //TRUE("true"),
     NOT_EQUALS("!=");
     
     private final String name;       

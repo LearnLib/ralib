@@ -24,45 +24,67 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author falk
  */
-public class Negation extends GuardExpression {
+public class Conjunction extends GuardExpression {
 
-    private final GuardExpression negated;
+    private final GuardExpression[] conjuncts;
 
-    public Negation(GuardExpression negated) {
-        this.negated = negated;
+    public Conjunction(GuardExpression ... conjuncts) {
+        this.conjuncts = conjuncts;
     }
 
     @Override
     public Expression<Boolean> toExpression() {
-        return new gov.nasa.jpf.constraints.expressions.Negation(
-                this.negated.toExpression());
+        Expression<Boolean>[] ret = new Expression[conjuncts.length];
+        int i = 0;
+        for (GuardExpression ge : conjuncts) {
+            ret[i++] = ge.toExpression();
+        }
+        return ExpressionUtil.and(ret);    
     }
-
+    
     @Override
     public GuardExpression relabel(VarMapping relabelling) {
-        GuardExpression newNegated = negated.relabel(relabelling);
-        return new Negation(newNegated);
+        GuardExpression[] newExpr = new GuardExpression[conjuncts.length];
+        int i = 0;
+        for (GuardExpression ge : conjuncts) {
+            newExpr[i++] = ge.relabel(relabelling);
+        }
+        return new Conjunction(newExpr);
     }
 
     @Override
     public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
-        return !negated.isSatisfied(val);
+        int i = 0;
+        for (GuardExpression ge : conjuncts) {
+            if (!ge.isSatisfied(val)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "(!" + negated + ")";
+        return StringUtils.join(conjuncts, " && ");
     }
 
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
-        this.negated.getSymbolicDataValues(vals);
+        for (GuardExpression ge : conjuncts) {
+            ge.getSymbolicDataValues(vals);
+        }
+    }
+
+    public GuardExpression[] getConjuncts() {
+        return conjuncts;
     }
     
 }

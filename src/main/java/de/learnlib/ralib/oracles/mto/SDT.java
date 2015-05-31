@@ -6,10 +6,12 @@
 package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.FalseGuardExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -18,12 +20,6 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -88,14 +84,6 @@ public class SDT implements SymbolicDecisionTree {
                         Set<SymbolicDataValue> rSet = ((SDTMultiGuard) ifG).getAllRegs();
                         variables.addAll(rSet);
                     }
-                }
-            } else if (g instanceof IntervalGuard) {
-                IntervalGuard iGuard = (IntervalGuard) g;
-                if (!iGuard.isBiggerGuard()) {
-                    variables.add(iGuard.getRightReg());
-                }
-                if (!iGuard.isSmallerGuard()) {
-                    variables.add(iGuard.getLeftReg());
                 }
             } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
@@ -313,39 +301,27 @@ public class SDT implements SymbolicDecisionTree {
         return this.getChildren().isEmpty();
     }
 
-    DataExpression<Boolean> getAcceptingPaths(Constants consts) {
+    GuardExpression getAcceptingPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
-            return DataExpression.FALSE;
+            return FalseGuardExpression.FALSE;
         }
         Set<SuffixValue> svals = new LinkedHashSet<>();
-        Expression<Boolean> dis = null;
+        GuardExpression dis = null;
         for (List<SDTGuard> list : paths) {
-            List<Expression<Boolean>> expr = new ArrayList<>();
+            List<GuardExpression> expr = new ArrayList<>();
             for (SDTGuard g : list) {
-                expr.add(g.toExpr().toDataExpression().getExpression());
+                expr.add(g.toExpr());
                 svals.add(g.getParameter());
             }
-            Expression<Boolean> con = ExpressionUtil.and(expr);
-            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
+            Conjunction con = new Conjunction(
+                    expr.toArray(new GuardExpression[] {}));
+            
+            dis = (dis == null) ? con : new Disjunction(dis, con);
         }
 
-        Map<SymbolicDataValue, Variable> map = new LinkedHashMap<>();
-        for (Register r : getRegisters()) {
-            Variable x = new Variable(BuiltinTypes.DOUBLE, r.toString());
-            map.put(r, x);
-        }
-        for (SuffixValue s : svals) {
-            Variable p = new Variable(BuiltinTypes.DOUBLE, s.toString());
-            map.put(s, p);
-        }
-        for (Constant c : consts.keySet()) {
-            Variable _c = new Variable(BuiltinTypes.DOUBLE, c.toString());
-            map.put(c, _c);
-        }
-
-        return new DataExpression<>(dis, map);
+        return dis;
     }
 
     List<List<SDTGuard>> getPaths(List<SDTGuard> path) {

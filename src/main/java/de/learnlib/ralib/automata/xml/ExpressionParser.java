@@ -20,7 +20,7 @@ package de.learnlib.ralib.automata.xml;
 
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
@@ -76,7 +76,7 @@ public class ExpressionParser {
         while (tok.hasMoreTokens()) {
             conjuncts.add(buildPredicate(tok.nextToken().trim()));
         }
-        return new Conjuction(conjuncts.toArray(new GuardExpression[] {}));            
+        return new Conjunction(conjuncts.toArray(new GuardExpression[] {}));            
     }
 
     private GuardExpression buildPredicate(String pred) 
@@ -96,18 +96,6 @@ public class ExpressionParser {
             SymbolicDataValue left = pMap.get(related[0].trim());
             SymbolicDataValue right = pMap.get(related[1].trim());
             return new AtomicGuardExpression(left, Relation.NOT_EQUALS, right);            
-        }
-        else if (pred.contains(">")) {
-            String[] related = pred.split(">");
-            SymbolicDataValue left = pMap.get(related[0].trim());
-            SymbolicDataValue right = pMap.get(related[1].trim());
-            return new AtomicGuardExpression(left, Relation.BIGGER, right);                        
-        }
-        else if (pred.contains("<")) {
-            String[] related = pred.split("<");
-            SymbolicDataValue left = pMap.get(related[0].trim());
-            SymbolicDataValue right = pMap.get(related[1].trim());
-            return new AtomicGuardExpression(left, Relation.SMALLER, right);             
         }
         
         throw new IllegalStateException(

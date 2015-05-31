@@ -24,9 +24,7 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -36,9 +34,9 @@ import java.util.Set;
 public class TrueGuardExpression extends GuardExpression {
 
     public static final TrueGuardExpression TRUE = new TrueGuardExpression();
-    
+
     @Override
-    protected Expression<Boolean> toExpression(Map<SymbolicDataValue, Variable> map) {
+    public Expression<Boolean> toExpression() {
         return ExpressionUtil.TRUE;
     }
 

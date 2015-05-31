@@ -20,7 +20,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
@@ -36,7 +36,6 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Variable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
@@ -208,32 +207,6 @@ public class MultiTheoryBranching implements Branching {
         return dvgMap;
     }
 
-    public Map<SymbolicDataValue, Variable> makeVarMapping(
-            Map<DataValue[], List<SDTGuard>> guardMap) {
-        Map<SymbolicDataValue, Variable> vars
-                = new LinkedHashMap<SymbolicDataValue, Variable>();
-        for (Map.Entry<DataValue[], List<SDTGuard>> e : guardMap.entrySet()) {
-            for (SDTGuard guard : e.getValue()) {
-                SuffixValue ps = guard.getParameter();
-                Parameter p = new Parameter(ps.getType(), ps.getId());
-                Variable px = ps.toVariable();
-                vars.put(p, px);
-                if (guard instanceof SDTIfGuard) {
-                    SymbolicDataValue s = ((SDTIfGuard) guard).getRegister();
-                    Variable sx = s.toVariable();
-                    vars.put(s, sx);
-                } else if (guard instanceof SDTMultiGuard) {
-                    for (SymbolicDataValue z
-                            : ((SDTMultiGuard) guard).getAllRegs()) {
-                        Variable zx = z.toVariable();
-                        vars.put(z, zx);
-                    }
-                }
-            }
-        }
-        return vars;
-    }
-
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
@@ -256,10 +229,6 @@ public class MultiTheoryBranching implements Branching {
                         new ArrayList<SDTGuard>(),
                         new ArrayList<Node>());
 
-        Map<SymbolicDataValue, Variable> vars = makeVarMapping(tempMap);
-
-        log.log(Level.FINEST, "Vars =     " + vars.toString());
-
         for (DataValue[] dvs : tempMap.keySet()) {
             List<GuardExpression> gExpr = new ArrayList<>();
             List<SDTGuard> gList = tempMap.get(dvs);
@@ -267,7 +236,7 @@ public class MultiTheoryBranching implements Branching {
                 gExpr.add(renameSuffixValues(g.toExpr()));
             }
             TransitionGuard tg = new TransitionGuard(
-                    new Conjuction(gExpr.toArray(
+                    new Conjunction(gExpr.toArray(
                                     new GuardExpression[]{})));
             assert tg != null;
 

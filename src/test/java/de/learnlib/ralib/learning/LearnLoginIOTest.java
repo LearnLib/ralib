@@ -81,7 +81,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/keygen.xml"));
+                        "/de/learnlib/ralib/automata/xml/sip.xml"));
 //                       "/de/learnlib/ralib/automata/xml/sip.xml"));
 
 
@@ -105,7 +105,7 @@ public class LearnLoginIOTest {
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>() {
+            teachers.put(t, new EqualityTheoryMS<Integer>(true) {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());

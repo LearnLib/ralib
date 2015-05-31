@@ -48,7 +48,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Variable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -220,15 +219,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     }
 
-    public Map<SymbolicDataValue, Variable> makeVarMapping(
-            Set<SymbolicDataValue> regsAndParams) {
-        Map<SymbolicDataValue, Variable> vars
-                = new LinkedHashMap<SymbolicDataValue, Variable>();
-        for (SymbolicDataValue s : regsAndParams) {
-            vars.put(s, s.toVariable());
-        }
-        return vars;
-    }
 
     private Set<SDTGuard> getFinestGuards(Map<SDTGuard, SDTGuard> gMap) {
         Set<SDTGuard> retSet = new LinkedHashSet<>();

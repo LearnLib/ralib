@@ -24,65 +24,39 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author falk
  */
-public class Conjuction extends GuardExpression {
+public class FalseGuardExpression extends GuardExpression {
 
-    private final GuardExpression[] conjuncts;
+    public static final FalseGuardExpression FALSE = new FalseGuardExpression();
 
-    public Conjuction(GuardExpression ... conjuncts) {
-        this.conjuncts = conjuncts;
+    @Override
+    public Expression<Boolean> toExpression() {
+        return ExpressionUtil.FALSE;
     }
     
     @Override
-    protected Expression<Boolean> toExpression(Map<SymbolicDataValue, Variable> map) {        
-        Expression<Boolean>[] ret = new Expression[conjuncts.length];
-        int i = 0;
-        for (GuardExpression ge : conjuncts) {
-            ret[i++] = ge.toExpression(map);
-        }
-        return ExpressionUtil.and(ret);
-    }
-
-    @Override
     public GuardExpression relabel(VarMapping relabelling) {
-        GuardExpression[] newExpr = new GuardExpression[conjuncts.length];
-        int i = 0;
-        for (GuardExpression ge : conjuncts) {
-            newExpr[i++] = ge.relabel(relabelling);
-        }
-        return new Conjuction(newExpr);
+        return FALSE;
     }
 
     @Override
     public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
-        int i = 0;
-        for (GuardExpression ge : conjuncts) {
-            if (!ge.isSatisfied(val)) {
-                return false;
-            }
-        }
         return true;
     }
 
     @Override
     public String toString() {
-        return StringUtils.join(conjuncts, " && ");
+        return "FALSE";
     }
 
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
-        for (GuardExpression ge : conjuncts) {
-            ge.getSymbolicDataValues(vals);
-        }
     }
-
+    
 }

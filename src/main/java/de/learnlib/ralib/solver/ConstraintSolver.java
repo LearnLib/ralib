@@ -17,34 +17,30 @@
  * MA 02110-1301  USA
  */
 
-package de.learnlib.ralib.automata.guards;
+package de.learnlib.ralib.solver;
 
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 
 /**
  *
  * @author falk
- * 
  */
-public abstract class GuardExpression {
-        
-    public abstract Expression<Boolean> toExpression();
- 
-    public abstract GuardExpression relabel(VarMapping relabelling); 
-
-    public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val); 
-   
-    public Set<SymbolicDataValue> getSymbolicDataValues() {
-        Set<SymbolicDataValue> set = new LinkedHashSet<>();
-        getSymbolicDataValues(set);
-        return set;
+public class ConstraintSolver {
+    
+    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
+    
+    public ConstraintSolver() {
+        ConstraintSolverFactory fact = new ConstraintSolverFactory();
+        this.solver = fact.createSolver("z3");        
     }
     
-    protected abstract void getSymbolicDataValues(Set<SymbolicDataValue> vals);
+    public boolean isSatisfiable(GuardExpression expr) {
+        Expression<Boolean> jexpr = expr.toExpression();
+        Result r = solver.isSatisfiable(jexpr);
+        return r == Result.SAT;
+    }
+    
 }

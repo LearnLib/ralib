@@ -19,6 +19,7 @@
 
 package de.learnlib.ralib.automata.guards;
 
+import static com.google.common.io.Files.map;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -28,7 +29,6 @@ import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,19 +52,15 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
     }
 
     @Override
-    protected Expression toExpression(Map<SymbolicDataValue, Variable> map) {
-        Variable lv = getOrCreate(left, map);
-        Variable rv = getOrCreate(right, map);
+    public Expression toExpression() {
+        Variable lv = getOrCreate(left);
+        Variable rv = getOrCreate(right);
         
         switch (relation) {
             case EQUALS: 
                 return new NumericBooleanExpression(lv, NumericComparator.EQ, rv);
             case NOT_EQUALS: 
                 return new NumericBooleanExpression(lv, NumericComparator.NE, rv);
-            case SMALLER:
-                return new NumericBooleanExpression(lv, NumericComparator.LT, rv);
-            case BIGGER:
-                return new NumericBooleanExpression(lv, NumericComparator.GT, rv);
                 
             default:
                 throw new UnsupportedOperationException(
@@ -72,13 +68,8 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         }        
     }
 
-    private Variable getOrCreate(SymbolicDataValue dv, Map<SymbolicDataValue, Variable> map) {
-        Variable ret = map.get(dv);
-        if (ret == null) {
-            ret = new Variable(BuiltinTypes.DOUBLE, dv.toString());
-            map.put(dv, ret);
-        }
-        return ret;
+    private Variable getOrCreate(SymbolicDataValue dv) {
+        return new Variable(BuiltinTypes.DOUBLE, dv.toString());
     }
     
     @Override
@@ -97,35 +88,13 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return lv.equals(rv);
             case NOT_EQUALS: 
                 return !lv.equals(rv);
-            case SMALLER:
-            case BIGGER:
-                return compareComparable(lv, rv);
-                
+           
             default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");
         }
     }
-    
-    private boolean compareComparable(DataValue l, DataValue r) {
-        if (!l.getType().equals(r.getType())) {
-            return false;
-        }
-        
-        Comparable lc = (Comparable) l.getId();
-        int result = lc.compareTo(r.getId());        
-        switch (relation) {
-            case SMALLER:
-                return result < 0;
-            case BIGGER:
-                return result > 0;
-                
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");            
-        }         
-    }
-            
+               
     @Override
     public GuardExpression relabel(VarMapping relabelling) {
         SymbolicDataValue newLeft = (SymbolicDataValue) relabelling.get(left);
@@ -159,4 +128,9 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         vals.add(left);
         vals.add(right);
     }
+
+    public Relation getRelation() {
+        return relation;
+    }
+    
 }

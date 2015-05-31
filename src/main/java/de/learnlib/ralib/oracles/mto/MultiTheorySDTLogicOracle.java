@@ -21,7 +21,10 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.DataExpression;
+import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -31,10 +34,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
-import gov.nasa.jpf.constraints.api.ConstraintSolver;
-import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
-import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -52,8 +53,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     private static LearnLogger log = LearnLogger.getLogger(MultiTheorySDTLogicOracle.class);
 
     public MultiTheorySDTLogicOracle(Constants consts) {
-        ConstraintSolverFactory fact = new ConstraintSolverFactory();
-        this.solver = fact.createSolver("z3");
+        this.solver = new ConstraintSolver();
         this.consts = consts;
     }    
     
@@ -72,13 +72,13 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
         
-        DataExpression<Boolean> expr1 = _sdt1.getAcceptingPaths(consts);
-        DataExpression<Boolean> expr2 = _sdt2.getAcceptingPaths(consts);        
-        DataExpression<Boolean> exprG = guard.getCondition().toDataExpression();
+        GuardExpression expr1 = _sdt1.getAcceptingPaths(consts);
+        GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);        
+        GuardExpression exprG = guard.getCondition();
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
                 new VarMapping<>();
-        for (SymbolicDataValue sv : exprG.getMapping().keySet()) {
+        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
             if (sv instanceof Parameter) {
                 gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
             }
@@ -89,15 +89,15 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
                 createRemapping(piv2, piv1);
         
-        DataExpression<Boolean> expr2r = expr2.relabel(remap);
+        GuardExpression expr2r = expr2.relabel(remap);
         
-        DataExpression<Boolean> left = DataExpression.and(
-                exprG, expr1, DataExpression.negate(expr2r));
+        GuardExpression left = new Conjunction(
+                exprG, expr1, new Negation(expr2r));
         
-        DataExpression<Boolean> right = DataExpression.and(
-                exprG, expr2r, DataExpression.negate(expr1));
+        GuardExpression right = new Conjunction(
+                exprG, expr2r, new Negation(expr1));
         
-        DataExpression<Boolean> test = DataExpression.or(left, right);
+        GuardExpression test = new Disjunction(left, right);
 
         System.out.println("A1:  " + expr1);
         System.out.println("A2:  " + expr2);
@@ -106,13 +106,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         System.out.println("A2': " + expr2r);
         System.out.println("TEST:" + test);
         
-        System.out.println("HAS CE: " + test.getExpression());
-        Result r = solver.isSatisfiable(test.getExpression());
+        System.out.println("HAS CE: " + test);
+        boolean r = solver.isSatisfiable(test);
         log.log(Level.FINEST,"Res:" + r);
-        if (r == Result.DONT_KNOW) {
-            throw new IllegalStateException("could not solve constraint.");
-        }
-        return (r == Result.SAT);
+        return r;
     }
 
     @Override
@@ -127,25 +124,19 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
                 createRemapping(pivRefined, pivRefining);
         
-        DataExpression<Boolean> exprRefining = refining.getCondition().toDataExpression();
-        DataExpression<Boolean> exprRefined = 
-                refined.getCondition().toDataExpression().relabel(remap);
+        GuardExpression exprRefining = refining.getCondition();
+        GuardExpression exprRefined = 
+                refined.getCondition().relabel(remap);
         
         // is there any case for which refining is true but refined is false?
-        DataExpression<Boolean> test = DataExpression.and(
-            exprRefining, DataExpression.negate(exprRefined));
+        GuardExpression test = new Conjunction(
+            exprRefining, new Negation(exprRefined));
         
         log.log(Level.FINEST,"MAP: " + remap);
         log.log(Level.FINEST,"TEST:" + test);        
                 
-        Result r = solver.isSatisfiable(test.getExpression());
-        //System.out.println("DOES REFINE: " + test.getExpression() + " : " + r);
-        log.log(Level.FINEST,"Res:" + r);
-        if (r == Result.DONT_KNOW) {
-            throw new IllegalStateException("could not solve constraint.");
-        }               
-        
-        return (r == Result.UNSAT);       
+        boolean r = solver.isSatisfiable(test);
+        return !r;       
     }
 
     private VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(
