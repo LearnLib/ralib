@@ -57,25 +57,25 @@ public class PriorityQueueSUL extends DataWordSUL {
     private PSymbolInstance createOutputSymbol(Object x) {
         if (x instanceof Boolean) {
             if ((Boolean) x) {
-                System.out.println("returns OK");
+//                System.out.println("returns OK");
 
                 return new PSymbolInstance(outputs.get(Actions.OK));
             } else {
-                System.out.println("returns NOK");
+//                System.out.println("returns NOK");
 
                 return new PSymbolInstance(outputs.get(Actions.NOK));
             }
         } else if (x instanceof java.lang.Exception) {
-            System.out.println("returns ERR");
+//            System.out.println("returns ERR");
 
             return new PSymbolInstance(outputs.get(Actions.ERROR));
         } else if (x == null) {
-            System.out.println("returns NOK");
+//            System.out.println("returns NOK");
 
             return new PSymbolInstance(outputs.get(Actions.NOK));
         } else {
             assert !(x == null);
-            System.out.println("returns OUTPUT " + x.toString());
+//            System.out.println("returns OUTPUT " + x.toString());
             ParameterizedSymbol op = outputs.get(Actions.OUTPUT);
             return new PSymbolInstance(op, new DataValue(op.getPtypes()[0], x));
         }
@@ -84,7 +84,7 @@ public class PriorityQueueSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        System.out.println("executing:  " + i.toString() + " on " + pqueue.toString());
+//        System.out.println("executing:  " + i.toString() + " on " + pqueue.toString());
         if (i.getBaseSymbol().equals(inputs.get(Actions.OFFER))) {
             //DataValue<Double> d = i.getParameterValues()[0];
                 Object x = pqueue.offer(i.getParameterValues()[0].getId());

@@ -50,6 +50,18 @@ public class IntervalGuard extends SDTGuard {
         rightLimit = rl;
     }
     
+    public EqualityGuard toEqGuard() {
+        assert !isIntervalGuard();
+        SymbolicDataValue r = null;
+        if (isSmallerGuard()) {
+            r = rightLimit;
+        }
+        else {
+            r = leftLimit;
+        }
+        return new EqualityGuard(this.parameter,r);
+    }
+    
     public DisequalityGuard toDeqGuard() {
         assert !isIntervalGuard();
         SymbolicDataValue r = null;

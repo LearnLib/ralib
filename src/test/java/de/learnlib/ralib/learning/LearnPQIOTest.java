@@ -266,7 +266,7 @@ public class LearnPQIOTest {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
                     DataValue<Double> d = new DataValue(doubleType, (newVal.getValue(sp.toVariable())));
-                    System.out.println("return d: " + d.toString());
+//                    System.out.println("return d: " + d.toString());
                     return d;//new DataValue<Double>(doubleType, d);
                 } else {
 //                    System.out.println("UNSAT: " + _x + " with " + newVal);

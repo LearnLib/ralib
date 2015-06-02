@@ -89,8 +89,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
         
-        System.out.println(prefix + " . " + suffix);
-        System.out.println(sdt);
+//        System.out.println(prefix + " . " + suffix);
+//        System.out.println(sdt);
         
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
@@ -119,7 +119,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Constants constants,
             SuffixValuation suffixValues) {
         
-        System.out.println("prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
+//        System.out.println("prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
 
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
@@ -131,8 +131,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
 
-            System.out.println("Trace = " + trace.toString() + " >>> "
-                    + (qOut ? "ACCEPT (+)" : "REJECT (-)"));
+//            System.out.println("Trace = " + trace.toString() + " >>> "
+//                    + (qOut ? "ACCEPT (+)" : "REJECT (-)"));
             return qOut ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
 
             // return accept / reject as a leaf

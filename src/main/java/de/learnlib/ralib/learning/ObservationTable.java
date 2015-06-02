@@ -134,7 +134,7 @@ class ObservationTable {
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
         log.logEvent("Adding suffix to obs: " + suffix);
-        System.out.println("Adding suffix to obs: " + suffix);
+//        System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);

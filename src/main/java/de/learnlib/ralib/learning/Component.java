@@ -93,7 +93,7 @@ class Component {
         for (VarMapping m : iterator) {
             if (r.isEquivalentTo(primeRow, m)) {
                 this.otherRows.put(r, m);
-                return true;
+                return true; 
             }
         }
         return false;

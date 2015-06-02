@@ -132,7 +132,7 @@ public class SDT implements SymbolicDecisionTree {
     @Override
     public boolean isEquivalent(
             SymbolicDecisionTree other, VarMapping renaming) {
-        if (!(other instanceof SDT)) {
+        if (other instanceof SDTLeaf) {
             return false;
         }
         SDT otherSDT = (SDT) other;

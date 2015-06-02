@@ -65,6 +65,9 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -190,8 +193,8 @@ public class TestIneqEqTree {
 
             @Override
             public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
-                System.out.println("INSTANTIATING: " + g.toString() + " without " + alreadyUsedValues);
-                System.out.println("val: " + val + "; consts" + c);
+//                System.out.println("INSTANTIATING: " + g.toString() + " without " + alreadyUsedValues);
+//                System.out.println("val: " + val + "; consts" + c);
                 SymbolicDataValue.SuffixValue sp = g.getParameter();
                 Valuation newVal = new Valuation();
                 newVal.putAll(val);
@@ -240,7 +243,7 @@ public class TestIneqEqTree {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
                     DataValue<Double> d = new DataValue(doubleType, (newVal.getValue(sp.toVariable())));
-                    System.out.println("return d: " + d.toString());
+//                    System.out.println("return d: " + d.toString());
                     return d;//new DataValue<Double>(doubleType, d);
                 } else {
 //                    System.out.println("UNSAT: " + _x + " with " + newVal);
@@ -298,21 +301,31 @@ public class TestIneqEqTree {
 //                    new DataValue(T_PWD, 2)));           
 //        
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+                new PSymbolInstance(POLL),
+                new PSymbolInstance(OUTPUT,
+                        new DataValue(doubleType, 4.0)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 3.0)),
+                        new DataValue(doubleType, 5.0)),
                 new PSymbolInstance(OK),
                 new PSymbolInstance(POLL),
                 new PSymbolInstance(OUTPUT,
-                        new DataValue(doubleType, 4.0)));
+                        new DataValue(doubleType, 6.0)));
+        
+        
+
+        
 
 //        Prefix: offer[2.0[DOUBLE]] ok[] offer[1.0[DOUBLE]] ok[]
 //SymSuffix: [s2]((offer[s1] ok[] poll[] out[s2]))
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(OK),
+                new PSymbolInstance(OFFER,
                         new DataValue(doubleType, 2.0)),
                 new PSymbolInstance(OK),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, 3.0)),
                 new PSymbolInstance(OK));
 
         // create a symbolic suffix from the concrete suffix
@@ -328,17 +341,24 @@ public class TestIneqEqTree {
 
         Parameter p1 = new Parameter(doubleType, 1);
         Parameter p2 = new Parameter(doubleType, 2);
-        DataValue d1 = new DataValue(doubleType, 6.0);
-        DataValue d2 = new DataValue(doubleType, 9.0);
+        Parameter p3 = new Parameter(doubleType, 3);
+        DataValue d1 = new DataValue(doubleType, 1.0);
+        DataValue d2 = new DataValue(doubleType, 2.0);
+        DataValue d3 = new DataValue(doubleType, 3.0);
 
         PIV testPiv = new PIV();
         testPiv.put(p1, new Register(doubleType, 1));
         testPiv.put(p2, new Register(doubleType, 2));
+        testPiv.put(p3, new Register(doubleType, 3));
 
         ParValuation testPval = new ParValuation();
         testPval.put(p1, d1);
         testPval.put(p2, d2);
+        testPval.put(p3, d3);
+        
+        
 
+        
         Branching branching = mto.getInitialBranching(prefix, OFFER, testPiv, testPval, sdt);
         System.out.println("Branching: \n" + branching.toString());
         System.out.println("Get initial branching: \n" + branching.getBranches().toString());
