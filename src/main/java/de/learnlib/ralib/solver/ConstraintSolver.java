@@ -19,10 +19,11 @@
 
 package de.learnlib.ralib.solver;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.solver.simple.SimpleSolver;
 
 /**
  *
@@ -30,17 +31,20 @@ import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
  */
 public class ConstraintSolver {
     
-    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
+//    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
+	private final SimpleSolver solver;
     
     public ConstraintSolver() {
-        ConstraintSolverFactory fact = new ConstraintSolverFactory();
-        this.solver = fact.createSolver("z3");        
+//        ConstraintSolverFactory fact = new ConstraintSolverFactory();
+//        this.solver = fact.createSolver("z3");  
+    	this.solver = new SimpleSolver();
     }
     
     public boolean isSatisfiable(GuardExpression expr) {
-        Expression<Boolean> jexpr = expr.toExpression();
-        Result r = solver.isSatisfiable(jexpr);
-        return r == Result.SAT;
+//        Expression<Boolean> jexpr = expr.toExpression();
+//        Result r = solver.isSatisfiable(jexpr);
+//        return r == Result.SAT;
+    	return solver.isSatisfiable(expr);
     }
     
 }

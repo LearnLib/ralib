@@ -37,6 +37,10 @@ public class Negation extends GuardExpression {
     public Negation(GuardExpression negated) {
         this.negated = negated;
     }
+    
+    public GuardExpression getNegated() {
+    	return negated;
+    }
 
     @Override
     public Expression<Boolean> toExpression() {
