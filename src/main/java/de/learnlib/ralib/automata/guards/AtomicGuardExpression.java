@@ -19,16 +19,10 @@
 
 package de.learnlib.ralib.automata.guards;
 
-import static com.google.common.io.Files.map;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import java.util.Set;
 
 /**
@@ -49,27 +43,6 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         this.left = left;
         this.relation = relation;
         this.right = right;
-    }
-
-    @Override
-    public Expression toExpression() {
-        Variable lv = getOrCreate(left);
-        Variable rv = getOrCreate(right);
-        
-        switch (relation) {
-            case EQUALS: 
-                return new NumericBooleanExpression(lv, NumericComparator.EQ, rv);
-            case NOT_EQUALS: 
-                return new NumericBooleanExpression(lv, NumericComparator.NE, rv);
-                
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");
-        }        
-    }
-
-    private Variable getOrCreate(SymbolicDataValue dv) {
-        return new Variable(BuiltinTypes.DOUBLE, dv.toString());
     }
     
     @Override

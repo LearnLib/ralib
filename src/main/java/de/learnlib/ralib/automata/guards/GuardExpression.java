@@ -23,7 +23,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Expression;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -34,8 +33,6 @@ import java.util.Set;
  */
 public abstract class GuardExpression {
         
-    public abstract Expression<Boolean> toExpression();
- 
     public abstract GuardExpression relabel(VarMapping relabelling); 
 
     public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val); 

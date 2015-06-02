@@ -19,9 +19,6 @@
 
 package de.learnlib.ralib.solver;
 
-import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.solver.simple.SimpleSolver;
 

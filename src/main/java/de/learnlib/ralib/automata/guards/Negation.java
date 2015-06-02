@@ -23,7 +23,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Expression;
 import java.util.Set;
 
 /**
@@ -40,12 +39,6 @@ public class Negation extends GuardExpression {
     
     public GuardExpression getNegated() {
     	return negated;
-    }
-
-    @Override
-    public Expression<Boolean> toExpression() {
-        return new gov.nasa.jpf.constraints.expressions.Negation(
-                this.negated.toExpression());
     }
 
     @Override

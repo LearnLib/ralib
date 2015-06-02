@@ -19,13 +19,10 @@
 
 package de.learnlib.ralib.automata.guards;
 
-import static com.google.common.io.Files.map;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,16 +36,6 @@ public class Disjunction extends GuardExpression {
 
     public Disjunction(GuardExpression ... disjuncts) {
         this.disjuncts = disjuncts;
-    }
-
-    @Override
-    public Expression<Boolean> toExpression() {        
-        Expression<Boolean>[] ret = new Expression[disjuncts.length];
-        int i = 0;
-        for (GuardExpression ge : disjuncts) {
-            ret[i++] = ge.toExpression();
-        }
-        return ExpressionUtil.or(ret);
     }
 
     @Override
