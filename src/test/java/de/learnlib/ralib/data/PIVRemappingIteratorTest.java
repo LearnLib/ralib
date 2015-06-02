@@ -18,11 +18,12 @@
  */
 package de.learnlib.ralib.data;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  *

@@ -18,6 +18,19 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.automatalib.words.Word;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.data.Constants;
@@ -36,16 +49,6 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.automatalib.words.Word;
-import org.testng.annotations.Test;
 
 /**
  *

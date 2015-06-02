@@ -5,6 +5,8 @@
  */
 package de.learnlib.ralib.example.priority;
 
+import java.util.Map;
+
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -13,7 +15,6 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Map;
 
 public class PriorityQueueSUL extends DataWordSUL {
 

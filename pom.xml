@@ -35,43 +35,51 @@
         </plugins>
     </build>
     
+    <dependencyManagement>
+    	<dependencies>
+    		<dependency>
+    			<groupId>de.learnlib</groupId>
+    			<artifactId>learnlib-parent</artifactId>
+    			<version>${learnlib.version}</version>
+    			<type>pom</type>
+    			<scope>import</scope>
+    		</dependency>
+    	</dependencies>
+    </dependencyManagement>
+    
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>gov.nasa</groupId>
             <artifactId>jconstraints</artifactId>
             <version>0.9.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+
         <dependency>
             <groupId>net.automatalib</groupId>
             <artifactId>automata-api</artifactId>
-            <version>0.4.1</version>
         </dependency>
         <dependency>
             <groupId>net.automatalib</groupId>
             <artifactId>automata-core</artifactId>
-            <version>0.4.1</version>
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
             <artifactId>learnlib-core</artifactId>
-            <version>${learnlib.version}</version>
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
             <artifactId>learnlib-drivers-basic</artifactId>
-            <version>${learnlib.version}</version>
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
             <artifactId>learnlib-mapper</artifactId>
-            <version>${learnlib.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>

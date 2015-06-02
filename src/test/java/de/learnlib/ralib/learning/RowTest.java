@@ -19,18 +19,23 @@
 
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.ArrayList;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+
 import java.util.Arrays;
+
 import net.automatalib.words.Word;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  *

@@ -19,25 +19,28 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.api.Query;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.automatalib.words.Word;
+
 import org.testng.annotations.Test;
+
+import de.learnlib.api.Query;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *

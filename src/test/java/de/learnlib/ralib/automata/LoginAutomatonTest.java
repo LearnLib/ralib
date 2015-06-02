@@ -18,16 +18,22 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.data.DataValue;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.words.PSymbolInstance;
-import junit.framework.Assert;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import net.automatalib.words.Word;
+
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  *

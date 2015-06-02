@@ -19,12 +19,18 @@
 
 package de.learnlib.ralib.words;
 
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+import net.automatalib.words.Word;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import net.automatalib.words.Word;
-import org.testng.annotations.Test;
 
 
 /**

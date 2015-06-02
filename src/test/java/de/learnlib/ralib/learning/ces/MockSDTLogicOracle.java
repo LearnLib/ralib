@@ -19,12 +19,12 @@
 
 package de.learnlib.ralib.learning.ces;
 
+import net.automatalib.words.Word;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
 
 /**
  *

@@ -19,11 +19,12 @@
 
 package de.learnlib.ralib.learning.sdts;
 
+import java.util.Map;
+
+import net.automatalib.words.Word;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Map;
-import net.automatalib.words.Word;
 
 /**
  *

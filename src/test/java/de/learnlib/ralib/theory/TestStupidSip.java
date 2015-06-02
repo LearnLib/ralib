@@ -19,30 +19,39 @@
 
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.words.PSymbolInstance;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import net.automatalib.words.Word;
+
 import org.testng.annotations.Test;
+
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.SimulatorOracle;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  *

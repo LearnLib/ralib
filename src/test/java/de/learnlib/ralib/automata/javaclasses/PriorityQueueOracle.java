@@ -5,14 +5,15 @@
  */
 package de.learnlib.ralib.automata.javaclasses;
 
+import java.util.Collection;
+import java.util.PriorityQueue;
+
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Collection;
-import java.util.PriorityQueue;
 
 /**
  *
