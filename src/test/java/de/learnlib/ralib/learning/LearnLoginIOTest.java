@@ -42,10 +42,12 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,17 +107,22 @@ public class LearnLoginIOTest {
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>() {
+            teachers.put(t, new EqualityTheory<Integer>() {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
                     int dv = -1;
                     for (DataValue<Integer> d : vals) {
                         dv = Math.max(dv, d.getId());
-                    }
-                        
+                    }                        
                     return new DataValue(t, dv + 1);
                 }
+                 @Override
+                 public Collection getAllNextValues(List<DataValue<Integer>> vals) {
+                     ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
+                     ret.add(getFreshValue(vals));
+                     return ret;
+                 }                
             });
         }
 
@@ -128,7 +135,7 @@ public class LearnLoginIOTest {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         for (Theory t : teachers.values()) {
-            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
+            ((EqualityTheory)t).setFreshValues(true, ioCache);
         }
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);

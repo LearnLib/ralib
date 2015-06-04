@@ -41,6 +41,7 @@ import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -102,7 +103,9 @@ public class LearnPQTest {
             }
         }
 
-        teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
+        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+/*                
+                new InequalityTheoryWithEq<Double>() {
             Valuation val = new Valuation();
             private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
             private final ConstraintSolver solver = fact.createSolver("z3");
@@ -205,7 +208,7 @@ public class LearnPQTest {
 
         }
         );
-
+*/
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts);
 

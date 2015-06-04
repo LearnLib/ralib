@@ -162,6 +162,11 @@ public class TestTreeOracle {
                         v.getId().toString() + "_" + vals.size());
             }
 
+            @Override
+            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+
             
         };
 
@@ -172,6 +177,11 @@ public class TestTreeOracle {
                 DataValue v = vals.get(0);
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());
+            }
+
+            @Override
+            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
+                throw new UnsupportedOperationException("Not supported yet.");
             }
 
 

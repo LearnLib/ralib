@@ -26,13 +26,13 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.Set;
 import net.automatalib.words.Word;
 
@@ -56,35 +56,56 @@ public interface Theory<T> {
      * @param prefix prefix word. 
      * @param suffix suffix word.
      * @param values found values for complete word (pos -> dv)
-     * @param piv memorable data values of the prefix (dv <-> itr) 
+     * @param constants
+     * @param piv memorable data values of the prefix 
      * @param suffixValues map of already instantiated suffix 
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
-     * @param regGenerator
-     * @param vals
      * 
      * @return a symbolic decision tree and updated piv 
-     */
-    
-    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
-    
+     */           
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,             
             SymbolicSuffix suffix,
             WordValuation values, 
-            PIV pir,
+            PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
-        
-       
+     
+    /**
+     * returns a fresh data value (for vals).
+     * 
+     * @param vals
+     * @return 
+     */
+    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
+    
+    /**
+     * returns all next data values to be tested (for vals).
+     * 
+     * @param vals
+     * @return 
+     */
+    public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
+            
+    /**
+     * TBD
+     * 
+     * @param prefix
+     * @param ps
+     * @param piv
+     * @param pval
+     * @param constants
+     * @param guard
+     * @param param
+     * @param oldDvs
+     * @return 
+     */
     public DataValue instantiate(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
 
-//    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
-//            ParameterizedSymbol ps, MultiTheoryBranching current, 
-//            PIV piv, SDTConstructor oracle, SDT... sdts);
     
 }

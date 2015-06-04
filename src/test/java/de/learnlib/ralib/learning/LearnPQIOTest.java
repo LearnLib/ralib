@@ -48,6 +48,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -162,7 +163,9 @@ public class LearnPQIOTest {
                 return one.getId().compareTo(other.getId());
             }
         }
-        teachers.put(doubleType, new InequalityTheoryWithEq<Double>() {
+        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+                
+/*                new InequalityTheoryWithEq<Double>() {
             Valuation val = new Valuation();
             private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
             private final ConstraintSolver solver = fact.createSolver("z3");
@@ -297,7 +300,7 @@ public class LearnPQIOTest {
 
         }
         );
-
+*/
         DataWordSUL sul = new PriorityQueueSUL(teachers, consts, inputs, outputs);
 
         //SimulatorOracle oracle = new SimulatorOracle(model);

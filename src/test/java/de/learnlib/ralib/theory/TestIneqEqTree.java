@@ -272,6 +272,11 @@ public class TestIneqEqTree {
                 return sortedList;
             }
 
+            @Override
+            public Collection<DataValue<Double>> getAllNextValues(List<DataValue<Double>> vals) {
+                throw new UnsupportedOperationException("Not supported yet."); 
+            }
+
         }
         );
 

@@ -33,7 +33,9 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -41,7 +43,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -88,18 +89,9 @@ public class FreshValuesTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>(true){
-                @Override
-                public DataValue getFreshValue(List<DataValue<Integer>> vals) {
-                    //System.out.println("GENERATING FRESH: " + vals.size());
-                    int dv = -1;
-                    for (DataValue<Integer> d : vals) {
-                        dv = Math.max(dv, d.getId());
-                    }
-                        
-                    return new DataValue(t, dv + 1);
-                }
-            });
+            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);            
+            teachers.put(t, theory);
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
@@ -111,7 +103,7 @@ public class FreshValuesTest {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
                 
         for (Theory t : teachers.values()) {
-            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
+            ((EqualityTheory)t).setFreshValues(true, ioCache);
         }
         
         DataType intType = getType("int", loader.getDataTypes());

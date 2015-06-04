@@ -34,6 +34,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -63,28 +64,10 @@ public class TestEqualityTheory {
     
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
             
-        Theory<Integer> uidTheory = new EqualityTheory<Integer>() {
-            @Override
-            public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), vals.size() + 1);
-            }
-
-        };    
-    
-        Theory<Integer> pwdTheory = new EqualityTheory<Integer>() {
-            @Override
-            public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), vals.size() + 1);
-            }
-
-
-        };  
-    
         Map<DataType, Theory> theories = new LinkedHashMap();
-        theories.put(T_UID, uidTheory);
-        theories.put(T_PWD, pwdTheory);
+        theories.put(T_UID, new IntegerEqualityTheory(T_UID));
+        theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+   
         
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, new Constants());
         

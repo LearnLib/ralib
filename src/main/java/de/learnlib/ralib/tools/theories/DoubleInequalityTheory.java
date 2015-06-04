@@ -69,6 +69,13 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     private DataType type = null;
 
+    public DoubleInequalityTheory() {
+    }
+  
+    public DoubleInequalityTheory(DataType t) {
+        this.type = t;
+    }
+
     @Override
     public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
         //assume we can just sort the list and get the values
@@ -214,4 +221,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
                 + DoubleInequalityTheory.class.getName());
     }
 
+    @Override
+    public Collection<DataValue<Double>> getAllNextValues(
+            List<DataValue<Double>> vals) {
+        throw new UnsupportedOperationException("Sofia has to implement this ..."); 
+    }    
 }

@@ -42,7 +42,9 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -104,19 +106,10 @@ public class LearnPalindromeIOTest {
         final Random random = new Random(seed);
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>(true) {
-                @Override
-                public DataValue getFreshValue(List<DataValue<Integer>> vals) {
-                    //System.out.println("GENERATING FRESH: " + vals.size());
-                    int dv = -1;
-                    for (DataValue<Integer> d : vals) {
-                        dv = Math.max(dv, d.getId());
-                    }
-                        
-                    return new DataValue(t, dv + 1);
-                }
-            });
+        for (final DataType t : loader.getDataTypes()) {            
+            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);            
+            teachers.put(t, theory);
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
