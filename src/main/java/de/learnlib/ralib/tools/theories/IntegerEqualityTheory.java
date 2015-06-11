@@ -70,6 +70,9 @@ public class IntegerEqualityTheory extends EqualityTheory<Integer> implements Ty
     @Override
     public Collection<DataValue<Integer>> getAllNextValues(
             List<DataValue<Integer>> vals) {
+        
+        // TODO: add constants ...
+        
         ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
         ret.add(getFreshValue(vals));
         return ret;

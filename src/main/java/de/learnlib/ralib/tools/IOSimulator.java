@@ -25,7 +25,6 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -46,7 +45,6 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -61,7 +59,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -273,6 +270,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
             DefaultQuery<PSymbolInstance, Boolean> ce  = null; 
+            DefaultQuery<PSymbolInstance, Boolean> origCe  = null; 
             
             if (useEqTest) {
                 ce = this.eqTest.findCounterExample(hyp, null);
@@ -288,32 +286,54 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
+            
             if (findCounterexamples) {
-                ce = this.randomWalk.findCounterExample(hyp, null);
+                ce = null;
             }
-
-            SimpleProfiler.stop(__SEARCH__);
-            System.out.println("CE: " + ce);
-            if (ce == null) {
-                break;
-            }
-
-            resets = sulTest.getResets();
-            inputs = sulTest.getInputs();
             
-            SimpleProfiler.start(__LEARN__);
-            ceLengths.add(ce.getInput().length());
+            boolean nullCe = false;            
+            for (int i=0; i<3; i++) {
             
-            if (useCeOptimizers) {
-                ce = ceOptLoops.optimizeCE(ce.getInput(), hyp);
-                System.out.println("Shorter CE: " + ce);
-                ce = ceOptAsrep.optimizeCE(ce.getInput(), hyp);
-                System.out.println("New Prefix CE: " + ce);
-                ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
-                System.out.println("Prefix of CE is CE: " + ce);
+                DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
+                
+                if (findCounterexamples) {
+                    ce2 = this.randomWalk.findCounterExample(hyp, null);
+                } else {
+                    ce2 = ce;
+                }
+
+                SimpleProfiler.stop(__SEARCH__);
+                System.out.println("CE: " + ce2);
+                if (ce2 == null) {
+                    nullCe = true;
+                    break;
+                }
+
+                resets = sulTest.getResets();
+                inputs = sulTest.getInputs();
+
+
+                if (useCeOptimizers) {
+                    ce2 = ceOptLoops.optimizeCE(ce2.getInput(), hyp);
+                    System.out.println("Shorter CE: " + ce2);
+                    ce2 = ceOptAsrep.optimizeCE(ce2.getInput(), hyp);
+                    System.out.println("New Prefix CE: " + ce2);
+                    ce2 = ceOptPref.optimizeCE(ce2.getInput(), hyp);
+                    System.out.println("Prefix of CE is CE: " + ce2);
+                }
+                   
+                ce = (ce == null || ce.getInput().length() > ce2.getInput().length()) ?
+                        ce2 : ce;
             }
    
-            ceLengthsShortened.add(ce.getInput().length());
+            if (nullCe) {
+                break;
+            }
+            
+            SimpleProfiler.start(__LEARN__);
+            //ceLengths.add(ce.getInput().length());
+            
+            //ceLengthsShortened.add(ce.getInput().length());
             
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());

@@ -31,6 +31,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -164,10 +165,16 @@ public class IORandomWalk implements IOEquivalenceOracle {
             }
             ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
 
+            Set<DataValue<Object>> newSet = new HashSet<>(
+                teacher.getAllNextValues(old));
+            
+            newSet.removeAll(old);
+            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
+            
             double draw = rand.nextDouble();
             if (draw <= newDataProbability || old.isEmpty()) {
-                DataValue v = teacher.getFreshValue(old);
-                vals[i] = v;
+                int idx = rand.nextInt(newList.size());
+                vals[i] = newList.get(idx);
             } else {
                 int idx = rand.nextInt(old.size());
                 vals[i] = old.get(idx);

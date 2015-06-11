@@ -435,6 +435,8 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         potential.addAll(r1.values());        
         //  this is maybe ok during learning        
         //potential.addAll(r2.values());
+        
+        // TODO: this should become part of the teacher
         potential.addAll(consts.values());
         
         List<DataValue[]> valuations = new ArrayList<>();
