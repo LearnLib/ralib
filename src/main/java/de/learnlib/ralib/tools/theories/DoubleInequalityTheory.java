@@ -18,15 +18,18 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjuction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
@@ -36,10 +39,8 @@ import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -47,7 +48,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -71,7 +74,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     public DoubleInequalityTheory() {
     }
-  
+
     public DoubleInequalityTheory(DataType t) {
         this.type = t;
     }
@@ -217,13 +220,30 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     @Override
     public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        System.err.println("Fresh vlaues are currently not supported for theory "
+        System.err.println("Fresh values are currently not supported for theory "
                 + DoubleInequalityTheory.class.getName());
     }
 
     @Override
     public Collection<DataValue<Double>> getAllNextValues(
             List<DataValue<Double>> vals) {
-        throw new UnsupportedOperationException("Sofia has to implement this ..."); 
-    }    
+        Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
+        nextValues.addAll(vals);
+        if (vals.isEmpty()) {
+            nextValues.add(new DataValue(type, 1.0));
+        } else {
+            Collections.sort(vals, new Cpr());
+            if (vals.size() > 1) {
+                for (int i = 0; i < (vals.size() - 1); i++) {
+                    Double d1 = vals.get(i).getId();
+                    Double d2 = vals.get(i + 1).getId();
+                    nextValues.add(new DataValue(type, (d1 + ((d2 - d1) / 2))));
+                }
+            }
+            nextValues.add(new DataValue(type, (Collections.min(vals, new Cpr()).getId()-1.0)));
+            nextValues.add(new DataValue(type, (Collections.max(vals, new Cpr()).getId()+1.0)));
+        }
+        return nextValues;
+    }
+
 }
