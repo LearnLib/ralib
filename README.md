@@ -1,22 +1,29 @@
 RALib
 =========================
 
-RALib is a library for learning register automata.
+RALib is a library for active learning algorithms for register automata
+(a form of extended finite state machines). RALib is licensed under
+the [*Apache License, Version 2.0*][4]. 
+
+RALib is developed as an extension to [*LearnLib*][3]. It implements 
+the SL* algorithm presented in 	Sofia Cassel, Falk Howar, Bengt Jonsson, 
+Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
+
 
 Installation
 -------------------------
 
-RALib uses the [*jConstraints*][1] library as an abstraction layer for interfacing
+A basic version (in the 'basic' branch) has can be built using maven without
+further preconditions by running `mvn clean install` and
+`mvn assembly:assembly` in the RALib directoy.  
+This basic version implements a theory with tests for equality.
+
+The current development version of (all branches but 'basic')  use the 
+[*jConstraints*][1] library as an abstraction layer for interfacing
 the solver (*jConstraints* uses plugins for supporting multiple constraint solvers.
-For licensing reasons no plugin is included in RALib. In order to run RALib you 
-have to install a plugin for at least one constraint solver.
-
-There exists a closed source plugin for Microsoft's [Z3][2]). For obtaining and 
-installing *jConstraints-z3*, follow the instructions on the [BitBucket page][1].
-
-Installing RALib is then as simple as just running `mvn clean install` and 
-`mvn assembly:assembly` in the RALib directory. 
-
+For licensing reasons neither *jConstraints* nor a solver plugin are included in 
+RALib. Please feel free to contact the RALib developers if you are interested
+in using or contributing to the development version.
 
 Using RALib
 -------------------------
@@ -102,7 +109,7 @@ teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
 
 
 
-
-
 [1]: https://bitbucket.org/psycopaths/jConstraints-z3
 [2]: https://z3.codeplex.com
+[3]: http://www.learnlib.de
+[4]: http://www.apache.org/licenses/LICENSE-2.0
