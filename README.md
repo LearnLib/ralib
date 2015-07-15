@@ -46,7 +46,7 @@ For learning a model of `java.util.LinkedList` with the class-analyzer call
 
 ```
 #!bash
-$ java -ea -jar target ralib-0.1-SNAPSHOT-jar-with-dependencies.jar \
+$ java -ea -jar target/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar \
   class-analyzer -f config
 ```
 
