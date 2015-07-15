@@ -14,9 +14,8 @@ Installation
 -------------------------
 
 A basic version (in the 'basic' branch) has can be built using maven without
-further preconditions by running `mvn clean install` and
-`mvn assembly:assembly` in the RALib directoy.  
-This basic version implements a theory with tests for equality.
+further preconditions by running `mvn clean install` and `mvn assembly:assembly` 
+in the RALib directoy. This basic version implements a theory with tests for equality.
 
 The current development version of (all branches but 'basic')  use the 
 [*jConstraints*][1] library as an abstraction layer for interfacing
