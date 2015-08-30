@@ -21,12 +21,15 @@ package de.learnlib.ralib.tools.classanalyzer;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -46,6 +49,10 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private int depth = 0;
     
+    private Set<DataValue> known = new HashSet<>();
+    
+    private PSymbolInstance error = null;
+    
     public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, 
             MethodConfig> methods, int d) {
         this.sulClass = sulClass;
@@ -57,6 +64,8 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     @Override
     public void pre() {
         countResets(1);
+        known.clear();
+        error = null;
         depth = 0;
         try {
             sul = sulClass.newInstance();
@@ -74,6 +83,10 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         
+        if (error != null) {
+            return error;
+        }
+        
         if (depth > maxDepth && (maxDepth > 0)) {
             return new PSymbolInstance(SpecialSymbols.DEPTH);
         }
@@ -86,6 +99,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         Object[] params = new Object[dvs.length];
         for (int j = 0; j < dvs.length; j++) {
             params[j] = dvs[j].getId();
+            known.add(dvs[j]);
         }
 
         Object ret = null;
@@ -94,8 +108,10 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         } catch (Throwable ex) {
             if (ex instanceof InvocationTargetException) {
                 InvocationTargetException iex = (InvocationTargetException) ex;
-                return new PSymbolInstance(new SpecialSymbols.ErrorSymbol(
+                error = new PSymbolInstance(new SpecialSymbols.ErrorSymbol(
                         iex.getTargetException()));
+                
+                return error;
             }
             else {
                 throw new RuntimeException(ex);
@@ -113,9 +129,15 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         if (in.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE)) {
             return new PSymbolInstance( (Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE );
         }
+                
+        DataValue rdv = new DataValue(in.getRetType(), ret);
+        if (!known.contains(rdv)) {
+            known.add(rdv);
+            rdv = new FreshValue(in.getRetType(), ret);
+            
+        }
         
-        return new PSymbolInstance(in.getOutput(), new DataValue(in.getRetType(), ret));
-        
+        return new PSymbolInstance(in.getOutput(), rdv);        
     }    
     
 }

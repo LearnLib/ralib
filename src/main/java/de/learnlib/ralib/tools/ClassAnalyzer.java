@@ -90,6 +90,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_USE_SUFFIXOPT,
         OPTION_EXPORT_MODEL,
         OPTION_USE_RWALK,
+        OPTION_USE_FRESH_VALUES,
         OPTION_MAX_ROUNDS,
         OPTION_MAX_DEPTH,
         OPTION_TIMEOUT,
@@ -193,6 +194,12 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             IOCache ioCache = new IOCache(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
+            if (useFresh) {
+                for (Theory t : teachers.values()) {
+                    ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
+                }
+            }
+       
             MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 

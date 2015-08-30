@@ -28,5 +28,10 @@ public class FreshValue<T> extends DataValue<T> {
     public FreshValue(DataType type, T id) {
         super(type, id);
     }
+
+    @Override
+    public String toString() {
+        return "(f)" + super.toString(); 
+    }
     
 }

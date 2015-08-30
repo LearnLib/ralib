@@ -24,12 +24,14 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.util.Collection;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -45,6 +47,17 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
         final Map<PSymbolInstance, PSymbolInstance> output = new LinkedHashMap<>();
         final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (Entry<PSymbolInstance, PSymbolInstance> e : output.entrySet()) {
+                sb.append(e.getKey()).append(":").append(e.getValue()).append(", ");
+            }
+            return sb.toString();
+        }
+        
+        
     }
 
     private final CacheNode root = new CacheNode();
@@ -77,8 +90,10 @@ public class IOCache extends IOOracle implements DataWordOracle {
             test = query.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         Word<PSymbolInstance> trace = sul.trace(test);
+        //System.out.println("adding to cache: " + trace);
         addToCache(trace);
         ret = answerFromCache(query);
+        //System.out.println("getting from cache: " + ret);        
         return ret;
     }
 
@@ -102,9 +117,11 @@ public class IOCache extends IOOracle implements DataWordOracle {
                 DataValue d = in.getParameterValues()[i];
                 DataValue r = replacements.get(d);
                 if (r == null) {
+                    //System.out.println("Making " + d + " rep.");
                     replacements.put(d, d);
                     r = d;
                 }
+                //System.out.println("Using " + r + " as rep. for " + d);
                 dvInRepl[i] = r;
             }
 
@@ -116,6 +133,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
             cur = cur.next.get(in);
 
             if (out == null) {
+                //System.err.println("Output null for input " + in);
                 return null;
             }
 
@@ -131,9 +149,11 @@ public class IOCache extends IOOracle implements DataWordOracle {
                 DataValue d = ref.getParameterValues()[i];
                 if (f instanceof FreshValue) {
                     assert !replacements.containsKey(d);
+                    //System.out.println("Making " + f + " rep. for " + d);
                     replacements.put(d, f);
                 }
                 DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;
+                //System.out.println("Using " + r + " as rep. for " + d);
                 dvRefRepl[i] = r;
             }
 
@@ -151,18 +171,24 @@ public class IOCache extends IOOracle implements DataWordOracle {
         assert query.length() % 2 == 0;
         Iterator<PSymbolInstance> iter = query.iterator();
         CacheNode cur = root;
+        Word<PSymbolInstance> trace = Word.epsilon();
         while (iter.hasNext()) {
             PSymbolInstance in = iter.next();
             PSymbolInstance out = iter.next();
-
+            trace = trace.append(in);
             CacheNode next = cur.next.get(in);
+            //System.out.println("Cache node for " + trace + ": " + next);
             if (next == null) {
                 next = new CacheNode();
                 cur.next.put(in, next);
                 cur.output.put(in, out);
             }
 
-            assert out.equals(cur.output.get(in));
+            if (!out.equals(cur.output.get(in))) {
+                System.err.println("Cache Error: " + out + " vs " + cur.output.get(in) + " after " + trace);
+                assert false;
+            }
+            trace.append(out);
             cur = next;
         }
     }
