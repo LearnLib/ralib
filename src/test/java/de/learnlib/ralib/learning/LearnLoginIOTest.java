@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.util.RAToDot;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
@@ -209,7 +210,7 @@ public class LearnLoginIOTest {
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         System.out.println("LAST:------------------------------------------------");
-        System.out.println(hyp);
+        System.out.println(new RAToDot(hyp, true));
         System.out.println("----------------------------------------------------");
 
         System.out.println("Seed:" + seed);
