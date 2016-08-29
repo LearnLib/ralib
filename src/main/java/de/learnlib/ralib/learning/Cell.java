@@ -76,6 +76,9 @@ final class Cell {
         boolean check = this.suffix.equals(other.suffix) &&
                 this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
                 this.sdt.isEquivalent(other.sdt, renaming);
+        log.log(Level.FINEST,this.sdt + "\nVS\n" + other.sdt + "\n");
+        log.log(Level.FINEST,this.suffix + "    " + other.suffix);
+        log.log(Level.FINEST,this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
         
 //        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
         return check;

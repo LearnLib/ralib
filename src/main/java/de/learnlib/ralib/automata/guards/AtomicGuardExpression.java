@@ -58,6 +58,9 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return lv.equals(rv);
             case NOT_EQUALS: 
                 return !lv.equals(rv);
+            case BIGGER:
+            case SMALLER:
+                return numCompare(lv, rv, relation);
            
             default:
                 throw new UnsupportedOperationException(
@@ -101,6 +104,25 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
 
     public Relation getRelation() {
         return relation;
+    }
+
+    private boolean numCompare(DataValue l, DataValue r, Relation relation) {        
+        if (!l.getType().equals(r.getType())) {
+            return false;
+        }
+        
+        Comparable lc = (Comparable) l.getId();
+        int result = lc.compareTo(r.getId());        
+        switch (relation) {
+            case SMALLER:
+                return result < 0;
+            case BIGGER:
+                return result > 0;
+                
+            default:
+                throw new UnsupportedOperationException(
+                        "Relation " + relation + " is not supoorted in guards");   
+        }
     }
     
 }

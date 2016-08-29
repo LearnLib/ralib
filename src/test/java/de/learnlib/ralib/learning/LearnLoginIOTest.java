@@ -16,16 +16,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.testng.annotations.Test;
-
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.util.RAToDot;
@@ -57,6 +47,16 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.testng.annotations.Test;
 
 /**
  *
@@ -109,16 +109,22 @@ public class LearnLoginIOTest {
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
             teachers.put(t, new EqualityTheory<Integer>(true) {
+
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
                     int dv = -1;
                     for (DataValue<Integer> d : vals) {
                         dv = Math.max(dv, d.getId());
-                    }
-                        
+                    }                        
                     return new DataValue(t, dv + 1);
                 }
+                 @Override
+                 public Collection getAllNextValues(List<DataValue<Integer>> vals) {
+                     ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
+                     ret.add(getFreshValue(vals));
+                     return ret;
+                 }                
             });
         }
 

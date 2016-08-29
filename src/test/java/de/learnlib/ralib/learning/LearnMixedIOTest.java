@@ -1,30 +1,22 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
- * This file is part of LearnLib, http://www.learnlib.de/.
+ * Copyright (C) 2015 falk.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
 package de.learnlib.ralib.learning;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -33,10 +25,10 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -46,26 +38,36 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class LearnPalindromeIOTest {
+public class LearnMixedIOTest {
 
-    public LearnPalindromeIOTest() {
+    public LearnMixedIOTest() {
     }
 
     @Test
@@ -85,7 +87,7 @@ public class LearnPalindromeIOTest {
 
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/palindrome.xml"));
+                        "/de/learnlib/ralib/automata/xml/mixed.xml"));
 //                       "/de/learnlib/ralib/automata/xml/sip.xml"));
 
 
@@ -102,16 +104,23 @@ public class LearnPalindromeIOTest {
 
         final Constants consts = loader.getConstants();
 
-        long seed = -4888188516884158586L;
+        long seed = -1386796323025681754L; 
         //long seed = (new Random()).nextLong();
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {            
-            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
-            theory.setUseSuffixOpt(true);            
-            teachers.put(t, theory);
+        for (final DataType t : loader.getDataTypes()) {
+            TypedTheory th;
+            if (t.getName().equals("int")) {
+                th = new IntegerEqualityTheory();
+            }
+            else {
+                th = new DoubleInequalityTheory();
+            }
+            th.setType(t);
+            th.setUseSuffixOpt(true);
+            teachers.put(t, th);
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
@@ -122,19 +131,18 @@ public class LearnPalindromeIOTest {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
-                consts, solver);
+        ConstraintSolverFactory fact = new ConstraintSolverFactory();
+        ConstraintSolver solver = fact.createSolver("z3");
+        JConstraintsConstraintSolver jsolv = new JConstraintsConstraintSolver(solver);
+                
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, jsolv);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 
             @Override
             public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), 
-                        teachers, consts, solver);
+                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
             }
         };
 
@@ -171,29 +179,29 @@ public class LearnPalindromeIOTest {
             System.out.println("----------------------------------------------------");
 
               
-            DefaultQuery<PSymbolInstance, Boolean> _ce = 
-                    ioEquiv.findCounterExample(hyp, null);
+//            DefaultQuery<PSymbolInstance, Boolean> _ce = 
+//                    ioEquiv.findCounterExample(hyp, null);
+//
+//            if (_ce != null) {
+//                System.out.println("EQ-TEST found counterexample: " + _ce);
+//            } else {
+//                System.out.println("EQ-TEST did not find counterexample!");                
+//            }
 
-            if (_ce != null) {
-                System.out.println("EQ-TEST found counterexample: " + _ce);
-            } else {
-                System.out.println("EQ-TEST did not find counterexample!");                
-            }
-
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    iowalk.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
            
             System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }
 
-//            ce = loops.optimizeCE(ce.getInput(), hyp);
-//            System.out.println("Shorter CE: " + ce);
-//            ce = asrep.optimizeCE(ce.getInput(), hyp);
-//            System.out.println("New Prefix CE: " + ce);           
-//            ce = pref.optimizeCE(ce.getInput(), hyp);
-//            System.out.println("Prefix of CE is CE: " + ce);
+            ce = loops.optimizeCE(ce.getInput(), hyp);
+            System.out.println("Shorter CE: " + ce);
+            ce = asrep.optimizeCE(ce.getInput(), hyp);
+            System.out.println("New Prefix CE: " + ce);
+           
+            ce = pref.optimizeCE(ce.getInput(), hyp);
+            System.out.println("Prefix of CE is CE: " + ce);
             
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());

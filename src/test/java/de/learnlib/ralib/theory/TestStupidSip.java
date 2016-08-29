@@ -16,24 +16,6 @@
  */
 package de.learnlib.ralib.theory;
 
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -41,6 +23,12 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -48,8 +36,16 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.automatalib.words.Word;
+import org.testng.annotations.Test;
+
 
 /**
  *
@@ -70,28 +66,9 @@ public class TestStupidSip {
     
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
             
-        Theory<Integer> uidTheory = new EqualityTheory<Integer>() {
-            @Override
-            public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), vals.size() + 1);
-            }
-
-        };    
-    
-        Theory<Integer> pwdTheory = new EqualityTheory<Integer>() {
-            @Override
-            public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(), vals.size() + 1);
-            }
-
-
-        };  
-    
         Map<DataType, Theory> theories = new LinkedHashMap();
-        theories.put(T_UID, uidTheory);
-        theories.put(T_PWD, pwdTheory);
+        theories.put(T_UID, new IntegerEqualityTheory(T_UID));
+        theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
         
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, 
                 new Constants(), new SimpleConstraintSolver());

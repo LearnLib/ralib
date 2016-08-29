@@ -31,6 +31,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -96,6 +97,14 @@ public class SDT implements SymbolicDecisionTree {
                         variables.addAll(rSet);
                     }
                 }
+            } else if (g instanceof IntervalGuard) {
+                IntervalGuard iGuard = (IntervalGuard) g;
+                if (!iGuard.isBiggerGuard()) {
+                    variables.add(iGuard.getRightReg());
+                }
+                if (!iGuard.isSmallerGuard()) {
+                    variables.add(iGuard.getLeftReg());
+                }
             } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
             }
@@ -131,7 +140,7 @@ public class SDT implements SymbolicDecisionTree {
     @Override
     public boolean isEquivalent(
             SymbolicDecisionTree other, VarMapping renaming) {
-        if (!(other instanceof SDT)) {
+        if (other instanceof SDTLeaf) {
             return false;
         }
         SDT otherSDT = (SDT) other;

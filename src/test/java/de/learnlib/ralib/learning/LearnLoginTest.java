@@ -52,7 +52,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
@@ -86,19 +86,8 @@ public class LearnLoginTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         
-        teachers.put(T_UID, new EqualityTheory() {
-            @Override
-            public DataValue getFreshValue(List vals) {
-                return new DataValue(T_UID, vals.size());
-            }
-        });
-        
-        teachers.put(T_PWD, new EqualityTheory() {
-            @Override
-            public DataValue getFreshValue(List vals) {
-                return new DataValue(T_PWD, vals.size());
-            }
-        });
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
+        teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
         
         ConstraintSolver solver = new SimpleConstraintSolver();
         

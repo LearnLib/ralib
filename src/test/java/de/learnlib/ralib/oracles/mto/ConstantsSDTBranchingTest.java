@@ -49,11 +49,13 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+
 
 /**
  *
@@ -94,13 +96,9 @@ public class ConstantsSDTBranchingTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory() {
-                @Override
-                public DataValue getFreshValue(List vals) {
-                    //System.out.println("GENERATING FRESH: " + vals.size());
-                    return new DataValue(t, vals.size());
-                }
-            });
+            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(false);            
+            teachers.put(t, theory);
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);

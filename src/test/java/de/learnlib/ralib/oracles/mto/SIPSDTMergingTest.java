@@ -19,7 +19,6 @@ package de.learnlib.ralib.oracles.mto;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -46,11 +45,12 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+
 
 /**
  *
@@ -91,13 +91,7 @@ public class SIPSDTMergingTest {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheory() {
-                @Override
-                public DataValue getFreshValue(List vals) {
-                    //System.out.println("GENERATING FRESH: " + vals.size());
-                    return new DataValue(t, vals.size());
-                }
-            });
+            teachers.put(t, new IntegerEqualityTheory(t));
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);

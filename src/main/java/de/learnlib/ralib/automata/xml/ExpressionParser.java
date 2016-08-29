@@ -79,25 +79,40 @@ public class ExpressionParser {
 
     private GuardExpression buildPredicate(String pred) 
     {
+        
         pred = pred.replace("!=", "!!");
         if (pred.trim().length() < 1) {
             return new TrueGuardExpression();
         }
-        else if (pred.contains("==")) {
-            String[] related = pred.split("==");
-            SymbolicDataValue left = pMap.get(related[0].trim());
-            SymbolicDataValue right = pMap.get(related[1].trim());
-            return new AtomicGuardExpression(left, Relation.EQUALS, right);            
+        
+        Relation relation = null;
+        String[] related = null;
+        
+        if (pred.contains("==")) {
+            related = pred.split("==");
+            relation = Relation.EQUALS;
         } 
         else if (pred.contains("!!")) {
-            String[] related = pred.split("!!");
-            SymbolicDataValue left = pMap.get(related[0].trim());
-            SymbolicDataValue right = pMap.get(related[1].trim());
-            return new AtomicGuardExpression(left, Relation.NOT_EQUALS, right);            
+            related = pred.split("!!");
+            relation = Relation.NOT_EQUALS;           
+        }
+        else if (pred.contains("<")) {
+            related = pred.split("<");
+            relation = Relation.SMALLER;           
+        }
+        else if (pred.contains(">")) {
+            related = pred.split(">");
+            relation = Relation.BIGGER;           
+        }        
+        
+        if (relation == null) {
+            throw new IllegalStateException(
+                    "this should not happen!!! " + pred + " in " + expLine);
         }
         
-        throw new IllegalStateException(
-                "this should not happen!!! " + pred + " in " + expLine);
+        SymbolicDataValue left = pMap.get(related[0].trim());
+        SymbolicDataValue right = pMap.get(related[1].trim());
+        return new AtomicGuardExpression(left, relation, right);          
     }
     
     /**
