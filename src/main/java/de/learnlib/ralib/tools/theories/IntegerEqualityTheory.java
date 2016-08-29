@@ -20,7 +20,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.theory.equality.EqualityTheoryMS;
+import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  *
  * @author falk
  */
-public class IntegerEqualityTheory  extends EqualityTheoryMS<Integer> implements TypedTheory<Integer> {
+public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
 
     private DataType type = null;
     

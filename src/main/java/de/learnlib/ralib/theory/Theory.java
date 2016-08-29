@@ -41,6 +41,15 @@ import net.automatalib.words.Word;
  */
 public interface Theory<T> {
       
+
+    /**
+     * Returns a fresh data value.
+     * 
+     * @param vals
+     * @return a fresh data value of type T 
+     */
+    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
+    
     /** 
      * Implements a tree query for this theory. This tree query
      * will only work on one parameter and then call the 
@@ -53,18 +62,14 @@ public interface Theory<T> {
      * @param prefix prefix word. 
      * @param suffix suffix word.
      * @param values found values for complete word (pos -> dv)
-     * @param piv memorable data values of the prefix (dv <-> itr) 
+     * @param pir memorable data values of the prefix (dv <-> itr) 
+     * @param constants 
      * @param suffixValues map of already instantiated suffix 
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
-     * @param regGenerator
-     * @param vals
      * 
      * @return a symbolic decision tree and updated piv 
-     */
-    
-    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
-    
+     */    
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,             
             SymbolicSuffix suffix,
@@ -79,9 +84,5 @@ public interface Theory<T> {
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
-
-//    public MultiTheoryBranching updateBranching(Word<PSymbolInstance> prefix, 
-//            ParameterizedSymbol ps, MultiTheoryBranching current, 
-//            PIV piv, SDTConstructor oracle, SDT... sdts);
     
 }

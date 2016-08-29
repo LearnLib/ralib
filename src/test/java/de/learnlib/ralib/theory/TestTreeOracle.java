@@ -174,8 +174,6 @@ public class TestTreeOracle {
                 return new DataValue(v.getType(), 
                         v.getId().toString() + "_" + vals.size());
             }
-
-
         };
         
         Map<DataType, Theory> theories = new LinkedHashMap();
