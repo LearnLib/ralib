@@ -104,6 +104,14 @@ public class ExpressionParser {
             related = pred.split(">");
             relation = Relation.BIGGER;           
         }        
+        else if (pred.contains("[next]")) {
+            related = pred.split("\\[next\\]");
+            relation = Relation.SUCC;
+        }
+        else if (pred.contains("[!next]")) {
+            related = pred.split("\\[!next\\]");
+            relation = Relation.NOT_SUCC;  
+        }
         
         if (relation == null) {
             throw new IllegalStateException(

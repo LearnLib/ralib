@@ -84,7 +84,7 @@ public class CounterexampleAnalysis {
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
                 
         Word<PSymbolInstance> prefix = ce.prefix(idx);
-        System.out.println(idx + "  " + prefix);        
+        // System.out.println(idx + "  " + prefix);        
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         

@@ -117,8 +117,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             }
             
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
-            
+            Assert.assertTrue(!hyp.accepts(ce.getInput()));            
             rastar.addCounterexample(ce);
         }
             

@@ -14,26 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.automata.guards;
+package de.learnlib.ralib.theory.succ;
 
-public enum Relation {
-    
-    SMALLER("<"),
-    BIGGER(">"),
-    EQUALS("=="), 
-    NOT_EQUALS("!="),
-    SUCC("[next]"),
-    NOT_SUCC("[!next]");
-    
-    private final String name;       
+import org.testng.Assert;
 
-    private Relation(String s) {
-        name = s;
+/**
+ *
+ * @author falk
+ */
+public class TestSuccTheory {
+    
+    
+    public void testGetFreshValue() {
+        Assert.fail("not implemented");
+    }
+    
+    public void testTreeQuery() {
+        Assert.fail("not implemented");    
+    }
+            
+    public void testInstantiate() {
+        Assert.fail("not implemented");    
     }
 
-    @Override
-    public String toString(){
-       return name;
-    }    
 }
-

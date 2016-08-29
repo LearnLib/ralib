@@ -62,6 +62,11 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
             case SMALLER:
                 return numCompare(lv, rv, relation);
            
+            case SUCC:
+                return succ(lv, rv);
+            case NOT_SUCC:
+                return !succ(lv, rv);
+                        
             default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");
@@ -123,6 +128,12 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");   
         }
+    }
+    
+    private boolean succ(DataValue lv, DataValue rv) {
+        final Integer left = (Integer) lv.getId();
+        final Integer right = (Integer) rv.getId();        
+        return left+1 == right;
     }
     
 }

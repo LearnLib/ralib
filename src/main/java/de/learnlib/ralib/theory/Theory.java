@@ -78,7 +78,6 @@ public interface Theory<T> {
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
-     
  
     /**
      * returns all next data values to be tested (for vals).
@@ -87,9 +86,10 @@ public interface Theory<T> {
      * @return 
      */
     public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
-            
+               
     /**
-     * TBD
+     * Finds a model for a guard (data values). Tries to reuse
+     * known (old) data values.
      * 
      * @param prefix
      * @param ps
