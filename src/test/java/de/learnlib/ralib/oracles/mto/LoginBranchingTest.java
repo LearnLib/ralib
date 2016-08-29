@@ -61,6 +61,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -120,7 +121,8 @@ public class LoginBranchingTest {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
+                consts, new SimpleConstraintSolver());
         
         DataType uid = getType("uid", loader.getDataTypes());
         DataType pwd = getType("pwd", loader.getDataTypes());

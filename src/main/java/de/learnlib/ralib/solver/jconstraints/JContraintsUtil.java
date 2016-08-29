@@ -14,16 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver;
+
+package de.learnlib.ralib.solver.jconstraints;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
  * @author falk
  */
-public interface ConstraintSolver {
-        
-    public boolean isSatisfiable(GuardExpression expr);
+public class JContraintsUtil {
+
+    static Expression<Boolean> toExpression(GuardExpression expr) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
 }

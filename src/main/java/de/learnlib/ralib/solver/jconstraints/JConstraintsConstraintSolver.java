@@ -14,16 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver;
+package de.learnlib.ralib.solver.jconstraints;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.solver.*;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
  * @author falk
  */
-public interface ConstraintSolver {
-        
-    public boolean isSatisfiable(GuardExpression expr);
+public class JConstraintsConstraintSolver implements ConstraintSolver {
+    
+    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
+    
+    public JConstraintsConstraintSolver(
+            gov.nasa.jpf.constraints.api.ConstraintSolver solver) {
+        this.solver = solver;
+    }
+    
+    @Override
+    public boolean isSatisfiable(GuardExpression expr) {
+        Expression<Boolean> jexpr = JContraintsUtil.toExpression(expr);
+        Result r = solver.isSatisfiable(jexpr);
+        return r == Result.SAT;
+    }
     
 }

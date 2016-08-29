@@ -191,8 +191,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             IOCache ioCache = new IOCache(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
-            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
-            MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
+            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+            MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
             TreeOracleFactory hypFactory = new TreeOracleFactory() {
@@ -202,7 +202,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     if (timeout > 0L) {
                         hypOracle = new TimeOutOracle(hypOracle, timeout);
                     }
-                    return new MultiTheoryTreeOracle(hypOracle, teachers, consts);
+                    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
                 }
             };
         

@@ -14,16 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver;
+package de.learnlib.ralib.solver.simple;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.solver.ConstraintSolver;
+
 
 /**
  *
  * @author falk
  */
-public interface ConstraintSolver {
-        
-    public boolean isSatisfiable(GuardExpression expr);
+public class SimpleConstraintSolver implements ConstraintSolver {
+    
+    private final SimpleSolver solver;
+    
+    public SimpleConstraintSolver() {
+    	this.solver = new SimpleSolver();
+    }
+    
+    @Override
+    public boolean isSatisfiable(GuardExpression expr) {
+    	return solver.isSatisfiable(expr);
+    }
+
     
 }

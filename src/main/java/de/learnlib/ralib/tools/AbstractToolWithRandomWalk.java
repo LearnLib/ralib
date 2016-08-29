@@ -18,10 +18,8 @@ package de.learnlib.ralib.tools;
 
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
-import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -29,7 +27,6 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -167,8 +164,14 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected static final ConfigurationOption.StringOption OPTION_TEACHERS
             = new ConfigurationOption.StringOption("teachers",
-                    "teachers. format: type:class + type:class + ...", null, false);
+                    "Teachers. Format: type:class + type:class + ...", null, false);
 
+    protected static final ConfigurationOption.StringOption OPTION_SOLVER
+            = new  ConfigurationOption.StringOption("solver",
+                    "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE + 
+                            ", " + ConstraintSolverFactory.ID_Z3 + ".", 
+                            ConstraintSolverFactory.ID_SIMPLE, true);
+    
     protected Random random = null;
 
     protected boolean useCeOptimizers;
@@ -186,6 +189,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected boolean useFresh = false;
 
     protected final Map<String, TypedTheory> teacherClasses = new HashMap<>();
+    
+    protected ConstraintSolver solver; 
 
     @Override
     public void setup(Configuration config) throws ConfigurationException {
@@ -225,6 +230,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             teacherClasses.put(pair.getFirst(), pair.getSecond());
         }
 
+        this.solver = ConstraintSolverFactory.createSolver(
+                OPTION_SOLVER.parse(config));
     }
 
     private Pair<String, TypedTheory> parseTeacherConfig(String config)

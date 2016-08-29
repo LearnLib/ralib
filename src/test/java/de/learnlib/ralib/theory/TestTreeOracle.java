@@ -34,6 +34,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -181,7 +182,8 @@ public class TestTreeOracle {
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories, new Constants());
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories, 
+                new Constants(), new SimpleConstraintSolver());
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 //        System.out.println(res.getSdt().isAccepting());

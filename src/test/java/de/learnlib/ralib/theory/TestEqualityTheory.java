@@ -47,6 +47,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 
@@ -92,7 +93,8 @@ public class TestEqualityTheory {
         theories.put(T_UID, uidTheory);
         theories.put(T_PWD, pwdTheory);
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, new Constants());
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, 
+                new Constants(), new SimpleConstraintSolver());
         
 //        final Word<PSymbolInstance> prefix = Word.fromSymbols(
 //                new PSymbolInstance(I_REGISTER, 

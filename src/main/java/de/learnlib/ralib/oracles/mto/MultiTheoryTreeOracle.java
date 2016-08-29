@@ -18,7 +18,6 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -30,7 +29,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -40,6 +38,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
@@ -69,14 +68,18 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final Map<DataType, Theory> teachers;
 
+    private final ConstraintSolver solver;
+    
     private static LearnLogger log
             = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
 
     public MultiTheoryTreeOracle(DataWordOracle oracle,
-            Map<DataType, Theory> teachers, Constants constants) {
+            Map<DataType, Theory> teachers, Constants constants, 
+            ConstraintSolver solver) {
         this.oracle = oracle;
         this.teachers = teachers;
         this.constants = constants;
+        this.solver = solver;
     }
 
     @Override
@@ -243,7 +246,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDTGuard coarser = g;
         Map<SDTGuard, SDTGuard> refines = new LinkedHashMap<>();
         MultiTheorySDTLogicOracle mlo
-                = new MultiTheorySDTLogicOracle(constants);
+                = new MultiTheorySDTLogicOracle(constants, solver);
         for (SDTGuard n : guards) {
             if (mlo.doesRefine(g.toTG(), new PIV(), n.toTG(), new PIV())
                     && (!mlo.doesRefine(n.toTG(), new PIV(),

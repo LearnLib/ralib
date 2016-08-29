@@ -79,5 +79,10 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.4</version>
         </dependency>
+        <dependency>
+            <groupId>gov.nasa</groupId>
+            <artifactId>jconstraints</artifactId>
+            <version>0.9.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

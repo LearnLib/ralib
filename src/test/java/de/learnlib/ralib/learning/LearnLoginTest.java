@@ -49,6 +49,8 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -98,14 +100,18 @@ public class LearnLoginTest {
             }
         });
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants());
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts);
+        ConstraintSolver solver = new SimpleConstraintSolver();
+        
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, 
+                new Constants(), solver);
+        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 
             @Override
             public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants());
+                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+                        new Constants(), solver);
             }
         };
         

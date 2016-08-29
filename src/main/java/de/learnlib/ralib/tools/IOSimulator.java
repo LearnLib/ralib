@@ -187,8 +187,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
            }
        }
        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
@@ -198,7 +198,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 if (timeout > 0L) {
                     hypOracle = new TimeOutOracle(hypOracle, timeout);
                 }
-                return new MultiTheoryTreeOracle(hypOracle, teachers, consts);
+                return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
             }
         };
 

@@ -49,8 +49,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     
     private static LearnLogger log = LearnLogger.getLogger(MultiTheorySDTLogicOracle.class);
 
-    public MultiTheorySDTLogicOracle(Constants consts) {
-        this.solver = new ConstraintSolver();
+    public MultiTheorySDTLogicOracle(Constants consts, ConstraintSolver solver) {
+        this.solver = solver;
         this.consts = consts;
     }    
     

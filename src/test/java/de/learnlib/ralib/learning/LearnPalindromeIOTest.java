@@ -46,6 +46,8 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -126,15 +128,20 @@ public class LearnPalindromeIOTest {
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
+        ConstraintSolver solver = new SimpleConstraintSolver();
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
+                consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
+                consts, solver);
 
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
 
             @Override
             public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts);
+                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), 
+                        teachers, consts, solver);
             }
         };
 
