@@ -13,19 +13,17 @@ Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
 Installation
 -------------------------
 
-A basic version (in the 'basic' branch) has can be built using maven without
-further preconditions by running `mvn clean install` and `mvn assembly:assembly` 
-in the RALib directoy. This basic version implements a theory with tests for equality.
+RaLib uses the [*jConstraints-z3*][1] library as an abstraction layer for 
+interfacing (some) constraint solvers. While basic functionality of 
+RaLib can be used without *jConstraints-z3*, the parent library
+[*jConstraints*][5] is required for compilation. 
+*jConstraints* and *jConstraints-z3* are open source software and are
+licensed under the [*Apache License, Version 2.0*][4]. 
 
-The current development version of (all branches but 'basic')  use the 
-[*jConstraints*][1] library as an abstraction layer for interfacing
-the solver (*jConstraints* uses plugins for supporting multiple constraint solvers.
-For licensing reasons neither *jConstraints* nor a solver plugin are included in 
-RALib. Please feel free to contact the RALib developers if you are interested
-in using or contributing to the development version.
 
 Using RALib
 -------------------------
+
 
 RALib can be used as a library from Java. The test cases that come with RALib
 demonstrate how this can be done. RALib currently also provides two tools
@@ -105,10 +103,13 @@ rwalk.draw.uniform=false
 teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
 ```
 
-
+Currently, *equality theories* can be used with the (default) integrated
+constraint solver. *Inequality theories* only work in combination with 
+[*jConstraints*][1]. (Configuration option ```solver=z3```
 
 
 [1]: https://bitbucket.org/psycopaths/jConstraints-z3
 [2]: https://z3.codeplex.com
 [3]: http://www.learnlib.de
 [4]: http://www.apache.org/licenses/LICENSE-2.0
+[5]: https://bitbucket.org/psycopaths/jConstraints
