@@ -120,7 +120,7 @@ public class EqualityGuard extends SDTIfGuard {
                 guards.addAll(this.mergeWith(s, regPotential));
             }
         }else {
-            System.out.println("attempt to merge " + this + " with " + other);
+            //System.out.println("attempt to merge " + this + " with " + other);
             guards.addAll(other.mergeWith(this, regPotential));
 
         }

@@ -14,21 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.example.sdts;
+
+import java.util.Map;
+
+import net.automatalib.words.Word;
+import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  *
  * @author falk
  */
-public class AlwaysBigger {
-    
-    private Float x = null;
-    
-    public void next(float p) {
-        if (x == null || p > x) {
-            x=p;
-            return;
-        }
-        throw new IllegalStateException("Not bigger.");
+public class LoginExampleBranching implements Branching {
+
+    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
+
+    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
+        this.branches = branches;
     }
+    
+    @Override
+    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+        return branches;
+    }
+        
 }

@@ -52,7 +52,7 @@ public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
 
            //System.out.println(candidate);
             if (!hypothesis.accepts(candidate)) {
-                System.out.println("Found Prefix CE!!!");
+                //System.out.println("Found Prefix CE!!!");
                 return candidate;
             }
             prefixLength += 2;

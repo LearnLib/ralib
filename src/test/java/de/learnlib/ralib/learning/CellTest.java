@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
@@ -31,14 +32,15 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.logging.Level;
 
 /**
  *
  * @author falk
  */
-public class CellTest {
+public class CellTest extends RaLibTestSuite {
     
     @Test
     public void testCellCreation() {
@@ -62,16 +64,15 @@ public class CellTest {
         // symbolic data values: s1, s2 (userType, passType)
         
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);        
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
         
         Cell c = Cell.computeCell(oracle, prefix, symSuffix);
         
-        System.out.println("Memorable: " + Arrays.toString(c.getMemorable().toArray()));
-        
-        System.out.println(c.toString());
+        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));        
+        logger.log(Level.FINE, "Cell: {0}", c.toString());
         
         Assert.assertTrue(c.couldBeEquivalentTo(c));
         Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));

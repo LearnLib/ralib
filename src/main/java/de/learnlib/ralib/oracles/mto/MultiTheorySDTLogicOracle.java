@@ -96,14 +96,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         GuardExpression test = new Disjunction(left, right);
 
-        System.out.println("A1:  " + expr1);
-        System.out.println("A2:  " + expr2);
-        System.out.println("G:   " + exprG);
-        System.out.println("MAP: " + remap);
-        System.out.println("A2': " + expr2r);
-        System.out.println("TEST:" + test);
-        
-        System.out.println("HAS CE: " + test);
+//        System.out.println("A1:  " + expr1);
+//        System.out.println("A2:  " + expr2);
+//        System.out.println("G:   " + exprG);
+//        System.out.println("MAP: " + remap);
+//        System.out.println("A2': " + expr2r);
+//        System.out.println("TEST:" + test);
+//        
+//        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test);
         log.log(Level.FINEST,"Res:" + r);
         return r;

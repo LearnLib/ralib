@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.sdts;
+package de.learnlib.ralib.example.sdts;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
@@ -41,7 +41,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.sdts.LoginExampleSDT.SDTClass;
+import de.learnlib.ralib.example.sdts.LoginExampleSDT.SDTClass;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -175,7 +175,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
         if (sdts.length > 0 && ps.equals(I_LOGIN) && acts.length() == 1 && 
                 acts.firstSymbol().equals(I_REGISTER)) {
             
-            System.out.println("+++++ special case");
+            //System.out.println("+++++ special case");
             
             SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
             SymbolicDataValue.Parameter pUid = pgen.next(T_UID);

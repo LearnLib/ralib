@@ -48,20 +48,20 @@ public class ConsoleClient {
         this.args = args;
     }
 
-    public void run() {
+    public int run() {
         try {
             parseTool();
             if (tool == null) {
                 System.err.println("Could not find tool.");
                 usage();
-                return;
+                return 1;
             }
   
             parseConfig();
             if (config == null) {
                 System.err.println("Could not parse configuration.");
                 usage();
-                return;
+                return 1;
             }
         
             tool.setup(config);
@@ -70,7 +70,7 @@ public class ConsoleClient {
             System.err.println("Execution terminated abnormally: " + ex.getMessage());
             ex.printStackTrace();
             usage();
-            return;
+            return 1;
         }
 
         try {
@@ -79,9 +79,11 @@ public class ConsoleClient {
         } catch (Throwable ex) {
             System.err.println("Execution terminated abnormally: " + ex.getMessage());
             ex.printStackTrace(System.err);
+            return 1;
         }
         
         System.err.println("Random seed: " + config.getProperty("__seed"));
+        return 0;
     }
 
     private void usage() {

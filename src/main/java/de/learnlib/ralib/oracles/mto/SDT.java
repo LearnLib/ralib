@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -42,41 +43,42 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- *
+ * Implementation of Symbolic Decision Trees.
+ * 
  * @author Sofia Cassel
  */
 public class SDT implements SymbolicDecisionTree {
 
     private final Map<SDTGuard, SDT> children;
 
-    private static final LearnLogger log = LearnLogger.getLogger(SDT.class);
-
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
 
-    public Set<SDTGuard> getGuards() {
-        if (this instanceof SDTLeaf) {
-            return new LinkedHashSet<>();
-        }
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        for (Map.Entry<SDTGuard, SDT> e : this.children.entrySet()) {
-            guards.add(e.getKey());
-            if (!(e.getValue() instanceof SDTLeaf)) {
-                guards.addAll(e.getValue().getGuards());
-            }
-        }
-        return guards;
-    }
+//    public Set<SDTGuard> getGuards() {
+//        if (this instanceof SDTLeaf) {
+//            return new LinkedHashSet<>();
+//        }
+//        Set<SDTGuard> guards = new LinkedHashSet<>();
+//        for (Map.Entry<SDTGuard, SDT> e : this.children.entrySet()) {
+//            guards.add(e.getKey());
+//            if (!(e.getValue() instanceof SDTLeaf)) {
+//                guards.addAll(e.getValue().getGuards());
+//            }
+//        }
+//        return guards;
+//    }
 
-    @Override
-    public Set<Register> getRegisters() {
+    /**
+     * Returns the registers of this SDT.
+     * 
+     * @return 
+     */
+    Set<Register> getRegisters() {
         Set<Register> registers = new LinkedHashSet<>();
-        for (SymbolicDataValue x : this.getVariables()) {
-            if (x.isRegister()) {
-                registers.add((Register) x);
-            }
-        }
+        this.getVariables().stream().filter((x) -> (x.isRegister())).forEach((x) -> {
+            registers.add((Register) x);
+        });
         return registers;
     }
 
@@ -178,7 +180,7 @@ public class SDT implements SymbolicDecisionTree {
     
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
-//        System.out.println("relabeling " + relabelling);
+        //System.out.println("relabeling " + relabelling);
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
             return this;
@@ -195,6 +197,13 @@ public class SDT implements SymbolicDecisionTree {
         return relabelled;
     }
 
+    
+    /* ***
+     *
+     * Logging helpers
+     *
+     */
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -46,13 +46,17 @@ public interface SymbolicDecisionTree {
      */
     public SymbolicDecisionTree relabel(VarMapping relabeling);
     
+
+    /**
+     * 
+     * @return 
+     */
+    //public Set<SymbolicDataValue.Register> getRegisters();
+    
     /**
      * true if all paths in this tree are accepting
      * 
      * @return 
      */
-    
-    public Set<SymbolicDataValue.Register> getRegisters();
-    
     public boolean isAccepting();
 }

@@ -183,22 +183,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return mtb;
     }
 
-    // TODO: is this method actually needed??
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, ParValuation pval,
-            SymbolicDecisionTree... sdts) {
-        SDT[] casted = new SDT[sdts.length];
-        for (int i = 0; i < casted.length; i++) {
-            casted[i] = (SDT) sdts[i];
-        }
-
-        MultiTheoryBranching mtb = getInitialBranching(
-                prefix, ps, piv, pval,
-                new ArrayList<SDTGuard>(), casted);
-
-        return mtb;
-    }
-
     @Override
     // get the initial branching for the symbol ps after prefix given a certain tree
     public MultiTheoryBranching getInitialBranching(

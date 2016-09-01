@@ -16,34 +16,32 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
+import java.util.logging.Level;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class RegisterAutomatonLoaderTest {
-    
-    public RegisterAutomatonLoaderTest() {
+public class RegisterAutomatonLoaderTest extends RaLibTestSuite {
+
+    @Test
+    public void testLoadingAutomaton1() {
+
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/login.xml");
+
+        logger.log(Level.FINE, "Printed: {0}", loader.getRegisterAutomaton());
     }
 
-     @Test
-     public void testLoadingAutomaton1() {
-     
-         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login.xml"));
-         
-         System.out.println(loader.getRegisterAutomaton());
-     }
+    @Test
+    public void testLoadingAutomaton2() {
 
-     @Test
-     public void testLoadingAutomaton2() {
-     
-         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/abp.output.xml"));
-         
-         System.out.println(loader.getRegisterAutomaton());
-     }
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/abp.output.xml");
+
+        logger.log(Level.FINE, "Printed: {0}", loader.getRegisterAutomaton());
+    }
 }

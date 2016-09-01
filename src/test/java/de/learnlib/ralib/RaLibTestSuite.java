@@ -14,30 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.sdts;
+package de.learnlib.ralib;
 
-import java.util.Map;
-
-import net.automatalib.words.Word;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.words.OutputSymbol;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.testng.annotations.BeforeSuite;
 
 /**
  *
  * @author falk
  */
-public class LoginExampleBranching implements Branching {
+public abstract class RaLibTestSuite {
 
-    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
-
-    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
-        this.branches = branches;
+    protected final ParameterizedSymbol ERROR = 
+            new OutputSymbol("_io_err", new DataType[]{});    
+        
+    protected static final Logger logger = Logger.getLogger("UnitTest");
+    
+    @BeforeSuite
+    public void beforeSuite() {
+        TestUtil.configureLogging(Level.WARNING);
     }
     
-    @Override
-    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
-        return branches;
-    }
-        
 }

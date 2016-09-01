@@ -16,11 +16,11 @@
  */
 package de.learnlib.ralib.theory;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
@@ -31,58 +31,39 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.automatalib.words.Word;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class TestEqualityTheory {
+public class TestEqualityTheory extends RaLibTestSuite {
 
-    
     @Test
     public void testLoginExample1() {
         
-                Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
-        }
-
-    
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
             
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_UID, new IntegerEqualityTheory(T_UID));
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-   
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(oracle, theories, 
-                new Constants(), new SimpleConstraintSolver());
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
+                oracle, theories, new Constants(), new SimpleConstraintSolver());
         
-//        final Word<PSymbolInstance> prefix = Word.fromSymbols(
-//                new PSymbolInstance(I_REGISTER, 
-//                    new DataValue(T_UID, 1),
-//                    new DataValue(T_PWD, 1)),
-//                new PSymbolInstance(I_LOGIN, 
-//                    new DataValue(T_UID, 2),
-//                    new DataValue(T_PWD, 2)));           
-//        
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
@@ -99,34 +80,50 @@ public class TestEqualityTheory {
         
         
         // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
-        
+        // symbolic data values: s1, s2 (userType, passType)        
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);        
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
-//        System.out.println(res.getSdt().isAccepting());
-        System.out.println("final SDT: \n" + sdt.toString());
+
+        String expectedTree = "[r2, r1]-+\n" +
+"        []-(s1=r2)\n" +
+"         |    []-(s2=r1)\n" +
+"         |     |    []-(s3=r2)\n" +
+"         |     |     |    []-(s4=r1)\n" +
+"         |     |     |     |    [Leaf+]\n" +
+"         |     |     |     +-(s4!=r1)\n" +
+"         |     |     |          [Leaf-]\n" +
+"         |     |     +-(s3!=r2)\n" +
+"         |     |          []-TRUE: s4\n" +
+"         |     |                [Leaf-]\n" +
+"         |     +-(s2!=r1)\n" +
+"         |          []-TRUE: s3\n" +
+"         |                []-TRUE: s4\n" +
+"         |                      [Leaf-]\n" +
+"         +-(s1!=r2)\n" +
+"              []-TRUE: s2\n" +
+"                    []-TRUE: s3\n" +
+"                          []-TRUE: s4\n" +
+"                                [Leaf-]\n";
+        
+        String tree = sdt.toString();
+        Assert.assertEquals(tree, expectedTree);
+        logger.log(Level.FINE, "final SDT: \n{0}", tree);
         
         Parameter p1 = new Parameter(T_UID, 1);
         Parameter p2 = new Parameter(T_PWD, 2);
-        DataValue d1 = new DataValue(T_UID, 1);
-        DataValue d2 = new DataValue(T_PWD, 1);
         
         PIV testPiv =  new PIV();
         testPiv.put(p1, new Register(T_UID, 1));
         testPiv.put(p2, new Register(T_PWD, 2));
         
-        ParValuation testPval = new ParValuation();
-        testPval.put(p1, d1);
-        testPval.put(p2,d2);
-    
-        System.out.println("branching");
-        System.out.println("initial branching: \n" + treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, testPval, sdt).getBranches().toString());
+        Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
+        
+        Assert.assertEquals(b.getBranches().size(), 3);
+        logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
-//    
-    
-    
+   
 }

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,7 +28,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
  *
  * @author falk
  */
-public class PIVRemappingIteratorTest {
+public class PIVRemappingIteratorTest extends RaLibTestSuite {
 
     public PIVRemappingIteratorTest() {
     }
@@ -70,14 +71,14 @@ public class PIVRemappingIteratorTest {
         PIV piv2 = generatePIV(new PIV(), type1, 2);
 
         piv1 = generatePIV(piv1, type2, 2);
-        piv2 = generatePIV(piv2, type2, 2);    
-        
+        piv2 = generatePIV(piv2, type2, 2);
+
         int count = 0;
         for (VarMapping map : new PIVRemappingIterator(piv1, piv2)) {
-            System.out.println(map);
+            //System.out.println(map);
             count++;
         }
 
-        Assert.assertEquals(count, 4);        
+        Assert.assertEquals(count, 4);
     }
 }

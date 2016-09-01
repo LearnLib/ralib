@@ -41,19 +41,12 @@ public class LoggingOracle implements TreeOracle {
         //System.out.println("QUERY (tree query): " + prefix + " and " + suffix);
         return treeoracle.treeQuery(prefix, suffix);
     }    
-        
-//    public Word<PSymbolInstance> getDefaultExtension(
-//            Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
-//
-//        System.out.println("QUERY (default extension): " + prefix + " and " + ps);
-//        return treeoracle.getDefaultExtension(prefix, ps);
-//    }
-    
+
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts) {
         
-        System.out.println("QUERY (initial branching): " + prefix + " and " + ps);
+        //System.out.println("QUERY (initial branching): " + prefix + " and " + ps);
         return treeoracle.getInitialBranching(prefix, ps, piv, sdts);
     }
 
@@ -62,8 +55,8 @@ public class LoggingOracle implements TreeOracle {
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree ... sdts) {
         
-        System.out.println("QUERY (update branching): " + prefix + 
-                " and " + ps + " with " + sdts.length + " sdts");
+        //System.out.println("QUERY (update branching): " + prefix + 
+        //        " and " + ps + " with " + sdts.length + " sdts");
         Branching b = treeoracle.updateBranching(prefix, ps, current, piv, sdts);
         //System.out.println(b.getBranches().size());
         return b;

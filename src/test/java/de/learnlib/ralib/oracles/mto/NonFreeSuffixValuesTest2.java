@@ -16,33 +16,25 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.Collection;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.automatalib.words.Word;
 
 import org.testng.annotations.Test;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -50,63 +42,40 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import org.testng.Assert;
 
 
 /**
  *
  * @author falk
  */
-public class NonFreeSuffixValuesTest2 {
-    
-    
+public class NonFreeSuffixValuesTest2 extends RaLibTestSuite {
+        
     @Test
     public void testModelswithOutput() {
  
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINEST);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINEST);
-            h.setFilter(new CategoryFilter(EnumSet.of(
-                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-        }
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/palindrome.xml");
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
-
-        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/palindrome.xml"));
-
-        de.learnlib.ralib.automata.RegisterAutomaton model = loader.getRegisterAutomaton();
-        System.out.println("SYS:------------------------------------------------");
-        System.out.println(model);
-        System.out.println("----------------------------------------------------");
-
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+        logger.log(Level.FINE, "SYS: {0}", model);
+        
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-                new ParameterizedSymbol[]{});
-
-        ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
-        }
+        });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, new SimpleConstraintSolver());
-        
-        DataType intType = getType("int", loader.getDataTypes());
-  
-        
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+                teachers, consts, new SimpleConstraintSolver(), inputs);
+    
+        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+      
         ParameterizedSymbol i4 = new InputSymbol(
                 "IPalindrome4", new DataType[] {intType, intType, intType, intType});
 
@@ -136,23 +105,28 @@ public class NonFreeSuffixValuesTest2 {
         
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, consts);
         
-        System.out.println(prefix1);
-        System.out.println(symSuffix);
+        logger.log(Level.FINE, "Prefix: {0}", prefix1);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
         
         TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);       
+        String tree = tqr.getSdt().toString();
+                
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+        logger.log(Level.FINE, "SDT: {0}",tree);
         
-        System.out.println(tqr.getPiv());
+        String expectedTree = "[]-+\n" +
+"  []-TRUE: s1\n" +
+"        []-TRUE: s2\n" +
+"              []-(s3=s2)\n" +
+"               |    []-(s4=s1)\n" +
+"               |     |    [Leaf+]\n" +
+"               |     +-(s4!=s1)\n" +
+"               |          [Leaf-]\n" +
+"               +-(s3!=s2)\n" +
+"                    []-TRUE: s4\n" +
+"                          [Leaf-]\n";
         
-        System.out.println(tqr.getSdt());
+        Assert.assertEquals(tree, expectedTree);        
     }
-
-    private DataType getType(String name, Collection<DataType> dataTypes) {
-        for (DataType t : dataTypes) {
-            if (t.getName().equals(name)) {
-                return t;
-            }
-        }
-        return null;
-    }        
-        
+ 
 }

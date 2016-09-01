@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
@@ -31,14 +32,15 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
-import de.learnlib.ralib.learning.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.logging.Level;
 
 /**
  *
  * @author falk
  */
-public class RowTest {
+public class RowTest extends RaLibTestSuite {
     
     @Test
     public void testRowEquivalence() {
@@ -69,7 +71,7 @@ public class RowTest {
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
         
         SymbolicSuffix[] suffixes = new SymbolicSuffix[] {symSuffix1, symSuffix2};
-        System.out.println("Suffixes: " + Arrays.toString(suffixes));
+        logger.log(Level.FINE, "Suffixes: {0}", Arrays.toString(suffixes));
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
         

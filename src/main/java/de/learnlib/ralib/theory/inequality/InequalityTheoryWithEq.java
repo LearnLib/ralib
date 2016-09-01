@@ -1214,7 +1214,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                             DataWords.<T>valSet(prefix, type),
                             pval.<T>values(type));
             Valuation val = new Valuation();
-            System.out.println("already used = " + alreadyUsedValues);
+            //System.out.println("already used = " + alreadyUsedValues);
             if (guard instanceof IntervalGuard) {
                 IntervalGuard iGuard = (IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {

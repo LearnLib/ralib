@@ -16,43 +16,53 @@
  */
 package de.learnlib.ralib.example.priority;
 
-import java.util.Map;
 
 import de.learnlib.api.SULException;
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class PriorityQueueSUL extends DataWordSUL {
 
-    public enum Actions {
+    public static final DataType DOUBLE_TYPE = 
+            new DataType("DOUBLE", Double.class);    
 
-        OFFER,
-        POLL,
-        OUTPUT,
-        ERROR,
-        OK,
-        NOK
+    public static final ParameterizedSymbol POLL = 
+            new InputSymbol("poll", new DataType[]{});
+    
+    public static final ParameterizedSymbol OFFER = 
+            new InputSymbol("offer", new DataType[]{DOUBLE_TYPE});
+
+    
+    public final ParameterizedSymbol[] getInputSymbols() {
+        return new ParameterizedSymbol[] { POLL, OFFER };
+    }
+        
+    public static final ParameterizedSymbol ERROR = 
+            new OutputSymbol("_io_err", new DataType[]{});
+
+    public static final ParameterizedSymbol OUTPUT = 
+            new OutputSymbol("_out", new DataType[]{DOUBLE_TYPE});
+    
+    public static final ParameterizedSymbol OK = 
+            new OutputSymbol("_ok", new DataType[]{});
+        
+    public static final ParameterizedSymbol NOK = 
+            new OutputSymbol("_not_ok", new DataType[]{});
+
+    public final ParameterizedSymbol[] getActionSymbols() {
+        return new ParameterizedSymbol[] { POLL, OFFER, OUTPUT, OK, NOK, ERROR };
     }
 
-    private PQWrapper pqueue;
-    private final Map<DataType, Theory> teachers;
-    private final Constants consts;
-    
-    private Map<Actions, ParameterizedSymbol> inputs;
-    private Map<Actions, ParameterizedSymbol> outputs;
 
-    public PriorityQueueSUL(Map<DataType, Theory> teachers,
-            Constants consts, Map<Actions, ParameterizedSymbol> inputs, Map<Actions, ParameterizedSymbol> outputs) {
-        this.pqueue = new PQWrapper();
-        this.teachers = teachers;
-        this.consts = consts;
-        this.inputs = inputs;
-        this.outputs = outputs;
+    private PQWrapper pqueue;
+    
+    
+    public PriorityQueueSUL() {
     }
 
     @Override
@@ -68,47 +78,29 @@ public class PriorityQueueSUL extends DataWordSUL {
 
     private PSymbolInstance createOutputSymbol(Object x) {
         if (x instanceof Boolean) {
-            if ((Boolean) x) {
-//                System.out.println("returns OK");
-
-                return new PSymbolInstance(outputs.get(Actions.OK));
-            } else {
-//                System.out.println("returns NOK");
-
-                return new PSymbolInstance(outputs.get(Actions.NOK));
-            }
+            return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
         } else if (x instanceof java.lang.Exception) {
-//            System.out.println("returns ERR");
-
-            return new PSymbolInstance(outputs.get(Actions.ERROR));
+            return new PSymbolInstance(ERROR);
         } else if (x == null) {
-//            System.out.println("returns NOK");
-
-            return new PSymbolInstance(outputs.get(Actions.NOK));
+            return new PSymbolInstance(NOK);
         } else {
-            assert !(x == null);
-//            System.out.println("returns OUTPUT " + x.toString());
-            ParameterizedSymbol op = outputs.get(Actions.OUTPUT);
-            return new PSymbolInstance(op, new DataValue(op.getPtypes()[0], x));
+            assert (null != x);
+            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, x));
         }
     }
 
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-//        System.out.println("executing:  " + i.toString() + " on " + pqueue.toString());
-        if (i.getBaseSymbol().equals(inputs.get(Actions.OFFER))) {
-            //DataValue<Double> d = i.getParameterValues()[0];
-                Object x = pqueue.offer(i.getParameterValues()[0].getId());
-
-                return createOutputSymbol(x);
-        } else if (i.getBaseSymbol().equals(inputs.get(Actions.POLL))) {
+        if (i.getBaseSymbol().equals(OFFER)) {
+            Object x = pqueue.offer(i.getParameterValues()[0].getId());
+            return createOutputSymbol(x);
+        } else if (i.getBaseSymbol().equals(POLL)) {
             Object x = pqueue.poll();
             return createOutputSymbol(x);
         } else {
             throw new IllegalStateException("i must be instance of poll or offer");
         }
-
     }
 
 }

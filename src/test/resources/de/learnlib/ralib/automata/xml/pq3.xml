@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="offer">
+                <param type="DOUBLE" name="p1"/>
+            </symbol>
+            <symbol name="poll"/>
+        </inputs>
+        <outputs>
+            <symbol name="_ok"/>
+            <symbol name="_out">
+                <param type="DOUBLE" name="p1"/>
+            </symbol>
+            <symbol name="_not_ok"/>
+        </outputs>
+    </alphabet>
+    <constants/>
+    <globals>
+        <variable type="DOUBLE" name="r1">0</variable>
+        <variable type="DOUBLE" name="r2">0</variable>
+        <variable type="DOUBLE" name="r3">0</variable>
+        <variable type="DOUBLE" name="tmp_DOUBLE_1">0</variable>
+    </globals>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+        <location name="l9"/>
+        <location name="l10"/>
+        <location name="l11"/>
+        <location name="l12"/>
+        <location name="l13"/>
+        <location name="l14"/>
+        <location name="l15"/>
+        <location name="l16"/>
+        <location name="l17"/>
+        <location name="l18"/>
+        <location name="l19"/>
+        <location name="l20"/>
+        <location name="l21"/>
+        <location name="l22"/>
+        <location name="l23"/>
+        <location name="l24"/>
+        <location name="l25"/>
+        <location name="l26"/>
+        <location name="l27"/>
+        <location name="l28"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l4" symbol="offer">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l1" to="l0" symbol="_not_ok">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l5" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l7" symbol="offer">
+            <guard>p1&gt;r1</guard>
+            <assignments>
+                <assign to="r2">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l5" to="l7" symbol="offer">
+            <guard>p1&lt;r1</guard>
+            <assignments>
+                <assign to="r1">p1</assign>
+                <assign to="r2">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l5" to="l13" symbol="offer">
+            <guard>r1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l0" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l7" to="l8" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l9" symbol="offer">
+            <guard>r1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l14" symbol="offer">
+            <guard>p1&lt;r1</guard>
+            <assignments>
+                <assign to="r1">p1</assign>
+                <assign to="r2">r1</assign>
+                <assign to="r3">r2</assign>
+            </assignments>
+        </transition>
+        <transition from="l8" to="l14" symbol="offer">
+            <guard>p1&lt;r2 &amp;&amp; p1&gt;r1</guard>
+            <assignments>
+                <assign to="r2">p1</assign>
+                <assign to="r3">r2</assign>
+            </assignments>
+        </transition>
+        <transition from="l8" to="l14" symbol="offer">
+            <guard>p1&gt;r2</guard>
+            <assignments>
+                <assign to="r3">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l8" to="l20" symbol="offer">
+            <guard>r2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l11" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l9" to="l10" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l12" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l25" symbol="offer">
+            <assignments/>
+        </transition>
+        <transition from="l11" to="l5" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="r1">r2</assign>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l12" to="l8" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l13" to="l15" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l16" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l9" symbol="offer">
+            <guard>p1&gt;r1</guard>
+            <assignments>
+                <assign to="r2">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l15" to="l19" symbol="offer">
+            <guard>r1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l20" symbol="offer">
+            <guard>p1&lt;r1</guard>
+            <assignments>
+                <assign to="r1">p1</assign>
+                <assign to="r2">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l15" to="l18" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l16" to="l17" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l16" to="l26" symbol="offer">
+            <assignments>
+                <assign to="r2">r3</assign>
+                <assign to="r3">r2</assign>
+            </assignments>
+        </transition>
+        <transition from="l17" to="l8" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="r1">r2</assign>
+                <assign to="r2">r3</assign>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l18" to="l5" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l19" to="l21" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l22" symbol="_ok">
+            <assignments/>
+        </transition>
+        <transition from="l21" to="l23" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l21" to="l27" symbol="offer">
+            <assignments/>
+        </transition>
+        <transition from="l22" to="l24" symbol="poll">
+            <assignments/>
+        </transition>
+        <transition from="l22" to="l28" symbol="offer">
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l15" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l24" to="l15" symbol="_out" params="tmp_DOUBLE_1">
+            <assignments>
+                <assign to="r1">r2</assign>
+                <assign to="tmp_DOUBLE_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l25" to="l10" symbol="_not_ok">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l16" symbol="_not_ok">
+            <assignments>
+                <assign to="r2">r3</assign>
+                <assign to="r3">r2</assign>
+            </assignments>
+        </transition>
+        <transition from="l27" to="l21" symbol="_not_ok">
+            <assignments/>
+        </transition>
+        <transition from="l28" to="l22" symbol="_not_ok">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>

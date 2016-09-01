@@ -27,6 +27,7 @@ import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 import de.learnlib.api.Query;
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -39,24 +40,24 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.logging.Level;
+import org.testng.Assert;
 
 /**
  *
  * @author falk
  */
 @Test
-public class TestTreeOracle {
+public class TestTreeOracle extends RaLibTestSuite {
    
 
     public void testTreeOracle() {
         
-        // define types
-        
+        // define types        
         final DataType userType = new DataType("userType", String.class);
         final DataType passType = new DataType("passType", String.class);
         
-        // define parameterized symbols
-        
+        // define parameterized symbols        
         final ParameterizedSymbol register = new InputSymbol(
                 "register", new DataType[] {userType, passType});
         
@@ -69,27 +70,11 @@ public class TestTreeOracle {
         final ParameterizedSymbol logout = new InputSymbol(
                 "logout", new DataType[] {userType});
         
-        // create prefix: register(falk[userType], secret[passType])
-        
+        // create prefix: register(falk[userType], secret[passType])        
         final Word<PSymbolInstance> prefix = Word.fromLetter(
                 new PSymbolInstance(register, 
                     new DataValue(userType, "falk"),
                     new DataValue(passType, "secret")));
-        
-        // create suffix: login(falk[userType], secret[passType])
-
-        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(login, 
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")),
-                new PSymbolInstance(change, 
-                    new DataValue(passType, "secret")),
-                new PSymbolInstance(logout,
-                    new DataValue(userType, "falk")),
-                new PSymbolInstance(login,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
-                    );
         
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(login, 
@@ -102,8 +87,8 @@ public class TestTreeOracle {
         // symbolic data values: s1, s2 (userType, passType)
         
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);
+        //System.out.println("Prefix: " + prefix);
+        //System.out.println("Suffix: " + symSuffix);
         
         // hacked oracle
         
@@ -116,40 +101,20 @@ public class TestTreeOracle {
                 for (Query q : clctn) {
                     Word<PSymbolInstance> trace = q.getInput();
                     
-                    // if the trace is not 5, answer false (since then automatically incorrect)
-                    
                     if (trace.length() != 2) {
                         q.answer(false);
                         continue;
                     }
                     
-                    // get the first two symbols in the trace
-                    
+                    // get the first two symbols in the trace                   
                     PSymbolInstance a1 = trace.getSymbol(0);
                     PSymbolInstance a2 = trace.getSymbol(1);
-//                    PSymbolInstance a3 = trace.getSymbol(2);
-//                    PSymbolInstance a4 = trace.getSymbol(3);
-//                    PSymbolInstance a5 = trace.getSymbol(4);
-                    
                     DataValue[] a1Params = a1.getParameterValues();
                     DataValue[] a2Params = a2.getParameterValues();
-//                    DataValue[] a3Params = a3.getParameterValues();
-//                    DataValue[] a4Params = a4.getParameterValues();
-//                    DataValue[] a5Params = a5.getParameterValues();
-                    
-                    // query reply is ACCEPT only if length 2 and symbols equal each other
                     
                     q.answer( a1.getBaseSymbol().equals(register) &&
                             a2.getBaseSymbol().equals(login) &&
-                            Arrays.equals(a1Params, a2Params)); //&& 
-//                            a3.getBaseSymbol().equals(change) && 
-//                            a4.getBaseSymbol().equals(logout) && 
-//                            a5.getBaseSymbol().equals(login) && 
-//                            a4Params[0].equals(a5Params[0]) && 
-//                            a5Params[0].equals(a1Params[0]) && 
-//                            a1Params[0].equals(a2Params[0]) && 
-//                            a3Params[0].equals(a5Params[1]));
-                   
+                            Arrays.equals(a1Params, a2Params));
                 }
             }
         };
@@ -191,12 +156,26 @@ public class TestTreeOracle {
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(dwOracle, theories, 
+        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
+                dwOracle, theories, 
                 new Constants(), new SimpleConstraintSolver());
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
-//        System.out.println(res.getSdt().isAccepting());
-        System.out.println("final SDT: \n" + res.getSdt().toString());
+
+        String expectedTree = "[r2, r1]-+\n" +
+"        []-(s1=r2)\n" +
+"         |    []-(s2=r1)\n" +
+"         |     |    [Leaf+]\n" +
+"         |     +-(s2!=r1)\n" +
+"         |          [Leaf-]\n" +
+"         +-(s1!=r2)\n" +
+"              []-TRUE: s2\n" +
+"                    [Leaf-]\n";
+        
+        String tree = res.getSdt().toString();
+        Assert.assertEquals(tree, expectedTree);
+        
+        logger.log(Level.FINE, "final SDT: \n{0}", tree);
         
     } 
             

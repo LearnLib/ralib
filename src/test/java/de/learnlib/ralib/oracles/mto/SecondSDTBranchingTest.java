@@ -16,24 +16,10 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
-import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -45,12 +31,8 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -58,62 +40,49 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import net.automatalib.words.Word;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 
 /**
  *
  * @author falk
  */
-public class SecondSDTBranchingTest {
+public class SecondSDTBranchingTest extends RaLibTestSuite {
     
     @Test
     public void testModelswithOutput() {
- 
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINEST);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINEST);
-            h.setFilter(new CategoryFilter(EnumSet.of(
-                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-        }
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
 
-        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
 
-        de.learnlib.ralib.automata.RegisterAutomaton model = loader.getRegisterAutomaton();
-        System.out.println("SYS:------------------------------------------------");
-        System.out.println(model);
-        System.out.println("----------------------------------------------------");
-
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+        logger.log(Level.FINE, "SYS: {0}", model);
+        
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-                new ParameterizedSymbol[]{});
-
-        ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
-        }
+        });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+                teachers, consts, new SimpleConstraintSolver(), inputs);
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, new SimpleConstraintSolver());
-        
-        DataType intType = getType("int", loader.getDataTypes());
+        DataType intType = TestUtil.getType("int", loader.getDataTypes());
   
-        
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[] {intType});
 
@@ -150,9 +119,9 @@ public class SecondSDTBranchingTest {
                 new PSymbolInstance(o200, d0));
         SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix, suffix2);
         
-        System.out.println(prefix);
-        System.out.println(symSuffix1);
-        System.out.println(symSuffix2);
+        logger.log(Level.FINE, "{0}", prefix);
+        logger.log(Level.FINE, "{0}", symSuffix1);
+        logger.log(Level.FINE, "{0}", symSuffix2);
         
         TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
         TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
@@ -168,31 +137,19 @@ public class SecondSDTBranchingTest {
         SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
         SymbolicDecisionTree sdt2 = tqr2.getSdt();
        
-        System.out.println(piv);
-        System.out.println(sdt1);
-        System.out.println(sdt2);
+        logger.log(Level.FINE, "PIV: {0}", piv);
+        logger.log(Level.FINE, "SDT1: {0}", sdt1);
+        logger.log(Level.FINE, "SDT2: {0}", sdt2);
      
-        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);
-        
+        // combine branching 1+2
+        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);        
         b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
    
-                
-        System.out.println("combined branching 1+2: ");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : b.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+        String guards = Arrays.toString(b.getBranches().values().toArray());
+        logger.log(Level.FINE, "Guards: {0}", guards);
         
-        System.out.println("The two guards shoud be x1 = y1 and x1 != y1.");
-        
+        final String expected = "[(r2==p1), (r2!=p1)]";
+        Assert.assertEquals(guards, expected);
     }
-
-    private DataType getType(String name, Collection<DataType> dataTypes) {
-        for (DataType t : dataTypes) {
-            if (t.getName().equals(name)) {
-                return t;
-            }
-        }
-        return null;
-    }        
-        
+              
 }

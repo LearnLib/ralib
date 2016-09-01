@@ -37,10 +37,10 @@ public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer
     @Override
     public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
             Word<PSymbolInstance> ce, Hypothesis hyp) {
-        
+
         return new DefaultQuery<>(replacePrefix(ce, hyp), true);
     }
-    
+
     private Word<PSymbolInstance> replacePrefix(
             Word<PSymbolInstance> ce, Hypothesis hypothesis) {
 
@@ -58,11 +58,11 @@ public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer
             }
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix.concat(suffix));
 
-           //System.out.println(candidate);
+            //System.out.println(candidate);
             if (candidate != null && !hypothesis.accepts(candidate)) {
-                System.out.println("Reduced Prefix!!!");
+                //System.out.println("Reduced Prefix!!!");
                 ce = candidate;
-                System.out.println("New CE: " + ce);
+                //System.out.println("New CE: " + ce);
             }
             suffixLength -= 2;
         }

@@ -16,29 +16,12 @@
  */
 package de.learnlib.ralib.automata.xml;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -48,59 +31,41 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import net.automatalib.words.Word;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  *
  * @author falk
  */
-public class OutputTest {
+public class OutputTest extends RaLibTestSuite {
     
     @Test
     public void testModelswithOutput() {
- 
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.FINEST);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.FINEST);
-            h.setFilter(new CategoryFilter(EnumSet.of(
-                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-        }
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
 
-        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/sip.xml"));
-
-        de.learnlib.ralib.automata.RegisterAutomaton model = loader.getRegisterAutomaton();
-        System.out.println("SYS:------------------------------------------------");
-        System.out.println(model);
-        System.out.println("----------------------------------------------------");
-
-        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-                new ParameterizedSymbol[]{});
-
-        ParameterizedSymbol[] actions = loader.getActions().toArray(
-                new ParameterizedSymbol[]{});
+        de.learnlib.ralib.automata.RegisterAutomaton model = 
+                loader.getRegisterAutomaton();
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
-        }
+        });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
         IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, new SimpleConstraintSolver());
-        
-        DataType intType = getType("int", loader.getDataTypes());
+        DataType intType = TestUtil.getType("int", loader.getDataTypes());
         
         ParameterizedSymbol inv = new InputSymbol(
                 "IINVITE", new DataType[] {intType});
@@ -108,7 +73,6 @@ public class OutputTest {
         ParameterizedSymbol o100 = new OutputSymbol(
                 "O100", new DataType[] {intType});    
     
-
         DataValue d0 = new DataValue(intType, 0);
         DataValue d1 = new DataValue(intType, 1);
         
@@ -120,23 +84,27 @@ public class OutputTest {
                 new PSymbolInstance(inv, new DataValue[] {d0}),
                 new PSymbolInstance(o100, new DataValue[] {d1}));        
                 
-        System.out.println(test1);
-        System.out.println(test2);
+        logger.log(Level.FINE, "Test 1: {0}", test1);
+        logger.log(Level.FINE, "Test 2: {0}", test2);
  
-        System.out.println("SYS: " + test1 + " - " + model.accepts(test1));
-        System.out.println("SYS: " + test2 + " - " + model.accepts(test2));
+        boolean acc1 = model.accepts(test1);
+        boolean acc2 = model.accepts(test2);
         
-        System.out.println("SUL: " + test1 + " - " + ioOracle.trace(test1));
-        System.out.println("SUL: " + test2 + " - " + ioOracle.trace(test2));
-    }
+        logger.log(Level.FINE, "SYS: {0} - {1}", new Object[]{test1, acc1});
+        logger.log(Level.FINE, "SYS: {0} - {1}", new Object[]{test2, acc2});
+        
+        Word<PSymbolInstance> trace1 = ioOracle.trace(test1);
+        Word<PSymbolInstance> trace2 = ioOracle.trace(test2);
+        
+        logger.log(Level.FINE, "SUL: {0} - {1}", new Object[]{test1, trace1});
+        logger.log(Level.FINE, "SUL: {0} - {1}", new Object[]{test2, trace2});
 
-    private DataType getType(String name, Collection<DataType> dataTypes) {
-        for (DataType t : dataTypes) {
-            if (t.getName().equals(name)) {
-                return t;
-            }
-        }
-        return null;
-    }        
+        Assert.assertTrue(acc1);
+        Assert.assertFalse(acc2);
         
+        Assert.assertEquals(test1, trace1);
+        Assert.assertNotEquals(test2, trace2);
+    
+    }
+           
 }

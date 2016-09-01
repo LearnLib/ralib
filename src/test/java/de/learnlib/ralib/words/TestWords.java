@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.words;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
@@ -28,17 +29,17 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import java.util.logging.Level;
+import org.testng.Assert;
 
 
 /**
  *
  * @author falk
  */
-@Test
-public class TestWords {
+public class TestWords extends RaLibTestSuite {
     
-    
-    
+   @Test 
     public void testSymbolicSuffix1() {
         
         DataType intType = new DataType("int", int.class);
@@ -64,14 +65,17 @@ public class TestWords {
         Word<PSymbolInstance> prefix = Word.fromSymbols(prefixSymbols);
         Word<PSymbolInstance> suffix = Word.fromSymbols(suffixSymbols);
         
-        System.out.println(prefix);
-        System.out.println(suffix);
+       logger.log(Level.FINE, "Prefix: {0}", prefix);
+       logger.log(Level.FINE, "Suffix: {0}", suffix);
         
         SymbolicSuffix sym = new SymbolicSuffix(prefix, suffix);
         
-        System.out.println(sym);
+       logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
+       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
+        Assert.assertEquals(sym.toString(), expString);
     }
     
+    @Test
     public void testSymbolicSuffix2() {   
 
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -96,12 +100,16 @@ public class TestWords {
         final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix);
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, symSuffix1);
         
-        System.out.println("Prefix 1: " + prefix1);
-        System.out.println("Prefix 2: " + prefix2);
-        System.out.println("Suffix: " + suffix);
-        System.out.println("Sym. Suffix 1: " + symSuffix1);
-        System.out.println("Sym. Suffix 2: " + symSuffix2);
+        logger.log(Level.FINE, "Prefix 1: {0}", prefix1);
+        logger.log(Level.FINE, "Prefix 2: {0}", prefix2);
+        logger.log(Level.FINE, "Suffix: {0}", suffix);
+        logger.log(Level.FINE, "Sym. Suffix 1: {0}", symSuffix1);
+        logger.log(Level.FINE, "Sym. Suffix 2: {0}", symSuffix2);
         
+        String expected1 = "[s1, s2]((login[s1, s2]))";
+        String expected2 = "[s1, s2]((logout[] login[s1, s2]))";
         
+        Assert.assertEquals(symSuffix1.toString(), expected1);
+        Assert.assertEquals(symSuffix2.toString(), expected2);
     } 
 }

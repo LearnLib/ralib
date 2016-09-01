@@ -17,13 +17,12 @@
 package de.learnlib.ralib.oracles.mto;
 
 
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.automatalib.words.Word;
 
@@ -31,7 +30,6 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -39,12 +37,8 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -52,55 +46,39 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import org.testng.Assert;
 
 /**
  *
  * @author falk
  */
-public class LoginBranchingTest {
-    
-    public LoginBranchingTest() {
-    }
-
-
+public class LoginBranchingTest extends RaLibTestSuite {
+        
     @Test
     public void testBranching() {
     
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
-        }
-
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
-
-        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login_typed.xml"));
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/login_typed.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
+        logger.log(Level.FINE, "SYS: {0}", model);
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
-        
+
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
-        }
+        });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
+                teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, new SimpleConstraintSolver());
-        
-        DataType uid = getType("uid", loader.getDataTypes());
-        DataType pwd = getType("pwd", loader.getDataTypes());
+        DataType uid = TestUtil.getType("uid", loader.getDataTypes());
+        DataType pwd = TestUtil.getType("pwd", loader.getDataTypes());
         
         ParameterizedSymbol reg = new InputSymbol(
                 "IRegister", new DataType[] {uid, pwd});
@@ -124,37 +102,35 @@ public class LoginBranchingTest {
         
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
         
-        System.out.println(prefix);
-        System.out.println(suffix);
-        System.out.println(symSuffix);
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Conc. Suffix: {0}", suffix);
+        logger.log(Level.FINE, "Sym. Suffix: {0}", symSuffix);
  
-        System.out.println("MQ: " + ioOracle.trace(prefix.concat(suffix)));
         
-        System.out.println("######################################################################");
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
-        System.out.println(res.getSdt());
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);       
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+        logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
         
-        System.out.println("######################################################################");
         // initial branching bug
-        Branching bug1 = mto.getInitialBranching(prefix, log, res.getPiv(), res.getSdt());        
-        System.out.println(Arrays.toString(bug1.getBranches().keySet().toArray()));
-        System.out.println("Why does the last word in the set have a password val. of 2");
-
-        System.out.println("######################################################################");
+        // Regression: Why does the last word in the set have a password val. of 2
         
+        Branching bug1 = mto.getInitialBranching(prefix, log, tqr.getPiv(), tqr.getSdt());
+        final String expectedKeyset = 
+                  "[IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 0[pwd]],"
+                + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 1[pwd]],"
+                + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[1[uid], 1[pwd]]]";
+        
+        String keyset = Arrays.toString(bug1.getBranches().keySet().toArray());
+        Assert.assertEquals(keyset, expectedKeyset);
+                
         // updated branching bug
+        // Regression: This keyset has only one word, there should be three.
+        
         Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
-        bug2 = mto.updateBranching(prefix, log, bug2, res.getPiv(), res.getSdt());        
-        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
-        System.out.println("This set has only one word, there should be three.");
+        bug2 = mto.updateBranching(prefix, log, bug2, tqr.getPiv(), tqr.getSdt());        
+        String keyset2 = Arrays.toString(bug2.getBranches().keySet().toArray());
+        Assert.assertEquals(keyset2, expectedKeyset);
+        
     }
 
-    private DataType getType(String name, Collection<DataType> dataTypes) {
-        for (DataType t : dataTypes) {
-            if (t.getName().equals(name)) {
-                return t;
-            }
-        }
-        return null;
-    }
 }

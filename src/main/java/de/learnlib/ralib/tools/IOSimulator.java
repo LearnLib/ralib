@@ -370,7 +370,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 System.out.println("exporting model to model.xml");
                 try {
                     FileOutputStream fso = new FileOutputStream("model.xml");
-                    RegisterAutomatonExporter.wtite(hyp, consts, fso);
+                    RegisterAutomatonExporter.write(hyp, consts, fso);
                     
                 } catch (FileNotFoundException ex) {
                     System.out.println("... export failed");

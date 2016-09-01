@@ -107,17 +107,17 @@ public class CounterexampleAnalysis {
         log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
         log.log(Level.FINEST,"------------------------------------------------------");
         
-        System.out.println("------------------------------------------------------");
-        System.out.println("Computing index: " + idx);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("SymSuffix: " + symSuffix);
-        System.out.println("Location: " + location);
-        System.out.println("Transition: " + transition);
-        System.out.println("PIV HYP: " + resHyp.getPiv());
-        System.out.println("SDT HYP: " + resHyp.getSdt());
-        System.out.println("PIV SYS: " + resSul.getPiv());
-        System.out.println("SDT SYS: " + resSul.getSdt());        
-        System.out.println("------------------------------------------------------");
+//        System.out.println("------------------------------------------------------");
+//        System.out.println("Computing index: " + idx);
+//        System.out.println("Prefix: " + prefix);
+//        System.out.println("SymSuffix: " + symSuffix);
+//        System.out.println("Location: " + location);
+//        System.out.println("Transition: " + transition);
+//        System.out.println("PIV HYP: " + resHyp.getPiv());
+//        System.out.println("SDT HYP: " + resHyp.getSdt());
+//        System.out.println("PIV SYS: " + resSul.getPiv());
+//        System.out.println("SDT SYS: " + resSul.getSdt());        
+//        System.out.println("------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
@@ -139,8 +139,8 @@ public class CounterexampleAnalysis {
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         
-        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
-        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
+//        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
+//        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
         
         return (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
@@ -153,14 +153,14 @@ public class CounterexampleAnalysis {
         Component c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
         
-        System.out.println("Branching Hyp:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
-        System.out.println("Branching Sys:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+//        System.out.println("Branching Hyp:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Sys:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
         
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
@@ -247,8 +247,8 @@ public class CounterexampleAnalysis {
         
         int idx = mid;
         
-        System.out.println(Arrays.toString(results));
-        System.out.println(idx + " : " + results[idx]);
+        //System.out.println(Arrays.toString(results));
+        //System.out.println(idx + " : " + results[idx]);
         
         // if in the last step there was no counterexample, 
         // we have to move one step to the left
@@ -263,7 +263,7 @@ public class CounterexampleAnalysis {
             idx++;
         }
 
-        System.out.println("IDX: " + idx);
+        //System.out.println("IDX: " + idx);
         
         return idx;
     }

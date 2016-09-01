@@ -264,7 +264,7 @@ public class RegisterAutomatonExporter {
         JAXB.marshal(ra, os);
     }
     
-    public static void wtite(de.learnlib.ralib.automata.RegisterAutomaton ra, Constants c, OutputStream os) {
+    public static void write(de.learnlib.ralib.automata.RegisterAutomaton ra, Constants c, OutputStream os) {
 
         RegisterAutomaton ret = factory.createRegisterAutomaton();
         

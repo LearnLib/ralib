@@ -84,7 +84,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     @Override
     public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
         //assume we can just sort the list and get the values
-        List<DataValue<Double>> sortedList = new ArrayList<DataValue<Double>>();
+        List<DataValue<Double>> sortedList = new ArrayList<>();
         for (DataValue<Double> d : dvs) {
 //                    if (d.getId() instanceof Integer) {
 //                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));

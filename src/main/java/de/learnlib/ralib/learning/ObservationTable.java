@@ -153,7 +153,7 @@ class ObservationTable {
 
     private void processNewComponent() {
         Component c = newComponents.poll();
-        System.out.println("Adding component to obs: " + c);
+        //System.out.println("Adding component to obs: " + c);
         components.put(c.getAccessSequence(), c);
         c.start(oracle, inputs);
     }

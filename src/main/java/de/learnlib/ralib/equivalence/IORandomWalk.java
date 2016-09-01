@@ -59,6 +59,8 @@ public class IORandomWalk implements IOEquivalenceOracle {
     
     private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
 
+    private ParameterizedSymbol error = null;
+    
     /**
      * creates an IO random walk
      * 
@@ -119,11 +121,11 @@ public class IORandomWalk implements IOEquivalenceOracle {
         runs++;
         target.pre();
         Word<PSymbolInstance> run = Word.epsilon();
-
+        PSymbolInstance out;
         do {
             PSymbolInstance next = nextInput(run);
             depth++;
-            PSymbolInstance out = target.step(next);
+            out = target.step(next);
 
             run = run.append(next).append(out);
 
@@ -133,10 +135,16 @@ public class IORandomWalk implements IOEquivalenceOracle {
                 return run;
             }
 
-        } while (rand.nextDouble() > resetProbability && depth < maxDepth);
+        } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
+                !out.getBaseSymbol().equals(error));
+        
         log.log(Level.FINE, "Run /wo CE: {0}", run);
         target.post();
         return null;
+    }
+    
+    public void setError(ParameterizedSymbol error) {
+        this.error = error;
     }
 
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {

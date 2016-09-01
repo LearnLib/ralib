@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.sdts;
+package de.learnlib.ralib.example.sdts;
 
 import java.util.Set;
 
@@ -69,10 +69,5 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     public boolean isAccepting() {
         return clazz == SDTClass.ACCEPT;
     }
-    
-    @Override
-    public Set<Register> getRegisters() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-        
+            
 }

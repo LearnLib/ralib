@@ -38,6 +38,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import static de.learnlib.ralib.tools.AbstractToolWithRandomWalk.OPTION_LOGGING_LEVEL;
 import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
@@ -57,7 +58,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import net.automatalib.commons.util.Pair;
+import net.automatalib.words.Word;
 
 /**
  *
@@ -73,10 +74,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             = new ConfigurationOption.StringOption("methods",
                     "traget method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
 
-    protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH =
-            new ConfigurationOption.IntegerOption("max.depth", 
+    protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
+            = new ConfigurationOption.IntegerOption("max.depth",
                     "Maximum depth to explore", -1, true);
-    
+
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
@@ -112,6 +113,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IOCounterExamplePrefixFinder ceOptPref;
 
+    private IOOracle back;
+
+    private Map<DataType, Theory> teachers;
+    
     private Class<?> target = null;
 
     private final Map<String, DataType> types = new LinkedHashMap<>();
@@ -120,7 +125,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private long resets = 0;
     private long inputs = 0;
-    
+
     @Override
     public String description() {
         return "analyzes Java classes";
@@ -135,7 +140,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             super.setup(config);
 
             this.types.put("boolean", SpecialSymbols.BOOLEAN_TYPE);
-            
+
             String className = OPTION_TARGET.parse(config);
             this.target = Class.forName(className);
 
@@ -149,18 +154,17 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     actList.add(mc.getOutput());
                 }
             }
-            
+
             Integer md = OPTION_MAX_DEPTH.parse(config);
-            
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.timeoutMillis > 0L) {
-               this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
-            }            
+                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
+            }
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.timeoutMillis > 0L) {
-               this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
-            }            
+                this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+            }
 
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
 
@@ -175,22 +179,28 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             // create teachers
-            final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+            teachers = new LinkedHashMap<DataType, Theory>();
             // create teachers
             for (String tName : teacherClasses.keySet()) {
                 DataType t = types.get(tName);
-                TypedTheory theory = teacherClasses.get(t.getName());            
+                TypedTheory theory = teacherClasses.get(t.getName());
                 theory.setType(t);
                 if (this.useSuffixOpt) {
                     theory.setUseSuffixOpt(this.useSuffixOpt);
-                }            
+                }
                 teachers.put(t, theory);
             }
 
-            IOOracle back = new SULOracle(sulLearn, SpecialSymbols.ERROR);        
+            back = new SULOracle(sulLearn, SpecialSymbols.ERROR);
             IOCache ioCache = new IOCache(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
+            if (useFresh) {
+                for (Theory t : teachers.values()) {
+                    ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
+                }
+            }
+            
             MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -205,7 +215,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
                 }
             };
-        
+
             this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
             if (findCounterexamples) {
@@ -229,6 +239,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         teachers,
                         inputSymbols);
 
+                this.randomWalk.setError(SpecialSymbols.ERROR);
             }
 
             this.ceOptLoops = new IOCounterexampleLoopRemover(back);
@@ -245,28 +256,28 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     @Override
     public void run() throws RaLibToolException {
         System.out.println("=============================== START ===============================");
-        
+
         final String __RUN__ = "overall execution time";
         final String __LEARN__ = "learning";
         final String __SEARCH__ = "ce searching";
         final String __EQ__ = "eq tests";
-                
+
         System.out.println("SYS:------------------------------------------------");
         System.out.println(this.target.getName());
         System.out.println("----------------------------------------------------");
-        
+
         SimpleProfiler.start(__RUN__);
         SimpleProfiler.start(__LEARN__);
 
         ArrayList<Integer> ceLengths = new ArrayList<>();
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
         Hypothesis hyp = null;
-        
+
         int rounds = 0;
         while (true && (maxRounds < 0 || rounds < maxRounds)) {
-                        
+
             rounds++;
-            rastar.learn();            
+            rastar.learn();
             hyp = rastar.getHypothesis();
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
@@ -274,8 +285,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
-            DefaultQuery<PSymbolInstance, Boolean> ce  = null; 
-                    
+            DefaultQuery<PSymbolInstance, Boolean> ce = null;
+
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
             if (findCounterexamples) {
@@ -290,10 +301,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             resets = sulTest.getResets();
             inputs = sulTest.getInputs();
-            
+
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());
-            
+
             if (useCeOptimizers) {
                 ce = ceOptLoops.optimizeCE(ce.getInput(), hyp);
                 System.out.println("Shorter CE: " + ce);
@@ -302,60 +313,66 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
                 System.out.println("Prefix of CE is CE: " + ce);
             }
-   
+
             ceLengthsShortened.add(ce.getInput().length());
+
+            Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
+            System.out.println("### SYS TRACE: " + sysTrace);
+
+            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
+            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);        
+            Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
+            System.out.println("### HYP TRACE: " + hypTrace);
             
-            //assert sul.accepts(ce.getInput());
-            assert !hyp.accepts(ce.getInput());
-            
+            assert !hypTrace.equals(sysTrace);
             rastar.addCounterexample(ce);
         }
-        
+
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
-                
-        System.out.println("ce lengths (oirginal): " + 
-                Arrays.toString(ceLengths.toArray()));
-        
+
+        System.out.println("ce lengths (oirginal): "
+                + Arrays.toString(ceLengths.toArray()));
+
         if (useCeOptimizers) {
-            System.out.println("ce lengths (shortend): " + 
-                    Arrays.toString(ceLengthsShortened.toArray()));
+            System.out.println("ce lengths (shortend): "
+                    + Arrays.toString(ceLengthsShortened.toArray()));
         }
-                
+
         // model
-        if (hyp != null) {            
+        if (hyp != null) {
             System.out.println("Locations: " + hyp.getStates().size());
             System.out.println("Transitions: " + hyp.getTransitions().size());
-        
+
             // input locations + transitions            
             System.out.println("Input Locations: " + hyp.getInputStates().size());
             System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
-            
+
             if (this.exportModel) {
                 System.out.println("exporting model to model.xml");
                 try {
                     FileOutputStream fso = new FileOutputStream("model.xml");
-                    RegisterAutomatonExporter.wtite(hyp, new Constants(), fso);
+                    RegisterAutomatonExporter.write(hyp, new Constants(), fso);
                 } catch (FileNotFoundException ex) {
                     System.out.println("... export failed");
                 }
             }
         }
-        
+
         // tests during learning
         // resets + inputs
         System.out.println("Resets Learning: " + sulLearn.getResets());
         System.out.println("Inputs Learning: " + sulLearn.getInputs());
-        
+
         // tests during search
         // resets + inputs
         System.out.println("Resets Testing: " + resets);
         System.out.println("Inputs Testing: " + inputs);
-        
+
         // + sums
         System.out.println("Resets: " + (resets + sulLearn.getResets()));
         System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
-        
+
     }
 
     @Override

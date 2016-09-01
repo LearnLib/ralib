@@ -41,7 +41,6 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -273,7 +272,20 @@ public class RegisterAutomatonImporter {
             Register r = rgen.next(type);
             regMap.put(def.name, r);
             log.log(Level.FINEST,def.name + " ->" + r);
-            DataValue dv = new DataValue(type, Integer.parseInt(def.value));
+            Object o = null;
+            switch (type.getBase().getName()) {
+                case "java.lang.Integer":
+                    o = Integer.parseInt(def.value);
+                    break;
+                case "java.lang.Double":
+                    o = Double.parseDouble(def.value);
+                    break;
+                default:
+                    throw new IllegalStateException(
+                            "Unsupported Register Type: " + 
+                                    type.getBase().getName());
+            }
+            DataValue dv = new DataValue(type, o);
             initialRegs.put(r, dv);
         }
         log.log(Level.FINEST,"Loading: " + initialRegs);
@@ -286,10 +298,15 @@ public class RegisterAutomatonImporter {
     private DataType getOrCreateType(String name) {
         DataType t = typeMap.get(name);
         if (t == null) {
-            t = new DataType(name, Integer.class);
+            // TODO: there should be a proper way of specifying java types to be bound
+            t = new DataType(name, isDoubleTempCheck(name) ? Double.class : Integer.class);
             typeMap.put(name, t);
         }
         return t;
+    }
+    
+    private boolean isDoubleTempCheck(String name) {
+        return name.equals("DOUBLE") || name.equals("double");
     }
     
     private Map<String, SymbolicDataValue> buildValueMap(

@@ -14,32 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.data;
+package de.learnlib.ralib.example.keygen;
 
-import de.learnlib.ralib.RaLibTestSuite;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import de.learnlib.ralib.data.util.PermutationIterator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  *
  * @author falk
  */
-public class PermutationIteratorTest extends RaLibTestSuite {
+public class KeyGenMap {
+        
+    private final Set<Integer> known = new TreeSet<>();
     
-    @Test
-    public void testIterator() {
+    private final Map<Integer,Integer> objects = new HashMap<>();
     
-        int expected = 0;
-        for (int i=0; i<10; i++) {
-            int count = 0;
-            PermutationIterator iter = new PermutationIterator(i);
-            for (int[] xx : iter) {
-                count++;
-            }         
-            Assert.assertEquals(expected, count);
-            expected = (expected == 0) ? 1 : expected * (i+1);
+    public Integer put(Integer o) {
+        known.add(o);
+        if (objects.size() > 0) {
+            throw new IllegalStateException();
         }
+        Integer newKey = known.size();
+        known.add(newKey);
+        objects.put(newKey, o);
+        return newKey;
+    }
+    
+    public Integer get(Integer o) {
+        known.add(o);
+        return objects.get(o);
     }
 }

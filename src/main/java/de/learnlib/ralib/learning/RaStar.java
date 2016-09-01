@@ -107,7 +107,7 @@ public class RaStar {
             hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
-            System.out.println(hyp.toString());
+            //System.out.println(hyp.toString());
             log.logModel(hyp);
             
         } while (analyzeCounterExample());
@@ -142,7 +142,7 @@ public class RaStar {
             return false;
         }
         
-        System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
+        //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
         
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
         obs.addSuffix(res.getSuffix());       

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.automata;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
@@ -24,32 +25,26 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import net.automatalib.words.Word;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.logging.Level;
 
 /**
  *
  * @author falk
  */
-public class LoginAutomatonTest {
-
-    public LoginAutomatonTest() {
-    }
+public class LoginAutomatonTest extends RaLibTestSuite {
 
     @Test
     public void testHasTrace() {
     
         RegisterAutomaton ra = AUTOMATON;
-        System.out.println(ra);        
+        //System.out.println(ra);        
         
         Word<PSymbolInstance> test1 = Word.epsilon();        
-        System.out.println("test1: " + test1);     
+        logger.log(Level.FINE, "test1: {0}", test1);     
         Assert.assertFalse(ra.accepts(test1));
 
         Word<PSymbolInstance> test2 = Word.epsilon();        
@@ -58,7 +53,7 @@ public class LoginAutomatonTest {
         test2 = test2.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
                 new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
         
-        System.out.println("test2: " + test2);     
+        logger.log(Level.FINE, "test2: {0}", test2);     
         Assert.assertTrue(ra.accepts(test2));        
         
         Word<PSymbolInstance> test3 = Word.epsilon();        
@@ -67,23 +62,8 @@ public class LoginAutomatonTest {
         test3 = test3.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
                 new DataValue(T_UID, 1), new DataValue(T_PWD, 3)}));
         
-        System.out.println("test3: " + test3);     
+        logger.log(Level.FINE, "test3: {0}", test3);     
         Assert.assertFalse(ra.accepts(test3));          
     }
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
-    @BeforeMethod
-    public void setUpMethod() throws Exception {
-    }
-
-    @AfterMethod
-    public void tearDownMethod() throws Exception {
-    }
 }

@@ -35,14 +35,11 @@ package de.learnlib.ralib.oracles.mto;
  * MA 02110-1301  USA
  */
 
-import java.util.Arrays;
-import java.util.Collection;
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import net.automatalib.words.Word;
 
@@ -50,7 +47,6 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -64,26 +60,22 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import org.testng.Assert;
 
 /**
  *
  * @author falk
  */
-public class UntypedBranchingTest {
+public class UntypedBranchingTest extends RaLibTestSuite {
     
     public UntypedBranchingTest() {
     }
@@ -91,19 +83,9 @@ public class UntypedBranchingTest {
 
     @Test
     public void testBranching() {
-    
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.ALL);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.ALL);
-        }
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
-
-        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-                RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/login.xml"));
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/login.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
@@ -111,21 +93,16 @@ public class UntypedBranchingTest {
         
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        for (final DataType t : loader.getDataTypes()) {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
-        }
+        });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, 
-                consts, new SimpleConstraintSolver());
-        
-        DataType intType = getType("int", loader.getDataTypes());
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+                teachers, consts, new SimpleConstraintSolver(), inputs);
+                
+        DataType intType = TestUtil.getType("int", loader.getDataTypes());
         
         ParameterizedSymbol reg = new InputSymbol(
                 "IRegister", new DataType[] {intType, intType});
@@ -149,21 +126,15 @@ public class UntypedBranchingTest {
         
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
         
-        System.out.println(prefix);
-        System.out.println(suffix);
-        System.out.println(symSuffix);
- 
-        System.out.println("MQ: " + ioOracle.trace(prefix.concat(suffix)));
+        logger.log(Level.FINE, "{0}", prefix);
+        logger.log(Level.FINE, "{0}", suffix);
+        logger.log(Level.FINE, "{0}", symSuffix); 
         
-        System.out.println("######################################################################");
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
-        System.out.println(res.getSdt());
+        logger.log(Level.FINE, "SDT: {0}", res.getSdt());
        
-        PIV piv = res.getPiv();
         SymbolicDecisionTree sdt = res.getSdt();
 
-        // --- comment this out to make it work again
-        
         ParameterGenerator pgen = new ParameterGenerator();
         RegisterGenerator rgen = new RegisterGenerator();        
         
@@ -176,29 +147,18 @@ public class UntypedBranchingTest {
         map.put(r1, r2);
         map.put(r2, r1);
         
-        piv = new PIV();
+        PIV piv = new PIV();
         piv.put(p2, r1);
         piv.put(p1, r2);
         
         sdt = sdt.relabel(map);
         
-        // --- end of commenting
-        
-        System.out.println("######################################################################");
         Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
         bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);        
-        System.out.println(Arrays.toString(bug2.getBranches().keySet().toArray()));
-        System.out.println("This set has only one word, there should be three.");
+
+        // This set had only one word, there should be three    
+        Assert.assertEquals(bug2.getBranches().size(), 3);
         
-        System.out.println(piv);
     }
 
-    private DataType getType(String name, Collection<DataType> dataTypes) {
-        for (DataType t : dataTypes) {
-            if (t.getName().equals(name)) {
-                return t;
-            }
-        }
-        return null;
-    }
 }

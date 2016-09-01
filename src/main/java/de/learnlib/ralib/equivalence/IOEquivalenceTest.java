@@ -37,6 +37,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -282,7 +283,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                     
                     // found counterexample
                     if (out.getSecond() == null || !out.getFirst().equals(out.getSecond())) {
-                        System.out.println("CE: " + out.getFirst() + " : " + out.getSecond());
+                        //System.out.println("CE: " + out.getFirst() + " : " + out.getSecond());
                         return new DefaultQuery<>(next.trace, true);
                     }     
                     // FIXME: this may not be OK in general. I think it is ok 
@@ -468,6 +469,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             next = forFresh;
         }
         Theory teach = teacher.get(t);
+        //System.out.println("FOR FRESH: " + Arrays.toString(forFresh.toArray()) + " for " + t);
         DataValue fresh = teach.getFreshValue(new ArrayList<>(forFresh));
         next.add(fresh);
         
