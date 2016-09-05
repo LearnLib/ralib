@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="ILogout"/>
+         <symbol name="IRegister"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="ILogin"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+
+   </constants>
+   <globals>
+      <variable type="int" name="ID">0</variable>
+      <variable type="int" name="PW">0</variable>
+   </globals>
+   <locations>
+      <location name="id8"/> 
+      <location name="id9"/> 
+      <location name="id6"/> 
+      <location name="id7"/> 
+      <location name="id4"/> 
+      <location name="id5"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+      <location name="id10"/> 
+      <location name="id11" initial="true"/> 
+      <location name="id12"/> 
+      
+   </locations>
+   <transitions>
+      <transition from="id0" to="id9" symbol="OOK" />
+      <transition from="id5" to="id0" symbol="ILogout" />
+      <transition from="id1" to="id5" symbol="ONOK" />
+      <transition from="id5" to="id1" symbol="ILogin" params="id1,pw1"/>
+      <transition from="id2" to="id5" symbol="ONOK" />
+      <transition from="id5" to="id2" symbol="IRegister" params="id0,pw0"/>
+      <transition from="id3" to="id9" symbol="ONOK" />
+      <transition from="id9" to="id3" symbol="ILogout" />
+      <transition from="id4" to="id9" symbol="ONOK" />
+      <transition from="id9" to="id4" symbol="IRegister" params="id0,pw0"/>
+
+      <transition from="id9" to="id6" symbol="ILogin" params="id1,pw1">
+         <guard>id1!=ID &amp;&amp; pw1!=PW</guard>
+      </transition>
+      <transition from="id6" to="id9" symbol="ONOK" />
+
+      <transition from="id9" to="id12" symbol="ILogin" params="id1,pw1">
+         <guard>id1==ID || pw1==PW</guard>
+      </transition>
+      <transition from="id12" to="id5" symbol="OOK" />
+
+      <transition from="id7" to="id11" symbol="ONOK" />
+      <transition from="id11" to="id7" symbol="ILogout" />
+      <transition from="id8" to="id11" symbol="ONOK" />
+      <transition from="id11" to="id8" symbol="ILogin" params="id1,pw1"/>
+      <transition from="id10" to="id9" symbol="OOK" />
+      <transition from="id11" to="id10" symbol="IRegister" params="id0,pw0">
+         <assignments>
+            <assign to="ID">id0</assign>
+            <assign to="PW">pw0</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>
