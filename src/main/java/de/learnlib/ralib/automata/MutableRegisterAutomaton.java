@@ -90,7 +90,6 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         RALocation current = initial;
         List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
-            
             ParValuation pars = new ParValuation(psi);
             
             Collection<Transition> candidates = 

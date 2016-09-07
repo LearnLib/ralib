@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -27,9 +26,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -84,7 +81,7 @@ public class CounterexampleAnalysis {
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
                 
         Word<PSymbolInstance> prefix = ce.prefix(idx);
-        System.out.println(idx + "  " + prefix);        
+        //System.out.println(idx + "  " + prefix);        
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         

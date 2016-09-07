@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.equivalence;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
@@ -27,16 +28,16 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class IOEquivalenceTestMCTest {
+public class IOEquivalenceTestMCTest extends RaLibTestSuite {
     
     @Test
     public void testIOEquivalenceMCTest() {
         
         RegisterAutomatonImporter importer1 = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/sip.xml");
+                "/de/learnlib/ralib/automata/xml/login.xml");
 
         RegisterAutomatonImporter importer2 = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/sip.xml");
+                "/de/learnlib/ralib/automata/xml/login_error.xml");
         
         RegisterAutomaton r1 = importer1.getRegisterAutomaton();
         RegisterAutomaton r2 = importer2.getRegisterAutomaton();

@@ -18,15 +18,11 @@
  */
 package de.learnlib.ralib.tools.theories;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -138,7 +134,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     @Override
     public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
-        //System.out.println("INSTANTIATING: " + g.toString());
+//        System.out.println("INSTANTIATING: " + g.toString());
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
         newVal.putAll(val);
@@ -176,7 +172,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             }
 
             Expression<Boolean> _x = ExpressionUtil.and(eList);
-//                    System.out.println("SOLVING: " + _x + " with " + newVal);
+//                    System.out.println("SOLVING: " + _x.toString(3) + " with " + newVal);
             res = solver.solve(_x, newVal);
 //                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
         }
@@ -187,10 +183,10 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
             DataValue<Double> d = new DataValue(type, (newVal.getValue(toVariable(sp))));
-            //System.out.println("return d: " + d.toString());
+//            System.out.println("return d: " + d.toString());
             return d;//new DataValue<Double>(doubleType, d);
         } else {
-//                    System.out.println("UNSAT: " + _x + " with " + newVal);
+//                    System.out.println("UNSAT: ");
             return null;
         }
     }

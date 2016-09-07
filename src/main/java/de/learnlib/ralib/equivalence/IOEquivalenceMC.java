@@ -31,7 +31,7 @@ import de.learnlib.ralib.solver.jconstraints.JContraintsUtil;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -48,17 +48,25 @@ import gov.nasa.jstateexplorer.datastructures.searchImage.SearchIterationImage;
 import gov.nasa.jstateexplorer.transitionSystem.SymbolicTransitionHelper;
 import gov.nasa.jstateexplorer.transitionSystem.TransitionHelper;
 import gov.nasa.jstateexplorer.transitionSystem.TransitionSystem;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Uses symbolic search on the cross product of two register automaton models
+ * for finding counterexamples.
+ *
+ * TODOS: - no support for constants currently - no support for types currently
  *
  * @author fh
  */
@@ -66,8 +74,51 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
 
     private final static Type TYPE = BuiltinTypes.SINT32;
 
-    private final RegisterAutomaton model;
+    protected static final Logger logger
+            = Logger.getLogger(IOEquivalenceMC.class.getName());
 
+    private static class StatePair {
+
+        private final RALocation idModel;
+        private final RALocation idHyp;
+
+        public StatePair(RALocation idModel, RALocation idHyp) {
+            this.idModel = idModel;
+            this.idHyp = idHyp;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 97 * hash + Objects.hashCode(this.idModel);
+            hash = 97 * hash + Objects.hashCode(this.idHyp);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final StatePair other = (StatePair) obj;
+            if (!Objects.equals(this.idModel, other.idModel)) {
+                return false;
+            }
+            if (!Objects.equals(this.idHyp, other.idHyp)) {
+                return false;
+            }
+            return true;
+        }
+
+    }
+
+    private final Set<StatePair> visited = new HashSet<>();
+    private final Queue<StatePair> queue = new LinkedList<>();
+
+    private final RegisterAutomaton model;
     private final Collection<ParameterizedSymbol> inputs;
 
     private RegisterAutomaton hyp;
@@ -78,6 +129,8 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
     private final Variable mq = new Variable(TYPE, "__mq");
     private final Variable hq = new Variable(TYPE, "__hq");
 
+    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
+
     private int tId = 0;
 
     public IOEquivalenceMC(RegisterAutomaton model,
@@ -85,66 +138,68 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
 
         this.model = model;
         this.inputs = inputs;
+
+        gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact
+                = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
+
+        solver = fact.createSolver("z3");
     }
 
     @Override
     public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
-        try {
-            this.hyp = a;
-            
-            hypRegs.clear();
-            modelRegs.clear();
-            buildVarMaps();
-            
-            TransitionSystem ts = buildTransitionSystem();
-            //ts.
-            
-            System.out.println(ts.completeToString());
-            
-            gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact =
-                    new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
-            
-            TransitionHelper symbolicHelper = new SymbolicTransitionHelper();
-            ts.setHelper(symbolicHelper);
-            SearchIterationImage image =
-                    SymbolicSearchEngine.symbolicBreadthFirstSearch(ts,
-                            fact.createSolver("z3"), Integer.MIN_VALUE);
-            
-            image.print(System.out);
-                   
-            System.out.println("### done ###");
-        } catch (IOException ex) {
-            Logger.getLogger(IOEquivalenceMC.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        this.hyp = a;
+
+        hypRegs.clear();
+        modelRegs.clear();
+        buildVarMaps();
+
+        logger.info("Building transition system ...");
+        TransitionSystem ts = buildTransitionSystem();
+        logger.log(Level.FINE, "Transition System: \n{0}", ts.completeToString());
+
+        TransitionHelper symbolicHelper = new SymbolicTransitionHelper();
+        ts.setHelper(symbolicHelper);
+        logger.info("Starting model checking ...");
+        SearchIterationImage image = SymbolicSearchEngine.
+                symbolicBreadthFirstSearch(
+                        ts, solver, Integer.MIN_VALUE);
+
         return null;
     }
 
     private TransitionSystem buildTransitionSystem() {
 
         Valuation initVal = computeInitialState();
-        System.out.println("Initial: " + initVal);
+        logger.log(Level.FINE, "Initial: {0}", initVal);
 
         List<gov.nasa.jstateexplorer.transitionSystem.Transition> trans
                 = new ArrayList<>();
 
-        for (RALocation ml : model.getStates()) {
-            for (RALocation hl : hyp.getStates()) {
-                boolean output = isOutputLoc(ml);
-                if (isOutputLoc(ml) ^ isOutputLoc(hl)) {
-                    continue;
-                }
+        visited.clear();
+        queue.clear();
+        StatePair i = new StatePair(model.getInitialState(), hyp.getInitialState()); 
+        queue.add(i);
+        visited.add(i);
+        
+        while (!queue.isEmpty()) {
+            StatePair p = queue.poll();
+            RALocation ml = p.idModel;
+            RALocation hl = p.idHyp;
 
-                if (output) {
-                    oloc(ml, hl, trans);
-                } else {
-                    iloc(ml, hl, trans);
-                }
+            boolean output = isOutputLoc(ml);
+            if (isOutputLoc(ml) ^ isOutputLoc(hl)) {
+                continue;
+            }
 
+            if (output) {
+                oloc(ml, hl, trans);
+            } else {
+                iloc(ml, hl, trans);
             }
         }
-        
+
         return new TransitionSystem(initVal, trans, new SymbolicTransitionHelper());
     }
 
@@ -157,7 +212,7 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         for (Transition mt : ml.getOut()) {
             for (Transition ht : hl.getOut()) {
                 //assert mt.getLabel().equals(ht.getLabel());
-                System.out.println("OUT: " + mt + " : " + ht);
+                logger.log(Level.FINE, "OUT: {0} : {1}", new Object[]{mt, ht});
                 Map<Parameter, Variable> pmap = buildParMap(mt.getLabel());
                 otrans(ml, hl, (OutputTransition) mt, (OutputTransition) ht, pmap, ret);
             }
@@ -169,52 +224,62 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
 
         for (ParameterizedSymbol ps : inputs) {
             Map<Parameter, Variable> pmap = buildParMap(ps);
-            
+
             Collection<Transition> mTrans = ml.getOut(ps);
             Collection<Transition> hTrans = hl.getOut(ps);
-            
+
             if (mTrans == null && hTrans == null) {
                 continue;
             }
-            
+
             if (mTrans == null ^ hTrans == null) {
-                
-                Expression<Boolean> guard = (mTrans == null) ?
-                        or(hTrans, pmap, hypRegs) :
-                        or(mTrans, pmap, modelRegs);
-                
+
+                Expression<Boolean> guard = (mTrans == null)
+                        ? or(hTrans, pmap, hypRegs)
+                        : or(mTrans, pmap, modelRegs);
+
+                guard = ExpressionUtil.and(locGuard(ml, hl), guard);
+
                 gov.nasa.jstateexplorer.transitionSystem.Transition t
                         = new gov.nasa.jstateexplorer.transitionSystem.Transition(
-                                guard, new HashMap<>(), 
-                                getId(null, null, false), false, true);   
-                ret.add(t);
-                System.out.println(t);
+                                guard, new HashMap<>(),
+                                getId(null, null, false), false, true);
+
+                if (solver.isSatisfiable(guard) == Result.SAT) {
+                    ret.add(t);
+                    logger.log(Level.FINE, "Transition: {0}", t);
+                }
                 return;
             }
-                        
+
             for (Transition mt : ml.getOut(ps)) {
                 for (Transition ht : hl.getOut(ps)) {
-                    System.out.println("IN: " + mt + " : " + ht);
+                    logger.log(Level.FINE, "IN: {0} : {1}", new Object[]{mt, ht});
                     itrans(ml, hl, (InputTransition) mt, (InputTransition) ht,
                             pmap, ret);
                 }
             }
-            
+
             Expression<Boolean> mAll = or(mTrans, pmap, modelRegs);
             Expression<Boolean> hAll = or(hTrans, pmap, hypRegs);
-            
+
             assert mAll != null;
             assert hAll != null;
-            
+
             Expression<Boolean> guard = new PropositionalCompound(
                     mAll, LogicalOperator.XOR, hAll);
-                     
+
+            guard = ExpressionUtil.and(locGuard(ml, hl), guard);
+
             // error catch alll
             gov.nasa.jstateexplorer.transitionSystem.Transition t
                     = new gov.nasa.jstateexplorer.transitionSystem.Transition(
-                            guard, new HashMap<>(), getId(null, null, false), false, true);     
-            ret.add(t);
-            System.out.println(t);
+                            guard, new HashMap<>(), getId(null, null, false), false, true);
+
+            if (solver.isSatisfiable(guard) == Result.SAT) {
+                ret.add(t);
+                logger.log(Level.FINE, "Transition: {0}", t);
+            }
         }
     }
 
@@ -230,8 +295,15 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
                 = new gov.nasa.jstateexplorer.transitionSystem.Transition(
                         guard, effects, getId(mt, ht, true), true, false);
 
-        ret.add(t);
-        System.out.println(t);        
+        if (solver.isSatisfiable(guard) == Result.SAT) {
+            ret.add(t);
+            logger.log(Level.FINE, "Transition: {0}", t);
+            StatePair p = new StatePair(mt.getDestination(), ht.getDestination());
+            if (!visited.contains(p)) {
+                visited.add(p);
+                queue.add(p);
+            }
+        }
     }
 
     private void otrans(RALocation ml, RALocation hl, OutputTransition mt,
@@ -245,8 +317,10 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
                     = new gov.nasa.jstateexplorer.transitionSystem.Transition(
                             guard, new HashMap<>(), getId(mt, ht, false), false, true);
 
-            ret.add(t);
-            System.out.println(t);        
+            if (solver.isSatisfiable(guard) == Result.SAT) {
+                ret.add(t);
+                logger.log(Level.FINE, "Transition: {0}", t);
+            }
             return;
         }
 
@@ -260,8 +334,15 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
                 = new gov.nasa.jstateexplorer.transitionSystem.Transition(
                         okGuard, effects, getId(mt, ht, true), true, false);
 
-        ret.add(t);
-        System.out.println(t);        
+        if (solver.isSatisfiable(okGuard) == Result.SAT) {
+            ret.add(t);
+            logger.log(Level.FINE, "Transition: {0}", t);
+            StatePair p = new StatePair(mt.getDestination(), ht.getDestination());
+            if (!visited.contains(p)) {
+                visited.add(p);
+                queue.add(p);
+            }            
+        }
 
         // error guard        
         // p1 != p1 or p2 != p2 or ...
@@ -271,8 +352,10 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
                 errGuard, new HashMap<>(),
                 getId(mt, ht, false), false, true);
 
-        ret.add(t);
-        System.out.println(t);        
+        if (solver.isSatisfiable(errGuard) == Result.SAT) {
+            ret.add(t);
+            logger.log(Level.FINE, "Transition: {0}", t);
+        }
     }
 
     private Expression<Boolean> buildOutputTransitionGuardOK(
@@ -282,14 +365,14 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         Expression<Boolean> guard = locGuard(ml, hl);
         assert pmap.size() == mt.getOutput().getOutput().size();
         assert pmap.size() == ht.getOutput().getOutput().size();
-        
+
         for (Parameter p : pmap.keySet()) {
             guard = ExpressionUtil.and(guard, new NumericBooleanExpression(
-                    modelRegs.get(mt.getOutput().getOutput().get(p)), 
-                    NumericComparator.EQ, 
+                    modelRegs.get(mt.getOutput().getOutput().get(p)),
+                    NumericComparator.EQ,
                     hypRegs.get(ht.getOutput().getOutput().get(p))));
         }
-        
+
         return guard;
     }
 
@@ -300,16 +383,16 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         Expression<Boolean> guard = ExpressionUtil.FALSE;
         assert pmap.size() == mt.getOutput().getOutput().size();
         assert pmap.size() == ht.getOutput().getOutput().size();
-        
+
         for (Parameter p : pmap.keySet()) {
             Expression<Boolean> temp = new NumericBooleanExpression(
-                    modelRegs.get(mt.getOutput().getOutput().get(p)), 
-                    NumericComparator.NE, 
+                    modelRegs.get(mt.getOutput().getOutput().get(p)),
+                    NumericComparator.NE,
                     hypRegs.get(ht.getOutput().getOutput().get(p)));
-            
-            guard = (guard == null) ? temp : ExpressionUtil.or(guard, temp);
+
+            guard = ExpressionUtil.or(guard, temp);
         }
-        
+
         return ExpressionUtil.and(locGuard(ml, hl), guard);
     }
 
@@ -375,11 +458,12 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         atoms.putAll(pmap);
         atoms.putAll(regs);
 
-        return JContraintsUtil.toExpression(condition, atoms);        
+        return JContraintsUtil.toExpression(condition, atoms);
     }
-        
+
     private boolean isOutputLoc(RALocation loc) {
-        return loc.getOut().iterator().next() instanceof OutputTransition;
+        return !loc.getOut().isEmpty()
+                && loc.getOut().iterator().next() instanceof OutputTransition;
     }
 
     private Valuation computeInitialState() {
@@ -394,7 +478,7 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         for (Register r : hyp.getRegisters()) {
             val.setValue(hypRegs.get(r), new Constant<>(TYPE, 0));
         }
-        
+
         return val;
     }
 
@@ -421,14 +505,14 @@ public class IOEquivalenceMC implements IOEquivalenceOracle {
         return "t_" + (tId++) + (ok ? "OK" : "ERR");
     }
 
-    private Expression<Boolean> or(Collection<Transition> trans, 
+    private Expression<Boolean> or(Collection<Transition> trans,
             Map<Parameter, Variable> pmap, Map<Register, Variable> regs) {
 
         Expression<Boolean> ret = null;
         for (Transition t : trans) {
             Expression<Boolean> temp = translateGuardCondition(
                     (InputSymbol) t.getLabel(), t.getGuard().getCondition(), regs, pmap);
-            
+
             ret = (ret == null) ? temp : ExpressionUtil.or(ret, temp);
         }
         return ret;
