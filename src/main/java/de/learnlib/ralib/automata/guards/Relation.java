@@ -23,7 +23,9 @@ public enum Relation {
     EQUALS("=="), 
     NOT_EQUALS("!="),
     SUCC("[next]"),
-    NOT_SUCC("[!next]");
+    NOT_SUCC("[!next]"),
+	IN_WIN("[in_win]"),
+	NOT_IN_WIN("[!in_win]");
     
     private final String name;       
 

@@ -58,15 +58,16 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return lv.equals(rv);
             case NOT_EQUALS: 
                 return !lv.equals(rv);
+
             case BIGGER:
             case SMALLER:
                 return numCompare(lv, rv, relation);
            
             case SUCC:
-                return succ(lv, rv);
-            case NOT_SUCC:
-                return !succ(lv, rv);
-                        
+            case IN_WIN:
+            case NOT_IN_WIN:
+                return succ(lv, rv, relation);
+                
             default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");
@@ -115,7 +116,6 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         if (!l.getType().equals(r.getType())) {
             return false;
         }
-        
         Comparable lc = (Comparable) l.getId();
         int result = lc.compareTo(r.getId());        
         switch (relation) {
@@ -123,17 +123,28 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return result < 0;
             case BIGGER:
                 return result > 0;
-                
-            default:
+               default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");   
         }
     }
     
-    private boolean succ(DataValue lv, DataValue rv) {
-        final Integer left = (Integer) lv.getId();
-        final Integer right = (Integer) rv.getId();        
-        return left+1 == right;
+    private boolean succ(DataValue lv, DataValue rv, Relation relation) {
+        if (!(lv.getId() instanceof Number) || !(rv.getId() instanceof Number)) {
+			return false;
+    	}	else {
+    		int val1 = ((Number) lv.getId()).intValue();
+    		int val2 = ((Number) rv.getId()).intValue();
+    		switch(relation) {
+    		case IN_WIN: return val2 > val1 + 1 && val2 <= val1 + 100;
+    		case NOT_IN_WIN: return val2 <= val1 + 1 && val2 > val1 + 100;
+    		case SUCC: return val2 == val1+1;
+    		case NOT_SUCC: return val2 != val1+1;
+    		default:
+    	    throw new UnsupportedOperationException(
+                    "Relation " + relation + " is not suported in succ guards");
+    		}
     }
+        }
     
 }

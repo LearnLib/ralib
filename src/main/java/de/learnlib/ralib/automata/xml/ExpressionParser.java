@@ -112,6 +112,14 @@ public class ExpressionParser {
             related = pred.split("\\[!next\\]");
             relation = Relation.NOT_SUCC;  
         }
+        else if (pred.contains("[in_win]")) {
+            related = pred.split("\\[in_win\\]");
+            relation = Relation.IN_WIN;
+        }
+        else if (pred.contains("[!in_win]")) {
+            related = pred.split("\\[!in_win\\]");
+            relation = Relation.NOT_IN_WIN;  
+        }
         
         if (relation == null) {
             throw new IllegalStateException(
