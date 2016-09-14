@@ -16,7 +16,15 @@
  */
 package de.learnlib.ralib.theory.succ;
 
+import de.learnlib.ralib.data.DataType;
+import static de.learnlib.ralib.theory.succ.SuccessorMinterms.IN_HALFSPACE;
+import static de.learnlib.ralib.theory.succ.SuccessorMinterms.IN_WINDOW;
+import static de.learnlib.ralib.theory.succ.SuccessorMinterms.SUCC;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import java.util.Arrays;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  *
@@ -37,4 +45,37 @@ public class TestSuccTheory {
         Assert.fail("not implemented");    
     }
 
+    @Test
+    public void testEnumerateCases() {
+        
+        DataType type = new DataType("int", Integer.class);        
+        SuccessorDataValue[] dvs = new SuccessorDataValue[4];
+        dvs[0] = new SuccessorDataValue(type, 1, new SuccessorMinterms[] {});
+        dvs[1] = new SuccessorDataValue(type, 2, new SuccessorMinterms[] {
+            SUCC
+        });
+        dvs[2] = new SuccessorDataValue(type, 3, new SuccessorMinterms[] {
+            IN_WINDOW, IN_WINDOW
+        });
+        
+        ConstraintSolverFactory fact = new ConstraintSolverFactory();
+        ConstraintSolver solver = fact.createSolver("z3");        
+        WordUtil util = new WordUtil(solver);           
+        
+        int i=0;
+        int j=0;
+        for (SuccessorMinterms[] mt : SuccessorTheoryInt.generateMinterms(3)) {
+            dvs[3] = new SuccessorDataValue(type, 4, mt);
+            int[] result = util.instantiate(dvs);
+            
+            i++;
+            if (result != null) {
+                j++;
+            }
+
+            System.out.println(Arrays.toString(mt) + " : " + Arrays.toString(result));
+                        
+        }
+        System.out.println(j + " : " + i);
+    }
 }

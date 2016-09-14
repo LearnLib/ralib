@@ -64,14 +64,13 @@ public class WordUtil {
         }
 
         Valuation val = new Valuation();
-        System.out.println(instCheck);
+        //System.out.println(instCheck);
         Result res = solver.solve(instCheck, val);
         if (res != Result.SAT) {
             return null;
         }
 
-        System.out.println(val);
-        
+        //System.out.println(val);        
         int[] ret = new int[dvs.length];
         for (int i = 0; i < vars.length; i++) {
             ret[i] = (Integer) val.getValue(vars[i]);
