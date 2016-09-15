@@ -113,7 +113,7 @@ public class JContraintsUtil {
         	le = lv;
         }
         if (expr.getRightConst() != null)
-        	re = gov.nasa.jpf.constraints.expressions.NumericCompound.create(lv, 
+        	re = gov.nasa.jpf.constraints.expressions.NumericCompound.create(rv, 
         		NumericOperator.PLUS, toConstant(expr.getRightConst()));
         else {
         	re = rv;

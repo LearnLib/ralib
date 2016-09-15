@@ -27,6 +27,10 @@ public class SumCDataValue<T> extends DataValue<T>{
 	public DataValue<T> getOperand() {
 		return this.operand;
 	}
+	
+	public DataValue<T> toRegular() {
+		return new DataValue<T> (this.type, this.id);
+	}
 
 	
     @Override

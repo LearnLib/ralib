@@ -65,7 +65,7 @@ public class EqualityGuard extends SDTIfGuard {
 		      return new DisequalityGuard(sv, registerExpr);
 		  } else {
 		  	if (relabelling.containsKey(registerExpr.getSDV())) {
-		  		r = registerExpr.swapSDV((SymbolicDataValue) relabelling.get(registerExpr));
+		  		r = registerExpr.swapSDV((SymbolicDataValue) relabelling.get(registerExpr.getSDV()));
 		  	} else {
 		  		r = registerExpr;
 		  	}
