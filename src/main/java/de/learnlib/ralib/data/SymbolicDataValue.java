@@ -23,8 +23,16 @@ import java.util.Objects;
  *
  * @author falk
  */
-public abstract class SymbolicDataValue extends DataValue<Integer> {
+public abstract class SymbolicDataValue extends DataValue<Integer> implements SymbolicDataExpression{
 
+	/**
+	 * Constructs a new symbolic data expression where the register is swapped
+	 * by a new one. 
+	 */
+	public SymbolicDataValue getSDV() {
+		return this;
+	}
+	
     public static final class Parameter extends SymbolicDataValue {
 
         public Parameter(DataType dataType, int id) {

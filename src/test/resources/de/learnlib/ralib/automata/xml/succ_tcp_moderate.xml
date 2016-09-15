@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IACK"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="ISYN"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="IACKPSH"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="IFINACK"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OTIMEOUT"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="OSYNACK"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="OACK"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+      </outputs>
+   </alphabet>
+   <constants>
+
+   </constants>
+   <globals>
+      <variable type="int" name="q">0</variable>
+      <variable type="int" name="clientNr">0</variable>
+      <variable type="int" name="serverNr">0</variable>
+      <variable type="int" name="p">0</variable>
+   </globals>
+   <locations>
+      <location name="id8"/> 
+      <location name="id9"/> 
+      <location name="id6"/> 
+      <location name="id7"/> 
+      <location name="id4"/> 
+      <location name="id5"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+      <location name="id10"/> 
+      <location name="id11"/> 
+      <location name="id12"/> 
+      <location name="id13" initial="true"/> 
+   </locations>
+   <transitions>
+      <transition from="id0" to="id13" symbol="OTIMEOUT" />
+      <transition from="id4" to="id0" symbol="ISYN" params="p,q">
+         <guard>p==clientNr</guard>
+      </transition>
+      <transition from="id7" to="id6" symbol="IFINACK" params="p,q">
+         <guard>p!=clientNr || q!=serverNr</guard>
+      </transition>
+      <transition from="id1" to="id4" symbol="OTIMEOUT" />
+      <transition from="id4" to="id1" symbol="ISYN" params="p,q">
+         <guard>p!=clientNr</guard>
+      </transition>
+      <transition from="id4" to="id1" symbol="IFINACK" params="p,q"/>
+      <transition from="id4" to="id1" symbol="IACKPSH" params="p,q"/>
+      <transition from="id4" to="id1" symbol="IACK" params="p,q"/>
+      <transition from="id11" to="id10" symbol="IFINACK" params="p,q">
+         <guard>p[!next]clientNr || q[!next]serverNr</guard>
+      </transition>
+      <transition from="id2" to="id4" symbol="OACK" params="p,q"/>
+      <transition from="id7" to="id2" symbol="IFINACK" params="p,q">
+         <guard>p==clientNr &amp;&amp; q==serverNr</guard>
+      </transition>
+      <transition from="id3" to="id4" symbol="OACK" params="p,q">
+         <assignments>
+            <assign to="p">serverNr</assign>
+            <assign to="q">clientNr</assign>
+         </assignments>
+      </transition>
+      <transition from="id11" to="id3" symbol="IFINACK" params="p,q">
+         <guard>p==clientNr+1 &amp;&amp; q==serverNr+1</guard>
+         <assignments>
+            <assign to="clientNr">clientNr+2</assign>
+            <assign to="serverNr">serverNr+1</assign>
+         </assignments>
+      </transition>
+      <transition from="id13" to="id8" symbol="IFINACK" params="p,q"/>
+      <transition from="id7" to="id6" symbol="IACKPSH" params="p,q">
+         <guard>p!=clientNr || q!=serverNr</guard>
+      </transition>
+      <transition from="id5" to="id7" symbol="OACK" params="p,q">
+         <assignments>
+            <assign to="p">serverNr</assign>
+            <assign to="q">clientNr</assign>
+         </assignments>
+      </transition>
+      <transition from="id7" to="id5" symbol="IACKPSH" params="p,q">
+         <guard>p==clientNr &amp;&amp; q==serverNr</guard>
+         <assignments>
+            <assign to="clientNr"> clientNr+1</assign>
+         </assignments>
+      </transition>
+      <transition from="id11" to="id10" symbol="IACKPSH" params="p,q"/>
+      <transition from="id13" to="id8" symbol="IACKPSH" params="p,q"/>
+      <transition from="id7" to="id6" symbol="IACK" params="p,q"/>
+      <transition from="id6" to="id7" symbol="OTIMEOUT" />
+      <transition from="id7" to="id6" symbol="ISYN" params="p,q"/>
+      <transition from="id9" to="id7" symbol="OTIMEOUT" />
+      <transition from="id11" to="id10" symbol="ISYN" params="p,q"/>
+      <transition from="id8" to="id13" symbol="OTIMEOUT" />
+      <transition from="id13" to="id8" symbol="IACK" params="p,q"/>
+      <transition from="id10" to="id11" symbol="OTIMEOUT" />
+      <transition from="id11" to="id10" symbol="IACK" params="p,q">
+         <guard>p[!next]clientNr || q[!next]serverNr</guard>
+      </transition>
+      <transition from="id11" to="id9" symbol="IACK" params="p,q">
+         <guard>p==clientNr+1 &amp;&amp; q==serverNr+1</guard>
+         <assignments>
+            <assign to="clientNr">clientNr+1</assign>
+            <assign to="serverNr">serverNr+1</assign>
+         </assignments>
+      </transition>
+      <transition from="id12" to="id11" symbol="OSYNACK" params="p,q">
+         <assignments>
+            <assign to="p">random()</assign>
+            <assign to="q">clientNr+1</assign>
+            <assign to="serverNr">p</assign>
+         </assignments>
+      </transition>
+      <transition from="id13" to="id12" symbol="ISYN" params="p,q">
+         <assignments>
+            <assign to="clientNr">p</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>

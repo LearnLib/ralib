@@ -61,7 +61,7 @@ import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression
  */
 public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> implements TypedTheory<Double> {
 
-    private static final class Cpr implements Comparator<DataValue<Double>> {
+    protected static final class Cpr implements Comparator<DataValue<Double>> {
 
         @Override
         public int compare(DataValue<Double> one, DataValue<Double> other) {
@@ -117,7 +117,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         } else if (g instanceof IntervalGuard) {
             IntervalGuard iGuard = (IntervalGuard) g;
             if (!iGuard.isBiggerGuard()) {
-                SymbolicDataValue r = iGuard.getRightReg();
+                SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightReg();
                 DataValue<Double> ri = new DataValue(type, val.getValue(toVariable(r)));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, ri.getId());
                 // add the constant equivalence expression to the list
@@ -125,7 +125,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
             }
             if (!iGuard.isSmallerGuard()) {
-                SymbolicDataValue l = iGuard.getLeftReg();
+                SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftReg();
                 DataValue<Double> li = new DataValue(type, val.getValue(toVariable(l)));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, li.getId());
                 // add the constant equivalence expression to the list

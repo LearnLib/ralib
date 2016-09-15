@@ -16,18 +16,21 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.testng.Assert;
+
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.data.SymbolicDataExpression;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
 
 /**
  *
@@ -36,13 +39,13 @@ import java.util.Set;
 public class DisequalityGuard extends SDTIfGuard {
 
     public DisequalityGuard(
-            SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
-        super(param, reg, Relation.NOT_EQUALS);
+            SymbolicDataValue.SuffixValue param, SymbolicDataExpression regExpr) {
+        super(param, regExpr, Relation.NOT_EQUALS);
     }
 
     @Override
     public EqualityGuard toDeqGuard() {
-        return new EqualityGuard(parameter, register);
+        return new EqualityGuard(parameter, registerExpr);
     }
 
     @Override
@@ -54,23 +57,27 @@ public class DisequalityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
+    	Assert.assertTrue(registerExpr instanceof SymbolicDataValue);
         return new AtomicGuardExpression(
-                register, Relation.NOT_EQUALS, parameter);
+                registerExpr.getSDV(), Relation.NOT_EQUALS, parameter);
     }
 
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
         SymbolicDataValue.SuffixValue sv
                 = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
         sv = (sv == null) ? parameter : sv;
+        SymbolicDataExpression r = null;
 
-        if (register.isConstant()) {
-            return new DisequalityGuard(sv, register);
+        if (registerExpr.isConstant()) {
+            return new DisequalityGuard(sv, registerExpr);
         } else {
-            r = (SymbolicDataValue) relabelling.get(register);
+        	if (relabelling.containsKey(registerExpr.getSDV())) {
+        		r = registerExpr.swapSDV((SymbolicDataValue) relabelling.get(registerExpr));
+        	} else {
+        		r = registerExpr;
+        	}
         }
-        r = (r == null) ? register : r;
         return new DisequalityGuard(sv, r);
     }
 
@@ -78,7 +85,7 @@ public class DisequalityGuard extends SDTIfGuard {
     public int hashCode() {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(this.parameter);
-        hash = 59 * hash + Objects.hashCode(this.register);
+        hash = 59 * hash + Objects.hashCode(this.registerExpr);
         hash = 59 * hash + Objects.hashCode(this.relation);
         hash = 59 * hash + Objects.hashCode(this.getClass());
 
@@ -94,7 +101,7 @@ public class DisequalityGuard extends SDTIfGuard {
             return false;
         }
         final DisequalityGuard other = (DisequalityGuard) obj;
-        if (!Objects.equals(this.register, other.register)) {
+        if (!Objects.equals(this.registerExpr, other.registerExpr)) {
             return false;
         }
         if (!Objects.equals(this.relation, other.relation)) {

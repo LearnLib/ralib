@@ -28,7 +28,13 @@ public class DataValue<T> {
     protected final DataType type;
 
     protected final T id;
-
+    
+    public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
+    	if (rv == null) return lv;
+    	if (lv == null) return rv;
+    	return new DataValue(rv.getType(), new Double( ((double) rv.getId()) + ((double) lv.getId())));
+    }
+    
     public DataValue(DataType type, T id) {
         this.type = type;
         this.id = id;

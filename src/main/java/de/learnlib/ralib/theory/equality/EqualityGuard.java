@@ -19,6 +19,7 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -30,13 +31,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.testng.Assert;
+
 /**
  *
  * @author falk
  */
 public class EqualityGuard extends SDTIfGuard {
 
-    public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
+    public EqualityGuard(SuffixValue param, SymbolicDataExpression reg) {
         super(param, reg, Relation.EQUALS);
     }
 
@@ -48,22 +51,25 @@ public class EqualityGuard extends SDTIfGuard {
     }
 
     public DisequalityGuard toDeqGuard() {
-        return new DisequalityGuard(parameter, register);
+        return new DisequalityGuard(parameter, registerExpr);
     }
 
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv
-                = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        sv = (sv == null) ? parameter : sv;
-
-        if (register.isConstant()) {
-            return new EqualityGuard(sv, register);
-        } else {
-            r = (SymbolicDataValue) relabelling.get(register);
-        }
-        r = (r == null) ? register : r;
+    	  SymbolicDataValue.SuffixValue sv
+          = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
+		  sv = (sv == null) ? parameter : sv;
+		  SymbolicDataExpression r = null;
+		
+		  if (registerExpr.isConstant()) {
+		      return new DisequalityGuard(sv, registerExpr);
+		  } else {
+		  	if (relabelling.containsKey(registerExpr.getSDV())) {
+		  		r = registerExpr.swapSDV((SymbolicDataValue) relabelling.get(registerExpr));
+		  	} else {
+		  		r = registerExpr;
+		  	}
+		  }
         return new EqualityGuard(sv, r);
     }
 
@@ -71,7 +77,7 @@ public class EqualityGuard extends SDTIfGuard {
     public int hashCode() {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(parameter);
-        hash = 59 * hash + Objects.hashCode(register);
+        hash = 59 * hash + Objects.hashCode(registerExpr);
         hash = 59 * hash + Objects.hashCode(relation);
         hash = 59 * hash + Objects.hashCode(getClass());
 
@@ -87,7 +93,7 @@ public class EqualityGuard extends SDTIfGuard {
             return false;
         }
         final EqualityGuard other = (EqualityGuard) obj;
-        if (!Objects.equals(this.register, other.register)) {
+        if (!Objects.equals(this.registerExpr, other.registerExpr)) {
             return false;
         }
         if (!Objects.equals(this.relation, other.relation)) {
@@ -98,7 +104,8 @@ public class EqualityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-        return new AtomicGuardExpression<>(this.register,
+    	Assert.assertTrue(registerExpr instanceof SymbolicDataValue);
+        return new AtomicGuardExpression<>(this.registerExpr.getSDV(),
                 Relation.EQUALS, parameter);
     }
 

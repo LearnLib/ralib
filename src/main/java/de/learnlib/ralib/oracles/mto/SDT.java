@@ -102,10 +102,10 @@ public class SDT implements SymbolicDecisionTree {
             } else if (g instanceof IntervalGuard) {
                 IntervalGuard iGuard = (IntervalGuard) g;
                 if (!iGuard.isBiggerGuard()) {
-                    variables.add(iGuard.getRightReg());
+                    variables.add(iGuard.getRightSDV());
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    variables.add(iGuard.getLeftReg());
+                    variables.add(iGuard.getLeftSDV());
                 }
             } else if (!(g instanceof SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
