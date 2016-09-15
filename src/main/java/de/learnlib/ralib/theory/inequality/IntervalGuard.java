@@ -264,8 +264,8 @@ public class IntervalGuard extends SDTGuard {
             guards.addAll(this.mergeIntervals((IntervalGuard) other));
         } else if (other instanceof DisequalityGuard) {
             DisequalityGuard dGuard = (DisequalityGuard) other;
-            if ((this.isBiggerGuard() && this.leftLimit.equals(dGuard.getRegister()))
-                    || (this.isSmallerGuard() && this.rightLimit.equals(dGuard.getRegister()))) {
+            if ((this.isBiggerGuard() && this.leftLimit.equals(dGuard.getExpression()))
+                    || (this.isSmallerGuard() && this.rightLimit.equals(dGuard.getExpression()))) {
 
                 guards.add((DisequalityGuard) other);
             }

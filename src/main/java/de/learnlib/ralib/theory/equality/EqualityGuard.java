@@ -46,7 +46,7 @@ public class EqualityGuard extends SDTIfGuard {
     @Override
     public String toString() {
         return "(" + this.getParameter().toString()
-                + "=" + this.getRegister().toString() + ")";
+                + "=" + this.getExpression().toString() + ")";
 
     }
 

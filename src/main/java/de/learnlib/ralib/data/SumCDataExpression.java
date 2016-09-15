@@ -19,6 +19,10 @@ public class SumCDataExpression implements SymbolicDataExpression{
 		return constant;
 	}
 	
+	public String toString() {
+		return this.expr + " + " +  this.constant.id.toString();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
