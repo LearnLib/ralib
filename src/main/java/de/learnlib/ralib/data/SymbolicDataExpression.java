@@ -32,4 +32,11 @@ public interface SymbolicDataExpression {
 	public default SymbolicDataExpression swapSDV(SymbolicDataValue newSDV) {
 		return newSDV;
 	}
+	
+	/**
+	 * Given a data value, solves the encapsulated sdv.
+	 */
+	public default <T> DataValue<T> solveSDVForValue(DataValue<T> val) {
+		return val;
+	}
 }

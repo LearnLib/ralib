@@ -35,6 +35,12 @@ public class DataValue<T> {
     	return new DataValue(rv.getType(), new Double( ((double) rv.getId()) + ((double) lv.getId())));
     }
     
+    public static DataValue<?> sub(DataValue<?> rv, DataValue<?> lv) {
+    	if (rv == null) return sub(new DataValue(lv.getType(), 0.0), lv);
+    	if (lv == null) return rv;
+    	return new DataValue(rv.getType(), new Double( ((double) rv.getId()) - ((double) lv.getId())));
+    }
+    
     public DataValue(DataType type, T id) {
         this.type = type;
         this.id = id;

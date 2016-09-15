@@ -22,14 +22,18 @@ import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
+import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.Constant;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.expressions.NumericCompound;
+import gov.nasa.jpf.constraints.expressions.NumericOperator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -72,6 +76,8 @@ public class JContraintsUtil {
         
         if (expr instanceof AtomicGuardExpression) {
             return toExpression((AtomicGuardExpression) expr, map);
+        } else if (expr instanceof SumCAtomicGuardExpression) {
+            return toExpression((SumCAtomicGuardExpression) expr, map);
         } else if (expr instanceof TrueGuardExpression) {
             return ExpressionUtil.TRUE;
         } else if (expr instanceof FalseGuardExpression) {
@@ -90,6 +96,43 @@ public class JContraintsUtil {
 
         throw new RuntimeException("Unsupported Guard Expression: "
                 + expr.getClass().getName());
+    }
+    
+    
+    public static Expression<Boolean> toExpression(SumCAtomicGuardExpression expr,
+            Map<SymbolicDataValue, Variable> map) {
+
+        Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);
+        Variable rv = getOrCreate(expr.getRight(), map, BuiltinTypes.DOUBLE);
+        Expression le;
+        Expression re;
+        if (expr.getLeftConst() != null)
+        	le = gov.nasa.jpf.constraints.expressions.NumericCompound.create(lv, 
+        		NumericOperator.PLUS, toConstant(expr.getLeftConst()));
+        else {
+        	le = lv;
+        }
+        if (expr.getRightConst() != null)
+        	re = gov.nasa.jpf.constraints.expressions.NumericCompound.create(lv, 
+        		NumericOperator.PLUS, toConstant(expr.getRightConst()));
+        else {
+        	re = rv;
+        }
+
+        switch (expr.getRelation()) {
+            case EQUALS:
+                return new NumericBooleanExpression(le, NumericComparator.EQ, re);
+            case NOT_EQUALS:
+                return new NumericBooleanExpression(le, NumericComparator.NE, re);
+            case SMALLER:
+                return new NumericBooleanExpression(le, NumericComparator.LT, re);
+            case BIGGER:
+                return new NumericBooleanExpression(le, NumericComparator.GT, re);
+
+            default:
+                throw new UnsupportedOperationException(
+                        "Relation " + expr.getRelation() + " is not supoorted in guards");
+        }
     }
 
     public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
@@ -122,6 +165,10 @@ public class JContraintsUtil {
             map.put(dv, ret);
         }
         return ret;
+    }
+    
+    public static Constant toConstant(DataValue v) {
+        return new Constant(BuiltinTypes.DOUBLE, v.getId());
     }
 
     public static Variable toVariable(DataValue v) {

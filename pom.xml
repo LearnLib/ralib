@@ -84,5 +84,10 @@
             <artifactId>jconstraints</artifactId>
             <version>0.9.2-SNAPSHOT</version>
         </dependency>
+        <dependency>
+  			<groupId>gov.nasa</groupId>
+  			<artifactId>jconstraints-z3</artifactId>
+  			<version>0.9.2-SNAPSHOT</version>
+  		</dependency>
     </dependencies>
 </project>

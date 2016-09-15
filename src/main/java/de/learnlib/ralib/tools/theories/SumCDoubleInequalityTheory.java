@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	
@@ -43,7 +44,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     }
 
 	private DataValue<Double> addNumbers(DataValue<Double> value, DataValue<Double> c) {
-		return new DataValue<Double>(value.getType(), value.getId() + c.getId());
+		return new SumCDataValue<Double>(value, c);
 	}
 
 }

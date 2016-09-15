@@ -76,7 +76,8 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
     
     @Override
     public String toString() {
-        return "(" + left + rConst + relation + right + rConst + ")";
+        return "(" + left + lConst!=null?" + " + lConst:"" + relation + right + 
+        		rConst!=null?" + " + rConst:"" + ")";
     }
 
     public Left getLeft() {
@@ -86,6 +87,14 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
     public Right getRight() {
         return right;
     }    
+    
+    public DataValue<?> getLeftConst() {
+    	return lConst;
+    }
+    
+    public DataValue<?> getRightConst() {
+    	return rConst;
+    }
 
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {

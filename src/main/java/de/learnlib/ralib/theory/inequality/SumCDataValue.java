@@ -1,9 +1,5 @@
 package de.learnlib.ralib.theory.inequality;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 
@@ -13,7 +9,7 @@ public class SumCDataValue<T> extends DataValue<T>{
 	private DataValue<T> constant;
 	
 	public SumCDataValue(DataValue<T> dv, DataValue<T> constant) {
-		super(dv.getType(), (T) DataValue.add(dv, constant) );
+		super(dv.getType(), (T) DataValue.add(dv, constant).getId() );
 		this.operand = dv;
 		this.constant = constant;
 		

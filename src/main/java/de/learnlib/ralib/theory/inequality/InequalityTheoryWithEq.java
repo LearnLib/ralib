@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -565,10 +566,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 } else {
                     assert iRefGuard.isIntervalGuard();
                     EqualityGuard eqG = null;
-                    if (newHeadList.contains(new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftReg()))) {
-                        eqG = new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftReg());
-                    } else if (newHeadList.contains(new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getRightReg()))) {
-                        eqG = new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftReg());
+                    if (newHeadList.contains(new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftExpr()))) {
+                        eqG = new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftExpr());
+                    } else if (newHeadList.contains(new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getRightExpr()))) {
+                        eqG = new EqualityGuard(iRefGuard.getParameter(), iRefGuard.getLeftExpr());
                     }
                     if (eqG != null) {
 //                        System.out.println("trying Eq " + refGuard + " against " + newHeadList + " with " + eqG);
@@ -879,6 +880,12 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         SuffixValue currentParam = new SuffixValue(type, pId);
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
+        try {
+        suffixValues.<T>values(type);
+        }
+        catch(RuntimeException ecv) {
+        	System.out.println(ecv);
+        }
 
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 constants.<T>values(type),
@@ -923,7 +930,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             DataValue<T> dvRight = potential.get(0);
             IntervalGuard sguard = makeSmallerGuard(
                     dvRight, prefixValues, currentParam, smValues, piv);
-            SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightReg();
+            SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
 //            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
             smVal.setValue(toVariable(rsm), dvRight.getId());
             DataValue<T> smcv = instantiate(
@@ -947,7 +954,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             DataValue<T> dvLeft = potential.get(potSize - 1);
             IntervalGuard bguard = makeBiggerGuard(
                     dvLeft, prefixValues, currentParam, bgValues, piv);
-            updateValuation(bgVal, bguard.getLeftReg(), dvLeft);
+            updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
             DataValue<T> bgcv = instantiate(
                     bguard, bgVal, constants, potential);
             bgValues.put(pId, bgcv);
@@ -983,8 +990,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                            currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
                     SymbolicDataValue rs = intervalGuard.getRightSDV();
                     SymbolicDataValue rb = intervalGuard.getLeftSDV();
-                    updateValuation(val, intervalGuard.getRightReg(), dvMRight);
-                    updateValuation(val, intervalGuard.getLeftReg(), dvMLeft);
+                    updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
+                    updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
                     DataValue<T> cv = instantiate(
                             intervalGuard, val, constants, potential);
@@ -1062,59 +1069,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     	if (expr instanceof SymbolicDataValue) {
     		sdvValuation = concValue;
     	} else {
-    		throw new RuntimeException("Cannot update valuation for expression " + expr + " assigned data value "+ concValue);
+    		if (expr instanceof SumCDataExpression) {
+    			sdvValuation = ((SumCDataValue<T>) concValue).getOperand();
+    		} else {
+    			throw new RuntimeException("Cannot update valuation for expression " + expr + " assigned data value "+ concValue);
+    		}
     	} 
-        valuation.setValue(toVariable(sdvForExpr), concValue.getId());
+        valuation.setValue(toVariable(sdvForExpr), sdvValuation.getId());
         return sdvValuation;
-    }
-
-    private EqualityGuard pickupDataValue(DataValue<T> newDv,
-            List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, Constants constants) {
-        DataType type = currentParam.getType();
-        int newDv_i;
-        for (SymbolicDataValue.Constant c : constants.keySet()) {
-            if (constants.get(c).equals(newDv)) {
-                return new EqualityGuard(currentParam, c);
-            }
-        }
-        if (prefixValues.contains(newDv)) {
-            // first index of the data value in the prefixvalues list
-            newDv_i = prefixValues.indexOf(newDv) + 1;
-            Register newDv_r = new Register(type, newDv_i);
-            return new EqualityGuard(currentParam, newDv_r);
-
-        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
-        else {
-            int smallest = Collections.min(ifValues.getAllKeys(newDv));
-            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
-        }
-    }
-
-    private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
-            List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
-        DataType type = currentParam.getType();
-        int newDv_i;
-        if (prefixValues.contains(smallerDv)) {
-            newDv_i = prefixValues.indexOf(smallerDv) + 1;
-            SymbolicDataValue.Parameter newDv_p
-                    = new SymbolicDataValue.Parameter(type, newDv_i);
-            Register newDv_r;
-            if (pir.containsKey(newDv_p)) {
-                newDv_r = pir.get(newDv_p);
-            } else {
-                newDv_r = new Register(type, newDv_i);
-            }
-            return new IntervalGuard(currentParam, null, newDv_r);
-
-        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
-        else {
-            int smallest = Collections.min(ifValues.getAllKeys(smallerDv));
-            IntervalGuard sg = new IntervalGuard(
-                    currentParam, null, new SuffixValue(type, smallest));
-            return sg;
-        }
     }
 
     private IntervalGuard makeIntervalGuard(DataValue<T> biggerDv,
@@ -1123,16 +1085,86 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             WordValuation ifValues, PIV pir) {
         IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir);
         IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir);
-        return new IntervalGuard(currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
+        return new IntervalGuard(currentParam, biggerGuard.getLeftExpr(), smallerGuard.getRightExpr());
     }
 
     private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues, pir);
+    	IntervalGuard bg = new IntervalGuard(
+                currentParam, regOrSuffixExpr, null);
+    	return bg;
+    }
+    
+    private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
+            List<DataValue> prefixValues, SuffixValue currentParam,
+            WordValuation ifValues, PIV pir) {
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, currentParam, ifValues, pir);
+    	IntervalGuard sg = new IntervalGuard(
+                currentParam, null, regOrSuffixExpr);
+        return sg;
+    }
+    
+
+    private EqualityGuard pickupDataValue(DataValue<T> newDv,
+            List<DataValue> prefixValues, SuffixValue currentParam,
+            WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getType();
-        int newDv_i;
-        if (prefixValues.contains(biggerDv)) {
-            newDv_i = prefixValues.indexOf(biggerDv) + 1;
+        for (SymbolicDataValue.Constant c : constants.keySet()) {
+            if (constants.get(c).equals(newDv)) {
+                return new EqualityGuard(currentParam, c);
+            }
+        }
+        
+        if (newDv instanceof SumCDataValue) {
+        	DataValue<T> constant = ((SumCDataValue<T>) newDv).getConstant();
+        	DataValue<T> prevDv = ((SumCDataValue<T>) newDv).getOperand();
+	        int newDv_i;
+	        if (prefixValues.contains(prevDv)) {
+	            // first index of the data value in the prefixvalues list
+	            newDv_i = prefixValues.indexOf(prevDv) + 1;
+	            Register newDv_r = new Register(type, newDv_i);
+	            return new EqualityGuard(currentParam, new SumCDataExpression(newDv_r, constant));
+	
+	        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
+	        else {
+	            int smallest = Collections.min(ifValues.getAllKeys(prevDv));
+	            return new EqualityGuard(currentParam, new SumCDataExpression(new SuffixValue(type, smallest), constant));
+	        }
+        } else {
+        	int newDv_i;
+	        if (prefixValues.contains(newDv)) {
+	            // first index of the data value in the prefixvalues list
+	            newDv_i = prefixValues.indexOf(newDv) + 1;
+	            Register newDv_r = new Register(type, newDv_i);
+	            return new EqualityGuard(currentParam, newDv_r);
+	
+	        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
+	        else {
+	            int smallest = Collections.min(ifValues.getAllKeys(newDv));
+	            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+	        }
+        }
+    }
+    
+    private SymbolicDataExpression getSDExprForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
+            WordValuation ifValues, PIV pir) {
+    	if (dv instanceof SumCDataValue) {
+    		SumCDataValue<T> sumcdv = (SumCDataValue<T>) dv;
+    		SymbolicDataValue regOrSuffix = getSDVForDV(sumcdv.getOperand(), prefixValues, currentParam, ifValues, pir);
+    		return new SumCDataExpression( regOrSuffix, sumcdv.getConstant());
+    	} else {
+    		return getSDVForDV(dv, prefixValues, currentParam, ifValues, pir);
+    	}
+    }
+    
+    private SymbolicDataValue getSDVForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
+            WordValuation ifValues, PIV pir) {
+    	int newDv_i;
+    	DataType type = currentParam.getType();
+    	if (prefixValues.contains(dv)) {
+            newDv_i = prefixValues.indexOf(dv) + 1;
             SymbolicDataValue.Parameter newDv_p
                     = new SymbolicDataValue.Parameter(type, newDv_i);
             Register newDv_r;
@@ -1141,15 +1173,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else {
                 newDv_r = new Register(type, newDv_i);
             }
-            return new IntervalGuard(currentParam, newDv_r, null);
-
-        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
-        else {
-            int smallest = Collections.min(ifValues.getAllKeys(biggerDv));
-            IntervalGuard bg = new IntervalGuard(
-                    currentParam, new SuffixValue(type, smallest), null);
-            return bg;
-        }
+            return newDv_r;
+    	} else {
+    		 int smallest = Collections.min(ifValues.getAllKeys(dv));
+    		 return new SuffixValue(type, smallest);
+    	}
     }
 
     public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
@@ -1228,14 +1256,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (guard instanceof IntervalGuard) {
                 IntervalGuard iGuard = (IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {
-                    SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightReg();
+                    SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightExpr();
                     DataValue<T> regVal = getRegisterValue(r, piv,
                             prefixValues, constants, pval);
 
                     val.setValue(toVariable(r), regVal.getId());
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftReg();
+                    SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftExpr();
                     DataValue regVal = getRegisterValue(l, piv,
                             prefixValues, constants, pval);
 
