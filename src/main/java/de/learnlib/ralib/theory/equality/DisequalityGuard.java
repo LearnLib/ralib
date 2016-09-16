@@ -26,6 +26,8 @@ import org.testng.Assert;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
+import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -57,9 +59,18 @@ public class DisequalityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-    	Assert.assertTrue(registerExpr instanceof SymbolicDataValue);
-        return new AtomicGuardExpression(
-                registerExpr.getSDV(), Relation.NOT_EQUALS, parameter);
+    	if (registerExpr instanceof  SymbolicDataValue) {
+    		return new AtomicGuardExpression<>(this.registerExpr.getSDV(),
+                    Relation.NOT_EQUALS, parameter);
+    	} else {
+    		if (registerExpr instanceof  SumCDataExpression) {
+    		return new SumCAtomicGuardExpression<>(this.registerExpr.getSDV(),
+    				((SumCDataExpression) this.registerExpr).getConstant(),
+                    Relation.NOT_EQUALS, parameter, null);
+    		} else {
+    			throw new RuntimeException("Case not handle for expression "+ registerExpr);
+    		}
+    	} 
     }
 
     @Override

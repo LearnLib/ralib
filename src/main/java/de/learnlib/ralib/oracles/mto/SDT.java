@@ -32,6 +32,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -153,7 +154,7 @@ public class SDT implements SymbolicDecisionTree {
     }
     
     public boolean isEquivalentUnder(
-            SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
+            SymbolicDecisionTree deqSDT, List<EqualityGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
                 return (this.isAccepting() == deqSDT.isAccepting());
@@ -161,8 +162,10 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         VarMapping eqRenaming = new VarMapping<>();
-        for (SDTIfGuard d : ds) {
-            eqRenaming.put(d.getParameter(), d.getRegister());
+        for (EqualityGuard d : ds) {
+        	// we only consider equalities which map to SDVs (and not to other expressions)
+        	if (d.isEqualityWithSDV())
+        		eqRenaming.put(d.getParameter(), d.getRegister());
         }
 //        System.out.println(eqRenaming);
 //        System.out.println(this + " vs " + deqSDT);
@@ -170,10 +173,12 @@ public class SDT implements SymbolicDecisionTree {
         return x;
     }
     
-    public SDT relabelUnderEq(List<SDTIfGuard> ds) {
+    public SDT relabelUnderEq(List<EqualityGuard> ds) {
         VarMapping eqRenaming = new VarMapping<>();
-        for (SDTIfGuard d : ds) {
-            eqRenaming.put(d.getParameter(), d.getRegister());
+        for (EqualityGuard d : ds) {
+        	// we only consider equalities which map to SDVs (and not to other expressions)
+        	if (d.isEqualityWithSDV())
+        		eqRenaming.put(d.getParameter(), d.getRegister());
         }
         return (SDT) this.relabel(eqRenaming);
     }

@@ -662,7 +662,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         //boolean canJoin = false;
 
         EqualityGuard eqGuard = (EqualityGuard) guard;
-        List<SDTIfGuard> ds = new ArrayList();
+        List<EqualityGuard> ds = new ArrayList();
         if (eqGuard.isEqualityWithSDV())
         	ds.add(eqGuard);
 //        System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT + " under " + eqGuard);
@@ -881,12 +881,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         SuffixValue currentParam = new SuffixValue(type, pId);
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
-        try {
-        suffixValues.<T>values(type);
-        }
-        catch(RuntimeException ecv) {
-        	System.out.println(ecv);
-        }
 
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 constants.<T>values(type),
@@ -1016,10 +1010,15 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 SuffixValuation ifSuffixValues = new SuffixValuation();
                 ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
 
+                // construct the equality guard. Depending on newDv, a certain 
+                // type of equality is instantiated (newDv can be a SumCDv, in which case a SumC equality is instantiated)
                 EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues,
                         currentParam, values, constants);
 //                log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
-                //construct the equality guard
+                
+                // we normalize newDv so that we only store plain data values in the if suffix
+                newDv = new DataValue<T>(newDv.getType(), newDv.getId());
+                // construct the equality guard
                 // find the data value in the prefix
                 // this is the valuation of the positions in the suffix
                 WordValuation ifValues = new WordValuation();
@@ -1033,13 +1032,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         }
 
-//        System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
+        System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
         Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
         // only keep registers that are referenced by the merged guards
-//        System.out.println("MERGED = " + merged);
+        System.out.println("MERGED = " + merged);
         assert !merged.keySet().isEmpty();
 
-        System.out.println("MERGED = " + merged);
+//        System.out.println("MERGED = " + merged);
         piv.putAll(keepMem(merged));
 
         log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
@@ -1058,7 +1057,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 //assert merged.keySet().size() == 1;
             }
         }
-        System.out.println("MERGED = " + merged);
+//        System.out.println("MERGED = " + merged);
         SDT returnSDT = new SDT(merged);
         return returnSDT;
 

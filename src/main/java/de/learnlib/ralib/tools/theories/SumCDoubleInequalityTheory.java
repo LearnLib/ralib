@@ -1,5 +1,6 @@
 package de.learnlib.ralib.tools.theories;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -11,18 +12,42 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
+	// default constants
+	private static Double [] defaultSumConst = new Double [] {
+			100.0
+			};
+	private static Double [] defaultRegularConst = new Double [] {
+			//1.0
+			};
+	
 	
 	private List<DataValue<Double>> sumConstants;
 	private List<DataValue<Double>> regularConstants;
 
+	public SumCDoubleInequalityTheory() {
+		super();
+	}
+	
 	public SumCDoubleInequalityTheory(DataType dataType) {
-		this(dataType, Collections.emptyList(), Collections.emptyList());
+		// the constants have to be introduced manually
+		super(dataType);
+		setupDefaultConstants(dataType);
 	}
 	
 	public SumCDoubleInequalityTheory(DataType dataType, List<DataValue<Double>> sumConstants, List<DataValue<Double>> regularConstants) {
 		super(dataType);
 		this.sumConstants = sumConstants;
 		this.regularConstants = regularConstants;
+	}
+	
+	public void setType(DataType dataType) {
+		super.setType(dataType);
+		setupDefaultConstants(dataType);
+	}
+	
+	private void setupDefaultConstants(DataType dataType) {
+		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
+		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
 	}
 	
     public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
@@ -37,23 +62,24 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     }
     
     private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
-    	List<DataValue<Double>> listOfValues = dvs.stream().filter(potVal -> !regularConstants.contains(potVal)).  // we filter the actual constants (we don't want sums over constants)
+    	List<DataValue<Double>> listOfValues = dvs.stream().
     			flatMap(value ->
-    			// apply each of the sum constants to the potential, plus the initial value
-    			Stream.of(Stream.of(value), sumConstants.stream().map(c -> addNumbers(value, c, dvs) )).flatMap(Function.identity())). 
-    			distinct(). // remove any duplicates
+    			// apply each of the sum constants to each of the potential values, 
+    			Stream.of(Stream.of(value), sumConstants.stream().map(c -> applySumConstant(value, c, dvs) )).flatMap(Function.identity())). 
+    			distinct(). // remove any duplicates 
     			collect(Collectors.toList()); // collect them to a list
-    	for (DataValue<Double> val : dvs) { 
-    		if (!listOfValues.contains(val)) {
-    			listOfValues.add(val);
-    		}
-    	}
     	
+    	listOfValues.addAll(0, regularConstants);
     	return listOfValues;
     }
 
-	private DataValue<Double> addNumbers(DataValue<Double> value, DataValue<Double> c, List<DataValue<Double>> dvs) {
+	private DataValue<Double> applySumConstant(DataValue<Double> value, DataValue<Double> c, List<DataValue<Double>> dvs) {
+		if (this.regularConstants.contains(value)) {
+			return value; // we cannot apply sumC over existing constants
+		}
+		
 		SumCDataValue<Double> sumC = new SumCDataValue<Double>(value, c);
+		// if the sum is already contained in the list we need not add it
 		if (dvs.contains(sumC.toRegular())) {
 			return value;
 		}

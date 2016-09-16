@@ -102,7 +102,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
                     + " to " + deqGuard.toString() + "\nSDT    : "
                     + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTIfGuard> ds = new ArrayList();
+            List<EqualityGuard> ds = new ArrayList();
             ds.add(eqGuard);
             log.log(Level.FINEST, "remapping: " + ds.toString());
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {

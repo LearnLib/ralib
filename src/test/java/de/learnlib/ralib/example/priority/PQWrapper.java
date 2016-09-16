@@ -21,11 +21,21 @@ package de.learnlib.ralib.example.priority;
  */
 public class PQWrapper extends java.util.PriorityQueue {
     
-    private static final int CAPACITY = 3;
+    private static final int CAPACITY = 2;
+	private int capacity;
+    
+    public PQWrapper() {
+    	this(CAPACITY);
+    }
+    
+    
+    public PQWrapper(int capacity) {
+    	this.capacity = capacity;
+    }
 
     @Override
     public boolean offer(Object e) {
-        return (this.size() < CAPACITY) ? super.offer(e) : false;
+        return (this.size() < this.capacity) ? super.offer(e) : false;
     }
     
 }

@@ -19,6 +19,8 @@ package de.learnlib.ralib.theory.equality;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
+import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -108,9 +110,18 @@ public class EqualityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-    	Assert.assertTrue(registerExpr instanceof SymbolicDataValue);
-        return new AtomicGuardExpression<>(this.registerExpr.getSDV(),
-                Relation.EQUALS, parameter);
+    	if (registerExpr instanceof  SymbolicDataValue) {
+    		return new AtomicGuardExpression<>(this.registerExpr.getSDV(),
+                    Relation.EQUALS, parameter);
+    	} else {
+    		if (registerExpr instanceof  SumCDataExpression) {
+    		return new SumCAtomicGuardExpression<>(this.registerExpr.getSDV(),
+    				((SumCDataExpression) this.registerExpr).getConstant(),
+                    Relation.EQUALS, parameter, null);
+    		} else {
+    			throw new RuntimeException("Case not handle for expression "+ registerExpr);
+    		}
+    	}
     }
 
     @Override

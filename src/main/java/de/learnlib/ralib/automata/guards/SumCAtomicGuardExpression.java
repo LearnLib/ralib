@@ -30,6 +30,7 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
         this.right = right;
     }
     
+    
     @Override
     public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {        
         
@@ -70,7 +71,8 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
             newRight = right;
         }
         
-        return new SumCAtomicGuardExpression(newLeft, lConst, relation, newRight, rConst);
+        return new SumCAtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>
+        (newLeft, lConst, relation, newRight, rConst);
     }
 
     
