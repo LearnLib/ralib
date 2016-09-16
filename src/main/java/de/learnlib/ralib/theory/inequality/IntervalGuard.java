@@ -324,20 +324,18 @@ public class IntervalGuard extends SDTGuard {
         sv = (sv == null) ? parameter : sv;
 
         if (!isBiggerGuard()) {
-            if (rightLimit.isConstant()) {
+            if (rightLimit.isConstant() || !relabelling.containsKey(rightLimit.getSDV())) {
                 r = rightLimit;
             } else {
                 r = rightLimit.swapSDV((SymbolicDataValue) relabelling.get(rightLimit.getSDV()));
             }
-            r = (r == null) ? rightLimit : r;
         }
         if (!isSmallerGuard()) {
-            if (leftLimit.isConstant()) {
+            if (leftLimit.isConstant() || !relabelling.containsKey(leftLimit.getSDV())) {
                 l = leftLimit;
             } else {
                 l = leftLimit.swapSDV((SymbolicDataValue) relabelling.get(leftLimit.getSDV()));
             }
-            l = (l == null) ? leftLimit : l;
         }
         return new IntervalGuard(sv, l, r);
     }

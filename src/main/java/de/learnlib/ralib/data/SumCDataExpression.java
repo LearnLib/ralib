@@ -31,6 +31,11 @@ public class SumCDataExpression implements SymbolicDataExpression{
 		result = prime * result + ((expr == null) ? 0 : expr.hashCode());
 		return result;
 	}
+	
+	public SymbolicDataExpression swapSDV(SymbolicDataValue newSDV) {
+		return new SumCDataExpression(this.expr.swapSDV(newSDV), constant);
+	} 
+	
 
 	@Override
 	public boolean equals(Object obj) {

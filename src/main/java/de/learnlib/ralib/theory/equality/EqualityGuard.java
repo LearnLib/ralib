@@ -53,6 +53,10 @@ public class EqualityGuard extends SDTIfGuard {
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(parameter, registerExpr);
     }
+    
+    public boolean isEqualityWithSDV() {
+    	return this.registerExpr instanceof SymbolicDataValue; 
+    }
 
     @Override
     public SDTIfGuard relabel(VarMapping relabelling) {

@@ -663,7 +663,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         EqualityGuard eqGuard = (EqualityGuard) guard;
         List<SDTIfGuard> ds = new ArrayList();
-        ds.add(eqGuard);
+        if (eqGuard.isEqualityWithSDV())
+        	ds.add(eqGuard);
 //        System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT + " under " + eqGuard);
 
         SDT newTargetSDT = deqSDT.relabelUnderEq(ds);
@@ -1038,7 +1039,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        System.out.println("MERGED = " + merged);
         assert !merged.keySet().isEmpty();
 
-//        System.out.println("MERGED = " + merged);
+        System.out.println("MERGED = " + merged);
         piv.putAll(keepMem(merged));
 
         log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
@@ -1057,7 +1058,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 //assert merged.keySet().size() == 1;
             }
         }
-//        System.out.println("MERGED = " + merged);
+        System.out.println("MERGED = " + merged);
         SDT returnSDT = new SDT(merged);
         return returnSDT;
 

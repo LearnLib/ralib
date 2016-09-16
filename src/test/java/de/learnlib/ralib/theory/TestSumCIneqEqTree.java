@@ -71,9 +71,6 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
                 sul.getInputSymbols());
                 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(PriorityQueueSUL.POLL),
-                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 4.0)),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 5.0)),
                 new PSymbolInstance(PriorityQueueSUL.OK),
@@ -90,7 +87,33 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 3.0)),
-                new PSymbolInstance(PriorityQueueSUL.OK));
+                new PSymbolInstance(PriorityQueueSUL.OK),
+                new PSymbolInstance(PriorityQueueSUL.POLL),
+                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 1.0)));
+        
+//        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+//                new PSymbolInstance(PriorityQueueSUL.POLL),
+//                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 4.0)),
+//                new PSymbolInstance(PriorityQueueSUL.OFFER,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 5.0)),
+//                new PSymbolInstance(PriorityQueueSUL.OK),
+//                new PSymbolInstance(PriorityQueueSUL.POLL),
+//                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 6.0)));
+//        
+//        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+//                new PSymbolInstance(PriorityQueueSUL.OFFER,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 1.0)),
+//                new PSymbolInstance(PriorityQueueSUL.OK),
+//                new PSymbolInstance(PriorityQueueSUL.OFFER,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 2.0)),
+//                new PSymbolInstance(PriorityQueueSUL.OK),
+//                new PSymbolInstance(PriorityQueueSUL.OFFER,
+//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 3.0)),
+//                new PSymbolInstance(PriorityQueueSUL.OK));
+
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
