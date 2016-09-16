@@ -1091,7 +1091,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
-    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues, pir);
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues);
     	IntervalGuard bg = new IntervalGuard(
                 currentParam, regOrSuffixExpr, null);
     	return bg;
@@ -1100,7 +1100,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
-    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, currentParam, ifValues, pir);
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, currentParam, ifValues);
     	IntervalGuard sg = new IntervalGuard(
                 currentParam, null, regOrSuffixExpr);
         return sg;
@@ -1117,66 +1117,48 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             }
         }
         
-        if (newDv instanceof SumCDataValue) {
-        	DataValue<T> constant = ((SumCDataValue<T>) newDv).getConstant();
-        	DataValue<T> prevDv = ((SumCDataValue<T>) newDv).getOperand();
-	        int newDv_i;
-	        if (prefixValues.contains(prevDv)) {
-	            // first index of the data value in the prefixvalues list
-	            newDv_i = prefixValues.indexOf(prevDv) + 1;
-	            Register newDv_r = new Register(type, newDv_i);
-	            return new EqualityGuard(currentParam, new SumCDataExpression(newDv_r, constant));
-	
-	        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
-	        else {
-	            int smallest = Collections.min(ifValues.getAllKeys(prevDv));
-	            return new EqualityGuard(currentParam, new SumCDataExpression(new SuffixValue(type, smallest), constant));
-	        }
-        } else {
-        	int newDv_i;
-	        if (prefixValues.contains(newDv)) {
-	            // first index of the data value in the prefixvalues list
-	            newDv_i = prefixValues.indexOf(newDv) + 1;
-	            Register newDv_r = new Register(type, newDv_i);
-	            return new EqualityGuard(currentParam, newDv_r);
-	
-	        } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
-	        else {
-	            int smallest = Collections.min(ifValues.getAllKeys(newDv));
-	            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
-	        }
-        }
+        SymbolicDataExpression sdvExpr =  getSDVForDV(newDv, prefixValues, currentParam, ifValues);
+        return new EqualityGuard(currentParam,  sdvExpr);
     }
     
     private SymbolicDataExpression getSDExprForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
+            WordValuation ifValues) {
+    	SymbolicDataValue SDV;
     	if (dv instanceof SumCDataValue) {
-    		SumCDataValue<T> sumcdv = (SumCDataValue<T>) dv;
-    		SymbolicDataValue regOrSuffix = getSDVForDV(sumcdv.getOperand(), prefixValues, currentParam, ifValues, pir);
-    		return new SumCDataExpression( regOrSuffix, sumcdv.getConstant());
+    		SumCDataValue<T> sumDv = (SumCDataValue<T>) dv;
+    		SDV = getSDVForDV(sumDv.toRegular(), prefixValues, currentParam, ifValues);
+        	// if there is no previous value equal to the summed value, we pick the data value referred by the sum
+        	// by this structure, we always pick equality before sumc equality when the option is available
+        	if (SDV == null) {
+        		DataValue<T> constant = sumDv.getConstant();
+            	DataValue<T> prevDV = sumDv.getOperand();
+            	SymbolicDataValue prevSDV = getSDVForDV(prevDV, prefixValues, currentParam, ifValues);
+            	return new SumCDataExpression( prevSDV, sumDv.getConstant());
+        	} else {
+        		return SDV;
+        	}
     	} else {
-    		return getSDVForDV(dv, prefixValues, currentParam, ifValues, pir);
+    		SDV = getSDVForDV(dv, prefixValues, currentParam, ifValues);
+    		return SDV;
     	}
     }
     
+    
     private SymbolicDataValue getSDVForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
+            WordValuation ifValues) {
     	int newDv_i;
     	DataType type = currentParam.getType();
     	if (prefixValues.contains(dv)) {
             newDv_i = prefixValues.indexOf(dv) + 1;
-            SymbolicDataValue.Parameter newDv_p
-                    = new SymbolicDataValue.Parameter(type, newDv_i);
-            Register newDv_r;
-            if (pir.containsKey(newDv_p)) {
-                newDv_r = pir.get(newDv_p);
-            } else {
-                newDv_r = new Register(type, newDv_i);
-            }
+            Register newDv_r = new Register(type, newDv_i);
             return newDv_r;
     	} else {
+    		if (ifValues.containsValue(dv)) {
     		 int smallest = Collections.min(ifValues.getAllKeys(dv));
     		 return new SuffixValue(type, smallest);
+    		} else {
+    		return null;
+    		}
     	}
     }
 

@@ -50,6 +50,11 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
         public Register(DataType dataType, int id) {
             super(dataType, id);
         }
+        
+        public boolean equals(Parameter other) {
+            return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
+
+        }
     };
 
     public static final class Constant extends SymbolicDataValue {

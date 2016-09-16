@@ -56,7 +56,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
-        PriorityQueueSUL sul = new PriorityQueueSUL();
+        PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers, 
