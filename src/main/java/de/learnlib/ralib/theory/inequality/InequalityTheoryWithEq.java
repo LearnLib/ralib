@@ -16,6 +16,19 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -34,30 +47,17 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
-
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 
 /**
  *
@@ -1117,7 +1117,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             }
         }
         
-        SymbolicDataExpression sdvExpr =  getSDVForDV(newDv, prefixValues, currentParam, ifValues);
+        SymbolicDataExpression sdvExpr =  getSDExprForDV(newDv, prefixValues, currentParam, ifValues);
         return new EqualityGuard(currentParam,  sdvExpr);
     }
     

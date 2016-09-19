@@ -1,11 +1,10 @@
 package de.learnlib.ralib.tools.theories;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -15,6 +14,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
 			100.0
+			,10000.0
 			};
 	private static Double [] defaultRegularConst = new Double [] {
 			//1.0
@@ -61,29 +61,35 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
         return sortedList;
     }
     
+    /** Creates a list of values comprising the data values supplied, plus all values
+     * obtained by adding each of the sum constants to each of the data values supplied.
+     * 
+     *  The sum values are wrapped around a {@link SumCDataValue} element. In case sums
+     *  with different constants lead to the same value (for example 100+1.0 and 1+100.0 with
+     *  1.0 and 100.0 as constants), we pick the sum with the constant of the smallest index
+     *  in the sumConstants list.  
+     * 
+     */
     private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
-    	List<DataValue<Double>> listOfValues = dvs.stream().
-    			flatMap(value ->
-    			// apply each of the sum constants to each of the potential values, 
-    			Stream.of(Stream.of(value), sumConstants.stream().map(c -> applySumConstant(value, c, dvs) )).flatMap(Function.identity())). 
-    			distinct(). // remove any duplicates 
-    			collect(Collectors.toList()); // collect them to a list
+    	List<DataValue<Double>> pot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
+    	dvs.forEach(dv -> { if (!regularConstants.contains(dv)) {
+    		pot.add(dv);
+    	} });
     	
-    	listOfValues.addAll(0, regularConstants);
-    	return listOfValues;
+    	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
+    	flattenedPot.addAll(pot);
+    	for (DataValue<Double> sumConst : sumConstants) {
+	    	for (DataValue<Double> dv : dvs ) {
+	    		DataValue<Double> regularSum = (DataValue<Double>) DataValue.add(dv, sumConst);
+	    		if ( !flattenedPot.contains(regularSum) ) {
+	    			SumCDataValue<Double> sumDv = new SumCDataValue<Double>(dv, sumConst);
+	    			pot.add(sumDv);
+	    		}
+	    		flattenedPot.add(regularSum);
+	    	}
+    	}
+    	
+    	
+    	return pot;
     }
-
-	private DataValue<Double> applySumConstant(DataValue<Double> value, DataValue<Double> c, List<DataValue<Double>> dvs) {
-		if (this.regularConstants.contains(value)) {
-			return value; // we cannot apply sumC over existing constants
-		}
-		
-		SumCDataValue<Double> sumC = new SumCDataValue<Double>(value, c);
-		// if the sum is already contained in the list we need not add it
-		if (dvs.contains(sumC.toRegular())) {
-			return value;
-		}
-		return sumC;
-	}
-
 }

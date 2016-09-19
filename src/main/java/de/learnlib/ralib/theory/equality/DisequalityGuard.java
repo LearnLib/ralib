@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.testng.Assert;
-
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;

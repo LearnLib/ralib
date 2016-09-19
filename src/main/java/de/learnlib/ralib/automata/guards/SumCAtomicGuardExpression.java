@@ -1,14 +1,11 @@
 package de.learnlib.ralib.automata.guards;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigInteger;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 
 public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right extends SymbolicDataValue> extends GuardExpression {
 	
