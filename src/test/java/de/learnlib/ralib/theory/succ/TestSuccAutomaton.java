@@ -19,6 +19,7 @@ package de.learnlib.ralib.theory.succ;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -67,6 +68,8 @@ public class TestSuccAutomaton {
                 new PSymbolInstance(inext, new DataValue(__int, 1)),
                 new PSymbolInstance(ook),
                 new PSymbolInstance(inext, new DataValue(__int, 2)),
+                new PSymbolInstance(ook),
+                new PSymbolInstance(inext, new DataValue(__int, 3)),
                 new PSymbolInstance(ook)
         );
         
@@ -77,4 +80,49 @@ public class TestSuccAutomaton {
         Assert.assertTrue(model.accepts(test2));
     }
     
+    
+    @Test    
+    public void testTcpAutomaton() {
+        
+        RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
+                RegisterAutomatonLoaderTest.class.getResourceAsStream(
+                        "/de/learnlib/ralib/automata/xml/tcp_example.xml"));
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+        System.out.println("SYS:------------------------------------------------");
+        System.out.println(model);
+        System.out.println("----------------------------------------------------");
+
+        ParameterizedSymbol[] inputs = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        
+        ParameterizedSymbol iconnect = inputs[0];
+        ParameterizedSymbol isa = inputs[1];
+        ParameterizedSymbol os = inputs[2];
+        ParameterizedSymbol oa = inputs[3];
+        ParameterizedSymbol oto = inputs[4];
+        DataValue<?> zero = loader.getConstants().entrySet().iterator().next().getValue();
+        
+        DataType __int = isa.getPtypes()[0];
+        
+        
+        System.out.println(iconnect + " : " + isa + " : " + os);
+        
+        Word<PSymbolInstance> test1 = Word.fromSymbols(
+                new PSymbolInstance(iconnect),
+                new PSymbolInstance(os, new DataValue(__int, 1), zero),
+                new PSymbolInstance(isa, new DataValue(__int, 10), new DataValue(__int, 2)),
+                new PSymbolInstance(oa, new DataValue(__int, 2), new DataValue(__int, 10)),
+                new PSymbolInstance(isa, new DataValue(__int, 10), new DataValue(__int, 2)),
+                new PSymbolInstance(oto));
+
+        Word<PSymbolInstance> test2 = Word.epsilon(); 
+        
+        System.out.println(test1);
+        Assert.assertTrue(model.accepts(test1));
+
+        System.out.println(test2);
+        Assert.assertTrue(model.accepts(test2));
+    }
 }
