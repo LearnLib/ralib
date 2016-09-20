@@ -63,6 +63,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
             case SMALLER:
                 return numCompare(lv, rv, relation);
            
+            case NOT_SUCC:
             case SUCC:
             case IN_WIN:
             case NOT_IN_WIN:
@@ -70,7 +71,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 
             default:
                 throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");
+                        "Relation " + relation + " is not suported in guards");
         }
     }
                

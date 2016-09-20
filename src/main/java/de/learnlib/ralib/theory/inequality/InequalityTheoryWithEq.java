@@ -1219,6 +1219,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else if (ereg.isConstant()) {
                 returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
             }
+            if (eqGuard.getExpression() instanceof SumCDataExpression) {
+            	returnThis = (DataValue<T>) DataValue.add(returnThis, ((SumCDataExpression ) eqGuard.getExpression()).getConstant());
+            }
         } else if (guard instanceof SDTTrueGuard) {
 
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
@@ -1238,14 +1241,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (guard instanceof IntervalGuard) {
                 IntervalGuard iGuard = (IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {
-                    SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightExpr();
+                    SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightSDV();
                     DataValue<T> regVal = getRegisterValue(r, piv,
                             prefixValues, constants, pval);
 
                     val.setValue(toVariable(r), regVal.getId());
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftExpr();
+                    SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
                     DataValue regVal = getRegisterValue(l, piv,
                             prefixValues, constants, pval);
 

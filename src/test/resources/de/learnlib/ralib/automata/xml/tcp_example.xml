@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+      	<symbol name="IConnect">
+      		<param type="double" name="ack"/>
+      	</symbol>
+         <symbol name="ISA">
+            <param type="double" name="seq"/>
+            <param type="double" name="ack"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OS">
+            <param type="double" name="seq"/>
+            <param type="double" name="ack"/> 
+         </symbol>
+         <symbol name="OA">
+            <param type="double" name="seq"/>
+            <param type="double" name="ack"/> 
+         </symbol>
+         <symbol name="OTO">
+            <param type="double" name="seq"/>
+            <param type="double" name="ack"/> 
+         </symbol>
+      </outputs>
+   </alphabet>
+   <constants>
+      <constant type="double" name="zero">0.0</constant>
+   </constants>
+   <globals>
+      <variable type="double" name="clientSeq">0</variable>
+      <variable type="double" name="mySeq">0</variable>
+   </globals>
+   <locations>
+      <location name="s0" initial="true"/>
+      <location name="m0"/>
+      <location name="s1"/>
+      <location name="m1_1"/>
+      <location name="m1_2"/>
+      <location name="s2"/>
+      <location name="m2_2"/>
+   </locations>
+   <transitions>
+
+      <!-- from s0 --> 
+      <transition from="s0" to="m0_1" symbol="IConnect">
+      </transition>
+      <transition from="m0_1" to="s1" symbol="OS" params="clientSeq,zero" >
+      	<assignments>
+            <assign to="clientSeq">__fresh__</assign>
+         </assignments>
+      </transition>
+      <transition from="s1" to="m1_1" symbol="IConnect" />
+      <transition from="m1_1" to="s1" symbol="OTO" />
+
+      <!-- from s1 --> 
+      <transition from="s1" to="m1_2" symbol="ISA" params="seq,ack">
+         <guard>clientSeq[next]ack</guard>
+         <assignments>
+            <assign to="mySeq">seq</assign>
+            <assign to="clientSeq">ack</assign>
+         </assignments>
+      </transition>
+      
+      <transition from="s1" to="m1_1" symbol="ISA" params="seq,ack">
+         <guard>clientSeq[!next]ack</guard>
+      </transition>
+      <transition from="s1" to="m1_1" symbol="IConnect" />
+      <transition from="m1_1" to="s1" symbol="OTO" />      
+      
+      <transition from="m1_2" to="s2" symbol="OA" params="clientSeq,ack">
+      	<guard>mySeq[next]ack</guard>
+         <assignments>
+            <assign to="mySeq">ack</assign>
+         </assignments>
+      </transition>
+     
+      
+      <!-- from s2 --> 
+      <transition from="s2" to="m2_2" symbol="IConnect" />
+      <transition from="s2" to="m2_2" symbol="ISA" />
+      <transition from="m2_2" to="s2" symbol="OTO" />
+
+   </transitions>
+</register-automaton>
