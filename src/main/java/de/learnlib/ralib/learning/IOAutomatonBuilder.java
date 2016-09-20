@@ -17,6 +17,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.Assignment;
+import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -34,6 +35,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -72,7 +74,8 @@ class IOAutomatonBuilder extends AutomatonBuilder {
         }
         
         if (!(action instanceof OutputSymbol)) {
-            return super.createTransition(action, guard, src_loc, dest_loc, assign);
+            return new InputTransition(guard, (InputSymbol) action, src_loc, dest_loc, assign);
+            //return super.createTransition(action, guard, src_loc, dest_loc, assign);
         }       
         
         //IfGuard _guard = (IfGuard) guard;        

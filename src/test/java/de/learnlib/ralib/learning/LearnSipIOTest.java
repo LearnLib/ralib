@@ -58,7 +58,7 @@ import org.testng.annotations.Test;
 public class LearnSipIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExampleIO() {
+    public void learnSipExampleIO() {
 
         long seed = -1386796323025681754L; 
         //long seed = (new Random()).nextLong();
