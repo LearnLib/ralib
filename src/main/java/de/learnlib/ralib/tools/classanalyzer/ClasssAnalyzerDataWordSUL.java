@@ -30,36 +30,33 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  *
  * @author falk
  */
 public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
-    
     private final Class<?> sulClass;
-    
+
     private final Map<ParameterizedSymbol, MethodConfig> methods;
-    
+
     private Object sul = null;
-    
+
     private final int maxDepth;
 
     private int depth = 0;
-    
-    private final Map<DataType, Set<Object>> buckets = new HashMap<>();
-    
-    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, 
-            MethodConfig> methods, int d) {
+
+    private final Map<DataType, Map<DataValue, Object>> buckets = new HashMap<>();
+
+    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
         this.sulClass = sulClass;
         this.methods = methods;
         this.maxDepth = d;
     }
-    
-    
+
     @Override
     public void pre() {
+        //System.out.println("----------");
         countResets(1);
         buckets.clear();
         depth = 0;
@@ -84,14 +81,14 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             return new PSymbolInstance(SpecialSymbols.DEPTH);
         }
         depth++;
-        
+
         MethodConfig in = methods.get(i.getBaseSymbol());
         Method act = in.getMethod();
-        
+
         DataValue[] dvs = i.getParameterValues();
         Object[] params = new Object[dvs.length];
         for (int j = 0; j < dvs.length; j++) {
-            params[j] = dvs[j].getId();
+            params[j] = resolve(dvs[j]);
         }
 
         Object ret = null;
@@ -102,49 +99,74 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
                 InvocationTargetException iex = (InvocationTargetException) ex;
                 return new PSymbolInstance(new SpecialSymbols.ErrorSymbol(
                         iex.getTargetException()));
-            }
-            else {
+            } else {
                 throw new RuntimeException(ex);
             }
         }
-        
+
         if (in.isVoid()) {
             return new PSymbolInstance(SpecialSymbols.VOID);
         }
-        
+
         if (ret == null) {
             return new PSymbolInstance(SpecialSymbols.NULL);
         }
-        
+
         if (in.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE)) {
-            return new PSymbolInstance( (Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE );
+            return new PSymbolInstance((Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE);
         }
-        
-        DataValue retVal = (isFresh(in.getRetType(), ret)) ?
-                new FreshValue(in.getRetType(), ret) :  
-                new DataValue(in.getRetType(), ret);
-        
-        updateSeen(retVal);
-        
+
+        DataValue retVal = (isFresh(in.getRetType(), ret))
+                ? registerFreshValue(in.getRetType(), ret)
+                : new DataValue(in.getRetType(), ret);
+
+        //updateSeen(retVal);        
         return new PSymbolInstance(in.getOutput(), retVal);
-        
-    }    
-    
-    private void updateSeen(DataValue ... vals) {
+
+    }
+
+    private void updateSeen(DataValue... vals) {
         for (DataValue v : vals) {
-            Set<Object> set = this.buckets.get(v.getType());
-            if (set == null) {
-                set = new HashSet<>();
-                this.buckets.put(v.getType(), set);
+            Map<DataValue, Object> map = this.buckets.get(v.getType());
+            if (map == null) {
+                map = new HashMap<>();
+                this.buckets.put(v.getType(), map);
             }
-            set.add(v.getId());
+
+            if (!map.containsKey(v)) {
+                //System.out.println("Put: " + v + " : " + v.getId());
+                map.put(v, v.getId());
+            }
         }
     }
-    
-    
-    private boolean isFresh(DataType t, Object id) {
-        Set<Object> set = this.buckets.get(t);
-        return set == null || !set.contains(id);
+
+    private Object resolve(DataValue d) {
+        Map<DataValue, Object> map = this.buckets.get(d.getType());
+        if (map == null || !map.containsKey(d)) {
+            //System.out.println(d);
+            assert false;
+            return d.getId();
+        }
+        //System.out.println("Get: " + d + " : " + map.get(d));
+        return map.get(d);
     }
-    
+
+    private boolean isFresh(DataType t, Object id) {
+        Map<DataValue, Object> map = this.buckets.get(t);
+        return map == null || !map.containsValue(id);
+    }
+
+    private DataValue registerFreshValue(DataType retType, Object ret) {
+        Map<DataValue, Object> map = this.buckets.get(retType);
+        if (map == null) {
+            map = new HashMap<>();
+            this.buckets.put(retType, map);
+        }
+        
+        DataValue v = new DataValue(retType, map.size());
+        //System.out.println("Put (F): " + v + " : " + ret);
+        map.put(v, ret);
+        return new FreshValue(v.getType(), v.getId());    
+    }
+
 }

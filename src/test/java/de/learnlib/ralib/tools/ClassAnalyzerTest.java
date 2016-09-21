@@ -25,6 +25,45 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class ClassAnalyzerTest extends RaLibTestSuite {
+
+    @Test
+    public void testClassAnalyzerWithMultilogin() {
+
+        final String[] options = new String[] {
+            "class-analyzer",     
+            "target=de.learnlib.ralib.example.login.FreshMultiLogin;" +
+            "methods=" +
+            "IRegister(java.lang.Integer:uid)java.lang.Integer:pwd+" +
+            "ILogin(java.lang.Integer:uid,java.lang.Integer:pwd)boolean:boolean;" +
+            //"ILogout(java.lang.Integer:int)boolean:boolean+" +
+            //"IChangePassword(java.lang.Integer:int,java.lang.Integer:int)boolean:boolean;" +
+            "random.seed=6521023071547789;" +
+            "logging.level=WARNING;" +
+            "max.time.millis=600000;" +
+            "use.ceopt=false;" +
+            "use.suffixopt=true;" +
+            "use.fresh=true;" +
+            "use.rwalk=true;" +
+            "export.model=false;" +
+            "rwalk.prob.fresh=0.3;" +
+            "rwalk.prob.reset=0.1;" +
+            "rwalk.max.depth=6;" +
+            "rwalk.max.runs=10000;" +
+            "rwalk.reset.count=false;" +
+            "rwalk.draw.uniform=false;" +
+            "teachers=uid:de.learnlib.ralib.tools.theories.IntegerEqualityTheory+" +
+             "pwd:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;"};
+        
+        try {
+            ConsoleClient cl = new ConsoleClient(options);
+            int ret = cl.run();
+            Assert.assertEquals(ret, 0);
+            
+        } catch (Throwable t) {
+            t.printStackTrace();
+            Assert.fail(t.getClass().getName());
+        }        
+    }
     
     @Test
     public void testClassAnalyzerWithFreshValues() {
