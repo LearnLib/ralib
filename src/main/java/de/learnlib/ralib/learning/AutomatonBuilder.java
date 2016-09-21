@@ -117,7 +117,7 @@ class AutomatonBuilder {
         //System.out.println("getting guard for  " + r.getPrefix().toString());
         TransitionGuard guard = b.getBranches().get(r.getPrefix());
         
-        assert guard!=null;
+//        assert guard!=null;
         
         // assignment
         VarMapping assignments = new VarMapping();

@@ -52,6 +52,7 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -924,7 +925,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             Valuation smVal = new Valuation();
             DataValue<T> dvRight = potential.get(0);
             IntervalGuard sguard = makeSmallerGuard(
-                    dvRight, prefixValues, currentParam, smValues, piv);
+                    dvRight, prefixValues, currentParam, smValues, piv, constants);
             SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
 //            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
             smVal.setValue(toVariable(rsm), dvRight.getId());
@@ -948,7 +949,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
             DataValue<T> dvLeft = potential.get(potSize - 1);
             IntervalGuard bguard = makeBiggerGuard(
-                    dvLeft, prefixValues, currentParam, bgValues, piv);
+                    dvLeft, prefixValues, currentParam, bgValues, piv, constants);
             updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
             DataValue<T> bgcv = instantiate(
                     bguard, bgVal, constants, potential);
@@ -979,7 +980,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                            dvMLeft, prefixValues, currentParam,
 //                            currentValues, piv);
                     IntervalGuard intervalGuard = makeIntervalGuard(
-                            dvMLeft, dvMRight, prefixValues, currentParam, currentValues, piv);
+                            dvMLeft, dvMRight, prefixValues, currentParam, currentValues, piv, constants);
 
 //                    IntervalGuard guard = new IntervalGuard(
 //                            currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
@@ -1082,16 +1083,16 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private IntervalGuard makeIntervalGuard(DataValue<T> biggerDv,
             DataValue<T> smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
-        IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir);
-        IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir);
+            WordValuation ifValues, PIV pir, Constants constants) {
+        IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir, constants);
+        IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir, constants);
         return new IntervalGuard(currentParam, biggerGuard.getLeftExpr(), smallerGuard.getRightExpr());
     }
 
     private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
-    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues);
+            WordValuation ifValues, PIV pir, Constants constants) {
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues, constants);
     	IntervalGuard bg = new IntervalGuard(
                 currentParam, regOrSuffixExpr, null);
     	return bg;
@@ -1099,8 +1100,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     
     private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
-    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, currentParam, ifValues);
+            WordValuation ifValues, PIV pir, Constants constants) {
+    	SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, currentParam, ifValues, constants);
     	IntervalGuard sg = new IntervalGuard(
                 currentParam, null, regOrSuffixExpr);
         return sg;
@@ -1111,55 +1112,58 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getType();
-        for (SymbolicDataValue.Constant c : constants.keySet()) {
-            if (constants.get(c).equals(newDv)) {
-                return new EqualityGuard(currentParam, c);
-            }
-        }
-        
-        SymbolicDataExpression sdvExpr =  getSDExprForDV(newDv, prefixValues, currentParam, ifValues);
+        SymbolicDataExpression sdvExpr =  getSDExprForDV(newDv, prefixValues, currentParam, ifValues, constants);
         return new EqualityGuard(currentParam,  sdvExpr);
     }
     
     private SymbolicDataExpression getSDExprForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues) {
+            WordValuation ifValues, Constants constants) {
     	SymbolicDataValue SDV;
     	if (dv instanceof SumCDataValue) {
     		SumCDataValue<T> sumDv = (SumCDataValue<T>) dv;
-    		SDV = getSDVForDV(sumDv.toRegular(), prefixValues, currentParam, ifValues);
+    		SDV = getSDVForDV(sumDv.toRegular(), prefixValues, currentParam, ifValues, constants);
         	// if there is no previous value equal to the summed value, we pick the data value referred by the sum
         	// by this structure, we always pick equality before sumc equality when the option is available
         	if (SDV == null) {
         		DataValue<T> constant = sumDv.getConstant();
             	DataValue<T> prevDV = sumDv.getOperand();
-            	SymbolicDataValue prevSDV = getSDVForDV(prevDV, prefixValues, currentParam, ifValues);
+            	SymbolicDataValue prevSDV = getSDVForDV(prevDV, prefixValues, currentParam, ifValues, constants);
             	return new SumCDataExpression( prevSDV, sumDv.getConstant());
         	} else {
         		return SDV;
         	}
     	} else {
-    		SDV = getSDVForDV(dv, prefixValues, currentParam, ifValues);
+    		SDV = getSDVForDV(dv, prefixValues, currentParam, ifValues, constants);
     		return SDV;
     	}
     }
     
     
     private SymbolicDataValue getSDVForDV(DataValue<T> dv,  List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues) {
+            WordValuation ifValues, Constants constants) {
     	int newDv_i;
     	DataType type = currentParam.getType();
     	if (prefixValues.contains(dv)) {
             newDv_i = prefixValues.indexOf(dv) + 1;
             Register newDv_r = new Register(type, newDv_i);
             return newDv_r;
-    	} else {
-    		if (ifValues.containsValue(dv)) {
-    		 int smallest = Collections.min(ifValues.getAllKeys(dv));
-    		 return new SuffixValue(type, smallest);
-    		} else {
-    		return null;
-    		}
+    	} 
+    	
+    	if (ifValues.containsValue(dv)) {
+    		int smallest = Collections.min(ifValues.getAllKeys(dv));
+    		return new SuffixValue(type, smallest);
+    	} 
+    	
+    	if (constants.containsValue(dv))
+    	{
+    		for (SymbolicDataValue.Constant c : constants.keySet()) {
+                if (constants.get(c).equals(dv)) {
+                    return c;
+                }
+            }
     	}
+    	
+    	return null;
     }
 
     public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
@@ -1218,12 +1222,12 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 returnThis = (DataValue<T>) pval.get(p);
             } else if (ereg.isConstant()) {
                 returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
-            }
-            if (eqGuard.getExpression() instanceof SumCDataExpression) {
+            } else if (eqGuard.getExpression() instanceof SumCDataExpression) {
             	returnThis = (DataValue<T>) DataValue.add(returnThis, ((SumCDataExpression ) eqGuard.getExpression()).getConstant());
             }
-        } else if (guard instanceof SDTTrueGuard) {
-
+            assert returnThis != null;
+        } else if (guard instanceof SDTTrueGuard) { //|| guard instanceof DisequalityGuard) {
+// might be a problem, what if we select an increment as a fresh value ?
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),
                     DataWords.<T>valSet(prefix, type),

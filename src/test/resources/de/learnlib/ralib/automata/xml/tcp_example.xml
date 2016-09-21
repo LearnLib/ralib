@@ -35,6 +35,7 @@
       <location name="m0_1"/>
       <location name="s1"/>
       <location name="m1_1"/>
+      <location name="m1_1_aux"/>
       <location name="m1_1_win"/>
       <location name="m1_2"/>
       <location name="s2"/>
@@ -73,12 +74,10 @@
       </transition>
       
       <transition from="s1" to="m1_1" symbol="ISA" params="seq,ack">
-         <guard>clientSeq[!in_win]ack &amp;&amp; clientSeq[!next]ack</guard>
+         <guard>clientSeq[!in_win]ack &amp;&amp; clientSeq[!next]ack  &amp;&amp; clientSeq!=ack</guard>
       </transition>
-      <transition from="s1" to="m1_1" symbol="IConnect" />
       <transition from="m1_1" to="s1" symbol="OTO" />
       <transition from="m1_1_win" to="s1" symbol="OA" params="lastAck,zero"/>      
-      
       <transition from="m1_2" to="s2" symbol="OA" params="clientSeq,mySeq"/>
      
       

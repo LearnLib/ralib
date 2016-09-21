@@ -138,7 +138,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
     		int val2 = ((Number) rv.getId()).intValue();
     		switch(relation) {
     		case IN_WIN: return val2 > val1 + 1 && val2 <= val1 + 100;
-    		case NOT_IN_WIN: return val2 <= val1 + 1 && val2 > val1 + 100;
+    		case NOT_IN_WIN: return val2 <= val1 + 1 || val2 > val1 + 100;
     		case SUCC: return val2 == val1+1;
     		case NOT_SUCC: return val2 != val1+1;
     		default:

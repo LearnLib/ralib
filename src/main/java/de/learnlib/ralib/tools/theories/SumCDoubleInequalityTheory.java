@@ -14,7 +14,7 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
-			1.0,
+		//	1.0,
 			100.0
 			//10000.0
 			};
@@ -74,9 +74,8 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
      */
     private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
     	List<DataValue<Double>> pot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
+    	pot.addAll(dvs);
     	List<DataValue<Double>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
-    	pot.addAll(dvWithoutConsts);
-    	
     	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
     	flattenedPot.addAll(pot);
     	for (DataValue<Double> sumConst : sumConstants) {
