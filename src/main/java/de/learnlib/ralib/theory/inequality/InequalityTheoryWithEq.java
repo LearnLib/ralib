@@ -1226,7 +1226,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             	returnThis = (DataValue<T>) DataValue.add(returnThis, ((SumCDataExpression ) eqGuard.getExpression()).getConstant());
             }
             assert returnThis != null;
-        } else if (guard instanceof SDTTrueGuard) { //|| guard instanceof DisequalityGuard) {
+        } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 // might be a problem, what if we select an increment as a fresh value ?
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),

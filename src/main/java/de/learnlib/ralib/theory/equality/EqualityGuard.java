@@ -68,7 +68,7 @@ public class EqualityGuard extends SDTIfGuard {
 		  SymbolicDataExpression r = null;
 		
 		  if (registerExpr.isConstant()) {
-		      return new DisequalityGuard(sv, registerExpr);
+		      return new EqualityGuard(sv, registerExpr);
 		  } else {
 		  	if (relabelling.containsKey(registerExpr.getSDV())) {
 		  		r = registerExpr.swapSDV((SymbolicDataValue) relabelling.get(registerExpr.getSDV()));
