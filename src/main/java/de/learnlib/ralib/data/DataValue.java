@@ -32,13 +32,13 @@ public class DataValue<T> {
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;
-    	return new DataValue(rv.getType(), new Double( ((double) rv.getId()) + ((double) lv.getId())));
+    	return new DataValue(rv.getType(), Double.valueOf(rv.getId().toString()) + Double.valueOf(lv.getId().toString()));
     }
     
     public static DataValue<?> sub(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return sub(new DataValue(lv.getType(), 0.0), lv);
     	if (lv == null) return rv;
-    	return new DataValue(rv.getType(), new Double( ((double) rv.getId()) - ((double) lv.getId())));
+    	return new DataValue(rv.getType(), Double.valueOf(rv.getId().toString()) - Double.valueOf(lv.getId().toString()));
     }
     
     public DataValue(DataType type, T id) {

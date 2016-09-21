@@ -27,13 +27,15 @@
    <globals>
       <variable type="double" name="clientSeq">0</variable>
       <variable type="double" name="mySeq">0</variable>
-      <variable type="double" name="aux">0</variable>
+      <variable type="double" name="lastAck">0</variable>
    </globals>
    <locations>
       <location name="s0" initial="true"/>
+      <location name="m0_0"/>
       <location name="m0_1"/>
       <location name="s1"/>
       <location name="m1_1"/>
+      <location name="m1_1_win"/>
       <location name="m1_2"/>
       <location name="s2"/>
       <location name="m2_2"/>
@@ -41,9 +43,14 @@
    <transitions>
 
       <!-- from s0 --> 
-      <transition from="s0" to="m0_1" symbol="IConnect">
+      <transition from="s0" to="m0_1" symbol="IConnect"/>
+      <transition from="s0" to="m0_0" symbol="ISA" params="seq,ack">
+      	 <assignments>
+         <assign to="lastAck">ack</assign>
+         </assignments>
       </transition>
-      <transition from="m0_1" to="s1" symbol="OS" params="clientSeq,zero" >
+      <transition from="m0_0" to="s0" symbol="OA" params="lastAck,zero" />
+      <transition from="m0_1" to="s1" symbol="OS" params="clientSeq,zero">
       	<assignments>
             <assign to="clientSeq">__fresh__</assign>
          </assignments>
@@ -60,11 +67,17 @@
          </assignments>
       </transition>
       
+      <transition from="s1" to="m1_1_win" symbol="ISA" params="seq,ack">
+         <guard>clientSeq[in_win]ack || clientSeq==ack</guard>
+         <assign to="lastAck">ack</assign>
+      </transition>
+      
       <transition from="s1" to="m1_1" symbol="ISA" params="seq,ack">
-         <guard>clientSeq[!next]ack</guard>
+         <guard>clientSeq[!in_win]ack &amp;&amp; clientSeq[!next]ack</guard>
       </transition>
       <transition from="s1" to="m1_1" symbol="IConnect" />
-      <transition from="m1_1" to="s1" symbol="OTO" />      
+      <transition from="m1_1" to="s1" symbol="OTO" />
+      <transition from="m1_1_win" to="s1" symbol="OA" params="lastAck,zero"/>      
       
       <transition from="m1_2" to="s2" symbol="OA" params="clientSeq,mySeq"/>
      
@@ -73,6 +86,5 @@
       <transition from="s2" to="m2_2" symbol="IConnect" />
       <transition from="s2" to="m2_2" symbol="ISA"  params="seq,ack"/>
       <transition from="m2_2" to="s2" symbol="OTO" />
-
    </transitions>
 </register-automaton>

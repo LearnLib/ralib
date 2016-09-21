@@ -183,7 +183,7 @@ public class RegisterAutomatonImporter {
                     } else if (constMap.containsKey(s)) {
                         source = constMap.get(s);
                     } else {
-                        throw new IllegalStateException("No source for output parameter.");
+                        throw new IllegalStateException("No source for output parameter \"" + s + "\" in output " + ps +".");
                     }
                     outputs.put(param, source);
                 }
@@ -259,11 +259,17 @@ public class RegisterAutomatonImporter {
             constMap.put(def.value, c);
             constMap.put(def.name, c);
             log.log(Level.FINEST,def.name + " ->" + c);
-            DataValue dv = new DataValue(type, Integer.parseInt(def.value));
+            DataValue dv;
+            if (type.getBase() == Integer.class)
+            	dv = new DataValue<Integer>(type, Integer.parseInt(def.value));
+            else 
+            	dv = new DataValue<Double>(type, Double.parseDouble(def.value));
+            
             consts.put(c, dv);
         }
         log.log(Level.FINEST,"Loading: " + consts);
     }
+    
 
     private void getRegisters(RegisterAutomaton.Globals g) {
         RegisterGenerator rgen = new RegisterGenerator();

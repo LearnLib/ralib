@@ -16,13 +16,6 @@
  */
 package de.learnlib.ralib.example.succ;
 
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
-
-import java.util.logging.Level;
-
 import org.testng.Assert;
 
 import de.learnlib.ralib.automata.Assignment;

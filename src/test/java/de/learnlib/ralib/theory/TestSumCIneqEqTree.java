@@ -55,7 +55,7 @@ import org.testng.Assert;
 public class TestSumCIneqEqTree extends RaLibTestSuite {
 
     @Test
-    public void testIneqEqTree() {
+    public void testOnPQ() {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 

@@ -3,7 +3,7 @@
    <alphabet>
       <inputs>
          <symbol name="INext">
-            <param type="int" name="p"/> 
+            <param type="double" name="p"/> 
          </symbol>
       </inputs>
       <outputs>
@@ -14,7 +14,7 @@
    <constants>
    </constants>
    <globals>
-      <variable type="int" name="last">0</variable>
+      <variable type="double" name="last">0</variable>
    </globals>
    <locations>
       <location name="s0" initial="true"/>
