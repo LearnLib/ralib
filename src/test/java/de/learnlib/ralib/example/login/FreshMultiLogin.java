@@ -96,10 +96,4 @@ public class FreshMultiLogin {
         return false;
     }      
 
-    public static void main(String args[]) {
-        Class<?> cls = FreshMultiLogin.class;
-        for (Method meth : cls.getMethods()) {
-    		System.out.println(Arrays.asList(meth.getParameterTypes()));
-    	}
-    }
 }

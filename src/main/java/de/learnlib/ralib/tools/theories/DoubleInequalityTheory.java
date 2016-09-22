@@ -232,18 +232,18 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
         if (vals.isEmpty()) {
-            nextValues.add(new DataValue(type, 1.0));
+            nextValues.add(new DataValue<Double>(type, 1.0));
         } else {
             Collections.sort(vals, new Cpr());
             if (vals.size() > 1) {
                 for (int i = 0; i < (vals.size() - 1); i++) {
                     Double d1 = vals.get(i).getId();
                     Double d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DataValue(type, (d1 + ((d2 - d1) / 2))));
+                    nextValues.add(new DataValue<Double>(type, (d1 + ((d2 - d1) / 2))));
                 }
             }
-            nextValues.add(new DataValue(type, (Collections.min(vals, new Cpr()).getId()-1.0)));
-            nextValues.add(new DataValue(type, (Collections.max(vals, new Cpr()).getId()+1.0)));
+            nextValues.add(new DataValue<Double>(type, (Collections.min(vals, new Cpr()).getId()-1.0)));
+            nextValues.add(new DataValue<Double>(type, (Collections.max(vals, new Cpr()).getId()+1.0)));
         }
         return nextValues;
     }

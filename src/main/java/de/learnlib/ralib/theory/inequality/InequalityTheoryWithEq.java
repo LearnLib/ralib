@@ -1224,7 +1224,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         DataType type = param.getType();
         DataValue<T> returnThis = null;
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
 
         if (guard instanceof EqualityGuard) {

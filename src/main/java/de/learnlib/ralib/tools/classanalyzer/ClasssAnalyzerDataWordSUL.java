@@ -163,7 +163,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             this.buckets.put(retType, map);
         }
         
-        DataValue v = new DataValue(retType, map.size());
+        DataValue v = new DataValue(retType, DataValue.cast(map.size(), retType));
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
         return new FreshValue(v.getType(), v.getId());    

@@ -32,13 +32,38 @@ public class DataValue<T> {
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;
-    	return new DataValue(rv.getType(), Double.valueOf(rv.getId().toString()) + Double.valueOf(lv.getId().toString()));
+    	double sumValue = Double.valueOf(rv.getId().toString()) + Double.valueOf(lv.getId().toString());
+    	return new DataValue(rv.getType(), cast(sumValue, rv.getType()));
     }
     
     public static DataValue<?> sub(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return sub(new DataValue(lv.getType(), 0.0), lv);
     	if (lv == null) return rv;
-    	return new DataValue(rv.getType(), Double.valueOf(rv.getId().toString()) - Double.valueOf(lv.getId().toString()));
+    	double subValue = Double.valueOf(rv.getId().toString()) - Double.valueOf(lv.getId().toString());
+    	
+    	return new DataValue(rv.getType(), cast(subValue, rv.getType()) );
+    }
+    
+    // can be made using reflection but this way is probably faster
+    public static <T> T cast(T numObject, DataType toType) {
+    	if (toType.getBase() == numObject.getClass()) {
+    		return numObject;
+    	}
+    	Class baseType = toType.getBase();
+    	String objString = numObject.toString();
+    	if (Number.class.isAssignableFrom(baseType) && numObject instanceof Number) {
+    		Number number = (Number)(numObject);
+    		if (baseType == Integer.class) {
+    			return (T) new Integer(number.intValue());
+    		} else {
+    			if (baseType == Double.class) {
+    				return (T) new Double(number.intValue());
+    			}
+    		}
+    	} else {
+    		throw new RuntimeException("Cast not supported for " + toType + " on object " + numObject );
+    	}
+    	return null;
     }
     
     public DataValue(DataType type, T id) {

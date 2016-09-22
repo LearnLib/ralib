@@ -2,6 +2,7 @@ package de.learnlib.ralib.tools.theories;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 			//10000.0
 			};
 	private static Double [] defaultRegularConst = new Double [] {
-			0.0
+		//	0.0
 			};
 	
 	
@@ -91,5 +92,17 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	
     	
     	return pot;
+    }
+    
+    
+    public Collection<DataValue<Double>> getAllNextValues(
+            List<DataValue<Double>> vals) {
+    	// adds window size interesting values
+    	List<DataValue<Double>> potential = getPotential(vals);
+    	potential = potential.stream().map(dv -> dv instanceof SumCDataValue? 
+    			((SumCDataValue<Double>) dv).toRegular(): dv)
+    			.collect(Collectors.toList());
+    	// the superclass should complete this list with in-between values.
+    	return super.getAllNextValues(potential);
     }
 }
