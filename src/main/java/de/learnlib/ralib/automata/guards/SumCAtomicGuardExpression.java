@@ -126,8 +126,8 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
         if (!(lv.getId() instanceof Number) || !(rv.getId() instanceof Number)) {
 			return false;
     	}	else {
-    		int val1 = ((Number) lv.getId()).intValue();
-    		int val2 = ((Number) rv.getId()).intValue();
+    		double val1 = ((Number) lv.getId()).doubleValue();
+    		double val2 = ((Number) rv.getId()).doubleValue();
     		switch(relation) {
     		case IN_WIN: return val2 > val1 + 1 && val2 <= val1 + 100;
     		case NOT_IN_WIN: return val2 <= val1 + 1 || val2 > val1 + 100;
