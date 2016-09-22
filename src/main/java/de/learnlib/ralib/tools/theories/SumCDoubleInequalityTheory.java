@@ -14,7 +14,7 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
-		//	1.0,
+			1.0,
 			100.0
 			//10000.0
 			};

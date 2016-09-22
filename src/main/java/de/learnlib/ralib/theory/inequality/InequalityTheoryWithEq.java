@@ -1191,6 +1191,26 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     public abstract DataValue<T> instantiate(SDTGuard guard, Valuation val,
             Constants constants, Collection<DataValue<T>> alreadyUsedValues);
 
+    private DataValue<T> instantiateSDExpr(SymbolicDataExpression sdExpr, DataType type, 
+    		List<DataValue> prefixValues, PIV piv, ParValuation pval,
+            Constants constants) {
+    	DataValue<T> returnThis = null; 
+         if (sdExpr.isRegister()) {
+             Parameter p = piv.getOneKey((Register) sdExpr);
+             int idx = p.getId();
+             returnThis = prefixValues.get(idx - 1);
+         } else if (sdExpr.isSuffixValue()) {
+             Parameter p = new Parameter(type, ((SymbolicDataValue)sdExpr).getId());
+             returnThis = (DataValue<T>) pval.get(p);
+         } else if (sdExpr.isConstant()) {
+             returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) sdExpr);
+         } else if (sdExpr instanceof SumCDataExpression) {
+        	 DataValue<T> opDv = instantiateSDExpr(sdExpr.getSDV(), type, prefixValues, piv, pval, constants);
+        	 returnThis = (DataValue<T>) DataValue.add(opDv, ((SumCDataExpression) sdExpr).getConstant());
+         }
+         return returnThis;
+    }
+    
     @Override
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
@@ -1209,22 +1229,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         if (guard instanceof EqualityGuard) {
             EqualityGuard eqGuard = (EqualityGuard) guard;
-            SymbolicDataValue ereg = eqGuard.getRegister();
-            if (ereg.isRegister()) {
-                log.log(Level.FINEST, "piv: " + piv.toString()
-                        + " " + ereg.toString() + " " + param.toString());
-                Parameter p = piv.getOneKey((Register) ereg);
-                log.log(Level.FINEST, "p: " + p.toString());
-                int idx = p.getId();
-                returnThis = prefixValues.get(idx - 1);
-            } else if (ereg.isSuffixValue()) {
-                Parameter p = new Parameter(type, ereg.getId());
-                returnThis = (DataValue<T>) pval.get(p);
-            } else if (ereg.isConstant()) {
-                returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
-            } else if (eqGuard.getExpression() instanceof SumCDataExpression) {
-            	returnThis = (DataValue<T>) DataValue.add(returnThis, ((SumCDataExpression ) eqGuard.getExpression()).getConstant());
-            }
+            returnThis = instantiateSDExpr(eqGuard.getExpression(), type, prefixValues, piv, pval, constants);
             assert returnThis != null;
         } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 // might be a problem, what if we select an increment as a fresh value ?
