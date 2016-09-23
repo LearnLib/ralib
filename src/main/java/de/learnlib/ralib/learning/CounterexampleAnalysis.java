@@ -71,8 +71,8 @@ public class CounterexampleAnalysis {
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
         
-        int idx = binarySearch(ce);
-        //int idx = linearBackWardsSearch(ce);
+        //int idx = binarySearch(ce);
+        int idx = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
