@@ -36,10 +36,10 @@ public final class ModerateTCPOracle implements DataWordOracle {
     public static final InputSymbol POLL = new InputSymbol("poll", new DataType[]{doubleType});
     public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
     
-    private Supplier<ModerateTCPSUL> tcpSupplier;
+    private Supplier<ModerateTCPSULMultitype> tcpSupplier;
     
     public ModerateTCPOracle() {
-    	tcpSupplier = () -> new ModerateTCPSUL();
+    	tcpSupplier = () -> new ModerateTCPSULMultitype();
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class ModerateTCPOracle implements DataWordOracle {
             if (query.getInput().length() < 1) {
                 query.answer(true);
             } else {
-            	ModerateTCPSUL tcpSul = this.tcpSupplier.get();
+            	ModerateTCPSULMultitype tcpSul = this.tcpSupplier.get();
             	tcpSul.pre();
                 Boolean[] answer = new Boolean[query.getInput().length()];
 

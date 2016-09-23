@@ -33,7 +33,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.succ.ModerateTCPExample.Option;
-import de.learnlib.ralib.example.succ.ModerateTCPSUL;
+import de.learnlib.ralib.example.succ.ModerateTCPSULMultitype;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -48,64 +48,71 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class TestModerateTCPTree extends RaLibTestSuite {
+public class TestModerateTCPMultitypeTree extends RaLibTestSuite {
 
     @Test
     public void testModerateTCPTree() {
     	
     	Double win = 100.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(ModerateTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(ModerateTCPSUL.DOUBLE_TYPE,
+        teachers.put(ModerateTCPSULMultitype.DOUBLE_TYPE1, 
+                new SumCDoubleInequalityTheory(ModerateTCPSULMultitype.DOUBLE_TYPE1,
                 		Arrays.asList(
-                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, win)), // for window size
+                				new DataValue<Double>(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0), // for successor
+                				new DataValue<Double>(ModerateTCPSULMultitype.DOUBLE_TYPE1, win)), // for window size
                 		Collections.emptyList()));
 
-        ModerateTCPSUL sul = new ModerateTCPSUL(win);
+        teachers.put(ModerateTCPSULMultitype.DOUBLE_TYPE2, 
+                new SumCDoubleInequalityTheory(ModerateTCPSULMultitype.DOUBLE_TYPE2,
+                		Arrays.asList(
+                				new DataValue<Double>(ModerateTCPSULMultitype.DOUBLE_TYPE2, 1.0), // for successor
+                				new DataValue<Double>(ModerateTCPSULMultitype.DOUBLE_TYPE2, win)), // for window size
+                		Collections.emptyList()));
+        
+        ModerateTCPSULMultitype sul = new ModerateTCPSULMultitype(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                sul, ModerateTCPSUL.ERROR, teachers, 
+                sul, ModerateTCPSULMultitype.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());
                 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(ModerateTCPSULMultitype.ISYN, 
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0),
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 2.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.OK),
+                new PSymbolInstance(ModerateTCPSULMultitype.ISYNACK,
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 1.0),
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 2.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.OK));
         
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 102.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(ModerateTCPSULMultitype.ICONNECT,
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0),
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 102.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.OK));
         
         
         final Word<PSymbolInstance> longsuffix2 = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.NOK),
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.NOK));
+                new PSymbolInstance(ModerateTCPSULMultitype.ISYNACK, 
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 1.0),
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 2.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.NOK),
+                new PSymbolInstance(ModerateTCPSULMultitype.ICONNECT,
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0),
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 2.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.NOK));
         
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 102.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK), 
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(ModerateTCPSULMultitype.ICONNECT,
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0),
+                        new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 102.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.OK), 
+                new PSymbolInstance(ModerateTCPSULMultitype.ISYN, 
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE1, 1.0),
+                		new DataValue(ModerateTCPSULMultitype.DOUBLE_TYPE2, 2.0)),
+                new PSymbolInstance(ModerateTCPSULMultitype.OK));
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)

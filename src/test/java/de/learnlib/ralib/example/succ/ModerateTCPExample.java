@@ -30,7 +30,13 @@ public class ModerateTCPExample {
 	}
 	
 	public static enum Option {
+		/**
+		 * Activates transition from SYN_RECEIVED to CLOSED on an out of window client seq
+		 */
 		WIN_SYNRECEIVED_TO_CLOSED,
+		/**
+		 * Activates transition from SYN_SENT to CLOSED on an out of window server seq
+		 */
 		WIN_SYNSENT_TO_CLOSED;
 	}
 	
