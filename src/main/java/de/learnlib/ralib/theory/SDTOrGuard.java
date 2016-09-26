@@ -19,6 +19,7 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -93,6 +94,15 @@ public class SDTOrGuard extends SDTMultiGuard {
         }
         return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
     }
+    
+    public SDTGuard replace(Replacement replacing) {
+    	List<SDTGuard> gg = new ArrayList<>();
+        for (SDTGuard g : this.guards) {
+            gg.add(g.replace(replacing));
+        }
+        return new SDTOrGuard(getParameter(), gg.toArray(new SDTGuard[]{}));
+    }
+
     
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {

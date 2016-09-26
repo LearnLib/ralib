@@ -23,6 +23,7 @@ import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -373,5 +374,16 @@ public class IntervalGuard extends SDTGuard {
     public List<SDTGuard> unwrap() {
         return Collections.singletonList((SDTGuard) this);
     }
+
+	@Override
+	public SDTGuard replace(Replacement replacing) {
+		SymbolicDataExpression rl = replacing.containsKey(this.rightLimit) ? 
+				replacing.get(this.rightLimit) : this.rightLimit;
+		SymbolicDataExpression ll = replacing.containsKey(this.leftLimit) ? 
+				replacing.get(this.leftLimit) : this.leftLimit;
+		
+		
+		return new IntervalGuard(getParameter(), ll, rl);
+	}
 
 }

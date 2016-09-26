@@ -18,6 +18,7 @@ package de.learnlib.ralib.example.sdts;
 
 import java.util.Set;
 
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -69,5 +70,10 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     public boolean isAccepting() {
         return clazz == SDTClass.ACCEPT;
     }
+
+	@Override
+	public SymbolicDecisionTree replace(Replacement relabeling) {
+		return this;
+	}
             
 }

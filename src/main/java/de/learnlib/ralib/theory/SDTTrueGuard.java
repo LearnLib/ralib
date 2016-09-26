@@ -18,7 +18,7 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.ArrayList;
@@ -82,6 +82,11 @@ public class SDTTrueGuard extends SDTGuard {
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         throw new IllegalStateException("trying to merge true guard");
     }
+
+	@Override
+	public SDTGuard replace(Replacement replacing) {
+		return this;
+	}
 
     
 //    @Override

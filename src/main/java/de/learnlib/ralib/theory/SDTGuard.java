@@ -18,10 +18,13 @@ package de.learnlib.ralib.theory;
 
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.Replacement;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,6 +57,8 @@ public abstract class SDTGuard {
     public abstract SDTGuard relabel(VarMapping relabelling);
     
     public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
+
+	public abstract SDTGuard replace(Replacement replacing);
 
 //    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {
 //        Set<SDTGuard> ifGuard = new LinkedHashSet<>();

@@ -1,8 +1,6 @@
 package de.learnlib.ralib.example.succ;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,7 +93,10 @@ public class ModerateTCPExample {
     public boolean ISYNACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.SYN_RECEIVED) {
-    		if (seq.equals(svSeq) && succ(clSeq, ack)) {
+    		if (seq.equals(svSeq) && 
+    				succ(clSeq, ack)
+    				//ack.equals(clSeq)
+    				) {
     			ret = true;
     			clSeq = ack;
     			state = State.SYN_SENT;

@@ -16,17 +16,17 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.Replacement;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -162,14 +162,23 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         VarMapping eqRenaming = new VarMapping<>();
+        Replacement replacements = new Replacement();
         for (EqualityGuard d : ds) {
         	// we only consider equalities which map to SDVs (and not to other expressions)
         	if (d.isEqualityWithSDV())
         		eqRenaming.put(d.getParameter(), d.getRegister());
+        	else 
+        		replacements.put(d.getParameter(), d.getExpression());
         }
+        
+        SDT to = this;
+        if (!replacements.isEmpty()) {
+        	to = (SDT)this.replace(replacements);
+        }
+        
 //        System.out.println(eqRenaming);
 //        System.out.println(this + " vs " + deqSDT);
-        boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
+        boolean x = to.canUse((SDT) deqSDT.relabel(eqRenaming));
         return x;
     }
     
@@ -181,6 +190,25 @@ public class SDT implements SymbolicDecisionTree {
         		eqRenaming.put(d.getParameter(), d.getRegister());
         }
         return (SDT) this.relabel(eqRenaming);
+    }
+    
+    
+    public SymbolicDecisionTree replace(Replacement replacing) {
+    	 SDT thisSdt = this;
+         if (replacing.isEmpty() || this.children == null) {
+             return this;
+         }
+         
+
+         Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
+         // for each of the kids
+         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
+                 reChildren.put(e.getKey().replace(replacing),
+                     (SDT) e.getValue().replace(replacing));
+             }
+         SDT relabelled = new SDT(reChildren);
+         assert !relabelled.isEmpty();
+         return relabelled;
     }
     
     @Override

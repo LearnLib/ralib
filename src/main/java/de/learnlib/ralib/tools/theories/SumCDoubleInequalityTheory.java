@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataType;
@@ -16,7 +15,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
 			1.0,
-		//	100.0
+			100.0
 			//10000.0
 			};
 	private static Double [] defaultRegularConst = new Double [] {
@@ -80,7 +79,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
     	flattenedPot.addAll(pot);
     	for (DataValue<Double> sumConst : sumConstants) {
-	    	for (DataValue<Double> dv : dvWithoutConsts ) {
+	    	for (DataValue<Double> dv : dvWithoutConsts.stream().filter(pdv -> pdv.getType().equals(sumConst.getType())).collect(Collectors.toList()) ) {
 	    		DataValue<Double> regularSum = (DataValue<Double>) DataValue.add(dv, sumConst);
 	    		if ( !flattenedPot.contains(regularSum) ) {
 	    			SumCDataValue<Double> sumDv = new SumCDataValue<Double>(dv, sumConst);
@@ -99,8 +98,8 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
             List<DataValue<Double>> vals) {
     	// adds window size interesting values
     	List<DataValue<Double>> potential = getPotential(vals);
-    	potential = potential.stream().map(dv -> dv instanceof SumCDataValue? 
-    			((SumCDataValue<Double>) dv).toRegular(): dv)
+    	potential = potential.stream().map(dv -> 
+    	dv instanceof SumCDataValue? ((SumCDataValue<Double>) dv).toRegular(): dv)
     			.collect(Collectors.toList());
     	// the superclass should complete this list with in-between values.
     	return super.getAllNextValues(potential);

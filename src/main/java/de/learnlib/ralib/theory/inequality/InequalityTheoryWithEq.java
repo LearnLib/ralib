@@ -663,9 +663,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         //boolean canJoin = false;
 
         EqualityGuard eqGuard = (EqualityGuard) guard;
-        List<EqualityGuard> ds = new ArrayList();
-        if (eqGuard.isEqualityWithSDV())
-        	ds.add(eqGuard);
+        List<EqualityGuard> ds = new ArrayList<>();
+        ds.add(eqGuard);
 //        System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT + " under " + eqGuard);
 
         SDT newTargetSDT = deqSDT.relabelUnderEq(ds);
@@ -1033,10 +1032,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         }
 
-        System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
+     //   System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
         Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
         // only keep registers that are referenced by the merged guards
-        System.out.println("MERGED = " + merged);
+       // System.out.println("MERGED = " + merged);
         assert !merged.keySet().isEmpty();
 
 //        System.out.println("MERGED = " + merged);

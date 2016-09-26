@@ -25,12 +25,14 @@ import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 
 /**
  *
@@ -140,5 +142,11 @@ public class DisequalityGuard extends SDTIfGuard {
         return guards;
     }
     
-    
+    @Override
+	public SDTGuard replace(Replacement replacing) {
+		SymbolicDataExpression rExpr = replacing.containsKey(this.registerExpr) ? 
+				replacing.get(this.registerExpr) : this.registerExpr;
+		
+		return new DisequalityGuard(getParameter(), rExpr);
+	}    
 }

@@ -79,20 +79,24 @@ class ObservationTable {
         newPrefixes.add(prefix);
     }
     
-    boolean complete() {        
+    boolean complete() {    
+    	String done = "nothing";
         if (!newComponents.isEmpty()) {
             processNewComponent();
+            done = "new comp";
             return false;
         }
         
         if (!newPrefixes.isEmpty()) {
             processNewPrefix();
+            done = "newPrefix";
             return false;
         }
         
         if (!newSuffixes.isEmpty()) {
             processNewSuffix();
             checkBranchingCompleteness();
+            done = "newSuffix";
             return false;
         }
         
@@ -102,8 +106,10 @@ class ObservationTable {
             
             //FIXME: the default logging appender cannot log models and data structures
             //System.out.println(hyp.toString());            
-            return false;
+        	done = "varInconsistency";
+        	return false;
         }
+        System.out.println(done);
         
         return true;
     }
