@@ -11,10 +11,12 @@ public class AbstractTCPExample {
 	
 	public AbstractTCPExample(Double win) {
 		this.win = win;
+		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 	}
 	
 	public AbstractTCPExample() {
 		this.win = DEFAULT_WIN;
+		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 	}
 	
 	protected final Double win;
