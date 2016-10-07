@@ -85,19 +85,18 @@ public class TestOneWayTCPTree extends RaLibTestSuite {
         
         
         final Word<PSymbolInstance> longsuffix2 = Word.fromSymbols(
-                new PSymbolInstance(OneWayTCPSUL.ISYNACK, 
+                new PSymbolInstance(OneWayTCPSUL.ISYN, 
                 		new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayTCPSUL.NOK),
+                new PSymbolInstance(OneWayTCPSUL.NOK)
+                ,
                 new PSymbolInstance(OneWayTCPSUL.ICONNECT,
                         new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayTCPSUL.NOK));
+                new PSymbolInstance(OneWayTCPSUL.OK)
+                );
         
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(OneWayTCPSUL.ICONNECT,
                         new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 1.0)),
-                new PSymbolInstance(OneWayTCPSUL.OK), 
-                new PSymbolInstance(OneWayTCPSUL.ISYN, 
-                		new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 1.0)),
                 new PSymbolInstance(OneWayTCPSUL.OK));
 
         // create a symbolic suffix from the concrete suffix
@@ -109,13 +108,13 @@ public class TestOneWayTCPTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix2);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
         
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+//        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
+//        SymbolicDecisionTree sdt = res.getSdt();
         
         TreeQueryResult res2 = mto.treeQuery(prefix2, symSuffix2);
         SymbolicDecisionTree sdt2 = res2.getSdt();
         
-        System.out.println(sdt);
+    //    System.out.println(sdt);
         System.out.println(sdt2);
 
         final String expectedTree = "[r2, r1]-+\n" +
@@ -140,9 +139,10 @@ public class TestOneWayTCPTree extends RaLibTestSuite {
 "                     +-(s3=r1)\n" +
 "                          [Leaf+]\n";
         
-        String tree = sdt.toString();
+     //   String tree = sdt.toString();
+        String tree2 = sdt2.toString();
         System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
-        Assert.assertEquals(tree, expectedTree);
+        Assert.assertEquals(tree2, expectedTree);
 //        logger.log(Level.FINE, "final SDT: \n{0}", tree);
 //
 //        Parameter p1 = new Parameter(OneWayTCPSUL.DOUBLE_TYPE, 1);

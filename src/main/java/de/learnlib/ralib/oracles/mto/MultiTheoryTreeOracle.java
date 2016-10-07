@@ -39,21 +39,34 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.google.common.collect.Sets;
+
 import net.automatalib.words.Word;
 
 /**
@@ -231,6 +244,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Map<SDTGuard, SDTGuard> refines = new LinkedHashMap<>();
         MultiTheorySDTLogicOracle mlo
                 = new MultiTheorySDTLogicOracle(constants, solver);
+
         for (SDTGuard n : guards) {
             if (mlo.doesRefine(g.toTG(), new PIV(), n.toTG(), new PIV())
                     && (!mlo.doesRefine(n.toTG(), new PIV(),
@@ -245,6 +259,43 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 coarser = g;
             }
             refines.put(finer, coarser);
+        }
+
+        log.log(Level.FINEST,
+                "!!!!!!! refines " + refines.toString());
+        return refines;
+    }
+    
+    private Map<SDTGuard, SDTGuard> mapGuardsMod(
+            Set<SDTGuard> unmapped, Parameter param) {
+
+        Set<SDTGuard> guards = new LinkedHashSet<>();
+        guards.addAll(unmapped);
+
+        Map<SDTGuard, SDTGuard> refines = new LinkedHashMap<>();
+        MultiTheorySDTLogicOracle mlo
+                = new MultiTheorySDTLogicOracle(constants, solver);
+        for (SDTGuard g: guards) {
+            SDTGuard finer = g;
+            SDTGuard coarser = new SDTTrueGuard(
+                    new SuffixValue(param.getType(), param.getId()));
+;
+	        for (SDTGuard n : guards) {
+	            if (mlo.doesRefine(g.toTG(), new PIV(), n.toTG(), new PIV())
+	                    && (!mlo.doesRefine(n.toTG(), new PIV(),
+	                            g.toTG(), new PIV()))) {
+	                finer = g;
+	                coarser = n;
+	
+	            } else if (mlo.doesRefine(n.toTG(), new PIV(), g.toTG(), new PIV())
+	                    && (!mlo.doesRefine(g.toTG(), new PIV(),
+	                            n.toTG(), new PIV()))) {
+	                finer = n;
+	                coarser = g;
+	            }
+	        }
+	        
+	        refines.put(finer, coarser);
         }
 
         log.log(Level.FINEST,
@@ -380,7 +431,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 coarser.add(new SDTTrueGuard(
                         new SuffixValue(p.getType(), p.getId())));
                 coarser.addAll(getAllCoarser(refines));
-                
+
                 DataValue dvi = null;
                 
 //                System.out.println(oldDvs.toString());
@@ -479,26 +530,163 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             return new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
         } else {
-            n = createNode(1, prefix, ps, piv, pval, oldDvs, casted);
+            n = createNodeSp(1, prefix, ps, piv, pval, oldDvs, casted);
             MultiTheoryBranching fluff = new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
             return fluff;
         }
-        
-//        Map<Word<PSymbolInstance>, TransitionGuard> newBranches
-//                = newBranching.getBranches();
-//        PIV updatedPiv = new PIV();
-//        updatedPiv.putAll(oldBranching.getPiv());
-        
-//        Branching updatedBranching = getInitialBranching(
-//                oldBranching.getPrefix(), ps, piv, sdts);
-//        
-//        log.log(Level.FINEST, ".... where the new branches are: ");
-////        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e
-//                : newBranches.entrySet()) {
-//            log.log(Level.FINEST, e.toString());
-//        }  
-        //return updatedBranching;
+    }
+
+    private Node createNodeSp(int i, Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps,
+            PIV piv, ParValuation pval, Map<Parameter, Set<DataValue>> oldDvs, 
+            SDT... sdts) {
+
+        if (i == ps.getArity() + 1) {
+            return new Node(new Parameter(null, i));
+        } else {
+
+            // obtain the data type, teacher, parameter
+            DataType type = ps.getPtypes()[i - 1];
+            Theory teach = teachers.get(type);
+            Parameter p = new Parameter(type, i);
+
+            int numSdts = sdts.length;
+            // initialize maps for next nodes
+            Map<DataValue, Node> nextMap = new LinkedHashMap<>();
+            Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
+
+            List<Map<SDTGuard, SDT>> allChildren = Stream.of(sdts).map(sdt -> sdt.getChildren()).collect(Collectors.toList());
+            Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewGuards(allChildren, 
+            		guard -> teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>()) != null);
+            Map<SDTGuard, List<SDT>> nextSDTs = getChildren(allChildren);
+            
+            for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
+            	SDTGuard guard = mergedGuardEntry.getKey();
+            	Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
+            	DataValue dvi = null;
+            	if (oldDvs.containsKey(p)) {
+                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(p));
+                } else {
+                      dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
+                }
+            	
+            	SDT [] nextLevelSDTs = oldGuards.stream().map(g -> nextSDTs.get(g)).
+            			flatMap(g -> g.stream()).distinct().toArray(SDT []::new);
+            	
+            	 ParValuation otherPval = new ParValuation();
+                 otherPval.putAll(pval);
+                     otherPval.put(p, dvi);
+
+                nextMap.put(dvi, createNode(i + 1, prefix, ps, piv,
+                          otherPval, nextLevelSDTs));
+                guardMap.put(dvi, guard);
+            }
+            
+            log.log(Level.FINEST, "guardMap: " + guardMap.toString());
+            log.log(Level.FINEST, "nextMap: " + nextMap.toString());
+            assert !nextMap.isEmpty();
+            assert !guardMap.isEmpty();
+            return new Node(p, nextMap, guardMap);
+        }
+    }
+    
+    
+    // produces a mapping from refined sdt guards to the top level sdt guards from which they are built. Multiple top level sdt guards 
+    // can be combined to form a refined guard, hence each refined guard maps to a list of top level sdt guards.
+    private Map<SDTGuard, Set<SDTGuard>> getNewGuards(List<Map<SDTGuard, SDT>> sdtChildren, Predicate<SDTGuard> instantiationTest) {
+    	List<Set<SDTGuard>> guardGroups = sdtChildren.stream().map(sdtChild -> sdtChild.keySet()).collect(Collectors.toList());
+    	Map<SDTGuard, Set<SDTGuard>> mergedGroup =   new LinkedHashMap<>();
+    	MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(constants, solver);
+    	for (Set<SDTGuard> nextGuardGroup : guardGroups) {
+    		mergedGroup = combineGroups(mergedGroup, nextGuardGroup, mlo, instantiationTest);
+    	}
+    	return mergedGroup;
+    }
+    
+    
+    
+    private Map<SDTGuard, Set<SDTGuard>> combineGroups(Map<SDTGuard, Set<SDTGuard>> mergedHead , Set<SDTGuard> nextGroup,  MultiTheorySDTLogicOracle mlo, Predicate<SDTGuard> instantiationPred) {
+    	Map<SDTGuard, Set<SDTGuard>> mergedGroup = new LinkedHashMap<>();
+    	if (mergedHead.isEmpty()) {
+    		nextGroup.forEach(next -> {
+    			mergedGroup.put(next, Sets.newHashSet(next));	
+    		});
+    		return mergedGroup;
+    	}
+    	for (SDTGuard next : nextGroup) {
+    		for (SDTGuard head : mergedHead.keySet()) {
+    			List<SDTGuard> oldGuards = Arrays.asList(head, next);
+    			Set<SDTGuard> newGuards = new LinkedHashSet<>(); 
+    			if (head.equals(next)) 
+    				mergedGroup.put(head, mergedHead.get(head));
+    			else {
+    				if (mergedGroup.values().stream().anyMatch(list -> list.containsAll(oldGuards))) {
+    					// if it was already covered, skip
+    					continue;
+    				}
+    				
+    				newGuards = merge(head, next, instantiationPred);
+    				
+    				newGuards.forEach(newGuard -> {
+    					mergedGroup.putIfAbsent(newGuard, new LinkedHashSet<>());
+    					mergedGroup.get(newGuard).addAll(oldGuards);
+    				});
+    			}
+    		}
+    	}
+    	return mergedGroup;
+    }
+    
+    private Set<SDTGuard> merge(SDTGuard head, SDTGuard next, Predicate<SDTGuard> instPred) {
+    	Set<SDTGuard> newGuards = new LinkedHashSet<>(); 
+    	if (head instanceof SDTTrueGuard) {
+			newGuards.add(next);
+		} else if (next instanceof SDTTrueGuard) {
+			newGuards.add(head);
+		} else 
+			if (canBeMerged(head, next, instPred)) {
+				if (refines(next, head, instPred)) {
+					if (refines(head, next, instPred)) {
+						newGuards.add(next); // always add next, as it might be more compact
+					} else {
+						newGuards.add(head);
+						newGuards.add(new SDTAndGuard(head.getParameter(), next, head.negate()));
+					}
+				} else 
+					if (refines(next, head, instPred)) {
+						newGuards.add(next);
+						newGuards.add(new SDTAndGuard(head.getParameter(), head, next.negate()));
+					} else {
+						newGuards.add(new SDTAndGuard(head.getParameter(), head, next.negate()));
+						newGuards.add(new SDTAndGuard(head.getParameter(), head.negate(), next));
+					}
+		}
+    	
+    	return newGuards;
+    }
+    
+    private boolean canBeMerged(SDTGuard a, SDTGuard b, Predicate<SDTGuard> instantiationPred) {
+    	return instantiationPred.test(new SDTAndGuard(a.getParameter(), a, b));
+    }
+    
+    private boolean refines(SDTGuard a, SDTGuard b, Predicate<SDTGuard> instantiationPred) {
+    	return !instantiationPred.test(new SDTAndGuard( a.getParameter(), a, b.negate()));
+    }
+    
+
+	// produces a mapping from top level SDT guards to the next level SDTs. Since the same guard can appear 
+    // in multiple SDTs, the guard maps to a list of SDTs
+    private Map<SDTGuard, List<SDT>> getChildren(List<Map<SDTGuard, SDT>> sdtChildren) {
+    	Map<SDTGuard, List<SDT>> children = new LinkedHashMap<>();
+    	for (Map<SDTGuard, SDT> child : sdtChildren) {
+    		child.forEach((guard, nextSdt) -> {
+    			children.putIfAbsent(guard, new ArrayList<>());
+    			children.get(guard).add(nextSdt);
+    			});
+    	}
+    	
+    	return children;
     }
 
 }

@@ -16,16 +16,29 @@ public class BranchSUL  extends DataWordSUL {
             new DataType("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol IINIT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE, DOUBLE_TYPE, DOUBLE_TYPE});
+            new InputSymbol("IInit", new DataType[]{DOUBLE_TYPE, DOUBLE_TYPE, DOUBLE_TYPE});
     public static final ParameterizedSymbol ITEST_NO_MERGE = 
-            new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE});
+            new InputSymbol("ITestNoMerge", new DataType[]{DOUBLE_TYPE});
+    public static final ParameterizedSymbol ITEST_EQU_DISEQ = 
+            new InputSymbol("ITestIneqDiseq", new DataType[]{DOUBLE_TYPE});
+    public static final ParameterizedSymbol ITEST_FIRST_TWO = 
+            new InputSymbol("ITestFirstTwo", new DataType[]{DOUBLE_TYPE});
+    public static final ParameterizedSymbol ITEST_LAST_TWO = 
+            new InputSymbol("ITestLastTwo", new DataType[]{DOUBLE_TYPE});
+    
+    
+    public static final ParameterizedSymbol ITEST_IS_MAX = 
+            new InputSymbol("ITestIsMax", new DataType[]{DOUBLE_TYPE});
+    
+    public static final ParameterizedSymbol ITEST_True = 
+            new InputSymbol("ITestTrue", new DataType[]{DOUBLE_TYPE});
     
     public static final ParameterizedSymbol ERROR = 
             new OutputSymbol("_io_err", new DataType[]{});
 
     
     public final ParameterizedSymbol[] getInputSymbols() {
-        return new ParameterizedSymbol[] { IINIT, ITEST_NO_MERGE};
+        return new ParameterizedSymbol[] { IINIT, ITEST_NO_MERGE, ITEST_FIRST_TWO, ITEST_LAST_TWO, ITEST_EQU_DISEQ};
     }
         
     public static final ParameterizedSymbol OK = 
@@ -77,11 +90,28 @@ public class BranchSUL  extends DataWordSUL {
             		(Double)i.getParameterValues()[1].getId(),
             		(Double)i.getParameterValues()[2].getId());
             return createOutputSymbol(x);
-        } else if (i.getBaseSymbol().equals(ITEST_NO_MERGE)) {
+        } else {
+//        	branchSut.getClass().getMethod(i.getBaseSymbol().getName(), Double.class).invoke(branchSut, 
+//        			(Double)i.getParameterValues()[0].getId());
+        	if (i.getBaseSymbol().equals(ITEST_NO_MERGE)) {
             Object x = branchSut.ITestNoMerge(
             		(Double)i.getParameterValues()[0].getId());
             return createOutputSymbol(x); 
-        } 
+	        } else if (i.getBaseSymbol().equals(ITEST_EQU_DISEQ)) {
+	            Object x = branchSut.ITestMergeEquDiseq(
+	            		(Double)i.getParameterValues()[0].getId());
+	            return createOutputSymbol(x); 
+	        } else if (i.getBaseSymbol().equals(ITEST_FIRST_TWO)) {
+	            Object x = branchSut.ITestMergeFirstTwo((Double)i.getParameterValues()[0].getId());
+	            return createOutputSymbol(x); 
+	        } else if (i.getBaseSymbol().equals(ITEST_LAST_TWO)) {
+	            Object x = branchSut.ITestMergeLastTwo((Double)i.getParameterValues()[0].getId());
+	            return createOutputSymbol(x); 
+	        } else {
+	            throw new IllegalStateException("i must be instance of init or a test command");
+	        }
+        
+        
 //        else if (i.getBaseSymbol().equals(ISYNACK)) {
 //            Object x = tcpSut.ISYNACK(
 //            		(Double)i.getParameterValues()[0].getId());
@@ -91,9 +121,7 @@ public class BranchSUL  extends DataWordSUL {
 //            		(Double)i.getParameterValues()[0].getId());
 //            return createOutputSymbol(x); 
 //        } 
-        else {
-            throw new IllegalStateException("i must be instance of connect or flag config");
-        }
+        } 
     }
     
 }
