@@ -135,7 +135,41 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         boolean r = solver.isSatisfiable(test);
         return !r;       
     }
-
+    
+    public boolean canBothBeSatisfied(TransitionGuard refining, PIV pivRefining, 
+            TransitionGuard refined, PIV pivRefined) {
+        
+        log.log(Level.FINEST, "refining: {0}", refining);
+        log.log(Level.FINEST, "refined: {0}", refined);
+        log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
+        log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
+        
+        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+                createRemapping(pivRefined, pivRefining);
+        
+        GuardExpression exprRefining = refining.getCondition();
+        GuardExpression exprRefined = 
+                refined.getCondition().relabel(remap);
+        
+        // is there any case for which refining is true but refined is false?
+        GuardExpression test = new Conjunction(
+            exprRefining, exprRefined);
+        
+        log.log(Level.FINEST,"MAP: " + remap);
+        log.log(Level.FINEST,"TEST:" + test);        
+                
+        boolean r = solver.isSatisfiable(test);
+        return r;       
+    }
+    
+    public boolean areEquivalent(TransitionGuard refining, PIV pivRefining, 
+            TransitionGuard refined, PIV pivRefined) {
+        
+        boolean ret = 
+        		doesRefine(refining, pivRefining, refined, pivRefined) && doesRefine(refined, pivRefined, refining, pivRefining);
+        return ret;       
+    }
+    
     private VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(
             PIV from, PIV to) {
                 

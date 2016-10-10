@@ -77,7 +77,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	pot.addAll(dvs);
     	List<DataValue<Double>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
     	// potential optimization, don't make sums out of sumC
-    	// dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
+    	dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
     	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
     	flattenedPot.addAll(pot);
     	for (DataValue<Double> sumConst : sumConstants) {

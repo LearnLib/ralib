@@ -29,6 +29,7 @@ import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
@@ -78,6 +79,25 @@ public class IntervalGuard extends SDTGuard {
             r = leftLimit;
         }
         return new DisequalityGuard(this.parameter,r);
+    }
+    
+    public SDTGuard negate() {
+    	if (this.isBiggerGuard() || this.isSmallerGuard()) {
+    		EqualityGuard equ = toEqGuard();
+    		IntervalGuard intv;
+    		if (this.isBiggerGuard()) {
+    			intv = new IntervalGuard(this.parameter, null, this.leftLimit);
+    		} else {
+    			intv = new IntervalGuard(this.parameter, this.rightLimit, null);
+    		}
+    		return new SDTOrGuard(this.parameter, equ, intv);
+    	} else {
+    		return new SDTOrGuard(this.parameter,
+    				new EqualityGuard(this.parameter, this.leftLimit),
+    				new IntervalGuard(this.parameter, null, this.leftLimit),
+    				new EqualityGuard(this.parameter, this.rightLimit),
+    				new IntervalGuard(this.parameter, this.rightLimit, null));
+    	}
     }
 
     public IntervalGuard flip() {

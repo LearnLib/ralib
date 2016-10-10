@@ -19,6 +19,8 @@ package de.learnlib.ralib.theory;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -78,6 +80,8 @@ public abstract class SDTMultiGuard extends SDTGuard {
             }
             else if (g instanceof SDTMultiGuard) {
                 allRegs.addAll(((SDTMultiGuard)g).getAllRegs());
+            } else if (g instanceof IntervalGuard) {
+            	allRegs.addAll(((IntervalGuard) g).getAllRegs());
             }
         }
         return allRegs;

@@ -40,7 +40,9 @@ public class AbstractTCPExample {
 		CLOSED,
 		SYN_SENT,
 		SYN_RECEIVED,
-		ESTABLISHED;
+		ESTABLISHED,
+		FIN_WAIT_1,
+		TIME_WAIT;
 		
 		public State next() {
 			switch(this) {
@@ -55,6 +57,10 @@ public class AbstractTCPExample {
 	
 	   public boolean succ(Double currentSeq, Double nextSeq) {
 	    	return nextSeq == currentSeq+1;
+	   }
+	   
+	   public boolean equ(Double currentSeq, Double nextSeq) {
+	    	return nextSeq.equals(currentSeq);
 	    }
 	    
 	    public boolean inWin(Double currentSeq, Double nextSeq) {

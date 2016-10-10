@@ -39,6 +39,7 @@ import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
@@ -173,6 +174,13 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
                 gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
                 Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
                 eList.add(spExpr);
+            }
+            
+            for (Variable var : newVal.getVariables()) {
+            	DataValue<Double> spDouble = new DataValue(type, newVal.getValue(var));
+            	gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+            	Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, var);
+            	eList.add(spExpr);
             }
 
             Expression<Boolean> _x = ExpressionUtil.and(eList);

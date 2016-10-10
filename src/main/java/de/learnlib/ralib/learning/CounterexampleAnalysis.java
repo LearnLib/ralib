@@ -16,7 +16,12 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.api.AccessSequenceTransformer;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -27,16 +32,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import com.sun.xml.internal.txw2.output.StreamSerializer;
-
 import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
@@ -77,10 +72,10 @@ public class CounterexampleAnalysis {
 	}
 
 	CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-
-		int idx = binarySearch(ce);
-		// int idx = linearBackWardsSearch(ce);
-		idx = minSuffixSearch(ce, testCe -> linearBackWardsSearch(testCe));
+	//	int idx = binarySearch(ce);
+		 int idx = linearBackWardsSearch(ce);
+		//int idx = minSuffixSearch(ce).getSecond();
+		//int idx = minSuffixSearch(ce, testCe -> linearBackWardsSearch(testCe));
 		// Pair<Word<PSymbolInstance>, Integer> ceRes =
 		// linearBackWardsSearchMinSuffix(ce);
 		// assert ceRes != null;
@@ -338,7 +333,7 @@ public class CounterexampleAnalysis {
 		int idx = ce.length() - 2;
 
 		while (idx >= 0) {
-			IndexResult res = computeIndexSp(ce, idx);
+			IndexResult res = computeIndex(ce, idx);
 			results[idx] = res;
 			if (res != IndexResult.NO_CE) {
 				break;

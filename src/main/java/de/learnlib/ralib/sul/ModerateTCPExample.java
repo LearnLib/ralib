@@ -8,19 +8,10 @@ public class ModerateTCPExample {
 	private State state = State.CLOSED;
 	enum State{
 		CLOSED,
+		CONNECTING, // extra state
 		SYN_SENT,
 		SYN_RECEIVED,
 		ESTABLISHED;
-		
-		public State next() {
-			switch(this) {
-			case CLOSED: return SYN_SENT;
-			case SYN_SENT: return SYN_RECEIVED;
-			case SYN_RECEIVED: return ESTABLISHED;
-			case ESTABLISHED: return CLOSED;
-			}
-			return null;
-		}
 	}
 
     //handling each Input
@@ -41,14 +32,14 @@ public class ModerateTCPExample {
     		this.clSeq = initSeq;
     		this.svSeq = initAck;
     		ret = true;
-    		state = State.SYN_SENT;
+    		state = State.CONNECTING;
     	}
         return ret;
     }     
     
     public boolean ISYN(Double seq, Double ack) {
     	boolean ret = false;
-    	if (state == State.SYN_SENT) {
+    	if (state == State.CONNECTING) {
     		if (seq.equals(clSeq)) {
     			ret = true;
     			state = State.SYN_RECEIVED;

@@ -16,16 +16,17 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  *
@@ -86,6 +87,11 @@ public class SDTTrueGuard extends SDTGuard {
 	@Override
 	public SDTGuard replace(Replacement replacing) {
 		return this;
+	}
+
+	@Override
+	public Set<SymbolicDataValue> getAllRegs() {
+		return Collections.emptySet();
 	}
 
     

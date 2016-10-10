@@ -48,7 +48,7 @@ public abstract class SDTIfGuard extends SDTGuard {
         s.add(this);
         return s;
     }
-
+    
     public SDTIfGuard(SuffixValue param, SymbolicDataExpression regExpr, Relation rel) {
         super(param);
         this.relation = rel;

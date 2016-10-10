@@ -21,6 +21,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -53,8 +54,18 @@ public class SymbolicSuffix {
      * actions
      */
     private final Word<ParameterizedSymbol> actions;
+//    
+//    private SDT ceSDT;
+//
+//    public SDT getCeSDT() {
+//		return ceSDT;
+//	}
+//
+//	public void setCeSDT(SDT ceSDT) {
+//		this.ceSDT = ceSDT;
+//	}
 
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+	public SymbolicSuffix(Word<PSymbolInstance> prefix, 
             Word<PSymbolInstance> suffix) {
         this(prefix, suffix, new Constants());
     }    

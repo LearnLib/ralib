@@ -153,6 +153,24 @@ public class SDT implements SymbolicDecisionTree {
                 && otherRelabeled.canUse(this);
     }
     
+    public boolean isEquivalentUnderEquality(
+            SymbolicDecisionTree nonEquSDT, List<EqualityGuard> equGuards) {
+        if (nonEquSDT instanceof SDTLeaf) {
+            if (this instanceof SDTLeaf) {
+                return (this.isAccepting() == nonEquSDT.isAccepting());
+            }
+            return false;
+        }
+        VarMapping eqRenaming = new VarMapping<>();
+        for (SDTIfGuard d : equGuards) {
+            eqRenaming.put(d.getParameter(), d.getRegister());
+        }
+//        System.out.println(eqRenaming);
+//        System.out.println(this + " vs " + deqSDT);
+        boolean x = this.canUse((SDT) nonEquSDT.relabel(eqRenaming));
+        return x;
+    }
+    
     public boolean isEquivalentUnder(
             SymbolicDecisionTree deqSDT, List<EqualityGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {

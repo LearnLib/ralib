@@ -51,6 +51,10 @@ public abstract class SDTGuard {
     public TransitionGuard toTG() {
         return new TransitionGuard(this.toExpr());
     }
+    
+    public  SDTGuard negate() {
+    	throw new RuntimeException("Not implemented for " + this.getClass());
+    }
 
     public abstract GuardExpression toExpr();
 
@@ -59,6 +63,8 @@ public abstract class SDTGuard {
     public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
 
 	public abstract SDTGuard replace(Replacement replacing);
+	
+	public abstract Set<SymbolicDataValue> getAllRegs();
 
 //    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {
 //        Set<SDTGuard> ifGuard = new LinkedHashSet<>();

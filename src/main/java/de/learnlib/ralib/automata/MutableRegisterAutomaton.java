@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.automatalib.automata.MutableDeterministic;
 import net.automatalib.words.Word;
@@ -100,19 +101,18 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                 return null;
             }
             
-            boolean found = false;
-            for (Transition t : candidates) {
-                if (t.isEnabled(vars, pars, this.constants)) {
-                    vars = t.execute(vars, pars, this.constants);
-                    current = t.getDestination();
-                    tseq.add(t);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (!found) {
-                return null;
+            final VarValuation fVars = vars; 
+            List<Transition> enabledTransitions = candidates.stream().
+            		filter(t -> t.isEnabled(fVars, pars, this.constants)).collect(Collectors.toList());
+            if (enabledTransitions.size() > 1) 
+            	throw new RuntimeException("Multiple enabled transitions found: " + enabledTransitions );
+            else if (enabledTransitions.size() == 0) 
+            	return null;
+            else {
+            	Transition t = enabledTransitions.get(0);
+            	vars = t.execute(vars, pars, this.constants);
+                current = t.getDestination();
+                tseq.add(t);
             }
         }
         return tseq;        

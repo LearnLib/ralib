@@ -16,6 +16,13 @@
  */
 package de.learnlib.ralib.theory.equality;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
@@ -29,12 +36,6 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import org.testng.Assert;
 
 /**
  *
@@ -55,6 +56,10 @@ public class EqualityGuard extends SDTIfGuard {
 
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(parameter, registerExpr);
+    }
+    
+    public  SDTGuard negate() {
+    	return toDeqGuard();
     }
     
     public boolean isEqualityWithSDV() {
@@ -156,5 +161,10 @@ public class EqualityGuard extends SDTIfGuard {
 				replacing.get(this.registerExpr) : this.registerExpr;
 		
 		return new EqualityGuard(getParameter(), rExpr);
+	}
+
+	@Override
+	public Set<SymbolicDataValue> getAllRegs() {
+		return Sets.newHashSet(this.registerExpr.getSDV());
 	}  
 }

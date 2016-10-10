@@ -61,7 +61,7 @@ public class SDTAndGuard extends SDTMultiGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    public SDTAndGuard(SuffixValue param, SDTIfGuard... ifGuards) {
+    public SDTAndGuard(SuffixValue param, SDTGuard... ifGuards) {
         super(param, ConDis.AND, ifGuards);
     }
 
@@ -71,6 +71,11 @@ public class SDTAndGuard extends SDTMultiGuard {
             exprs.add(guard.toExpr());
         }
         return exprs;
+    }
+    
+    public  SDTGuard negate() {
+    	SDTGuard[] negGuards = this.guards.stream().map(guard -> guard.negate()).toArray(SDTGuard[]::new);
+    	return new SDTOrGuard(this.parameter, negGuards);
     }
 
     @Override

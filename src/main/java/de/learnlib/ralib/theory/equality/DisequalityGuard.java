@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
@@ -48,6 +50,10 @@ public class DisequalityGuard extends SDTIfGuard {
     @Override
     public EqualityGuard toDeqGuard() {
         return new EqualityGuard(parameter, registerExpr);
+    }
+    
+    public SDTGuard negate() {
+    	return new EqualityGuard(parameter, registerExpr);
     }
 
     @Override
@@ -148,5 +154,10 @@ public class DisequalityGuard extends SDTIfGuard {
 				replacing.get(this.registerExpr) : this.registerExpr;
 		
 		return new DisequalityGuard(getParameter(), rExpr);
+	}
+
+	@Override
+	public Set<SymbolicDataValue> getAllRegs() {
+		return Sets.newHashSet(this.registerExpr.getSDV());
 	}    
 }
