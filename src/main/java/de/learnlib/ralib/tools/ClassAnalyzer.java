@@ -77,7 +77,15 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
             = new ConfigurationOption.IntegerOption("max.depth",
                     "Maximum depth to explore", -1, true);
+    
+    protected static final ConfigurationOption.BooleanOption OPTION_OUTPUT_ERROR
+    = new ConfigurationOption.BooleanOption("output.error",
+            "Include error output", true, true);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_OUTPUT_NULL
+    = new ConfigurationOption.BooleanOption("output.null",
+            "Include null output", true, true);
+    
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
@@ -96,7 +104,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RWALK_RESET_PROB,
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
-        OPTION_RWALK_RESET
+        OPTION_RWALK_RESET,
+        OPTION_OUTPUT_NULL,
+        OPTION_OUTPUT_ERROR
     };
 
     private DataWordSUL sulLearn;
@@ -143,6 +153,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             String className = OPTION_TARGET.parse(config);
             this.target = Class.forName(className);
+            boolean hasVoid = false;
+            boolean hasBoolean = false;
 
             String[] mcStrings = OPTION_METHODS.parse(config).split("\\+");
             for (String mcs : mcStrings) {
@@ -153,6 +165,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 if (!mc.isVoid() && !mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE)) {
                     actList.add(mc.getOutput());
                 }
+                hasVoid = hasVoid || mc.isVoid();
+                hasBoolean = hasBoolean || mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE);
             }
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
@@ -167,13 +181,21 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
 
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
+            boolean hasError = OPTION_OUTPUT_ERROR.parse(config);
+            boolean hasNull = OPTION_OUTPUT_NULL.parse(config);
 
-            actList.add(SpecialSymbols.ERROR);
-            actList.add(SpecialSymbols.NULL);
-            actList.add(SpecialSymbols.VOID);
-            actList.add(SpecialSymbols.TRUE);
-            actList.add(SpecialSymbols.FALSE);
-            actList.add(SpecialSymbols.DEPTH);
+            if (hasError)
+            	actList.add(SpecialSymbols.ERROR);
+            if (hasNull)
+            	actList.add(SpecialSymbols.NULL);
+            if (hasVoid)
+            	actList.add(SpecialSymbols.VOID);
+            if (hasBoolean) {
+	            actList.add(SpecialSymbols.TRUE);
+	            actList.add(SpecialSymbols.FALSE);
+            }
+            if (!md.equals(-1))
+            	actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
             final Constants consts = new Constants();

@@ -659,10 +659,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		return new SDTAndGuard(head.getParameter(), opArray);
     	} else {
     		// some simplification tactics
-    		if (head instanceof EqualityGuard) 
-    			return head;
-    		if (next instanceof EqualityGuard)
+//    		if (head instanceof EqualityGuard) 
+//    			return head;
+//    		if (next instanceof EqualityGuard)
+//    			return next;
+    		if (head instanceof SDTTrueGuard) 
     			return next;
+    		if (next instanceof SDTTrueGuard)
+    			return head;
 
 //    		if (head instanceof DisequalityGuard && next instanceof IntervalGuard && next.getAllRegs().contains(((DisequalityGuard) head).getRegister()))
 //    			return next;

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.theory;
+package de.learnlib.ralib.theory.inequality;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,6 +32,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.example.ineq.BranchSUL;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -39,6 +40,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -89,14 +91,19 @@ public class TestBranchTree extends RaLibTestSuite {
         this.test(mto, sul,  Word.epsilon(), eqDeqSuffix, null);
         
         SymbolicDecisionTree sdt1 = this.test(mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK), null);
-        SymbolicDecisionTree sdt2 = this.test(mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.NOK), null);
+        SymbolicDecisionTree sdt2 = this.test(mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK,
+        		BranchSUL.ITEST_IS_MAX, BranchSUL.NOK), null);
+        VarMapping relabel = new VarMapping();
+        relabel.put(new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 1), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 2));
+        relabel.put(new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 2), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 1));
+        sdt2 = sdt2.relabel(relabel);
         PIV piv = new PIV();
         piv.put(new SymbolicDataValue.Parameter(BranchSUL.DOUBLE_TYPE, 1), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 1));
         piv.put(new SymbolicDataValue.Parameter(BranchSUL.DOUBLE_TYPE, 2), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 2));
         piv.put(new SymbolicDataValue.Parameter(BranchSUL.DOUBLE_TYPE, 3), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 3));
-        System.out.println(mto.getInitialBranching(prefix, BranchSUL.ITEST_LAST_TWO, piv, sdt1));
         Branching branching = mto.getInitialBranching(prefix, BranchSUL.ITEST_LAST_TWO, piv, sdt1);
-        System.out.println(mto.updateBranching(prefix,  BranchSUL.ITEST_LAST_TWO, branching, piv, sdt1, sdt2));
+        System.out.println("INITIAL: " + branching);
+        System.out.println("UPDATED: " + mto.updateBranching(prefix,  BranchSUL.ITEST_LAST_TWO, branching, piv, sdt1, sdt2));
         
     }
     

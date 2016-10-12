@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import net.automatalib.automata.MutableDeterministic;
 import net.automatalib.words.Word;
+import de.learnlib.logging.filter.SystemOnlyFilter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
@@ -104,8 +105,13 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             final VarValuation fVars = vars; 
             List<Transition> enabledTransitions = candidates.stream().
             		filter(t -> t.isEnabled(fVars, pars, this.constants)).collect(Collectors.toList());
-            if (enabledTransitions.size() > 1) 
-            	throw new RuntimeException("Multiple enabled transitions found: " + enabledTransitions );
+            if (enabledTransitions.size() > 1) {
+            	tseq.forEach(tr -> System.out.println(tr + "\n"));
+            	throw new RuntimeException("Multiple enabled transitions found\n regs: " + vars +  "\n guards: " + 
+            enabledTransitions.stream().map(tr -> tr.guard).collect(Collectors.toList()) + 
+            			"\n symbols to path: "+ dw.prefix(dw.asList().indexOf(psi)));
+            }
+            
             else if (enabledTransitions.size() == 0) 
             	return null;
             else {

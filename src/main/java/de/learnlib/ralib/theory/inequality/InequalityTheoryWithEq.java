@@ -36,7 +36,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
@@ -61,8 +61,8 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq.MergeResult;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
@@ -78,83 +78,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 	private static final LearnLogger log = LearnLogger.getLogger(InequalityTheoryWithEq.class);
 
-	// private Set<SDTGuard> setify(SDTGuard... gs) {
-	// Set<SDTGuard> guardSet = new LinkedHashSet<>();
-	// for (SDTGuard g : gs) {
-	// // if g is an or guard
-	// if (g instanceof SDTOrGuard) {
-	// SDTOrGuard cg = (SDTOrGuard) g;
-	// for (SDTGuard x : cg.getGuards()) {
-	// if (x instanceof SDTIfGuard) {
-	// SDTIfGuard ifX = (SDTIfGuard) x;
-	// // remove contradicting guards
-	// if (guardSet.contains(ifX.toDeqGuard())) {
-	// guardSet.remove(ifX.toDeqGuard());
-	// } else {
-	// guardSet.add(x);
-	// }
-	// }
-	// else {
-	// guardSet.add(x);
-	// }
-	// }
-	// } else if (g instanceof SDTIfGuard) {
-	// SDTIfGuard x = (SDTIfGuard) g;
-	// // if guardset already contains the contradicting guard, remove it
-	// if (guardSet.contains(x.toDeqGuard())) {
-	// guardSet.remove(x.toDeqGuard());
-	// // if g is a Bigger or Smaller guard, merge into disequality guard
-	// if (!(g instanceof EqualityGuard)) {
-	// guardSet.add(new DisequalityGuard(
-	// x.getParameter(), x.getRegister()));
-	// }
-	// } else {
-	// guardSet.add(x);
-	// }
-	// } else if (g instanceof SDTAndGuard) {
-	// SDTAndGuard ag = (SDTAndGuard) g;
-	// List<SDTIfGuard> ifs = new ArrayList();
-	// for (SDTIfGuard x : ag.getGuards()) {
-	// if (guardSet.contains(x.toDeqGuard())) {
-	// guardSet.remove(x.toDeqGuard());
-	// if (!(g instanceof EqualityGuard)) {
-	// guardSet.add(new DisequalityGuard(
-	// x.getParameter(), x.getRegister()));
-	// }
-	// } else {
-	// ifs.add(x);
-	// }
-	// }
-	// if (ifs.size() == 1) {
-	// guardSet.add(ifs.get(0));
-	// } else if (ifs.size() > 1) {
-	// guardSet.add(new SDTAndGuard(g.getParameter(),
-	// ifs.toArray(new SDTIfGuard[]{})));
-	// }
-	//
-	// }
-	// }
-	// return guardSet;
-	// }
-	// private SDTGuard mergeGuardLists(SDTGuard g1, SDTGuard g2) {
-	// Set<SDTGuard> guardSet = (setify(g1, g2));
-	// if (guardSet.isEmpty()) {
-	// return new SDTTrueGuard(g1.getParameter());
-	// } else {
-	// SDTIfGuard[] guardArray = guardSet.toArray(new SDTIfGuard[]{});
-	// if (guardArray.length == 1) {
-	// return guardArray[0];
-	// } else {
-	// return new SDTOrGuard(g1.getParameter(),
-	// guardSet.toArray(new SDTIfGuard[]{}));
-	// }
-	// }
-	// }
-	// private List<SDTGuard> preprocess(List<SDTGuard> guardList) {
-	// for (SDTGuard g : guardList) {
-	//
-	// }
-	// }
 	private void addAllSafely(Collection<SDTGuard> guards, Collection<SDTGuard> toAdd,
 			List<SymbolicDataValue> regPotential) {
 		// System.out.println("adding " + toAdd + " to " + guards);
@@ -217,16 +140,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		return;
 	}
 
-	// private Set<SDTGuard> mergeSetWithSet(Set<SDTGuard> guardSet,
-	// Set<SDTGuard> targets, Set<SDTGuard> prohibited) {
-	// System.out.println("set-merging " + targets + " with " + guardSet);
-	// Set<SDTGuard> newGuardSet = new LinkedHashSet<>();
-	// for (SDTGuard s : targets) {
-	// newGuardSet = mergeOneWithSet(guardSet, s, new
-	// ArrayList<SymbolicDataValue>(), prohibited);
-	// }
-	// return newGuardSet;
-	// }
 	private Set<SDTGuard> mergeOneWithSet(Set<SDTGuard> guardSet, SDTGuard target,
 			List<SymbolicDataValue> regPotential) {
 		List<Set<SDTGuard>> inAndOut = new ArrayList<Set<SDTGuard>>();
@@ -383,115 +296,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		}
 	}
 
-	// private Set<SDTGuard> mergeOneWithSet(Set<SDTGuard> guardSet, SDTGuard
-	// target, List<SymbolicDataValue> regPotential, Set<SDTGuard> prohibited) {
-	//
-	// //Set<SDTGuard> prohibited = new LinkedHashSet<>();
-	// Set<SDTGuard> newGuardSet = new LinkedHashSet<>();
-	// Boolean[] modified = new Boolean[guardSet.size()];
-	// boolean processed = false;
-	// newGuardSet.addAll(guardSet);
-	//
-	// int i = -1;
-	// for (SDTGuard m : guardSet) {
-	// System.out.println("guards: " + newGuardSet);
-	// i++;
-	// modified[i] = false;
-	// if (!(guardSet.contains(target)) && !(prohibited.contains(target))) {
-	//
-	// assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
-	//
-	// if (target instanceof SDTIfGuard) {
-	// SDTIfGuard oGuard = ((SDTIfGuard) target).toDeqGuard();
-	//// System.out.println(guard + ": checking if guards contains " + oGuard);
-	// if (guardSet.contains(oGuard)) {
-	//// System.out.println("yes, removing " + oGuard);
-	// prohibited.add(oGuard);
-	// prohibited.add(target);
-	// processed = true;
-	// }
-	// } else if (target instanceof IntervalGuard) {
-	// IntervalGuard iGuard = (IntervalGuard) target;
-	// if (!iGuard.isIntervalGuard()) {
-	// IntervalGuard flipped = iGuard.flip();
-	// System.out.println("flipped: " + flipped);
-	// if (guardSet.contains(flipped)) {
-	// prohibited.add(flipped);
-	// prohibited.add(target);
-	// processed = true;
-	// }
-	// }
-	// }
-	// if (!processed) {
-	// Set<SDTGuard> refSet = new LinkedHashSet<>();
-	// refSet.add(target);
-	// refSet.add(m);
-	// Set<SDTGuard> mWithTarget = target.mergeWith(m, regPotential);
-	// System.out.println("merging: " + target + " + " + m + " --> " +
-	// mWithTarget + ", " + refSet.equals(mWithTarget));
-	// if (!mWithTarget.contains(target)) {
-	// prohibited.add(target);
-	// //modified[i] = true;
-	//// guardSet.remove(target);
-	// }
-	// if (!mWithTarget.contains(m)) {
-	// prohibited.add(m);
-	// //modified[i] = true;
-	//// guardSet.remove(target);
-	// }
-	// modified[i] = !(refSet.equals(mWithTarget));
-	// System.out.println("g: " + guardSet);
-	// System.out.println("n: " + newGuardSet);
-	//
-	//
-	// if (modified[i] && !(newGuardSet.containsAll(mWithTarget))) {
-	// for (SDTGuard x : mWithTarget) {
-	// newGuardSet = mergeOneWithSet(newGuardSet, x, regPotential, prohibited);
-	// }
-	// }
-	// else {
-	// newGuardSet.addAll(mWithTarget);
-	// }
-	//
-	//// newGuardSet.addAll(mWithTarget);
-	// System.out.println("into: " + newGuardSet);
-	// }
-	// }
-	// }
-	//// Set<SDTGuard> temp = new LinkedHashSet<>();
-	//// Set<SDTGuard> prohibited = new LinkedHashSet<>();
-	//// System.out.println("temp is: " + temp + " and prohibited: " +
-	// prohibited);
-	//// for (SDTGuard m : merged) {
-	//// assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
-	//// Set<SDTGuard> mWithTarget = target.mergeWith(m);
-	//// System.out.println("merging: " + target + " + " + m + " --> " +
-	// mWithTarget);
-	//// if (!mWithTarget.contains(target)) {
-	//// prohibited.add(target);
-	//// temp.remove(target);
-	//// }
-	//// if (!mWithTarget.contains(m)) {
-	//// prohibited.add(m);
-	//// temp.remove(target);
-	//// }
-	//// addAllSafely(temp, mWithTarget, prohibited);
-	//// System.out.println("... but after adding " + mWithTarget + " safely: "
-	// + temp + " with " + prohibited);
-	//// }
-	//// System.out.println("return: " + temp);
-	//// return temp;
-	// System.out.println("removing: " + prohibited);
-	// removeProhibited(newGuardSet, prohibited);
-	// System.out.println("... and after removing :: " + newGuardSet);
-	// System.out.println("modified is " + Arrays.toString(modified));
-	// if (hasTrue(modified) && !(guardSet.equals(newGuardSet))) {
-	// System.out.println("try again");
-	// return mergeOneWithSet(newGuardSet, target, regPotential, prohibited);
-	// } else {
-	// return newGuardSet;
-	// }
-	// }
 	// Returns true if all elements of a boolean array are true.
 	private boolean hasTrue(Boolean[] maybeArr) {
 		boolean maybe = false;
@@ -1106,6 +910,55 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		// WE ASSUME THE POTENTIAL IS SORTED
 		int potSize = potential.size();
 		Map<SDTGuard, DataValue<T>> guardDvs = new LinkedHashMap<>();
+		
+		// special case: fresh values in outputs
+//        if (freshValues) {
+//
+//            ParameterizedSymbol ps = computeSymbol(suffix, pId);
+//
+//            if (ps instanceof OutputSymbol && ps.getArity() > 0) {
+//
+//                int idx = computeLocalIndex(suffix, pId);
+//                Word<PSymbolInstance> query = buildQuery(
+//                        prefix, suffix, values);
+//                Word<PSymbolInstance> trace = ioOracle.trace(query);
+//                PSymbolInstance out = trace.lastSymbol();
+//
+//                if (out.getBaseSymbol().equals(ps)) {
+//
+//                    DataValue d = out.getParameterValues()[idx];
+//
+//                    if (d instanceof FreshValue) {
+//                        d = getFreshValue(potential);
+//                        values.put(pId, d);
+//                        WordValuation trueValues = new WordValuation();
+//                        trueValues.putAll(values);
+//                        SuffixValuation trueSuffixValues
+//                                = new SuffixValuation();
+//                        trueSuffixValues.putAll(suffixValues);
+//                        trueSuffixValues.put(sv, d);
+//                        SDT sdt = oracle.treeQuery(
+//                                prefix, suffix, trueValues,
+//                                piv, constants, trueSuffixValues);
+//
+//                        log.log(Level.FINEST,
+//                                " single deq SDT : " + sdt.toString());
+//
+//                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
+//                                new SDTAndGuard(currentParam), sdt);
+//
+//                        log.log(Level.FINEST,
+//                                "temporary guards = " + tempKids.keySet());
+//                        log.log(Level.FINEST,
+//                                "merged guards = " + merged.keySet());
+//                        log.log(Level.FINEST,
+//                                "merged pivs = " + piv.toString());
+//
+//                        return new SDT(merged);
+//                    }
+//                }
+//            }
+//        }
 
 		// System.out.println("potential " + potential);
 		if (potential.isEmpty()) {
@@ -1244,9 +1097,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		}
 
 		System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
-		// Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam,
-		// regPotential);
-		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
+		Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
+		//Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
 		// Map<SDTGuard, SDT> merged = tempKids;
 		// only keep registers that are referenced by the merged guards
 		System.out.println("MERGED = " + merged);
@@ -1524,61 +1376,48 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		}
 		return returnValue;
 	}
+	
 
-	// @Override
-	// public DataValue instantiate(
-	// Word<PSymbolInstance> prefix,
-	// ParameterizedSymbol ps, PIV piv,
-	// ParValuation pval,
-	// Constants constants,
-	// SDTGuard guard,
-	// Parameter param) {
-	//
-	// DataType type = param.getType();
-	//
-	// List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-	//
-	// log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
-	//
-	// if (guard instanceof EqualityGuard) {
-	// EqualityGuard eqGuard = (EqualityGuard) guard;
-	// SymbolicDataValue ereg = eqGuard.getRegister();
-	// DataValue x = getRegisterValue(
-	// ereg, piv, prefixValues, constants, pval);
-	// return x;
-	// } else if ((guard instanceof SDTTrueGuard)
-	// || guard instanceof DisequalityGuard) {
-	//
-	// Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
-	// constants.<T>values(type),
-	// DataWords.<T>valSet(prefix, type),
-	// pval.<T>values(type));
-	//
-	// return this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
-	// } else {
-	// Collection<DataValue<T>> alreadyUsedValues
-	// = DataWords.<T>joinValsToSet(
-	// constants.<T>values(type),
-	// DataWords.<T>valSet(prefix, type),
-	// pval.<T>values(type));
-	// Valuation val = new Valuation();
-	// if (guard instanceof SDTIfGuard) {
-	// SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
-	// DataValue<T> regVal = getRegisterValue(r, piv,
-	// prefixValues, constants, pval);
-	//
-	// val.setValue(r.toVariable(), regVal);
-	// //instantiate(guard, val, param, constants);
-	// } else if (guard instanceof SDTMultiGuard) {
-	// for (SDTIfGuard ifGuard : ((SDTMultiGuard) guard).getGuards()) {
-	// SymbolicDataValue r = ifGuard.getRegister();
-	// DataValue<T> regVal = getRegisterValue(r, piv,
-	// prefixValues, constants, pval);
-	// val.setValue(r.toVariable(), regVal);
-	// }
-	// }
-	// return instantiate(guard, val, constants, alreadyUsedValues);
-	// }
-	//
-	// }
+
+    private ParameterizedSymbol computeSymbol(SymbolicSuffix suffix, int pId) {
+        int idx = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            idx += a.getArity();
+            if (idx >= pId) {
+                return a;
+            }
+        }
+        return suffix.getActions().size() > 0
+                ? suffix.getActions().firstSymbol() : null;
+    }
+
+    private int computeLocalIndex(SymbolicSuffix suffix, int pId) {
+        int idx = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            idx += a.getArity();
+            if (idx >= pId) {
+                return pId - (idx - a.getArity()) - 1;
+            }
+        }
+        return pId - 1;
+    }
+
+    private Word<PSymbolInstance> buildQuery(Word<PSymbolInstance> prefix,
+            SymbolicSuffix suffix, WordValuation values) {
+
+        Word<PSymbolInstance> query = prefix;
+        int base = 0;
+        for (ParameterizedSymbol a : suffix.getActions()) {
+            if (base + a.getArity() > values.size()) {
+                break;
+            }
+            DataValue[] vals = new DataValue[a.getArity()];
+            for (int i = 0; i < a.getArity(); i++) {
+                vals[i] = values.get(base + i + 1);
+            }
+            query = query.append(new PSymbolInstance(a, vals));
+            base += a.getArity();
+        }
+        return query;
+    }
 }
