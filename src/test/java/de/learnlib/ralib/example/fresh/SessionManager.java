@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.example.fresh;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -26,7 +28,7 @@ public class SessionManager {
     HashMap< Integer, Integer> id2sid = new HashMap<>();
     HashMap< Integer, Boolean> id2loggedin = new HashMap<>();
 
-    private final int MAX_SESSIONS = 1;
+    private final int MAX_SESSIONS = 3;
     private final int MAX_LOGGEDIN_USERS = 1000000;
     private int loggedin_users = 0;
     private final Random random = new Random();
@@ -48,18 +50,11 @@ public class SessionManager {
         } else {
         	if (id2sid.containsKey(uid)) 
         		sid = id2sid.get(uid);
-        	else {
-        		id2sid.clear();
-        		return uid;
-        		//sid = random.nextInt(10000000);
-        	}
+        	else
+        		sid = random.nextInt(10000000);
         }
-        return uid;
+        return sid;
     }    
-    
-    public boolean IEmpty() {
-    	return id2sid.isEmpty();
-    }
     
     /* login an user with uid
      * 
@@ -69,10 +64,10 @@ public class SessionManager {
      *       + and is not logged in
      *   - at max only MAX_LOGGEDIN_USERS users may be logged in 
      */   
-    public boolean ILogin(Integer uid, Integer sid) {
+    public boolean ILogin(Integer uid, Integer pwd) {
         if (id2sid.containsKey(uid)
                 && !id2loggedin.get(uid)
-                && sid == id2sid.get(uid)
+                && pwd == id2sid.get(uid)
                 && loggedin_users < MAX_LOGGEDIN_USERS) {
             loggedin_users++;
             id2loggedin.put(uid, true);

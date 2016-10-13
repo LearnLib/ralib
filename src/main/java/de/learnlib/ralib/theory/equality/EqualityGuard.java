@@ -164,7 +164,7 @@ public class EqualityGuard extends SDTIfGuard {
 	}
 
 	@Override
-	public Set<SymbolicDataValue> getAllRegs() {
+	public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
 		return Sets.newHashSet(this.registerExpr.getSDV());
 	}  
 }

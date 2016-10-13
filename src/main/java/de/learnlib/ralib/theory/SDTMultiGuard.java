@@ -72,16 +72,16 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return guards.get(0);
     }
 
-    public Set<SymbolicDataValue> getAllRegs() {
+    public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
         Set<SymbolicDataValue> allRegs = new LinkedHashSet<SymbolicDataValue>();
         for (SDTGuard g : guards) {
             if (g instanceof SDTIfGuard) {
                 allRegs.add(((SDTIfGuard)g).getRegister());
             }
             else if (g instanceof SDTMultiGuard) {
-                allRegs.addAll(((SDTMultiGuard)g).getAllRegs());
+                allRegs.addAll(((SDTMultiGuard)g).getAllSDVsFormingGuard());
             } else if (g instanceof IntervalGuard) {
-            	allRegs.addAll(((IntervalGuard) g).getAllRegs());
+            	allRegs.addAll(((IntervalGuard) g).getAllSDVsFormingGuard());
             }
         }
         return allRegs;

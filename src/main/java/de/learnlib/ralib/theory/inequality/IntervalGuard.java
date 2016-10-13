@@ -127,7 +127,7 @@ public class IntervalGuard extends SDTGuard {
         return "(" + leftLimit.toString() + "<" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
     }
 
-    public Set<SymbolicDataValue> getAllRegs() {
+    public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
         Set<SymbolicDataValue> regs = new LinkedHashSet<>();
         if (leftLimit != null) {
             regs.add(leftLimit.getSDV());

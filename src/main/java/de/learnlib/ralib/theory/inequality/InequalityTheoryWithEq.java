@@ -867,7 +867,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 					}
 				}
 			} else if (mg instanceof SDTOrGuard) {
-				Set<SymbolicDataValue> rSet = ((SDTOrGuard) mg).getAllRegs();
+				Set<SymbolicDataValue> rSet = ((SDTOrGuard) mg).getAllSDVsFormingGuard();
 				for (SymbolicDataValue r : rSet) {
 					Parameter p = new Parameter(r.getType(), r.getId());
 					if (r instanceof Register) {
@@ -1345,7 +1345,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 				}
 
-				Set<SymbolicDataValue> regs = ((SDTAndGuard) guard).getAllRegs();
+				Set<SymbolicDataValue> regs = ((SDTAndGuard) guard).getAllSDVsFormingGuard();
 				regs.forEach(reg -> {
 					DataValue<T> regVal = getRegisterValue(reg, piv, prefixValues, constants, pval);
 					val.setValue(toVariable(reg), regVal.getId());

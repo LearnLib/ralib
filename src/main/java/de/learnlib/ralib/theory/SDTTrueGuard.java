@@ -90,7 +90,7 @@ public class SDTTrueGuard extends SDTGuard {
 	}
 
 	@Override
-	public Set<SymbolicDataValue> getAllRegs() {
+	public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
 		return Collections.emptySet();
 	}
 

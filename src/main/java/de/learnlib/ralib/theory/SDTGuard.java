@@ -64,7 +64,7 @@ public abstract class SDTGuard {
 
 	public abstract SDTGuard replace(Replacement replacing);
 	
-	public abstract Set<SymbolicDataValue> getAllRegs();
+	public abstract Set<SymbolicDataValue> getAllSDVsFormingGuard();
 
 //    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {
 //        Set<SDTGuard> ifGuard = new LinkedHashSet<>();
