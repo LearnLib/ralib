@@ -88,6 +88,7 @@ class ObservationTable {
         }
         
         if (!newPrefixes.isEmpty()) {
+        	System.out.println(newPrefixes.peek());
             processNewPrefix();
             done = "newPrefix";
             return false;

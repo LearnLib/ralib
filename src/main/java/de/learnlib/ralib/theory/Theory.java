@@ -26,9 +26,11 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import net.automatalib.words.Word;
@@ -86,7 +88,20 @@ public interface Theory<T> {
      * @return 
      */
     public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
-               
+    
+    /**
+     * returns an ordered list of potential values
+     * @param vals
+     * @return
+     */
+    public default List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
+    	return Collections.emptyList();
+    }
+    
+    public default ValueMapper<T> getValueMapper() {
+    	return null;
+    }
+    
     /**
      * Finds a model for a guard (data values). Tries to reuse
      * known (old) data values.

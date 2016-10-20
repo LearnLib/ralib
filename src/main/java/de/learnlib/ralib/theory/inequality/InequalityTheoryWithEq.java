@@ -994,6 +994,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			// rsm.toVariable() + " dvright: " + dvRight);
 			smVal.setValue(toVariable(rsm), dvRight.getId());
 			DataValue<T> smcv = instantiate(sguard, smVal, constants, potential);
+			smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 			smValues.put(pId, smcv);
 			smSuffixValues.put(sv, smcv);
 
@@ -1014,6 +1015,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
 			updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
 			DataValue<T> bgcv = instantiate(bguard, bgVal, constants, potential);
+			bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
 			bgValues.put(pId, bgcv);
 			bgSuffixValues.put(sv, bgcv);
 
@@ -1052,6 +1054,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
 					DataValue<T> cv = instantiate(intervalGuard, val, constants, potential);
+					cv = new IntervalDataValue<T>(cv,  dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
 					currentSuffixValues.put(sv, cv);
 

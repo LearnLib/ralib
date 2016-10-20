@@ -37,7 +37,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class IOCache extends IOOracle implements DataWordOracle {
+public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
     private static class CacheNode {
 
@@ -49,9 +49,9 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
     private final IOOracle sul;
 
-    private static LearnLogger log = LearnLogger.getLogger(IOCache.class);
+    private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
-    public IOCache(IOOracle sul) {
+    public IOCacheOracle(IOOracle sul) {
         this.sul = sul;
     }
 

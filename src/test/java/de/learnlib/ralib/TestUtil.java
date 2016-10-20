@@ -19,7 +19,7 @@ package de.learnlib.ralib;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.oracles.io.IOCache;
+import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -77,7 +77,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCache ioCache = new IOCache(ioOracle);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

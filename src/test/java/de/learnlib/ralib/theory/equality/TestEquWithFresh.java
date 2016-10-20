@@ -19,16 +19,20 @@ package de.learnlib.ralib.theory.equality;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -50,6 +54,77 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class TestEquWithFresh extends RaLibTestSuite {
+	
+    @Test
+    public void testDeterminizer() {
+    	SessionManagerSUL sul = new SessionManagerSUL();
+
+    	IntegerEqualityTheory theory = new IntegerEqualityTheory(SessionManagerSUL.INT_TYPE);
+
+				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+       teachers.put(SessionManagerSUL.INT_TYPE, 
+    		   theory);
+		SULOracle sulOracle = new SULOracle(new DeterminedDataWordSUL(() -> new ValueCanonizer(teachers), sul), SessionManagerSUL.ERROR);
+		
+		theory.setCheckForFreshOutputs(true, sulOracle);
+       Word<PSymbolInstance> testWord = Word.fromSymbols(
+    		   new PSymbolInstance(SessionManagerSUL.ISESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 1)),
+               new PSymbolInstance(SessionManagerSUL.OSESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+               new PSymbolInstance(SessionManagerSUL.ILOGIN,
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 1),
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 0))
+               , new PSymbolInstance(SessionManagerSUL.OK)
+               );
+       Word<PSymbolInstance> testInputWord = Word.fromSymbols(
+    		   new PSymbolInstance(SessionManagerSUL.ISESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+    		   new PSymbolInstance(SessionManagerSUL.ISESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+    		   new PSymbolInstance(SessionManagerSUL.ILOGIN,
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 1),
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 3)),
+    		   new PSymbolInstance(SessionManagerSUL.ILOGIN,
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 0),
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 1))
+               );
+       
+       final DeterminedDataWordSUL sulDet = new DeterminedDataWordSUL(() -> new ValueCanonizer(teachers), sul);
+		theory.setCheckForFreshOutputs(true, sulOracle);
+       Word<PSymbolInstance> actualTrace = Word.epsilon();
+       ValueCanonizer canonizer = new ValueCanonizer(teachers);
+       sulDet.pre();
+       for (PSymbolInstance symbol : testInputWord) {
+    	   symbol = canonizer.canonize(symbol, false);
+    	   actualTrace = actualTrace.append(symbol);
+    	   PSymbolInstance out = sulDet.step(symbol);
+    	   out = canonizer.canonize(out, false);
+    	   actualTrace = actualTrace.append(out);
+       }
+       
+       Word<PSymbolInstance> expectedTrace = Word.fromSymbols(
+    		   new PSymbolInstance(SessionManagerSUL.ISESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+    		   new PSymbolInstance(SessionManagerSUL.OSESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 1)),
+    		   new PSymbolInstance(SessionManagerSUL.ISESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+    		   new PSymbolInstance(SessionManagerSUL.OSESSION,
+                       new DataValue(SessionManagerSUL.INT_TYPE, 1)),
+    		   new PSymbolInstance(SessionManagerSUL.ILOGIN,
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 1),
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 2)),
+    		   new PSymbolInstance(SessionManagerSUL.NOK),
+    		   new PSymbolInstance(SessionManagerSUL.ILOGIN,
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 0),
+            		   new DataValue(SessionManagerSUL.INT_TYPE, 1)),
+               new PSymbolInstance(SessionManagerSUL.OK));
+       
+       Assert.assertEquals(actualTrace, expectedTrace);
+       long numberOfFreshValues = actualTrace.stream().flatMap(sym -> Stream.of(sym.getParameterValues())).filter(dv -> dv instanceof FreshValue).count();
+       Assert.assertEquals(numberOfFreshValues, 3);
+    }
 
     @Test
     public void testSessionExample() {

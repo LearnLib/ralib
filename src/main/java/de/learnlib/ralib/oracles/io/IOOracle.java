@@ -26,6 +26,15 @@ import net.automatalib.words.Word;
  */
 public abstract class IOOracle extends QueryCounter {
     
+	/**
+	 * Transforms a query into a trace of the system by preserving the input 
+	 * methods, while relabeling the parameters and changing the outputs according
+	 * to the system behavior for the inputs. 
+	 * </p>
+	 * Used for counterexample reduction operations, whereby a section of a trace is cut out.
+	 * What is left might not belong to the system's traces. This operation "repairs" the trace.
+	 *  
+	 */
     public abstract Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
 
 }

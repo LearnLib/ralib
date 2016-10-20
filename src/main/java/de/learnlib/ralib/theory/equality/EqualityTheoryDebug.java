@@ -44,7 +44,6 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -61,7 +60,7 @@ import net.automatalib.words.Word;
  * @author falk and sofia
  * @param <T>
  */
-public abstract class EqualityTheory<T> implements Theory<T> {
+public abstract class EqualityTheoryDebug<T> implements Theory<T> {
 
     protected boolean useNonFreeOptimization;
 
@@ -69,10 +68,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     protected IOOracle ioOracle;
 
-    private static final LearnLogger log
-            = LearnLogger.getLogger(EqualityTheory.class);
+	private IOOracle testOracle;
 
-    public EqualityTheory(boolean useNonFreeOptimization) {
+    private static final LearnLogger log
+            = LearnLogger.getLogger(EqualityTheoryDebug.class);
+
+    public EqualityTheoryDebug(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
     }
 
@@ -80,8 +81,14 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         this.ioOracle = ioOracle;
         this.freshValues = freshValues;
     }
+    
+    public void setTestFreshValues(boolean freshValues, IOOracle ioOracle, IOOracle test) {
+        this.ioOracle = ioOracle;
+        this.freshValues = freshValues;
+        this.testOracle = test;
+    }
 
-    public EqualityTheory() {
+    public EqualityTheoryDebug() {
         this(false);
     }
 
@@ -220,6 +227,23 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 Word<PSymbolInstance> query = buildQuery(
                         prefix, suffix, values);
                 Word<PSymbolInstance> trace = ioOracle.trace(query);
+                if (testOracle != null) {
+                	Word<PSymbolInstance> newTrace = testOracle.trace(query);
+                	for (int trIndex = 0; trIndex < trace.size(); trIndex++) {
+                		for (int dvIndex =0; dvIndex < trace.getSymbol(trIndex).getParameterValues().length; dvIndex ++ ) {
+                			DataValue dvA = trace.getSymbol(trIndex).getParameterValues()[dvIndex];
+                			DataValue dvB = newTrace.getSymbol(trIndex).getParameterValues()[dvIndex];
+                			if (!dvA.equals(dvB) || !dvA.getClass().equals(dvB.getClass())) {
+                				trace = ioOracle.trace(query);
+                				newTrace = testOracle.trace(query);
+                				System.out.println("Problem: " + newTrace + " \n " + trace);
+                				
+                				System.out.println(trace.getSymbol(trIndex) + " " + dvA + " " + dvA.getClass() + " " + dvB.getClass());
+                        		System.exit(1);
+                			}
+                		}
+                	}
+                }
                 PSymbolInstance out = trace.lastSymbol();
 
                 if (out.getBaseSymbol().equals(ps)) {
@@ -456,6 +480,5 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         }
         return query;
     }
-    
 
 }

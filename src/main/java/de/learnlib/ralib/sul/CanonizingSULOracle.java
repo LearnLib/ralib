@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -32,29 +33,29 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class SULOracle extends IOOracle {
+public class CanonizingSULOracle extends IOOracle {
 
     private final DataWordSUL sul;
 
     private final ParameterizedSymbol error;
 
-    private static LearnLogger log = LearnLogger.getLogger(SULOracle.class);
+	private Supplier<ValueCanonizer> canonizerSupplier;
 
-    private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
   
-    public SULOracle(DataWordSUL sul, ParameterizedSymbol error) {
+    public CanonizingSULOracle(DataWordSUL sul, ParameterizedSymbol error, Supplier<ValueCanonizer> canonizerSupplier) {
         this.sul = sul;
         this.error = error;
+        this.canonizerSupplier = canonizerSupplier;
     }
 
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         countQueries(1);
         Word<PSymbolInstance> act = query;
-        log.log(Level.FINEST, "MQ: {0}", query);
         sul.pre();
-        replacements.clear();
         Word<PSymbolInstance> trace = Word.epsilon();
+        ValueCanonizer canonizer = this.canonizerSupplier.get();
+        
         for (int i = 0; i < query.length(); i += 2) {
             PSymbolInstance in = applyReplacements(act.getSymbol(i));
             
@@ -105,12 +106,13 @@ public class SULOracle extends IOOracle {
     }
 
     private Set<DataValue> getOrCreate(DataValue key) {
-        Set<DataValue> ret = replacements.get(key);
-        if (ret == null) {
-            ret = new HashSet<>();
-            replacements.put(key, ret);
-        }
-        return ret;
+//        Set<DataValue> ret = replacements.get(key);
+//        if (ret == null) {
+//            ret = new HashSet<>();
+//            replacements.put(key, ret);
+//        }
+//        return ret;
+    	return null;
     }
 
 }

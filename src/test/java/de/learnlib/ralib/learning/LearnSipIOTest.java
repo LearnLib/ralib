@@ -29,7 +29,7 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCache;
+import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -88,7 +88,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         teachers.values().stream().forEach((t) -> {

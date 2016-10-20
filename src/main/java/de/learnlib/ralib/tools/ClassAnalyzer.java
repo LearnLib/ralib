@@ -16,6 +16,14 @@
  */
 package de.learnlib.ralib.tools;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
@@ -31,16 +39,18 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCache;
+import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
-import static de.learnlib.ralib.tools.AbstractToolWithRandomWalk.OPTION_LOGGING_LEVEL;
 import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
 import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
@@ -51,13 +61,6 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -170,12 +173,33 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
+            
+            // create teachers
+            teachers = new LinkedHashMap<DataType, Theory>();
+
+            for (String tName : teacherClasses.keySet()) {
+                DataType t = types.get(tName);
+                TypedTheory theory = teacherClasses.get(t.getName());
+                theory.setType(t);
+                if (this.useSuffixOpt) {
+                    theory.setUseSuffixOpt(this.useSuffixOpt);
+                }
+                teachers.put(t, theory);
+            }
+
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            if (this.useFresh) {
+            	this.sulLearn = new DeterminedDataWordSUL(() -> new ValueCanonizer(this.teachers), sulLearn);
+            }
             if (this.timeoutMillis > 0L) {
+            	
                 this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
             }
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            if (this.useFresh) {
+            	this.sulTest = new DeterminedDataWordSUL(() -> new ValueCanonizer(this.teachers), sulTest);
+            }
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
             }
@@ -200,23 +224,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             final Constants consts = new Constants();
 
-            // create teachers
-            teachers = new LinkedHashMap<DataType, Theory>();
-            // create teachers
-            for (String tName : teacherClasses.keySet()) {
-                DataType t = types.get(tName);
-                TypedTheory theory = teacherClasses.get(t.getName());
-                theory.setType(t);
-                if (this.useSuffixOpt) {
-                    theory.setUseSuffixOpt(this.useSuffixOpt);
-                }
-                teachers.put(t, theory);
-            }
-
             back = new SULOracle(sulLearn, SpecialSymbols.ERROR);
-            IOCache ioCache = new IOCache(back);
+            IOCacheOracle ioCache = new IOCacheOracle(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
-
+            
             if (useFresh) {
                 for (Theory t : teachers.values()) {
                     ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
@@ -227,6 +238,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
+            final boolean fresh = this.useFresh;
+            final Map<DataType, Theory> teach = this.teachers;
             TreeOracleFactory hypFactory = new TreeOracleFactory() {
                 @Override
                 public TreeOracle createTreeOracle(RegisterAutomaton hyp) {

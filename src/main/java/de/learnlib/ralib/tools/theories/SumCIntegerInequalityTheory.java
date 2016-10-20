@@ -9,35 +9,34 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
-public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
+public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	// default constants
-	private static Double [] defaultSumConst = new Double [] {
-			1.0,
-			100.0
+	private static Integer [] defaultSumConst = new Integer [] {
+			1,
+			100
 			//10000.0
 			};
-	private static Double [] defaultRegularConst = new Double [] {
+	private static Integer [] defaultRegularConst = new Integer [] {
 		//	0.0
 			};
 	
 	
-	private List<DataValue<Double>> sumConstants;
-	private List<DataValue<Double>> regularConstants;
+	private List<DataValue<Integer>> sumConstants;
+	private List<DataValue<Integer>> regularConstants;
 
-	public SumCDoubleInequalityTheory() {
+	public SumCIntegerInequalityTheory() {
 		super();
 	}
 	
-	public SumCDoubleInequalityTheory(DataType dataType) {
+	public SumCIntegerInequalityTheory(DataType dataType) {
 		// the constants have to be introduced manually
 		super(dataType);
 		setupDefaultConstants(dataType);
 	}
 	
-	public SumCDoubleInequalityTheory(DataType dataType, List<DataValue<Double>> sumConstants, List<DataValue<Double>> regularConstants) {
+	public SumCIntegerInequalityTheory(DataType dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
 		super(dataType);
 		this.sumConstants = sumConstants;
 		this.regularConstants = regularConstants;
@@ -49,13 +48,13 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	}
 	
 	private void setupDefaultConstants(DataType dataType) {
-		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
-		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
+		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
+		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
 	}
 	
-    public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
+    public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
         //assume we can just sort the list and get the values
-        List<DataValue<Double>> sortedList = makeNewPotsWithSumC(dvs);
+        List<DataValue<Integer>> sortedList = makeNewPotsWithSumC(dvs);
         
         //sortedList.addAll(dvs);
         Collections.sort(sortedList, new Cpr());
@@ -73,19 +72,19 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
      *  in the sumConstants list.  
      * 
      */
-    private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
-    	List<DataValue<Double>> pot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
+    private List<DataValue<Integer>> makeNewPotsWithSumC(List<DataValue<Integer>> dvs) {
+    	List<DataValue<Integer>> pot = new ArrayList<DataValue<Integer>> (dvs.size() * (sumConstants.size()+1));
     	pot.addAll(dvs);
-    	List<DataValue<Double>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
+    	List<DataValue<Integer>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
     	// potential optimization, don't make sums out of sumC
     	dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
-    	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
+    	List<DataValue<Integer>> flattenedPot = new ArrayList<DataValue<Integer>> (dvs.size() * (sumConstants.size()+1));
     	flattenedPot.addAll(pot);
-    	for (DataValue<Double> sumConst : sumConstants) {
-	    	for (DataValue<Double> dv : dvWithoutConsts.stream().filter(pdv -> pdv.getType().equals(sumConst.getType())).collect(Collectors.toList()) ) {
-	    		DataValue<Double> regularSum = (DataValue<Double>) DataValue.add(dv, sumConst);
+    	for (DataValue<Integer> sumConst : sumConstants) {
+	    	for (DataValue<Integer> dv : dvWithoutConsts.stream().filter(pdv -> pdv.getType().equals(sumConst.getType())).collect(Collectors.toList()) ) {
+	    		DataValue<Integer> regularSum = (DataValue<Integer>) DataValue.add(dv, sumConst);
 	    		if ( !flattenedPot.contains(regularSum)) {
-	    			SumCDataValue<Double> sumDv = new SumCDataValue<Double>(dv, sumConst);
+	    			SumCDataValue<Integer> sumDv = new SumCDataValue<Integer>(dv, sumConst);
 	    			pot.add(sumDv);
 	    		}
 	    		flattenedPot.add(regularSum);
@@ -96,20 +95,16 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	return pot;
     }
     
-    public ValueMapper<Double> getValueMapper() {
-    	return new SumCDoubleInequalityValueMapper(this.getType(), this, this.sumConstants);
-    }
     
-    
-    
-    public Collection<DataValue<Double>> getAllNextValues(
-            List<DataValue<Double>> vals) {
+    public Collection<DataValue<Integer>> getAllNextValues(
+            List<DataValue<Integer>> vals) {
     	// adds window size interesting values
-    	List<DataValue<Double>> potential = getPotential(vals);
+    	List<DataValue<Integer>> potential = getPotential(vals);
     	potential = potential.stream().map(dv -> 
-    	dv instanceof SumCDataValue? ((SumCDataValue<Double>) dv).toRegular(): dv)
+    	dv instanceof SumCDataValue? ((SumCDataValue<Integer>) dv).toRegular(): dv)
     			.collect(Collectors.toList());
     	// the superclass should complete this list with in-between values.
     	return super.getAllNextValues(potential);
     }
+
 }

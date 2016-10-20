@@ -21,7 +21,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.sul.TypedValueCanonizer;
+import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import java.util.Collection;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -46,13 +46,13 @@ public class CanonizingIOCache extends IOOracle implements DataWordOracle {
 
     private final IOOracle sul;
 
-	private Supplier<TypedValueCanonizer> canonizerSupplier;
+	private Supplier<ValueCanonizer> canonizerSupplier;
 
 	private IOCache cache;
 
     private static LearnLogger log = LearnLogger.getLogger(CanonizingIOCache.class);
 
-    public CanonizingIOCache(IOOracle sul, Supplier<TypedValueCanonizer> canonizerSupplier) {
+    public CanonizingIOCache(IOOracle sul, Supplier<ValueCanonizer> canonizerSupplier) {
         this.sul = sul;
         this.canonizerSupplier = canonizerSupplier;
         this.cache = new IOCache();
@@ -66,8 +66,7 @@ public class CanonizingIOCache extends IOOracle implements DataWordOracle {
             query = query.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         
-        TypedValueCanonizer canonizer = this.canonizerSupplier.get();
-        Word<PSymbolInstance> canonicalQuery = canonizer.canonize(query, false);
+        Word<PSymbolInstance> canonicalQuery = this.canonizerSupplier.get().canonize(query, false);
 
         Word<PSymbolInstance> trace = this.cache.traceFromCache(canonicalQuery);
         if (trace != null) {
@@ -92,7 +91,7 @@ public class CanonizingIOCache extends IOOracle implements DataWordOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	TypedValueCanonizer canonizer = this.canonizerSupplier.get();
+    	ValueCanonizer canonizer = this.canonizerSupplier.get();
     	Word<PSymbolInstance> canonicalTrace = canonizer.canonize(query, false);
     	
         Boolean ret = this.cache.answerFromCache(canonicalTrace);

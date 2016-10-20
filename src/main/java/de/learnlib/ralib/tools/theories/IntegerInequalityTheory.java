@@ -1,47 +1,8 @@
-/*
- * Copyright (C) 2015 falk.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
- */
 package de.learnlib.ralib.tools.theories;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.sul.ValueMapper;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import gov.nasa.jpf.constraints.api.ConstraintSolver;
-import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Valuation;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,19 +11,36 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory.Cpr;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-/**
- *
- * @author falk
- */
-public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> implements TypedTheory<Double> {
-
-    protected static final class Cpr implements Comparator<DataValue<Double>> {
+public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> implements TypedTheory<Integer>{
+	protected static final class Cpr implements Comparator<DataValue<Integer>> {
 
         @Override
-        public int compare(DataValue<Double> one, DataValue<Double> other) {
+        public int compare(DataValue<Integer> one, DataValue<Integer> other) {
             return one.getId().compareTo(other.getId());
         }
     }
@@ -72,21 +50,21 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     private DataType type = null;
 
-    public DoubleInequalityTheory() {
+    public IntegerInequalityTheory() {
     }
 
-    public DoubleInequalityTheory(DataType t) {
-        this.setType(t);
+    public IntegerInequalityTheory(DataType t) {
+        this.type = t;
     }
 
     @Override
-    public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
+    public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
         //assume we can just sort the list and get the values
-        List<DataValue<Double>> sortedList = new ArrayList<>();
-        for (DataValue<Double> d : dvs) {
+        List<DataValue<Integer>> sortedList = new ArrayList<>();
+        for (DataValue<Integer> d : dvs) {
 //                    if (d.getId() instanceof Integer) {
-//                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
-//                    } else if (d.getId() instanceof Double) {
+//                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).IntegerValue()));
+//                    } else if (d.getId() instanceof Integer) {
             sortedList.add(d);
 //                    } else {
 //                        throw new IllegalStateException("not supposed to happen");
@@ -106,9 +84,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             // pick up the register
             SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
             // get the register value from the valuation
-            DataValue<Double> sdi = new DataValue(getType(), val.getValue(toVariable(si)));
+            DataValue<Integer> sdi = new DataValue(type, val.getValue(toVariable(si)));
             // add the register value as a constant
-            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
+            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, sdi.getId());
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(si)));
 
@@ -116,16 +94,16 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             IntervalGuard iGuard = (IntervalGuard) g;
             if (!iGuard.isBiggerGuard()) {
                 SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightSDV();
-                DataValue<Double> ri = new DataValue(getType(), val.getValue(toVariable(r)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, ri.getId());
+                DataValue<Integer> ri = new DataValue(type, val.getValue(toVariable(r)));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, ri.getId());
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(r)));
 
             }
             if (!iGuard.isSmallerGuard()) {
                 SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
-                DataValue<Double> li = new DataValue(getType(), val.getValue(toVariable(l)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, li.getId());
+                DataValue<Integer> li = new DataValue(type, val.getValue(toVariable(l)));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, li.getId());
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(l)));
 
@@ -133,14 +111,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         }
         return eList;
     }
-    
-
-    public ValueMapper<Double> getValueMapper() {
-    	return new SumCDoubleInequalityValueMapper(this.getType(), this);
-    }
 
     @Override
-    public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
+    public DataValue<Integer> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Integer>> alreadyUsedValues) {
         //System.out.println("INSTANTIATING: " + g.toString());
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
@@ -165,22 +138,22 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             }
 
             // add disequalities
-            for (DataValue<Double> au : alreadyUsedValues) {
-                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
+            for (DataValue<Integer> au : alreadyUsedValues) {
+                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, au.getId());
                 Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp));
                 eList.add(auExpr);
             }
 
             if (newVal.containsValueFor(toVariable(sp))) {
-                DataValue<Double> spDouble = new DataValue(getType(), newVal.getValue(toVariable(sp)));
-                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+                DataValue<Integer> spInteger = new DataValue(type, newVal.getValue(toVariable(sp)));
+                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, spInteger.getId());
                 Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
                 eList.add(spExpr);
             }
             
             for (Variable var : newVal.getVariables()) {
-            	DataValue<Double> spDouble = new DataValue(getType(), newVal.getValue(var));
-            	gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+            	DataValue<Integer> spInteger = new DataValue(type, newVal.getValue(var));
+            	gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.INTEGER, spInteger.getId());
             	Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, var);
             	eList.add(spExpr);
             }
@@ -196,9 +169,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         if (res == Result.SAT) {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
-            DataValue<Double> d = new DataValue(getType(), (newVal.getValue(toVariable(sp))));
+            DataValue<Integer> d = new DataValue(type, (newVal.getValue(toVariable(sp))));
             //System.out.println("return d: " + d.toString());
-            return d;//new DataValue<Double>(doubleType, d);
+            return d;//new DataValue<Integer>(IntegerType, d);
         } else {
 //                    System.out.println("UNSAT: " + _x + " with " + newVal);
             return null;
@@ -206,17 +179,17 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
         if (vals.isEmpty()) {
-            return new DataValue(getType(), 1.0);
+            return new DataValue(type, 1.0);
         }
-        List<DataValue<Double>> potential = getPotential(vals);
+        List<DataValue<Integer>> potential = getPotential(vals);
         if (potential.isEmpty()) {
-            return new DataValue(getType(), 1.0);
+            return new DataValue(type, 1.0);
         }
         //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
-        DataValue<Double> biggestDv = Collections.max(potential, new Cpr());
-        return new DataValue(getType(), biggestDv.getId() + 1.0);
+        DataValue<Integer> biggestDv = Collections.max(potential, new Cpr());
+        return new DataValue(type, biggestDv.getId() + 1.0);
     }
 
     @Override
@@ -227,40 +200,34 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     @Override
     public void setUseSuffixOpt(boolean useit) {
         System.err.println("Optimized suffixes are currently not supported for theory "
-                + DoubleInequalityTheory.class.getName());
+                + IntegerInequalityTheory.class.getName());
     }
 
     @Override
     public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
         System.err.println("Fresh values are currently not supported for theory "
-                + DoubleInequalityTheory.class.getName());
+                + IntegerInequalityTheory.class.getName());
     }
 
     @Override
-    public Collection<DataValue<Double>> getAllNextValues(
-            List<DataValue<Double>> vals) {
-        Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
+    public Collection<DataValue<Integer>> getAllNextValues(
+            List<DataValue<Integer>> vals) {
+        Set<DataValue<Integer>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
         if (vals.isEmpty()) {
-            nextValues.add(new DataValue<Double>(getType(), 1.0));
+            nextValues.add(new DataValue<Integer>(type, 1));
         } else {
             Collections.sort(vals, new Cpr());
             if (vals.size() > 1) {
                 for (int i = 0; i < (vals.size() - 1); i++) {
-                    Double d1 = vals.get(i).getId();
-                    Double d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DataValue<Double>(getType(), (d1 + ((d2 - d1) / 2))));
+                    Integer d1 = vals.get(i).getId();
+                    Integer d2 = vals.get(i + 1).getId();
+                    nextValues.add(new DataValue<Integer>(type, (d1 + ((d2 - d1) / 2))));
                 }
             }
-            
-            nextValues.add(new DataValue<Double>(getType(), (Collections.min(vals, new Cpr()).getId()-1.0)));
-            nextValues.add(new DataValue<Double>(getType(), (Collections.max(vals, new Cpr()).getId()+1.0)));
+            nextValues.add(new DataValue<Integer>(type, (Collections.min(vals, new Cpr()).getId()-1)));
+            nextValues.add(new DataValue<Integer>(type, (Collections.max(vals, new Cpr()).getId()+1)));
         }
         return nextValues;
     }
-
-	public DataType getType() {
-		return type;
-	}
-    
 }
