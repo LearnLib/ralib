@@ -45,6 +45,7 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
@@ -224,7 +225,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             final Constants consts = new Constants();
 
-            back = new SULOracle(sulLearn, SpecialSymbols.ERROR);
+            if (useFresh)
+            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, () -> new ValueCanonizer(this.teachers));
+            else 
+            	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
             IOCacheOracle ioCache = new IOCacheOracle(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
             
@@ -238,7 +242,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
-            final boolean fresh = this.useFresh;
             final Map<DataType, Theory> teach = this.teachers;
             TreeOracleFactory hypFactory = new TreeOracleFactory() {
                 @Override
@@ -355,7 +358,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             System.out.println("### SYS TRACE: " + sysTrace);
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);        
+            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);//, () -> new ValueCanonizer(this.teachers));        
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
             

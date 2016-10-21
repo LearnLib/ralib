@@ -113,13 +113,15 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
             List<Loop> list = loops.get(i);
             for (Loop loop : list) {
                 Word<PSymbolInstance> shorter = shorten(ce, loop);
+                System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
+                System.out.println("candidate:" + candidate);
                 //System.out.println("Cand: " + candidate);
                 if (!hypothesis.accepts(candidate)) {
                     //System.out.println("Reduced CE length by " + i + 
                     // " to " + candidate.length()
                     //);
-                    return candidate;
+                    return removeLoops(candidate, hyp);
                 }
             }
         }

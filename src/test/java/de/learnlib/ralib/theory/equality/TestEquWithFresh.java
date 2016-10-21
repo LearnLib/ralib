@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.ValueCanonizer;
@@ -46,6 +47,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -54,6 +56,31 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class TestEquWithFresh extends RaLibTestSuite {
+	
+	@Test
+	public void testSULCanonizer() {
+    	SessionManagerSUL sul = new SessionManagerSUL();
+    	DataValueConstructor<Integer> b = new DataValueConstructor<>(SessionManagerSUL.INT_TYPE); 
+
+    	IntegerEqualityTheory theory = new IntegerEqualityTheory(SessionManagerSUL.INT_TYPE);
+
+				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+       teachers.put(SessionManagerSUL.INT_TYPE, 
+    		   theory);
+       CanonizingSULOracle sulOracle = new CanonizingSULOracle(new DeterminedDataWordSUL(() -> new ValueCanonizer(teachers), sul), SessionManagerSUL.ERROR,
+    		   () -> new ValueCanonizer(teachers));
+       Word<PSymbolInstance> test = Word.fromSymbols( new PSymbolInstance(SessionManagerSUL.ISESSION,
+               new DataValue(SessionManagerSUL.INT_TYPE, 0)),
+    		      new PSymbolInstance(SessionManagerSUL.OSESSION,
+                          new DataValue(SessionManagerSUL.INT_TYPE, 3)),
+                  new PSymbolInstance(SessionManagerSUL.ILOGIN,
+               		   new DataValue(SessionManagerSUL.INT_TYPE, 0),
+               		   new DataValue(SessionManagerSUL.INT_TYPE, 1))
+                  , new PSymbolInstance(SessionManagerSUL.OK)
+    		   );
+		Word<PSymbolInstance> actual = sulOracle.trace(test);
+		Assert.assertNotNull(actual);
+	}
 	
     @Test
     public void testDeterminizer() {

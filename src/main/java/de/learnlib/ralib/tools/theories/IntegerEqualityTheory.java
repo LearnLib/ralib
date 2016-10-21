@@ -21,7 +21,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.theory.equality.EqualityValueMapper;
+import de.learnlib.ralib.theory.equality.FreshValueMapper;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,7 +81,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
 
     
 	  public ValueMapper<Integer> getValueMapper() {
-	  	return new EqualityValueMapper<Integer>(this.type, this);
+	  	return new FreshValueMapper<Integer>(this.type, this);
 	  }
 
 }

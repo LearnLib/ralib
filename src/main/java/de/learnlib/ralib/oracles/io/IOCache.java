@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -56,18 +55,18 @@ public class IOCache {
                 return Boolean.TRUE;
             }
 
-            DataValue[] dvInRepl = new DataValue[in.getBaseSymbol().getArity()];
-            for (int i = 0; i < dvInRepl.length; i++) {
-                DataValue d = in.getParameterValues()[i];
-                DataValue r = replacements.get(d);
-                if (r == null) {
-                    replacements.put(d, d);
-                    r = d;
-                }
-                dvInRepl[i] = r;
-            }
-
-            in = new PSymbolInstance(in.getBaseSymbol(), dvInRepl);
+//            DataValue[] dvInRepl = new DataValue[in.getBaseSymbol().getArity()];
+//            for (int i = 0; i < dvInRepl.length; i++) {
+//                DataValue d = in.getParameterValues()[i];
+//                DataValue r = replacements.get(d);
+//                if (r == null) {
+//                    replacements.put(d, d);
+//                    r = d;
+//                }
+//                dvInRepl[i] = r;
+//            }
+//
+//            in = new PSymbolInstance(in.getBaseSymbol(), dvInRepl);
 
             PSymbolInstance ref = iter.next();
 
@@ -82,21 +81,21 @@ public class IOCache {
                 return Boolean.FALSE;
             }
 
-            DataValue[] dvRefRepl = new DataValue[ref.getBaseSymbol().getArity()];
-
-            // process new replacements
-            for (int i = 0; i < dvRefRepl.length; i++) {
-                DataValue f = out.getParameterValues()[i];
-                DataValue d = ref.getParameterValues()[i];
-                if (f instanceof FreshValue) {
-                    assert !replacements.containsKey(d);
-                    replacements.put(d, f);
-                }
-                DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;
-                dvRefRepl[i] = r;
-            }
-
-            ref = new PSymbolInstance(ref.getBaseSymbol(), dvRefRepl);
+//            DataValue[] dvRefRepl = new DataValue[ref.getBaseSymbol().getArity()];
+//
+//            // process new replacements
+//            for (int i = 0; i < dvRefRepl.length; i++) {
+//                DataValue f = out.getParameterValues()[i];
+//                DataValue d = ref.getParameterValues()[i];
+//                if (f instanceof FreshValue) {
+//                    assert !replacements.containsKey(d);
+//                    replacements.put(d, f);
+//                }
+//                DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;
+//                dvRefRepl[i] = r;
+//            }
+//
+//            ref = new PSymbolInstance(ref.getBaseSymbol(), dvRefRepl);
 
             if (!out.equals(ref)) {
                 return Boolean.FALSE;

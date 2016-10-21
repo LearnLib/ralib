@@ -111,7 +111,7 @@ public class ValueCanonizer {
         if (!map.containsKey(dv)) {
         	Object actualValue = valueMatcher.decanonize(dv, map);
         	map.put(dv, actualValue);
-        	resultDv = new DataValue(dv.getType(), dv.getId());
+        	resultDv = new DataValue(dv.getType(), actualValue);
         	
         } else {
         	Object valueInMap = map.get(dv);

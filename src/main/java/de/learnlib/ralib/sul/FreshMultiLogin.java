@@ -1,7 +1,5 @@
 package de.learnlib.ralib.sul;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -83,11 +81,4 @@ public class FreshMultiLogin {
         } 
         return false;
     }      
-
-    public static void main(String args []) {
-    	Class<?> cls = FreshMultiLogin.class;
-    	for ( Method meth : cls.getMethods()) {
-    		System.out.println(Arrays.asList(meth.getParameterTypes()));
-    	}
-    }
 }

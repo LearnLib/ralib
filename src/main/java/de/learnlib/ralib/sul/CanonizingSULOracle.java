@@ -16,51 +16,55 @@
  */
 package de.learnlib.ralib.sul;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.data.DataValue;
+import java.util.function.Supplier;
+
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
- *
- * @author falk
+ * A canonizing SULOracle is a SULOracle that also performs canonicalization of the whole query 
+ * prior to the execution of each input. This ensures that in the end, a fully canonical trace
+ * is run on the SUL.
+ * 
+ * Example:
+ * reg 0 / out 3  in 1 4 / false is transformed to
+ * reg 0 / out 1  in 2 3 / false 
+ *  
  */
 public class CanonizingSULOracle extends IOOracle {
 
-    private final DataWordSUL sul;
+    private final DataWordSUL canonizedSul;
 
     private final ParameterizedSymbol error;
 
 	private Supplier<ValueCanonizer> canonizerSupplier;
 
   
-    public CanonizingSULOracle(DataWordSUL sul, ParameterizedSymbol error, Supplier<ValueCanonizer> canonizerSupplier) {
-        this.sul = sul;
+    public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, Supplier<ValueCanonizer> canonizerSupplier) {
+        this.canonizedSul = canonizedSul;
         this.error = error;
         this.canonizerSupplier = canonizerSupplier;
     }
 
+    
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         countQueries(1);
-        Word<PSymbolInstance> act = query;
-        sul.pre();
+        canonizedSul.pre();
         Word<PSymbolInstance> trace = Word.epsilon();
         ValueCanonizer canonizer = this.canonizerSupplier.get();
         
         for (int i = 0; i < query.length(); i += 2) {
-            PSymbolInstance in = applyReplacements(act.getSymbol(i));
+        	query = this.canonizerSupplier.get().canonize(query, false);
+            PSymbolInstance in = query.getSymbol(i);
             
-            PSymbolInstance out = sul.step(in);
-            updateReplacements(act.getSymbol(i + 1), out);
+//            PSymbolInstance in = query.getSymbol(i);
+            
+            PSymbolInstance out = canonizedSul.step(in);
+            
+           // out = canonizer.canonize(out, false);
 
             trace = trace.append(in).append(out);
 
@@ -77,42 +81,7 @@ public class CanonizingSULOracle extends IOOracle {
             }                        
         }
         
-        sul.post();
+        canonizedSul.post();
         return trace;
     }
-
-    private PSymbolInstance applyReplacements(PSymbolInstance symbol) {
-        DataValue[] vals = new DataValue[symbol.getBaseSymbol().getArity()];
-        for (int i = 0; i < symbol.getBaseSymbol().getArity(); i++) {
-            Set<DataValue> set = getOrCreate(symbol.getParameterValues()[i]);
-            if (set.size() < 1) {
-                vals[i] = symbol.getParameterValues()[i];
-            } else {
-                vals[i] = set.iterator().next();
-            }
-        }
-              
-        return new PSymbolInstance(symbol.getBaseSymbol(), vals);
-    }
-
-    private void updateReplacements(
-            PSymbolInstance outTest, PSymbolInstance outSys) {
-
-        for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
-            Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);
-            set.add(outSys.getParameterValues()[i]);
-            assert set.size() <= 1;
-        }
-    }
-
-    private Set<DataValue> getOrCreate(DataValue key) {
-//        Set<DataValue> ret = replacements.get(key);
-//        if (ret == null) {
-//            ret = new HashSet<>();
-//            replacements.put(key, ret);
-//        }
-//        return ret;
-    	return null;
-    }
-
 }

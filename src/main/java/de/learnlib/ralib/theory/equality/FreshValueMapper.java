@@ -8,13 +8,14 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.theory.Theory;
 
-public class EqualityValueMapper<T> implements ValueMapper<T>{
+public class FreshValueMapper<T> implements ValueMapper<T>{
 
 	private DataType type;
-	private EqualityTheory<T> theory;
+	private Theory<T> theory;
 
-	public EqualityValueMapper(DataType type, EqualityTheory<T> theory) {
+	public FreshValueMapper(DataType type, Theory<T> theory) {
 		this.type = type;
 		this.theory = theory;
 	}
