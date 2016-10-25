@@ -35,14 +35,14 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 	 * We can only canonize to SumC, Equal or Fresh Data Values. 
 	 */
 	
-	public DataValue<Double> canonize(Double value, Map<Double, DataValue<Double>> thisToOtherMap) {
+	public DataValue<Double> canonize(DataValue<Double> value, Map<DataValue<Double>, DataValue<Double>> thisToOtherMap) {
 		if (thisToOtherMap.containsKey(value)) {
 			DataValue<Double> dv = thisToOtherMap.get(value);
-			return new DataValue<>(dv.getType(), dv.getId());
+			return new DataValue<>(dv.getType(), dv.getId()); 
 		}
 		for (DataValue<Double> constant : this.constants) {
-			if (thisToOtherMap.containsKey(constant.getId() + value)) {
-				DataValue<Double> operand = canonize(value, thisToOtherMap);
+			if (thisToOtherMap.containsKey(DataValue.sub(value, constant))) {
+				DataValue<Double> operand = thisToOtherMap.get(DataValue.sub(value, constant));
 				return new SumCDataValue<Double>(operand, constant);
 			}
 		}
@@ -51,44 +51,46 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 		return new FreshValue<>(fv.getType(), fv.getId());
 	}
 
-	public Double decanonize(DataValue<Double> value, Map<DataValue<Double>, Double> thisToOtherMap) {
+	public DataValue<Double> decanonize(DataValue<Double> value, Map<DataValue<Double>, DataValue<Double>> thisToOtherMap) {
 		if (thisToOtherMap.containsKey(value)) 
 			return thisToOtherMap.get(value);
 		if (value instanceof IntervalDataValue) {
 			IntervalDataValue<Double> interval = (IntervalDataValue<Double>) value;
-			Double left = null;
-			Double right = null;
+			DataValue<Double> left = null;
+			DataValue<Double> right = null;
 			if (interval.getLeft() != null) 
 				left = decanonize(interval.getLeft(), thisToOtherMap);
-			if (interval.getLeft() != null) 
+			if (interval.getRight() != null) 
 				right = decanonize(interval.getRight(), thisToOtherMap);
-			if (left != null) 
-				if (right != null)
-					return (left + right)/2;
-				else 
-					return left - 1;
-			else
-				return right + 1;
+			return IntervalDataValue.instantiateNew(left, right);
+			
 		}
 		
+		// value is a sumc, then we decanonize the operand
 		if (value instanceof SumCDataValue) {
 			SumCDataValue<Double> sumCValue = (SumCDataValue<Double>) value;
-			Double operand = decanonize(sumCValue.getOperand(), thisToOtherMap);
-			return operand + sumCValue.getConstant().getId();
+			DataValue<Double> operand = decanonize(sumCValue.getOperand(), thisToOtherMap);
+			return new DataValue<Double>( operand.getType(), operand.getId() + sumCValue.getConstant().getId());
 		}
 		
-		// a second check, in case casting a SumC was used, no SumCDataValue was created (this fallback can only be applied on SumC)
+		// a second check, in case casting a SumC was used, no SumCDataValue was created (this fallback can only be applied on SumC, not on interval DVs)
 		for (DataValue<Double> constant : this.constants) {
 			DataValue<Double> sub = (DataValue<Double>) DataValue.sub(value, constant);
 			if (thisToOtherMap.containsKey(sub)) {
-				Double otherOperand = thisToOtherMap.get(sub);
-				return otherOperand + constant.getId();
+				DataValue<Double> otherOperand = thisToOtherMap.get(sub);
+				return new DataValue<Double>( otherOperand.getType(), otherOperand.getId() + constant.getId());
 			}
 		}
+
+		if (!thisToOtherMap.isEmpty() && value.getId() 
+				< Collections.max(thisToOtherMap.keySet().stream().map(k -> k.getId()).collect(Collectors.toList()))) {
+			return value;
+		}
 		
-		DataValue<Double> fv = this.theory.getFreshValue(thisToOtherMap.values().stream().
-				map(v -> new DataValue<>(this.type, v)).collect(Collectors.toList()));
-		return fv.getId();
+		DataValue<Double> fv = this.theory.getFreshValue(thisToOtherMap.values().stream().collect(Collectors.toList())); 
+//				this.theory.getFreshValue(thisToOtherMap.values().stream().
+//				map(v -> new DataValue<>(this.type, v)).collect(Collectors.toList()));
+		return fv;
 	}
 
 }

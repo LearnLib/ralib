@@ -1,11 +1,13 @@
 package de.learnlib.ralib.example.succ;
 
+
 import java.util.Random;
 
 public class OneWayFreshTCPExample extends AbstractTCPExample{
 
 	private static Random rand = new Random(0);
-	private Double seq = null;
+	private Double seq = 0.0;
+	private static Double gen = 0.0;
 	
 	public OneWayFreshTCPExample(Double win) {
 		super(win);
@@ -13,6 +15,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
 	
 	public OneWayFreshTCPExample() {
 		super();
+		configure();
 	}
 
     //handling each Input
@@ -24,16 +27,21 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
      *   - at max only MAX_REGISTERED_USERS may be registered 
      */
     public Double IConnect() {
+    	Double fresh = newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.seq = rand.nextDouble() * 100000;
+    		this.seq = fresh;  
     		state = State.SYN_SENT;
     	}
-        return this.seq;
-    }     
+        return fresh;
+    }
+    
+    private Double newFresh() {
+    	return gen = gen + 10000;
+    }
     
     public boolean ISYN(Double seq) {
     	boolean ret = false;

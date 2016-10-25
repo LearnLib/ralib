@@ -16,21 +16,16 @@
  */
 package de.learnlib.ralib.oracles.io;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+import java.util.logging.Level;
+
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.util.Collection;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.function.Supplier;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**

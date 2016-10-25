@@ -10,6 +10,7 @@ import com.google.common.collect.HashBiMap;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -35,25 +36,23 @@ import net.automatalib.words.Word;
 public class ValueCanonizer {
 	
 	
-	private final Map<DataType, BiMap<DataValue, Object>> buckets = new HashMap<>(); // from decanonized to canonized for each type
+	private final Map<DataType, BiMap<DataValue, DataValue>> buckets = new HashMap<>(); // from decanonized to canonized for each type
 	
-	private final Map<DataType, ValueMapper> valueMatchers; // value matchers are used to find pairings for each key supplied 
+	private final Map<DataType, ValueMapper> valueMappers; // value matchers are used to find pairings for each key supplied 
 	
-//	public static ValueCanonizer<T> newPotsCanonizer(Map<DataType, Theory<T>> theories) {
-//		Map<DataType, ValueMapper> valueMatchers = new LinkedHashMap<DataType, ValueMapper>();
-//		for (Map.Entry<DataType, Theory> entry : theories.entrySet()) {
-//			valueMatchers.put(entry.getKey(), new PotsValueMapper(entry.getKey(), entry.getValue()));
-//		}
-//		return new ValueCanonizer(valueMatchers);
-//	}
-	
-	public ValueCanonizer( Map<DataType, Theory> theories) {
-		valueMatchers = new LinkedHashMap<DataType, ValueMapper>();
+	public static ValueCanonizer buildNew(Map<DataType, Theory> theories) {
+		LinkedHashMap<DataType, ValueMapper> valueMappers = new LinkedHashMap<DataType, ValueMapper>();
 		theories.forEach((dt, th) ->  {
 			if ( th.getValueMapper() != null) {
-				valueMatchers.put(dt, th.getValueMapper());
+				valueMappers.put(dt, th.getValueMapper());
 			}
 		});
+		
+		return new ValueCanonizer(valueMappers);
+	}
+	
+	public ValueCanonizer( Map<DataType, ValueMapper> valueMappers) {
+		this.valueMappers = valueMappers;
 	}
 	
 //	public ValueCanonizer( Map<DataType, ValueMapper> valueMatchers) {
@@ -61,7 +60,13 @@ public class ValueCanonizer {
 //	}
 	
 	public Word<PSymbolInstance> canonize(Word<PSymbolInstance> trace, boolean inverse) {
-		return trace.transform(sym -> this.canonize(sym, inverse));
+		Word<PSymbolInstance> newTrace = Word.epsilon();
+		for (PSymbolInstance sym : trace) {
+			PSymbolInstance canSym = this.canonize(sym, inverse);
+			newTrace = newTrace.append(canSym);
+		}
+		return newTrace;
+//		return trace.transform(sym -> this.canonize(sym, inverse)); // switched away because it is hard to run a debugger
 	}
 	
 	public PSymbolInstance canonize(PSymbolInstance symbol, boolean inverse) {
@@ -76,53 +81,49 @@ public class ValueCanonizer {
 	 * A mapping from canonized to de-canonized is updated for every value.
 	 */
 	public DataValue [] canonize(DataValue [] dvs, boolean inverse) {
-		DataValue [] resultDvs = Stream.of(dvs).map(dv -> 
-		this.valueMatchers.containsKey(dv.getType()) ? inverse ? decanonize(dv) : canonize(dv) : dv).toArray(DataValue []::new);
+		
+		DataValue [] resultDvs = new DataValue [dvs.length];
+		for (int i = 0; i < dvs.length; i ++) {
+			resultDvs[i] = 
+					this.valueMappers.containsKey(dvs[i].getType()) ? 
+					inverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
+		}
+//				
+//				Stream.of(dvs).map(dv -> 
+//		this.valueMatchers.containsKey(dv.getType()) ? inverse ? decanonize(dv) : canonize(dv) : dv).toArray(DataValue []::new);
 	    return resultDvs;
 	}
 		
 	
 	private DataValue  canonize(DataValue dv) {
-		BiMap<DataValue, Object> map = getOrCreateBucket(dv);
-        BiMap<Object, DataValue> inverseMap = map.inverse();
+		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
+        BiMap<DataValue, DataValue> inverseMap = map.inverse();
         
-        ValueMapper valueMatcher = valueMatchers.get(dv.getType());
-        DataValue resultDv; 
+        ValueMapper valueMatcher = valueMappers.get(dv.getType());
+        DataValue resultDv = valueMatcher.canonize(dv, inverseMap);
         
-        if (!inverseMap.containsKey(dv.getId())) {
-        	DataValue value = valueMatcher.canonize(dv.getId(), inverseMap);
-        	inverseMap.put( dv.getId(), value);
-        	resultDv = value;
-        	
-        } else {
-        	DataValue valueInMap = inverseMap.get(dv.getId());
-        	resultDv = new DataValue(dv.getType(), valueInMap.getId());
+        if (!inverseMap.containsKey(dv)) {
+        	inverseMap.put(dv, resultDv);
         }
         
         return resultDv;
 	}
 	
 	private DataValue  decanonize(DataValue dv) {
-		BiMap<DataValue, Object> map = getOrCreateBucket(dv);
+		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
         
-        ValueMapper valueMatcher = valueMatchers.get(dv.getType());
-        DataValue resultDv; 
+        ValueMapper valueMatcher = valueMappers.get(dv.getType());
+        DataValue resultDv = valueMatcher.decanonize(dv, map); 
         
         if (!map.containsKey(dv)) {
-        	Object actualValue = valueMatcher.decanonize(dv, map);
-        	map.put(dv, actualValue);
-        	resultDv = new DataValue(dv.getType(), actualValue);
-        	
-        } else {
-        	Object valueInMap = map.get(dv);
-        	resultDv = new DataValue(dv.getType(), valueInMap);
-        }
+        	map.put(dv, resultDv);
+        } 
         
         return resultDv;
 	}
 
-	private BiMap<DataValue, Object> getOrCreateBucket(DataValue dv) {
-		BiMap<DataValue, Object> map = this.buckets.get(dv.getType());
+	private BiMap<DataValue, DataValue> getOrCreateBucket(DataValue dv) {
+		BiMap<DataValue, DataValue> map = this.buckets.get(dv.getType());
         if (map == null) {
             map = HashBiMap.create();
             this.buckets.put(dv.getType(), map);

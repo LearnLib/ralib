@@ -29,7 +29,7 @@ public class ValueCanonizerTest  extends RaLibTestSuite {
 	public void testCanonizerEqu() {
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_INT, new IntegerEqualityTheory(T_INT));
-        ValueCanonizer canonizer = new ValueCanonizer(theories);
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(theories);
         DataValue[] rcvd = canonizer.canonize(dv(0,1,2), true);
         test(rcvd, 0,1,2);
         rcvd = canonizer.canonize(dv(50,100,1), false);

@@ -21,9 +21,9 @@ public interface ValueMapper<T> {
 	 * data type.
 	 * 
 	 */
-	public DataValue<T> canonize(T value, Map<T, DataValue<T>> thisToOtherMap);
+	public DataValue<T> canonize(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap);
 	
-	public T decanonize(DataValue<T> value, Map<DataValue<T>,T> thisToOtherMap);
+	public DataValue<T> decanonize(DataValue<T> thisValue, Map<DataValue<T>,DataValue<T>> thisToOtherMap);
 	
 	
 }

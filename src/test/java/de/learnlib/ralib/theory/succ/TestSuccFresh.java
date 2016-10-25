@@ -16,13 +16,16 @@ import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.example.succ.OneWayFreshTCPSUL;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.TraceFixer;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.automata.concepts.Output;
@@ -42,10 +45,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = new ValueCanonizer(teachers);
-        FreshValue<Double> fv = new FreshValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 0.0);
-        SumCDataValue<Double> sc = new SumCDataValue<Double> (fv, new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0));
-        
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
         
         canonizer.canonize(new DataValue [] {
         		b.fv(0.0)
@@ -64,11 +64,66 @@ public class TestSuccFresh extends RaLibTestSuite{
         Assert.assertEquals(outpt[0].getId(), 330.0); // the ValueMapper 
         Assert.assertEquals(outpt[1].getId(), 660.0);
         Assert.assertEquals(outpt[2].getId(), 2.0);
+	}
+	
+	
+	@Test
+	public void testSulWithCanonizer() {
+		Double win = 100.0;
+		DataValueConstructor<Double> b = new DataValueConstructor<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE);
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        		Arrays.asList(
+        				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+        				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
+        		Collections.emptyList());
+        teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
         
-        System.out.println(outpt);
+        OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(100.0);
+        DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
         
+        final Word<PSymbolInstance> testWord = Word.fromSymbols(
+        		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(OneWayFreshTCPSUL.OK,
+                		b.fv(1.0)),
+        		new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
+                		b.intv(1.5, b.sumcv(1.0, 1.0), b.sumcv(1.0, 100.0))),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK),
+                new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
+                		b.dv(1.0)),
+                new PSymbolInstance(OneWayFreshTCPSUL.OK));
         
+        BasicSULOracle oracle = new BasicSULOracle(dsul, OneWayFreshTCPSUL.ERROR);
+        Word<PSymbolInstance> result = oracle.trace(testWord);
+        Assert.assertEquals(testWord.getSymbol(5).getBaseSymbol(), OneWayFreshTCPSUL.OK);
+        Assert.assertEquals(testWord.getSymbol(3).getBaseSymbol(), OneWayFreshTCPSUL.NOK);
+	}
+	
+	@Test
+	public void testTraceFixer() {
+		Double win = 100.0;
+		DataValueConstructor<Double> b = new DataValueConstructor<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE);
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        		Arrays.asList(
+        				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+        				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
+        		Collections.emptyList());
+        teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
+        
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
+        TraceFixer fixer = new TraceFixer(teachers);
+        
+        final Word<PSymbolInstance> testWord = Word.fromSymbols(
+        		new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
+                		b.intv(1.5, b.sumcv(1.0, 1.0), b.sumcv(1.0, 100.0))),
+                new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
+                		b.intv(2.0, b.dv(1.5), b.sumcv(1.5, 1.0)), b.sumcv(101.0, 1.0)));
+        Word<PSymbolInstance> fixedTrace = fixer.fixTrace(testWord);
+        Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[1].getClass(), FreshValue.class);
+        Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[0].getClass(), IntervalDataValue.class);
 	}
 	
     @Test
@@ -83,7 +138,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
 
         DataWordSUL sul = new OneWayFreshTCPSUL(win);
-        sul = new DeterminedDataWordSUL(() -> new ValueCanonizer(teachers), sul);
+        sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
         SULOracle oracle = new SULOracle(sul, OneWayFreshTCPSUL.ERROR);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         

@@ -19,7 +19,15 @@ package de.learnlib.ralib.data;
 import java.util.Objects;
 
 /**
- *
+ * DataValues comprise a type (for parameter typing) and a concrete value. 
+ * The DataValue class is subclassed by specific DataValue classes, which add
+ * information on how the DataValue was formed. This information is semi-symbolic,
+ * and allows for the respective DataValue to be re-instantiated from a different set
+ * of values.  
+ * 
+ * Equality for DataValues and all their subclassed instances,  is fully defined by 
+ * the type and the concrete value. Consequently, a SumC value 11 (10+1) is equal to
+ * a DataValue 11 of the same type.
  * @author falk
  * @param <T>
  */
@@ -44,10 +52,26 @@ public class DataValue<T> {
     	return new DataValue(rv.getType(), cast(subValue, rv.getType()) );
     }
     
+    protected static <NT extends Number> NT add(NT a, NT b) {
+    	Number val;
+    	if (a.getClass() == Integer.class) {
+			val = ((Integer) a) - ((Integer) b);
+		} else {
+			if (a.getClass() == Double.class) {
+				val = ((Integer) a) - ((Integer) b);
+			} else 
+				throw new RuntimeException("Unsupported type " + a.getClass());
+		}
+    	return null;
+    }
+    
+    
+    
+    
     // can be made using reflection but this way is probably faster
-    public static <T> T cast(T numObject, DataType toType) {
+    public static <T> T cast(Object numObject, DataType toType) {
     	if (toType.getBase() == numObject.getClass()) {
-    		return numObject;
+    		return (T) numObject;
     	}
     	Class baseType = toType.getBase();
     	String objString = numObject.toString();
@@ -57,7 +81,7 @@ public class DataValue<T> {
     			return (T) new Integer(number.intValue());
     		} else {
     			if (baseType == Double.class) {
-    				return (T) new Double(number.intValue());
+    				return (T) new Double(number.doubleValue());
     			}
     		}
     	} else {

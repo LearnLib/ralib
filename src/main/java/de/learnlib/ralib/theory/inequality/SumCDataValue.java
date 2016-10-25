@@ -38,26 +38,26 @@ public class SumCDataValue<T> extends DataValue<T>{
         return this.getOperand().toString() + " + " + this.constant.toString(); 
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + operand.hashCode();
-        hash = 97 * hash + constant.hashCode();
-        return hash;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof SumCDataValue)) {
-            return false;
-        }
-        
-        SumCDataValue sumC = (SumCDataValue) obj;
-        
-        return sumC.constant.equals(this.constant) && super.equals(obj);
-    }
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 97 * hash + operand.hashCode();
+//        hash = 97 * hash + constant.hashCode();
+//        return hash;
+//    }
+//    
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (obj == null) {
+//            return false;
+//        }
+//        if (!(obj instanceof SumCDataValue)) {
+//            return false;
+//        }
+//        
+//        SumCDataValue sumC = (SumCDataValue) obj;
+//        
+//        return sumC.constant.equals(this.constant) && super.equals(obj);
+//    }
 
 }

@@ -19,6 +19,7 @@ package de.learnlib.ralib.sul;
 import java.util.function.Supplier;
 
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.tools.theories.TraceFixer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -39,10 +40,10 @@ public class CanonizingSULOracle extends IOOracle {
 
     private final ParameterizedSymbol error;
 
-	private Supplier<ValueCanonizer> canonizerSupplier;
+	private Supplier<TraceFixer> canonizerSupplier;
 
   
-    public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, Supplier<ValueCanonizer> canonizerSupplier) {
+    public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, Supplier<TraceFixer> canonizerSupplier) {
         this.canonizedSul = canonizedSul;
         this.error = error;
         this.canonizerSupplier = canonizerSupplier;
@@ -54,11 +55,11 @@ public class CanonizingSULOracle extends IOOracle {
         countQueries(1);
         canonizedSul.pre();
         Word<PSymbolInstance> trace = Word.epsilon();
-        ValueCanonizer canonizer = this.canonizerSupplier.get();
         
         for (int i = 0; i < query.length(); i += 2) {
-        	query = this.canonizerSupplier.get().canonize(query, false);
-            PSymbolInstance in = query.getSymbol(i);
+        	Word<PSymbolInstance> fixedQuery = trace.concat(query.suffix(query.size() - trace.size()));
+        	fixedQuery = this.canonizerSupplier.get().fixTrace(fixedQuery);
+            PSymbolInstance in = fixedQuery.getSymbol(i);
             
 //            PSymbolInstance in = query.getSymbol(i);
             

@@ -78,7 +78,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	pot.addAll(dvs);
     	List<DataValue<Double>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
     	// potential optimization, don't make sums out of sumC
-    	dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
+    	// dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
     	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
     	flattenedPot.addAll(pot);
     	for (DataValue<Double> sumConst : sumConstants) {
@@ -96,6 +96,13 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	return pot;
     }
     
+    public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+    	List<DataValue<Double>> valsWithConsts = new ArrayList<>(vals);
+    	valsWithConsts.addAll(this.regularConstants);
+    	// we add regular constants
+    	return super.getFreshValue(valsWithConsts);
+    }
+    
     public ValueMapper<Double> getValueMapper() {
     	return new SumCDoubleInequalityValueMapper(this.getType(), this, this.sumConstants);
     }
@@ -104,11 +111,9 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     
     public Collection<DataValue<Double>> getAllNextValues(
             List<DataValue<Double>> vals) {
-    	// adds window size interesting values
+    	// adds sumc constants to interesting values
     	List<DataValue<Double>> potential = getPotential(vals);
-    	potential = potential.stream().map(dv -> 
-    	dv instanceof SumCDataValue? ((SumCDataValue<Double>) dv).toRegular(): dv)
-    			.collect(Collectors.toList());
+    	
     	// the superclass should complete this list with in-between values.
     	return super.getAllNextValues(potential);
     }

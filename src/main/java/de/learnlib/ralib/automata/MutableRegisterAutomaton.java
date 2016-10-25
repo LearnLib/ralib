@@ -105,14 +105,15 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             final VarValuation fVars = vars; 
             List<Transition> enabledTransitions = candidates.stream().
             		filter(t -> t.isEnabled(fVars, pars, this.constants)).collect(Collectors.toList());
-            if (enabledTransitions.size() > 1) {
-            	tseq.forEach(tr -> System.out.println(tr + "\n"));
-            	throw new RuntimeException("Multiple enabled transitions found\n regs: " + vars +  "\n guards: " + 
-            enabledTransitions.stream().map(tr -> tr.guard).collect(Collectors.toList()) + 
-            			"\n symbols to path: "+ dw.prefix(dw.asList().indexOf(psi)));
-            }
-            
-            else if (enabledTransitions.size() == 0) 
+//            if (enabledTransitions.size() > 1) {
+//            	tseq.forEach(tr -> System.out.println(tr + "\n"));
+//            	throw new RuntimeException("Multiple enabled transitions found\n regs: " + vars +  "\n guards: " + 
+//            enabledTransitions.stream().map(tr -> tr.guard).collect(Collectors.toList()) + 
+//            			"\n symbols to path: "+ dw.prefix(dw.asList().indexOf(psi)));
+//            }
+//            
+//            else 
+            	if (enabledTransitions.size() == 0) 
             	return null;
             else {
             	Transition t = enabledTransitions.get(0);

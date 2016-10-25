@@ -59,6 +59,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.theories.TraceFixer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
@@ -191,7 +192,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulLearn = new DeterminedDataWordSUL(() -> new ValueCanonizer(this.teachers), sulLearn);
+            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulLearn);
             }
             if (this.timeoutMillis > 0L) {
             	
@@ -199,7 +200,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulTest = new DeterminedDataWordSUL(() -> new ValueCanonizer(this.teachers), sulTest);
+            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulTest);
             }
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
@@ -226,7 +227,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             if (useFresh)
-            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, () -> new ValueCanonizer(this.teachers));
+            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, () -> new TraceFixer(this.teachers));
             else 
             	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
             IOCacheOracle ioCache = new IOCacheOracle(back);

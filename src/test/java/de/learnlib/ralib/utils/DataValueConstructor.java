@@ -6,7 +6,7 @@ import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
-public class DataValueConstructor<T> {
+public class DataValueConstructor<T extends Comparable<T>> {
 	private DataType type;
 
 	public DataValueConstructor(DataType type) {
@@ -26,9 +26,14 @@ public class DataValueConstructor<T> {
 		return new SumCDataValue<T>(dv(val), dv(cons));
 	}
 	
-	public IntervalDataValue<T> intv(T val, T bigger, T smaller) {
-		DataValue<T> left = bigger != null? dv(bigger): null;
-		DataValue<T> right = smaller != null? dv(smaller): null;
+	public IntervalDataValue<T> intv(T val, DataValue<T> biggerThan, DataValue<T> smallerThan) {
+		
+		return new IntervalDataValue<T>(dv(val), biggerThan, smallerThan);
+	}
+	
+	public IntervalDataValue<T> intv(T val, T biggerThan, T smallerThan) {
+		DataValue<T> left = biggerThan != null? dv(biggerThan): null;
+		DataValue<T> right = smallerThan != null? dv(smallerThan): null;
 		return new IntervalDataValue<T>(dv(val), left, right);
 	}
 }

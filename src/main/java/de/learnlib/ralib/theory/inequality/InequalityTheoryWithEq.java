@@ -43,12 +43,13 @@ import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
@@ -61,6 +62,8 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -74,9 +77,11 @@ import net.automatalib.words.Word;
  * @author Sofia Cassel
  * @param<T>
  */
-public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
+public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
 
 	private static final LearnLogger log = LearnLogger.getLogger(InequalityTheoryWithEq.class);
+	private boolean freshValues;
+	private IOOracle sulOracle;
 
 	private void addAllSafely(Collection<SDTGuard> guards, Collection<SDTGuard> toAdd,
 			List<SymbolicDataValue> regPotential) {
@@ -804,6 +809,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 		return new Pair<>(resGuards, resMerge);
 	}
+	
+	
+    @Override
+    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
+        this.freshValues = doit;
+        this.sulOracle = oracle;
+    }
+
 
 	// given a set of registers and a set of guards, keep only the registers
 	// that are mentioned in any guard
@@ -912,7 +925,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		Map<SDTGuard, DataValue<T>> guardDvs = new LinkedHashMap<>();
 		
 		// special case: fresh values in outputs
-//        if (freshValues) {
+//        if (this.freshValues) {
 //
 //            ParameterizedSymbol ps = computeSymbol(suffix, pId);
 //
@@ -921,7 +934,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                int idx = computeLocalIndex(suffix, pId);
 //                Word<PSymbolInstance> query = buildQuery(
 //                        prefix, suffix, values);
-//                Word<PSymbolInstance> trace = ioOracle.trace(query);
+//                Word<PSymbolInstance> trace = sulOracle.trace(query);
 //                PSymbolInstance out = trace.lastSymbol();
 //
 //                if (out.getBaseSymbol().equals(ps)) {
@@ -1084,7 +1097,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 				// we normalize newDv so that we only store plain data values in
 				// the if suffix
-				newDv = new DataValue<T>(newDv.getType(), newDv.getId());
+//				newDv = new DataValue<T>(newDv.getType(), newDv.getId());
 				// construct the equality guard
 				// find the data value in the prefix
 				// this is the valuation of the positions in the suffix

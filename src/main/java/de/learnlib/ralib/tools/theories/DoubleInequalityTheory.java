@@ -22,6 +22,7 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.ValueMapper;
@@ -30,6 +31,7 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
@@ -231,30 +233,25 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        System.err.println("Fresh values are currently not supported for theory "
-                + DoubleInequalityTheory.class.getName());
-    }
-
-    @Override
     public Collection<DataValue<Double>> getAllNextValues(
             List<DataValue<Double>> vals) {
         Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
         if (vals.isEmpty()) {
-            nextValues.add(new DataValue<Double>(getType(), 1.0));
+            nextValues.add(new FreshValue<Double>(getType(), 1.0));
         } else {
             Collections.sort(vals, new Cpr());
             if (vals.size() > 1) {
                 for (int i = 0; i < (vals.size() - 1); i++) {
-                    Double d1 = vals.get(i).getId();
-                    Double d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DataValue<Double>(getType(), (d1 + ((d2 - d1) / 2))));
+                    IntervalDataValue<Double> intVal = IntervalDataValue.instantiateNew(vals.get(i), vals.get(i + 1));
+                    nextValues.add(intVal);
                 }
             }
             
-            nextValues.add(new DataValue<Double>(getType(), (Collections.min(vals, new Cpr()).getId()-1.0)));
-            nextValues.add(new DataValue<Double>(getType(), (Collections.max(vals, new Cpr()).getId()+1.0)));
+            DataValue<Double> min = Collections.min(vals, new Cpr());
+            nextValues.add(IntervalDataValue.instantiateNew(null, min));
+            DataValue<Double> max = Collections.max(vals, new Cpr());
+            nextValues.add(IntervalDataValue.instantiateNew(max, null));
         }
         return nextValues;
     }
