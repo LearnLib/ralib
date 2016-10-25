@@ -17,11 +17,13 @@
 package de.learnlib.ralib.oracles.io;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -38,11 +40,20 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
 	private final IOCache ioCache;
 
+	private Optional<TraceCanonizer> fixer;
+
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
     public IOCacheOracle(IOOracle sul) {
         this.sul = sul;
         this.ioCache = new IOCache();
+        this.fixer = Optional.empty();
+    }
+    
+    public IOCacheOracle(IOOracle sul, TraceCanonizer fixer) {
+        this.sul = sul;
+        this.ioCache = new IOCache();
+        this.fixer = Optional.of(fixer);
     }
 
     @Override
@@ -56,6 +67,9 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
+    	query = this.fixer.isPresent() ? 
+    			this.fixer.get().fixTrace(query) 
+    			: query; 
         Boolean ret = this.ioCache.answerFromCache(query);
         if (ret != null) {
             return ret;

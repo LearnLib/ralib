@@ -14,8 +14,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class OneWayFreshTCPSUL  extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE = 
-            new DataType("DOUBLE", Double.class);    
+    public static final DataType<Double> DOUBLE_TYPE = 
+            new DataType<>("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
             new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE});
@@ -25,6 +25,10 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
             new InputSymbol("ISYNACK", new DataType[]{DOUBLE_TYPE});
     public static final ParameterizedSymbol IACK = 
             new InputSymbol("IACK", new DataType[]{DOUBLE_TYPE});
+    
+    public static final ParameterizedSymbol IFINACK = 
+            new InputSymbol("IFINACK", new DataType[]{DOUBLE_TYPE});
+    
     
     public static final ParameterizedSymbol ERROR = 
             new OutputSymbol("_io_err", new DataType[]{});
@@ -98,7 +102,7 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
         countInputs(1);
         if (i.getBaseSymbol().equals(ICONNECT)) {
             Object x = tcpSut.IConnect();
-            return new PSymbolInstance(OCONNECT, new DataValue(DOUBLE_TYPE, x));
+            return new PSymbolInstance(OCONNECT, new DataValue<Double>(DOUBLE_TYPE, (Double)x));
         } else if (i.getBaseSymbol().equals(ISYN)) {
             Object x = tcpSut.ISYN(
             		(Double)i.getParameterValues()[0].getId());
@@ -111,7 +115,13 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
             Object x = tcpSut.IACK(
             		(Double)i.getParameterValues()[0].getId());
             return createOutputSymbol(x); 
-        } else {
+        } else if (i.getBaseSymbol().equals(IFINACK)) {
+            Object x = tcpSut.IFINACK(
+            		(Double)i.getParameterValues()[0].getId());
+            return createOutputSymbol(x); 
+        }  
+        
+        else {
             throw new IllegalStateException("i must be instance of connect or flag config");
         }
     }

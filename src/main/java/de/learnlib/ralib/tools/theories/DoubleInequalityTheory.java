@@ -18,13 +18,23 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -44,16 +54,6 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
 
 /**
  *
@@ -72,7 +72,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
     private final ConstraintSolver solver = fact.createSolver("z3");
 
-    private DataType type = null;
+    private DataType<Double> type = null;
 
     public DoubleInequalityTheory() {
     }
@@ -210,7 +210,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     @Override
     public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
         if (vals.isEmpty()) {
-            return new DataValue(getType(), 1.0);
+            return new DataValue<Double>(getType(), 1.0);
         }
         List<DataValue<Double>> potential = getPotential(vals);
         if (potential.isEmpty()) {
@@ -256,7 +256,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         return nextValues;
     }
 
-	public DataType getType() {
+	public DataType<Double> getType() {
 		return type;
 	}
     

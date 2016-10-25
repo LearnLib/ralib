@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 public class DataValue<T> {
     
-    protected final DataType type;
+    protected final DataType<T> type;
 
     protected final T id;
     
@@ -52,36 +52,32 @@ public class DataValue<T> {
     	return new DataValue(rv.getType(), cast(subValue, rv.getType()) );
     }
     
-    protected static <NT extends Number> NT add(NT a, NT b) {
+    protected static <NT> NT add(Class<NT> cls, NT a, NT b) {
     	Number val;
-    	if (a.getClass() == Integer.class) {
-			val = ((Integer) a) - ((Integer) b);
+    	if (a instanceof Integer) {
+			val = ((Integer) a) + ((Integer) b);
 		} else {
-			if (a.getClass() == Double.class) {
-				val = ((Integer) a) - ((Integer) b);
+			if (a instanceof Double) {
+				val = ((Double) a) + ((Double) b);
 			} else 
 				throw new RuntimeException("Unsupported type " + a.getClass());
 		}
-    	return null;
+    	return cls.cast(val);
     }
     
-    
-    
-    
     // can be made using reflection but this way is probably faster
-    public static <T> T cast(Object numObject, DataType toType) {
+    public static <T> T cast(Object numObject, DataType<T> toType) {
+    	Class<T> cls = toType.getBase();
     	if (toType.getBase() == numObject.getClass()) {
-    		return (T) numObject;
+    		return cls.cast(numObject);
     	}
-    	Class baseType = toType.getBase();
-    	String objString = numObject.toString();
-    	if (Number.class.isAssignableFrom(baseType) && numObject instanceof Number) {
+    	if (Number.class.isAssignableFrom(cls) && numObject instanceof Number) {
     		Number number = (Number)(numObject);
-    		if (baseType == Integer.class) {
-    			return (T) new Integer(number.intValue());
+    		if (cls == Integer.class) {
+    			return cls.cast(new Integer(number.intValue()));
     		} else {
-    			if (baseType == Double.class) {
-    				return (T) new Double(number.doubleValue());
+    			if (cls == Double.class) {
+    				return cls.cast(new Double(number.doubleValue()));
     			}
     		}
     	} else {
@@ -90,7 +86,7 @@ public class DataValue<T> {
     	return null;
     }
     
-    public DataValue(DataType type, T id) {
+    public DataValue(DataType<T> type, T id) {
         this.type = type;
         this.id = id;
     }
@@ -131,7 +127,7 @@ public class DataValue<T> {
         return id;
     }
 
-    public DataType getType() {
+    public DataType<T> getType() {
         return type;
     }
     

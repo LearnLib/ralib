@@ -82,10 +82,10 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 			}
 		}
 
-		if (!thisToOtherMap.isEmpty() && value.getId() 
-				< Collections.max(thisToOtherMap.keySet().stream().map(k -> k.getId()).collect(Collectors.toList()))) {
-			return value;
-		}
+//		if (!thisToOtherMap.isEmpty() && value.getId() 
+//				< Collections.max(thisToOtherMap.keySet().stream().map(k -> k.getId()).collect(Collectors.toList()))) {
+//			return value;
+//		}
 		
 		DataValue<Double> fv = this.theory.getFreshValue(thisToOtherMap.values().stream().collect(Collectors.toList())); 
 //				this.theory.getFreshValue(thisToOtherMap.values().stream().

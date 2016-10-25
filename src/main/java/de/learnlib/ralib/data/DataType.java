@@ -23,7 +23,7 @@ import java.util.Objects;
  * 
  * @author falk
  */
-public final class DataType {
+public final class DataType<T> {
 
     /**
      * name of type (defining member)
@@ -33,9 +33,9 @@ public final class DataType {
     /**
      * base type
      */
-    protected final Class base;
+    protected final Class<T> base;
 
-    public DataType(String name, Class base) {
+    public DataType(String name, Class<T> base) {
         this.name = name;
         this.base = base;
     }
@@ -66,7 +66,7 @@ public final class DataType {
         return name;
     }
     
-    public Class getBase() {
+    public Class<T> getBase() {
         return base;
     }
        

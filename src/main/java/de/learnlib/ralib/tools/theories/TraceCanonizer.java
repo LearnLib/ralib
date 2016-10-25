@@ -21,14 +21,14 @@ import net.automatalib.words.Word;
  * Fixes a symbolic data trace produced after reduction techniques. This could be merged with the ValueMapper / canonizer
  * (in the end, it's a type of canonizing from DataValue to DataValue). 
  */
-public class TraceFixer {
+public class TraceCanonizer {
 	
 	private Map<DataType, Theory> theories;
 
 	final Map<DataType, ValueMapper> valueMappers = new LinkedHashMap<>();
 	private Map<DataType, Map<DataValue, DataValue>> buckets;
 
-	public TraceFixer(Map<DataType, Theory> theories) {
+	public TraceCanonizer(Map<DataType, Theory> theories) {
 		this.theories = theories;
 		this.theories.forEach( (dt, th) -> valueMappers.put(dt, new TraceFixerMapper(th)));
 	}

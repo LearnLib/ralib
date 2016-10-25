@@ -23,12 +23,10 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
-import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
-import de.learnlib.ralib.tools.theories.TraceFixer;
+import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.automata.concepts.Output;
 import net.automatalib.words.Word;
 
 public class TestSuccFresh extends RaLibTestSuite{
@@ -84,7 +82,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(100.0);
         DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
         
-        final Word<PSymbolInstance> testWord = Word.fromSymbols(
+       Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT),
                 new PSymbolInstance(OneWayFreshTCPSUL.OK,
                 		b.fv(1.0)),
@@ -99,6 +97,31 @@ public class TestSuccFresh extends RaLibTestSuite{
         Word<PSymbolInstance> result = oracle.trace(testWord);
         Assert.assertEquals(testWord.getSymbol(5).getBaseSymbol(), OneWayFreshTCPSUL.OK);
         Assert.assertEquals(testWord.getSymbol(3).getBaseSymbol(), OneWayFreshTCPSUL.NOK);
+        
+        testWord = Word.fromSymbols(
+        		new PSymbolInstance(OneWayFreshTCPSUL.IFINACK,
+        				b.fv(1.0)
+        				),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK),
+                new PSymbolInstance(OneWayFreshTCPSUL.ISYNACK,
+        				b.dv(1.0)
+        				),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK),
+        		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(OneWayFreshTCPSUL.OK,
+                		b.fv(102.0)),
+                new PSymbolInstance(OneWayFreshTCPSUL.IACK,
+        				b.dv(102.0)
+        				),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK),
+                new PSymbolInstance(OneWayFreshTCPSUL.IFINACK,
+                		b.intv(101.5, b.sumcv(1.0, 100.0), b.dv(102.0))),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK),
+                new PSymbolInstance(OneWayFreshTCPSUL.IACK,
+                		b.intv(104.0, b.sumcv(102.0, 1.0), b.sumcv(101.5, 100.0)))
+        		);
+        result = oracle.trace(testWord);
+        Assert.assertTrue(true);
 	}
 	
 	@Test
@@ -114,7 +137,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
         ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
-        TraceFixer fixer = new TraceFixer(teachers);
+        TraceCanonizer fixer = new TraceCanonizer(teachers);
         
         final Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
@@ -168,8 +191,4 @@ public class TestSuccFresh extends RaLibTestSuite{
         
     }
     
-//    private Word<PSymbolInstance> run(DataWordSUL sul, Word<PSymbolInstance> word) {
-//    	
-//    	
-//    }
 }

@@ -99,8 +99,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
     	List<DataValue<Double>> valsWithConsts = new ArrayList<>(vals);
     	valsWithConsts.addAll(this.regularConstants);
+    	
     	// we add regular constants
-    	return super.getFreshValue(valsWithConsts);
+    	DataValue<Double> fv = super.getFreshValue(valsWithConsts);
+    	DataValue<Double> maxSumC = Collections.max(this.sumConstants, new Cpr());
+    	return new DataValue<Double>(fv.getType(), fv.getId() + maxSumC.getId() * 100);
     }
     
     public ValueMapper<Double> getValueMapper() {

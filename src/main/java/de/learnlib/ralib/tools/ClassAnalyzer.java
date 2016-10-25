@@ -59,7 +59,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import de.learnlib.ralib.tools.theories.TraceFixer;
+import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
@@ -227,10 +227,16 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             if (useFresh)
-            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, () -> new TraceFixer(this.teachers));
+            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new TraceCanonizer(this.teachers));
             else 
             	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
-            IOCacheOracle ioCache = new IOCacheOracle(back);
+            
+            IOCacheOracle ioCache;
+            if (useFresh)
+            	ioCache = new IOCacheOracle(back, new TraceCanonizer(this.teachers));
+            else 
+            	ioCache = new IOCacheOracle(back);
+            
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
             
             if (useFresh) {
