@@ -119,6 +119,6 @@ public interface Theory<T> {
     public DataValue instantiate(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
-            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
+            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver);
     
 }

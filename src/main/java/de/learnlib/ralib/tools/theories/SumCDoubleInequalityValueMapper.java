@@ -37,8 +37,8 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 	
 	public DataValue<Double> canonize(DataValue<Double> value, Map<DataValue<Double>, DataValue<Double>> thisToOtherMap) {
 		if (thisToOtherMap.containsKey(value)) {
-			DataValue<Double> dv = thisToOtherMap.get(value);
-			return new DataValue<>(dv.getType(), dv.getId()); 
+			DataValue<Double> mapping = thisToOtherMap.get(value);
+			return new DataValue<>(mapping.getType(), mapping.getId()); 
 		}
 		for (DataValue<Double> constant : this.constants) {
 			if (thisToOtherMap.containsKey(DataValue.sub(value, constant))) {
@@ -81,11 +81,6 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 				return new DataValue<Double>( otherOperand.getType(), otherOperand.getId() + constant.getId());
 			}
 		}
-
-//		if (!thisToOtherMap.isEmpty() && value.getId() 
-//				< Collections.max(thisToOtherMap.keySet().stream().map(k -> k.getId()).collect(Collectors.toList()))) {
-//			return value;
-//		}
 		
 		DataValue<Double> fv = this.theory.getFreshValue(thisToOtherMap.values().stream().collect(Collectors.toList())); 
 //				this.theory.getFreshValue(thisToOtherMap.values().stream().

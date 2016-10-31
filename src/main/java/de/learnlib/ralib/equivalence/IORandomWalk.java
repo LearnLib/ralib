@@ -130,8 +130,16 @@ public class IORandomWalk implements IOEquivalenceOracle {
             run = run.append(next).append(out);
 
             if (!hyp.accepts(run)) {
-                log.log(Level.FINE, "Run with CE: {0}", run);                
+                log.log(Level.FINE, "Run with CE: {0}", run);     
+                System.out.format("Run with CE: {0}", run);
+                hyp.accepts(run);
                 target.post();
+                target.pre();
+                for (int i = 0; i < run.size(); i +=2) {
+                	out = target.step(run.getSymbol(i));
+                }
+                target.post();
+                
                 return run;
             }
 

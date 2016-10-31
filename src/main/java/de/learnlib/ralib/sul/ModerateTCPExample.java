@@ -1,18 +1,10 @@
 package de.learnlib.ralib.sul;
 
-public class ModerateTCPExample {
+public class ModerateTCPExample extends AbstractTCPExample{
 
-	private static final Double win = 100.0;
 	private Double clSeq = null;
 	private Double svSeq = null;
 	private State state = State.CLOSED;
-	enum State{
-		CLOSED,
-		CONNECTING, // extra state
-		SYN_SENT,
-		SYN_RECEIVED,
-		ESTABLISHED;
-	}
 
     //handling each Input
 
@@ -22,7 +14,7 @@ public class ModerateTCPExample {
      *   - you can only register once for a specific uid
      *   - at max only MAX_REGISTERED_USERS may be registered 
      */
-    public boolean IConnect(Double initSeq, Double initAck) {
+    public boolean IConnect(Double initSeq) {
     	boolean ret = false;
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
@@ -30,7 +22,6 @@ public class ModerateTCPExample {
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
     		this.clSeq = initSeq;
-    		this.svSeq = initAck;
     		ret = true;
     		state = State.CONNECTING;
     	}
@@ -42,7 +33,7 @@ public class ModerateTCPExample {
     	if (state == State.CONNECTING) {
     		if (seq.equals(clSeq)) {
     			ret = true;
-    			state = State.SYN_RECEIVED;
+    			state = State.SYN_SENT;
     		}
     	}
     	
@@ -51,15 +42,15 @@ public class ModerateTCPExample {
     
     public boolean ISYNACK(Double seq, Double ack) {
     	boolean ret = false;
-    	if (state == State.SYN_RECEIVED) {
-    		if (seq.equals(svSeq) && succ(clSeq, ack)) {
+    	if (state == State.SYN_SENT) {
+    		if (succ(clSeq, ack)) {
     			ret = true;
     			clSeq = ack;
+    			svSeq = seq;
     			state = State.SYN_SENT;
     		} else {
-//    			if (!inWin(clSeq, ack)) {
-//    				state = State.CLOSED;
-//    			}
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
+    				state = State.CLOSED;
     			
     		}
     	}
@@ -73,12 +64,7 @@ public class ModerateTCPExample {
     			ret = true;
     			svSeq = ack;
     			state = State.ESTABLISHED;
-    		} else {
-//    			if (!inWin(svSeq, ack)) {
-//    				state = State.CLOSED;
-//    			}
-    			
-    		}
+    		} 
     	}
     	
     	if (state == State.ESTABLISHED) {
@@ -98,13 +84,5 @@ public class ModerateTCPExample {
     	}
     	
     	return ret;
-    }
-    
-    public boolean succ(Double currentSeq, Double nextSeq) {
-    	return nextSeq == currentSeq+1;
-    }
-    
-    public boolean inWin(Double currentSeq, Double nextSeq) {
-    	return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;
     }
 }

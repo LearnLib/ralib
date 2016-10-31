@@ -1,6 +1,5 @@
 package de.learnlib.ralib.tools.theories;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +52,7 @@ public class TraceCanonizer {
 		
 		return canonicalTrace;
 		}catch(Exception e) {
+			e.printStackTrace();
 			System.exit(0);
 			return null;
 		}
@@ -68,7 +68,8 @@ public class TraceCanonizer {
 
 		public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
 			if (thisToOtherMap.containsKey(value)) {
-				return new DataValue<T>( value.getType(), value.getId());
+				DataValue<T> mapping = thisToOtherMap.get(value);
+				return new DataValue<T>( mapping.getType(), mapping.getId());
 			}
 			if (value instanceof SumCDataValue) {
 				SumCDataValue<T> sumc = (SumCDataValue<T>) value;
@@ -89,7 +90,7 @@ public class TraceCanonizer {
 					newRight = canonize(intv.getRight(), thisToOtherMap);
 				}
 				
-				// if either the ends are fresh it means their value hasn't been found
+				// if either of the endpoints are fresh it means their value hasn't been found
 				if ((newLeft == null || !(newLeft instanceof FreshValue)) && (newRight == null || !(newRight instanceof FreshValue))) {
 					return IntervalDataValue.instantiateNew(newLeft, newRight);
 				} 

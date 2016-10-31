@@ -117,6 +117,10 @@ class AutomatonBuilder {
         //System.out.println("getting guard for  " + r.getPrefix().toString());
         TransitionGuard guard = b.getBranches().get(r.getPrefix());
         
+        if (guard == null) {
+        	throw new RuntimeException("Guard is null \n"+
+        " src component " + src_c + "\n row prefix: " + r.getPrefix() + "\n component branching: " + b);
+        }
         assert guard!=null;
         
         // assignment

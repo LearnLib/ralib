@@ -4,10 +4,15 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 
 public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
+	// the minimum distance from the endpoint of a smaller/bigger interval value.
+	private static int MIN_DIST = 2000;
 	
 	/**
 	 * Constructs interval DVs from left and right ends, by selecting a value
 	 * in between. One of left or right can be null, meaning there is no boundary. 
+	 * 
+	 * Use this function whenever you want an interval between two values and only use the constructor
+	 * when a specific value (for example, an old value) is preferred. 
 	 */
 	public static <T extends Comparable<T>>  IntervalDataValue<T>  instantiateNew(DataValue<T> left, DataValue<T> right) {
 		DataType<T> type = left != null ? left.getType() : right.getType();
@@ -18,12 +23,13 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		T rightVal;
 		
 		// in case either is null, we just provide an increment/decrement
-		if (left == null) 
-			leftVal = cls.cast(DataValue.sub(right, new DataValue<>(type, cast(2, type))).getId());
-		else 
+		if (left == null) {
+			// we select a value at least 
+			leftVal = cls.cast(DataValue.sub(right, new DataValue<>(type, cast(MIN_DIST, type))).getId());
+		} else 
 			leftVal = left.getId();
 		if (right == null)
-			rightVal = cls.cast(DataValue.add(left, new DataValue<>(type, cast(2, type))).getId());
+			rightVal = cls.cast(DataValue.add(left, new DataValue<>(type, cast(MIN_DIST, type))).getId());
 		else
 			rightVal = right.getId();
 

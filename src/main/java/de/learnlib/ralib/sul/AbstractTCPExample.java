@@ -38,21 +38,16 @@ public class AbstractTCPExample {
 	
 	public enum State{
 		CLOSED,
-		SYN_SENT,
-		SYN_RECEIVED,
+		// connect...
+		CONNECTING, // special state after a connect call has been received, before issuing of a SYN
+		// s(10,0)
+		SYN_SENT, 
+		// sa(20,11)
+		SYN_RECEIVED, // special state after a SYN+ACK has been received, before issuing of an ACK  
+		// a(11, 21)
 		ESTABLISHED,
 		FIN_WAIT_1,
 		TIME_WAIT;
-		
-		public State next() {
-			switch(this) {
-			case CLOSED: return SYN_SENT;
-			case SYN_SENT: return SYN_RECEIVED;
-			case SYN_RECEIVED: return ESTABLISHED;
-			case ESTABLISHED: return CLOSED;
-			}
-			return null;
-		}
 	}
 	
 	   public boolean succ(Double currentSeq, Double nextSeq) {

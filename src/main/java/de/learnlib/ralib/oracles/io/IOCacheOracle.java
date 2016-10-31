@@ -67,20 +67,20 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	query = this.fixer.isPresent() ? 
+    	Word<PSymbolInstance> fixedQuery = this.fixer.isPresent() ? 
     			this.fixer.get().fixTrace(query) 
     			: query; 
-        Boolean ret = this.ioCache.answerFromCache(query);
+        Boolean ret = this.ioCache.answerFromCache(fixedQuery);
         if (ret != null) {
             return ret;
         }
-        Word<PSymbolInstance> test = query;
-        if (query.length() % 2 != 0) {
-            test = query.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
+        Word<PSymbolInstance> test = fixedQuery;
+        if (fixedQuery.length() % 2 != 0) {
+            test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         Word<PSymbolInstance> trace = sul.trace(test);
         this.ioCache.addToCache(trace);
-        ret = this.ioCache.answerFromCache(query);
+        ret = this.ioCache.answerFromCache(fixedQuery);
         return ret;
     }
 

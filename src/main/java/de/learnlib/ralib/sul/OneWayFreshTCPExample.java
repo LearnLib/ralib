@@ -14,7 +14,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
 	
 	public OneWayFreshTCPExample() {
 		super();
-		configure();
+		//configure();
 	}
 
     //handling each Input
@@ -39,7 +39,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     }
     
     private Double newFresh() {
-    	return gen = gen + 10000;
+    	return gen = gen + 1000000;
     }
     
     public boolean ISYN(Double seq) {

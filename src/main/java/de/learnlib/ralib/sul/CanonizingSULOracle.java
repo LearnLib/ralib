@@ -53,9 +53,10 @@ public class CanonizingSULOracle extends IOOracle {
         countQueries(1);
         canonizedSul.pre();
         Word<PSymbolInstance> trace = Word.epsilon();
-        
+        Word<PSymbolInstance> fixedQuery = query;
+
         for (int i = 0; i < query.length(); i += 2) {
-        	Word<PSymbolInstance> fixedQuery = trace.concat(query.suffix(query.size() - trace.size()));
+        	fixedQuery = trace.concat(fixedQuery.suffix(fixedQuery.size() - trace.size()));
         	fixedQuery = traceFixer.fixTrace(fixedQuery);
             PSymbolInstance in = fixedQuery.getSymbol(i);
             

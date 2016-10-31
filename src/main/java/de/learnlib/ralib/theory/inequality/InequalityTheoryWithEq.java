@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -48,6 +49,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -59,11 +61,9 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -925,53 +925,54 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		Map<SDTGuard, DataValue<T>> guardDvs = new LinkedHashMap<>();
 		
 		// special case: fresh values in outputs
-//        if (this.freshValues) {
-//
-//            ParameterizedSymbol ps = computeSymbol(suffix, pId);
-//
-//            if (ps instanceof OutputSymbol && ps.getArity() > 0) {
-//
-//                int idx = computeLocalIndex(suffix, pId);
-//                Word<PSymbolInstance> query = buildQuery(
-//                        prefix, suffix, values);
-//                Word<PSymbolInstance> trace = sulOracle.trace(query);
-//                PSymbolInstance out = trace.lastSymbol();
-//
-//                if (out.getBaseSymbol().equals(ps)) {
-//
-//                    DataValue d = out.getParameterValues()[idx];
-//
-//                    if (d instanceof FreshValue) {
-//                        d = getFreshValue(potential);
-//                        values.put(pId, d);
-//                        WordValuation trueValues = new WordValuation();
-//                        trueValues.putAll(values);
-//                        SuffixValuation trueSuffixValues
-//                                = new SuffixValuation();
-//                        trueSuffixValues.putAll(suffixValues);
-//                        trueSuffixValues.put(sv, d);
-//                        SDT sdt = oracle.treeQuery(
-//                                prefix, suffix, trueValues,
-//                                piv, constants, trueSuffixValues);
-//
-//                        log.log(Level.FINEST,
-//                                " single deq SDT : " + sdt.toString());
-//
-//                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
-//                                new SDTAndGuard(currentParam), sdt);
-//
-//                        log.log(Level.FINEST,
-//                                "temporary guards = " + tempKids.keySet());
-//                        log.log(Level.FINEST,
-//                                "merged guards = " + merged.keySet());
-//                        log.log(Level.FINEST,
-//                                "merged pivs = " + piv.toString());
-//
-//                        return new SDT(merged);
-//                    }
-//                }
-//            }
-//        }
+        if (this.freshValues) {
+
+            ParameterizedSymbol ps = computeSymbol(suffix, pId);
+
+            if (ps instanceof OutputSymbol && ps.getArity() > 0) {
+
+                int idx = computeLocalIndex(suffix, pId);
+                Word<PSymbolInstance> query = buildQuery(
+                        prefix, suffix, values);
+                Word<PSymbolInstance> trace = sulOracle.trace(query);
+                PSymbolInstance out = trace.lastSymbol();
+
+                if (out.getBaseSymbol().equals(ps)) {
+
+                    DataValue<T> d = out.getParameterValues()[idx];
+
+                    if (d instanceof FreshValue) {
+                        d = getFreshValue(potential);
+                        values.put(pId, d);
+                        WordValuation trueValues = new WordValuation();
+                        trueValues.putAll(values);
+                        SuffixValuation trueSuffixValues
+                                = new SuffixValuation();
+                        trueSuffixValues.putAll(suffixValues);
+                        trueSuffixValues.put(sv, d);
+                        SDT sdt = oracle.treeQuery(
+                                prefix, suffix, trueValues,
+                                piv, constants, trueSuffixValues);
+
+                        log.log(Level.FINEST,
+                                " single deq SDT : " + sdt.toString());
+
+                        Map<SDTGuard, SDT> temp = new LinkedHashMap<SDTGuard, SDT>();
+                        temp.put(new SDTTrueGuard(currentParam), sdt);
+                        Map<SDTGuard, SDT> merged = mgGuards(temp, currentParam, Collections.emptyList());
+
+                        log.log(Level.FINEST,
+                                "temporary guards = " + tempKids.keySet());
+                        log.log(Level.FINEST,
+                                "merged guards = " + merged.keySet());
+                        log.log(Level.FINEST,
+                                "merged pivs = " + piv.toString());
+
+                        return new SDT(merged);
+                    }
+                }
+            }
+        }
 
 		// System.out.println("potential " + potential);
 		if (potential.isEmpty()) {
@@ -1006,8 +1007,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			// System.out.println("setting valuation, symDV: " +
 			// rsm.toVariable() + " dvright: " + dvRight);
 			smVal.setValue(toVariable(rsm), dvRight.getId());
-			DataValue<T> smcv = instantiate(sguard, smVal, constants, potential);
-			smcv = new IntervalDataValue<T>(smcv, null, dvRight);
+			DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight); 
+					//instantiate(sguard, smVal, constants, potential);
+		//	smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 			smValues.put(pId, smcv);
 			smSuffixValues.put(sv, smcv);
 
@@ -1027,8 +1029,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			DataValue<T> dvLeft = potential.get(potSize - 1);
 			IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
 			updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
-			DataValue<T> bgcv = instantiate(bguard, bgVal, constants, potential);
-			bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
+			DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null); 
+					//instantiate(bguard, bgVal, constants, potential);
+			//bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
 			bgValues.put(pId, bgcv);
 			bgSuffixValues.put(sv, bgcv);
 
@@ -1066,8 +1069,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
-					DataValue<T> cv = instantiate(intervalGuard, val, constants, potential);
-					cv = new IntervalDataValue<T>(cv,  dvMLeft, dvMRight);
+					DataValue<T> cv = IntervalDataValue.instantiateNew(dvMLeft, dvMRight);//instantiate(intervalGuard, val, constants, potential);
+					//cv = new IntervalDataValue<T>(cv,  dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
 					currentSuffixValues.put(sv, cv);
 
@@ -1112,12 +1115,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		}
 
-		System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
-		Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
-		//Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
+	//	System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
+		//Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
+		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
 		// Map<SDTGuard, SDT> merged = tempKids;
 		// only keep registers that are referenced by the merged guards
-		System.out.println("MERGED = " + merged);
+	//	System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
 
 		// System.out.println("MERGED = " + merged);
@@ -1279,14 +1282,29 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) sdExpr);
 		} else if (sdExpr instanceof SumCDataExpression) {
 			DataValue<T> opDv = instantiateSDExpr(sdExpr.getSDV(), type, prefixValues, piv, pval, constants);
-			returnThis = (DataValue<T>) DataValue.add(opDv, ((SumCDataExpression) sdExpr).getConstant());
+			returnThis = new SumCDataValue(opDv, ((SumCDataExpression) sdExpr).getConstant());
 		}
 		return returnThis;
 	}
 
+	
+	/**
+	 * Instantiates the guard over the symbol {@ps param} for the given values. If guard is satisfiable,  returns a DataValue 
+	 * containing the concrete value, but also symbolic information on how it was originated. Otherwise, returns null.
+	 *   
+	 * <b>NOTE:</b> The instantiate function uniformly makes use of the IntervalDataValue.instantiateNew in order to instantiate intervals.
+	 * We do this instead of using the cs-solver for better control over what is instantiated and also easier instantiation.
+	 * It is important that DataValues that come out are annotated s.t. they reflect the guards that satisfy. This is needed
+	 * for canonicalization purposes. 
+	 * </br>
+	 * The implementation IS NOT full proof, since our current DataValue sub-types cannot express conjunctions, just lone guards. To fully handle
+	 * conjunctions, we would need to use a cs-solver and also value independent annotations of the DataValues. (see SuccessorDataValue as an
+	 * example)
+	 *   
+	 */
 	@Override
 	public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
+			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver) {
 
 		DataType type = param.getType();
 		DataValue<T> returnValue = null;
@@ -1311,19 +1329,34 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			// System.out.println("already used = " + alreadyUsedValues);
 			if (guard instanceof IntervalGuard) {
 				IntervalGuard iGuard = (IntervalGuard) guard;
+				DataValue<T> rExprVal = null, lExprVal = null, rRegVal = null, lRegVal = null;
 				if (!iGuard.isBiggerGuard()) {
 					SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightSDV();
-					DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
+					rExprVal = instantiateSDExpr(iGuard.getRightExpr(), r.getType(), new ArrayList(alreadyUsedValues),  piv, pval, constants);
+					rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 
-					val.setValue(toVariable(r), regVal.getId());
+					val.setValue(toVariable(r), rRegVal.getId());
 				}
 				if (!iGuard.isSmallerGuard()) {
 					SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
-					DataValue regVal = getRegisterValue(l, piv, prefixValues, constants, pval);
+					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), new ArrayList(alreadyUsedValues),  piv, pval, constants);
+					lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);
 
-					val.setValue(toVariable(l), regVal.getId());
+					val.setValue(toVariable(l), lRegVal.getId());
+				} 
+				
+				if (!useSolver) {
+					for (DataValue<T> oldDv : oldDvs) {
+						if ((lExprVal == null ||  lExprVal.getId().compareTo(oldDv.getId()) < 0) && (rExprVal == null ||  rExprVal.getId().compareTo(oldDv.getId()) > 0)) 
+							return new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
+					}
+					
+					return IntervalDataValue.instantiateNew(lExprVal, rExprVal);
+				} else {
+				 //we decorate it with interval information
+					returnValue = instantiate(guard, val, constants, alreadyUsedValues); 
+					returnValue = new IntervalDataValue<>(returnValue, lExprVal, rExprVal);
 				}
-				// instantiate(guard, val, param, constants);
 			} else if (guard instanceof SDTIfGuard) {
 				SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
 				DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
@@ -1355,10 +1388,32 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// the equality guard and then we check if this relation can
 					// be satisfied
 					else {
+						
 						val.setValue(toVariable(guard.getParameter()), equValue.getId());
 						alreadyUsedValues.remove(equValue);
 					}
 
+				} else {
+					if (guard instanceof SDTAndGuard) {
+							if (!useSolver) {
+							List<SDTGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard).collect(Collectors.toList());
+							if ( intervalGuards.size() >= 2) {
+								throw new DecoratedRuntimeException("Cannot reliably instantiate a 2 guard interval with conjunctions")
+								.addDecoration("intervals", intervalGuards);
+							}
+							Optional<SDTGuard> intGuard = intervalGuards.stream().findAny();
+							if ( intGuard.isPresent()) {
+								// this is required if we are not using the constraint solver for instantiation
+								final List<DataValue<T>> prohibitedValues = allGuards.stream().filter(g -> g instanceof DisequalityGuard).
+										map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
+												prefixValues, piv, pval, constants)).collect(Collectors.toList());
+								oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a)).collect(Collectors.toSet());
+								SDTGuard intv = intGuard.get();
+								DataValue<T> intDv = instantiate(prefix,ps, piv, pval, constants, intv, param, oldDvs, useSolver);
+								return intDv;
+							} 
+						}
+					}
 				}
 
 				Set<SymbolicDataValue> regs = ((SDTAndGuard) guard).getAllSDVsFormingGuard();
@@ -1392,6 +1447,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		return returnValue;
 	}
+	
+	
 	
 
 

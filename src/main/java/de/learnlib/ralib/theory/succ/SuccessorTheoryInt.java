@@ -248,7 +248,7 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
     @Override
     public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, 
             PIV piv, ParValuation pval, Constants constants, SDTGuard guard, 
-            SymbolicDataValue.Parameter param, Set<DataValue<Integer>> oldDvs) {
+            SymbolicDataValue.Parameter param, Set<DataValue<Integer>> oldDvs, boolean useSolver) {
         
         System.out.println("SuccessorTheoryInt.instantiate()");
         

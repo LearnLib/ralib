@@ -372,7 +372,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Constants constants,
             SDTGuard guard,
             Parameter param,
-            Set<DataValue<T>> oldDvs
+            Set<DataValue<T>> oldDvs, boolean useSolver
     ) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));

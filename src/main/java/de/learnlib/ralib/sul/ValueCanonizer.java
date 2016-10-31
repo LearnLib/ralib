@@ -81,12 +81,20 @@ public class ValueCanonizer {
 	 * A mapping from canonized to de-canonized is updated for every value.
 	 */
 	public DataValue [] canonize(DataValue [] dvs, boolean inverse) {
-		
+		int i = 0;
 		DataValue [] resultDvs = new DataValue [dvs.length];
-		for (int i = 0; i < dvs.length; i ++) {
+		try {
+		for (i = 0; i < dvs.length; i ++) {
 			resultDvs[i] = 
 					this.valueMappers.containsKey(dvs[i].getType()) ? 
 					inverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
+		}
+		} catch(Exception exception) {
+			RuntimeException exc = new RuntimeException(""
+					+ "Value " + (inverse?"de":"") + "canonized " + dvs[i] + "\n"  
+					+ "Canonizer state: "+ this.buckets);
+			exc.addSuppressed(exception);
+			throw exc;
 		}
 //				
 //				Stream.of(dvs).map(dv -> 

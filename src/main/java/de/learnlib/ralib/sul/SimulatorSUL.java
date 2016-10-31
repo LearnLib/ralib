@@ -103,7 +103,9 @@ public class SimulatorSUL extends DataWordSUL {
         }
         
         if (!found) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("No transition found after trace: "
+            		+ prefix.prefix(-1) + "\n for input: " + i + "\n candidate transitions: " + 
+            		this.model.getTransitions(loc, i.getBaseSymbol()));
         }
         
         OutputTransition ot = getOutputTransition(loc, register);

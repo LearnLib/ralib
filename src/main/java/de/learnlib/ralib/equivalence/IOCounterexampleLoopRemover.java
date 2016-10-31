@@ -67,6 +67,10 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
             this.min = min;
             this.max = max;
         }
+        
+        public String toString() {
+        	return "min: " + min + " max:" + max;
+        }
     }
 
     private final IOOracle sulOracle;

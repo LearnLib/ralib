@@ -91,6 +91,11 @@ class Row {
     private void addCell(Cell c) {
 
         assert c.getPrefix().equals(this.prefix);
+        if (this.cells.containsKey(c.getSuffix())) {
+        	System.out.println("Adding cell: " + c);
+        	System.out.println("But already have cell: " + this.cells.get(c.getSuffix()) + " for suffix  " + c.getSuffix());
+//        	return;
+        }
         assert !this.cells.containsKey(c.getSuffix());
 
         // make sure that pars-in-vars is consistant with 
