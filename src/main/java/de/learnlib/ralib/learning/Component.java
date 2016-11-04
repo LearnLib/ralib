@@ -180,6 +180,12 @@ class Component {
                 ret = false;
             }
         }
+//        if (ps.toString().contains("SYNACK") && newB.toString().contains("I_IConnect[10001.0[DOUBLE]] TRUE[] I_ISYN[10001.0[DOUBLE], 20102.0[DOUBLE]] TRUE[]")) {
+//        	System.out.println(b + " \n " + newB);
+//        }
+//        if (ps.toString().contains("SYNACK") && !newB.toString().matches(".*s2[^\n]*30203.*") && newB.toString().contains("I_IConnect[10001.0[DOUBLE]] TRUE[] I_ISYN[10001.0[DOUBLE], 20102.0[DOUBLE]] TRUE[] ")) {
+//        	System.exit(0);
+//        }
         branching.put(ps, newB);
         return ret;
     }

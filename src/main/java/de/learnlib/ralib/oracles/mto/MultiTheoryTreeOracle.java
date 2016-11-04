@@ -248,7 +248,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             SDT... sdts) {
-        Node n = createNode(i, prefix, ps, piv, pval, new LinkedHashMap(), sdts);
+        Node n = createNode(i, prefix, ps, piv, pval, Collections.emptyMap(), Collections.emptyList(), sdts);
         return n;
     }
     
@@ -264,7 +264,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         
-        Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+       // Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+        Map<List<Parameter>, Set<DataValue>> oldDvs = oldBranching.getDVsForBranches();
         
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {
@@ -284,7 +285,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             return new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
         } else {
-            n = createNode(1, prefix, ps, piv, pval, oldDvs, casted);
+            n = createNode(1, prefix, ps, piv, pval, oldDvs, Collections.emptyList(),  casted);
             MultiTheoryBranching fluff = new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
             return fluff;
@@ -293,7 +294,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, Map<Parameter, Set<DataValue>> oldDvs, 
+            PIV piv, ParValuation pval, Map<List<Parameter>, Set<DataValue>> oldDvs, 
+            List<Parameter> path,
             SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
@@ -304,6 +306,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             DataType type = ps.getPtypes()[i - 1];
             Theory teach = teachers.get(type);
             Parameter p = new Parameter(type, i);
+            List<Parameter> nextPath = new ArrayList<Parameter>(path);
+            nextPath.add(p);
 
             int numSdts = sdts.length;
             // initialize maps for next nodes
@@ -321,8 +325,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             	SDTGuard guard = mergedGuardEntry.getKey();
             	Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
             	DataValue dvi = null;
-            	if (oldDvs.containsKey(p)) {
-                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(p), false);
+            	if (oldDvs.containsKey(nextPath)) {
+                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(nextPath), false);
                 } else {
                       dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), false);
                 }
@@ -336,7 +340,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
 //                assert noInterval(guard);
                 nextMap.put(dvi, createNode(i + 1, prefix, ps, piv,
-                          otherPval, nextLevelSDTs));
+                          otherPval, oldDvs, nextPath, nextLevelSDTs));
                 if (guardMap.containsKey(dvi)) {
                 	throw new DecoratedRuntimeException( " New guards instantiated with same dvi in branching")
                 	.addDecoration("guard already in map", guardMap.get(dvi)).addDecoration("guard to be added", guard).

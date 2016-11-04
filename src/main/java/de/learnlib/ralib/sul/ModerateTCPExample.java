@@ -49,8 +49,8 @@ public class ModerateTCPExample extends AbstractTCPExample{
     			svSeq = seq;
     			state = State.SYN_SENT;
     		} else {
-    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
-    				state = State.CLOSED;
+//    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
+//    				state = State.CLOSED;
     			
     		}
     	}

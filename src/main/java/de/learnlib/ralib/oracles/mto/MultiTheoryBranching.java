@@ -35,6 +35,7 @@ import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -103,8 +104,28 @@ public class MultiTheoryBranching implements Branching {
                 dvs.putAll(e.getValue().collectDVs());
             }
         }
+        
         return dvs;
     }
+        
+        protected Map<List<Parameter>, Set<DataValue>> collectDVsForBranches() {
+        	return this.collectDVsForBranches(Collections.emptyList());
+        }
+        
+        private Map<List<Parameter>, Set<DataValue>> collectDVsForBranches(List<Parameter> fatherBranch) {
+        	Map<List<Parameter>, Set<DataValue>> dvs = new LinkedHashMap();
+        	List<Parameter> branch = new ArrayList<Parameter>(fatherBranch);
+        	branch.add(this.parameter);
+        			
+            if (!(this.next.keySet()).isEmpty()) {
+                dvs.put(branch, this.next.keySet());
+                for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+                    dvs.putAll(e.getValue().collectDVsForBranches(branch));
+                }
+            }	
+            return dvs;
+        }
+        
 
     };
 
@@ -143,8 +164,12 @@ public class MultiTheoryBranching implements Branching {
     }
     
     public Map<Parameter, Set<DataValue>> getDVs() {
-    return this.node.collectDVs();
-}
+    	return this.node.collectDVs();
+    }
+    
+    public Map<List<Parameter>, Set<DataValue>> getDVsForBranches() {
+    	return this.node.collectDVsForBranches();
+    }
 
     public ParValuation getPval() {
         return pval;

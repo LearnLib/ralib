@@ -1142,7 +1142,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				// assert merged.keySet().size() == 1;
 			}
 		}
-		System.out.println("MERGED = " + merged);
+//		System.out.println("MERGED = " + merged);
 		SDT returnSDT = new SDT(merged);
 		return returnSDT;
 
@@ -1271,18 +1271,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private DataValue<T> instantiateSDExpr(SymbolicDataExpression sdExpr, DataType type, List<DataValue> prefixValues,
 			PIV piv, ParValuation pval, Constants constants) {
 		DataValue<T> returnThis = null;
-		if (sdExpr.isRegister()) {
-			Parameter p = piv.getOneKey((Register) sdExpr);
-			int idx = p.getId();
-			returnThis = prefixValues.get(idx - 1);
-		} else if (sdExpr.isSuffixValue()) {
-			Parameter p = new Parameter(type, ((SymbolicDataValue) sdExpr).getId());
-			returnThis = (DataValue<T>) pval.get(p);
-		} else if (sdExpr.isConstant()) {
-			returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) sdExpr);
-		} else if (sdExpr instanceof SumCDataExpression) {
+		if (sdExpr instanceof SumCDataExpression) {
 			DataValue<T> opDv = instantiateSDExpr(sdExpr.getSDV(), type, prefixValues, piv, pval, constants);
 			returnThis = new SumCDataValue(opDv, ((SumCDataExpression) sdExpr).getConstant());
+		} else {
+			assert sdExpr.isConstant() || sdExpr.isParameter() || sdExpr.isRegister() || sdExpr.isSuffixValue();
+			returnThis = getRegisterValue((SymbolicDataValue)sdExpr, piv, prefixValues, constants, pval);
 		}
 		return returnThis;
 	}
@@ -1315,7 +1309,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			EqualityGuard eqGuard = (EqualityGuard) guard;
 			returnValue = instantiateSDExpr(eqGuard.getExpression(), type, prefixValues, piv, pval, constants);
 			assert returnValue != null;
-		} else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+		} else if (guard instanceof SDTTrueGuard) {
 			// might be a problem, what if we select an increment as a fresh
 			// value ?
 			Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
@@ -1326,31 +1320,42 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			Collection<DataValue<T>> alreadyUsedValues = DataWords.<T>joinValsToSet(constants.<T>values(type),
 					DataWords.<T>valSet(prefix, type), pval.<T>values(type));
 			Valuation val = new Valuation();
-			// System.out.println("already used = " + alreadyUsedValues);
+			if( guard instanceof DisequalityGuard) {
+				DisequalityGuard diseqGuard = (DisequalityGuard) guard;
+				SymbolicDataValue r = (SymbolicDataValue) diseqGuard.getRegister();
+				DataValue<T> diseqExprVal = instantiateSDExpr(diseqGuard.getExpression(), r.getType(), prefixValues, piv, pval, constants);
+				DataValue<T> rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
+				val.setValue(toVariable(r), rRegVal.getId());
+				
+				Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
+						DataWords.<T>valSet(prefix, type), pval.<T>values(type));
+				returnValue = this.getFreshValue(new ArrayList<>(potSet));
+			} else
+			
 			if (guard instanceof IntervalGuard) {
 				IntervalGuard iGuard = (IntervalGuard) guard;
 				DataValue<T> rExprVal = null, lExprVal = null, rRegVal = null, lRegVal = null;
 				if (!iGuard.isBiggerGuard()) {
 					SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightSDV();
-					rExprVal = instantiateSDExpr(iGuard.getRightExpr(), r.getType(), new ArrayList(alreadyUsedValues),  piv, pval, constants);
+					rExprVal = instantiateSDExpr(iGuard.getRightExpr(), r.getType(), prefixValues,  piv, pval, constants);
 					rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 
 					val.setValue(toVariable(r), rRegVal.getId());
 				}
 				if (!iGuard.isSmallerGuard()) {
 					SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
-					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), new ArrayList(alreadyUsedValues),  piv, pval, constants);
+					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), prefixValues,  piv, pval, constants);
 					lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);
 
 					val.setValue(toVariable(l), lRegVal.getId());
 				} 
 				
+				for (DataValue<T> oldDv : oldDvs) {
+					if ((lExprVal == null ||  lExprVal.getId().compareTo(oldDv.getId()) < 0) && (rExprVal == null ||  rExprVal.getId().compareTo(oldDv.getId()) > 0)) 
+						return new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
+				}
+				
 				if (!useSolver) {
-					for (DataValue<T> oldDv : oldDvs) {
-						if ((lExprVal == null ||  lExprVal.getId().compareTo(oldDv.getId()) < 0) && (rExprVal == null ||  rExprVal.getId().compareTo(oldDv.getId()) > 0)) 
-							return new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
-					}
-					
 					return IntervalDataValue.instantiateNew(lExprVal, rExprVal);
 				} else {
 				 //we decorate it with interval information
