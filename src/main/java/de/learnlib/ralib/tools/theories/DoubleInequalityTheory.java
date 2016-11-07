@@ -237,20 +237,21 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             List<DataValue<Double>> vals) {
         Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
-        if (vals.isEmpty()) {
+        List<DataValue<Double>> distinctValList = new ArrayList<>(nextValues);
+        
+        if (distinctValList .isEmpty()) {
             nextValues.add(new FreshValue<Double>(getType(), 1.0));
         } else {
-            Collections.sort(vals, new Cpr());
-            if (vals.size() > 1) {
-                for (int i = 0; i < (vals.size() - 1); i++) {
-                    IntervalDataValue<Double> intVal = IntervalDataValue.instantiateNew(vals.get(i), vals.get(i + 1));
+            Collections.sort(distinctValList , new Cpr());
+            if (distinctValList.size() > 1) {
+                for (int i = 0; i < (distinctValList.size() - 1); i++) {
+                    IntervalDataValue<Double> intVal = IntervalDataValue.instantiateNew(distinctValList.get(i), distinctValList .get(i + 1));
                     nextValues.add(intVal);
                 }
             }
-            
-            DataValue<Double> min = Collections.min(vals, new Cpr());
+            DataValue<Double> min = Collections.min(distinctValList, new Cpr());
             nextValues.add(IntervalDataValue.instantiateNew(null, min));
-            DataValue<Double> max = Collections.max(vals, new Cpr());
+            DataValue<Double> max = Collections.max(distinctValList, new Cpr());
             nextValues.add(IntervalDataValue.instantiateNew(max, null));
         }
         return nextValues;

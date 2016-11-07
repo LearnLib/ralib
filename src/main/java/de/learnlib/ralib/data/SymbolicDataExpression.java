@@ -34,9 +34,7 @@ public interface SymbolicDataExpression {
 	}
 	
 	/**
-	 * Given a data value, solves the encapsulated sdv.
+	 * Given a valuation of the encapsulated SDVs, instantiates the expression.
 	 */
-	public default <T> DataValue<T> solveSDVForValue(DataValue<T> val) {
-		return val;
-	}
+	public DataValue<?> instantiateExprForValuation(Mapping<SymbolicDataValue, DataValue<?>> valuation);
 }

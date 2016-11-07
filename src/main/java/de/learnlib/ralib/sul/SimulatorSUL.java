@@ -27,11 +27,10 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.theory.Theory;
@@ -133,19 +132,12 @@ public class SimulatorSUL extends DataWordSUL {
                 vals[i] = new FreshValue(dv.getType(), dv.getId());
             }
             else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);                
-                if (sv.isRegister()) {                
-                    vals[i] = register.get( (Register) sv);
-                }
-                else if (sv.isConstant()) {
-                    vals[i] = consts.get( (Constant) sv);                    
-                }
-                else if (sv.isParameter()) {
-                    throw new UnsupportedOperationException("not supported yet.");
-                }
-                else {
-                    throw new IllegalStateException("this case is not supported.");
-                }
+                SymbolicDataExpression sv = mapping.getOutput().get(p);    
+                Mapping varMapping = new Mapping(register, consts);
+                if (sv.isParameter())
+                	throw new UnsupportedOperationException("not supported yet.");
+                else 
+                	vals[i] = sv.instantiateExprForValuation(varMapping);
             }
             assert vals[i] != null;
             pval.put(p, vals[i]);

@@ -81,7 +81,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
         //IfGuard _guard = (IfGuard) guard;        
         GuardExpression expr = guard.getCondition();
         
-        VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();        
+        VarMapping<Parameter, SymbolicDataExpression> outmap = new VarMapping<>();        
         analyzeExpression(expr, outmap);
         
         Set<Parameter> fresh = new LinkedHashSet<>();
@@ -100,7 +100,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
     }
     
     private void analyzeExpression(GuardExpression expr, 
-            VarMapping<Parameter,  SymbolicDataExpression> outmap) {
+            VarMapping<Parameter, SymbolicDataExpression> outmap) {
         
         if (expr instanceof Conjunction) {
             Conjunction pc = (Conjunction) expr;
@@ -141,7 +141,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
                   SymbolicDataValue right = nbe.getRight();
                   
                   Parameter p = null;
-                  SumCDataExpression sv = null;
+                  SymbolicDataExpression sv = null;
                   
                   if (left instanceof Parameter) {
                       if (right instanceof Parameter) {
@@ -149,15 +149,18 @@ class IOAutomatonBuilder extends AutomatonBuilder {
                       }
                       else {
                           p = (Parameter) left;
+                          sv = right;
                           if (nbe.getRightConst() != null) {
-                        	  sv = new SumCDataExpression(right, nbe.getRightConst());
-                        	  
+                        	  sv = new SumCDataExpression(sv, nbe.getRightConst());
                           }
                       }
                   }
                   else {
                       p = (Parameter) right;
                       sv = left;
+                      if (nbe.getLeftConst() != null) {
+                    	  sv = new SumCDataExpression(sv, nbe.getLeftConst());
+                      }
                   }
                   
                   outmap.put(p, sv);

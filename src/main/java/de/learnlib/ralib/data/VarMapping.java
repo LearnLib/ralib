@@ -16,6 +16,10 @@
  */
 package de.learnlib.ralib.data;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * maps symbolic data values to symbolic data values.
  * 
@@ -24,8 +28,10 @@ package de.learnlib.ralib.data;
  * @param <K>
  * @param <V>
  */
-public class VarMapping<K extends SymbolicDataValue, V extends SymbolicDataValue> 
-extends Mapping<K, V> {
+public class VarMapping<K extends SymbolicDataValue, V extends SymbolicDataExpression> extends LinkedHashMap<K,V>
+implements Iterable<Map.Entry<K, V>>
+//extends Mapping<K, V> 
+{
     
     public VarMapping(SymbolicDataValue ... kvpairs) {
         for (int i=0; i<kvpairs.length; i+= 2) {
@@ -36,5 +42,17 @@ extends Mapping<K, V> {
         
     }
     
-   
+    public Iterator<Map.Entry<K, V>> iterator() {
+        return this.entrySet().iterator();
+    }
+
+    public String toString(String map) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Map.Entry<K,V> e : entrySet()) {
+            sb.append(e.getKey()).append(map).append(e.getValue()).append(",");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }

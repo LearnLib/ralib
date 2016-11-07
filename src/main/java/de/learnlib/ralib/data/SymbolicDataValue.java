@@ -136,5 +136,9 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
     public boolean isSuffixValue() {
         return this.getClass().equals(SuffixValue.class);
     }
+    
+    public DataValue<?> instantiateExprForValuation(Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+    	return valuation.get(this);
+    }
 
 }

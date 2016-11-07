@@ -16,22 +16,21 @@
  */
 package de.learnlib.ralib.automata.output;
 
+import java.util.Map.Entry;
+
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.util.Map.Entry;
 
 /**
  * Output transitions are a convenient way of 
@@ -74,10 +73,15 @@ public class OutputTransition extends Transition {
                 }
             }
         }
-
+        
+        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>(registers, consts);
+        
         // check other parameters
         for (Entry<Parameter,? extends  SymbolicDataExpression> e : output.getOutput()) {
-        	DataValue<?> outputValue = resolveExpression(e.getValue(), registers, consts);
+        	DataValue<?> outputValue = e.getValue().instantiateExprForValuation(valuation); 
+        	if (outputValue == null) {
+        		throw new IllegalStateException("Valuation for " + e.getKey() + " could not be solved from " + valuation);
+        	}
         	DataValue<?> outputParamValue = parameters.get(e.getKey());
         	if (!outputValue.equals(outputParamValue)) 
         		return false;
@@ -85,18 +89,6 @@ public class OutputTransition extends Transition {
         }
             
         return true;
-    }
-    
-    private DataValue<?> resolveExpression(SymbolicDataExpression outputExpr, VarValuation regValuation, Constants constants) {
-    	 if (outputExpr instanceof Register) {
-    		 return regValuation.get((Register) outputExpr); 
-         } else if (outputExpr instanceof Constant) {
-        	 return constants.get((Constant) outputExpr);
-         } else if ( outputExpr instanceof SumCDataExpression) {
-        	 return outputExpr.solveSDVForValue(resolveExpression(outputExpr.getSDV(), regValuation, constants));
-         } else {
-        	 throw new IllegalStateException("Source for parameter has to be register or constant.");
-         }
     }
 
     @Override

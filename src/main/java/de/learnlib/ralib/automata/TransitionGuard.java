@@ -19,6 +19,7 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
@@ -51,7 +52,7 @@ public class TransitionGuard {
      * @return 
      */
     public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarMapping val = new VarMapping();
+        Mapping val = new Mapping();
         val.putAll(registers);
         val.putAll(parameters);
         val.putAll(consts);

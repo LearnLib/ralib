@@ -25,6 +25,7 @@ import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -202,12 +203,13 @@ public class RegisterAutomatonExporter {
                 }
             }
             else {
-                SymbolicDataValue out = outMap.getOutput().get(p);
+                SymbolicDataExpression out = outMap.getOutput().get(p);
                 // assignments are assumed to happen before 
                 // output by the parser
                 if (out instanceof Register) {
-                    String tmpName = "tmp_" + out.getType().getName() + "_" + idx;
-                    tmp.put(tmpName, out.getType());
+                	Register reg = (Register)out;
+                    String tmpName = "tmp_" + reg.getType().getName() + "_" + idx;
+                    tmp.put(tmpName, reg.getType());
                     RegisterAutomaton.Transitions.Transition.Assignments.Assign a =
                             factory.createRegisterAutomatonTransitionsTransitionAssignmentsAssign();
                     

@@ -33,6 +33,13 @@ import java.util.Set;
  */
 public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         implements Iterable<Map.Entry<K, V>> {
+	
+	public Mapping(){}
+	public Mapping(Mapping ...mappings){
+		for (Mapping mapping : mappings) {
+			this.putAll(mapping);
+		}
+	}
 
     /**
      * returns the contained values of some type.

@@ -114,7 +114,7 @@ public abstract class EqualityTheoryDebug<T> implements Theory<T> {
             List<EqualityGuard> ds = new ArrayList();
             ds.add(eqGuard);
             log.log(Level.FINEST, "remapping: " + ds.toString());
-            if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
+            if (!(eqSdt.isEquivalentUnderEquality(deqSdt, ds))) {
                 log.log(Level.FINEST, "--> not eq.");
                 deqList.add(eqGuard.toDeqGuard());
                 eqList.add(eqGuard);

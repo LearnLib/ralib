@@ -28,6 +28,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
@@ -510,7 +511,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 vals[i] = teacher.get(t).getFreshValue(old);
             }
             else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);                
+                SymbolicDataExpression sv = mapping.getOutput().get(p);                
                 if (sv.isRegister()) {                
                     vals[i] = register.get( (Register) sv);
                 }

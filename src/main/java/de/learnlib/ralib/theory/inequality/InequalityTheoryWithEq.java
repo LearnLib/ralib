@@ -34,6 +34,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.logging.filter.SystemOnlyFilter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -536,7 +537,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		// System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT +
 		// " under " + eqGuard);
-		if (eqSDT.isEquivalentUnder(deqSDT, ds)) {
+		if (eqSDT.isEquivalentUnderEquality(deqSDT, ds)) {
 			// System.out.println("yes");
 			// System.out.println("return target: " + deqSDT + " eq under " +
 			// eqGuard);
@@ -923,11 +924,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// WE ASSUME THE POTENTIAL IS SORTED
 		int potSize = potential.size();
 		Map<SDTGuard, DataValue<T>> guardDvs = new LinkedHashMap<>();
-		
+
+        ParameterizedSymbol ps = computeSymbol(suffix, pId);
 		// special case: fresh values in outputs
         if (this.freshValues) {
-
-            ParameterizedSymbol ps = computeSymbol(suffix, pId);
 
             if (ps instanceof OutputSymbol && ps.getArity() > 0) {
 
@@ -1109,6 +1109,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				WordValuation ifValues = new WordValuation();
 				ifValues.putAll(values);
 				ifValues.put(pId, newDv);
+				ifSuffixValues.put(sv, newDv);
 				SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, piv, constants, ifSuffixValues);
 
 				tempKids.put(eqGuard, eqOracleSdt);
@@ -1117,13 +1118,20 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		}
 
-	//	System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
-		//Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
+		//System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = " + tempKids);
+		// Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam, regPotential);
 		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
 		// Map<SDTGuard, SDT> merged = tempKids;
 		// only keep registers that are referenced by the merged guards
-	//	System.out.println("MERGED = " + merged);
+		//System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
+		if (ps instanceof OutputSymbol && merged.size() > 2) {
+			System.out.println(prefix + " " + suffix + " " + suffixValues);
+			System.out.println(tempKids);
+			System.out.println(merged);
+			guardDvs.forEach((g, dv) -> System.out.println(g + " " + dv ));
+			throw new RuntimeException("For an output symbol, there cannot be more than 2 branches");
+		}
 
 		// System.out.println("MERGED = " + merged);
 		piv.putAll(keepMem(merged));
@@ -1232,7 +1240,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 
 		if (ifValues.containsValue(dv)) {
-			int smallest = Collections.min(ifValues.getAllKeys(dv));
+			int smallest = Collections.max(ifValues.getAllKeys(dv));
 			return new SuffixValue(type, smallest);
 		}
 

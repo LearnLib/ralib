@@ -37,13 +37,9 @@ package de.learnlib.ralib.equivalence;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -120,11 +116,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
-                //System.out.println("Cand: " + candidate);
                 if (!hypothesis.accepts(candidate)) {
-                    //System.out.println("Reduced CE length by " + i + 
-                    // " to " + candidate.length()
-                    //);
                     return removeLoops(candidate, hyp);
                 }
             }

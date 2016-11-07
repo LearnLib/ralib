@@ -41,7 +41,7 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	private static <T extends Comparable<T>> T pickInBetweenValue(Class<T> clz, T leftVal, T rightVal) {
 		T betweenVal;
 		if (leftVal.compareTo(rightVal) >= 0 ) {
-			throw new RuntimeException("Invalid interval, left end bigger than right end \n "
+			throw new RuntimeException("Invalid interval, left end bigger or equal to right end \n "
 					+ "left: " + leftVal + " right: " + rightVal + " ]");
 		}
 		

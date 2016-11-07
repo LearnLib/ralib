@@ -1,5 +1,7 @@
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+
 public class SumCDataExpression implements SymbolicDataExpression{
 	
 
@@ -8,6 +10,7 @@ public class SumCDataExpression implements SymbolicDataExpression{
 
 	public SumCDataExpression(SymbolicDataExpression expr, DataValue<?> constant) {
 		this.expr = expr;
+		assert !(expr instanceof Constant);
 		this.constant = constant;
 	}
 
@@ -57,6 +60,11 @@ public class SumCDataExpression implements SymbolicDataExpression{
 		} else if (!expr.equals(other.expr))
 			return false;
 		return true;
+	}
+
+	public  DataValue<?> instantiateExprForValuation(Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+		DataValue<?> operand = expr.instantiateExprForValuation(valuation);
+		return  DataValue.add(operand, constant);
 	}
 
 
