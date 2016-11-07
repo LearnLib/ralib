@@ -18,6 +18,7 @@ package de.learnlib.ralib.equivalence;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -31,10 +32,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+
 import net.automatalib.words.Word;
 
 /**
@@ -108,7 +112,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         }
         // find counterexample ...
         while (runs < maxRuns) {
-            Word ce = run();
+            Word<PSymbolInstance> ce = run();
             if (ce != null) {
                 return new DefaultQuery<>(ce, true);
             }
@@ -125,7 +129,17 @@ public class IORandomWalk implements IOEquivalenceOracle {
         do {
             PSymbolInstance next = nextInput(run);
             depth++;
+            out = null;
+//            try{ 
             out = target.step(next);
+//            }catch(RuntimeException e) {
+//            	target.pre();
+//                for (int i = 0; i < run.size(); i +=2) {
+//                	out = target.step(run.getSymbol(i));
+//                }
+//                target.post();
+//                throw e;
+//            }
 
             run = run.append(next).append(out);
 
@@ -142,10 +156,11 @@ public class IORandomWalk implements IOEquivalenceOracle {
                 
                 return run;
             }
+            RALocation location = hyp.getLocation(run);
 
         } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
                 !out.getBaseSymbol().equals(error));
-        
+      //  System.out.println(run);
         log.log(Level.FINE, "Run /wo CE: {0}", run);
         target.post();
         return null;
@@ -156,7 +171,8 @@ public class IORandomWalk implements IOEquivalenceOracle {
     }
 
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {
-        ParameterizedSymbol ps = nextSymbol(run);
+        ParameterizedSymbol ps = this.inputs[this.rand.nextInt(this.inputs.length)]; 
+        		//nextSymbol(run);
         PSymbolInstance psi = nextDataValues(run, ps);
         return psi;
     }
@@ -177,13 +193,19 @@ public class IORandomWalk implements IOEquivalenceOracle {
                     oldSet.add(vals[j]);
                 }
             }
-            ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
+            
+            List<DataValue<Object>> old = new ArrayList<>(oldSet);
+            if (!oldSet.isEmpty() && rand.nextBoolean()) {
+            	List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream().map(dv -> (DataValue<Object>) dv).collect(Collectors.toList());
+            	if (!regs.isEmpty()) 
+            		old = regs;
+            }
 
             Set<DataValue<Object>> newSet = new HashSet<>(
                 teacher.getAllNextValues(old));
             
             newSet.removeAll(old);
-            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
+            List<DataValue<Object>> newList = new ArrayList<>(newSet);
             
             double draw = rand.nextDouble();
             if (draw <= newDataProbability || old.isEmpty()) {

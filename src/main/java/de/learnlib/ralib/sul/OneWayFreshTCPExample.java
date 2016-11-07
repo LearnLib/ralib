@@ -6,7 +6,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
 
 	private static Random rand = new Random(0);
 	private Double seq = 0.0;
-	private static Double gen = 0.0;
+	private Double gen = 0.0;
 	
 	public OneWayFreshTCPExample(Double win) {
 		super(win);
@@ -39,7 +39,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     }
     
     private Double newFresh() {
-    	return gen = gen + 1000000;
+    	return gen = gen + 1000000.0;
     }
     
     public boolean ISYN(Double seq) {

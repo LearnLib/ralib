@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import net.automatalib.automata.MutableDeterministic;
 import net.automatalib.words.Word;
-import de.learnlib.logging.filter.SystemOnlyFilter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
@@ -123,6 +122,35 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             }
         }
         return tseq;        
+    }
+    
+    public VarValuation getRegisterValuation(Word<PSymbolInstance> dw) {
+        VarValuation vars = new VarValuation(getInitialRegisters());
+        RALocation current = initial;
+        for (PSymbolInstance psi : dw) {
+            
+            ParValuation pars = new ParValuation(psi);
+            
+            Collection<Transition> candidates = 
+                    current.getOut(psi.getBaseSymbol());
+                        
+            if (candidates == null) {
+                return null;
+            }
+            
+            final VarValuation fVars = vars; 
+            List<Transition> enabledTransitions = candidates.stream().
+            		filter(t -> t.isEnabled(fVars, pars, this.constants)).collect(Collectors.toList());
+            
+            if (enabledTransitions.size() == 0) 
+            	return null;
+            else {
+            	Transition t = enabledTransitions.get(0);
+            	vars = t.execute(vars, pars, this.constants);
+                current = t.getDestination();
+            }
+        }
+        return vars;        
     }
     
     @Override

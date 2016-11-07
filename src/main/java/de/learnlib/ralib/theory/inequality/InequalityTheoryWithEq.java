@@ -958,8 +958,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
                                 " single deq SDT : " + sdt.toString());
 
                         Map<SDTGuard, SDT> temp = new LinkedHashMap<SDTGuard, SDT>();
-                        temp.put(new SDTTrueGuard(currentParam), sdt);
-                        Map<SDTGuard, SDT> merged = mgGuards(temp, currentParam, Collections.emptyList());
+                        SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
+                        temp.put(trueGuard, sdt);
+                        guardDvs.put(trueGuard, d);
+                        Map<SDTGuard, SDT> merged = mergeGuards(temp, guardDvs);
 
                         log.log(Level.FINEST,
                                 "temporary guards = " + tempKids.keySet());

@@ -18,9 +18,7 @@ package de.learnlib.ralib.learning;
 
 
 import de.learnlib.ralib.data.Replacement;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.Set;
 
 /**
  * This interface describes the methods that are needed in a symbolic decision

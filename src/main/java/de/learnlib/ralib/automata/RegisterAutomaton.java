@@ -58,6 +58,8 @@ public abstract class RegisterAutomaton
 
     public abstract RALocation getLocation(Word<PSymbolInstance> dw);
     
+    public abstract VarValuation getRegisterValuation(Word<PSymbolInstance> dw);
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

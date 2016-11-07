@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.automata.output;
 
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -38,10 +39,10 @@ public class OutputMapping  {
      
     private final Collection<Parameter> fresh;
     
-    private final VarMapping<Parameter, SymbolicDataValue> piv;
+    private final VarMapping<Parameter, ? extends SymbolicDataExpression> piv;
     
     public OutputMapping(Collection<Parameter> fresh, 
-            VarMapping<Parameter, SymbolicDataValue> piv) {
+            VarMapping<Parameter, ? extends SymbolicDataExpression> piv) {
         this.fresh = fresh;
         this.piv = piv;
     }
@@ -66,7 +67,7 @@ public class OutputMapping  {
         return fresh;
     }
     
-    public VarMapping<Parameter, SymbolicDataValue> getOutput() {
+    public VarMapping<Parameter, ? extends  SymbolicDataExpression> getOutput() {
         return piv;
     }
 

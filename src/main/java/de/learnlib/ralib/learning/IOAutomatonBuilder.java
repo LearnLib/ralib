@@ -24,11 +24,14 @@ import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SumCDataExpression;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -97,7 +100,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
     }
     
     private void analyzeExpression(GuardExpression expr, 
-            VarMapping<Parameter, SymbolicDataValue> outmap) {
+            VarMapping<Parameter,  SymbolicDataExpression> outmap) {
         
         if (expr instanceof Conjunction) {
             Conjunction pc = (Conjunction) expr;
@@ -112,7 +115,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
                 SymbolicDataValue right = nbe.getRight();
                 
                 Parameter p = null;
-                SymbolicDataValue sv = null;
+                SymbolicDataExpression sv = null;
                 
                 if (left instanceof Parameter) {
                     if (right instanceof Parameter) {
@@ -131,8 +134,36 @@ class IOAutomatonBuilder extends AutomatonBuilder {
                 outmap.put(p, sv);
             }
         }
-        else {
-            // true and false ...
+        else if (expr instanceof SumCAtomicGuardExpression){
+        	SumCAtomicGuardExpression nbe = (SumCAtomicGuardExpression) expr;
+              if (nbe.getRelation() == Relation.EQUALS) {
+                  SymbolicDataValue left = nbe.getLeft();
+                  SymbolicDataValue right = nbe.getRight();
+                  
+                  Parameter p = null;
+                  SumCDataExpression sv = null;
+                  
+                  if (left instanceof Parameter) {
+                      if (right instanceof Parameter) {
+                          throw new UnsupportedOperationException("not implemented yet.");
+                      }
+                      else {
+                          p = (Parameter) left;
+                          if (nbe.getRightConst() != null) {
+                        	  sv = new SumCDataExpression(right, nbe.getRightConst());
+                        	  
+                          }
+                      }
+                  }
+                  else {
+                      p = (Parameter) right;
+                      sv = left;
+                  }
+                  
+                  outmap.put(p, sv);
+              }
+        } else {
+        	// true and false ...
             //throw new IllegalStateException("Unsupported: " + expr.getClass());
         }
     } 

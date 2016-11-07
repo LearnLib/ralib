@@ -23,6 +23,8 @@ import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SumCDataExpression;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -74,23 +76,27 @@ public class OutputTransition extends Transition {
         }
 
         // check other parameters
-        for (Entry<Parameter, SymbolicDataValue> e : output.getOutput()) {
-            if (e.getValue() instanceof Register) {
-                if (!parameters.get(e.getKey()).equals(
-                        registers.get( (Register) e.getValue()))) {
-                    return false;
-                }
-            } else if (e.getValue() instanceof Constant) {
-                if (!parameters.get(e.getKey()).equals(
-                        consts.get( (Constant) e.getValue()))) {
-                    return false;
-                }
-            } else {
-                throw new IllegalStateException("Source for parameter has to be register or constant.");
-            }
+        for (Entry<Parameter,? extends  SymbolicDataExpression> e : output.getOutput()) {
+        	DataValue<?> outputValue = resolveExpression(e.getValue(), registers, consts);
+        	DataValue<?> outputParamValue = parameters.get(e.getKey());
+        	if (!outputValue.equals(outputParamValue)) 
+        		return false;
+        	
         }
             
         return true;
+    }
+    
+    private DataValue<?> resolveExpression(SymbolicDataExpression outputExpr, VarValuation regValuation, Constants constants) {
+    	 if (outputExpr instanceof Register) {
+    		 return regValuation.get((Register) outputExpr); 
+         } else if (outputExpr instanceof Constant) {
+        	 return constants.get((Constant) outputExpr);
+         } else if ( outputExpr instanceof SumCDataExpression) {
+        	 return outputExpr.solveSDVForValue(resolveExpression(outputExpr.getSDV(), regValuation, constants));
+         } else {
+        	 throw new IllegalStateException("Source for parameter has to be register or constant.");
+         }
     }
 
     @Override
