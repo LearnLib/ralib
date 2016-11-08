@@ -7,10 +7,12 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -90,10 +92,13 @@ public class ValueCanonizer {
 					inverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
 		}
 		} catch(Exception exception) {
-			RuntimeException exc = new RuntimeException(""
-					+ "Value " + (inverse?"de":"") + "canonized " + dvs[i] + "\n"  
-					+ "Canonizer state: "+ this.buckets);
-			exc.addSuppressed(exception);
+			DecoratedRuntimeException exc = 
+					new DecoratedRuntimeException("Problem with canonization").
+					addDecoration("method", (inverse?"de":"") + "canonize ").
+					addDecoration("processed value", dvs[i]).
+					addDecoration("state", this.buckets).
+					addSurpressed(exception);
+			
 			throw exc;
 		}
 //				

@@ -5,7 +5,8 @@ import de.learnlib.ralib.data.DataValue;
 
 public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	// the minimum distance from the endpoint of a smaller/bigger interval value.
-	private static int MIN_DIST = 2000;
+	private static int OUTSIDE_STEP = 20000;
+	private static int INSIDE_STEP = 10;
 	
 	/**
 	 * Constructs interval DVs from left and right ends, by selecting a value
@@ -18,24 +19,23 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		DataType<T> type = left != null ? left.getType() : right.getType();
 		Class<T> cls = type.getBase();
 		
-		T betweenVal;
+		T intvVal;
 		T leftVal;
 		T rightVal;
 		
 		// in case either is null, we just provide an increment/decrement
-		if (left == null) {
+		if (left == null && right != null) {
 			// we select a value at least 
-			leftVal = cls.cast(DataValue.sub(right, new DataValue<>(type, cast(MIN_DIST, type))).getId());
-		} else 
-			leftVal = left.getId();
-		if (right == null)
-			rightVal = cls.cast(DataValue.add(left, new DataValue<>(type, cast(MIN_DIST, type))).getId());
-		else
-			rightVal = right.getId();
+			intvVal = cls.cast(DataValue.sub(right, new DataValue<>(type, cast(OUTSIDE_STEP, type))).getId());
+		} else if (left != null && right == null) {
+			intvVal = cls.cast(DataValue.add(left, new DataValue<>(type, cast(OUTSIDE_STEP, type))).getId());
+		} else if (left != null && right != null) {
+			intvVal = pickInBetweenValue(type.getBase(), left.getId(), right.getId());
+		} else {
+			throw new RuntimeException("Both ends of the Interval cannot be null");
+		}
 
-		betweenVal = pickInBetweenValue(type.getBase(), leftVal, rightVal);
-
-		return new IntervalDataValue<T>(new DataValue<T>(type, betweenVal), left, right);
+		return new IntervalDataValue<T>(new DataValue<T>(type, intvVal), left, right);
 	}
 	
 	private static <T extends Comparable<T>> T pickInBetweenValue(Class<T> clz, T leftVal, T rightVal) {
@@ -47,8 +47,8 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		
 		if (clz.isAssignableFrom(Integer.class)) {
 			Integer intVal; 
-			if ((((Integer) rightVal) - ((Integer) leftVal)) > 1) {
-				intVal = ((Integer) leftVal) + 1;
+			if ((((Integer) rightVal) - ((Integer) leftVal)) > INSIDE_STEP) {
+				intVal = ((Integer) leftVal) + INSIDE_STEP;
 			} else {
 				throw new RuntimeException("Cannot instantiate value in int interval \n "
 						+ "left: " + leftVal + " right: " + rightVal + " ]");
@@ -57,8 +57,8 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		} else {
 			if(clz.isAssignableFrom(Double.class)) {
 				Double doubleVal;
-				if ((((Double) rightVal) - ((Double) leftVal)) > 1.0) {
-					doubleVal = ((Double) leftVal) + 1.0;
+				if ((((Double) rightVal) - ((Double) leftVal)) > INSIDE_STEP) {
+					doubleVal = ((Double) leftVal) + INSIDE_STEP;
 				} else {
 					doubleVal = (((Double) rightVal) + ((Double) leftVal))/2 ;
 				}

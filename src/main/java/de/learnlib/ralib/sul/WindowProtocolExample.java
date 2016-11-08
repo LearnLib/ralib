@@ -10,7 +10,7 @@ public class WindowProtocolExample{
 	private State state;
 	private Double gen = 0.0;
 	//private static Double INVALID = 0.0;
-	private static Double DEFAULT_WIN = 100.0;
+	private static Double DEFAULT_WIN = 1000.0;
 	
 	public WindowProtocolExample(Double win) {
 		this.win = win;
@@ -59,9 +59,9 @@ public class WindowProtocolExample{
     			this.seq = seq + 1;
     		} else {
     			ret = newFresh();
-//    			if (!inWin(this.seq, seq)) {
-//    				state = State.CLOSED;
-//    			}
+    			if (!inWin(this.seq, seq)) {
+    				state = State.CLOSED;
+    			}
     		}
     	} else {
     		ret = newFresh();

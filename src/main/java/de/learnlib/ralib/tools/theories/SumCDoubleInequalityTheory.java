@@ -16,7 +16,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
 			1.0,
-			100.0
+			1000.0
 			//10000.0
 			};
 	private static Double [] defaultRegularConst = new Double [] {

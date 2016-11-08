@@ -7,6 +7,10 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 
+/**
+ * TODO 
+ * This could be merged with AtomicGuardExpression class, and both Left and Right should be made expressions.
+ */
 public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right extends SymbolicDataValue> extends GuardExpression {
 	
     private final Left left; 

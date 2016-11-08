@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.Theory;
@@ -47,14 +48,13 @@ public class TraceCanonizer {
 		ValueCanonizer canonizer = new ValueCanonizer(valueMappers);
 
 		try {
-		Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);
-	
+			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);
 		
-		return canonicalTrace;
-		}catch(Exception e) {
-			e.printStackTrace();
-			System.exit(0);
-			return null;
+			
+			return canonicalTrace;
+		}catch(DecoratedRuntimeException e) {
+			e.addDecoration("trace to be fixed", trace);
+			throw e;
 		}
 	}
 	
@@ -70,44 +70,54 @@ public class TraceCanonizer {
 			if (thisToOtherMap.containsKey(value)) {
 				DataValue<T> mapping = thisToOtherMap.get(value);
 				return new DataValue<T>( mapping.getType(), mapping.getId());
+			} else {
+				DataValue<T> mappedValue = resolveValue(value, thisToOtherMap);
+				if (mappedValue == null) {
+					List<DataValue<T>> castList = thisToOtherMap.values().stream().map(t -> ((DataValue<T>) t)).collect(Collectors.toList());
+					DataValue<T> fv = this.theory.getFreshValue(castList);
+					mappedValue = new FreshValue<T>(fv.getType(), fv.getId());
+				}
+				return mappedValue;
 			}
+		}
+		
+		private DataValue<T> resolveValue(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
 			if (value instanceof SumCDataValue) {
 				SumCDataValue<T> sumc = (SumCDataValue<T>) value;
-				if (thisToOtherMap.containsKey(sumc.getOperand())) {
-					return  new SumCDataValue<T>(thisToOtherMap.get(sumc.getOperand()), sumc.getConstant());
+				DataValue<T> operand = resolveValue(sumc.getOperand(), thisToOtherMap);
+				if (operand != null) {
+					return  new SumCDataValue<T>(operand, sumc.getConstant());
+				} else {
+					return null;
 				}
-			}
-			
-			if (value instanceof IntervalDataValue) {
+			} else if (value instanceof IntervalDataValue) {
 				IntervalDataValue<T> intv = (IntervalDataValue<T>) value;
 				DataValue<T> newLeft = null;
 				if (intv.getLeft() != null) {
-					newLeft = canonize(intv.getLeft(), thisToOtherMap);
+					newLeft = resolveValue(intv.getLeft(), thisToOtherMap);
 				}
 				
 				DataValue<T> newRight = null;
 				if (intv.getRight() != null) {
-					newRight = canonize(intv.getRight(), thisToOtherMap);
+					newRight = resolveValue(intv.getRight(), thisToOtherMap);
+				}
+
+				// if the endpoints of the interval were resolved
+				if (!Boolean.logicalXor(newRight == null, intv.getRight() == null) && !Boolean.logicalXor(newLeft == null, intv.getLeft() == null)
+						&& (newRight != null || newLeft != null)) {
+					return IntervalDataValue.instantiateNew(newLeft, newRight);
+				} else {
+					return null;
 				}
 				
-				// if either of the endpoints are fresh it means their value hasn't been found
-				if ((newLeft == null || !(newLeft instanceof FreshValue)) && (newRight == null || !(newRight instanceof FreshValue))) {
-					return IntervalDataValue.instantiateNew(newLeft, newRight);
-				} 
+			} else {
+				return thisToOtherMap.get(value);
 			}
-			
-			// ideally, we would only instantiate fresh if the value is an instance of a fresh value
-			
-			List<DataValue<T>> castList = thisToOtherMap.values().stream().map(t -> ((DataValue<T>) t)).collect(Collectors.toList());
-			DataValue<T> fv = this.theory.getFreshValue(castList);
-			
-			return new FreshValue<T>(fv.getType(), fv.getId());
 		}
 
 
 		public DataValue<T> decanonize(DataValue<T> value,
 				Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}

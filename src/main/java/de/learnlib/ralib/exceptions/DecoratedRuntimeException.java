@@ -27,6 +27,12 @@ public class DecoratedRuntimeException extends RuntimeException {
 		return this;
 	}
 	
+	// adds the surpressed exception.
+	public DecoratedRuntimeException addSurpressed(Exception exception) {
+		this.addSuppressed(exception);
+		return this;
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		for (Decoration decoration : decorations) {

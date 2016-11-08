@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -32,6 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.logging.filter.SystemOnlyFilter;
@@ -664,11 +667,19 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
+		
 		List<SDTGuard> sortedGuards = tempGuards.keySet().stream().sorted(new Comparator<SDTGuard>() {
 			public int compare(SDTGuard o1, SDTGuard o2) {
 				DataValue<T> dv1 = instantiations.get(o1);
 				DataValue<T> dv2 = instantiations.get(o2);
-				return ((java.lang.Comparable) dv1.getId()).compareTo((java.lang.Comparable) dv2.getId());
+				int ret = ((java.lang.Comparable) dv1.getId()).compareTo((java.lang.Comparable) dv2.getId());
+				// the generated guards can never have the same dv instantiation. In case they do, it signals collision and needs to be addressed.
+				if (ret == 0) {
+					throw new DecoratedRuntimeException("Different guards are instantiated with equal Dv")
+					.addDecoration("guard1:", o1).addDecoration("dv1", dv1)
+					.addDecoration("guard2:", o2).addDecoration("dv2", dv2);
+				}
+				return ret;
 			}
 		}).collect(Collectors.toList());
 
@@ -687,6 +698,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private LinkedHashMap<SDTGuard, SDT> mergeByMaximizingIntervals(List<SDTGuard> sortedGuards,
 			Map<SDTGuard, SDT> guardSdtMap) {
 		LinkedHashMap<SDTGuard, SDT> mergedFinal = new LinkedHashMap<SDTGuard, SDT>();
+		Iterator<SDTGuard> test = sortedGuards.iterator();
+		boolean isValid;
+		boolean expectIntv = true;
+		while(test.hasNext()) {
+			SDTGuard guard = test.next();
+			if (expectIntv)
+				assert guard instanceof IntervalGuard;
+			else
+				assert guard instanceof EqualityGuard;
+			expectIntv = !expectIntv;  
+		}
 		Iterator<SDTGuard> iter = sortedGuards.iterator();
 		IntervalGuard head = (IntervalGuard) iter.next();
 		SDT refStd = guardSdtMap.get(head);
@@ -1229,7 +1251,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 	}
 
-	private SymbolicDataValue getSDVForDV(DataValue<T> dv, List<DataValue> prefixValues, SuffixValue currentParam,
+	private SymbolicDataValue getSDVForDV(DataValue<T> dv, @Nullable List<DataValue> prefixValues, SuffixValue currentParam,
 			WordValuation ifValues, Constants constants) {
 		int newDv_i;
 		DataType type = currentParam.getType();
