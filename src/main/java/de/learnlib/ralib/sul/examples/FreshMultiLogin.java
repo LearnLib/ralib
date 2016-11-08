@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.sul.examples;
 
 import java.util.HashMap;
 import java.util.Random;

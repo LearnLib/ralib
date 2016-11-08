@@ -20,8 +20,6 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		Class<T> cls = type.getBase();
 		
 		T intvVal;
-		T leftVal;
-		T rightVal;
 		
 		// in case either is null, we just provide an increment/decrement
 		if (left == null && right != null) {

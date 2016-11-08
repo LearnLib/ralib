@@ -1,28 +1,19 @@
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.sul.examples;
 
-public class ModerateTCPExample extends AbstractTCPExample{
+public class ModerateFreshTCPExample extends AbstractTCPExample{
 
 	private Double clSeq = null;
 	private Double svSeq = null;
 	private State state = State.CLOSED;
 
-    //handling each Input
-
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
-    public boolean IConnect(Double initSeq) {
-    	boolean ret = false;
+    public Double IConnect() {
+    	Double ret = super.newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.clSeq = initSeq;
-    		ret = true;
+    		this.clSeq = ret;
     		state = State.CONNECTING;
     	}
         return ret;
@@ -49,8 +40,8 @@ public class ModerateTCPExample extends AbstractTCPExample{
     			svSeq = seq;
     			state = State.SYN_SENT;
     		} else {
-//    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
-//    				state = State.CLOSED;
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
+    				state = State.CLOSED;
     			
     		}
     	}

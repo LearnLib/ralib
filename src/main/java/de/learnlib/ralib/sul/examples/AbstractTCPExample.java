@@ -1,26 +1,25 @@
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.sul.examples;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AbstractTCPExample {
-	private static final Double DEFAULT_WIN = 100.0;
-	protected State state = State.CLOSED;
+public class AbstractTCPExample extends AbstractWindowProtocol{
+	protected State state;
 	protected Set<Option> options;
 	
 	public AbstractTCPExample(Double win) {
-		this.win = win;
+		super(win);
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+		state = State.CLOSED;
 	}
 	
 	public AbstractTCPExample() {
-		this.win = DEFAULT_WIN;
+		super();
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+		state = State.CLOSED;
 	}
 	
-	protected final Double win;
-
 	public void configure (Option ... options) {
 		this.options = Arrays.asList(options).stream().collect(Collectors.toSet());
 	}
@@ -49,16 +48,4 @@ public class AbstractTCPExample {
 		FIN_WAIT_1,
 		TIME_WAIT;
 	}
-	
-	   public boolean succ(Double currentSeq, Double nextSeq) {
-	    	return nextSeq == currentSeq+1;
-	   }
-	   
-	   public boolean equ(Double currentSeq, Double nextSeq) {
-	    	return nextSeq.equals(currentSeq);
-	    }
-	    
-	    public boolean inWin(Double currentSeq, Double nextSeq) {
-	    	return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;
-	    }
 }

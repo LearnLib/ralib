@@ -5,6 +5,7 @@ import java.util.Map;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -26,15 +27,23 @@ public class IOHypVerifier implements HypVerifier {
 	 */
 	public boolean isCEForHyp(Word<PSymbolInstance> sulTrace, RegisterAutomaton hyp) {
 		SimulatorSUL hypSim = new SimulatorSUL(hyp, teachers, constants);
+		int i=0;
 		boolean ret = false;
 		hypSim.pre();
-		for(int i=0; i< sulTrace.length(); i = i+2) {
-			PSymbolInstance input = sulTrace.getSymbol(i);
-			PSymbolInstance output = hypSim.step(input);
-			if (!output.equals(sulTrace.getSymbol(i+1))) {
-				ret = true;
-				break;
+		try {
+			for(i=0; i< sulTrace.length(); i = i+2) {
+				PSymbolInstance input = sulTrace.getSymbol(i);
+				PSymbolInstance output = hypSim.step(input);
+				if (!output.equals(sulTrace.getSymbol(i+1))) {
+					ret = true;
+					break;
+				}
 			}
+		}catch(Exception exc) {
+			DecoratedRuntimeException dexc = new DecoratedRuntimeException(exc.getMessage())
+					.addDecoration("test trace", sulTrace).addDecoration("symbol index", Integer.valueOf(i));
+			dexc.addSuppressed(exc);
+			throw dexc;
 		}
 		hypSim.post();
 		return ret;

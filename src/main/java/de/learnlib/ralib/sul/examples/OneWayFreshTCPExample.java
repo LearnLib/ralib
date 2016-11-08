@@ -1,12 +1,8 @@
-package de.learnlib.ralib.sul;
-
-import java.util.Random;
+package de.learnlib.ralib.sul.examples;
 
 public class OneWayFreshTCPExample extends AbstractTCPExample{
 
-	private static Random rand = new Random(0);
 	private Double seq = 0.0;
-	private Double gen = 0.0;
 	
 	public OneWayFreshTCPExample(Double win) {
 		super(win);
@@ -17,14 +13,6 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
 		//configure();
 	}
 
-    //handling each Input
-
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
     public Double IConnect() {
     	Double fresh = newFresh();
     	if (state == State.CLOSED 
@@ -36,10 +24,6 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     		state = State.SYN_SENT;
     	}
         return fresh;
-    }
-    
-    private Double newFresh() {
-    	return gen = gen + 1000000.0;
     }
     
     public boolean ISYN(Double seq) {

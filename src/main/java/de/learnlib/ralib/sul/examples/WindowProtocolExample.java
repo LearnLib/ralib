@@ -1,24 +1,17 @@
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.sul.examples;
 
-import java.util.Random;
+public class WindowProtocolExample extends AbstractWindowProtocol{
 
-public class WindowProtocolExample{
-
-	private static Random rand = new Random(0);
 	private Double seq = 0.0;
-	private Double win;
 	private State state;
-	private Double gen = 0.0;
-	//private static Double INVALID = 0.0;
-	private static Double DEFAULT_WIN = 1000.0;
 	
 	public WindowProtocolExample(Double win) {
-		this.win = win;
+		super(win);
 		this.state = State.CLOSED;
 	}
 	
 	public WindowProtocolExample() {
-		this(DEFAULT_WIN);
+		super();
 	}
 	
 	public enum State{
@@ -26,14 +19,6 @@ public class WindowProtocolExample{
 		CONNECTED,
 	}
 
-    //handling each Input
-
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
     public Double IConnect() {
     	Double fresh = newFresh();
     	if (state == State.CLOSED 
@@ -45,10 +30,6 @@ public class WindowProtocolExample{
     		state = State.CONNECTED;
     	}
         return fresh;
-    }
-    
-    private Double newFresh() {
-    	return gen = gen + 1000000;
     }
     
     public Double INEXT(Double seq) {
@@ -76,16 +57,4 @@ public class WindowProtocolExample{
     			return true;
     	return false;
     }
-    
-	   public boolean succ(Double currentSeq, Double nextSeq) {
-	    	return nextSeq == currentSeq+1;
-	   }
-	   
-	   public boolean equ(Double currentSeq, Double nextSeq) {
-	    	return nextSeq.equals(currentSeq);
-	    }
-	    
-	    public boolean inWin(Double currentSeq, Double nextSeq) {
-	    	return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;
-	    }
 }
