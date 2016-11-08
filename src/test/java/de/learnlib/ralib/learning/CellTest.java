@@ -17,6 +17,8 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
@@ -33,7 +35,11 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -59,11 +65,17 @@ public class CellTest extends RaLibTestSuite {
                     new DataValue(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT));
         
+
+        Map<DataType, Theory> teachers = new HashMap<>();
+        teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         
         // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
+        // symbolic data values: s1, s2 (userType, passType)                
+        final GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, longsuffix,
+                        new Constants(), teachers);
         
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         

@@ -40,8 +40,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.example.sdts.LoginExampleSDT.SDTClass;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -71,7 +71,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
     @Override
     public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
             return new TreeQueryResult(new PIV(),

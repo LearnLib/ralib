@@ -16,32 +16,33 @@
  */
 package de.learnlib.ralib.theory;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
 import de.learnlib.api.Query;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
+import net.automatalib.words.Word;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  *
@@ -81,16 +82,6 @@ public class TestTreeOracle extends RaLibTestSuite {
                     new DataValue(userType, "falk"),
                     new DataValue(passType, "secret"))
                     );
-        
-        
-        // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
-        
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        //System.out.println("Prefix: " + prefix);
-        //System.out.println("Suffix: " + symSuffix);
-        
-        // hacked oracle
         
         DataWordOracle dwOracle = new DataWordOracle() {
             @Override
@@ -133,7 +124,16 @@ public class TestTreeOracle extends RaLibTestSuite {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
-            
+            @Override
+            public List<EnumSet<DataRelation>> getRelations(List<DataValue<String>> left, DataValue<String> right) {
+                List<EnumSet<DataRelation>> ret = new ArrayList<>();
+                for (DataValue<String> v : left) {
+                    ret.add( v.equals(right) ? EnumSet.of(DEFAULT, EQ) : EnumSet.of(DEFAULT));
+                }
+                return ret;                
+            }
+
+          
         };
 
         Theory<String> passTheory = new EqualityTheory<String>() {
@@ -150,15 +150,33 @@ public class TestTreeOracle extends RaLibTestSuite {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
 
+            @Override
+            public List<EnumSet<DataRelation>> getRelations(List<DataValue<String>> left, DataValue<String> right) {
+                List<EnumSet<DataRelation>> ret = new ArrayList<>();
+                for (DataValue<String> v : left) {
+                    ret.add( v.equals(right) ? EnumSet.of(DEFAULT, EQ) : EnumSet.of(DEFAULT));
+                }
+                return ret;                
+            }
+
         };
         
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
         
+        // create a symbolic suffix from the concrete suffix
+        // symbolic data values: s1, s2 (userType, passType)        
+        final GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, suffix,
+                        new Constants(), theories);
+        //System.out.println("Prefix: " + prefix);
+        //System.out.println("Suffix: " + symSuffix);
+        
+        
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
                 dwOracle, theories, 
-                new Constants(), new SimpleConstraintSolver());
+                        new Constants(), new SimpleConstraintSolver());
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 

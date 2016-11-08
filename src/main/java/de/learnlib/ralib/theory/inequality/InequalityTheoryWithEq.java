@@ -28,16 +28,21 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.SDTOrGuard;
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+import de.learnlib.ralib.theory.DataRelation;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.GT;
+import static de.learnlib.ralib.theory.DataRelation.LT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -47,15 +52,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
-
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 
 /**
  *
@@ -67,6 +71,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private static final LearnLogger log
             = LearnLogger.getLogger(InequalityTheoryWithEq.class);
 
+    @Override
+    public EnumSet<DataRelation> recognizedRelations() {
+        return EnumSet.of(DEFAULT, EQ, LT, GT);
+    }  
+    
 //    private Set<SDTGuard> setify(SDTGuard... gs) {
 //        Set<SDTGuard> guardSet = new LinkedHashSet<>();
 //        for (SDTGuard g : gs) {
@@ -855,7 +864,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix,
+            GeneralizedSymbolicSuffix suffix,
             WordValuation values,
             PIV piv,
             Constants constants,

@@ -30,10 +30,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.theory.DataRelation;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +73,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     private static final LearnLogger log
             = LearnLogger.getLogger(EqualityTheory.class);
-
+    
+    @Override
+    public EnumSet<DataRelation> recognizedRelations() {
+        return EnumSet.of(DEFAULT, EQ);
+    }    
+    
     public EqualityTheory(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
     }
@@ -154,7 +163,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix,
+            GeneralizedSymbolicSuffix suffix,
             WordValuation values,
             PIV pir,
             Constants constants,
@@ -178,9 +187,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
-        boolean free = suffix.getFreeValues().contains(sv);
+        boolean free = suffix.getPrefixRelations(pId).contains(EQ);
         if (!free && useNonFreeOptimization) {
-            DataValue d = suffixValues.get(sv);
+            int eqIdx = findLeftMostEqual(suffix, pId);
+            DataValue d = suffixValues.get(suffix.getDataValue(eqIdx));
             if (d == null) {
                 d = getFreshValue(potential);
             }
@@ -413,7 +423,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     }
 
-    private ParameterizedSymbol computeSymbol(SymbolicSuffix suffix, int pId) {
+    private ParameterizedSymbol computeSymbol(GeneralizedSymbolicSuffix suffix, int pId) {
         int idx = 0;
         for (ParameterizedSymbol a : suffix.getActions()) {
             idx += a.getArity();
@@ -425,7 +435,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 ? suffix.getActions().firstSymbol() : null;
     }
 
-    private int computeLocalIndex(SymbolicSuffix suffix, int pId) {
+    private int computeLocalIndex(GeneralizedSymbolicSuffix suffix, int pId) {
         int idx = 0;
         for (ParameterizedSymbol a : suffix.getActions()) {
             idx += a.getArity();
@@ -437,7 +447,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     }
 
     private Word<PSymbolInstance> buildQuery(Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, WordValuation values) {
+            GeneralizedSymbolicSuffix suffix, WordValuation values) {
 
         Word<PSymbolInstance> query = prefix;
         int base = 0;
@@ -453,6 +463,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             base += a.getArity();
         }
         return query;
+    }
+    
+    private int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {
+        for (int i=1; i<pId; i++) {
+            if (suffix.getSuffixRelations(i, pId).contains(EQ)) return i;
+        }
+        return pId;
     }
 
 }

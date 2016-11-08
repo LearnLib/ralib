@@ -19,10 +19,12 @@ package de.learnlib.ralib.tools.theories;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -74,6 +76,19 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         
         ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
         ret.add(getFreshValue(vals));
+        return ret;
+    }
+
+    @Override
+    public List<EnumSet<DataRelation>> getRelations(
+            List<DataValue<Integer>> left, DataValue<Integer> right) {
+        
+        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+        left.stream().forEach((dv) -> {
+            ret.add(EnumSet.of( (dv.getId().equals(right.getId())) ?
+                    DataRelation.EQ : DataRelation.DEFAULT));
+        });
+        
         return ret;
     }
 

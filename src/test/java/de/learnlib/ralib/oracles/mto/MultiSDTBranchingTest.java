@@ -31,7 +31,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -108,7 +108,8 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         //          [+]
         Word<PSymbolInstance> suffix1 = Word.fromSymbols(
                 new PSymbolInstance(o100, d0));
-        SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
+        GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(
+                prefix, suffix1, new Constants(), teachers);
 
         //**** Cell: [s1, s2, s3]((O100[s1] IPRACK[s2] O200[s3])) : []
         //[]-+
@@ -120,7 +121,8 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(o100, d0),
                 new PSymbolInstance(ipr, d0),
                 new PSymbolInstance(o200, d0));
-        SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix, suffix2);
+        GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(
+                prefix, suffix2, new Constants(), teachers);
 
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix 1: {0}", symSuffix1);

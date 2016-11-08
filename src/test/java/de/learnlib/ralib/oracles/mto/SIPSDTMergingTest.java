@@ -16,14 +16,6 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.logging.Level;
-
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -31,7 +23,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -42,7 +34,12 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import net.automatalib.words.Word;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 
 /**
@@ -111,7 +108,8 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
                 new PSymbolInstance(o486, d0),
                 new PSymbolInstance(ipr, d0),
                 new PSymbolInstance(o481, d0));
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
         
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);

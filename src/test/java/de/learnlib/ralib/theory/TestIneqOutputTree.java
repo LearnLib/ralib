@@ -27,8 +27,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -92,7 +92,9 @@ public class TestIneqOutputTree extends RaLibTestSuite {
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        final GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, suffix,
+                        new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 

@@ -33,6 +33,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Valuation;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
@@ -96,14 +97,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         GuardExpression test = new Disjunction(left, right);
 
-//        System.out.println("A1:  " + expr1);
-//        System.out.println("A2:  " + expr2);
-//        System.out.println("G:   " + exprG);
-//        System.out.println("MAP: " + remap);
-//        System.out.println("A2': " + expr2r);
-//        System.out.println("TEST:" + test);
-//        
-//        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test);
         log.log(Level.FINEST,"Res:" + r);
         return r;

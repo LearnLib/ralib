@@ -54,6 +54,8 @@ import java.util.Set;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+import de.learnlib.ralib.theory.DataRelation;
+import java.util.EnumSet;
 
 /**
  *
@@ -248,4 +250,27 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         return nextValues;
     }
 
+    @Override
+    public List<EnumSet<DataRelation>> getRelations(
+            List<DataValue<Double>> left, DataValue<Double> right) {
+        
+        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+        left.stream().forEach((dv) -> {
+            final int c = dv.getId().compareTo(right.getId());
+            switch (c) {
+                case 0:
+                    ret.add(EnumSet.of(DataRelation.EQ));
+                    break;
+                case 1:
+                    ret.add(EnumSet.of(DataRelation.GT));
+                    break;
+                default: 
+                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+                    break;
+            }
+        });
+        
+        return ret;
+    }
+    
 }

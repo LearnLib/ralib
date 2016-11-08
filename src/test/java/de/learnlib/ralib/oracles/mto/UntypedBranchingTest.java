@@ -56,8 +56,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -124,7 +124,8 @@ public class UntypedBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(log, new DataValue[] {u, p}),
                 new PSymbolInstance(ok, new DataValue[] {}));        
         
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
         
         logger.log(Level.FINE, "{0}", prefix);
         logger.log(Level.FINE, "{0}", suffix);

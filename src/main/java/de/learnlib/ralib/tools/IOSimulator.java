@@ -199,7 +199,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             }
         };
 
-        this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, actions);
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         this.useEqTest = OPTION_USE_EQTEST.parse(config);

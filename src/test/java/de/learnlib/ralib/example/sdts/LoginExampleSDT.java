@@ -20,8 +20,8 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 
 /**
  *
@@ -33,11 +33,11 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     
     private final SDTClass clazz;
     
-    private final SymbolicSuffix suffix;
+    private final GeneralizedSymbolicSuffix suffix;
 
     private final Set<Register> registers;
     
-    public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
+    public LoginExampleSDT(SDTClass clazz, GeneralizedSymbolicSuffix suffix, Set<Register> registers) {
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;

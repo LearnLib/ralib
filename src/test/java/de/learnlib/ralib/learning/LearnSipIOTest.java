@@ -105,7 +105,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, 
+                consts, true, teachers, actions);
 
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);

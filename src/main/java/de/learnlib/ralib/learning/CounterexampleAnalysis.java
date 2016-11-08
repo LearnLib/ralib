@@ -16,20 +16,19 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 
@@ -53,13 +52,16 @@ public class CounterexampleAnalysis {
     
     private final Constants consts;
     
+    private final Map<DataType, Theory> teachers;
+    
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
     private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
     
     CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
-            Map<Word<PSymbolInstance>, Component> components, Constants consts) {
+            Map<Word<PSymbolInstance>, Component> components, 
+            Constants consts, Map<DataType, Theory> teachers) {
         
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
@@ -67,6 +69,7 @@ public class CounterexampleAnalysis {
         this.sdtOracle = sdtOracle;
         this.components = components;
         this.consts = consts;
+        this.teachers = teachers;
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
@@ -76,7 +79,8 @@ public class CounterexampleAnalysis {
         
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);        
+        GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);        
         
         return new CEAnalysisResult(prefix, symSuffix);        
     } 
@@ -90,7 +94,8 @@ public class CounterexampleAnalysis {
             ce.prefix(idx+1));         
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
@@ -106,18 +111,6 @@ public class CounterexampleAnalysis {
         log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
         log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
         log.log(Level.FINEST,"------------------------------------------------------");
-        
-//        System.out.println("------------------------------------------------------");
-//        System.out.println("Computing index: " + idx);
-//        System.out.println("Prefix: " + prefix);
-//        System.out.println("SymSuffix: " + symSuffix);
-//        System.out.println("Location: " + location);
-//        System.out.println("Transition: " + transition);
-//        System.out.println("PIV HYP: " + resHyp.getPiv());
-//        System.out.println("SDT HYP: " + resHyp.getSdt());
-//        System.out.println("PIV SYS: " + resSul.getPiv());
-//        System.out.println("SDT SYS: " + resSul.getSdt());        
-//        System.out.println("------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
@@ -138,10 +131,7 @@ public class CounterexampleAnalysis {
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
-        
-//        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
-//        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
-        
+               
         return (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
     }
@@ -152,15 +142,6 @@ public class CounterexampleAnalysis {
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
         Component c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
-        
-//        System.out.println("Branching Hyp:");
-//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
-//            System.out.println(e.getKey() + " -> " + e.getValue());
-//        }
-//        System.out.println("Branching Sys:");
-//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
-//            System.out.println(e.getKey() + " -> " + e.getValue());
-//        }
         
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;

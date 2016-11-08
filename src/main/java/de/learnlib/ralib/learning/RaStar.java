@@ -19,14 +19,17 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -38,8 +41,8 @@ public class RaStar {
     
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
     
-    public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(
-            Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon());
+    public static final GeneralizedSymbolicSuffix EMPTY_SUFFIX = new GeneralizedSymbolicSuffix(
+            Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon(), new Constants(), null);
     
     private final ObservationTable obs;
     
@@ -58,15 +61,18 @@ public class RaStar {
     
     private final boolean ioMode;
     
+    private final Map<DataType, Theory> teachers;
+    
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
-            ParameterizedSymbol ... inputs) {
+            Map<DataType, Theory> teachers, ParameterizedSymbol ... inputs) {
         
         this.ioMode = ioMode;
-        this.obs = new ObservationTable(oracle, ioMode, consts, inputs);
+        this.obs = new ObservationTable(oracle, ioMode, consts, teachers, inputs);
         this.consts = consts;
+        this.teachers = teachers;
         
         this.obs.addPrefix(EMPTY_PREFIX);
         this.obs.addSuffix(EMPTY_SUFFIX);
@@ -74,7 +80,7 @@ public class RaStar {
         //TODO: make this optional
         for (ParameterizedSymbol ps : inputs) {
             if (ps instanceof OutputSymbol) {
-                this.obs.addSuffix(new SymbolicSuffix(ps));
+                this.obs.addSuffix(new GeneralizedSymbolicSuffix(ps, teachers));
             }
         }
         
@@ -85,9 +91,10 @@ public class RaStar {
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, 
-            ParameterizedSymbol ... inputs) {
+            Map<DataType, Theory> teachers, ParameterizedSymbol ... inputs) {
         
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, 
+                consts, false, teachers, inputs);
     }
         
     public void learn() {
@@ -129,7 +136,8 @@ public class RaStar {
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
         
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
-                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), consts);
+                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), 
+                        consts, teachers);
         
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         

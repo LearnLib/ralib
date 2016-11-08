@@ -37,6 +37,7 @@ import net.automatalib.words.Word;
  * 
  * @author falk
  */
+@Deprecated
 public class SymbolicSuffix {
     
     /**

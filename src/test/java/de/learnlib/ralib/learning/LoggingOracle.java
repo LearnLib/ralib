@@ -37,7 +37,7 @@ public class LoggingOracle implements TreeOracle {
     }
     
     @Override
-    public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix) {
         //System.out.println("QUERY (tree query): " + prefix + " and " + suffix);
         return treeoracle.treeQuery(prefix, suffix);
     }    

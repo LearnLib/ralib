@@ -78,7 +78,7 @@ public class LearnLoginTest extends RaLibTestSuite {
                         new Constants(), solver);
         
         RaStar rastar = new RaStar(mto, hypFactory, slo, 
-                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
+                consts, teachers, I_LOGIN, I_LOGOUT, I_REGISTER);
         
         rastar.learn();        
         RegisterAutomaton hyp = rastar.getHypothesis();        

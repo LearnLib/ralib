@@ -23,7 +23,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -104,7 +104,8 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         //**** [s1, s2]((OFrame[s1, s2]))
         Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
                 new PSymbolInstance(oframe, d2, d2));
-        SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
+        GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(
+                prefix, suffix1, new Constants(), teachers);
 
         Word<PSymbolInstance> test =  Word.fromSymbols(
                 new PSymbolInstance(iin, d2),

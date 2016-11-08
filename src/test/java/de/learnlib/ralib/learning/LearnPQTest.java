@@ -70,7 +70,9 @@ public class LearnPQTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, OFFER, POLL);
+        RaStar rastar = new RaStar(mto, hypFactory, 
+                mlo, consts, teachers, OFFER, POLL);
+        
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
