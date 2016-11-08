@@ -16,8 +16,15 @@
  */
 package de.learnlib.ralib.theory.succ;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.util.RAToDot;
@@ -25,11 +32,11 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
@@ -47,19 +54,9 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.testng.annotations.Test;
 
 /**
  *
@@ -127,8 +124,10 @@ public class TestSuccLearning {
                 return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
             }
         };
+        
+        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, new IOHypVerifier(teachers, consts), actions);
 
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
@@ -145,9 +144,9 @@ public class TestSuccLearning {
                 teachers,
                 inputs);
         
-        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
+        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle, hypVerifier);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);                        
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
                         
                         
         int check = 0;

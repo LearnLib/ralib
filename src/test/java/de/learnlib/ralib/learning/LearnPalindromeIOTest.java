@@ -30,6 +30,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
@@ -94,7 +95,8 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);

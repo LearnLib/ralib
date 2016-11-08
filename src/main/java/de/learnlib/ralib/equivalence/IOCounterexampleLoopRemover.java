@@ -71,9 +71,11 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
 
     private final IOOracle sulOracle;
     private RegisterAutomaton hypothesis;
+	private HypVerifier verifier;
 
-    public IOCounterexampleLoopRemover(IOOracle sulOracle) {
+    public IOCounterexampleLoopRemover(IOOracle sulOracle, HypVerifier verifier) {
         this.sulOracle = sulOracle;
+        this.verifier = verifier;
     }
 
     @Override
@@ -85,7 +87,6 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
             Word<PSymbolInstance> ce, Hypothesis hyp) {
 
         this.hypothesis = hyp;
-
         Map<Integer, List<Loop>> loops = new LinkedHashMap<>();
         List<Integer> sizes = new ArrayList<>();
         RALocation[] trace = execute(ce);
@@ -116,7 +117,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
-                if (!hypothesis.accepts(candidate)) {
+                if (verifier.isCEForHyp(candidate, this.hypothesis)) {
                     return removeLoops(candidate, hyp);
                 }
             }

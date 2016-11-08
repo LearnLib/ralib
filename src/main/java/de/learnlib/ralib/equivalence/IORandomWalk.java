@@ -64,6 +64,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
 
     private ParameterizedSymbol error = null;
+	private HypVerifier hypVerifier;
     
     /**
      * creates an IO random walk
@@ -87,6 +88,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         this.resetRuns = resetRuns;
         this.rand = rand;
         this.target = target;
+        this.hypVerifier = new IOHypVerifier(teachers, constants);
         this.inputs = inputs;
         this.uniform = uniform;
         this.resetProbability = resetProbability;
@@ -143,7 +145,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
 
             run = run.append(next).append(out);
 
-            if (!hyp.accepts(run)) {
+            if (this.hypVerifier.isCEForHyp(run, hyp)) {
                 log.log(Level.FINE, "Run with CE: {0}", run);     
                 System.out.format("Run with CE: {0}", run);
                 hyp.accepts(run);

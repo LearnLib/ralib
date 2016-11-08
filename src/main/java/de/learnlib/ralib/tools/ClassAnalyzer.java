@@ -32,6 +32,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
@@ -140,6 +141,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private long resets = 0;
     private long inputs = 0;
+
+	private IOHypVerifier hypVerifier;
 
     @Override
     public String description() {
@@ -260,8 +263,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
                 }
             };
+            
+            this.hypVerifier = new IOHypVerifier(teach, consts);
 
-            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.hypVerifier, actions);
 
             if (findCounterexamples) {
 
@@ -286,10 +291,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
                 this.randomWalk.setError(SpecialSymbols.ERROR);
             }
+            
 
-            this.ceOptLoops = new IOCounterexampleLoopRemover(back);
-            this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);
-            this.ceOptPref = new IOCounterExamplePrefixFinder(back);
+            this.ceOptLoops = new IOCounterexampleLoopRemover(back, this.hypVerifier);
+            this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);
+            this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
 
         } catch (ClassNotFoundException | NoSuchMethodException ex) {
             ex.printStackTrace();

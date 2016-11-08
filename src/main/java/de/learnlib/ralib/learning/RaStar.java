@@ -19,6 +19,9 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
+import de.learnlib.ralib.equivalence.HypVerifier;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -57,11 +60,14 @@ public class RaStar {
     private final TreeOracleFactory hypOracleFactory;
     
     private final boolean ioMode;
+
+	private HypVerifier hypVerifier;
     
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
+            HypVerifier hypVerifier,
             ParameterizedSymbol ... inputs) {
         
         this.ioMode = ioMode;
@@ -80,14 +86,15 @@ public class RaStar {
         
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
-        this.hypOracleFactory = hypOracleFactory;        
+        this.hypOracleFactory = hypOracleFactory;
+        this.hypVerifier = hypVerifier;
     }   
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, 
             ParameterizedSymbol ... inputs) {
         
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, null, inputs);
     }
         
     public void learn() {
@@ -103,7 +110,8 @@ public class RaStar {
 
             //System.out.println(obs.toString());
             
-            AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);            
+            AutomatonBuilder ab = this.ioMode? new IOAutomatonBuilder(obs.getComponents(), consts) : 
+            	new AutomatonBuilder(obs.getComponents(), consts);            
             hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
@@ -134,10 +142,8 @@ public class RaStar {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
         // check if ce still is a counterexample ...
-        boolean hypce = hyp.accepts(ce.getInput());
-        boolean sulce = ce.getOutput();
-        if (hypce == sulce) {
-            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);           
+        if (!hypVerifier.isCEForHyp(ce.getInput(), hyp)) {
+            log.logEvent("word is not a counterexample: " + ce);           
             counterexamples.poll();
             return false;
         }

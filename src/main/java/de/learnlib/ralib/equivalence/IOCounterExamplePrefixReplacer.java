@@ -29,9 +29,11 @@ import net.automatalib.words.Word;
 public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer {
 
     private final IOOracle sulOracle;
+	private HypVerifier verifier;
 
-    public IOCounterExamplePrefixReplacer(IOOracle sulOracle) {
+    public IOCounterExamplePrefixReplacer(IOOracle sulOracle, HypVerifier verifier) {
         this.sulOracle = sulOracle;
+        this.verifier = verifier;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix.concat(suffix));
 
             //System.out.println(candidate);
-            if (candidate != null && !hypothesis.accepts(candidate)) {
+            if (candidate != null && verifier.isCEForHyp(candidate, hypothesis)) {
                 //System.out.println("Reduced Prefix!!!");
                 ce = candidate;
                 //System.out.println("New CE: " + ce);

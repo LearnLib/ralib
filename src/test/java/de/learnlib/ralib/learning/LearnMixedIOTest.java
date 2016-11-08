@@ -18,6 +18,14 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -25,10 +33,11 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -45,12 +54,6 @@ import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  *
@@ -104,8 +107,9 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);
         
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -119,9 +123,9 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 teachers,
                 inputs);
         
-        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
+        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle, hypVerifier);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);                        
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
                                                 
         int check = 0;
         while (true && check < 100) {
