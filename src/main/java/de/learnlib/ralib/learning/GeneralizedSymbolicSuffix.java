@@ -22,7 +22,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.theory.DataRelation;
 import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 import de.learnlib.ralib.theory.Theory;
