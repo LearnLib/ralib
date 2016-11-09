@@ -465,8 +465,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return query;
     }
     
-    private int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {
+    private int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {        
+        //System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
+        DataType t = suffix.getDataValue(pId).getType();
         for (int i=1; i<pId; i++) {
+            if (!t.equals(suffix.getDataValue(i).getType())) {
+                continue;
+            }            
             if (suffix.getSuffixRelations(i, pId).contains(EQ)) return i;
         }
         return pId;

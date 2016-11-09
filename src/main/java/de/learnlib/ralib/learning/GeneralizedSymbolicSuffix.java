@@ -196,8 +196,16 @@ public class GeneralizedSymbolicSuffix {
     }
     
     public EnumSet<DataRelation> getSuffixRelations(int i, int j) {
-        System.out.println(i + " : " + j);
-        return suffixRelations[j-1][i-1];
+        DataType t = suffixValues[j-1].getType();
+        // have to count types to convert i
+        int idx = -1;
+        for (int c=0; c<i; c++) {
+            if (t.equals(suffixValues[c].getType())) {
+                idx++;
+            }
+        }
+        //System.out.println(i + "(" + idx+ ") : " + j);        
+        return suffixRelations[j-1][idx];
     }
 
     @Override
