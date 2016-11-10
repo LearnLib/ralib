@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2014-2015 The LearnLib Contributors
- * This file is part of LearnLib, http://www.learnlib.de/.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package de.learnlib.ralib.tools;
 
 import java.io.File;
@@ -63,25 +47,35 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.sockanalyzer.IOConfig;
+import de.learnlib.ralib.tools.sockanalyzer.SocketAnalyzerSUL;
 import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
 import net.automatalib.words.Word;
 
-/**
- *
- * @author falk
- */
-public class ClassAnalyzer extends AbstractToolWithRandomWalk {
+public class SocketAnalyzer extends AbstractToolWithRandomWalk{
+    private static final ConfigurationOption.StringOption OPTION_TARGET_IP
+    = new ConfigurationOption.StringOption("target.ip",
+            "SUL IP address", "localhost", false);
 
-    private static final ConfigurationOption.StringOption OPTION_TARGET
-            = new ConfigurationOption.StringOption("target",
-                    "traget class name", null, false);
+    protected static final ConfigurationOption.IntegerOption OPTION_TARGET_PORT
+    = new ConfigurationOption.IntegerOption("target.port",
+            "SUL port number", 8000, false);
 
-    private static final ConfigurationOption.StringOption OPTION_METHODS
-            = new ConfigurationOption.StringOption("methods",
-                    "traget method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
+    protected static final ConfigurationOption.IntegerOption OPTION_DEPTH
+    = new ConfigurationOption.IntegerOption("max.depth",
+            "Maximum depth to explore", -1, true);
+
+    private static final ConfigurationOption.StringOption OPTION_INPUTS
+            = new ConfigurationOption.StringOption("inputs",
+                    "traget input signatures. format: m1(class:type,class:type) + m2() + ...", null, false);
+    
+    private static final ConfigurationOption.StringOption OPTION_OUTPUTS
+    = new ConfigurationOption.StringOption("outputs",
+            "traget output signatures. format: m1(class:type,class:type) + m2() + ...", null, false);
+
 
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
             = new ConfigurationOption.IntegerOption("max.depth",
@@ -91,10 +85,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     = new ConfigurationOption.BooleanOption("output.error",
             "Include error output", true, true);
 
-    protected static final ConfigurationOption.BooleanOption OPTION_OUTPUT_NULL
-    = new ConfigurationOption.BooleanOption("output.null",
-            "Include null output", true, true);
-    
     protected static final ConfigurationOption.StringOption OPTION_CACHE_DUMP
     = new ConfigurationOption.StringOption("cache.dump",
             "Dump cache to file", null, true);
@@ -110,13 +100,13 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
-        OPTION_TARGET,
-        OPTION_METHODS,
+        OPTION_INPUTS,
         OPTION_TEACHERS,
         OPTION_RANDOM_SEED,
         OPTION_USE_CEOPT,
         OPTION_USE_SUFFIXOPT,
         OPTION_EXPORT_MODEL,
+        OPTION_TARGET_IP,
         OPTION_USE_RWALK,
         OPTION_MAX_ROUNDS,
         OPTION_MAX_DEPTH,
@@ -126,7 +116,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
-        OPTION_OUTPUT_NULL,
         OPTION_OUTPUT_ERROR
     };
 
@@ -148,8 +137,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private Map<DataType, Theory> teachers;
     
-    private Class<?> target = null;
-
     private final Map<String, DataType> types = new LinkedHashMap<>();
 
     private final Map<ParameterizedSymbol, MethodConfig> methods = new LinkedHashMap<>();
@@ -158,6 +145,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private long inputs = 0;
 
 	private IOHypVerifier hypVerifier;
+
+	private String systemIP;
+
+	private Integer systemPort;
 
     @Override
     public String description() {
@@ -168,28 +159,29 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     public void setup(Configuration config) throws ConfigurationException {
 
         List<ParameterizedSymbol> inList = new ArrayList<>();
+        List<ParameterizedSymbol> outList = new ArrayList<>();
         List<ParameterizedSymbol> actList = new ArrayList<>();
         try {
             super.setup(config);
 
             this.types.put("boolean", SpecialSymbols.BOOLEAN_TYPE);
 
-            String className = OPTION_TARGET.parse(config);
-            this.target = Class.forName(className);
-            boolean hasVoid = false;
-            boolean hasBoolean = false;
+            this.systemIP = OPTION_TARGET_IP.parse(config);
+            this.systemPort = OPTION_TARGET_PORT.parse(config);
+            
 
-            String[] mcStrings = OPTION_METHODS.parse(config).split("\\+");
-            for (String mcs : mcStrings) {
-                MethodConfig mc = new MethodConfig(mcs, this.target, this.types);
-                this.methods.put(mc.getInput(), mc);
-                inList.add(mc.getInput());
-                actList.add(mc.getInput());
-                if (!mc.isVoid() && !mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE)) {
-                    actList.add(mc.getOutput());
-                }
-                hasVoid = hasVoid || mc.isVoid();
-                hasBoolean = hasBoolean || mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE);
+            String[] inputStrings = OPTION_INPUTS.parse(config).split("\\+");
+            for (String input : inputStrings) {
+                IOConfig mc = new IOConfig(input, true, this.types);
+                inList.add(mc.getSymbol());
+                actList.add(mc.getSymbol());
+            }
+            
+            String[] outputStrings = OPTION_OUTPUTS.parse(config).split("\\+");
+            for (String output : outputStrings) {
+                IOConfig mc = new IOConfig(output, false, this.types);
+                outList.add(mc.getSymbol());
+                actList.add(mc.getSymbol());
             }
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
@@ -208,7 +200,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
 
 
-            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            sulLearn = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
             if (this.useFresh) {
             	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulLearn);
             }
@@ -216,7 +208,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             	
                 this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
             }
-            sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            sulTest = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
             if (this.useFresh) {
             	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulTest);
             }
@@ -226,18 +218,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
             boolean hasError = OPTION_OUTPUT_ERROR.parse(config);
-            boolean hasNull = OPTION_OUTPUT_NULL.parse(config);
 
             if (hasError)
             	actList.add(SpecialSymbols.ERROR);
-            if (hasNull)
-            	actList.add(SpecialSymbols.NULL);
-            if (hasVoid)
-            	actList.add(SpecialSymbols.VOID);
-            if (hasBoolean) {
-	            actList.add(SpecialSymbols.TRUE);
-	            actList.add(SpecialSymbols.FALSE);
-            }
             if (!md.equals(-1))
             	actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
@@ -328,7 +311,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         	try {
 				ioCache = cacheMgr.loadCacheFromFile(load);
 			} catch (Exception e) {
-				e.printStackTrace();
 				throw new ConfigurationException(e.getMessage());
 			}
         } else {
@@ -360,7 +342,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         final String __EQ__ = "eq tests";
 
         System.out.println("SYS:------------------------------------------------");
-        System.out.println(this.target.getName());
+        System.out.println("server (" + this.systemIP + ";" + this.systemPort + ")");
         System.out.println("----------------------------------------------------");
 
         SimpleProfiler.start(__RUN__);
@@ -480,4 +462,5 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
         return sb.toString();
     }
+
 }

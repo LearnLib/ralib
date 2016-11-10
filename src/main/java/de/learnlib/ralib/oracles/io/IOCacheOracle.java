@@ -22,6 +22,7 @@ import java.util.logging.Level;
 
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -45,14 +46,22 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
     public IOCacheOracle(IOOracle sul) {
+    	this(sul, new IOCache());
+    }
+    
+    public IOCacheOracle(IOOracle sul,  TraceCanonizer fixer) {
+    	this(sul, new IOCache(), fixer);
+    }
+    
+    public IOCacheOracle(IOOracle sul, IOCache ioCache) {
         this.sul = sul;
-        this.ioCache = new IOCache();
+        this.ioCache = ioCache;
         this.fixer = Optional.empty();
     }
     
-    public IOCacheOracle(IOOracle sul, TraceCanonizer fixer) {
+    public IOCacheOracle(IOOracle sul,  IOCache ioCache, TraceCanonizer fixer) {
         this.sul = sul;
-        this.ioCache = new IOCache();
+        this.ioCache = ioCache;
         this.fixer = Optional.of(fixer);
     }
 
@@ -79,23 +88,29 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
             test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         Word<PSymbolInstance> trace = sul.trace(test);
-        this.ioCache.addToCache(trace);
+        assert this.ioCache.addToCache(trace);
         ret = this.ioCache.answerFromCache(fixedQuery);
         return ret;
     }
 
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-        if (query.length() % 2 != 0) {
-            query = query.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
+    	Word<PSymbolInstance> fixedQuery = this.fixer.isPresent() ? 
+    			this.fixer.get().fixTrace(query) 
+    			: query; 
+        if (fixedQuery.length() % 2 != 0) {
+        	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
 
-        Word<PSymbolInstance> trace = this.ioCache.traceFromCache(query);
+        Word<PSymbolInstance> trace = this.ioCache.traceFromCache(fixedQuery);
         if (trace != null) {
             return trace;
         }
         trace = sul.trace(query);
-        this.ioCache.addToCache(trace);
+        if (! this.ioCache.addToCache(trace)) {
+        	throw new DecoratedRuntimeException("Cache wasn't updated by new sul trace")
+        	.addDecoration("query", query).addDecoration("sul trace", trace);
+        }
         return trace;
     }
 }

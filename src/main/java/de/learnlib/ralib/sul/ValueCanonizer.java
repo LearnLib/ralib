@@ -3,15 +3,12 @@ package de.learnlib.ralib.sul;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableBiMap;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -22,8 +19,9 @@ import net.automatalib.words.Word;
  * to canonized values for each data type. New non-canonized values received are added to the map, paired with an 
  * analogous canonized value.  
  * 
- * The analogy is induced by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
- * thus it will be paired with a fresh value from the other set. 
+ * The analogy is inferred by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
+ * thus it will be paired with a fresh value from the other set.
+ *  
  * <br/>
  * Example for equality: <br/>
  * (inp) [0, 1] => {0:0, 1:1}   0,1 fresh <br/>
@@ -40,7 +38,7 @@ public class ValueCanonizer {
 	
 	private final Map<DataType, BiMap<DataValue, DataValue>> buckets = new HashMap<>(); // from decanonized to canonized for each type
 	
-	private final Map<DataType, ValueMapper> valueMappers; // value matchers are used to find pairings for each key supplied 
+	private final Map<DataType, ValueMapper> valueMappers; // value mappers are used to find pairings for each key supplied 
 	
 	public static ValueCanonizer buildNew(Map<DataType, Theory> theories) {
 		LinkedHashMap<DataType, ValueMapper> valueMappers = new LinkedHashMap<DataType, ValueMapper>();
@@ -57,10 +55,6 @@ public class ValueCanonizer {
 		this.valueMappers = valueMappers;
 	}
 	
-//	public ValueCanonizer( Map<DataType, ValueMapper> valueMatchers) {
-//		this.valueMatchers = valueMatchers;
-//	}
-	
 	public Word<PSymbolInstance> canonize(Word<PSymbolInstance> trace, boolean inverse) {
 		Word<PSymbolInstance> newTrace = Word.epsilon();
 		for (PSymbolInstance sym : trace) {
@@ -68,7 +62,6 @@ public class ValueCanonizer {
 			newTrace = newTrace.append(canSym);
 		}
 		return newTrace;
-//		return trace.transform(sym -> this.canonize(sym, inverse)); // switched away because it is hard to run a debugger
 	}
 	
 	public PSymbolInstance canonize(PSymbolInstance symbol, boolean inverse) {
@@ -77,24 +70,24 @@ public class ValueCanonizer {
 	}
 	
 	/**
-	 * If inverse is false, acts as a canonizer, that is each of the de-canonized values passed along, returns
+	 * If reverse is false, acts as a canonizer, that is each of the de-canonized values passed along, returns
 	 * an analogous canonized values. If inverse is true, then for each canonized value returns a de-canonized value.
 	 * 
 	 * A mapping from canonized to de-canonized is updated for every value.
 	 */
-	public DataValue [] canonize(DataValue [] dvs, boolean inverse) {
+	public DataValue [] canonize(DataValue [] dvs, boolean reverse) {
 		int i = 0;
 		DataValue [] resultDvs = new DataValue [dvs.length];
 		try {
 		for (i = 0; i < dvs.length; i ++) {
 			resultDvs[i] = 
 					this.valueMappers.containsKey(dvs[i].getType()) ? 
-					inverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
+					reverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
 		}
 		} catch(Exception exception) {
 			DecoratedRuntimeException exc = 
 					new DecoratedRuntimeException("Problem with canonization").
-					addDecoration("method", (inverse?"de":"") + "canonize ").
+					addDecoration("method", (reverse?"de":"") + "canonize ").
 					addDecoration("processed value", dvs[i]).
 					addDecoration("state", this.buckets).
 					addSurpressed(exception);

@@ -11,33 +11,56 @@ import net.automatalib.words.Word;
 
 public class IOCache {
 	
-    private final CacheNode root = new CacheNode();
+    private final CacheNode root;
 	
-    private static class CacheNode {
+    static class CacheNode {
 
         final Map<PSymbolInstance, PSymbolInstance> output = new LinkedHashMap<>();
         final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
+        
+        public String toString() {
+        	StringBuilder builder = new StringBuilder().append("(");
+        	output.keySet().forEach(key -> builder.append(key).append("\n ").append(output.get(key)).append("\n ")
+        			.append(next.get(key).toString()));
+        	builder.append(")");
+        	return builder.toString();
+        }
+    }
+    
+    public IOCache() {
+    	this.root = new CacheNode();
     }
 
-	
-    void addToCache(Word<PSymbolInstance> query) {
+	IOCache(CacheNode root) {
+		this.root = root;
+	}
+    
+    /**
+     * Adds query to cache. Returns true if the cache was updated with information from the query, false, if the 
+     * query was already found in the cache. 
+     */
+    boolean addToCache(Word<PSymbolInstance> query) {
         assert query.length() % 2 == 0;
         Iterator<PSymbolInstance> iter = query.iterator();
         CacheNode cur = root;
+        boolean cacheUpdated = false;
         while (iter.hasNext()) {
             PSymbolInstance in = iter.next();
             PSymbolInstance out = iter.next();
 
             CacheNode next = cur.next.get(in);
-            if (next == null) {
+            if (next != null) {
+                assert out.equals(cur.output.get(in));
+            } else  {
                 next = new CacheNode();
                 cur.next.put(in, next);
                 cur.output.put(in, out);
+                cacheUpdated = true;
             }
 
-            assert out.equals(cur.output.get(in));
             cur = next;
         }
+        return cacheUpdated;
     }
     
     Boolean answerFromCache(Word<PSymbolInstance> query) {
@@ -99,5 +122,9 @@ public class IOCache {
             
         }
         return trace;
+    }
+    
+    CacheNode getRoot() {
+    	return this.root;
     }
 }

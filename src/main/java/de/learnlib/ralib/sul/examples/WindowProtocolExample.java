@@ -12,6 +12,7 @@ public class WindowProtocolExample extends AbstractWindowProtocol{
 	
 	public WindowProtocolExample() {
 		super();
+		this.state = State.CLOSED;
 	}
 	
 	public enum State{

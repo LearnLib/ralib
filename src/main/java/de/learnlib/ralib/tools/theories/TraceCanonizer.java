@@ -18,7 +18,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * Fixes a symbolic data trace produced after reduction techniques. This could be merged with the ValueMapper / canonizer
+ * Canonizes a symbolic data trace produced after reduction techniques. This could be merged with the ValueMapper / canonizer
  * (in the end, it's a type of canonizing from DataValue to DataValue). 
  */
 public class TraceCanonizer {
@@ -30,7 +30,7 @@ public class TraceCanonizer {
 
 	public TraceCanonizer(Map<DataType, Theory> theories) {
 		this.theories = theories;
-		this.theories.forEach( (dt, th) -> valueMappers.put(dt, new TraceFixerMapper(th)));
+		this.theories.forEach( (dt, th) -> valueMappers.put(dt, new TraceCanonizerMapper(th)));
 	}
 	
 	/**
@@ -58,11 +58,11 @@ public class TraceCanonizer {
 		}
 	}
 	
-	static class TraceFixerMapper<T extends Comparable<T>> implements ValueMapper<T> {
+	static class TraceCanonizerMapper<T extends Comparable<T>> implements ValueMapper<T> {
 		
 		private Theory<T> theory;
 
-		public TraceFixerMapper(Theory<T> theory) {
+		public TraceCanonizerMapper(Theory<T> theory) {
 			this.theory = theory;
 		}
 
