@@ -23,7 +23,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -62,7 +62,7 @@ public class OutputTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
 
         
         DataType intType = TestUtil.getType("int", loader.getDataTypes());

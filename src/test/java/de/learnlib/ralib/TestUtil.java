@@ -16,18 +16,27 @@
  */
 package de.learnlib.ralib;
 
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.TimeOutOracle;
+import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
+import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import java.util.Collection;
@@ -68,7 +77,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
-        IOOracle ioOracle = new SULOracle(sul, error);
+        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new TraceCanonizer(teachers));
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
         
@@ -77,15 +86,21 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, solver);
+                ioFilter, ioCache, teachers, consts, solver);
         
         return mto;
     }
     
+    public static MultiTheoryTreeOracle createMTO(RegisterAutomaton regAutomataon, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
+	    DataWordOracle hypOracle = new SimulatorOracle(regAutomataon);
+	    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(regAutomataon, teachers, consts);
+	    IOOracle hypTraceOracle = new BasicSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR);  
+	    return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
+    }
     public static RegisterAutomatonImporter getLoader(String resName) {
         return new RegisterAutomatonImporter(
                 TestUtil.class.getResourceAsStream(resName));

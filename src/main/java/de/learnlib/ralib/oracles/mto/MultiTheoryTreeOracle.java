@@ -31,6 +31,8 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Sets;
 
 import de.learnlib.logging.LearnLogger;
@@ -55,6 +57,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTAndGuard;
@@ -80,14 +83,23 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private final Map<DataType, Theory> teachers;
 
     private final ConstraintSolver solver;
+
+	private IOOracle traceOracle;
     
     private static LearnLogger log
             = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
 
-    public MultiTheoryTreeOracle(DataWordOracle oracle,
+//    public MultiTheoryTreeOracle(DataWordOracle membershipOracle,
+//            Map<DataType, Theory> teachers, Constants constants, 
+//            ConstraintSolver solver) {
+//    	this(membershipOracle, null, teachers, constants, solver);
+//    }
+    
+    public MultiTheoryTreeOracle(DataWordOracle membershipOracle, @Nullable IOOracle traceOracle,
             Map<DataType, Theory> teachers, Constants constants, 
             ConstraintSolver solver) {
-        this.oracle = oracle;
+        this.oracle = membershipOracle;
+        this.traceOracle = traceOracle;
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
@@ -157,7 +169,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
         return teach.treeQuery(prefix, suffix, values, pir,
-                constants, suffixValues, this);
+                constants, suffixValues, this, this.traceOracle);
     }
 
     /**

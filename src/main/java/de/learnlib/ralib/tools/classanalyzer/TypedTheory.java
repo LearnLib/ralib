@@ -29,7 +29,14 @@ public interface TypedTheory<T> extends Theory<T> {
  
     public void setType(DataType type);
     
-    public void setUseSuffixOpt(boolean useit);
     
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle);
+    public default void setUseSuffixOpt(boolean useit) {
+        System.err.println("Suffix Optimization currently not implemented for theory " + 
+                this.getClass().getName());
+    }
+
+    public default void setCheckForFreshOutputs(boolean doit) {
+        System.err.println("Check for fresh outputs currently not implemented for theory " + 
+                this.getClass().getName());
+    }
 }

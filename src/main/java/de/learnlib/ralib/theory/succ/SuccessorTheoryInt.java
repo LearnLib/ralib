@@ -64,7 +64,7 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, 
             WordValuation values, PIV pir, Constants constants, 
-            SuffixValuation suffixValues, SDTConstructor oracle) {
+            SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
 
         System.out.println("SuccessorTheoryInt.treeQuery()");
         
@@ -285,7 +285,7 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
     }
 
     @Override
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
+    public void setCheckForFreshOutputs(boolean doit) {
         System.err.println("Check for fresh outputs currently not implemented for theory " + 
                 this.getClass().getName());
     }

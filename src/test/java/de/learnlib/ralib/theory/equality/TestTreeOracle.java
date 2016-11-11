@@ -158,7 +158,7 @@ public class TestTreeOracle extends RaLibTestSuite {
         theories.put(passType, passTheory);
         
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                dwOracle, theories, 
+                dwOracle, null, theories, 
                 new Constants(), new SimpleConstraintSolver());
         
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);

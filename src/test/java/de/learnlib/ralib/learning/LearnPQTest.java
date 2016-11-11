@@ -63,12 +63,12 @@ public class LearnPQTest extends RaLibTestSuite {
         
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                dwOracle, teachers, new Constants(), jsolv);
+                dwOracle, null, teachers, new Constants(), jsolv);
         
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
+                TestUtil.createMTO(hyp,  teachers, new Constants(), jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, OFFER, POLL);
         rastar.learn();

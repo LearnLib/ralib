@@ -41,7 +41,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -83,17 +83,17 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         ConstraintSolver solver = new SimpleConstraintSolver();
         
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);        
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, solver);
+                ioFilter, ioCache, teachers, consts, solver);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
                 consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+                TestUtil.createMTO(hyp, teachers, consts, solver);
 
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);

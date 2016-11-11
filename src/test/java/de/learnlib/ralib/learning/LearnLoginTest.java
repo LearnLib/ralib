@@ -27,19 +27,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.automatalib.words.Word;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -48,7 +46,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import org.testng.Assert;
+import net.automatalib.words.Word;
 
 /**
  *
@@ -61,7 +59,6 @@ public class LearnLoginTest extends RaLibTestSuite {
         
         Constants consts = new Constants();        
         RegisterAutomaton sul = AUTOMATON;
-        DataWordOracle dwOracle = new SimulatorOracle(sul);
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
@@ -69,13 +66,11 @@ public class LearnLoginTest extends RaLibTestSuite {
         
         ConstraintSolver solver = new SimpleConstraintSolver();
         
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                dwOracle, teachers, new Constants(), solver);
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
-                        new Constants(), solver);
+                TestUtil.createMTO(hyp, teachers, new Constants(), solver);
         
         RaStar rastar = new RaStar(mto, hypFactory, slo, 
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);

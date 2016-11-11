@@ -198,18 +198,6 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
     }
 
     @Override
-    public void setUseSuffixOpt(boolean useit) {
-        System.err.println("Optimized suffixes are currently not supported for theory "
-                + IntegerInequalityTheory.class.getName());
-    }
-
-    @Override
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        System.err.println("Fresh values are currently not supported for theory "
-                + IntegerInequalityTheory.class.getName());
-    }
-
-    @Override
     public Collection<DataValue<Integer>> getAllNextValues(
             List<DataValue<Integer>> vals) {
         Set<DataValue<Integer>> nextValues = new LinkedHashSet<>();

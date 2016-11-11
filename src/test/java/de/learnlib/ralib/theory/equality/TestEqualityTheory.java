@@ -66,7 +66,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
         
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), new SimpleConstraintSolver());
+                oracle, null, theories, new Constants(), new SimpleConstraintSolver());
         
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 

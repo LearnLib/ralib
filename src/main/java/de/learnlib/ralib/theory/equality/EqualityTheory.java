@@ -44,7 +44,6 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -67,8 +66,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     protected boolean freshValues = false;
 
-    protected IOOracle ioOracle;
-
     private static final LearnLogger log
             = LearnLogger.getLogger(EqualityTheory.class);
 
@@ -76,8 +73,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         this.useNonFreeOptimization = useNonFreeOptimization;
     }
 
-    public void setFreshValues(boolean freshValues, IOOracle ioOracle) {
-        this.ioOracle = ioOracle;
+    public void setFreshValues(boolean freshValues) {
         this.freshValues = freshValues;
     }
 
@@ -161,7 +157,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             PIV pir,
             Constants constants,
             SuffixValuation suffixValues,
-            SDTConstructor oracle) {
+            SDTConstructor oracle, IOOracle traceOracle) {
 
         int pId = values.size() + 1;
 
@@ -219,7 +215,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 int idx = computeLocalIndex(suffix, pId);
                 Word<PSymbolInstance> query = buildQuery(
                         prefix, suffix, values);
-                Word<PSymbolInstance> trace = ioOracle.trace(query);
+                Word<PSymbolInstance> trace = traceOracle.trace(query);
                 PSymbolInstance out = trace.lastSymbol();
 
                 if (out.getBaseSymbol().equals(ps)) {

@@ -46,7 +46,7 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -99,14 +99,14 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
         
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 ioOracle, teachers, consts, jsolv, inputs);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                TestUtil.createMTO(hyp, teachers, consts, jsolv);
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);

@@ -16,17 +16,21 @@
  */
 package de.learnlib.ralib.sul;
 
-import java.util.logging.Level;
-
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
- *
- * @author falk
+ * Previous implementation of the SUL Oracle. Works well for fresh and in/equality. Doesn't work for
+ * sumC/increments. 
  */
 public class BasicSULOracle extends IOOracle {
 
@@ -36,6 +40,8 @@ public class BasicSULOracle extends IOOracle {
 
     private static LearnLogger log = LearnLogger.getLogger(BasicSULOracle.class);
 
+    private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
+  
     public BasicSULOracle(DataWordSUL sul, ParameterizedSymbol error) {
         this.sul = sul;
         this.error = error;
@@ -47,11 +53,13 @@ public class BasicSULOracle extends IOOracle {
         Word<PSymbolInstance> act = query;
         log.log(Level.FINEST, "MQ: {0}", query);
         sul.pre();
+        replacements.clear();
         Word<PSymbolInstance> trace = Word.epsilon();
         for (int i = 0; i < query.length(); i += 2) {
-            PSymbolInstance in = act.getSymbol(i);
+            PSymbolInstance in = applyReplacements(act.getSymbol(i));
             
             PSymbolInstance out = sul.step(in);
+            updateReplacements(act.getSymbol(i + 1), out);
 
             trace = trace.append(in).append(out);
 
@@ -67,7 +75,42 @@ public class BasicSULOracle extends IOOracle {
                 trace = trace.append(query.getSymbol(i)).append(new PSymbolInstance(error));
             }                        
         }
+        
         sul.post();
         return trace;
     }
+
+    private PSymbolInstance applyReplacements(PSymbolInstance symbol) {
+        DataValue[] vals = new DataValue[symbol.getBaseSymbol().getArity()];
+        for (int i = 0; i < symbol.getBaseSymbol().getArity(); i++) {
+            Set<DataValue> set = getOrCreate(symbol.getParameterValues()[i]);
+            if (set.size() < 1) {
+                vals[i] = symbol.getParameterValues()[i];
+            } else {
+                vals[i] = set.iterator().next();
+            }
+        }
+              
+        return new PSymbolInstance(symbol.getBaseSymbol(), vals);
+    }
+
+    private void updateReplacements(
+            PSymbolInstance outTest, PSymbolInstance outSys) {
+
+        for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
+            Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);
+            set.add(outSys.getParameterValues()[i]);
+            assert set.size() <= 1;
+        }
+    }
+
+    private Set<DataValue> getOrCreate(DataValue key) {
+        Set<DataValue> ret = replacements.get(key);
+        if (ret == null) {
+            ret = new HashSet<>();
+            replacements.put(key, ret);
+        }
+        return ret;
+    }
+
 }

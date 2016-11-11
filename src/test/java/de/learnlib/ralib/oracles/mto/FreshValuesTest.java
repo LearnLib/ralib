@@ -38,7 +38,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
@@ -78,15 +78,15 @@ public class FreshValuesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
     
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, new SimpleConstraintSolver());        
+                ioFilter, ioCache, teachers, consts, new SimpleConstraintSolver());        
                 
         teachers.values().stream().forEach((t) -> {
-            ((EqualityTheory)t).setFreshValues(true, ioCache);
+            ((EqualityTheory)t).setFreshValues(true);
         });
         
         DataType intType = TestUtil.getType("int", loader.getDataTypes());

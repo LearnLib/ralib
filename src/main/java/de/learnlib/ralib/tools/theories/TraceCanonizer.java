@@ -24,9 +24,7 @@ import net.automatalib.words.Word;
 public class TraceCanonizer {
 	
 	private Map<DataType, Theory> theories;
-
 	final Map<DataType, ValueMapper> valueMappers = new LinkedHashMap<>();
-	private Map<DataType, Map<DataValue, DataValue>> buckets;
 
 	public TraceCanonizer(Map<DataType, Theory> theories) {
 		this.theories = theories;
@@ -44,7 +42,7 @@ public class TraceCanonizer {
 	 * connected to this fresh value)
 	 * after: FV 10 FV 20 SUMC 20 1 
 	 */
-	public Word<PSymbolInstance> fixTrace(Word<PSymbolInstance> trace) {
+	public Word<PSymbolInstance> canonizeTrace(Word<PSymbolInstance> trace) {
 		ValueCanonizer canonizer = new ValueCanonizer(valueMappers);
 
 		try {
@@ -53,7 +51,7 @@ public class TraceCanonizer {
 			
 			return canonicalTrace;
 		}catch(DecoratedRuntimeException e) {
-			e.addDecoration("trace to be fixed", trace);
+			e.addDecoration("trace to be canonized", trace);
 			throw e;
 		}
 	}

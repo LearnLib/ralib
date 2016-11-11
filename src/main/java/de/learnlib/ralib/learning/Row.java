@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -92,11 +93,10 @@ class Row {
 
         assert c.getPrefix().equals(this.prefix);
         if (this.cells.containsKey(c.getSuffix())) {
-        	System.out.println("Adding cell: " + c);
-        	System.out.println("But already have cell: " + this.cells.get(c.getSuffix()) + " for suffix  " + c.getSuffix());
-//        	return;
+        	throw new DecoratedRuntimeException("There already is a cell for suffix. ").
+        	addDecoration("Cell to be added", c).addDecoration("Cell already present", this.cells.get(c.getSuffix())).
+        	addDecoration("Suffix: ", c.getPrefix());
         }
-        assert !this.cells.containsKey(c.getSuffix());
 
         // make sure that pars-in-vars is consistant with 
         // existing cells in his row

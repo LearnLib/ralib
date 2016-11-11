@@ -16,23 +16,32 @@
  */
 package de.learnlib.ralib.tools;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.function.Consumer;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.oracles.io.IOCache;
+import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.automatalib.commons.util.Pair;
 
 /**
@@ -171,6 +180,16 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE + 
                             ", " + ConstraintSolverFactory.ID_Z3 + ".", 
                             ConstraintSolverFactory.ID_SIMPLE, true);
+
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_DUMP
+    = new ConfigurationOption.StringOption("cache.dump",
+            "Dump cache to file", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_LOAD
+    = new ConfigurationOption.StringOption("cache.load",
+            "Load cache from file if file exists", null, true);
+    
+    
     
     protected Random random = null;
 
@@ -229,11 +248,53 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             Pair<String, TypedTheory> pair = parseTeacherConfig(s);
             teacherClasses.put(pair.getFirst(), pair.getSecond());
         }
+        
+        this.teacherClasses.putAll(buildTeachersFromConfig(config));
 
         this.solver = ConstraintSolverFactory.createSolver(
                 OPTION_SOLVER.parse(config));
     }
-
+    
+    
+    protected Map<String, TypedTheory> buildTeachersFromConfig(Configuration config) throws ConfigurationException {
+    	Map<String, TypedTheory> teacherClasses = new HashMap<String, TypedTheory>(); 
+    	String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
+         for (String s : parsed) {
+             Pair<String, TypedTheory> pair = parseTeacherConfig(s);
+             teacherClasses.put(pair.getFirst(), pair.getSecond());
+         }
+         
+         return teacherClasses;
+    }
+    
+    /**
+     * Builds a mapping from types to the theories that handle them and sets on each teacher
+     * the type handled, as well as other configuration options.
+     */
+    @SafeVarargs
+	protected final Map<DataType, Theory>  buildTypeTheoryMapAndConfigureTheories(Map<String, TypedTheory> teacherClasses, Map<String, DataType> types, Consumer<TypedTheory> ...otherTheorySettings) {
+    	Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	    for (String tName : teacherClasses.keySet()) {
+	        DataType t = types.get(tName);
+	        TypedTheory theory = teacherClasses.get(t.getName());
+	        teachers.put(t, theory);
+	    }
+	    setTypeAndConfigurationOptions(teachers, otherTheorySettings);
+	    
+	    return teachers;
+    }
+    
+    protected void setTypeAndConfigurationOptions(Map<DataType, Theory>  teachers, Consumer<TypedTheory> ...otherSettings) {
+    	teachers.forEach((type, teach) ->
+    	{	TypedTheory typedTheory = (TypedTheory) teach;
+    		typedTheory.setCheckForFreshOutputs(this.useFresh);
+    		typedTheory.setUseSuffixOpt(this.useSuffixOpt);
+    		typedTheory.setType(type);
+    		Arrays.stream(otherSettings).
+	        forEach(set -> set.accept(typedTheory));
+    	});
+    }
+    
     private Pair<String, TypedTheory> parseTeacherConfig(String config)
             throws ConfigurationException {
         try {
@@ -243,8 +304,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             TypedTheory th = (TypedTheory) cl.newInstance();
             String t = parts[0].trim();
             // Do this later !!!
-            // th.setType(t);
-            th.setUseSuffixOpt(this.useSuffixOpt);
 
             return new Pair<String, TypedTheory>(t, th);
 
@@ -252,4 +311,36 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             throw new ConfigurationException(ex.getMessage());
         }
     }
+    
+
+    
+    protected IOCache setupCache(Configuration config, IOCacheManager cacheMgr) throws ConfigurationException {
+    	IOCache ioCache = null;
+        String load = OPTION_CACHE_LOAD.parse(config);
+        if (load != null && new File(load).exists()) {
+        	try {
+				ioCache = cacheMgr.loadCacheFromFile(load);
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new ConfigurationException(e.getMessage());
+			}
+        } else {
+        	ioCache = new IOCache();
+        }
+        final String dump = OPTION_CACHE_DUMP.parse(config);
+        final IOCache finalCache = ioCache;
+        if (dump != null) {
+        	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+				public void run() {
+					try {
+						cacheMgr.dumpCacheToFile(dump, finalCache);
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
+				}}));
+        }
+        return ioCache;
+    }
+
 }

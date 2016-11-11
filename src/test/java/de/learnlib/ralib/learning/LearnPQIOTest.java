@@ -40,13 +40,12 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -72,7 +71,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
-        IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
+        IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
@@ -81,7 +80,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                -> TestUtil.createMTO(hyp, teachers, consts, jsolv);
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         
         RaStar rastar = new RaStar(mto, hypFactory, mlo,

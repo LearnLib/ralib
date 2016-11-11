@@ -35,8 +35,12 @@ public interface IOCacheManager {
 	public void dumpCacheToFile(String file, IOCache cache)  throws IOException ;
 	
 	
+	
+	
 	//public static final IOCacheManager KRYO = new KryoCacheManager();
 	public static final IOCacheManager JAVA_SERIALIZE = new JavaSerializeCacheManager();
+	
+	
 	
 	
 	/**
@@ -49,7 +53,7 @@ public interface IOCacheManager {
 		public IOCache loadCacheFromFile(String fileName) throws IOException {
 			InputStream file = new FileInputStream(fileName);
 			InputStream buffer = new BufferedInputStream(file);
-			ObjectInput input = new ObjectInputStream (buffer);
+ 			ObjectInput input = new ObjectInputStream (buffer);
 			try {
 				SerializableCacheNode cacheNode = (SerializableCacheNode) input.readObject();
 

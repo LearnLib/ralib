@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -58,13 +59,10 @@ public class TestSuccTheory extends RaLibTestSuite {
 
 	public void testSuccExample() {
         
-        DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
-            
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType, Theory> theories = new LinkedHashMap<>();
         theories.put(T_SEQ, new SuccessorTheoryInt());
         
-        MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), new SimpleConstraintSolver());
+        MultiTheoryTreeOracle treeOracle = TestUtil.createMTO(AUTOMATON, theories, new Constants(), new SimpleConstraintSolver());
         
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_A, 

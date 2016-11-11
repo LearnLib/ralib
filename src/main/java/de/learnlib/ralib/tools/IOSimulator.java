@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -49,7 +50,7 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -121,7 +122,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private Constants consts;
     
-    private final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+    private Map<DataType, Theory> teachers;
 
 	private IOHypVerifier hypVerifier;
     
@@ -156,14 +157,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         consts = loader.getConstants();
         
         // create teachers
-        for (final DataType t : loader.getDataTypes()) {            
-            TypedTheory theory = teacherClasses.get(t.getName());            
-            theory.setType(t);
-            if (this.useSuffixOpt) {
-                theory.setUseSuffixOpt(this.useSuffixOpt);
-            }            
-            teachers.put(t, theory);
-        }
+        this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, loader.getDataTypes()
+        		.stream().collect(Collectors.toMap(type -> type.toString(), type -> type)));
 
         // oracles
         this.sulLearn = new SimulatorSUL(model, teachers, consts);
@@ -178,17 +173,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
         
-       IOOracle back = new SULOracle(sulLearn, ERROR);
-       IOCacheOracle ioCache = new IOCacheOracle(back);
+       IOOracle back = new BasicSULOracle(sulLearn, ERROR);
+       IOCacheOracle ioCache = new IOCacheOracle(back, null);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
-       if (useFresh) {
-           for (Theory t : teachers.values()) {
-               ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
-           }
-       }
        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioCache, teachers, consts, solver);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
@@ -199,7 +189,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 if (timeout > 0L) {
                     hypOracle = new TimeOutOracle(hypOracle, timeout);
                 }
-                return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
+                return new MultiTheoryTreeOracle(hypOracle, ioCache, teachers, consts, solver);
             }
         };
         

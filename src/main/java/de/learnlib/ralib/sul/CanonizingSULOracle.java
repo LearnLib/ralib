@@ -23,13 +23,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A canonizing SULOracle is a SULOracle that also performs canonicalization of the whole query 
- * prior to the execution of each input. This ensures that in the end, a fully canonical trace
- * is run on the SUL.
- * 
- * Example:
- * reg 0 / out 3  in 1 4 / false is transformed to
- * reg 0 / out 1  in 2 3 / false 
+ * A canonizing SULOracle is a SULOracle that also performs canonicalization on the trace + input
+ * before executing each input. 
  *  
  */
 public class CanonizingSULOracle extends IOOracle {
@@ -38,17 +33,18 @@ public class CanonizingSULOracle extends IOOracle {
 
     private final ParameterizedSymbol error;
 
-	private final TraceCanonizer traceFixer;
+	private final TraceCanonizer traceCanonizer;
 
   
     public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, TraceCanonizer traceFixer) {
         this.canonizedSul = canonizedSul;
         this.error = error;
-        this.traceFixer = traceFixer;
+        this.traceCanonizer = traceFixer;
     }
 
-    
-    @Override
+    /**
+     * Returns a canonical trace.
+     */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         countQueries(1);
         canonizedSul.pre();
@@ -57,15 +53,11 @@ public class CanonizingSULOracle extends IOOracle {
 
         for (int i = 0; i < query.length(); i += 2) {
         	fixedQuery = trace.concat(fixedQuery.suffix(fixedQuery.size() - trace.size()));
-        	fixedQuery = traceFixer.fixTrace(fixedQuery);
+        	fixedQuery = traceCanonizer.canonizeTrace(fixedQuery);
             PSymbolInstance in = fixedQuery.getSymbol(i);
-            
-//            PSymbolInstance in = query.getSymbol(i);
             
             PSymbolInstance out = canonizedSul.step(in);
             
-           // out = canonizer.canonize(out, false);
-
             trace = trace.append(in).append(out);
 
             if (out.getBaseSymbol().equals(error)) {

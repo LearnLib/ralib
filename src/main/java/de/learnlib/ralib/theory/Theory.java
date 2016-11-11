@@ -24,6 +24,7 @@ import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.sul.ValueMapper;
@@ -33,6 +34,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
 import net.automatalib.words.Word;
 
 
@@ -79,7 +83,8 @@ public interface Theory<T> {
             PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
-            SDTConstructor oracle);
+            SDTConstructor oracle,
+            IOOracle traceOracle);
  
     /**
      * returns all next data values to be tested (for vals).

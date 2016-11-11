@@ -1,6 +1,7 @@
 package de.learnlib.ralib.data;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDataExpression implements SymbolicDataExpression{
 	
@@ -64,7 +65,7 @@ public class SumCDataExpression implements SymbolicDataExpression{
 
 	public  DataValue<?> instantiateExprForValuation(Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 		DataValue<?> operand = expr.instantiateExprForValuation(valuation);
-		return  DataValue.add(operand, constant);
+		return  new SumCDataValue(operand, constant);
 	}
 
 

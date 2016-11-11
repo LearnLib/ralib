@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -52,7 +53,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
@@ -94,14 +95,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     protected static final ConfigurationOption.BooleanOption OPTION_OUTPUT_NULL
     = new ConfigurationOption.BooleanOption("output.null",
             "Include null output", true, true);
-    
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_DUMP
-    = new ConfigurationOption.StringOption("cache.dump",
-            "Dump cache to file", null, true);
-    
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_LOAD
-    = new ConfigurationOption.StringOption("cache.load",
-            "Load cache from file if file exists", null, true);
     
     protected static final ConfigurationOption.BooleanOption OPTION_CACHE_TESTS
     = new ConfigurationOption.BooleanOption("cache.tests",
@@ -195,18 +188,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             Integer md = OPTION_MAX_DEPTH.parse(config);
             
             // create teachers
-            teachers = new LinkedHashMap<DataType, Theory>();
-
-            for (String tName : teacherClasses.keySet()) {
-                DataType t = types.get(tName);
-                TypedTheory theory = teacherClasses.get(t.getName());
-                theory.setType(t);
-                if (this.useSuffixOpt) {
-                    theory.setUseSuffixOpt(this.useSuffixOpt);
-                }
-                teachers.put(t, theory);
-            }
-
+            teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, types); 
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
@@ -249,23 +231,17 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             else 
             	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
             
-            IOCacheOracle ioCacheOracle = null;
             IOCache ioCache = setupCache(config, IOCacheManager.JAVA_SERIALIZE);
             
+            IOCacheOracle ioCacheOracle = null;
             if (useFresh)
             	ioCacheOracle = new IOCacheOracle(back, ioCache, new TraceCanonizer(this.teachers));
             else 
-            	ioCacheOracle = new IOCacheOracle(back, ioCache);
+            	ioCacheOracle = new IOCacheOracle(back, ioCache, null);
             
             IOFilter ioOracle = new IOFilter(ioCacheOracle, inputSymbols);
             
-            if (useFresh) {
-                for (Theory t : teachers.values()) {
-                    ((TypedTheory) t).setCheckForFreshOutputs(true, ioCacheOracle);
-                }
-            }
-            
-            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioCacheOracle, teachers, consts, solver);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
@@ -277,7 +253,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     if (timeout > 0L) {
                         hypOracle = new TimeOutOracle(hypOracle, timeout);
                     }
-                    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
+                    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
+                    IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new TraceCanonizer(teachers));  
+                    
+                    return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
                 }
             };
             
@@ -321,35 +300,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     }
     
-    private IOCache setupCache(Configuration config, IOCacheManager cacheMgr) throws ConfigurationException {
-    	IOCache ioCache = null;
-        String load = OPTION_CACHE_LOAD.parse(config);
-        if (load != null && new File(load).exists()) {
-        	try {
-				ioCache = cacheMgr.loadCacheFromFile(load);
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new ConfigurationException(e.getMessage());
-			}
-        } else {
-        	ioCache = new IOCache();
-        }
-        final String dump = OPTION_CACHE_DUMP.parse(config);
-        final IOCache finalCache = ioCache;
-        if (dump != null) {
-        	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-				public void run() {
-					try {
-						cacheMgr.dumpCacheToFile(dump, finalCache);
-					} catch (Exception e) {
-						e.printStackTrace();
-						throw new RuntimeException(e);
-					}
-				}}));
-        }
-        return ioCache;
-    }
-
     @Override
     public void run() throws RaLibToolException {
         System.out.println("=============================== START ===============================");
@@ -417,7 +367,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             System.out.println("### SYS TRACE: " + sysTrace);
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);//, () -> new ValueCanonizer(this.teachers));        
+            IOOracle iosul = new BasicSULOracle(hypSul, SpecialSymbols.ERROR);        
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
             

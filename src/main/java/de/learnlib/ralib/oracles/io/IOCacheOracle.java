@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
+
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -41,28 +43,19 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
 	private final IOCache ioCache;
 
-	private Optional<TraceCanonizer> fixer;
+	private final TraceCanonizer traceCanonizer;
 
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
-    public IOCacheOracle(IOOracle sul) {
-    	this(sul, new IOCache());
+    
+    public IOCacheOracle(IOOracle sul,  @Nullable   TraceCanonizer canonizer) {
+    	this(sul, new IOCache(), canonizer);
     }
     
-    public IOCacheOracle(IOOracle sul,  TraceCanonizer fixer) {
-    	this(sul, new IOCache(), fixer);
-    }
-    
-    public IOCacheOracle(IOOracle sul, IOCache ioCache) {
+    public IOCacheOracle(IOOracle sul,  IOCache ioCache, @Nullable TraceCanonizer canonizer) {
         this.sul = sul;
         this.ioCache = ioCache;
-        this.fixer = Optional.empty();
-    }
-    
-    public IOCacheOracle(IOOracle sul,  IOCache ioCache, TraceCanonizer fixer) {
-        this.sul = sul;
-        this.ioCache = ioCache;
-        this.fixer = Optional.of(fixer);
+        this.traceCanonizer = canonizer;
     }
 
     @Override
@@ -76,8 +69,9 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = this.fixer.isPresent() ? 
-    			this.fixer.get().fixTrace(query) 
+    	Word<PSymbolInstance> fixedQuery = 
+    			this.traceCanonizer != null ? 
+    			this.traceCanonizer.canonizeTrace(query) 
     			: query; 
         Boolean ret = this.ioCache.answerFromCache(fixedQuery);
         if (ret != null) {
@@ -95,8 +89,9 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = this.fixer.isPresent() ? 
-    			this.fixer.get().fixTrace(query) 
+    	Word<PSymbolInstance> fixedQuery = 
+    			this.traceCanonizer != null ? 
+    			this.traceCanonizer.canonizeTrace(query) 
     			: query; 
         if (fixedQuery.length() % 2 != 0) {
         	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
@@ -107,10 +102,10 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
             return trace;
         }
         trace = sul.trace(query);
-        if (! this.ioCache.addToCache(trace)) {
-        	throw new DecoratedRuntimeException("Cache wasn't updated by new sul trace")
-        	.addDecoration("query", query).addDecoration("sul trace", trace);
-        }
+//        if (! this.ioCache.addToCache(trace)) {
+//        	throw new DecoratedRuntimeException("Cache wasn't updated by new sul trace")
+//        	.addDecoration("query", query).addDecoration("sul trace", trace);
+//        }
         return trace;
     }
 }

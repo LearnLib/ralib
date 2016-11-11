@@ -19,7 +19,7 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
@@ -144,7 +144,7 @@ public class TestSuccFresh extends RaLibTestSuite{
                 		b.intv(1.5, b.sumcv(1.0, 1.0), b.sumcv(1.0, 100.0))),
                 new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
                 		b.intv(2.0, b.dv(1.5), b.sumcv(1.5, 1.0)), b.sumcv(101.0, 1.0)));
-        Word<PSymbolInstance> fixedTrace = fixer.fixTrace(testWord);
+        Word<PSymbolInstance> fixedTrace = fixer.canonizeTrace(testWord);
         Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[1].getClass(), FreshValue.class);
         Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[0].getClass(), IntervalDataValue.class);
 	}
@@ -162,7 +162,7 @@ public class TestSuccFresh extends RaLibTestSuite{
 
         DataWordSUL sul = new OneWayFreshTCPSUL(win);
         sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
-        SULOracle oracle = new SULOracle(sul, OneWayFreshTCPSUL.ERROR);
+        BasicSULOracle oracle = new BasicSULOracle(sul, OneWayFreshTCPSUL.ERROR);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         
         

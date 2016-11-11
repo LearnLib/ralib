@@ -16,16 +16,16 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.theory.equality.FreshValueMapper;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  *
@@ -64,8 +64,8 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     }
 
     @Override
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        super.setFreshValues(doit, oracle);
+    public void setCheckForFreshOutputs(boolean doit) {
+        super.setFreshValues(doit);
     }
 
     @Override

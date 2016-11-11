@@ -24,10 +24,6 @@ import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.sul.CanonizingSULOracle;
-import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.SULOracle;
-import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
@@ -42,12 +38,13 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.sul.DeterminedDataWordSUL;
+import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -91,9 +88,9 @@ public class TestEquWithFresh extends RaLibTestSuite {
 				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
        teachers.put(SessionManagerSUL.INT_TYPE, 
     		   theory);
-		SULOracle sulOracle = new SULOracle(new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul), SessionManagerSUL.ERROR);
+		BasicSULOracle sulOracle = new BasicSULOracle(new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul), SessionManagerSUL.ERROR);
 		
-		theory.setCheckForFreshOutputs(true, sulOracle);
+		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> testWord = Word.fromSymbols(
     		   new PSymbolInstance(SessionManagerSUL.ISESSION,
                        new DataValue(SessionManagerSUL.INT_TYPE, 1)),
@@ -118,7 +115,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
                );
        
        final DeterminedDataWordSUL sulDet = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
-		theory.setCheckForFreshOutputs(true, sulOracle);
+		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> actualTrace = Word.epsilon();
        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
        sulDet.pre();
@@ -157,7 +154,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
     public void testSessionExample() {
     	SessionManagerSUL sul = new SessionManagerSUL();
     		IntegerEqualityTheory theory = new IntegerEqualityTheory(SessionManagerSUL.INT_TYPE);
-    				theory.setCheckForFreshOutputs(true, new SULOracle(sul, SessionManagerSUL.ERROR));
+    				theory.setCheckForFreshOutputs(true);
     				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
            teachers.put(SessionManagerSUL.INT_TYPE, 
         		   theory);

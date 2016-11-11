@@ -81,7 +81,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	private static final LearnLogger log = LearnLogger.getLogger(InequalityTheoryWithEq.class);
 	private boolean freshValues;
-	private IOOracle sulOracle;
 
 	private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, DataValue<T>> instantiations) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
@@ -254,9 +253,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	
 	
     @Override
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
+    public void setCheckForFreshOutputs(boolean doit) {
         this.freshValues = doit;
-        this.sulOracle = oracle;
     }
 
 
@@ -308,7 +306,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	@Override
 	public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV piv,
-			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
+			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
 
 		int pId = values.size() + 1;
 		List<SymbolicDataValue> regPotential = new ArrayList<>();
@@ -345,7 +343,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
                 int idx = computeLocalIndex(suffix, pId);
                 Word<PSymbolInstance> query = buildQuery(
                         prefix, suffix, values);
-                Word<PSymbolInstance> trace = sulOracle.trace(query);
+                Word<PSymbolInstance> trace = traceOracle.trace(query);
                 PSymbolInstance out = trace.lastSymbol();
 
                 if (out.getBaseSymbol().equals(ps)) {
@@ -354,7 +352,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
                     if (d instanceof FreshValue) {
                         d = getFreshValue(potential);
-                        values.put(pId, d);
+                        values.put(pId, new FreshValue<T>(d.getType(), d.getId()));
                         WordValuation trueValues = new WordValuation();
                         trueValues.putAll(values);
                         SuffixValuation trueSuffixValues
