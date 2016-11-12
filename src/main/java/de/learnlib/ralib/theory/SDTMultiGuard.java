@@ -41,35 +41,13 @@ public abstract class SDTMultiGuard extends SDTGuard {
     public List<SDTGuard> getGuards() {
         return guards;
     }
-
-    @Override
-    public List<SDTGuard> unwrap() {
-        List<SDTGuard> unwrapped = new ArrayList();
-        if (isEmpty()) {
-            unwrapped.add(asTrueGuard());
-        } else if (isSingle()) {
-            unwrapped.add(getSingle());
-        } else {
-            unwrapped.addAll(guards);
-        }
-        return unwrapped;
-    }
-
+    
     public boolean isSingle() {
         return guards.size() == 1;
     }
 
     public boolean isEmpty() {
         return guards.isEmpty();
-    }
-
-    public SDTTrueGuard asTrueGuard() {
-        return new SDTTrueGuard(parameter);
-    }
-
-    public SDTGuard getSingle() {
-        assert isSingle();
-        return guards.get(0);
     }
 
     public Set<SymbolicDataValue> getAllSDVsFormingGuard() {

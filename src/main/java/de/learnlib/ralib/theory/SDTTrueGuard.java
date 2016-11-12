@@ -44,13 +44,6 @@ public class SDTTrueGuard extends SDTGuard {
     }
 
     @Override
-    public List<SDTGuard> unwrap() {
-        List<SDTGuard> s = new ArrayList();
-        s.add(this);
-        return s;
-    }
-
-    @Override
     public GuardExpression toExpr() {
         return TrueGuardExpression.TRUE;
     }
@@ -79,11 +72,6 @@ public class SDTTrueGuard extends SDTGuard {
         return hash;
     }
     
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        throw new IllegalStateException("trying to merge true guard");
-    }
-
 	@Override
 	public SDTGuard replace(Replacement replacing) {
 		return this;

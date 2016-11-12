@@ -62,6 +62,8 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTNotGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -465,7 +467,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private boolean refines(SDTGuard a, SDTGuard b, Predicate<SDTGuard> instantiationPred) {
     	if (b instanceof SDTTrueGuard) 
     		return true;
-    	return !instantiationPred.test(new SDTAndGuard( a.getParameter(), a, b.negate()));
+    	return !instantiationPred.test(new SDTAndGuard( a.getParameter(), a, new SDTNotGuard((SDTIfGuard)b)));
     }
     
 

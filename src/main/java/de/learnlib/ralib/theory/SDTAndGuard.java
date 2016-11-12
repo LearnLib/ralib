@@ -16,21 +16,17 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Replacement;
-import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 public class SDTAndGuard extends SDTMultiGuard {
 
@@ -72,11 +68,6 @@ public class SDTAndGuard extends SDTMultiGuard {
         }
         return exprs;
     }
-    
-    public  SDTGuard negate() {
-    	SDTGuard[] negGuards = this.guards.stream().map(guard -> guard.negate()).toArray(SDTGuard[]::new);
-    	return new SDTOrGuard(this.parameter, negGuards);
-    }
 
     @Override
     public GuardExpression toExpr() {
@@ -112,13 +103,5 @@ public class SDTAndGuard extends SDTMultiGuard {
         }
         return new SDTAndGuard(getParameter(), gg.toArray(new SDTIfGuard[]{}));
     }
-
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    
-    
     
 }

@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,7 +32,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 
 /**
  *
@@ -45,15 +42,6 @@ public class DisequalityGuard extends SDTIfGuard {
     public DisequalityGuard(
             SymbolicDataValue.SuffixValue param, SymbolicDataExpression regExpr) {
         super(param, regExpr, Relation.NOT_EQUALS);
-    }
-
-    @Override
-    public EqualityGuard toDeqGuard() {
-        return new EqualityGuard(parameter, registerExpr);
-    }
-    
-    public SDTGuard negate() {
-    	return new EqualityGuard(parameter, registerExpr);
     }
 
     @Override
@@ -125,27 +113,6 @@ public class DisequalityGuard extends SDTIfGuard {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
-    }
-    
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        if (other instanceof EqualityGuard) {
-            if (!(other.equals(this.toDeqGuard()))) {
-            guards.add(this);
-                guards.add(other);
-            }
-        }
-        else if (other instanceof DisequalityGuard) {
-            guards.add(this);
-            guards.add(other);
-        }
-        else {
-//            System.out.println("attempt to merge " + this + " with " + other);
-            guards.addAll(other.mergeWith(this,  regPotential));
-            
-        }
-        return guards;
     }
     
     @Override

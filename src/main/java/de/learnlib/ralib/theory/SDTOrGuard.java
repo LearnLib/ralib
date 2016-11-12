@@ -16,6 +16,10 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
@@ -23,11 +27,6 @@ import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 public class SDTOrGuard extends SDTMultiGuard {
 
@@ -102,35 +101,4 @@ public class SDTOrGuard extends SDTMultiGuard {
         }
         return new SDTOrGuard(getParameter(), gg.toArray(new SDTGuard[]{}));
     }
-
-    
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        return other.mergeWith(this, regPotential);
-    }
-
-    //@Override
-    //public SDTGuard mergeWith(Set<SDTGuard> _merged) {
-    //    return null;
-    //}
-//        Set<SDTGuard> merged = new LinkedHashSet<>();
-//        merged.addAll(_merged);
-//        for (SDTGuard x : this.getGuards()) {
-//            if (x instanceof SDTIfGuard) {
-//                SDTGuard newGuard = x.mergeWith(merged);
-//            }
-//        }
-//        if (merged.isEmpty()) {
-//            return new SDTTrueGuard(this.parameter);
-//        } else {
-//            SDTGuard[] mergedArr = merged.toArray(new SDTGuard[]{});
-//            if (mergedArr.length == 1) {
-//                return mergedArr[0];
-//            }
-//            else {
-//                return new SDTOrGuard(this.parameter, mergedArr);
-//            }
-//
-//        }
-//    }
 }
