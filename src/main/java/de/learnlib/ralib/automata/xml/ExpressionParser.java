@@ -98,11 +98,11 @@ public class ExpressionParser {
         }
         else if (pred.contains("<")) {
             related = pred.split("<");
-            relation = Relation.SMALLER;           
+            relation = Relation.LESSER;           
         }
         else if (pred.contains(">")) {
             related = pred.split(">");
-            relation = Relation.BIGGER;           
+            relation = Relation.GREATER;           
         }        
         else if (pred.contains("[next]")) {
             related = pred.split("\\[next\\]");

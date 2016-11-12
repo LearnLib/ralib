@@ -22,6 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -34,9 +36,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 /**
  *
@@ -44,86 +43,107 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
  */
 public class IntervalGuard extends SDTGuard {
 
-    protected final SymbolicDataExpression leftLimit;
-    protected final SymbolicDataExpression rightLimit;
-
+    private final SymbolicDataExpression leftEnd;
+    private final SymbolicDataExpression rightEnd;
+    private final Boolean leftOpen;
+    private final Boolean rightOpen;
+    
     public IntervalGuard(SuffixValue param, SymbolicDataExpression ll, SymbolicDataExpression rl) {
         super(param);
-        leftLimit = ll;
-        rightLimit = rl;
+        this.leftEnd = ll;
+        this.rightEnd = rl;
+        this.leftOpen = true;
+        this.rightOpen = true;
     }
-
-    public IntervalGuard flip() {
-        return new IntervalGuard(parameter, rightLimit, leftLimit);
+    
+    public IntervalGuard(SuffixValue param, SymbolicDataExpression ll, Boolean lo, SymbolicDataExpression rl, Boolean ro) {
+        super(param);
+        this.leftEnd = ll;
+        this.leftOpen = lo;
+        this.rightEnd = rl;
+        this.rightOpen = ro;
     }
 
     public boolean isSmallerGuard() {
-        return leftLimit == null;
+        return leftEnd == null;
     }
 
     public boolean isBiggerGuard() {
-        return rightLimit == null;
+        return rightEnd == null;
     }
 
     public boolean isIntervalGuard() {
-        return (leftLimit != null && rightLimit != null);
+        return (leftEnd != null && rightEnd != null);
+    }
+    
+    public Boolean getRightOpen() {
+    	return this.rightOpen;
+    }
+    
+    public Boolean getLeftOpen() {
+    	return this.leftOpen;
     }
 
     @Override
     public String toString() {
-        if (leftLimit == null) {
-            return "(" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
+        if (leftEnd == null) {
+            return "(" + this.getParameter().toString() + "<" + equ(this.rightOpen) + this.rightEnd.toString() + ")";
         }
-        if (rightLimit == null) {
-            return "(" + this.getParameter().toString() + ">" + this.leftLimit.toString() + ")";
+        if (rightEnd == null) {
+            return "(" + this.getParameter().toString() + ">" + equ(this.leftOpen) + this.leftEnd.toString() + ")";
         }
-        return "(" + leftLimit.toString() + "<" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
+        return "(" + leftEnd.toString() + "<" + equ(this.leftOpen) + this.getParameter().toString() + "<" + 
+        equ(this.rightOpen) + this.rightEnd.toString() + ")";
+    }
+    
+    private String equ(@Nonnull boolean open) {
+    	return open?"":"=";
     }
 
     public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
         Set<SymbolicDataValue> regs = new LinkedHashSet<>();
-        if (leftLimit != null) {
-            regs.add(leftLimit.getSDV());
+        if (leftEnd != null) {
+            regs.add(leftEnd.getSDV());
         }
-        if (rightLimit != null) {
-            regs.add(rightLimit.getSDV());
+        if (rightEnd != null) {
+            regs.add(rightEnd.getSDV());
         }
         return regs;
     }
 
     public SymbolicDataExpression getLeftExpr() {
-        return leftLimit;
+        return leftEnd;
     }
     
     public SymbolicDataValue getLeftSDV() {
-        return leftLimit.getSDV();
+        return leftEnd.getSDV();
     }
     
     public SymbolicDataValue getRightSDV() {
-    	return rightLimit.getSDV();
+    	return rightEnd.getSDV();
     }
 
     public SymbolicDataExpression getRightExpr() {
-        return rightLimit;
+        return rightEnd;
     }
 
     @Override
     public GuardExpression toExpr() {
     	GuardExpression smaller = null;
     	GuardExpression bigger = null;
-        if (rightLimit != null) {
-        	if (rightLimit instanceof SymbolicDataValue)
-        		smaller = new AtomicGuardExpression(parameter, Relation.SMALLER, rightLimit.getSDV());
+        if (rightEnd != null) {
+        	if (rightEnd instanceof SymbolicDataValue)
+        		smaller = new AtomicGuardExpression(parameter, Relation.LESSER, rightEnd.getSDV());
         	else
-        		if (rightLimit instanceof SumCDataExpression)
-        			smaller =  new SumCAtomicGuardExpression(parameter, null,  Relation.SMALLER, rightLimit.getSDV(), ((SumCDataExpression) rightLimit).getConstant());
+        		if (rightEnd instanceof SumCDataExpression)
+        			smaller =  new SumCAtomicGuardExpression(parameter, null,  Relation.LESSER, rightEnd.getSDV(), ((SumCDataExpression) rightEnd).getConstant());
         }
-        if (leftLimit!= null) {
-        	if (leftLimit instanceof SymbolicDataValue)
-        		bigger = new AtomicGuardExpression(parameter, Relation.BIGGER, leftLimit.getSDV());
+        if (leftEnd!= null) {
+        	if (leftEnd instanceof SymbolicDataValue)
+        		bigger = new AtomicGuardExpression(parameter, Relation.GREATER, leftEnd.getSDV());
         	else
-        		if (leftLimit instanceof SumCDataExpression)
-        			bigger = new SumCAtomicGuardExpression(parameter, null,  Relation.BIGGER, leftLimit.getSDV(), ((SumCDataExpression) leftLimit).getConstant());
+        		if (leftEnd instanceof SumCDataExpression)
+        			bigger = new SumCAtomicGuardExpression(parameter, null,  Relation.GREATER, leftEnd.getSDV(), ((SumCDataExpression) leftEnd).getConstant());
         } 
         
         GuardExpression ret = smaller != null && bigger != null ? new Conjunction(smaller, bigger) : 
@@ -144,28 +164,41 @@ public class IntervalGuard extends SDTGuard {
         sv = (sv == null) ? parameter : sv;
 
         if (!isBiggerGuard()) {
-            if (rightLimit.isConstant() || !relabelling.containsKey(rightLimit.getSDV())) {
-                r = rightLimit;
+            if (rightEnd.isConstant() || !relabelling.containsKey(rightEnd.getSDV())) {
+                r = rightEnd;
             } else {
-                r = rightLimit.swapSDV((SymbolicDataValue) relabelling.get(rightLimit.getSDV()));
+                r = rightEnd.swapSDV((SymbolicDataValue) relabelling.get(rightEnd.getSDV()));
             }
         }
         if (!isSmallerGuard()) {
-            if (leftLimit.isConstant() || !relabelling.containsKey(leftLimit.getSDV())) {
-                l = leftLimit;
+            if (leftEnd.isConstant() || !relabelling.containsKey(leftEnd.getSDV())) {
+                l = leftEnd;
             } else {
-                l = leftLimit.swapSDV((SymbolicDataValue) relabelling.get(leftLimit.getSDV()));
+                l = leftEnd.swapSDV((SymbolicDataValue) relabelling.get(leftEnd.getSDV()));
             }
         }
-        return new IntervalGuard(sv, l, r);
+        return new IntervalGuard(sv, l, this.leftOpen, r, this.rightOpen);
     }
+    
+    @Override
+	public SDTGuard replace(Replacement replacing) {
+		SymbolicDataExpression rl = replacing.containsKey(this.rightEnd) ? 
+				replacing.get(this.rightEnd) : this.rightEnd;
+		SymbolicDataExpression ll = replacing.containsKey(this.leftEnd) ? 
+				replacing.get(this.leftEnd) : this.leftEnd;
+		
+		
+		return new IntervalGuard(getParameter(), ll, this.leftOpen, rl, this.rightOpen);
+	}
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(parameter);
-        hash = 59 * hash + Objects.hashCode(leftLimit);
-        hash = 59 * hash + Objects.hashCode(rightLimit);
+        hash = 59 * hash + Objects.hashCode(leftEnd);
+        hash = 59 * hash + Objects.hashCode(leftOpen);
+        hash = 59 * hash + Objects.hashCode(rightEnd);
+        hash = 59 * hash + Objects.hashCode(rightOpen);
         hash = 59 * hash + Objects.hashCode(getClass());
 
         return hash;
@@ -180,24 +213,12 @@ public class IntervalGuard extends SDTGuard {
             return false;
         }
         final IntervalGuard other = (IntervalGuard) obj;
-        if (!Objects.equals(this.rightLimit, other.rightLimit)) {
+        if (!Objects.equals(this.rightEnd, other.rightEnd)) {
             return false;
         }
-        if (!Objects.equals(this.leftLimit, other.leftLimit)) {
+        if (!Objects.equals(this.leftEnd, other.leftEnd)) {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);
     }
-
-	@Override
-	public SDTGuard replace(Replacement replacing) {
-		SymbolicDataExpression rl = replacing.containsKey(this.rightLimit) ? 
-				replacing.get(this.rightLimit) : this.rightLimit;
-		SymbolicDataExpression ll = replacing.containsKey(this.leftLimit) ? 
-				replacing.get(this.leftLimit) : this.leftLimit;
-		
-		
-		return new IntervalGuard(getParameter(), ll, rl);
-	}
-
 }

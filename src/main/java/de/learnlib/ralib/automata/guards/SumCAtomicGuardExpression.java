@@ -46,8 +46,8 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
             case NOT_EQUALS: 
                 return !lv.equals(rv);
 
-            case BIGGER:
-            case SMALLER:
+            case GREATER:
+            case LESSER:
                 return numCompare(lv, rv, relation);
            
             case SUCC:
@@ -116,9 +116,9 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
         Comparable lc = (Comparable) l.getId();
         int result = lc.compareTo(r.getId());        
         switch (relation) {
-            case SMALLER:
+            case LESSER:
                 return result < 0;
-            case BIGGER:
+            case GREATER:
                 return result > 0;
                default:
                 throw new UnsupportedOperationException(

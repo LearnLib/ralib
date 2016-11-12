@@ -22,6 +22,7 @@ import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.DataValue;
@@ -32,7 +33,6 @@ import gov.nasa.jpf.constraints.expressions.Constant;
 import gov.nasa.jpf.constraints.expressions.LogicalOperator;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.NumericCompound;
 import gov.nasa.jpf.constraints.expressions.NumericOperator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
@@ -119,20 +119,9 @@ public class JContraintsUtil {
         	re = rv;
         }
 
-        switch (expr.getRelation()) {
-            case EQUALS:
-                return new NumericBooleanExpression(le, NumericComparator.EQ, re);
-            case NOT_EQUALS:
-                return new NumericBooleanExpression(le, NumericComparator.NE, re);
-            case SMALLER:
-                return new NumericBooleanExpression(le, NumericComparator.LT, re);
-            case BIGGER:
-                return new NumericBooleanExpression(le, NumericComparator.GT, re);
-
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + expr.getRelation() + " is not supoorted in guards");
-        }
+        Expression<Boolean> boolExpr = toAtomicExpression(lv, expr.getRelation(), rv);
+        
+        return boolExpr;    
     }
 
     public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
@@ -141,20 +130,31 @@ public class JContraintsUtil {
         Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);
         Variable rv = getOrCreate(expr.getRight(), map, BuiltinTypes.DOUBLE);
 
-        switch (expr.getRelation()) {
-            case EQUALS:
-                return new NumericBooleanExpression(lv, NumericComparator.EQ, rv);
-            case NOT_EQUALS:
-                return new NumericBooleanExpression(lv, NumericComparator.NE, rv);
-            case SMALLER:
-                return new NumericBooleanExpression(lv, NumericComparator.LT, rv);
-            case BIGGER:
-                return new NumericBooleanExpression(lv, NumericComparator.GT, rv);
+        
+        Expression<Boolean> boolExpr = toAtomicExpression(lv, expr.getRelation(), rv);
+        
+        return boolExpr;    
+    }
+   
+    private static Expression<Boolean> toAtomicExpression(Expression le, Relation relation, Expression re) {
+        switch (relation) {
+        case EQUALS:
+            return new NumericBooleanExpression(le, NumericComparator.EQ, re);
+        case NOT_EQUALS:
+            return new NumericBooleanExpression(le, NumericComparator.NE, re);
+        case LESSER:
+            return new NumericBooleanExpression(le, NumericComparator.LT, re);
+        case GREATER:
+            return new NumericBooleanExpression(le, NumericComparator.GT, re);
+        case LSREQUALS:
+        	return new NumericBooleanExpression(le, NumericComparator.LE, re);
+        case GREQUALS:
+        	return new NumericBooleanExpression(le, NumericComparator.GE, re);
 
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + expr.getRelation() + " is not supoorted in guards");
-        }
+        default:
+            throw new UnsupportedOperationException(
+                    "Relation " + relation + " is not suported in constraint conversion");
+    }
     }
 
     private static Variable getOrCreate(SymbolicDataValue dv,

@@ -18,8 +18,10 @@ package de.learnlib.ralib.automata.guards;
 
 public enum Relation {
     
-    SMALLER("<"),
-    BIGGER(">"),
+    LESSER("<"),
+    GREATER(">"),
+    LSREQUALS("<="),
+    GREQUALS(">="),
     EQUALS("=="), 
     NOT_EQUALS("!="),
     SUCC("[next]"),
