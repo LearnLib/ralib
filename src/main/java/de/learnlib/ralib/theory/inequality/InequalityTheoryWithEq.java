@@ -81,13 +81,54 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	private static final LearnLogger log = LearnLogger.getLogger(InequalityTheoryWithEq.class);
 	private boolean freshValues;
+	private InequalityMerger inequalityMerger;
+	
+	
+	public InequalityTheoryWithEq() {
+		this.freshValues = false;
+		this.inequalityMerger = new InequalityMerger(null);
+	}
+	
+	
+	
+	private static class SDTMergeOracle implements MergeOracle{
+		private Map<SDTGuard, SDT> guardSdtMap;
+		public SDTMergeOracle(Map<SDTGuard, SDT> sdtMap) {
+			this.guardSdtMap = sdtMap;
+		}
 
-	private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, DataValue<T>> instantiations) {
+		public boolean canMerge(SDTGuard guard, SDTGuard withGuard) {
+			IntervalGuard intGuard = null;
+			EqualityGuard equGuard = null;
+			boolean areEquivalent = false;
+			if (guard instanceof EqualityGuard && withGuard instanceof IntervalGuard) { 
+				equGuard = (EqualityGuard) guard;
+				intGuard = (IntervalGuard) withGuard;
+			} else if (guard instanceof IntervalGuard && withGuard instanceof EqualityGuard) {
+				equGuard = (EqualityGuard) withGuard;
+				intGuard = (IntervalGuard) guard;
+			} else if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
+				throw new DecoratedRuntimeException("Merge of these types is not covered");
+			}
+			
+			if (equGuard != null) {
+				SDT intSdt = guardSdtMap.get(intGuard);
+				SDT equSdt = guardSdtMap.get(equGuard);
+				return equSdt.isEquivalentUnderEquality(intSdt, Arrays.asList(equGuard));
+			} else { // two interval guards
+				SDT sdt = guardSdtMap.get(guard);
+				SDT otherSdt = guardSdtMap.get(withGuard);
+				return sdt.isEquivalent(otherSdt, new VarMapping());
+			}
+		}
+	}
+
+	private Map<SDTGuard, SDT> mergeGuards(final Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, DataValue<T>> instantiations) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
 		
-		List<SDTGuard> sortedGuards = tempGuards.keySet().stream().sorted(new Comparator<SDTGuard>() {
+		final List<SDTGuard> sortedGuards = tempGuards.keySet().stream().sorted(new Comparator<SDTGuard>() {
 			public int compare(SDTGuard o1, SDTGuard o2) {
 				DataValue<T> dv1 = instantiations.get(o1);
 				DataValue<T> dv2 = instantiations.get(o2);
@@ -101,9 +142,30 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				return ret;
 			}
 		}).collect(Collectors.toList());
+		
+		InequalityMerger inequalityMerger = new InequalityMerger(new SDTMergeOracle(tempGuards));
+		LinkedHashMap<SDTGuard, Set<SDTGuard>> mergedResult = inequalityMerger.merge(sortedGuards);
+		Map<SDTGuard, SDT> merged = computeSDTMapFromMergedGuards(tempGuards, mergedResult);
 
-		Map<SDTGuard, SDT> merged = mergeByMaximizingIntervals(sortedGuards, tempGuards);
+//		Map<SDTGuard, SDT> merged = mergeByMaximizingIntervals(sortedGuards, tempGuards);
 		return merged;
+	}
+	
+	private Map<SDTGuard, SDT> computeSDTMapFromMergedGuards(Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, Set<SDTGuard>> mergedResult) {
+		Map<SDTGuard, SDT> mergedGuards = new LinkedHashMap<SDTGuard, SDT>();
+		for (SDTGuard mergedGuard : mergedResult.keySet()) {
+			Set<SDTGuard> oldGuards = mergedResult.get(mergedGuard);
+			if (oldGuards.size() == 1) {
+				assert oldGuards.contains(mergedGuard);
+				mergedGuards.put(mergedGuard, tempGuards.get(mergedGuard));
+			} else {
+				SDTGuard nonEqGuard = oldGuards.stream().filter(g -> ! (g instanceof EqualityGuard) ).findFirst()
+						.orElseThrow(() -> new DecoratedRuntimeException("Expected a non-equality guard"));
+				mergedGuards.put(mergedGuard, tempGuards.get(nonEqGuard));
+			}
+		}
+		
+		return mergedGuards;
 	}
 
 	/**

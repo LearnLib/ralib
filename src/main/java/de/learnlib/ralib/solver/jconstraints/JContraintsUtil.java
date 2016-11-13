@@ -119,7 +119,7 @@ public class JContraintsUtil {
         	re = rv;
         }
 
-        Expression<Boolean> boolExpr = toAtomicExpression(lv, expr.getRelation(), rv);
+        Expression<Boolean> boolExpr = toAtomicExpression(le, expr.getRelation(), re);
         
         return boolExpr;    
     }

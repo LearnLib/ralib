@@ -2,8 +2,11 @@ package de.learnlib.ralib.theory.inequality;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
 
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -29,11 +32,12 @@ public class InequalityMerger {
 			return mergedResult;
 		SDTGuard[] ineqGuards = sortedInequalityGuards.toArray(new SDTGuard [sortedInequalityGuards.size()]);
 		SDTGuard head = ineqGuards[0];
-		Set<SDTGuard> mergedGuards = new HashSet<SDTGuard>();
+		Set<SDTGuard> mergedGuards = new LinkedHashSet<SDTGuard>();
 		mergedGuards.add(head);
 		for (int i=1; i<ineqGuards.length; i++) {
-			SDTGuard next = ineqGuards[1];
-			if (oracle.canMerge(head, next)) {
+			SDTGuard prev = ineqGuards[i-1];
+			SDTGuard next = ineqGuards[i];
+			if (oracle.canMerge(prev, next)) {
 				mergedGuards.add(next);
 				SDTGuard mergedGuard = merge(head, next);
 				head = mergedGuard;
@@ -49,10 +53,14 @@ public class InequalityMerger {
 		if (mergedResult.size() == 3) {
 			SDTGuard[] finalGuards = mergedResult.keySet().toArray(new SDTGuard [3]);
 			assert finalGuards[0] instanceof IntervalGuard && finalGuards[1] instanceof EqualityGuard && finalGuards[2] instanceof IntervalGuard;
-			if (oracle.canMerge(finalGuards[0], finalGuards[2])) {
-				assert !oracle.canMerge(finalGuards[0], finalGuards[1]) && !oracle.canMerge(finalGuards[1], finalGuards[2]);
+			// the first and last inequality guards were merged to form the first, respectively third final guard.
+			if (oracle.canMerge(ineqGuards[0], ineqGuards[ineqGuards.length-1])) {
 				mergedResult.clear();
-				mergedResult.put(((EqualityGuard) finalGuards[1]).toDeqGuard(), new HashSet<SDTGuard>(sortedInequalityGuards));
+				mergedResult.put(finalGuards[1], Sets.newHashSet(finalGuards[1]));
+				mergedGuards = new LinkedHashSet<SDTGuard>(sortedInequalityGuards);
+				mergedGuards.remove(finalGuards[1]);
+				mergedResult.put(((EqualityGuard) finalGuards[1]).toDeqGuard(), mergedGuards);
+				
 			}
 		} 
 		
@@ -80,8 +88,8 @@ public class InequalityMerger {
 		if (aGuard instanceof IntervalGuard && withGuard instanceof IntervalGuard) {
 			intGuard = (IntervalGuard) aGuard;
 			IntervalGuard intGuard2 = (IntervalGuard) withGuard;
-			assert Boolean.logicalXor(intGuard.getRightOpen(), !intGuard2.getLeftOpen());
-			if (intGuard2.isBiggerGuard())
+			assert Boolean.logicalXor(intGuard.getRightOpen(), intGuard2.getLeftOpen());
+			if (intGuard2.isBiggerGuard() && intGuard.isSmallerGuard())
 				return new SDTTrueGuard(aGuard.getParameter());
 			else
 				return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), intGuard2.getRightExpr(), intGuard2.getRightOpen());

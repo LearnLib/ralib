@@ -16,13 +16,12 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Replacement;
-import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;

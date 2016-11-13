@@ -16,9 +16,7 @@
  */
 package de.learnlib.ralib.theory;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -81,11 +79,4 @@ public class SDTTrueGuard extends SDTGuard {
 	public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
 		return Collections.emptySet();
 	}
-
-    
-//    @Override
-//    public SDTGuard mergeWith(Set<SDTGuard> _merged) {
-//        return new SDTOrGuard(this.parameter, _merged.toArray(new SDTGuard[]{}));
-//        
-//    }
 }
