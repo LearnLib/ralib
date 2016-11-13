@@ -48,8 +48,10 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
 
             case GREATER:
             case LESSER:
+            case LSREQUALS:
+            case GREQUALS:
                 return numCompare(lv, rv, relation);
-           
+            
             case SUCC:
             case IN_WIN:
             case NOT_IN_WIN:
@@ -57,7 +59,7 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
                 
             default:
                 throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");
+                        "Relation " + relation + " is not suported in guards");
         }
     }
                
@@ -120,7 +122,11 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
                 return result < 0;
             case GREATER:
                 return result > 0;
-               default:
+            case LSREQUALS:
+                return result <= 0;
+            case GREQUALS:
+                return result >= 0;
+            default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");   
         }

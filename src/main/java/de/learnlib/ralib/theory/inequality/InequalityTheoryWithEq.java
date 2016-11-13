@@ -822,8 +822,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 
 					val.setValue(toVariable(r), rRegVal.getId());
-				}
-				if (!iGuard.isSmallerGuard()) {
+				} else if (!iGuard.isSmallerGuard()) {
 					SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
 					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), prefixValues,  piv, pval, constants);
 					lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);

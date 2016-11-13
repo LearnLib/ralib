@@ -1,6 +1,5 @@
 package de.learnlib.ralib.theory.inequality;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,18 +32,20 @@ public class InequalityMerger {
 		SDTGuard[] ineqGuards = sortedInequalityGuards.toArray(new SDTGuard [sortedInequalityGuards.size()]);
 		SDTGuard head = ineqGuards[0];
 		Set<SDTGuard> mergedGuards = new LinkedHashSet<SDTGuard>();
-		mergedGuards.add(head);
 		for (int i=1; i<ineqGuards.length; i++) {
 			SDTGuard prev = ineqGuards[i-1];
 			SDTGuard next = ineqGuards[i];
+			mergedGuards.add(prev);
 			if (oracle.canMerge(prev, next)) {
-				mergedGuards.add(next);
 				SDTGuard mergedGuard = merge(head, next);
 				head = mergedGuard;
-				if (i == ineqGuards.length-1)
+				if (i == ineqGuards.length-1) {
+					mergedGuards.add(next);
 					mergedResult.put(head, mergedGuards);
+				}
 			} else {
 				mergedResult.put(head, mergedGuards);
+				mergedGuards = new LinkedHashSet<SDTGuard>();
 				head = next;
 				mergedGuards.clear();
 			}
