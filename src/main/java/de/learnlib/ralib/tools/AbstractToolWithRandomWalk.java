@@ -243,12 +243,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
 
-        String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
-        for (String s : parsed) {
-            Pair<String, TypedTheory> pair = parseTeacherConfig(s);
-            teacherClasses.put(pair.getFirst(), pair.getSecond());
-        }
-        
         this.teacherClasses.putAll(buildTeachersFromConfig(config));
 
         this.solver = ConstraintSolverFactory.createSolver(

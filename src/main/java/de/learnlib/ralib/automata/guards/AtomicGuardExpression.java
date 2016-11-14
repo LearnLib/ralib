@@ -61,6 +61,8 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
 
             case GREATER:
             case LESSER:
+            case GREQUALS:
+            case LSREQUALS:
                 return numCompare(lv, rv, relation);
            
             case NOT_SUCC:
@@ -124,6 +126,10 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return result < 0;
             case GREATER:
                 return result > 0;
+            case LSREQUALS:
+                return result <= 0;
+            case GREQUALS:
+                return result >= 0;
                default:
                 throw new UnsupportedOperationException(
                         "Relation " + relation + " is not supoorted in guards");   

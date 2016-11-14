@@ -37,6 +37,9 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.equivalence.AcceptHypVerifier;
+import de.learnlib.ralib.equivalence.HypVerifier;
+import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -68,12 +71,13 @@ public class LearnLoginTest extends RaLibTestSuite {
         
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+        HypVerifier hypVerifier = new AcceptHypVerifier();
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 TestUtil.createMTO(hyp, teachers, new Constants(), solver);
         
         RaStar rastar = new RaStar(mto, hypFactory, slo, 
-                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
+                consts, hypVerifier, I_LOGIN, I_LOGOUT, I_REGISTER);
         
         rastar.learn();        
         RegisterAutomaton hyp = rastar.getHypothesis();        

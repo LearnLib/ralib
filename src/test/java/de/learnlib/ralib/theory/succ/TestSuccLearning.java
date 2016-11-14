@@ -65,134 +65,134 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  */
 public class TestSuccLearning {
 
-	@Test
-	public void testSuccLearning() {
-
-		Logger root = Logger.getLogger("");
-		root.setLevel(Level.INFO);
-		for (Handler h : root.getHandlers()) {
-			h.setLevel(Level.INFO);
-		}
-
-		final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[] {});
-
-		RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
-				RegisterAutomatonLoaderTest.class.getResourceAsStream("/de/learnlib/ralib/automata/xml/seqnr.xml"));
-
-		RegisterAutomaton model = loader.getRegisterAutomaton();
-		System.out.println("SYS:------------------------------------------------");
-		System.out.println(model);
-		System.out.println("----------------------------------------------------");
-
-		ParameterizedSymbol[] inputs = loader.getInputs().toArray(new ParameterizedSymbol[] {});
-
-		ParameterizedSymbol[] actions = loader.getActions().toArray(new ParameterizedSymbol[] {});
-
-		final Constants consts = loader.getConstants();
-
-		long seed = -1386796323025681754L;
-		// long seed = (new Random()).nextLong();
-		System.out.println("SEED=" + seed);
-		final Random random = new Random(seed);
-
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-		for (final DataType t : loader.getDataTypes()) {
-			SuccessorTheoryInt theory = new SuccessorTheoryInt();
-			theory.setType(t);
-			teachers.put(t, theory);
-
-		}
-
-		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
-		IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-		IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
-		IOFilter ioFilter = new IOFilter(ioCache, inputs);
-
-		ConstraintSolver solver = new SimpleConstraintSolver();
-
-		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, ioCache, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-
-		TreeOracleFactory hypFactory = new TreeOracleFactory() {
-			@Override
-			public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-				return TestUtil.createMTO(hyp, teachers, consts, solver);
-			}
-		};
-
-		IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
-
-		RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, new IOHypVerifier(teachers, consts), actions);
-
-		IOEquivalenceTest ioEquiv = new IOEquivalenceTest(model, teachers, consts, true, actions);
-
-		IORandomWalk iowalk = new IORandomWalk(random, sul, false, // do not
-																	// draw
-																	// symbols
-																	// uniformly
-				0.1, // reset probability
-				0.8, // prob. of choosing a fresh data value
-				10000, // 1000 runs
-				100, // max depth
-				consts, false, // reset runs
-				teachers, inputs);
-
-		IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle, hypVerifier);
-		IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
-		IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
-
-		int check = 0;
-		while (true && check < 100) {
-
-			check++;
-			rastar.learn();
-			Hypothesis hyp = rastar.getHypothesis();
-			System.out.println("HYP:------------------------------------------------");
-			System.out.println(hyp);
-			System.out.println("----------------------------------------------------");
-
-			DefaultQuery<PSymbolInstance, Boolean> _ce = ioEquiv.findCounterExample(hyp, null);
-
-			if (_ce != null) {
-				System.out.println("EQ-TEST found counterexample: " + _ce);
-			} else {
-				System.out.println("EQ-TEST did not find counterexample!");
-			}
-
-			DefaultQuery<PSymbolInstance, Boolean> ce = _ce;
-			// iowalk.findCounterExample(hyp, null);
-
-			System.out.println("CE: " + ce);
-			if (ce == null) {
-				break;
-			}
-
-			ce = loops.optimizeCE(ce.getInput(), hyp);
-			System.out.println("Shorter CE: " + ce);
-			ce = asrep.optimizeCE(ce.getInput(), hyp);
-			System.out.println("New Prefix CE: " + ce);
-
-			ce = pref.optimizeCE(ce.getInput(), hyp);
-			System.out.println("Prefix of CE is CE: " + ce);
-
-			assert model.accepts(ce.getInput());
-			assert !hyp.accepts(ce.getInput());
-
-			rastar.addCounterexample(ce);
-
-		}
-
-		RegisterAutomaton hyp = rastar.getHypothesis();
-		System.out.println("LAST:------------------------------------------------");
-		System.out.println(new RAToDot(hyp, true));
-		System.out.println("----------------------------------------------------");
-
-		System.out.println("Seed:" + seed);
-		System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
-		System.out.println("SUL resets: " + sul.getResets());
-		System.out.println("SUL inputs: " + sul.getInputs());
-		System.out.println("Rounds: " + check);
-
-	}
+//	@Test
+//	public void testSuccLearning() {
+//
+//		Logger root = Logger.getLogger("");
+//		root.setLevel(Level.INFO);
+//		for (Handler h : root.getHandlers()) {
+//			h.setLevel(Level.INFO);
+//		}
+//
+//		final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[] {});
+//
+//		RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
+//				RegisterAutomatonLoaderTest.class.getResourceAsStream("/de/learnlib/ralib/automata/xml/seqnr.xml"));
+//
+//		RegisterAutomaton model = loader.getRegisterAutomaton();
+//		System.out.println("SYS:------------------------------------------------");
+//		System.out.println(model);
+//		System.out.println("----------------------------------------------------");
+//
+//		ParameterizedSymbol[] inputs = loader.getInputs().toArray(new ParameterizedSymbol[] {});
+//
+//		ParameterizedSymbol[] actions = loader.getActions().toArray(new ParameterizedSymbol[] {});
+//
+//		final Constants consts = loader.getConstants();
+//
+//		long seed = -1386796323025681754L;
+//		// long seed = (new Random()).nextLong();
+//		System.out.println("SEED=" + seed);
+//		final Random random = new Random(seed);
+//
+//		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+//		for (final DataType t : loader.getDataTypes()) {
+//			SuccessorTheoryInt theory = new SuccessorTheoryInt();
+//			theory.setType(t);
+//			teachers.put(t, theory);
+//
+//		}
+//
+//		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+//
+//		IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
+//		IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
+//		IOFilter ioFilter = new IOFilter(ioCache, inputs);
+//
+//		ConstraintSolver solver = new SimpleConstraintSolver();
+//
+//		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, ioCache, teachers, consts, solver);
+//		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
+//
+//		TreeOracleFactory hypFactory = new TreeOracleFactory() {
+//			@Override
+//			public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
+//				return TestUtil.createMTO(hyp, teachers, consts, solver);
+//			}
+//		};
+//
+//		IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
+//
+//		RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, new IOHypVerifier(teachers, consts), actions);
+//
+//		IOEquivalenceTest ioEquiv = new IOEquivalenceTest(model, teachers, consts, true, actions);
+//
+//		IORandomWalk iowalk = new IORandomWalk(random, sul, false, // do not
+//																	// draw
+//																	// symbols
+//																	// uniformly
+//				0.1, // reset probability
+//				0.8, // prob. of choosing a fresh data value
+//				10000, // 1000 runs
+//				100, // max depth
+//				consts, false, // reset runs
+//				teachers, inputs);
+//
+//		IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle, hypVerifier);
+//		IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
+//		IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
+//
+//		int check = 0;
+//		while (true && check < 100) {
+//
+//			check++;
+//			rastar.learn();
+//			Hypothesis hyp = rastar.getHypothesis();
+//			System.out.println("HYP:------------------------------------------------");
+//			System.out.println(hyp);
+//			System.out.println("----------------------------------------------------");
+//
+//			DefaultQuery<PSymbolInstance, Boolean> _ce = ioEquiv.findCounterExample(hyp, null);
+//
+//			if (_ce != null) {
+//				System.out.println("EQ-TEST found counterexample: " + _ce);
+//			} else {
+//				System.out.println("EQ-TEST did not find counterexample!");
+//			}
+//
+//			DefaultQuery<PSymbolInstance, Boolean> ce = _ce;
+//			// iowalk.findCounterExample(hyp, null);
+//
+//			System.out.println("CE: " + ce);
+//			if (ce == null) {
+//				break;
+//			}
+//
+//			ce = loops.optimizeCE(ce.getInput(), hyp);
+//			System.out.println("Shorter CE: " + ce);
+//			ce = asrep.optimizeCE(ce.getInput(), hyp);
+//			System.out.println("New Prefix CE: " + ce);
+//
+//			ce = pref.optimizeCE(ce.getInput(), hyp);
+//			System.out.println("Prefix of CE is CE: " + ce);
+//
+//			assert model.accepts(ce.getInput());
+//			assert !hyp.accepts(ce.getInput());
+//
+//			rastar.addCounterexample(ce);
+//
+//		}
+//
+//		RegisterAutomaton hyp = rastar.getHypothesis();
+//		System.out.println("LAST:------------------------------------------------");
+//		System.out.println(new RAToDot(hyp, true));
+//		System.out.println("----------------------------------------------------");
+//
+//		System.out.println("Seed:" + seed);
+//		System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
+//		System.out.println("SUL resets: " + sul.getResets());
+//		System.out.println("SUL inputs: " + sul.getInputs());
+//		System.out.println("Rounds: " + check);
+//
+//	}
 }

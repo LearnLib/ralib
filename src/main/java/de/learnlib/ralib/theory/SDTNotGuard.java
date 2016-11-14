@@ -9,9 +9,9 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 
 public class SDTNotGuard extends SDTGuard{
-	private SDTIfGuard ifGuard;
+	private SDTGuard ifGuard;
 
-	public SDTNotGuard(SDTIfGuard ifGuard) {
+	public SDTNotGuard(SDTGuard ifGuard) {
 		super(ifGuard.getParameter());
 		this.ifGuard = ifGuard;
 	}
@@ -21,7 +21,7 @@ public class SDTNotGuard extends SDTGuard{
 	}
 
 	public SDTGuard relabel(VarMapping relabelling) {
-		SDTIfGuard newIfGuard = this.ifGuard.relabel(relabelling);
+		SDTGuard newIfGuard = this.ifGuard.relabel(relabelling);
 		return new SDTNotGuard(newIfGuard);
 	}
 

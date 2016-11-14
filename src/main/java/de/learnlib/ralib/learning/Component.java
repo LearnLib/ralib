@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.DataWords;
@@ -125,7 +126,11 @@ class Component {
             return;
         }
         
+        try {
         primeRow.addSuffix(suffix, oracle);
+        } catch(DecoratedRuntimeException exc) { 
+        	throw exc.addDecoration("branching", this.branching);
+        }
         Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
         otherRows.clear();
         List<Component> newComponents = new ArrayList<>();

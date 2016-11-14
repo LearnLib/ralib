@@ -115,12 +115,19 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}).collect(Collectors.toList());
 		
+//		InequalityGuardMerger merger = new OldInequalityGuardsMerger();
+//		//Map<SDTGuard, SDT> 
+//		Map<SDTGuard, SDT> merged = merger.merge(sortedGuards, tempGuards);
+//		System.out.println("merged1:\n" + merged);
+		
 		ContinuousInequalityMerger inequalityMerger = new ContinuousInequalityMerger();
-		Map<SDTGuard, SDT> merged =inequalityMerger.merge(sortedGuards, tempGuards);
-//		InequalityGuardsMerger merger = new InequalityGuardsMerger();
-//		Map<SDTGuard, SDT> merged = merger.mergeByMaximizingIntervals(sortedGuards, tempGuards);
+		//Map<SDTGuard, SDT> 
+		Map<SDTGuard, SDT> merged2 =inequalityMerger.merge(sortedGuards, tempGuards);
+		System.out.println("merged2:\n" + merged2);
 
-		return merged;
+		//assert merged.size() == merged2.size() && merged2.equals(merged);
+
+		return merged2;
 	}
 	
     @Override
@@ -405,13 +412,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// only keep registers that are referenced by the merged guards
 		//System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
-		if (ps instanceof OutputSymbol && merged.size() > 2) {
-			System.out.println(prefix + " " + suffix + " " + suffixValues);
-			System.out.println(tempKids);
-			System.out.println(merged);
-			guardDvs.forEach((g, dv) -> System.out.println(g + " " + dv ));
-			throw new RuntimeException("For an output symbol, there cannot be more than 2 branches");
-		}
+//		if (ps instanceof OutputSymbol && merged.size() >= 3) {
+//			System.out.println(prefix + " " + suffix + " " + suffixValues);
+//			System.out.println(tempKids);
+//			System.out.println(merged);
+//			guardDvs.forEach((g, dv) -> System.out.println(g + " " + dv ));
+//			throw new RuntimeException("For an output symbol, there cannot be more than 2 branches");
+//		}
 
 		// System.out.println("MERGED = " + merged);
 		piv.putAll(keepMem(merged));
@@ -590,6 +597,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
 			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver) {
 
+		useSolver = useSolver || !this.freshValues;
 		DataType type = param.getType();
 		DataValue<T> returnValue = null;
 		List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));

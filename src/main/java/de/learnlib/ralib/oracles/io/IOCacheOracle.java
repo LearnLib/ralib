@@ -82,7 +82,8 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
             test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
         Word<PSymbolInstance> trace = sul.trace(test);
-        assert this.ioCache.addToCache(trace);
+        boolean added = this.ioCache.addToCache(trace);
+        assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
         return ret;
     }

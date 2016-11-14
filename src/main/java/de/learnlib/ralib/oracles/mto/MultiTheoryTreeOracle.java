@@ -467,7 +467,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private boolean refines(SDTGuard a, SDTGuard b, Predicate<SDTGuard> instantiationPred) {
     	if (b instanceof SDTTrueGuard) 
     		return true;
-    	return !instantiationPred.test(new SDTAndGuard( a.getParameter(), a, new SDTNotGuard((SDTIfGuard)b)));
+    	return !instantiationPred.test(new SDTAndGuard( a.getParameter(), a, new SDTNotGuard(b)));
     }
     
 

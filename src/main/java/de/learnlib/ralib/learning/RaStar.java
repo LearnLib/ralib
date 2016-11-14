@@ -91,10 +91,10 @@ public class RaStar {
     }   
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
-            SDTLogicOracle sdtLogicOracle, Constants consts, 
+            SDTLogicOracle sdtLogicOracle, Constants consts, HypVerifier hypVerifier,
             ParameterizedSymbol ... inputs) {
         
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, null, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, hypVerifier, inputs);
     }
         
     public void learn() {
