@@ -77,7 +77,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
-        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new SymbolicTraceCanonizer(teachers));
+        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new SymbolicTraceCanonizer(teachers, consts));
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
     
@@ -111,7 +111,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers));
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers, new Constants()));
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

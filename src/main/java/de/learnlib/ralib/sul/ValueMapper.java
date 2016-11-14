@@ -2,6 +2,7 @@ package de.learnlib.ralib.sul;
 
 import java.util.Map;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 
 /**
@@ -18,7 +19,7 @@ public interface ValueMapper<T> {
 	 * data type.
 	 * 
 	 */
-	public DataValue<T> canonize(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap);
+	public DataValue<T> canonize(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants);
 	
 	/**
 	 * Deconanization does exactly the same thing. In 
@@ -26,7 +27,7 @@ public interface ValueMapper<T> {
 	 * @param thisToOtherMap
 	 * @return
 	 */
-	public DataValue<T> decanonize(DataValue<T> thisValue, Map<DataValue<T>,DataValue<T>> thisToOtherMap);
+	public DataValue<T> decanonize(DataValue<T> thisValue, Map<DataValue<T>,DataValue<T>> thisToOtherMap, Constants constants);
 	
 	
 }

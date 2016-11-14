@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
@@ -15,6 +16,7 @@ import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -25,9 +27,11 @@ import net.automatalib.words.Word;
 public class SymbolicTraceCanonizer implements TraceCanonizer{
 	
 	final Map<DataType, ValueMapper> valueMappers = new LinkedHashMap<>();
+	private Constants constants;
 	
-	public SymbolicTraceCanonizer(Map<DataType, Theory> theories) {
+	public SymbolicTraceCanonizer(Map<DataType, Theory> theories, Constants constants) {
 		theories.forEach( (dt, th) -> valueMappers.put(dt, new SymbolicTraceValueMapper(th)));
+		this.constants = constants;
 	}
 	
 	/**
@@ -42,7 +46,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 	 * after: FV 10 FV 20 SUMC 20 1 
 	 */
 	public Word<PSymbolInstance> canonizeTrace(Word<PSymbolInstance> trace) {
-		ValueCanonizer canonizer = new ValueCanonizer(valueMappers);
+		ValueCanonizer canonizer = new ValueCanonizer(valueMappers, constants);
 
 		try {
 			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);
@@ -67,19 +71,22 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 			this.theory = theory;
 		}
 
-		public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
+		public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
 			if (thisToOtherMap.containsKey(value)) {
 				DataValue<T> mapping = thisToOtherMap.get(value);
 				return new DataValue<T>( mapping.getType(), mapping.getId());
-			} else {
-				DataValue<T> mappedValue = resolveValue(value, thisToOtherMap);
-				if (mappedValue == null) {
-					List<DataValue<T>> castList = thisToOtherMap.values().stream().map(t -> ((DataValue<T>) t)).collect(Collectors.toList());
-					DataValue<T> fv = this.theory.getFreshValue(castList);
-					mappedValue = new FreshValue<T>(fv.getType(), fv.getId());
-				}
-				return mappedValue;
 			}
+			if (constants.containsValue(value)) 
+				return value;
+			DataValue<T> mappedValue = resolveValue(value, thisToOtherMap);
+			if (mappedValue == null) {
+				List<DataValue<T>> castList = thisToOtherMap.values().stream().map(t -> ((DataValue<T>) t)).
+						collect(Collectors.toList());
+				List<DataValue<T>> valList = DataWords.joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
+				DataValue<T> fv = this.theory.getFreshValue(valList);
+				mappedValue = new FreshValue<T>(fv.getType(), fv.getId());
+			}
+			return mappedValue;
 		}
 		
 		private DataValue<T> resolveValue(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
@@ -118,7 +125,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 
 
 		public DataValue<T> decanonize(DataValue<T> value,
-				Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
+				Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
 			return null;
 		}
 	}

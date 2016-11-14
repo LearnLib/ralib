@@ -16,11 +16,21 @@
  */
 package de.learnlib.ralib.data;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 /**
  * Named constants.
  * 
  * @author falk
  */
 public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {
-    
+ 
+	@SuppressWarnings("unchecked")
+	public <T>  Collection<DataValue<T>> getValues(DataType<T> type) {
+		Collection<DataValue<T>> collection = (Collection<DataValue<T>>)  
+				this.values().stream().filter(c -> c.type.equals(type)).
+				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
+		return collection;
+	}
 }

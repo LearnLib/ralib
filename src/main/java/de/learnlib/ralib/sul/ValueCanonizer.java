@@ -7,6 +7,7 @@ import java.util.Map;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -20,7 +21,8 @@ import net.automatalib.words.Word;
  * analogous canonized value.  
  * 
  * The analogy is inferred by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
- * thus it will be paired with a fresh value from the other set.
+ * thus it will be paired with a fresh value from the other set. For the purpose of matching a value with its analogous, we use
+ * ValueMappers. 
  *  
  * <br/>
  * Example for equality: <br/>
@@ -39,8 +41,10 @@ public class ValueCanonizer {
 	private final Map<DataType, BiMap<DataValue, DataValue>> buckets = new HashMap<>(); // from decanonized to canonized for each type
 	
 	private final Map<DataType, ValueMapper> valueMappers; // value mappers are used to find pairings for each key supplied 
+
+	private Constants constants;
 	
-	public static ValueCanonizer buildNew(Map<DataType, Theory> theories) {
+	public final static ValueCanonizer buildNew(Map<DataType, Theory> theories, Constants constants) {
 		LinkedHashMap<DataType, ValueMapper> valueMappers = new LinkedHashMap<DataType, ValueMapper>();
 		theories.forEach((dt, th) ->  {
 			if ( th.getValueMapper() != null) {
@@ -48,11 +52,12 @@ public class ValueCanonizer {
 			}
 		});
 		
-		return new ValueCanonizer(valueMappers);
+		return new ValueCanonizer(valueMappers, constants);
 	}
 	
-	public ValueCanonizer( Map<DataType, ValueMapper> valueMappers) {
+	public ValueCanonizer( Map<DataType, ValueMapper> valueMappers, Constants constants) {
 		this.valueMappers = valueMappers;
+		this.constants = constants;
 	}
 	
 	public Word<PSymbolInstance> canonize(Word<PSymbolInstance> trace, boolean inverse) {
@@ -106,7 +111,7 @@ public class ValueCanonizer {
         BiMap<DataValue, DataValue> inverseMap = map.inverse();
         
         ValueMapper valueMatcher = valueMappers.get(dv.getType());
-        DataValue resultDv = valueMatcher.canonize(dv, inverseMap);
+        DataValue resultDv = valueMatcher.canonize(dv, inverseMap, constants);
         
         if (!inverseMap.containsKey(dv)) {
         	inverseMap.put(dv, resultDv);
@@ -119,7 +124,7 @@ public class ValueCanonizer {
 		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
         
         ValueMapper valueMatcher = valueMappers.get(dv.getType());
-        DataValue resultDv = valueMatcher.decanonize(dv, map); 
+        DataValue resultDv = valueMatcher.decanonize(dv, map, constants); 
         
         if (!map.containsKey(dv)) {
         	map.put(dv, resultDv);

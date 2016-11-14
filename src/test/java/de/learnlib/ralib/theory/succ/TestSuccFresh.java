@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
@@ -43,7 +44,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
         
         canonizer.canonize(new DataValue [] {
         		b.fv(0.0)
@@ -75,10 +76,10 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
         
         OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(100.0);
-        DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
+        DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul);
         
        Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT,
@@ -120,7 +121,7 @@ public class TestSuccFresh extends RaLibTestSuite{
                 new PSymbolInstance(OneWayFreshTCPSUL.IACK,
                 		b.intv(12050.5, b.dv(12050.0), b.sumcv(12050.0, 1.0)))
         		);
-        testWord = new SymbolicTraceCanonizer(teachers).canonizeTrace(testWord);
+        testWord = new SymbolicTraceCanonizer(teachers, new Constants()).canonizeTrace(testWord);
         result = oracle.trace(testWord);
         Assert.assertTrue(true);
 	}
@@ -137,8 +138,8 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
-        SymbolicTraceCanonizer fixer = new SymbolicTraceCanonizer(teachers);
+        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
+        SymbolicTraceCanonizer fixer = new SymbolicTraceCanonizer(teachers, new Constants());
         
         final Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
@@ -162,7 +163,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
 
         DataWordSUL sul = new OneWayFreshTCPSUL(win);
-        sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
+        sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul);
         BasicSULOracle oracle = new BasicSULOracle(sul, OneWayFreshTCPSUL.ERROR);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         

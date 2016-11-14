@@ -40,8 +40,8 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -88,7 +88,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
 				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
        teachers.put(SessionManagerSUL.INT_TYPE, 
     		   theory);
-		BasicSULOracle sulOracle = new BasicSULOracle(new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul), SessionManagerSUL.ERROR);
+		BasicSULOracle sulOracle = new BasicSULOracle(new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul), SessionManagerSUL.ERROR);
 		
 		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> testWord = Word.fromSymbols(
@@ -114,10 +114,10 @@ public class TestEquWithFresh extends RaLibTestSuite {
             		   new DataValue(SessionManagerSUL.INT_TYPE, 1))
                );
        
-       final DeterminedDataWordSUL sulDet = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul);
+       final DeterminedDataWordSUL sulDet = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul);
 		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> actualTrace = Word.epsilon();
-       ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
+       ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
        sulDet.pre();
        for (PSymbolInstance symbol : testInputWord) {
     	   symbol = canonizer.canonize(symbol, false);

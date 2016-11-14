@@ -192,7 +192,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulLearn);
+            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulLearn);
             }
             if (this.timeoutMillis > 0L) {
             	
@@ -200,7 +200,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulTest);
+            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulTest);
             }
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
@@ -227,7 +227,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             if (useFresh)
-            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers));
+            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, new Constants()));
             else 
             	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
             
@@ -235,7 +235,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             
             IOCacheOracle ioCacheOracle = null;
             if (useFresh)
-            	ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers));
+            	ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, new Constants()));
             else 
             	ioCacheOracle = new IOCacheOracle(back, ioCache, null);
             
@@ -254,7 +254,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         hypOracle = new TimeOutOracle(hypOracle, timeout);
                     }
                     SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
-                    IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers));  
+                    IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, new Constants()));  
                     
                     return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
                 }

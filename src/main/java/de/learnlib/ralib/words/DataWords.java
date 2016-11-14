@@ -25,6 +25,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import net.automatalib.words.Word;
 
 /**
@@ -97,12 +100,27 @@ public final class DataWords {
      * @param in
      * @return 
      */
+    @SafeVarargs
     public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();    
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);
         }
         return vals;
+    }
+    
+    
+    /**
+     * 
+     * @param <T>
+     * @param in
+     * @return 
+     */
+    @SafeVarargs
+	public static <T> List<DataValue<T>> joinValsToList(Collection<DataValue<T>> ... in) {
+    	return Stream.of(in).
+    			flatMap(coll -> coll.stream()).
+    			collect(Collectors.toList());
     }
     
     /**

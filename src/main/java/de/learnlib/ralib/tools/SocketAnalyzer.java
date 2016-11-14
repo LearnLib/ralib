@@ -157,7 +157,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 
 			sulLearn = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
 			if (this.useFresh) {
-				this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulLearn);
+				this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulLearn);
 			}
 			if (this.timeoutMillis > 0L) {
 
@@ -165,7 +165,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			}
 			sulTest = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
 			if (this.useFresh) {
-				this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers), sulTest);
+				this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulTest);
 			}
 			if (this.timeoutMillis > 0L) {
 				this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
@@ -183,7 +183,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			final Constants consts = new Constants();
 
 			if (useFresh)
-				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers));
+				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, new Constants()));
 			else
 				back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 
@@ -191,7 +191,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			IOCache ioCache = super.setupCache(config, IOCacheManager.JAVA_SERIALIZE);
 
 			if (useFresh)
-				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers));
+				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, new Constants()));
 			else
 				ioCacheOracle = new IOCacheOracle(back, ioCache, null);
 
