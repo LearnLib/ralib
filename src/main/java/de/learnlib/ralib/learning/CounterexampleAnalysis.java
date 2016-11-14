@@ -72,8 +72,8 @@ public class CounterexampleAnalysis {
 	}
 
 	CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-	//	int idx = binarySearch(ce);
-		 int idx = linearBackWardsSearch(ce);
+		//int idx = binarySearch(ce);
+		int idx = linearBackWardsSearch(ce);
 		//int idx = minSuffixSearch(ce).getSecond();
 		//int idx = minSuffixSearch(ce, testCe -> linearBackWardsSearch(testCe));
 		// Pair<Word<PSymbolInstance>, Integer> ceRes =

@@ -81,6 +81,22 @@ public class TestUtil {
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
     
+    
+    /**
+     * Createst a MTO which uses basic canonicalization that only works when there are no fresh values.
+     */
+    public static MultiTheoryTreeOracle createBasicMTO(
+            DataWordSUL sul, ParameterizedSymbol error,  
+            Map<DataType, Theory> teachers, Constants consts, 
+            ConstraintSolver solver, ParameterizedSymbol ... inputs) {
+        
+        IOOracle ioOracle = new BasicSULOracle(sul, error);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, (trace) -> trace);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        return new MultiTheoryTreeOracle(
+                ioFilter, ioCache, teachers, consts, solver);
+    }
+    
 //    public static MultiTheoryTreeOracle createMTO(
 //            DataWordSUL sul, ParameterizedSymbol error,  
 //            Map<DataType, Theory> teachers, Constants consts, 

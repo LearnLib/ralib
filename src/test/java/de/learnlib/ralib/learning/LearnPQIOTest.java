@@ -91,7 +91,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
-                10000, // 1000 runs 
+                1000, // 1000 runs 
                 100, // max depth
                 consts,
                 false, // reset runs 

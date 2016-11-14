@@ -90,8 +90,8 @@ public class LearnPQTest extends RaLibTestSuite {
                         new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, 1.0)),
-                //                new PSymbolInstance(OFFER,
-                //                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, 1.0)));
 
@@ -101,10 +101,9 @@ public class LearnPQTest extends RaLibTestSuite {
         rastar.addCounterexample(ceQuery);
 
         rastar.learn();
+        
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        
-        Assert.assertEquals(hyp.getStates().size(), 7);
-        Assert.assertEquals(hyp.getTransitions().size(), 27);
+        Assert.assertFalse(hypVerifier.isCEForHyp(ce, hyp));
     }
 }

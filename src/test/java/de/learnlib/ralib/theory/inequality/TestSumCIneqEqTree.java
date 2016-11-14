@@ -64,14 +64,17 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
                 		Arrays.asList(new DataValue<Double>(PriorityQueueSUL.DOUBLE_TYPE, 100.0)), 
                         		Collections.emptyList()));
 
-        PriorityQueueSUL sul = new PriorityQueueSUL();
+        PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createBasicMTO(
                 sul, PriorityQueueSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());
                 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+                new PSymbolInstance(PriorityQueueSUL.POLL),
+                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 4.0)),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 5.0)),
                 new PSymbolInstance(PriorityQueueSUL.OK),
@@ -88,33 +91,7 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 3.0)),
-                new PSymbolInstance(PriorityQueueSUL.OK),
-                new PSymbolInstance(PriorityQueueSUL.POLL),
-                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 1.0)));
-        
-//        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-//                new PSymbolInstance(PriorityQueueSUL.POLL),
-//                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 4.0)),
-//                new PSymbolInstance(PriorityQueueSUL.OFFER,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 5.0)),
-//                new PSymbolInstance(PriorityQueueSUL.OK),
-//                new PSymbolInstance(PriorityQueueSUL.POLL),
-//                new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 6.0)));
-//        
-//        final Word<PSymbolInstance> prefix = Word.fromSymbols(
-//                new PSymbolInstance(PriorityQueueSUL.OFFER,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 1.0)),
-//                new PSymbolInstance(PriorityQueueSUL.OK),
-//                new PSymbolInstance(PriorityQueueSUL.OFFER,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 2.0)),
-//                new PSymbolInstance(PriorityQueueSUL.OK),
-//                new PSymbolInstance(PriorityQueueSUL.OFFER,
-//                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 3.0)),
-//                new PSymbolInstance(PriorityQueueSUL.OK));
-
+                new PSymbolInstance(PriorityQueueSUL.OK));
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
@@ -126,29 +103,25 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
         SymbolicDecisionTree sdt = res.getSdt();
 
         final String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1!=r2)\n" +
-"         |    []-TRUE: s2\n" +
-"         |          []-TRUE: s3\n" +
-"         |                [Leaf-]\n" +
-"         +-(s1=r2)\n" +
-"              []-(s2=r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2<r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2>r1)\n" +
-"                    []-(s3!=r1)\n" +
-"                     |    [Leaf-]\n" +
-"                     +-(s3=r1)\n" +
-"                          [Leaf+]\n";
+"                []-(s1=r2)\n" +
+"                |    []-(s2<=r1)\n" +
+"                |     |    []-(s3=s2)\n" +
+"                |     |     |    [Leaf+]\n" +
+"                |     |     +-(s3!=s2)\n" +
+"                |     |          [Leaf-]\n" +
+"                |     +-(s2>r1)\n" +
+"                |          []-(s3=r1)\n" +
+"                |           |    [Leaf+]\n" +
+"                |           +-(s3!=r1)\n" +
+"                |                [Leaf-]\n" +
+"                +-(s1!=r2)\n" +
+"                     []-TRUE: s2\n" +
+"                           []-TRUE: s3\n" +
+"                                 [Leaf-]\n";
+        
         
         String tree = sdt.toString();
-        Assert.assertEquals(tree, expectedTree);
+        Assert.assertEquals(tree.replaceAll("\\s", ""), expectedTree.replaceAll("\\s", ""));
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
         Parameter p1 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 1);
