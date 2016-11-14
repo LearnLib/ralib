@@ -23,8 +23,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A canonizing SULOracle is a SULOracle that also performs canonicalization on the trace + input
- * before executing each input. 
+ * A canonizing SULOracle performs canonicalization on the trace + input
+ * before executing each input.  
  *  
  */
 public class CanonizingSULOracle extends IOOracle {
@@ -36,10 +36,10 @@ public class CanonizingSULOracle extends IOOracle {
 	private final TraceCanonizer traceCanonizer;
 
   
-    public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, TraceCanonizer traceFixer) {
+    public CanonizingSULOracle(DataWordSUL canonizedSul, ParameterizedSymbol error, TraceCanonizer traceCanonizer) {
         this.canonizedSul = canonizedSul;
         this.error = error;
-        this.traceCanonizer = traceFixer;
+        this.traceCanonizer = traceCanonizer;
     }
 
     /**

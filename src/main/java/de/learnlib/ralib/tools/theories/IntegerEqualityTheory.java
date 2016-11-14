@@ -34,12 +34,12 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
 
 
-    private DataType type = null;
+    private DataType<Integer> type = null;
 
     public IntegerEqualityTheory() {
     }
     
-    public IntegerEqualityTheory(DataType t) {
+    public IntegerEqualityTheory(DataType<Integer> t) {
         this.type = t;
     }
 
@@ -50,7 +50,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
             dv = Math.max(dv, d.getId());
         }
 
-        return new DataValue(type, dv + 1);
+        return new DataValue<>(type, dv + 1);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
 
     
 	  public ValueMapper<Integer> getValueMapper() {
-	  	return new FreshValueMapper<Integer>(this.type, this);
+	  	return new FreshValueMapper<Integer>(this);
 	  }
 
 }

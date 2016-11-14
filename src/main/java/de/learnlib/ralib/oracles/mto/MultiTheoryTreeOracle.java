@@ -66,6 +66,8 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTNotGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -461,6 +463,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private boolean canBeMerged(SDTGuard a, SDTGuard b, Predicate<SDTGuard> instantiationPred) {
     	if (a.equals(b) || a instanceof SDTTrueGuard || b instanceof SDTTrueGuard) 
     		return true;
+    	
+    	// some quick answers, implemented for compatibility with older theories.
+    	if (a instanceof EqualityGuard) 
+    		if (b.equals(((EqualityGuard)a).toDeqGuard())) 
+    			return false;
+    	if (b instanceof EqualityGuard)
+    		if (a.equals(((EqualityGuard)b).toDeqGuard()))
+    			return false;
     	return instantiationPred.test(new SDTAndGuard(a.getParameter(), a, b));
     }
     

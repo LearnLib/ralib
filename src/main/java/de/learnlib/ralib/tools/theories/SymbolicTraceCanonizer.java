@@ -25,18 +25,9 @@ import net.automatalib.words.Word;
 public class SymbolicTraceCanonizer implements TraceCanonizer{
 	
 	final Map<DataType, ValueMapper> valueMappers = new LinkedHashMap<>();
-
-	private SymbolicTraceCanonizer() {
-	}
 	
 	public SymbolicTraceCanonizer(Map<DataType, Theory> theories) {
 		theories.forEach( (dt, th) -> valueMappers.put(dt, new SymbolicTraceValueMapper(th)));
-	}
-	
-	public static SymbolicTraceCanonizer buildNew(Map<DataType, ValueMapper> valueMappers) {
-		SymbolicTraceCanonizer traceCanonizer = new SymbolicTraceCanonizer();
-		traceCanonizer.valueMappers.putAll(valueMappers);
-		return traceCanonizer;
 	}
 	
 	/**

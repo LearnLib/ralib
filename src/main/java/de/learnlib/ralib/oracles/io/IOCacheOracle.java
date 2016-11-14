@@ -17,16 +17,12 @@
 package de.learnlib.ralib.oracles.io;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.logging.Level;
-
-import javax.annotation.Nullable;
 
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -35,6 +31,8 @@ import net.automatalib.words.Word;
  * The IO-Cache can be used to reduce queries for deterministic IO-Systems,
  * i.e., where even fresh values are chosen deterministically!
  *
+ * It maintains a cache in which it stores only canonized traces. All queries
+ * are canonized, and then searched for in the cache. 
  * @author falk
  */
 public class IOCacheOracle extends IOOracle implements DataWordOracle {
@@ -43,16 +41,16 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
 	private final IOCache ioCache;
 
-	private final SymbolicTraceCanonizer traceCanonizer;
+	private final TraceCanonizer traceCanonizer;
 
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
     
-    public IOCacheOracle(IOOracle sul, SymbolicTraceCanonizer canonizer) {
+    public IOCacheOracle(IOOracle sul, TraceCanonizer canonizer) {
     	this(sul, new IOCache(), canonizer);
     }
     
-    public IOCacheOracle(IOOracle sul,  IOCache ioCache, SymbolicTraceCanonizer canonizer) {
+    public IOCacheOracle(IOOracle sul,  IOCache ioCache, TraceCanonizer canonizer) {
         this.sul = sul;
         this.ioCache = ioCache;
         this.traceCanonizer = canonizer;
@@ -69,10 +67,7 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = 
-    			this.traceCanonizer != null ? 
-    			this.traceCanonizer.canonizeTrace(query) 
-    			: query; 
+    	Word<PSymbolInstance> fixedQuery = this.traceCanonizer.canonizeTrace(query); 
         Boolean ret = this.ioCache.answerFromCache(fixedQuery);
         if (ret != null) {
             return ret;
@@ -81,19 +76,16 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         if (fixedQuery.length() % 2 != 0) {
             test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
-        Word<PSymbolInstance> trace = sul.trace(test);
+        Word<PSymbolInstance> trace = this.sul.trace(test);
         boolean added = this.ioCache.addToCache(trace);
         assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
         return ret;
     }
 
-    @Override
+    
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = 
-    			this.traceCanonizer != null ? 
-    			this.traceCanonizer.canonizeTrace(query) 
-    			: query; 
+    	Word<PSymbolInstance> fixedQuery = this.traceCanonizer.canonizeTrace(query); 
         if (fixedQuery.length() % 2 != 0) {
         	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }

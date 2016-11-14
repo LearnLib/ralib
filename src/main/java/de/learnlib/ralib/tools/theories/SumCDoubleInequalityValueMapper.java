@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.ValueMapper;
@@ -15,26 +14,23 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 
-	private DataType type;
 	private DoubleInequalityTheory theory;
 	private List<DataValue<Double>> constants;
 
-	public SumCDoubleInequalityValueMapper(DataType type, DoubleInequalityTheory theory) {
-		this(type, theory, Collections.emptyList());
+	public SumCDoubleInequalityValueMapper(DoubleInequalityTheory theory) {
+		this(theory, Collections.emptyList());
 	}
 			
 	
-	public SumCDoubleInequalityValueMapper(DataType type, DoubleInequalityTheory theory, List<DataValue<Double>> sumConstants) {
-		this.type = type;
+	public SumCDoubleInequalityValueMapper(DoubleInequalityTheory theory, List<DataValue<Double>> sumConstants) {
 		this.theory = theory;
 		this.constants = sumConstants;
 		
 	}
 
 	/**
-	 * We can only canonize to SumC, Equal or Fresh Data Values. 
+	 * Canonizes concrete values to SumC, Equal or Fresh Data Values. 
 	 */
-	
 	public DataValue<Double> canonize(DataValue<Double> value, Map<DataValue<Double>, DataValue<Double>> thisToOtherMap) {
 		if (thisToOtherMap.containsKey(value)) {
 			DataValue<Double> mapping = thisToOtherMap.get(value);
@@ -51,6 +47,10 @@ public class SumCDoubleInequalityValueMapper implements ValueMapper<Double>{
 		return new FreshValue<>(fv.getType(), fv.getId());
 	}
 
+	/**
+	 * Decanonizes from SumC, Equal, Fresh Data and also Interval Values, to concrete values. 
+	 * Also decanonizes from concretele past values and sums, s.t. it is not needed that all dvs are symbolic.
+	 */
 	public DataValue<Double> decanonize(DataValue<Double> value, Map<DataValue<Double>, DataValue<Double>> thisToOtherMap) {
 		if (thisToOtherMap.containsKey(value)) 
 			return thisToOtherMap.get(value);

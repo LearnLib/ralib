@@ -57,15 +57,18 @@ public class BasicSULOracle extends IOOracle {
         Word<PSymbolInstance> trace = Word.epsilon();
         for (int i = 0; i < query.length(); i += 2) {
             PSymbolInstance in = applyReplacements(act.getSymbol(i));
-            
+            trace = trace.append(in);
             PSymbolInstance out = sul.step(in);
-            updateReplacements(act.getSymbol(i + 1), out);
-
-            trace = trace.append(in).append(out);
-
-            if (out.getBaseSymbol().equals(error)) {
-                break;
+            if (act.size() > i+1) {
+	            updateReplacements(act.getSymbol(i + 1), out);
+	
+	            trace = trace.append(out);
+	
+	            if (out.getBaseSymbol().equals(error)) {
+	                break;
+	            } 
             }
+            
         }
         
         if (trace.length() < query.length()) {

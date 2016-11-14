@@ -1,15 +1,6 @@
 package de.learnlib.ralib.sul;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.theory.Theory;
 
 

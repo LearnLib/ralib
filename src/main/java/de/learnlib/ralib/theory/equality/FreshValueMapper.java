@@ -11,11 +11,9 @@ import de.learnlib.ralib.theory.Theory;
 
 public class FreshValueMapper<T> implements ValueMapper<T>{
 
-	private DataType type;
 	private Theory<T> theory;
 
-	public FreshValueMapper(DataType type, Theory<T> theory) {
-		this.type = type;
+	public FreshValueMapper(Theory<T> theory) {
 		this.theory = theory;
 	}
 	
