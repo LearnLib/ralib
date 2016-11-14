@@ -15,9 +15,15 @@ import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import net.automatalib.commons.util.Pair;
 
-public enum InequalityGuardsMerger {
-	DISCRETE,
-	CONTINOUS;
+/**
+ * Previous implementation of SDT merging.
+ */
+public class OldInequalityGuardsMerger implements InequalityGuardMerger{
+	
+	@Override
+	public Map<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, Map<SDTGuard, SDT> sdtMap) {
+		return mergeByMaximizingIntervals(sortedInequalityGuards, sdtMap);
+	}
 	
 	/**
 	 * Merges intervals by making two runs through a list of guards, sorted

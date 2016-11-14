@@ -358,7 +358,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 if (guardMap.containsKey(dvi)) {
                 	throw new DecoratedRuntimeException( " New guards instantiated with same dvi in branching")
                 	.addDecoration("guard already in map", guardMap.get(dvi)).addDecoration("guard to be added", guard).
-                	addDecoration("dvi", dvi);
+                	addDecoration("dvi", dvi).addDecoration("sdts", Arrays.toString(sdts));
                 }
                 guardMap.put(dvi, guard);
             }

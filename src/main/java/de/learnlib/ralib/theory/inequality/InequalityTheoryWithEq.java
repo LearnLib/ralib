@@ -80,49 +80,21 @@ import net.automatalib.words.Word;
 public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
 
 	private static final LearnLogger log = LearnLogger.getLogger(InequalityTheoryWithEq.class);
+	private static final Map<Class<?>, ContinuousInequalityMerger> sdtMergers = new LinkedHashMap<>();
+	{ 
+		sdtMergers.put(Integer.class, new DiscreteInequalityMerger());
+		sdtMergers.put(Double.class, new ContinuousInequalityMerger());
+	}
 	private boolean freshValues;
-	private InequalityMerger inequalityMerger;
+//	private InequalityMerger inequalityMerger;
 	
 	
 	public InequalityTheoryWithEq() {
 		this.freshValues = false;
-		this.inequalityMerger = new InequalityMerger(null);
+//		this.getClass().getGenericInterfaces()[0].getClass()
+//		this.inequalityMerger = new InequalityMerger(null);
 	}
 	
-	
-	
-	private static class SDTMergeOracle implements MergeOracle{
-		private Map<SDTGuard, SDT> guardSdtMap;
-		public SDTMergeOracle(Map<SDTGuard, SDT> sdtMap) {
-			this.guardSdtMap = sdtMap;
-		}
-
-		public boolean canMerge(SDTGuard guard, SDTGuard withGuard) {
-			IntervalGuard intGuard = null;
-			EqualityGuard equGuard = null;
-			boolean areEquivalent = false;
-			if (guard instanceof EqualityGuard && withGuard instanceof IntervalGuard) { 
-				equGuard = (EqualityGuard) guard;
-				intGuard = (IntervalGuard) withGuard;
-			} else if (guard instanceof IntervalGuard && withGuard instanceof EqualityGuard) {
-				equGuard = (EqualityGuard) withGuard;
-				intGuard = (IntervalGuard) guard;
-			} else if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
-				throw new DecoratedRuntimeException("Merge of these types is not covered");
-			}
-			
-			if (equGuard != null) {
-				SDT intSdt = guardSdtMap.get(intGuard);
-				SDT equSdt = guardSdtMap.get(equGuard);
-				return equSdt.isEquivalentUnderEquality(intSdt, Arrays.asList(equGuard));
-			} else { // two interval guards
-				SDT sdt = guardSdtMap.get(guard);
-				SDT otherSdt = guardSdtMap.get(withGuard);
-				return sdt.isEquivalent(otherSdt, new VarMapping());
-			}
-		}
-	}
-
 	private Map<SDTGuard, SDT> mergeGuards(final Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, DataValue<T>> instantiations) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
@@ -143,176 +115,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}).collect(Collectors.toList());
 		
-		InequalityMerger inequalityMerger = new InequalityMerger(new SDTMergeOracle(tempGuards));
-		LinkedHashMap<SDTGuard, Set<SDTGuard>> mergedResult = inequalityMerger.merge(sortedGuards);
-		Map<SDTGuard, SDT> merged = computeSDTMapFromMergedGuards(tempGuards, mergedResult);
+		ContinuousInequalityMerger inequalityMerger = new ContinuousInequalityMerger();
+		Map<SDTGuard, SDT> merged =inequalityMerger.merge(sortedGuards, tempGuards);
+//		InequalityGuardsMerger merger = new InequalityGuardsMerger();
+//		Map<SDTGuard, SDT> merged = merger.mergeByMaximizingIntervals(sortedGuards, tempGuards);
 
-//		Map<SDTGuard, SDT> merged = mergeByMaximizingIntervals(sortedGuards, tempGuards);
 		return merged;
 	}
-	
-	private Map<SDTGuard, SDT> computeSDTMapFromMergedGuards(Map<SDTGuard, SDT> tempGuards, Map<SDTGuard, Set<SDTGuard>> mergedResult) {
-		Map<SDTGuard, SDT> mergedGuards = new LinkedHashMap<SDTGuard, SDT>();
-		for (SDTGuard mergedGuard : mergedResult.keySet()) {
-			Set<SDTGuard> oldGuards = mergedResult.get(mergedGuard);
-			if (oldGuards.size() == 1) {
-				assert oldGuards.contains(mergedGuard);
-				mergedGuards.put(mergedGuard, tempGuards.get(mergedGuard));
-			} else {
-				SDTGuard nonEqGuard = oldGuards.stream().filter(g -> ! (g instanceof EqualityGuard) ).findFirst()
-						.orElseThrow(() -> new DecoratedRuntimeException("Expected a non-equality guard"));
-				mergedGuards.put(mergedGuard, tempGuards.get(nonEqGuard));
-			}
-		}
-		
-		return mergedGuards;
-	}
-
-	/**
-	 * Merges intervals by making two runs through a list of guards, sorted
-	 * according to their corresponding sdts. On the first run it merges
-	 * intervals from left to right, replacing (head, equ, next) constructs by
-	 * single larger intervals, true, and eq/diseq guards where possible. The
-	 * second run finalizes merging for the case where an eq/diseq merger is
-	 * possible.
-	 */
-	private LinkedHashMap<SDTGuard, SDT> mergeByMaximizingIntervals(List<SDTGuard> sortedGuards,
-			Map<SDTGuard, SDT> guardSdtMap) {
-		LinkedHashMap<SDTGuard, SDT> mergedFinal = new LinkedHashMap<SDTGuard, SDT>();
-		Iterator<SDTGuard> test = sortedGuards.iterator();
-		boolean expectIntv = true;
-		while(test.hasNext()) {
-			SDTGuard guard = test.next();
-			if (expectIntv)
-				assert guard instanceof IntervalGuard;
-			else
-				assert guard instanceof EqualityGuard;
-			expectIntv = !expectIntv;  
-		}
-		Iterator<SDTGuard> iter = sortedGuards.iterator();
-		IntervalGuard head = (IntervalGuard) iter.next();
-		SDT refStd = guardSdtMap.get(head);
-
-		do {
-			EqualityGuard equ = (EqualityGuard) iter.next();
-			IntervalGuard nextInterval = (IntervalGuard) iter.next();
-			Pair<LinkedHashMap<SDTGuard, SDT>, MergeResult> merge = merge(head, equ, nextInterval, refStd, guardSdtMap);
-			MergeResult result = merge.getSecond();
-			LinkedHashMap<SDTGuard, SDT> mergeMap = merge.getFirst();
-			List<SDTGuard> mergeList = mergeMap.keySet().stream().collect(Collectors.toList());
-			switch (result) {
-			// the closing of an interval, beginning of a new
-			case OLD_INTERVAL_AND_OLD_EQU:
-			case OLD_INTERVAL_AND_NEW_EQU:
-				mergedFinal.putAll(mergeMap);
-				head = nextInterval;
-				refStd = guardSdtMap.get(nextInterval);
-				if (!iter.hasNext()) {
-					mergedFinal.put(nextInterval, refStd);
-				}
-				break;
-			// a new interval was formed from the merger, this interval can be
-			// further extended unless it's the last from the list
-			case NEW_INTERVAL:
-				head = (IntervalGuard) mergeList.get(0);
-				if (!iter.hasNext()) {
-					mergedFinal.put(head, refStd);
-				}
-				break;
-			// true or ==, != mergers
-			case TRUE:
-			case NEW_EQU_AND_DISEQ:
-				mergedFinal.putAll(mergeMap);
-				break;
-			}
-		} while (iter.hasNext());
-
-		// if it progressed to an < == >, we run the process again (as there
-		// could be an
-		// equ/diseq merge that wasn't detected in the first run)
-		if (mergedFinal.size() == 3 && guardSdtMap.size() > 3) {
-			mergedFinal = mergeByMaximizingIntervals(mergedFinal.keySet().stream().collect(Collectors.toList()),
-					mergedFinal);
-		}
-
-		return mergedFinal;
-	}
-
-	static enum MergeResult {
-		NEW_INTERVAL, NEW_EQU_AND_DISEQ, TRUE, OLD_INTERVAL_AND_OLD_EQU, OLD_INTERVAL_AND_NEW_EQU;
-	}
-
-	/**
-	 * Returns a pair comprising a mapping from the merged guards to their
-	 * corresponding sdts, and an enum element describing the result.
-	 */
-	private Pair<LinkedHashMap<SDTGuard, SDT>, MergeResult> merge(IntervalGuard head, EqualityGuard eqGuard,
-			IntervalGuard nextInterval, SDT sdtHead, Map<SDTGuard, SDT> guardSdtMap) {
-		LinkedHashMap<SDTGuard, SDT> resGuards = new LinkedHashMap<>(3);
-		MergeResult resMerge = null;
-		SDT sdtNext = guardSdtMap.get(nextInterval);
-		SDT sdtEquality = guardSdtMap.get(eqGuard);
-
-		boolean isHeadEquivToNext = sdtNext.isEquivalent(sdtHead, new VarMapping());
-		boolean isHeadEquivToEqu = sdtEquality.isEquivalentUnderEquality(sdtHead, Arrays.asList(eqGuard));
-
-		// attempt to merge head, next and equ into more compact guards
-		if (isHeadEquivToNext) {
-			boolean isBiggerSmaller = head.isSmallerGuard() && nextInterval.isBiggerGuard();
-
-			if (isHeadEquivToEqu) {
-				// if head is equiv to both equ and next, then we can merge them
-				// into either an interval guard or a true guard
-				if (isBiggerSmaller) {
-					resGuards.put(new SDTTrueGuard(head.getParameter()), sdtHead);
-					resMerge = MergeResult.TRUE;
-				} else {
-					resGuards.put(
-							new IntervalGuard(head.getParameter(), head.isSmallerGuard() ? null : head.getLeftExpr(),
-									nextInterval.isBiggerGuard() ? null : nextInterval.getRightExpr()),
-							sdtHead);
-					resMerge = MergeResult.NEW_INTERVAL;
-				}
-			} else
-			// the head is head is equiv to next but not to eq, they may be
-			// merged to = and != if neither head nor next are interval
-			// guards
-			if (isBiggerSmaller) {
-				resGuards.put(eqGuard, sdtEquality);
-				resGuards.put(new DisequalityGuard(head.getParameter(), head.getRightExpr()), sdtHead);
-				resMerge = MergeResult.NEW_EQU_AND_DISEQ;
-			}
-		}
-
-		boolean isNextEquivToEqu = sdtEquality.isEquivalentUnderEquality(sdtNext, Arrays.asList(eqGuard));
-		// if head and next cannot be merged in any way, it could still be the
-		// case that eq can be merged with either of the two,
-		// in which case equ would be assigned the corresponding sdt.
-		if (resMerge == null) {
-			// if (isHeadEquivToEqu)
-			// resGuards.put(head, sdtEquality);
-			// else
-			// resGuards.put(head, sdtHead);
-			// resGuards.put(eqGuard, sdtEquality);
-			resGuards.put(head, sdtHead);
-			// resGuards.put(eqGuard, sdtEquality);
-			if (isHeadEquivToEqu)
-				resGuards.put(eqGuard, sdtHead);
-			else if (isNextEquivToEqu)
-				resGuards.put(eqGuard, sdtNext);
-			else
-				resGuards.put(eqGuard, sdtEquality);
-
-			resMerge = (isNextEquivToEqu || isHeadEquivToEqu) ? MergeResult.OLD_INTERVAL_AND_NEW_EQU
-					: MergeResult.OLD_INTERVAL_AND_OLD_EQU; // cannot merge b <
-															// s < a and s > a
-															// if a == s isn't
-															// equivalent
-		}
-
-		return new Pair<>(resGuards, resMerge);
-	}
-	
 	
     @Override
     public void setCheckForFreshOutputs(boolean doit) {
@@ -822,7 +631,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 
 					val.setValue(toVariable(r), rRegVal.getId());
-				} else if (!iGuard.isSmallerGuard()) {
+				} 
+				
+				if (!iGuard.isSmallerGuard()) {
 					SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
 					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), prefixValues,  piv, pval, constants);
 					lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);
