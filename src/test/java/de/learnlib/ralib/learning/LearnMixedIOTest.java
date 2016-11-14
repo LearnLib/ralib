@@ -39,14 +39,13 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -116,7 +115,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
-                10000, // 1000 runs 
+                1000, // 1000 runs 
                 100, // max depth
                 consts,
                 false, // reset runs 

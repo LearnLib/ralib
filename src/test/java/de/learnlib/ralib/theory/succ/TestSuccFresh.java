@@ -24,7 +24,7 @@ import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
-import de.learnlib.ralib.tools.theories.TraceCanonizer;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -137,7 +137,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
         ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers);
-        TraceCanonizer fixer = new TraceCanonizer(teachers);
+        SymbolicTraceCanonizer fixer = new SymbolicTraceCanonizer(teachers);
         
         final Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 

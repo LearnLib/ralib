@@ -86,7 +86,7 @@ public class ValueCanonizer {
 		}
 		} catch(Exception exception) {
 			DecoratedRuntimeException exc = 
-					new DecoratedRuntimeException("Problem with canonization").
+					new DecoratedRuntimeException(exception.getMessage()).
 					addDecoration("method", (reverse?"de":"") + "canonize ").
 					addDecoration("processed value", dvs[i]).
 					addDecoration("state", this.buckets).

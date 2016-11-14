@@ -189,7 +189,9 @@ public class IORandomWalk implements IOEquivalenceOracle {
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
             if (!oldSet.isEmpty() && rand.nextBoolean()) {
             	List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream()
-            			.map(dv -> (DataValue<Object>) dv).collect(Collectors.toList());
+            			.filter(reg -> reg.getType().equals(t))
+            			.map(dv -> (DataValue<Object>) dv)
+            			.collect(Collectors.toList());
             	if (!regs.isEmpty()) 
             		old = regs;
             }

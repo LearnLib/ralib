@@ -9,6 +9,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.Theory;
@@ -21,14 +22,21 @@ import net.automatalib.words.Word;
  * Canonizes a symbolic data trace produced after reduction techniques. This could be merged with the ValueMapper / canonizer
  * (in the end, it's a type of canonizing from DataValue to DataValue). 
  */
-public class TraceCanonizer {
+public class SymbolicTraceCanonizer implements TraceCanonizer{
 	
-	private Map<DataType, Theory> theories;
 	final Map<DataType, ValueMapper> valueMappers = new LinkedHashMap<>();
 
-	public TraceCanonizer(Map<DataType, Theory> theories) {
-		this.theories = theories;
-		this.theories.forEach( (dt, th) -> valueMappers.put(dt, new TraceCanonizerMapper(th)));
+	private SymbolicTraceCanonizer() {
+	}
+	
+	public SymbolicTraceCanonizer(Map<DataType, Theory> theories) {
+		theories.forEach( (dt, th) -> valueMappers.put(dt, new SymbolicTraceValueMapper(th)));
+	}
+	
+	public static SymbolicTraceCanonizer buildNew(Map<DataType, ValueMapper> valueMappers) {
+		SymbolicTraceCanonizer traceCanonizer = new SymbolicTraceCanonizer();
+		traceCanonizer.valueMappers.putAll(valueMappers);
+		return traceCanonizer;
 	}
 	
 	/**
@@ -56,11 +64,15 @@ public class TraceCanonizer {
 		}
 	}
 	
-	static class TraceCanonizerMapper<T extends Comparable<T>> implements ValueMapper<T> {
+
+	/**
+	 * A value mapper which assumes that the given trace is decorated with (semi-) symbolic information. 
+	 */
+	static class SymbolicTraceValueMapper<T extends Comparable<T>> implements ValueMapper<T> {
 		
 		private Theory<T> theory;
 
-		public TraceCanonizerMapper(Theory<T> theory) {
+		public SymbolicTraceValueMapper(Theory<T> theory) {
 			this.theory = theory;
 		}
 

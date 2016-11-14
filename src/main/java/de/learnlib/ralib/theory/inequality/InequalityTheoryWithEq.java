@@ -123,7 +123,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		ContinuousInequalityMerger inequalityMerger = new ContinuousInequalityMerger();
 		//Map<SDTGuard, SDT> 
 		Map<SDTGuard, SDT> merged2 =inequalityMerger.merge(sortedGuards, tempGuards);
-		System.out.println("merged2:\n" + merged2);
+//		System.out.println("merged2:\n" + merged2);
 
 		//assert merged.size() == merged2.size() && merged2.equals(merged);
 

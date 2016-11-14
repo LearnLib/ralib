@@ -43,6 +43,7 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -79,7 +80,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
     
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers));
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

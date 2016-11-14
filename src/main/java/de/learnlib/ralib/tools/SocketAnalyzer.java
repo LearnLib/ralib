@@ -49,7 +49,7 @@ import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.sockanalyzer.IOConfig;
 import de.learnlib.ralib.tools.sockanalyzer.SocketAnalyzerSUL;
-import de.learnlib.ralib.tools.theories.TraceCanonizer;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
@@ -183,7 +183,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			final Constants consts = new Constants();
 
 			if (useFresh)
-				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new TraceCanonizer(this.teachers));
+				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers));
 			else
 				back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 
@@ -191,7 +191,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			IOCache ioCache = super.setupCache(config, IOCacheManager.JAVA_SERIALIZE);
 
 			if (useFresh)
-				ioCacheOracle = new IOCacheOracle(back, ioCache, new TraceCanonizer(this.teachers));
+				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers));
 			else
 				ioCacheOracle = new IOCacheOracle(back, ioCache, null);
 

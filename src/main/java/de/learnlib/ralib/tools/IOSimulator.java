@@ -57,6 +57,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -174,7 +175,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 = new OutputSymbol("_io_err", new DataType[]{});
         
        IOOracle back = new BasicSULOracle(sulLearn, ERROR);
-       IOCacheOracle ioCache = new IOCacheOracle(back, null);
+       IOCacheOracle ioCache = new IOCacheOracle(back, new SymbolicTraceCanonizer(teachers));
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
        

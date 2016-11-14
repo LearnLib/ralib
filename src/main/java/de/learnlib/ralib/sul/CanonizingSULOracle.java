@@ -16,8 +16,8 @@
  */
 package de.learnlib.ralib.sul;
 
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.tools.theories.TraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;

@@ -26,7 +26,7 @@ import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.tools.theories.TraceCanonizer;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -43,16 +43,16 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 
 	private final IOCache ioCache;
 
-	private final TraceCanonizer traceCanonizer;
+	private final SymbolicTraceCanonizer traceCanonizer;
 
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
     
-    public IOCacheOracle(IOOracle sul,  @Nullable   TraceCanonizer canonizer) {
+    public IOCacheOracle(IOOracle sul, SymbolicTraceCanonizer canonizer) {
     	this(sul, new IOCache(), canonizer);
     }
     
-    public IOCacheOracle(IOOracle sul,  IOCache ioCache, @Nullable TraceCanonizer canonizer) {
+    public IOCacheOracle(IOOracle sul,  IOCache ioCache, SymbolicTraceCanonizer canonizer) {
         this.sul = sul;
         this.ioCache = ioCache;
         this.traceCanonizer = canonizer;
@@ -102,7 +102,7 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         if (trace != null) {
             return trace;
         }
-        trace = sul.trace(query);
+        trace = sul.trace(fixedQuery);
 //        if (! this.ioCache.addToCache(trace)) {
 //        	throw new DecoratedRuntimeException("Cache wasn't updated by new sul trace")
 //        	.addDecoration("query", query).addDecoration("sul trace", trace);

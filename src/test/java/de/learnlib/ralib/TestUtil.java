@@ -36,7 +36,7 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.TimeOutOracle;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
-import de.learnlib.ralib.tools.theories.TraceCanonizer;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import java.util.Collection;
@@ -77,16 +77,25 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
-        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new TraceCanonizer(teachers));
+        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new SymbolicTraceCanonizer(teachers));
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
+    
+//    public static MultiTheoryTreeOracle createMTO(
+//            DataWordSUL sul, ParameterizedSymbol error,  
+//            Map<DataType, Theory> teachers, Constants consts, 
+//            ConstraintSolver solver, ParameterizedSymbol ... inputs) {
+//        
+//        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new TraceCanonizer(teachers));
+//        return createMTO(ioOracle, teachers, consts, solver, inputs);
+//    }
         
     public static MultiTheoryTreeOracle createMTO(
             IOOracle ioOracle, 
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, null);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers));
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
