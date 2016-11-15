@@ -171,9 +171,9 @@ public class SDT implements SymbolicDecisionTree {
         }
         
         SDT to = this;
-        if (!replacements.isEmpty()) {
-        	to = (SDT)this.replace(replacements);
-        }
+//        if (!replacements.isEmpty()) {
+//        	to = (SDT)this.replace(replacements);
+//        }
         
 //        System.out.println(eqRenaming);
         

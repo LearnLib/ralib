@@ -100,7 +100,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     = new ConfigurationOption.BooleanOption("cache.tests",
             "Also cache tests", false, true);
     
-    private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
+    private static final ConfigurationOption<?>[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
@@ -254,7 +254,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         hypOracle = new TimeOutOracle(hypOracle, timeout);
                     }
                     SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
-                    IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, new Constants()));  
+                    IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));  
                     
                     return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
                 }

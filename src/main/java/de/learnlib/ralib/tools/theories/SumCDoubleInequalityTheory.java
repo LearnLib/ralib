@@ -15,7 +15,7 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	// default constants
 	private static Double [] defaultSumConst = new Double [] {
-			1.0,
+			 1.0,
 			1000.0
 			//10000.0
 			};
@@ -102,7 +102,8 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	
     	// we add regular constants
     	DataValue<Double> fv = super.getFreshValue(valsWithConsts);
-    	DataValue<Double> maxSumC = Collections.max(this.sumConstants, new Cpr());
+    	DataValue<Double> maxSumC = this.sumConstants.isEmpty()? new DataValue<Double>(this.getType(), 1.0) : 
+    		Collections.max(this.sumConstants, new Cpr());
     	return new DataValue<Double>(fv.getType(), fv.getId() + maxSumC.getId() * 100);
     }
     

@@ -111,7 +111,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers, new Constants()));
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers, consts));
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

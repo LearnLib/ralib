@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +47,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -69,7 +67,6 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
-import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
@@ -204,7 +201,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
 		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
-				DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
+				DataWords.<T>valSet(prefix, type), values.<T>values(type));
 
 		List<DataValue<T>> potList = new ArrayList<>(potSet);
 		List<DataValue<T>> potential = getPotential(potList);
@@ -297,8 +294,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			// rsm.toVariable() + " dvright: " + dvRight);
 			smVal.setValue(toVariable(rsm), dvRight.getId());
 			DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight); 
-					//instantiate(sguard, smVal, constants, potential);
-		//	smcv = new IntervalDataValue<T>(smcv, null, dvRight);
+//					instantiate(sguard, smVal, constants, potential);
+//			smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 			smValues.put(pId, smcv);
 			smSuffixValues.put(sv, smcv);
 
@@ -318,9 +315,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			DataValue<T> dvLeft = potential.get(potSize - 1);
 			IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
 			updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
-			DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null); 
-					//instantiate(bguard, bgVal, constants, potential);
-			//bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
+			DataValue<T> bgcv = 
+					IntervalDataValue.instantiateNew(dvLeft, null); 
+//					instantiate(bguard, bgVal, constants, potential);
+//			bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
 			bgValues.put(pId, bgcv);
 			bgSuffixValues.put(sv, bgcv);
 
@@ -358,8 +356,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
-					DataValue<T> cv = IntervalDataValue.instantiateNew(dvMLeft, dvMRight);//instantiate(intervalGuard, val, constants, potential);
-					//cv = new IntervalDataValue<T>(cv,  dvMLeft, dvMRight);
+					DataValue<T> cv = 
+							IntervalDataValue.instantiateNew(dvMLeft, dvMRight);
+//					instantiate(intervalGuard, val, constants, potential);
+//					cv = new IntervalDataValue<T>(cv,  dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
 					currentSuffixValues.put(sv, cv);
 
@@ -597,7 +597,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
 			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver) {
 
-		useSolver = useSolver || !this.freshValues;
+		//useSolver = useSolver || !this.freshValues;
 		DataType type = param.getType();
 		DataValue<T> returnValue = null;
 		List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
