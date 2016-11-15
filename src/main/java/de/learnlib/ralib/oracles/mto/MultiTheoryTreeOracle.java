@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,12 +61,11 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTNotGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -264,7 +262,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             SDT... sdts) {
-        Node n = createNode(i, prefix, ps, piv, pval, Collections.emptyMap(), Collections.emptyList(), sdts);
+        Node n = createNode(i, prefix, ps, piv, pval, Collections.emptyMap(), sdts);
         return n;
     }
     
@@ -280,8 +278,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         
-       // Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
-        Map<List<Parameter>, Set<DataValue>> oldDvs = oldBranching.getDVsForBranches();
+        Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
         
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {
@@ -301,7 +298,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             return new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
         } else {
-            n = createNode(1, prefix, ps, piv, pval, oldDvs, Collections.emptyList(),  casted);
+            n = createNode(1, prefix, ps, piv, pval, oldDvs,  casted);
             MultiTheoryBranching fluff = new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
             return fluff;
@@ -310,8 +307,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, Map<List<Parameter>, Set<DataValue>> oldDvs, 
-            List<Parameter> path,
+            PIV piv, ParValuation pval, Map<Parameter, Set<DataValue>> oldDvs, 
             SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
@@ -322,8 +318,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             DataType type = ps.getPtypes()[i - 1];
             Theory teach = teachers.get(type);
             Parameter p = new Parameter(type, i);
-            List<Parameter> nextPath = new ArrayList<Parameter>(path);
-            nextPath.add(p);
 
             int numSdts = sdts.length;
             // initialize maps for next nodes
@@ -332,21 +326,33 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             List<Map<SDTGuard, SDT>> allChildren = Stream.of(sdts).map(sdt -> sdt.getChildren()).collect(Collectors.toList());
             
-            // we do use the constraint solver to check for refinement of guards, but not to instantiate them
+            // we use the constraint solver to check for refinement of guards, but not to instantiate them
             Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewGuards(allChildren);
             Map<SDTGuard, List<SDT>> nextSDTs = getChildren(allChildren);
-            System.out.println(mergedGuards);
             
             
             for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
             	SDTGuard guard = mergedGuardEntry.getKey();
             	Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
             	DataValue dvi = null;
-            	if (oldDvs.containsKey(nextPath)) {
-                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(nextPath), false);
-                } else {
-                      dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), false);
-                }
+            	try {
+            		// first solve using a constraint solver
+            		dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), true);
+	            	// merging of the SDTs did not consider the context of the tree guards, hence it is still possible to have 
+	            	// unsolvable merged guards
+	            	if (dvi == null) {
+	            		continue;
+	            	}
+	            	if (oldDvs.containsKey(p)) {
+	                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(p), false);
+	                } else {
+	                      dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), false);
+	                }
+	            	
+            	}catch(DecoratedRuntimeException exc) {
+            		throw exc.addDecoration("guard map", guardMap).addDecoration("guard to be added", guard)
+            		.addDecoration("sdts", Arrays.toString(sdts)).addDecoration("prefix", prefix).addDecoration("piv", piv);
+            	}
             	
             	SDT [] nextLevelSDTs = oldGuards.stream().map(g -> nextSDTs.get(g)). // stream with of sdt lists for old guards
             			flatMap(g -> g.stream()).distinct().toArray(SDT []::new); // merge and pick distinct elements
@@ -355,19 +361,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                  otherPval.putAll(pval);
                      otherPval.put(p, dvi);
 
-//                assert noInterval(guard);
                 nextMap.put(dvi, createNode(i + 1, prefix, ps, piv,
-                          otherPval, oldDvs, nextPath, nextLevelSDTs));
+                          otherPval, oldDvs, nextLevelSDTs));
                 if (guardMap.containsKey(dvi)) {
                 	throw new DecoratedRuntimeException( " New guards instantiated with same dvi in branching")
                 	.addDecoration("guard map", guardMap).addDecoration("guard to be added", guard).
                 	addDecoration("dvi", dvi).addDecoration("sdts", Arrays.toString(sdts));
                 }
                 guardMap.put(dvi, guard);
-            }
-            if (ps.toString().contains("ISYN")) {
-            	System.out.println("Merged guards:\n" + mergedGuards.values().stream().flatMap(m -> m.stream()).collect(Collectors.toList()));
-            	System.out.println("Guard map:\n" + guardMap);
             }
             
             log.log(Level.FINEST, "guardMap: " + guardMap.toString());
@@ -409,20 +410,20 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		
     		// we then select only the next guards which are compatible with the head guards, ie both can be instantiated
     		SDTGuard [] compatibleNextGuards = Stream.of(notCoveredPairs).
-    				filter(next -> canBeMerged(head, next)).toArray(SDTGuard []::new);
+    				filter(next -> canBeMerged(head, next, mlo)).toArray(SDTGuard []::new);
     		
     		for (SDTGuard next : compatibleNextGuards) {
     			
     			SDTGuard refinedGuard = null;
     			if (head.equals(next)) 
     				refinedGuard = next;
-	    			else if (refines(next, head)) 
+	    			else if (refines(next, head, mlo)) 
 	    				refinedGuard = next;
 	    			else 
-	    				if (refines(head, next))
+	    				if (refines(head, next, mlo))
 	    					refinedGuard = head;
 	    				else 
-	    					refinedGuard =  conjunction(head, next);
+	    					refinedGuard =  conjunction(head, next, mlo);
     			
 				mergedGroup.put(refinedGuard, Sets.newLinkedHashSet(Arrays.asList(head, next)));
 				headNextPairs.add(new Pair<>(head, next));
@@ -431,37 +432,33 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	return mergedGroup;
     }
     
-    // conjunction of two instantiable guards with flattening of any STDAndGuard. This method assumes (!!!) the guards 
-    // provided can be both instantiated.
-    // TODO This functionality, in particular the simplification tactics, should be migrated to the tree oracles
-    private SDTGuard conjunction(SDTGuard head, SDTGuard next) {
+    // conjunction of two instantiable guards with flattening of any STDAndGuard. 
+    private SDTGuard conjunction(SDTGuard head, SDTGuard next, MultiTheorySDTLogicOracle mlo) {
+		// true guards are always refined, always!
+		assert !(head instanceof SDTTrueGuard) && !(next instanceof SDTTrueGuard);
+
     	if (head instanceof SDTAndGuard) {
+    		// flattening
     		List<SDTGuard> operands = ((SDTAndGuard) head).getGuards();
     		SDTGuard[] opArray = operands.toArray(new SDTGuard [operands.size() + 1]);
     		opArray[operands.size()] = next;
     		return new SDTAndGuard(head.getParameter(), opArray);
     	} else {
-    		// some simplification tactics
-//    		if (head instanceof EqualityGuard) 
-//    			return head;
-//    		if (next instanceof EqualityGuard)
-//    			return next;
-    		if (head instanceof SDTTrueGuard) 
-    			return next;
-    		if (next instanceof SDTTrueGuard)
-    			return head;
+    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
+    			IntervalGuard intv1 = (IntervalGuard) head;
+    			IntervalGuard intv2 = (IntervalGuard) next;
+    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard())
+    				return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
+    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard())
+    				return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
+    		}
     		
-//    		if (head instanceof DisequalityGuard && next instanceof IntervalGuard && next.getAllRegs().contains(((DisequalityGuard) head).getRegister()))
-//    			return next;
-//    		if (next instanceof DisequalityGuard && head instanceof IntervalGuard && head.getAllRegs().contains(((DisequalityGuard) next).getRegister()))
-//    			return head;
-
     		return new SDTAndGuard(head.getParameter(), head, next);
     	}
     }
     
     
-    private boolean canBeMerged(SDTGuard a, SDTGuard b) {
+    private boolean canBeMerged(SDTGuard a, SDTGuard b,  MultiTheorySDTLogicOracle mlo) {
     	if (a.equals(b) || a instanceof SDTTrueGuard || b instanceof SDTTrueGuard) 
     		return true;
     	
@@ -472,13 +469,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	if (b instanceof EqualityGuard)
     		if (a.equals(((EqualityGuard)b).toDeqGuard()))
     			return false;
-    	return this.solver.isSatisfiable(new SDTAndGuard(a.getParameter(), a, b).toExpr()); 
+    	return mlo.canBothBeSatisfied(a.toTG(), new PIV(), b.toTG(), new PIV()); 
     }
     
-    private boolean refines(SDTGuard a, SDTGuard b) {
+    private boolean refines(SDTGuard a, SDTGuard b,  MultiTheorySDTLogicOracle mlo) {
     	if (b instanceof SDTTrueGuard) 
     		return true;
-    	return !this.solver.isSatisfiable(new SDTAndGuard( a.getParameter(), a, new SDTNotGuard(b)).toExpr());
+    	return mlo.doesRefine(a.toTG(), new PIV(), b.toTG(), new PIV());
     }
     
 

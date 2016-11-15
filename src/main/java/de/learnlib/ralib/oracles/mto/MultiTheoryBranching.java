@@ -52,81 +52,57 @@ public class MultiTheoryBranching implements Branching {
 
     public static class Node {
 
-        private final boolean isLeaf;
+		private final boolean isLeaf;
 
-        private final Parameter parameter;
-        private final Map<DataValue, Node> next = new LinkedHashMap<>();
-        private final Map<DataValue, SDTGuard> guards = new LinkedHashMap<>();
+		private final Parameter parameter;
+		private final Map<DataValue, Node> next = new LinkedHashMap<>();
+		private final Map<DataValue, SDTGuard> guards = new LinkedHashMap<>();
 
-        public Node(Parameter parameter) {
-            this.parameter = parameter;
-            this.isLeaf = true;
-        }
+		public Node(Parameter parameter) {
+			this.parameter = parameter;
+			this.isLeaf = true;
+		}
 
-        public Node(Parameter parameter,
-                Map<DataValue, Node> next,
-                Map<DataValue, SDTGuard> guards) {
-            this.parameter = parameter;
-            this.next.putAll(next);
-            this.guards.putAll(guards);
-            this.isLeaf = false;
-        }
+		public Node(Parameter parameter, Map<DataValue, Node> next, Map<DataValue, SDTGuard> guards) {
+			this.parameter = parameter;
+			this.next.putAll(next);
+			this.guards.putAll(guards);
+			this.isLeaf = false;
+		}
 
-        @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            toString(sb, "");
-            return sb.toString();
-        }
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			toString(sb, "");
+			return sb.toString();
+		}
 
-        void toString(StringBuilder sb, String indentation) {
-            sb.append(indentation).append("[").
-                    append(parameter).append("]").append("\n");
-            indentation += "  ";
-            for (Map.Entry<DataValue, Node> e : next.entrySet()) {
-                DataValue d = e.getKey();
-                SDTGuard g = guards.get(d);
+		void toString(StringBuilder sb, String indentation) {
+			sb.append(indentation).append("[").append(parameter).append("]").append("\n");
+			indentation += "  ";
+			for (Map.Entry<DataValue, Node> e : next.entrySet()) {
+				DataValue d = e.getKey();
+				SDTGuard g = guards.get(d);
 
-                sb.append(indentation).append("+ ").append(g.toString()).
-                        append(" with ").append(d.toString()).append("\n");
+				sb.append(indentation).append("+ ").append(g.toString()).append(" with ").append(d.toString())
+						.append("\n");
 
-                String nextIndent = indentation + "    ";
-                e.getValue().toString(sb, nextIndent);
-            }
-        }
-        
-        
-        protected Map<Parameter, Set<DataValue>> collectDVs() {
-        Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
-        if (!(this.next.keySet()).isEmpty()) {
-            dvs.put(this.parameter, this.next.keySet());
-            for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
-                dvs.putAll(e.getValue().collectDVs());
-            }
-        }
-        
-        return dvs;
-    }
-        
-        protected Map<List<Parameter>, Set<DataValue>> collectDVsForBranches() {
-        	return this.collectDVsForBranches(Collections.emptyList());
-        }
-        
-        private Map<List<Parameter>, Set<DataValue>> collectDVsForBranches(List<Parameter> fatherBranch) {
-        	Map<List<Parameter>, Set<DataValue>> dvs = new LinkedHashMap();
-        	List<Parameter> branch = new ArrayList<Parameter>(fatherBranch);
-        	branch.add(this.parameter);
-        			
-            if (!(this.next.keySet()).isEmpty()) {
-                dvs.put(branch, this.next.keySet());
-                for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
-                    dvs.putAll(e.getValue().collectDVsForBranches(branch));
-                }
-            }	
-            return dvs;
-        }
-        
+				String nextIndent = indentation + "    ";
+				e.getValue().toString(sb, nextIndent);
+			}
+		}
 
+		protected Map<Parameter, Set<DataValue>> collectDVs() {
+			Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
+			if (!(this.next.keySet()).isEmpty()) {
+				dvs.put(this.parameter, this.next.keySet());
+				for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+					dvs.putAll(e.getValue().collectDVs());
+				}
+			}
+
+			return dvs;
+		}
     };
 
     private final Word<PSymbolInstance> prefix;
@@ -167,10 +143,6 @@ public class MultiTheoryBranching implements Branching {
     	return this.node.collectDVs();
     }
     
-    public Map<List<Parameter>, Set<DataValue>> getDVsForBranches() {
-    	return this.node.collectDVsForBranches();
-    }
-
     public ParValuation getPval() {
         return pval;
     }
