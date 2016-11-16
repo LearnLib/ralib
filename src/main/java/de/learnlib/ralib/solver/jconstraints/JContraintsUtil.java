@@ -18,6 +18,7 @@ package de.learnlib.ralib.solver.jconstraints;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.ConstantGuardExpression;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -67,14 +68,14 @@ public class JContraintsUtil {
     }
 
     public static Expression<Boolean> toExpression(GuardExpression expr) {
-    
         return toExpression(expr, new HashMap<>());
     }   
     
-    public static Expression<Boolean> toExpression(GuardExpression expr,
+    private static Expression<Boolean> toExpression(GuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
-        
-        if (expr instanceof AtomicGuardExpression) {
+        if (expr instanceof ConstantGuardExpression) {
+        	return toExpression((ConstantGuardExpression) expr, map);
+        } if (expr instanceof AtomicGuardExpression) {
             return toExpression((AtomicGuardExpression) expr, map);
         } else if (expr instanceof SumCAtomicGuardExpression) {
             return toExpression((SumCAtomicGuardExpression) expr, map);
@@ -98,8 +99,15 @@ public class JContraintsUtil {
                 + expr.getClass().getName());
     }
     
+    private static Expression<Boolean> toExpression(ConstantGuardExpression expr, Map<SymbolicDataValue, Variable> map) {
+    	Variable cv = getOrCreate(expr.getVariable(), map, BuiltinTypes.DOUBLE);
+    	Constant cs = toConstant(expr.getConstant());
+    	
+    	return toAtomicExpression(cv, Relation.EQUALS, cs);
+    }
     
-    public static Expression<Boolean> toExpression(SumCAtomicGuardExpression expr,
+    
+    private static Expression<Boolean> toExpression(SumCAtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
         Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);
@@ -124,7 +132,7 @@ public class JContraintsUtil {
         return boolExpr;    
     }
 
-    public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
+    private static Expression<Boolean> toExpression(AtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
         Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);

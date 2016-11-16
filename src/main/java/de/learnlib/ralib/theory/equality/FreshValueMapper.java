@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.ValueMapper;

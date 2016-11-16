@@ -117,7 +117,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 //		Map<SDTGuard, SDT> merged = merger.merge(sortedGuards, tempGuards);
 //		System.out.println("merged1:\n" + merged);
 		
-		ContinuousInequalityMerger inequalityMerger = new ContinuousInequalityMerger();
+		InequalityGuardMerger inequalityMerger = new ContinuousInequalityMerger();
 		//Map<SDTGuard, SDT> 
 		Map<SDTGuard, SDT> merged2 =inequalityMerger.merge(sortedGuards, tempGuards);
 //		System.out.println("merged2:\n" + merged2);
@@ -520,16 +520,19 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			WordValuation ifValues, Constants constants) {
 		int newDv_i;
 		DataType type = currentParam.getType();
+
 		if (prefixValues.contains(dv)) {
 			newDv_i = prefixValues.indexOf(dv) + 1;
 			Register newDv_r = new Register(type, newDv_i);
 			return newDv_r;
 		}
+		
 
 		if (ifValues.containsValue(dv)) {
-			int smallest = Collections.max(ifValues.getAllKeys(dv));
-			return new SuffixValue(type, smallest);
+			int latest = Collections.min(ifValues.getAllKeys(dv));
+			return new SuffixValue(type, latest);
 		}
+		
 
 		if (constants.containsValue(dv)) {
 			for (SymbolicDataValue.Constant c : constants.keySet()) {
@@ -659,6 +662,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				} else {
 				 //we decorate it with interval information
 					returnValue = instantiate(guard, val, constants, alreadyUsedValues); 
+					if (returnValue != null)
 					returnValue = new IntervalDataValue<>(returnValue, lExprVal, rExprVal);
 				}
 			} else if (guard instanceof SDTIfGuard) {

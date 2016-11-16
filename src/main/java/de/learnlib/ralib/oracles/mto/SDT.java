@@ -160,6 +160,17 @@ public class SDT implements SymbolicDecisionTree {
             }
             return false;
         }
+        
+        
+        SDT thisSdt = this;
+        SDT relabeledDeqSDT = ((SDT) deqSDT).relabelUnderEq(ds); 
+         
+        boolean x = thisSdt.canUse(relabeledDeqSDT);
+//        System.out.println(this + " == under equality( " + ds + " ): \n " + to + " vs " + deqSDT + " result: " + x);
+        return x;
+    }
+    
+    public SDT relabelUnderEq(List<EqualityGuard> ds) {
         VarMapping eqRenaming = new VarMapping<>();
         Replacement replacements = new Replacement();
         for (EqualityGuard d : ds) {
@@ -169,27 +180,9 @@ public class SDT implements SymbolicDecisionTree {
         	else 
         		replacements.put(d.getParameter(), d.getExpression());
         }
-        
-        SDT to = this;
-//        if (!replacements.isEmpty()) {
-//        	to = (SDT)this.replace(replacements);
-//        }
-        
-//        System.out.println(eqRenaming);
-        
-        boolean x = to.canUse((SDT) deqSDT.relabel(eqRenaming));
-       // System.out.println(this + " == under equality( " + ds + " ): \n " + to + " vs " + deqSDT + " result: " + x);
-        return x;
-    }
-    
-    public SDT relabelUnderEq(List<EqualityGuard> ds) {
-        VarMapping eqRenaming = new VarMapping<>();
-        for (EqualityGuard d : ds) {
-        	// we only consider equalities which map to SDVs (and not to other expressions)
-        	if (d.isEqualityWithSDV())
-        		eqRenaming.put(d.getParameter(), d.getRegister());
-        }
-        return (SDT) this.relabel(eqRenaming);
+        return (SDT) this
+        		//.replace(replacements)
+        		.relabel(eqRenaming);
     }
     
     
