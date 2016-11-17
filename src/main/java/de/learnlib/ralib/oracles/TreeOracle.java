@@ -17,8 +17,8 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -41,7 +41,7 @@ public interface TreeOracle {
      * @return 
      */
     public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix);    
+            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix);    
      
     /**
      * Computes a Branching from a set of SymbolicDecisionTrees.

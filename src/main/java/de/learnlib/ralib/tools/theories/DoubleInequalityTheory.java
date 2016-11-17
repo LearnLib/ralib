@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
@@ -260,5 +262,28 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 	public DataType<Double> getType() {
 		return type;
 	}
+	
+    @Override
+    public List<EnumSet<DataRelation>> getRelations(
+            List<DataValue<Double>> left, DataValue<Double> right) {
+        
+        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+        left.stream().forEach((dv) -> {
+            final int c = dv.getId().compareTo(right.getId());
+            switch (c) {
+                case 0:
+                    ret.add(EnumSet.of(DataRelation.EQ));
+                    break;
+                case 1:
+                    ret.add(EnumSet.of(DataRelation.GT));
+                    break;
+                default: 
+                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+                    break;
+            }
+        });
+        
+        return ret;
+    }
     
 }

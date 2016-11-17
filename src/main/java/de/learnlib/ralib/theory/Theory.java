@@ -23,8 +23,8 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.sul.ValueMapper;
@@ -32,6 +32,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -78,7 +79,7 @@ public interface Theory<T> {
      */    
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,             
-            SymbolicSuffix suffix,
+            GeneralizedSymbolicSuffix suffix,
             WordValuation values, 
             PIV piv,
             Constants constants,
@@ -125,5 +126,19 @@ public interface Theory<T> {
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver);
+    
+    /**
+     * return set of relations that hold between left and right
+     * 
+     * @param left
+     * @param right
+     * @return 
+     */
+    public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right);
+    
+    /**
+     * return set of all recognized relations
+     */
+    public EnumSet<DataRelation> recognizedRelations();
     
 }

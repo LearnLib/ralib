@@ -218,7 +218,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 
 			this.hypVerifier = new IOHypVerifier(teach, consts);
 
-			this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.hypVerifier, actions);
+			this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.teachers, this.hypVerifier, actions);
 
 			if (findCounterexamples) {
 

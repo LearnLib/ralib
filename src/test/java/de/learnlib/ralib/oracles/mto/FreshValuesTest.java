@@ -31,7 +31,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -135,7 +135,8 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(onok));
         
         
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix1, suffix);
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix1, suffix, new Constants(), teachers);
         
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);

@@ -17,10 +17,10 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
 import java.util.Arrays;
 
@@ -32,8 +32,14 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -66,11 +72,20 @@ public class RowTest extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
+
+        Map<DataType, Theory> teachers = new HashMap<>();
+        teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         
-        final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1);
-        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
+        final GeneralizedSymbolicSuffix symSuffix1 = 
+                new GeneralizedSymbolicSuffix(prefix1, suffix1, 
+                        new Constants(), teachers);
+        final GeneralizedSymbolicSuffix symSuffix2 = 
+                new GeneralizedSymbolicSuffix(prefix1, suffix2, 
+                        new Constants(), teachers);
         
-        SymbolicSuffix[] suffixes = new SymbolicSuffix[] {symSuffix1, symSuffix2};
+        GeneralizedSymbolicSuffix[] suffixes = 
+                new GeneralizedSymbolicSuffix[] {symSuffix1, symSuffix2};
         logger.log(Level.FINE, "Suffixes: {0}", Arrays.toString(suffixes));
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());

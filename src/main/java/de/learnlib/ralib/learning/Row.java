@@ -45,7 +45,7 @@ class Row {
 
     private final Word<PSymbolInstance> prefix;
 
-    private final Map<SymbolicSuffix, Cell> cells;
+    private final Map<GeneralizedSymbolicSuffix, Cell> cells;
 
     private final PIV memorable = new PIV();
 
@@ -69,7 +69,7 @@ class Row {
         }
     }
 
-    void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
+    void addSuffix(GeneralizedSymbolicSuffix suffix, TreeOracle oracle) {
         if (ioMode && suffix.getActions().length() > 0) {
             // error row
             if (getPrefix().length() > 0 && !isAccepting()) {
@@ -114,8 +114,8 @@ class Row {
         this.cells.put(c.getSuffix(), c.relabel(relabelling));
     }
 
-    SymbolicSuffix getSuffixForMemorable(Parameter p) {
-        for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
+    GeneralizedSymbolicSuffix getSuffixForMemorable(Parameter p) {
+        for (Entry<GeneralizedSymbolicSuffix, Cell> c : cells.entrySet()) {
             if (c.getValue().getParsInVars().containsKey(p)) {
                 return c.getKey();
             }
@@ -126,7 +126,7 @@ class Row {
 
     SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
         List<SymbolicDecisionTree> sdts = new ArrayList<>();
-        for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
+        for (Entry<GeneralizedSymbolicSuffix, Cell> c : cells.entrySet()) {
             Word<ParameterizedSymbol> acts = c.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
 //                System.out.println("Using " + c.getKey() + " for branching of " + ps + " after " + prefix);
@@ -160,7 +160,7 @@ class Row {
             return false;
         }
 
-        for (SymbolicSuffix s : this.cells.keySet()) {
+        for (GeneralizedSymbolicSuffix s : this.cells.keySet()) {
             Cell c1 = this.cells.get(s);
             Cell c2 = other.cells.get(s);
 
@@ -191,7 +191,7 @@ class Row {
             return false;
         }
 
-        for (SymbolicSuffix s : this.cells.keySet()) {
+        for (GeneralizedSymbolicSuffix s : this.cells.keySet()) {
             Cell c1 = this.cells.get(s);
             Cell c2 = other.cells.get(s);
 
@@ -221,10 +221,10 @@ class Row {
      * @return
      */
     static Row computeRow(TreeOracle oracle,
-            Word<PSymbolInstance> prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
+            Word<PSymbolInstance> prefix, List<GeneralizedSymbolicSuffix> suffixes, boolean ioMode) {
 
         Row r = new Row(prefix, ioMode);
-        for (SymbolicSuffix s : suffixes) {
+        for (GeneralizedSymbolicSuffix s : suffixes) {
             if (ioMode && s.getActions().length() > 0) {
                 // error row
                 if (r.getPrefix().length() > 0 && !r.isAccepting()) {
@@ -256,7 +256,7 @@ class Row {
 
     void toString(StringBuilder sb) {
         sb.append("****** ROW: ").append(prefix).append("\n");
-        for (Entry<SymbolicSuffix, Cell> c : this.cells.entrySet()) {
+        for (Entry<GeneralizedSymbolicSuffix, Cell> c : this.cells.entrySet()) {
             c.getValue().toString(sb);
         }
     }

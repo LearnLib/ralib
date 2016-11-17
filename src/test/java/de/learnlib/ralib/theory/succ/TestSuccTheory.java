@@ -34,11 +34,9 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -79,7 +77,7 @@ public class TestSuccTheory extends RaLibTestSuite {
         
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)        
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        final GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(prefix, longsuffix, new Constants(), theories);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         

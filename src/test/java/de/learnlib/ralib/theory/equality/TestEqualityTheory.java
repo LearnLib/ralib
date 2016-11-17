@@ -23,7 +23,11 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -37,16 +41,18 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -85,7 +91,9 @@ public class TestEqualityTheory extends RaLibTestSuite {
         
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)        
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        final GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, longsuffix,
+                        new Constants(), theories);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         
@@ -130,4 +138,40 @@ public class TestEqualityTheory extends RaLibTestSuite {
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
    
+    @Test
+    public void testLoginExample2() {
+        final Word<PSymbolInstance> word = Word.fromSymbols(
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 2)),
+                new PSymbolInstance(I_LOGOUT),
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_UID, 1),
+                    new DataValue(T_PWD, 3)));
+
+        DataValue<?>[] uids = DataWords.valsOf(word, T_UID);
+        DataValue<?>[] pwds = DataWords.valsOf(word, T_PWD);
+        
+        assert uids.length == 2;
+        assert pwds.length == 2;
+        
+        Theory tUid = new IntegerEqualityTheory(T_UID);
+        Theory tPwd = new IntegerEqualityTheory(T_PWD);
+        
+        List<DataValue<?>> leftUid = new ArrayList<>();
+        leftUid.add(uids[0]);
+        
+        List<DataValue<?>> leftPwd = new ArrayList<>();
+        leftPwd.add(pwds[0]);
+        
+        List<EnumSet<DataRelation>> retUid = tUid.getRelations(leftUid, uids[1]);
+        List<EnumSet<DataRelation>> retPwd = tPwd.getRelations(leftPwd, pwds[1]);
+               
+        System.out.println("UID: " + Arrays.toString(retUid.toArray()));
+        System.out.println("PWD: " + Arrays.toString(retPwd.toArray()));
+        
+        assert retUid.get(0).equals(EnumSet.of(DataRelation.EQ));
+        assert retPwd.get(0).equals(EnumSet.of(DataRelation.DEFAULT));
+    }
+    
 }

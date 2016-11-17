@@ -27,8 +27,8 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -41,7 +41,6 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -110,14 +109,16 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         //**** [s1]((O481[s1]))
         Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
                 new PSymbolInstance(o481, d0));
-        SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
+        GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(
+                prefix, suffix1, new Constants(), teachers);
         
         //[s1, s2, s3]((O481[s1] IPRACK[s2] O200[s3]))
         Word<PSymbolInstance> suffix2 =  Word.fromSymbols(
                 new PSymbolInstance(o481, d0),
                 new PSymbolInstance(ipr, d0),
                 new PSymbolInstance(o200, d0));
-        SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix, suffix2);
+        GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(
+                prefix, suffix2, new Constants(), teachers);
         
         logger.log(Level.FINE, "{0}", prefix);
         logger.log(Level.FINE, "{0}", symSuffix1);

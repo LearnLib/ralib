@@ -16,6 +16,14 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -28,7 +36,6 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -37,21 +44,14 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  *
@@ -105,7 +105,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         
                 IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
                 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, actions);
 
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);

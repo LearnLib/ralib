@@ -39,10 +39,10 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import gov.nasa.jpf.constraints.api.Valuation;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
@@ -107,14 +107,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         GuardExpression test = new Disjunction(left, right);
 
-//        System.out.println("A1:  " + expr1);
-//        System.out.println("A2:  " + expr2);
-//        System.out.println("G:   " + exprG);
-//        System.out.println("MAP: " + remap);
-//        System.out.println("A2': " + expr2r);
-//        System.out.println("TEST:" + test);
-//        
-//        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test);
         log.log(Level.FINEST,"Res:" + r);
         return r;

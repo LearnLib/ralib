@@ -34,7 +34,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -100,7 +100,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(log, new DataValue[] {u, p}),
                 new PSymbolInstance(ok, new DataValue[] {}));        
         
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
         
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Conc. Suffix: {0}", suffix);

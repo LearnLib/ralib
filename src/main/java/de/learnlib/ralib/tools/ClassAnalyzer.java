@@ -16,18 +16,21 @@
  */
 package de.learnlib.ralib.tools;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.util.RAToDot;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -53,14 +56,12 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
 import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -140,7 +141,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private IOOracle back;
 
     private Map<DataType, Theory> teachers;
-    
+
     private Class<?> target = null;
 
     private final Map<String, DataType> types = new LinkedHashMap<>();
@@ -242,6 +243,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             IOFilter ioOracle = new IOFilter(ioCacheOracle, inputSymbols);
             
             MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioCacheOracle, teachers, consts, solver);
+
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
@@ -262,7 +264,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             
             this.hypVerifier = new IOHypVerifier(teach, consts);
 
-            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.hypVerifier, actions);
+            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, this.hypVerifier, actions);
 
             if (findCounterexamples) {
 
@@ -368,9 +370,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
             IOOracle iosul = new BasicSULOracle(hypSul, SpecialSymbols.ERROR);        
+
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
-            
+
             assert !hypTrace.equals(sysTrace);
             rastar.addCounterexample(ce);
         }
@@ -401,6 +404,16 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     FileOutputStream fso = new FileOutputStream("model.xml");
                     RegisterAutomatonExporter.write(hyp, new Constants(), fso);
                 } catch (FileNotFoundException ex) {
+                    System.out.println("... export failed");
+                }
+                System.out.println("exporting model to model.dot");
+                RAToDot dotExport = new RAToDot(hyp, true);
+                String dot = dotExport.toString();
+
+                try (BufferedWriter wr = new BufferedWriter(
+                        new FileWriter(new File("model.dot")))) {
+                    wr.write(dot, 0, dot.length());
+                } catch (IOException ex) {
                     System.out.println("... export failed");
                 }
             }

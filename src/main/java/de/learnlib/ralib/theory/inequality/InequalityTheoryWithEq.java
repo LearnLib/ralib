@@ -17,12 +17,17 @@
 package de.learnlib.ralib.theory.inequality;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.GT;
+import static de.learnlib.ralib.theory.DataRelation.LT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +54,11 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -131,6 +137,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
     public void setCheckForFreshOutputs(boolean doit) {
         this.freshValues = doit;
     }
+    
+    @Override
+    public EnumSet<DataRelation> recognizedRelations() {
+        return EnumSet.of(DEFAULT, EQ, LT, GT);
+    }
 
 
 	// given a set of registers and a set of guards, keep only the registers
@@ -179,9 +190,15 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return ret;
 	}
 
-	@Override
-	public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV piv,
-			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
+    @Override
+    public SDT treeQuery(
+            Word<PSymbolInstance> prefix,
+            GeneralizedSymbolicSuffix suffix,
+            WordValuation values,
+            PIV piv,
+            Constants constants,
+            SuffixValuation suffixValues,
+            SDTConstructor oracle, IOOracle traceOracle) {
 
 		int pId = values.size() + 1;
 		List<SymbolicDataValue> regPotential = new ArrayList<>();
@@ -757,10 +774,30 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 	
 	
-	
+	    public List<EnumSet<DataRelation>> getRelations(
+	            List<DataValue<T>> left, DataValue<T> right) {
+	        
+	        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+	        left.stream().forEach((dv) -> {
+	            final int c = dv.getId().compareTo(right.getId());
+	            switch (c) {
+	                case 0:
+	                    ret.add(EnumSet.of(DataRelation.EQ));
+	                    break;
+	                case 1:
+	                    ret.add(EnumSet.of(DataRelation.GT));
+	                    break;
+	                default: 
+	                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+	                    break;
+	            }
+	        });
+	        
+	        return ret;
+	    }
 
 
-    private ParameterizedSymbol computeSymbol(SymbolicSuffix suffix, int pId) {
+    private ParameterizedSymbol computeSymbol(GeneralizedSymbolicSuffix suffix, int pId) {
         int idx = 0;
         for (ParameterizedSymbol a : suffix.getActions()) {
             idx += a.getArity();
@@ -772,7 +809,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
                 ? suffix.getActions().firstSymbol() : null;
     }
 
-    private int computeLocalIndex(SymbolicSuffix suffix, int pId) {
+    private int computeLocalIndex(GeneralizedSymbolicSuffix suffix, int pId) {
         int idx = 0;
         for (ParameterizedSymbol a : suffix.getActions()) {
             idx += a.getArity();
@@ -784,7 +821,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
     }
 
     private Word<PSymbolInstance> buildQuery(Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, WordValuation values) {
+            GeneralizedSymbolicSuffix suffix, WordValuation values) {
 
         Word<PSymbolInstance> query = prefix;
         int base = 0;

@@ -34,8 +34,8 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.example.ineq.BranchSUL;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -83,15 +83,15 @@ public class TestBranchTree extends RaLibTestSuite {
         final Word<PSymbolInstance> trueLastTwoSuffix = suffixNok(BranchSUL.ITEST_EQU_DISEQ, BranchSUL.ITEST_LAST_TWO);
         
 
-        this.test(mto, sul,  prefix, firstTwoSuffix, null);
-        this.test(mto, sul,  prefix, lastTwoSuffix, null);
-        this.test(mto, sul,  prefix, eqDeqSuffix, null);
-        this.test(mto, sul,  prefix, eqDeqLastTwoSuffix, null);
-        this.test(mto, sul,  prefix, trueLastTwoSuffix, null);
-        this.test(mto, sul,  Word.epsilon(), eqDeqSuffix, null);
+        this.test(teachers, mto, sul,  prefix, firstTwoSuffix, null);
+        this.test(teachers, mto, sul,  prefix, lastTwoSuffix, null);
+        this.test(teachers, mto, sul,  prefix, eqDeqSuffix, null);
+        this.test(teachers, mto, sul,  prefix, eqDeqLastTwoSuffix, null);
+        this.test(teachers, mto, sul,  prefix, trueLastTwoSuffix, null);
+        this.test(teachers, mto, sul,  Word.epsilon(), eqDeqSuffix, null);
         
-        SymbolicDecisionTree sdt1 = this.test(mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK), null);
-        SymbolicDecisionTree sdt2 = this.test(mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK,
+        SymbolicDecisionTree sdt1 = this.test(teachers, mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK), null);
+        SymbolicDecisionTree sdt2 = this.test(teachers, mto, sul,  prefix, suffix(BranchSUL.ITEST_LAST_TWO, BranchSUL.OK,
         		BranchSUL.ITEST_IS_MAX, BranchSUL.NOK), null);
         VarMapping relabel = new VarMapping();
         relabel.put(new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 1), new SymbolicDataValue.Register(BranchSUL.DOUBLE_TYPE, 2));
@@ -137,10 +137,10 @@ public class TestBranchTree extends RaLibTestSuite {
     	return retSymbol;
     } 
     
-    private SymbolicDecisionTree test( MultiTheoryTreeOracle mto, BranchSUL sul, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, String expectedTree) {
+    private SymbolicDecisionTree test( Map<DataType, Theory> teachers, MultiTheoryTreeOracle mto, BranchSUL sul, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, String expectedTree) {
          // create a symbolic suffix from the concrete suffix
          // symbolic data values: s1, s2 (userType, passType)
-         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
+    		final GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(prefix, suffix, new Constants(), teachers);
          logger.log(Level.FINE, "Prefix: {0}", prefix);
          logger.log(Level.FINE, "Suffix: {0}", symSuffix);
          long inpBefore = sul.getInputs();

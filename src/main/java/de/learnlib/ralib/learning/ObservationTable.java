@@ -18,7 +18,9 @@ package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
@@ -35,12 +37,12 @@ import net.automatalib.words.Word;
  */
 class ObservationTable {
     
-    private final List<SymbolicSuffix> suffixes = new LinkedList<>();
+    private final List<GeneralizedSymbolicSuffix> suffixes = new LinkedList<>();
     
     private final Map<Word<PSymbolInstance>, Component> components
             = new LinkedHashMap<>();
     
-    private final Deque<SymbolicSuffix> newSuffixes = new LinkedList<>();
+    private final Deque<GeneralizedSymbolicSuffix> newSuffixes = new LinkedList<>();
     
     private final Deque<Word<PSymbolInstance>> newPrefixes = new LinkedList<>();
     
@@ -54,14 +56,18 @@ class ObservationTable {
     
     private final Constants consts;
     
+    private final Map<DataType, Theory> teachers;
+    
     private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
     
     public ObservationTable(TreeOracle oracle, boolean ioMode, 
-            Constants consts, ParameterizedSymbol ... inputs) {
+            Constants consts, Map<DataType, Theory> teachers,
+            ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
         this.ioMode = ioMode;
         this.consts = consts;
+        this.teachers = teachers;
     }
         
     void addComponent(Component c) {
@@ -69,7 +75,7 @@ class ObservationTable {
         newComponents.add(c);
     }
     
-    void addSuffix(SymbolicSuffix suffix) {
+    void addSuffix(GeneralizedSymbolicSuffix suffix) {
         log.logEvent("Queueing suffix for obs: " +  suffix);
         newSuffixes.add(suffix);
     }
@@ -136,7 +142,7 @@ class ObservationTable {
     }
 
     private void processNewSuffix() {
-        SymbolicSuffix suffix = newSuffixes.poll();
+        GeneralizedSymbolicSuffix suffix = newSuffixes.poll();
         log.logEvent("Adding suffix to obs: " + suffix);
 //        System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
@@ -154,7 +160,7 @@ class ObservationTable {
                 return;
             }
         }
-        Component c = new Component(r, this, ioMode, consts);
+        Component c = new Component(r, this, ioMode, consts, teachers);
         addComponent(c);
     }
 

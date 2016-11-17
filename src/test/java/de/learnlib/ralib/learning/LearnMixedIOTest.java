@@ -108,7 +108,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 TestUtil.createMTO(hyp, teachers, consts, jsolv);
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, actions);
         
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,

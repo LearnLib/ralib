@@ -18,11 +18,13 @@ package de.learnlib.ralib.tools.theories;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.theory.equality.FreshValueMapper;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -79,9 +81,20 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         return ret;
     }
 
-    
 	  public ValueMapper<Integer> getValueMapper() {
 	  	return new FreshValueMapper<Integer>(this);
 	  }
 
+	@Override
+    public List<EnumSet<DataRelation>> getRelations(
+            List<DataValue<Integer>> left, DataValue<Integer> right) {
+        
+        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+        left.stream().forEach((dv) -> {
+            ret.add(EnumSet.of( (dv.getId().equals(right.getId())) ?
+                    DataRelation.EQ : DataRelation.DEFAULT));
+        });
+        
+        return ret;
+    }
 }

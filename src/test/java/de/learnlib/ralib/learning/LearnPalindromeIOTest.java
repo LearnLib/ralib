@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
@@ -31,7 +32,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
-import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -40,8 +40,8 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -49,7 +49,6 @@ import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import org.testng.Assert;
 
 /**
  *
@@ -97,7 +96,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 TestUtil.createMTO(hyp, teachers, consts, solver);
 
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, hypVerifier, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);

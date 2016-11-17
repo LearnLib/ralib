@@ -34,8 +34,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.succ.ModerateTCPExample.Option;
 import de.learnlib.ralib.example.succ.ModerateTCPSULMultitype;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
@@ -116,10 +116,10 @@ public class TestModerateTCPMultitypeTree extends RaLibTestSuite {
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
-        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        final GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(prefix, longsuffix, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, longsuffix2);
+        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix, longsuffix, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix2);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
         

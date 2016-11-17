@@ -17,20 +17,23 @@
 package de.learnlib.ralib.words;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
-import net.automatalib.words.Word;
-
-import org.testng.annotations.Test;
-
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
+import net.automatalib.words.Word;
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 
 /**
@@ -68,10 +71,17 @@ public class TestWords extends RaLibTestSuite {
        logger.log(Level.FINE, "Prefix: {0}", prefix);
        logger.log(Level.FINE, "Suffix: {0}", suffix);
         
-        SymbolicSuffix sym = new SymbolicSuffix(prefix, suffix);
+       Map<DataType, Theory> teachers = new HashMap<>();
+       teachers.put(intType, new IntegerEqualityTheory(intType));
+       
+        GeneralizedSymbolicSuffix sym = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
         
        logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
-       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
+       // String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
+       String expString = "a[s1] a[s2] a[s3] a[s4]_"
+               + "P[[DEFAULT, EQ], [DEFAULT], [DEFAULT], [DEFAULT, EQ]]_"
+               + "S[[], [[DEFAULT]], [[DEFAULT], [EQ]], [[EQ], [DEFAULT], [DEFAULT]]]";
         Assert.assertEquals(sym.toString(), expString);
     }
     
@@ -96,9 +106,17 @@ public class TestWords extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
-        
-        final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix);
-        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, symSuffix1);
+
+       Map<DataType, Theory> teachers = new HashMap<>();
+       teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
+       teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+       
+        final GeneralizedSymbolicSuffix symSuffix1 = 
+                new GeneralizedSymbolicSuffix(prefix1, suffix,
+                        new Constants(), teachers);
+        final GeneralizedSymbolicSuffix symSuffix2 = 
+                new GeneralizedSymbolicSuffix(prefix2, symSuffix1,
+                        new Constants(), teachers);
         
         logger.log(Level.FINE, "Prefix 1: {0}", prefix1);
         logger.log(Level.FINE, "Prefix 2: {0}", prefix2);
@@ -106,8 +124,8 @@ public class TestWords extends RaLibTestSuite {
         logger.log(Level.FINE, "Sym. Suffix 1: {0}", symSuffix1);
         logger.log(Level.FINE, "Sym. Suffix 2: {0}", symSuffix2);
         
-        String expected1 = "[s1, s2]((login[s1, s2]))";
-        String expected2 = "[s1, s2]((logout[] login[s1, s2]))";
+        String expected1 = "login[s1, s2]_P[[DEFAULT, EQ], [DEFAULT, EQ]]_S[[], []]";
+        String expected2 = "logout[] login[s1, s2]_P[[DEFAULT, EQ], [DEFAULT, EQ]]_S[[], []]";
         
         Assert.assertEquals(symSuffix1.toString(), expected1);
         Assert.assertEquals(symSuffix2.toString(), expected2);

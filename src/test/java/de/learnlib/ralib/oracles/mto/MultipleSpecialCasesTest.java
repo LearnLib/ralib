@@ -23,7 +23,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -99,7 +99,8 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
                 new PSymbolInstance(irf, d0),
                 new PSymbolInstance(ook));
         
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, consts, teachers);
         
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);

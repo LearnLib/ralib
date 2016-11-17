@@ -28,9 +28,10 @@ public class CEAnalysisResult {
     
     private final Word<PSymbolInstance> prefix;
     
-    private final SymbolicSuffix suffix;
+    private final GeneralizedSymbolicSuffix suffix;
 
-    public CEAnalysisResult(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public CEAnalysisResult(Word<PSymbolInstance> prefix, 
+            GeneralizedSymbolicSuffix suffix) {
         this.prefix = prefix;
         this.suffix = suffix;
     }
@@ -53,7 +54,7 @@ public class CEAnalysisResult {
     /**
      * @return the suffix
      */
-    public SymbolicSuffix getSuffix() {
+    public GeneralizedSymbolicSuffix getSuffix() {
         return suffix;
     }
         

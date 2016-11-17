@@ -19,6 +19,7 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -26,6 +27,7 @@ import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -60,13 +62,17 @@ class Component {
     
     private final Constants consts;
     
+    private final Map<DataType, Theory> teachers;
+    
     private static final LearnLogger log = LearnLogger.getLogger(Component.class);
     
-    public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts) {
+    public Component(Row primeRow, ObservationTable obs, boolean ioMode, 
+            Constants consts, Map<DataType, Theory> teachers) {
         this.primeRow = primeRow;
         this.obs = obs;
         this.ioMode = ioMode;
         this.consts = consts;
+        this.teachers = teachers;
     }
 
     /**
@@ -118,7 +124,7 @@ class Component {
         }
     }
 
-    void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
+    void addSuffix(GeneralizedSymbolicSuffix suffix, TreeOracle oracle) {
 
         if (ioMode && suffix.getActions().length() > 0 && 
                 getAccessSequence().length() > 0 && !isAccepting()) {
@@ -150,7 +156,7 @@ class Component {
             }
 
             if (!added) {
-                Component c = new Component(r, obs, ioMode, consts);
+                Component c = new Component(r, obs, ioMode, consts, teachers);
                 newComponents.add(c);
             }
         }
@@ -218,9 +224,9 @@ class Component {
         for (Parameter p : memRow.keySet()) {
             // p is used by next but not stored by this and is from this word
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                SymbolicSuffix suffix = r.getSuffixForMemorable(p);                
-                SymbolicSuffix newSuffix = new SymbolicSuffix(
-                        r.getPrefix(), suffix, consts);
+                GeneralizedSymbolicSuffix suffix = r.getSuffixForMemorable(p);                
+                GeneralizedSymbolicSuffix newSuffix = new GeneralizedSymbolicSuffix(
+                        r.getPrefix(), suffix, consts, teachers);
                 
 //               System.out.println("Found inconsistency. msissing " + p +
 //                        " in mem. of " + prefix);                

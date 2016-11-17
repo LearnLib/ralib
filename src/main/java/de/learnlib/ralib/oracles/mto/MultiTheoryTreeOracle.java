@@ -52,8 +52,8 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -111,7 +111,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     @Override
     public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix) {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
@@ -142,7 +142,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     @Override
     public SDT treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
+            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,
             WordValuation values, PIV pir,
             Constants constants,
             SuffixValuation suffixValues) {
