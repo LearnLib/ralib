@@ -21,16 +21,24 @@ import java.util.Map;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.ConstantGuardExpression;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.TempConstant;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.TempConstantGenerator;
 
 public class TranslationContext {
 
 	private final Map<SymbolicDataValue,Integer> dvMap = new HashMap<>();
+	private final Map<DataValue<?>, Integer> tempConstants = new HashMap<>(); 
+	private final SymbolicDataValueGenerator.TempConstantGenerator c = new TempConstantGenerator();
+	
 	
 	public int getDataValueIndex(SymbolicDataValue dataValue) {
 		Integer i = dvMap.get(dataValue);
@@ -68,9 +76,27 @@ public class TranslationContext {
 		if (e instanceof AtomicGuardExpression) {
 			return translate((AtomicGuardExpression<?,?>) e);
 		}
+		if (e instanceof ConstantGuardExpression) {
+			return translate((ConstantGuardExpression) e);
+		}
 		throw new IllegalArgumentException();
 	}
 	
+	
+	private Constraint translate(ConstantGuardExpression e) {
+		int lhs = translateDataValue(e.getVariable());
+		int rhs;
+		if (tempConstants.containsKey(e.getConstant())) 
+			rhs = tempConstants.get(e.getConstant());
+		else {
+			TempConstant freshTemp = this.c.next(e.getVariable().getType());
+			rhs = translateDataValue(freshTemp);
+			tempConstants.put(e.getConstant(), rhs);
+			
+		}
+		return Constraint.makeEquality(lhs, rhs);
+	}
+
 	private Constraint translate(TrueGuardExpression e) {
 		return Constraint.TRUE;
 	}

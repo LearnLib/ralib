@@ -63,6 +63,13 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
             super(dataType, id);
         }
     };
+    
+    public static final class TempConstant extends SymbolicDataValue{
+
+    	public TempConstant(DataType dataType, int id) {
+            super(dataType, id);
+        }
+    };
 
     public static final class SuffixValue extends SymbolicDataValue {
 
@@ -90,6 +97,8 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
             s += "s";
         } else if (this.isConstant()) {
             s += "c";
+        } else if (this instanceof TempConstant) {
+        	s += "tc";
         }
         return s + this.id;
     }

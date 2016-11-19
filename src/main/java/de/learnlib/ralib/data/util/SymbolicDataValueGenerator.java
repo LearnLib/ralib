@@ -59,5 +59,13 @@ public abstract class SymbolicDataValueGenerator {
         public SymbolicDataValue.Constant next(DataType type) {
             return new SymbolicDataValue.Constant(type, id++);
         }        
+    };
+    
+    public static final class TempConstantGenerator extends SymbolicDataValueGenerator {
+        @Override
+        public SymbolicDataValue.TempConstant next(DataType type) {
+            return new SymbolicDataValue.TempConstant(type, id++);
+        }        
     };     
+
 }
