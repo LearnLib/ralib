@@ -1,4 +1,4 @@
-package de.learnlib.ralib.tools.theories;
+package de.learnlib.ralib.theory.inequality;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
@@ -18,7 +18,6 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -30,7 +29,7 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-public abstract class ConcreteInequalityInstantiator<T extends Comparable<T>> {
+public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
 
 	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
 	{
@@ -50,13 +49,13 @@ public abstract class ConcreteInequalityInstantiator<T extends Comparable<T>> {
 	private final Type<T> jcType;
 	private final ConstraintSolver solver;
 
-	public ConcreteInequalityInstantiator(DataType<T> type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
+	public ConcreteInequalityGuardInstantiator(DataType<T> type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
 		this.type = type;
 		this.jcType = jcType;
 		this.solver = solver;
 	}
 
-	public ConcreteInequalityInstantiator(DataType<T> type, ConstraintSolver solver) {
+	public ConcreteInequalityGuardInstantiator(DataType<T> type, ConstraintSolver solver) {
 		this(type, getJCType(type.getBase()), solver);
 	}
 
@@ -68,6 +67,10 @@ public abstract class ConcreteInequalityInstantiator<T extends Comparable<T>> {
 		return jcType;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.learnlib.ralib.tools.theories.InequalityGuardInstantiator#instantiateGuard(de.learnlib.ralib.theory.SDTGuard, gov.nasa.jpf.constraints.api.Valuation)
+	 */
+	@Override
 	public List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
 		List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
 		if (g instanceof SDTIfGuard) {
@@ -105,7 +108,11 @@ public abstract class ConcreteInequalityInstantiator<T extends Comparable<T>> {
 		return eList;
 	}
 
-	public DataValue<T> instantiate(SDTGuard g, Valuation val, Constants c,
+	/* (non-Javadoc)
+	 * @see de.learnlib.ralib.tools.theories.InequalityGuardInstantiator#instantiateGuard(de.learnlib.ralib.theory.SDTGuard, gov.nasa.jpf.constraints.api.Valuation, de.learnlib.ralib.data.Constants, java.util.Collection)
+	 */
+	@Override
+	public DataValue<T> instantiateGuard(SDTGuard g, Valuation val, Constants c,
 			Collection<DataValue<T>> alreadyUsedValues) {
 		// System.out.println("INSTANTIATING: " + g.toString());
 		SymbolicDataValue.SuffixValue sp = g.getParameter();

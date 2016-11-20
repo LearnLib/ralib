@@ -17,7 +17,6 @@
 package de.learnlib.ralib.tools.classanalyzer;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
 
 /**
@@ -27,7 +26,7 @@ import de.learnlib.ralib.theory.Theory;
  */
 public interface TypedTheory<T> extends Theory<T> {
  
-    public void setType(DataType type);
+    public void setType(DataType<T> type);
     
     
     public default void setUseSuffixOpt(boolean useit) {
