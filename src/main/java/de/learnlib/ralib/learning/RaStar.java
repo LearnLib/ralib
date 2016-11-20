@@ -117,6 +117,7 @@ public class RaStar {
 
             //System.out.println(obs.toString());
             
+            // if it's an IO system, then we make it output complete (for which is needed for CE analysis)
             AutomatonBuilder ab = this.ioMode? new IOAutomatonBuilder(obs.getComponents(), consts) : 
             	new AutomatonBuilder(obs.getComponents(), consts);            
             hyp = ab.toRegisterAutomaton();        

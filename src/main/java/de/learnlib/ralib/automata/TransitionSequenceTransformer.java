@@ -31,7 +31,9 @@ public interface TransitionSequenceTransformer<I extends Object> {
     
     /**
      * returns the word representing the last transition 
-     * passed when processing the input word.
+     * passed when processing the input word. Returns null if 
+     * there exists an input in the word for which no transition
+     * is enabled
      * 
      * @param word
      * @return 

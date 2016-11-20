@@ -65,6 +65,9 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     @Override
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Transition> tseq = getTransitions(word);
+        if (tseq == null) {
+        	return null;
+        }
         //System.out.println("TSEQ: " + tseq);
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);        

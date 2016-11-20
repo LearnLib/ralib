@@ -74,8 +74,8 @@ public class CounterexampleAnalysis {
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
         
-        int idx = binarySearch(ce);
-        //int idx = linearBackWardsSearch(ce);
+        //int idx = binarySearch(ce);
+        int idx = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
@@ -92,6 +92,10 @@ public class CounterexampleAnalysis {
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         
+        // this can happen in case the register automaton is an IO automaton, where the transition is an output
+        // which isn't present in the hyp
+        if (transition == null)
+        	return IndexResult.NO_CE;
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         GeneralizedSymbolicSuffix symSuffix = 
