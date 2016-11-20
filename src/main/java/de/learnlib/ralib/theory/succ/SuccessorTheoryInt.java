@@ -37,6 +37,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -88,7 +89,6 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
                 constants.values(type),
                 DataWords.valSet(prefix, type),
                 suffixValues.values(type));
-
 
         throw new UnsupportedOperationException("Not supported yet."); 
     }
@@ -143,6 +143,7 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
         throw new UnsupportedOperationException("Not supported yet."); 
     }
 
+    
 	@Override
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Integer>> left, DataValue<Integer> right) {
 		// TODO Auto-generated method stub
@@ -155,6 +156,38 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
 		return null;
 	}
 
+    static List<SuccessorMinterms[]> generateMinterms(int size) {        
+        List<SuccessorMinterms[]> list = new ArrayList<>();
+        int[] intMT = new int[size];
+        Arrays.fill(intMT, 0);
+        do {
+            list.add(asMinterms(intMT));
+            
+        }  while (next(intMT));
+        return list;
+    }
 
+    private static final int LIMIT = 4;
+
+    private static boolean next(int[] cur) {        
+        for (int i=0; i<cur.length; i++) {
+            if (cur[i] < LIMIT) {
+                cur[i]++;
+                return true;
+            } else {
+                cur[i] = 0;
+            }            
+        }
+        return false;
+    }
+
+    private static SuccessorMinterms[] asMinterms(int[] intMT) {
+        SuccessorMinterms[] mt = new SuccessorMinterms[intMT.length];
+        for (int i=0; i<mt.length; i++) {
+            mt[i] = SuccessorMinterms.forInt(intMT[i]);
+        }
+        return mt;
+    }
+    
     
 }

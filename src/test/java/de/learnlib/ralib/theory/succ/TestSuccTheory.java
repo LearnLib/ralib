@@ -19,12 +19,16 @@ package de.learnlib.ralib.theory.succ;
 import static de.learnlib.ralib.example.succ.SimpleSuccAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.succ.SimpleSuccAutomatonExample.I_A;
 import static de.learnlib.ralib.example.succ.SimpleSuccAutomatonExample.T_SEQ;
+import static de.learnlib.ralib.theory.succ.SuccessorMinterms.IN_WINDOW;
+import static de.learnlib.ralib.theory.succ.SuccessorMinterms.SUCC;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -42,6 +46,8 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import net.automatalib.words.Word;
 
 /**
@@ -130,4 +136,37 @@ public class TestSuccTheory extends RaLibTestSuite {
         Assert.fail("not implemented");    
     }
 
+    @Test
+    public void testEnumerateCases() {
+        
+        DataType type = new DataType("int", Integer.class);        
+        SuccessorDataValue[] dvs = new SuccessorDataValue[4];
+        dvs[0] = new SuccessorDataValue(type, 1, new SuccessorMinterms[] {});
+        dvs[1] = new SuccessorDataValue(type, 2, new SuccessorMinterms[] {
+            SUCC
+        });
+        dvs[2] = new SuccessorDataValue(type, 3, new SuccessorMinterms[] {
+            IN_WINDOW, IN_WINDOW
+        });
+        
+        ConstraintSolverFactory fact = new ConstraintSolverFactory();
+        ConstraintSolver solver = fact.createSolver("z3");        
+        WordUtil util = new WordUtil(solver);           
+        
+        int i=0;
+        int j=0;
+        for (SuccessorMinterms[] mt : SuccessorTheoryInt.generateMinterms(3)) {
+            dvs[3] = new SuccessorDataValue(type, 4, mt);
+            int[] result = util.instantiate(dvs);
+            
+            i++;
+            if (result != null) {
+                j++;
+            }
+
+            System.out.println(Arrays.toString(mt) + " : " + Arrays.toString(result));
+                        
+        }
+        System.out.println(j + " : " + i);
+    }
 }

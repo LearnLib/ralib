@@ -25,5 +25,17 @@ public enum SuccessorMinterms {
     SUCC,  // succ to some value    (=> !equal /\ in_window /\ in_halfspace /\ !other)
     IN_WINDOW, // in front of val   (=> !equal /\ !succ     /\ in_halfspace /\ !other)
     IN_HALFSPACE, //                (=> !equal /\ !succ     /\ !in_window   /\ !other)
-    OTHER //                        (=> !equal /\ !succ     /\ !in_window   /\ !in_halfspace)
+    OTHER; //                        (=> !equal /\ !succ     /\ !in_window   /\ !in_halfspace)
+    
+    
+    public static SuccessorMinterms forInt(int i) {
+        switch (i) {
+            case 0: return OTHER;
+            case 1: return EQUAL;
+            case 2: return SUCC;
+            case 3: return IN_WINDOW;
+            case 4: return IN_HALFSPACE;
+        }
+        throw new IllegalStateException();
+    }
 }
