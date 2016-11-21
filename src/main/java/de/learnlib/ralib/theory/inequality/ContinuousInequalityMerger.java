@@ -25,11 +25,14 @@ public class ContinuousInequalityMerger implements InequalityGuardMerger{
 	 * Sorted guards in this case means that any two adjacent guards are connected. Connectivity depends on whether the
 	 * domain is discrete or continuous. (in discrete domains, two equality guards can also be connected)  
 	 */
-	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, Map<SDTGuard, SDT> sdtMap) {
-		LinkedHashMap<SDTGuard, SDT> mergedResult = new LinkedHashMap<>(); // contains the final merged result
+	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap) {
+		final LinkedHashMap<SDTGuard, SDT> mergedResult = new LinkedHashMap<>(); // contains the final merged result
 		LinkedHashMap<SDTGuard, SDT> mergedTemp= new LinkedHashMap<>(sdtMap); // contains initial and all intermediate merging entries.
-		if (sortedInequalityGuards.isEmpty()) 
+		if (sortedInequalityGuards.size() <= 2)  {
+			sortedInequalityGuards.forEach( g -> mergedResult.put(g, sdtMap.get(g))); 
 			return mergedResult;
+		}
+			
 		SDTGuard[] ineqGuards = sortedInequalityGuards.toArray(new SDTGuard [sortedInequalityGuards.size()]);
 		SDTGuard head = ineqGuards[0];
 		SDT sdtHead = sdtMap.get(head);
@@ -60,7 +63,7 @@ public class ContinuousInequalityMerger implements InequalityGuardMerger{
 				// the first and last inequality guards were merged to form the first, respectively third final guard.
 				SDT equivTest = checkSDTEquivalence(finalGuards[0], finalGuards[2], mergedResult); 
 				if (equivTest != null) {
-					mergedResult = new LinkedHashMap<>();
+					mergedResult.clear();
 					mergedResult.put(finalGuards[1], mergedTemp.get(finalGuards[1]));
 					mergedResult.put(((EqualityGuard) finalGuards[1]).toDeqGuard(), equivTest);
 					

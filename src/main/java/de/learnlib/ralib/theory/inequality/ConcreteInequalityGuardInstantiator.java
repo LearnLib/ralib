@@ -32,7 +32,7 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
 
 	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
-	{
+	static {
 		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
 		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
 		typeMap.put(Float.class, BuiltinTypes.FLOAT);
@@ -70,8 +70,7 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 	/* (non-Javadoc)
 	 * @see de.learnlib.ralib.tools.theories.InequalityGuardInstantiator#instantiateGuard(de.learnlib.ralib.theory.SDTGuard, gov.nasa.jpf.constraints.api.Valuation)
 	 */
-	@Override
-	public List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
+	private List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
 		List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
 		if (g instanceof SDTIfGuard) {
 			// pick up the register
@@ -146,7 +145,7 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 			}
 
 			if (newVal.containsValueFor(toVariable(sp))) {
-				DataValue<Double> spDouble = new DataValue(getType(), newVal.getValue(toVariable(sp)));
+				DataValue<T> spDouble = new DataValue<T>(getType(), (T) newVal.getValue(toVariable(sp)));
 				gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(
 						getJCType(), spDouble.getId());
 				Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
@@ -154,8 +153,8 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 			}
 
 			for (Variable var : newVal.getVariables()) {
-				DataValue<Double> spDouble = new DataValue(getType(), newVal.getValue(var));
-				gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(
+				DataValue<T> spDouble = new DataValue<T>(getType(), (T)newVal.getValue(var));
+				gov.nasa.jpf.constraints.expressions.Constant<T> spw = new gov.nasa.jpf.constraints.expressions.Constant(
 						getJCType(), spDouble.getId());
 				Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, var);
 				eList.add(spExpr);
@@ -176,7 +175,7 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 			// System.out.println("SAT!!");
 			// System.out.println(newVal.getValue(sp.toVariable()) + " " +
 			// newVal.getValue(sp.toVariable()).getClass());
-			DataValue<T> d = new DataValue<T>(getType(), (T)(newVal.getValue(toVariable(sp))));
+			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), getType()));
 			// System.out.println("return d: " + d.toString());
 			return d;// new DataValue<Double>(doubleType, d);
 		} else {

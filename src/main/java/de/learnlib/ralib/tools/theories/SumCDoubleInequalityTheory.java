@@ -49,8 +49,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	}
 	
 	private void setupDefaultConstants(DataType dataType) {
-		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
-		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Double>(dataType, c)).collect(Collectors.toList());
+		this.sumConstants = Arrays.asList(defaultSumConst).stream()
+				.map(c -> new DataValue<Double>(dataType, c))
+				.collect(Collectors.toList());
+		this.regularConstants = Arrays.asList(defaultRegularConst).stream()
+				.map(c -> new DataValue<Double>(dataType, c))
+				.collect(Collectors.toList());
 	}
 	
     public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {

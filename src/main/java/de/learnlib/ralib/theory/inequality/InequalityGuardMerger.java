@@ -11,4 +11,6 @@ public interface InequalityGuardMerger {
 	 * Merges an ordered list of inequality guards based on SDT Equivalence and returns a merged map.
 	 */
 	public  Map<SDTGuard, SDT>  merge(List<SDTGuard> sortedInequalityGuards, Map<SDTGuard, SDT> sdtMap);
+	
+	
 }

@@ -41,7 +41,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class GeneralizedSymbolicSuffix {
+public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
     
     private final Word<ParameterizedSymbol> actions;
     

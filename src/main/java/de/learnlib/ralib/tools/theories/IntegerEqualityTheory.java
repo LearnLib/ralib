@@ -54,8 +54,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
 
         return new DataValue<>(type, dv + 1);
     }
-
-    @Override
+    
     public void setType(DataType type) {
         this.type = type;
     }

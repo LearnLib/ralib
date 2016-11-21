@@ -1,5 +1,7 @@
 package de.learnlib.ralib.theory.inequality;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +23,37 @@ public class DiscreteInequalityMerger extends ContinuousInequalityMerger{
 	 */
 	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, Map<SDTGuard, SDT> sdtMap) {
 		LinkedHashMap<SDTGuard, SDT> mergedGuards = super.merge(sortedInequalityGuards, sdtMap);
+		List<SDTGuard> newIneqGuards = new ArrayList<SDTGuard>(mergedGuards.keySet());
 		int refSize = sdtMap.size();
 		while (refSize > mergedGuards.size()) {
 			refSize = mergedGuards.size();
-			mergedGuards= super.merge(sortedInequalityGuards, mergedGuards);
+			mergedGuards= super.merge(newIneqGuards, mergedGuards);
+			newIneqGuards = new ArrayList<SDTGuard>(mergedGuards.keySet());
 		}
 		
 		return mergedGuards;
+	}
+	
+	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap) {
+		if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
+			EqualityGuard equGuard = (EqualityGuard) guard;
+			EqualityGuard equGuard2 = (EqualityGuard) guard;
+			SDT equSdt = guardSdtMap.get(equGuard);
+			SDT equSdt2 = guardSdtMap.get(equGuard2);
+			if (equGuard.isEqualityWithSDV() && !equGuard2.isEqualityWithSDV()) {
+				if (equSdt.isEquivalentUnderEquality(equSdt2, Arrays.asList(equGuard))) {
+					return equSdt2;
+				}
+			}
+			if (equGuard2.isEqualityWithSDV() && !equGuard.isEqualityWithSDV()) {
+				if (equSdt2.isEquivalentUnderEquality(equSdt, Arrays.asList(equGuard2))) {
+					return equSdt;
+				}
+			}
+			return null;
+		} else {
+			return super.checkSDTEquivalence(guard, withGuard, guardSdtMap);
+		}
 	}
 	
 	protected SDTGuard merge(SDTGuard aGuard, SDTGuard withGuard) {

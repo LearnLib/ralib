@@ -6,7 +6,7 @@ import de.learnlib.ralib.data.DataValue;
 public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	// the minimum distance from the endpoint of a smaller/bigger interval value.
 	private static int OUTSIDE_STEP = 2000;
-	private static int INSIDE_STEP = 10;
+	private static int INSIDE_STEP = 1;
 	
 	/**
 	 * Constructs interval DVs from left and right ends, by selecting a value

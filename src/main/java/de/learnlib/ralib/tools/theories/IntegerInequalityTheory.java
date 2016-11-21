@@ -26,9 +26,9 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
     }
 
     public IntegerInequalityTheory(DataType<Integer> t) {
-       this.setType(t);
+       super.setType(t);
     }
-
+    
     @Override
     public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
         //assume we can just sort the list and get the values
