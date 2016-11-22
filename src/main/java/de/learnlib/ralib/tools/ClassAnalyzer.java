@@ -213,7 +213,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulLearn);
+            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulLearn);
             }
             if (this.timeoutMillis > 0L) {
             	
@@ -221,7 +221,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
             sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
-            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulTest);
+            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulTest);
             }
             if (this.timeoutMillis > 0L) {
                 this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);

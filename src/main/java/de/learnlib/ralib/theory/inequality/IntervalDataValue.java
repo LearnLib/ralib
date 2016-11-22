@@ -5,8 +5,8 @@ import de.learnlib.ralib.data.DataValue;
 
 public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	// the minimum distance from the endpoint of a smaller/bigger interval value.
-	private static int OUTSIDE_STEP = 2000;
-	private static int INSIDE_STEP = 1;
+	private static int OUTSIDE_STEP = 2000; // distance between fresh v
+	private static int INSIDE_STEP = 10;
 	
 	/**
 	 * Constructs interval DVs from left and right ends, by selecting a value
@@ -48,9 +48,9 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 			if ((((Integer) rightVal) - ((Integer) leftVal)) > INSIDE_STEP) {
 				intVal = ((Integer) leftVal) + INSIDE_STEP;
 			} else {
-				throw new RuntimeException("Cannot instantiate value in int interval \n "
-						+ "left: " + leftVal + " right: " + rightVal + " ]");
+				intVal = (((Integer) rightVal) + ((Integer) leftVal))/2 ;
 			}
+			
 			betweenVal =  clz.cast( intVal);
 		} else {
 			if(clz.isAssignableFrom(Double.class)) {

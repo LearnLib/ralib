@@ -16,6 +16,12 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -23,21 +29,13 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
 import net.automatalib.words.Word;
 
 

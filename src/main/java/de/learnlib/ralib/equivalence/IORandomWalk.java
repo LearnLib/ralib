@@ -132,8 +132,9 @@ public class IORandomWalk implements IOEquivalenceOracle {
             PSymbolInstance next = nextInput(run);
             depth++;
             out = null;
+            run = run.append(next);
             out = target.step(next);
-            run = run.append(next).append(out);
+            run = run.append(out);
 
             if (this.hypVerifier.isCEForHyp(run, hyp)) {
                 log.log(Level.FINE, "Run with CE: {0}", run);     

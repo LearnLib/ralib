@@ -10,7 +10,9 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> implements TypedTheory<Integer>{
@@ -64,26 +66,31 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
         return new DataValue<Integer>(type, biggestDv.getId() + 1);
     }
 
+    
 
     @Override
     public Collection<DataValue<Integer>> getAllNextValues(
             List<DataValue<Integer>> vals) {
         Set<DataValue<Integer>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
-        if (vals.isEmpty()) {
-            nextValues.add(new DataValue<Integer>(type, 1));
+        List<DataValue<Integer>> distinctValList = new ArrayList<>(nextValues);
+        
+        if (distinctValList .isEmpty()) {
+            nextValues.add(new FreshValue<Integer>(getType(), 1));
         } else {
-            Collections.sort(vals, new Cpr());
-            if (vals.size() > 1) {
-                for (int i = 0; i < (vals.size() - 1); i++) {
-                    Integer d1 = vals.get(i).getId();
-                    Integer d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DataValue<Integer>(type, (d1 + ((d2 - d1) / 2))));
+            Collections.sort(distinctValList , new Cpr());
+            if (distinctValList.size() > 1) {
+                for (int i = 0; i < (distinctValList.size() - 1); i++) {
+                    IntervalDataValue<Integer> intVal = IntervalDataValue.instantiateNew(distinctValList.get(i), distinctValList .get(i + 1));
+                    nextValues.add(intVal);
                 }
             }
-            nextValues.add(new DataValue<Integer>(type, (Collections.min(vals, new Cpr()).getId()-1)));
-            nextValues.add(new DataValue<Integer>(type, (Collections.max(vals, new Cpr()).getId()+1)));
+            DataValue<Integer> min = Collections.min(distinctValList, new Cpr());
+            nextValues.add(IntervalDataValue.instantiateNew(null, min));
+            DataValue<Integer> max = Collections.max(distinctValList, new Cpr());
+            nextValues.add(IntervalDataValue.instantiateNew(max, null));
         }
         return nextValues;
     }
+
 }

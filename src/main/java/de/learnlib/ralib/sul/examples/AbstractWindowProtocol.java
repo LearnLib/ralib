@@ -15,7 +15,7 @@ public abstract class AbstractWindowProtocol {
 	
 
     protected Double newFresh() {
-    	return gen = gen + 1000000;
+    	return gen = gen + 10000000;
     }
     
 

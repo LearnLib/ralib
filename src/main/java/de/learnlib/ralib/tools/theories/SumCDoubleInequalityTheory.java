@@ -114,7 +114,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     }
     
     public ValueMapper<Double> getValueMapper() {
-    	return new SumCDoubleInequalityValueMapper(this, this.sumConstants);
+    	return new SumCInequalityValueMapper<Double>(this, this.sumConstants);
     }
     
     

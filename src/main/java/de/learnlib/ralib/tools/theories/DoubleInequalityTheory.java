@@ -86,7 +86,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     public ValueMapper<Double> getValueMapper() {
-    	return new SumCDoubleInequalityValueMapper(this);
+    	return new SumCInequalityValueMapper<Double>(this);
     }
 
     @Override

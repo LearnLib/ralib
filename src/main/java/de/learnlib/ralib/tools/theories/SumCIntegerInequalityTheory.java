@@ -27,12 +27,14 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory.Cpr;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -67,6 +69,18 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		this.regularConstants = new ArrayList<>(constants.values(this.type));
 	}
 	
+
+    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
+    	List<DataValue<Integer>> valsWithConsts = new ArrayList<>(vals);
+    	valsWithConsts.addAll(this.regularConstants);
+    	
+    	// we add regular constants
+    	DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
+    	DataValue<Integer> maxSumC = this.sumConstants.isEmpty()? new DataValue<Integer>(this.getType(), 1) : 
+    		Collections.max(this.sumConstants, new Cpr());
+    	return new DataValue<Integer>(fv.getType(), fv.getId() + maxSumC.getId() * 100);
+    }
+    
 	public SDT treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, WordValuation values, PIV piv,
 			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
 
@@ -346,6 +360,21 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		setupDefaultConstants(dataType);
 	}
 	
+	
+    public ValueMapper<Integer> getValueMapper() {
+    	return new SumCInequalityValueMapper<Integer>(this, this.sumConstants);
+    }
+	
+    public Collection<DataValue<Integer>> getAllNextValues(
+            List<DataValue<Integer>> vals) {
+    	// adds sumc constants to interesting values
+    	List<DataValue<Integer>> potential = getPotential(vals);
+    	
+    	// the superclass should complete this list with in-between values.
+    	return super.getAllNextValues(potential);
+    }
+
+    
 	private void setupDefaultConstants(DataType<Integer> dataType) {
 		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
 		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
@@ -393,17 +422,4 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
     	
     	return pot;
     }
-    
-    
-    public Collection<DataValue<Integer>> getAllNextValues(
-            List<DataValue<Integer>> vals) {
-    	// adds window size interesting values
-    	List<DataValue<Integer>> potential = getPotential(vals);
-    	potential = potential.stream().map(dv -> 
-    	dv instanceof SumCDataValue? ((SumCDataValue<Integer>) dv).toRegular(): dv)
-    			.collect(Collectors.toList());
-    	// the superclass should complete this list with in-between values.
-    	return super.getAllNextValues(potential);
-    }
-
 }
