@@ -17,6 +17,7 @@
 package de.learnlib.ralib.tools;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -25,14 +26,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+
+import com.google.gson.Gson;
 
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SumConstants;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SumConstantGenerator;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.solver.ConstraintSolver;
@@ -42,6 +52,8 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import net.automatalib.commons.util.Pair;
 
 /**
@@ -190,6 +202,14 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             "Load cache from file if file exists", null, true);
     
     
+    protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
+    = new ConfigurationOption.StringOption("constants",
+            "Regular constants of format [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CONSTANTS_SUMC
+    = new ConfigurationOption.StringOption("constants.sumc",
+            "SumC constants of format [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
+    
     
     protected Random random = null;
 
@@ -264,30 +284,57 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     /**
      * Builds a mapping from types to the theories that handle them and sets on each teacher
      * the type handled, as well as other configuration options.
+     * @throws ConfigurationException 
      */
-    @SafeVarargs
-	protected final Map<DataType, Theory>  buildTypeTheoryMapAndConfigureTheories(Map<String, TypedTheory> teacherClasses, Map<String, DataType> types, Consumer<TypedTheory> ...otherTheorySettings) {
+	protected final Map<DataType, Theory>  buildTypeTheoryMapAndConfigureTheories(Map<String, TypedTheory> teacherClasses, Configuration configuration, Map<String, DataType> types, Constants constants) throws ConfigurationException {
     	Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    for (String tName : teacherClasses.keySet()) {
 	        DataType t = types.get(tName);
 	        TypedTheory theory = teacherClasses.get(t.getName());
 	        teachers.put(t, theory);
 	    }
-	    setTypeAndConfigurationOptions(teachers, otherTheorySettings);
-	    
+	    configureTheories(teachers, configuration, types, constants);
 	    return teachers;
     }
     
-    protected void setTypeAndConfigurationOptions(Map<DataType, Theory>  teachers, Consumer<TypedTheory> ...otherSettings) {
+	protected final void configureTheories(Map<DataType, Theory>  teachers, Configuration config, Map<String, DataType> types, Constants constants) throws ConfigurationException {
     	teachers.forEach((type, teach) ->
     	{	TypedTheory typedTheory = (TypedTheory) teach;
     		typedTheory.setCheckForFreshOutputs(this.useFresh);
     		typedTheory.setUseSuffixOpt(this.useSuffixOpt);
     		typedTheory.setType(type);
-    		Arrays.stream(otherSettings).
-	        forEach(set -> set.accept(typedTheory));
     	});
+		applyCustomTeacherSettings(teachers,  config, types,constants);
     }
+    
+
+    
+    private void applyCustomTeacherSettings(Map<DataType, Theory> teachers, Configuration config, Map<String, DataType> types, Constants consts) throws ConfigurationException {
+    	if (teachers.values().stream().anyMatch(th -> th instanceof SumCIntegerInequalityTheory || th instanceof SumCDoubleInequalityTheory)) {
+    		SumConstants sumConstants = new SumConstants();
+    		String sumcString = OPTION_CONSTANTS_SUMC.parse(config);
+    		if (sumcString != null) {
+	        	DataValue<?> [] cstArray = parseDataValues(sumcString, types);
+	        	final SumConstantGenerator cgen = new SymbolicDataValueGenerator.SumConstantGenerator();
+		        Arrays.stream(cstArray).forEach(cst -> sumConstants.put(cgen.next(cst.getType()), cst));
+    		}
+	        
+	    	for (DataType dataType : teachers.keySet()) {
+	    		Theory teacher = teachers.get(dataType);
+	    		if (teacher instanceof SumCIntegerInequalityTheory) {
+	    			((SumCIntegerInequalityTheory) teacher).setConstants(consts);
+	    			//if (sumcString != null)
+	    			((SumCIntegerInequalityTheory) teacher).setSumcConstants(sumConstants);
+	    		}
+	    		
+	    		if (teacher instanceof SumCDoubleInequalityTheory) {
+	    			((SumCDoubleInequalityTheory) teacher).setConstants(consts);
+	    			//if (sumcString != null)
+	    			((SumCDoubleInequalityTheory) teacher).setSumcConstants(sumConstants);
+	    		}
+	    	}
+    	}
+	}
     
     private Pair<String, TypedTheory> parseTeacherConfig(String config)
             throws ConfigurationException {
@@ -306,7 +353,43 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         }
     }
     
-
+    protected DataValue [] parseDataValues(String gsonDataValueArray, Map<String, DataType> typeMap) {
+    	Gson gson = new Gson();
+    	GsonDataValue [] gDvs = gson.fromJson(gsonDataValueArray, GsonDataValue [].class);
+    	DataValue [] dataValues = new DataValue [gDvs.length];
+    	for (int i=0; i < gDvs.length; i ++) {
+    		DataType type = typeMap.get(gDvs[i].type);
+    		dataValues[i] = gDvs[i].toDataValue(type);
+    	}
+    	
+    	return dataValues;
+    }
+    
+    static class GsonDataValue {
+    	public String type;
+    	public String value;
+    	public <T> DataValue<T> toDataValue(DataType<T> type) {
+    		if (type.getName().compareTo(this.type) != 0) {
+    			throw new RuntimeException("Type name mismatch");
+    		}
+    		Class<T> cls = type.getBase();
+    		T realValue = null;
+    		if (Number.class.isAssignableFrom(cls)) {
+    			Object objVal;
+				try {
+					objVal = cls.getMethod("valueOf", String.class).invoke(cls, value);
+				
+					realValue = cls.cast(objVal);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+    		} else {
+    			throw new RuntimeException("Cannot deserialize constants of the class " + cls);
+    		}
+    		
+    		return new DataValue<T>(type, realValue);
+    	}
+    }
     
     protected IOCache setupCache(Configuration config, IOCacheManager cacheMgr) throws ConfigurationException {
     	IOCache ioCache = null;

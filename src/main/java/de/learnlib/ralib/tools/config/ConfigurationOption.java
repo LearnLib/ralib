@@ -189,5 +189,28 @@ public abstract class ConfigurationOption<T> {
             return c.getProperty(getKey());
         }
     }
+    
+//    public static class ArrayOption<T extends int[] > extends ConfigurationOption<T> {
+//
+//    	private Class<T> cls;
+//
+//
+//		public ArrayOption(String key, String description, T defaultValue, boolean optional, Class<T> cls) {
+//			super(key, description, defaultValue, optional);
+//			this.cls = cls;
+//		}
+//
+//    	
+//		public   T [] parse(Configuration c) throws ConfigurationException {
+//            if (!c.containsKey(getKey())) {
+//                if (!this.isOptional()) {
+//                    throw new ConfigurationException("Missing config value for " + this.getKey());
+//                }
+//                return null;
+//            }
+//            return c.getProperty(getKey());
+//		}
+//    	
+//    }
 
 }

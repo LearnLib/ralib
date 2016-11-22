@@ -14,6 +14,8 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -151,13 +153,23 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			}
 
 			Integer md = OPTION_MAX_DEPTH.parse(config);
+			
+		    final Constants consts = new Constants();
+
+            String cstString = OPTION_CONSTANTS.parse(config); 
+            if (cstString != null) {
+            	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator(); 
+            	DataValue<?> [] cstArray = super.parseDataValues(cstString, types);
+            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            }
+
 
 			// create teachers
-			teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, types);
+			teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
 
 			sulLearn = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
 			if (this.useFresh) {
-				this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulLearn);
+				this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulLearn);
 			}
 			if (this.timeoutMillis > 0L) {
 
@@ -165,7 +177,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			}
 			sulTest = new SocketAnalyzerSUL(systemIP, systemPort, md, inList, outList);
 			if (this.useFresh) {
-				this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, new Constants()), sulTest);
+				this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulTest);
 			}
 			if (this.timeoutMillis > 0L) {
 				this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
@@ -180,10 +192,8 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 				actList.add(SpecialSymbols.DEPTH);
 			ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[] {});
 
-			final Constants consts = new Constants();
-
 			if (useFresh)
-				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, new Constants()));
+				back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
 			else
 				back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 
@@ -191,7 +201,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			IOCache ioCache = super.setupCache(config, IOCacheManager.JAVA_SERIALIZE);
 
 			if (useFresh)
-				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, new Constants()));
+				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, consts));
 			else
 				ioCacheOracle = new IOCacheOracle(back, ioCache, null);
 

@@ -18,6 +18,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -56,6 +57,14 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 
 	public SumCIntegerInequalityTheory() {
 		super();
+	}
+	
+	public void setSumcConstants(SumConstants constants) {
+		this.sumConstants = new ArrayList<>(constants.values(this.type));
+	}
+	
+	public void setConstants(Constants constants) {
+		this.regularConstants = new ArrayList<>(constants.values(this.type));
 	}
 	
 	public SDT treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, WordValuation values, PIV piv,

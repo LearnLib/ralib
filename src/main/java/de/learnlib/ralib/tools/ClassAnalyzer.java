@@ -27,6 +27,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -34,6 +37,9 @@ import de.learnlib.ralib.automata.util.RAToDot;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -62,10 +68,14 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
 import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import de.learnlib.statistics.SimpleProfiler;
@@ -188,8 +198,18 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
             
+
+            final Constants consts = new Constants();
+
+            String cstString = OPTION_CONSTANTS.parse(config); 
+            if (cstString != null) {
+            	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator(); 
+            	DataValue<?> [] cstArray = super.parseDataValues(cstString, types);
+            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            }
+            
             // create teachers
-            teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, types); 
+            teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
             if (this.useFresh) {
@@ -224,9 +244,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             if (!md.equals(-1))
             	actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
-
-            final Constants consts = new Constants();
-
+            
             if (useFresh)
             	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, new Constants()));
             else 
@@ -301,8 +319,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
 
     }
-    
-    @Override
+
+	@Override
     public void run() throws RaLibToolException {
         System.out.println("=============================== START ===============================");
 

@@ -78,7 +78,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         MethodConfig in = methods.get(i.getBaseSymbol());
         Method act = in.getMethod();
 
-        DataValue[] dvs = i.getParameterValues();
+        DataValue<?>[] dvs = i.getParameterValues();
         Object[] params = Stream.of(dvs).map( dv -> dv.getId()).toArray();
 
         Object ret = null;
@@ -106,7 +106,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             return new PSymbolInstance((Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE);
         }
 
-        DataValue retVal = new DataValue(in.getRetType(), ret);
+        DataValue<?> retVal = new DataValue(in.getRetType(), ret);
 
         //updateSeen(retVal);        
         return new PSymbolInstance(in.getOutput(), retVal);

@@ -28,6 +28,8 @@ public interface TypedTheory<T> extends Theory<T> {
  
     public void setType(DataType<T> type);
     
+    public DataType<T> getType();
+    
     
     public default void setUseSuffixOpt(boolean useit) {
         System.err.println("Suffix Optimization currently not implemented for theory " + 

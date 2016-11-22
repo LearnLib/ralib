@@ -157,9 +157,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         consts = loader.getConstants();
         
+        Map<String, DataType> typeMap = loader.getDataTypes()
+        		.stream().collect(Collectors.toMap(type -> type.getName(), type -> type));
+        
         // create teachers
-        this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, loader.getDataTypes()
-        		.stream().collect(Collectors.toMap(type -> type.getName(), type -> type)));
+        this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, typeMap, consts);
 
         // oracles
         this.sulLearn = new SimulatorSUL(model, teachers, consts);

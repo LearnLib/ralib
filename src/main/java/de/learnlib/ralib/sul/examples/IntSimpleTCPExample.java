@@ -1,6 +1,6 @@
 package de.learnlib.ralib.sul.examples;
 
-public class SimpleIntTCPExample {
+public class IntSimpleTCPExample {
 
 	private static final Integer win = 100;
 	private Integer seqNum = null;

@@ -58,6 +58,11 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     public void setType(DataType type) {
         this.type = type;
     }
+    
+    public DataType<Integer> getType() {
+    	return this.type;
+    }
+    
 
     @Override
     public void setUseSuffixOpt(boolean useit) {

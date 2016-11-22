@@ -64,6 +64,12 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
         }
     };
     
+    public static final class SumConstant extends SymbolicDataValue {
+    	public SumConstant(DataType dataType, int id) {
+            super(dataType, id);
+        }
+    }
+    
     public static final class TempConstant extends SymbolicDataValue{
 
     	public TempConstant(DataType dataType, int id) {
@@ -98,7 +104,9 @@ public abstract class SymbolicDataValue extends DataValue<Integer> implements Sy
         } else if (this.isConstant()) {
             s += "c";
         } else if (this instanceof TempConstant) {
-        	s += "tc";
+        	s += "tempc";
+        }  if (this instanceof SumConstant) {
+        	s += "sumc";
         }
         return s + this.id;
     }

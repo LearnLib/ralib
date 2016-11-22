@@ -54,6 +54,10 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
     
     private boolean useNonFreeOptimization = true;
     
+    public DataType<Integer> getType(){
+    	return type;
+    }
+    
     @Override
     public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
         int max = 0;        

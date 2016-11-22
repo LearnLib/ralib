@@ -61,6 +61,13 @@ public abstract class SymbolicDataValueGenerator {
         }        
     };
     
+    public static final class SumConstantGenerator extends SymbolicDataValueGenerator {
+        @Override
+        public SymbolicDataValue.SumConstant next(DataType type) {
+            return new SymbolicDataValue.SumConstant(type, id++);
+        }        
+    };
+    
     public static final class TempConstantGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.TempConstant next(DataType type) {

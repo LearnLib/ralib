@@ -164,7 +164,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		this.instantiator = instantiatorSupplier.apply(dataType);
 	}
 
-	protected final DataType<T> getType() {
+	public DataType<T> getType() {
 		return this.type;
 	}
 	

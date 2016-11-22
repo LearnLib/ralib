@@ -7,8 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
@@ -125,4 +127,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     	// the superclass should complete this list with in-between values.
     	return super.getAllNextValues(potential);
     }
+
+	public void setSumcConstants(SumConstants constants) {
+		this.sumConstants = new ArrayList<>(constants.values(this.getType()));
+	}
+	
+	public void setConstants(Constants constants) {
+		this.regularConstants = new ArrayList<>(constants.values(this.getType()));
+	}
 }
