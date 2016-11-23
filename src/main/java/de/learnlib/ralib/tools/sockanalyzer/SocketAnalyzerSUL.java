@@ -44,6 +44,7 @@ public class SocketAnalyzerSUL extends DataWordSUL {
 	public void pre() {
 		// System.out.println("----------");
 		countResets(1);
+		this.sendReset();
 		depth = 0;
 	}
 

@@ -1,6 +1,5 @@
 package de.learnlib.ralib.tools;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -38,14 +37,11 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
 import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -59,10 +55,10 @@ import net.automatalib.words.Word;
 
 public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 	private static final ConfigurationOption.StringOption OPTION_TARGET_IP = new ConfigurationOption.StringOption(
-			"target.ip", "SUL IP address", "localhost", false);
+			"target.ip", "SUL IP address", "localhost", true);
 
 	protected static final ConfigurationOption.IntegerOption OPTION_TARGET_PORT = new ConfigurationOption.IntegerOption(
-			"target.port", "SUL port number", 8000, false);
+			"target.port", "SUL port number", 7892, true);
 
 	protected static final ConfigurationOption.IntegerOption OPTION_DEPTH = new ConfigurationOption.IntegerOption(
 			"max.depth", "Maximum depth to explore", -1, true);

@@ -53,8 +53,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 	}
 
 	/**
-	 * Decanonizes from SumC, Equal, Fresh Data and also Interval Values, to concrete values. 
-	 * Also decanonizes from concretele past values and sums, s.t. it is not needed that all dvs are symbolic.
+	 * Decanonizes from SumC, Equal, Fresh Data and also Interval Values, to concrete values. .
 	 */
 	public DataValue<T> decanonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
 		if (thisToOtherMap.containsKey(value)) 
