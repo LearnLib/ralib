@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.example.succ.ModerateTCPExample.Option;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -111,8 +111,7 @@ public class ModerateTCPSULMultitype extends DataWordSUL {
         countInputs(1);
         if (i.getBaseSymbol().equals(ICONNECT)) {
             Object x = tcpSut.IConnect(
-            		(Double)i.getParameterValues()[0].getId(), 
-            		(Double)i.getParameterValues()[1].getId());
+            		(Double)i.getParameterValues()[0].getId());
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(ISYN)) {
             Object x = tcpSut.ISYN(

@@ -16,8 +16,17 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.automata.guards.Disjunction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -33,14 +42,6 @@ import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Implementation of Symbolic Decision Trees.
@@ -80,6 +81,20 @@ public class SDT implements SymbolicDecisionTree {
             registers.add((Register) x);
         });
         return registers;
+    }
+    
+    /**
+     * Returns the number of leaves. This is used primarily for testing. (comparing strings is not
+     * convenient)
+     */
+    public int getNumberOfLeaves() {
+    	if (this instanceof SDTLeaf) {
+    		return 1;
+    	} else {
+    		return children.values().stream()
+    				.mapToInt(sdt -> sdt.getNumberOfLeaves())
+    				.sum();
+    	}
     }
 
     public Set<SymbolicDataValue> getVariables() {

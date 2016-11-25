@@ -77,6 +77,7 @@ class ObservationTable {
     
     void addSuffix(GeneralizedSymbolicSuffix suffix) {
         log.logEvent("Queueing suffix for obs: " +  suffix);
+        System.out.println("Adding suffix: " + suffix);
         newSuffixes.add(suffix);
     }
     

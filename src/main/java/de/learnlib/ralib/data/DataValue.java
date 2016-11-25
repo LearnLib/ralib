@@ -55,7 +55,7 @@ public class DataValue<T> {
     protected static <NT> NT add(Class<NT> cls, NT a, NT b) {
     	Number val;
     	if (a instanceof Integer) {
-			val = ((Integer) a) + ((Integer) b);
+			val = Math.addExact(((Integer) a),((Integer) b));
 		} else {
 			if (a instanceof Double) {
 				val = ((Double) a) + ((Double) b);

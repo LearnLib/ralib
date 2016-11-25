@@ -1,34 +1,25 @@
 package de.learnlib.ralib.example.succ;
 
-public class ModerateTCPExample extends AbstractTCPExample{
+public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
 
-	private Double clSeq = null;
-	private Double svSeq = null;
+	private Integer clSeq = null;
+	private Integer svSeq = null;
 	private State state = State.CLOSED;
 
-	public ModerateTCPExample(){
-		super();
-	}
-	
-	public ModerateTCPExample(Double win) {
-		super(win);
-	}
-	
-	public boolean IConnect(Double initSeq) {
-    	boolean ret = false;
+    public Integer IConnect() {
+    	Integer ret = super.newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.clSeq = initSeq;
-    		ret = true;
+    		this.clSeq = ret;
     		state = State.CONNECTING;
     	}
         return ret;
     }     
     
-    public boolean ISYN(Double seq, Double ack) {
+    public boolean ISYN(Integer seq, Integer ack) {
     	boolean ret = false;
     	if (state == State.CONNECTING) {
     		if (seq.equals(clSeq)) {
@@ -40,7 +31,7 @@ public class ModerateTCPExample extends AbstractTCPExample{
     	return ret;
     }
     
-    public boolean ISYNACK(Double seq, Double ack) {
+    public boolean ISYNACK(Integer seq, Integer ack) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
     		if (succ(clSeq, ack)) {
@@ -57,7 +48,7 @@ public class ModerateTCPExample extends AbstractTCPExample{
     	return ret;
     }
     
-    public boolean IACK(Double seq, Double ack) {
+    public boolean IACK(Integer seq, Integer ack) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
     		if (seq.equals(clSeq) && succ(svSeq, ack)) {

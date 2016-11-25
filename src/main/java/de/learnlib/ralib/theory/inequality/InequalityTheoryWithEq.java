@@ -54,6 +54,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
@@ -61,6 +62,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -315,6 +317,32 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						log.log(Level.FINEST, "merged pivs = " + piv.toString());
 
 						return new SDT(merged);
+					} else {
+						// as outputs, we can shortcut, as we only support sumc/equality, also, merging is not necessary, 
+						// since we know that an output value other than the system's is not accepted
+						SymbolicDataExpression outExpr = getSDExprForDV(d, prefixValues, currentParam, values,
+								constants);
+						values.put(pId, d);
+						WordValuation eqValues = new WordValuation();
+						eqValues.putAll(values);
+						SuffixValuation eqSuffixValues = new SuffixValuation();
+						eqSuffixValues.putAll(suffixValues);
+						eqSuffixValues.put(sv, d);
+						SDT eqSdt = oracle.treeQuery(prefix, suffix, eqValues, piv, constants, eqSuffixValues);
+						EqualityGuard eqGuard = new EqualityGuard(currentParam, outExpr);
+						
+						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
+						int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
+						SDT deqSdt = makeRejectingElseBranch( currentParam.getId() + 1, maxSufIndex);
+						
+						Map<SDTGuard, SDT> merged = new LinkedHashMap<SDTGuard, SDT>();
+						if (!deqSdt.isEquivalent(eqSdt, new VarMapping())) {
+							merged.put(eqGuard, eqSdt);
+							merged.put(deqGuard, deqSdt);
+						} else 
+							merged.put(new SDTTrueGuard(currentParam), deqSdt);
+						piv.putAll(keepMem(merged));
+						return new SDT(merged);
 					}
 				}
 			}
@@ -465,21 +493,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
-		// Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam,
-		// regPotential);
 		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
-		// Map<SDTGuard, SDT> merged = tempKids;
-		// only keep registers that are referenced by the merged guards
+
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
-		// if (ps instanceof OutputSymbol && merged.size() >= 3) {
-		// System.out.println(prefix + " " + suffix + " " + suffixValues);
-		// System.out.println(tempKids);
-		// System.out.println(merged);
-		// guardDvs.forEach((g, dv) -> System.out.println(g + " " + dv ));
-		// throw new RuntimeException("For an output symbol, there cannot be
-		// more than 2 branches");
-		// }
 
 		// System.out.println("MERGED = " + merged);
 		piv.putAll(keepMem(merged));
@@ -500,11 +517,26 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				// assert merged.keySet().size() == 1;
 			}
 		}
-		// System.out.println("MERGED = " + merged);
+
 		SDT returnSDT = new SDT(merged);
 		return returnSDT;
 
 	}
+	
+
+	private SDT makeRejectingElseBranch(int nextSufIndex, int maxIndex) {
+		if (nextSufIndex == maxIndex) {
+			//map.put(guard, SDTLeaf.REJECTING);
+			return SDTLeaf.REJECTING;
+		} else {
+			Map<SDTGuard, SDT> map = new LinkedHashMap<>();
+			SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue(this.getType(), nextSufIndex));
+			map.put(trueGuard, makeRejectingElseBranch(nextSufIndex+1, maxIndex));
+			SDT sdt = new SDT(map);
+			return sdt;
+		}
+	}
+
 
 	protected DataValue<T> updateValuation(Valuation valuation, SymbolicDataExpression expr, DataValue<T> concValue) {
 		SymbolicDataValue sdvForExpr = expr.getSDV();
@@ -716,7 +748,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				for (DataValue<T> oldDv : oldDvs) {
 					if ((lExprVal == null || lExprVal.getId().compareTo(oldDv.getId()) < 0)
 							&& (rExprVal == null || rExprVal.getId().compareTo(oldDv.getId()) > 0))
-						return new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
+						return oldDv; // new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
 				}
 
 				if (!useSolver) {
@@ -824,7 +856,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		return returnValue;
 	}
-
+	
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right) {
 
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();

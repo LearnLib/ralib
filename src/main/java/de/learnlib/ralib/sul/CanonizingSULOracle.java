@@ -57,6 +57,7 @@ public class CanonizingSULOracle extends IOOracle {
             PSymbolInstance in = fixedQuery.getSymbol(i);
             
             PSymbolInstance out = canonizedSul.step(in);
+
             
             trace = trace.append(in).append(out);
 

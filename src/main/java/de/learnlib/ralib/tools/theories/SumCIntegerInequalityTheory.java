@@ -20,8 +20,8 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -34,7 +34,6 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
-import de.learnlib.ralib.tools.theories.DoubleInequalityTheory.Cpr;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -78,7 +77,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
     	DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
     	DataValue<Integer> maxSumC = this.sumConstants.isEmpty()? new DataValue<Integer>(this.getType(), 1) : 
     		Collections.max(this.sumConstants, new Cpr());
-    	return new DataValue<Integer>(fv.getType(), fv.getId() + maxSumC.getId() * 100);
+    	return new DataValue<Integer>(fv.getType(), fv.getId() + maxSumC.getId() * 100); // * 100);
     }
     
 	public SDT treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, WordValuation values, PIV piv,

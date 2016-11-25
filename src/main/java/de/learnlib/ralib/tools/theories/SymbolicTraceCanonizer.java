@@ -1,5 +1,6 @@
 package de.learnlib.ralib.tools.theories;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,8 +81,6 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 				return value;
 			DataValue<T> mappedValue = resolveValue(value, thisToOtherMap);
 			if (mappedValue == null) {
-				List<DataValue<T>> castList = thisToOtherMap.values().stream().map(t -> ((DataValue<T>) t)).
-						collect(Collectors.toList());
 				List<DataValue<T>> valList = DataWords.joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
 				DataValue<T> fv = this.theory.getFreshValue(valList);
 				mappedValue = new FreshValue<T>(fv.getType(), fv.getId());

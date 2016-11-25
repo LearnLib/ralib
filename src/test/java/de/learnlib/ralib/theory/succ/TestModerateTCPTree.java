@@ -32,15 +32,17 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.succ.ModerateTCPExample.Option;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -53,7 +55,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
     @Test
     public void testModerateTCPTree() {
     	
-    	Double win = 100.0;
+    	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(ModerateTCPSUL.DOUBLE_TYPE, 
                 new SumCDoubleInequalityTheory(ModerateTCPSUL.DOUBLE_TYPE,
@@ -69,6 +71,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
                 sul, ModerateTCPSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());
+        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateTCPSUL.DOUBLE_TYPE);
                 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(ModerateTCPSUL.ISYN, 
@@ -76,96 +79,58 @@ public class TestModerateTCPTree extends RaLibTestSuite {
                 		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
                 new PSymbolInstance(ModerateTCPSUL.OK),
                 new PSymbolInstance(ModerateTCPSUL.ISYNACK,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
                 new PSymbolInstance(ModerateTCPSUL.OK));
+        
         
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 102.0)),
+                        b.fv(1.0)),
                 new PSymbolInstance(ModerateTCPSUL.OK));
-        
         
         final Word<PSymbolInstance> longsuffix2 = Word.fromSymbols(
+        		 new PSymbolInstance(ModerateTCPSUL.ICONNECT,
+                         new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0)),
+                 new PSymbolInstance(ModerateTCPSUL.OK), 
+                 new PSymbolInstance(ModerateTCPSUL.ISYN, 
+                 		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
+                 		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
+                 new PSymbolInstance(ModerateTCPSUL.OK),
                 new PSymbolInstance(ModerateTCPSUL.ISYNACK, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.NOK),
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 5.0),
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 6.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK),
                 new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 7.0)),
                 new PSymbolInstance(ModerateTCPSUL.NOK));
         
-        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 102.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK), 
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
-
+        final Word<PSymbolInstance> prefix2 = Word.epsilon();
+        
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
         final GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(prefix, longsuffix, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix, longsuffix, new Constants(), teachers);
+        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix2, longsuffix2, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix2);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
         
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
+
+        System.out.println(sdt);
+        System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
         
         TreeQueryResult res2 = mto.treeQuery(prefix2, symSuffix2);
         SymbolicDecisionTree sdt2 = res2.getSdt();
         
-        System.out.println(sdt);
         System.out.println(sdt2);
-
-        final String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1!=r2)\n" +
-"         |    []-TRUE: s2\n" +
-"         |          []-TRUE: s3\n" +
-"         |                [Leaf-]\n" +
-"         +-(s1=r2)\n" +
-"              []-(s2=r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2<r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2>r1)\n" +
-"                    []-(s3!=r1)\n" +
-"                     |    [Leaf-]\n" +
-"                     +-(s3=r1)\n" +
-"                          [Leaf+]\n";
-        
-        String tree = sdt.toString();
         System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
-        Assert.assertEquals(tree, expectedTree);
-//        logger.log(Level.FINE, "final SDT: \n{0}", tree);
-//
-//        Parameter p1 = new Parameter(ModerateTCPSUL.DOUBLE_TYPE, 1);
-//        Parameter p2 = new Parameter(ModerateTCPSUL.DOUBLE_TYPE, 2);
-//        Parameter p3 = new Parameter(ModerateTCPSUL.DOUBLE_TYPE, 3);
-//
-//        PIV testPiv = new PIV();
-//        testPiv.put(p1, new Register(ModerateTCPSUL.DOUBLE_TYPE, 1));
-//        testPiv.put(p2, new Register(ModerateTCPSUL.DOUBLE_TYPE, 2));
-//        testPiv.put(p3, new Register(ModerateTCPSUL.DOUBLE_TYPE, 3));
-//
-//        Branching b = mto.getInitialBranching(
-//                prefix, ModerateTCPSUL.OFFER, testPiv, sdt);
-//
-//        Assert.assertEquals(b.getBranches().size(), 2);
-//        logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
+
+        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7);
+        Assert.assertEquals(((SDT)sdt2).getNumberOfLeaves() , 7);
+
     }
 
 

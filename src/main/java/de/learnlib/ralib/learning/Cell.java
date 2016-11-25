@@ -20,6 +20,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -107,6 +108,7 @@ final class Cell {
         
         // System.out.println("START: computecell for " + prefix.toString() + "   .    " + suffix.toString());
 
+    	try {
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
 
@@ -116,6 +118,9 @@ final class Cell {
         // assert tqr.getPiv().size() <= 2;
         
         return c;
+    	} catch(DecoratedRuntimeException exc) {
+    		throw exc.addDecoration("prefix", prefix).addDecoration("suffix", suffix);
+    	}
     }
 
     GeneralizedSymbolicSuffix getSuffix() {

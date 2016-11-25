@@ -1,28 +1,19 @@
 package de.learnlib.ralib.example.succ;
 
-public class ModerateTCPExample extends AbstractTCPExample{
+public class ModerateFreshTCPExample extends AbstractTCPExample{
 
 	private Double clSeq = null;
 	private Double svSeq = null;
 	private State state = State.CLOSED;
 
-	public ModerateTCPExample(){
-		super();
-	}
-	
-	public ModerateTCPExample(Double win) {
-		super(win);
-	}
-	
-	public boolean IConnect(Double initSeq) {
-    	boolean ret = false;
+    public Double IConnect() {
+    	Double ret = super.newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.clSeq = initSeq;
-    		ret = true;
+    		this.clSeq = ret;
     		state = State.CONNECTING;
     	}
         return ret;

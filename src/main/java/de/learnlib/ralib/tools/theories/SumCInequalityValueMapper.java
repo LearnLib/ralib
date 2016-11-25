@@ -33,21 +33,21 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 	/**
 	 * Canonizes concrete values to SumC, Equal or Fresh Data Values. 
 	 */
-	public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		if (thisToOtherMap.containsKey(value)) {
-			DataValue<T> mapping = thisToOtherMap.get(value);
+	public DataValue<T> canonize(DataValue<T> decValue, Map<DataValue<T>, DataValue<T>> decToCanMap, Constants constants) {
+		if (decToCanMap.containsKey(decValue)) {
+			DataValue<T> mapping = decToCanMap.get(decValue);
 			return new DataValue<>(mapping.getType(), mapping.getId()); 
 		}
-		if (constants.containsValue(value))
-			return value;
+		if (constants.containsValue(decValue))
+			return decValue;
 		for (DataValue<T> constant : this.sumConstants) {
-			if (thisToOtherMap.containsKey(DataValue.sub(value, constant))) {
-				DataValue<T> operand = thisToOtherMap.get(DataValue.sub(value, constant));
+			if (decToCanMap.containsKey(DataValue.sub(decValue, constant))) {
+				DataValue<T> operand = decToCanMap.get(DataValue.sub(decValue, constant));
 				return new SumCDataValue<T>(operand, constant);
 			}
 		}
 		
-		List<DataValue<T>> valList = DataWords.<T>joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
+		List<DataValue<T>> valList = DataWords.<T>joinValsToList(decToCanMap.values(), constants.values(decValue.getType()));
 		DataValue<T> fv = this.theory.getFreshValue(valList);
 		return new FreshValue<>(fv.getType(), fv.getId());
 	}
@@ -55,32 +55,32 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 	/**
 	 * Decanonizes from SumC, Equal, Fresh Data and also Interval Values, to concrete values. .
 	 */
-	public DataValue<T> decanonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		if (thisToOtherMap.containsKey(value)) 
-			return thisToOtherMap.get(value);
-		if (constants.containsValue(value))
-			return value;
-		if (value instanceof IntervalDataValue) {
-			IntervalDataValue<T> interval = (IntervalDataValue<T>) value;
+	public DataValue<T> decanonize(DataValue<T> canValue, Map<DataValue<T>, DataValue<T>> canToDecMap, Constants constants) {
+		if (canToDecMap.containsKey(canValue)) 
+			return canToDecMap.get(canValue);
+		if (constants.containsValue(canValue))
+			return canValue;
+		if (canValue instanceof IntervalDataValue) {
+			IntervalDataValue<T> interval = (IntervalDataValue<T>) canValue;
 			DataValue<T> left = null;
 			DataValue<T> right = null;
 			if (interval.getLeft() != null) 
-				left = decanonize(interval.getLeft(), thisToOtherMap, constants);
+				left = decanonize(interval.getLeft(), canToDecMap, constants);
 			if (interval.getRight() != null) 
-				right = decanonize(interval.getRight(), thisToOtherMap, constants);
+				right = decanonize(interval.getRight(), canToDecMap, constants);
 			return IntervalDataValue.instantiateNew(left, right);
 			
 		}
 		
 		// value is a sumc, then we decanonize the operand
-		if (value instanceof SumCDataValue) {
-			SumCDataValue<T> sumCValue = (SumCDataValue<T>) value;
-			DataValue<T> operand = decanonize(sumCValue.getOperand(), thisToOtherMap, constants);
+		if (canValue instanceof SumCDataValue) {
+			SumCDataValue<T> sumCValue = (SumCDataValue<T>) canValue;
+			DataValue<T> operand = decanonize(sumCValue.getOperand(), canToDecMap, constants);
 			DataValue<T> sum = (DataValue<T>) DataValue.add(operand, sumCValue.getConstant());
 			return sum;
 		}
 		
-		List<DataValue<T>> valList = DataWords.<T>joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
+		List<DataValue<T>> valList = DataWords.<T>joinValsToList(canToDecMap.values(), constants.values(canValue.getType()));
 		DataValue<T> fv = this.theory.getFreshValue(valList);
 		return fv;
 	}

@@ -36,9 +36,10 @@ public class DeterminedDataWordSUL extends DataWordSUL{
         input = this.canonizer.canonize(input, true);
         
         PSymbolInstance output = this.sul.step(input);
-
+       
         // canonize output 
         output = this.canonizer.canonize(output, false);
+      
 
         return output;
 	}

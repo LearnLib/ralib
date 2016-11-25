@@ -32,7 +32,7 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.succ.ModerateTCPExample.Option;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.ModerateTCPSULMultitype;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;

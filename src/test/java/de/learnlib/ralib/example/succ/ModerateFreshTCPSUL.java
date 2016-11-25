@@ -28,13 +28,13 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
-public class ModerateTCPSUL extends DataWordSUL {
+public class ModerateFreshTCPSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE = 
             new DataType("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE});
+            new InputSymbol("IConnect");
     public static final ParameterizedSymbol ISYN = 
             new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE, DOUBLE_TYPE});
     public static final ParameterizedSymbol ISYNACK = 
@@ -66,11 +66,11 @@ public class ModerateTCPSUL extends DataWordSUL {
 
 	private Option[] options ;
     
-    public ModerateTCPSUL() {
+    public ModerateFreshTCPSUL() {
     	supplier = () -> new ModerateTCPExample();
     }
     
-    public ModerateTCPSUL(Double window) {
+    public ModerateFreshTCPSUL(Double window) {
     	supplier = () -> new ModerateTCPExample(window);
     }
 

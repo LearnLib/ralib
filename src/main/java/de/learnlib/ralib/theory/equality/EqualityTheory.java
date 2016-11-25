@@ -49,10 +49,9 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -71,6 +70,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     protected boolean freshValues = false;
 
+	private IfElseGuardMerger ifElseMerger;
+
     private static final LearnLogger log
             = LearnLogger.getLogger(EqualityTheory.class);
     
@@ -81,6 +82,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     public EqualityTheory(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
+        this.ifElseMerger = new IfElseEquGuardMerger();
     }
 
     public void setFreshValues(boolean freshValues) {
@@ -95,48 +97,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return vals;
     }
 
-// given a map from guards to SDTs, merge guards based on whether they can
+    // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
-            mergeGuards(Map<EqualityGuard, SDT> eqs,
+            mergeGuards(Map<SDTGuard, SDT> ifGuards,
                     SDTAndGuard deqGuard, SDT deqSdt) {
-
-        Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
-        List<DisequalityGuard> deqList = new ArrayList<>();
-        List<EqualityGuard> eqList = new ArrayList<>();
-        for (Map.Entry<EqualityGuard, SDT> e : eqs.entrySet()) {
-            SDT eqSdt = e.getValue();
-            EqualityGuard eqGuard = e.getKey();
-            log.log(Level.FINEST, "comparing guards: " + eqGuard.toString()
-                    + " to " + deqGuard.toString() + "\nSDT    : "
-                    + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<EqualityGuard> ds = new ArrayList();
-            ds.add(eqGuard);
-            log.log(Level.FINEST, "remapping: " + ds.toString());
-            if (!(eqSdt.isEquivalentUnderEquality(deqSdt, ds))) {
-                log.log(Level.FINEST, "--> not eq.");
-                deqList.add(eqGuard.toDeqGuard());
-                eqList.add(eqGuard);
-            } else {
-                log.log(Level.FINEST, "--> equivalent");
-            }
-
-        }
-        if (eqList.isEmpty()) {
-            retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
-        } else if (eqList.size() == 1) {
-            EqualityGuard q = eqList.get(0);
-            retMap.put(q, eqs.get(q));
-            retMap.put(q.toDeqGuard(), deqSdt);
-        } else if (eqList.size() > 1) {
-            for (EqualityGuard q : eqList) {
-                retMap.put(q, eqs.get(q));
-            }
-            retMap.put(new SDTAndGuard(deqGuard.getParameter(),
-                    deqList.toArray(new SDTIfGuard[]{})), deqSdt);
-        }
+        Map<SDTGuard, SDT> retMap = this.ifElseMerger.merge(ifGuards, deqGuard, deqSdt);
         assert !retMap.isEmpty();
-
         return retMap;
     }
 
@@ -176,7 +143,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         SuffixValue currentParam = new SuffixValue(type, pId);
 
-        Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
+        Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                 constants.<T>values(type),
@@ -319,8 +286,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         log.log(Level.FINEST, "diseq guard = " + deqGuard.toString());
 
         // merge the guards
-        Map<SDTGuard, SDT> merged = mergeGuards(
-                tempKids, deqGuard, elseOracleSdt);
+        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
+        		
+//        		mergeGuards(
+//                tempKids, deqGuard, elseOracleSdt);
 
         // only keep registers that are referenced by the merged guards
         pir.putAll(keepMem(merged));

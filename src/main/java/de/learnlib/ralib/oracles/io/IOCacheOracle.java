@@ -21,6 +21,7 @@ import java.util.logging.Level;
 
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -76,7 +77,12 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         if (fixedQuery.length() % 2 != 0) {
             test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
-        Word<PSymbolInstance> trace = this.sul.trace(test);
+        Word<PSymbolInstance> trace  = null;
+        try {
+        	trace = this.sul.trace(test);
+        } catch(DecoratedRuntimeException exc) {
+        	throw exc.addDecoration("trace ", query);
+        }
         boolean added = this.ioCache.addToCache(trace);
         assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
