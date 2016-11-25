@@ -22,6 +22,7 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -39,8 +40,11 @@ import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -62,9 +66,13 @@ public class LearnPQIOTest extends RaLibTestSuite {
         final Random random = new Random(seed);
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
-
+        DoubleInequalityTheory dit = 
+                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE);
+        
+        dit.setUseSuffixOpt(true);
+        teachers.put(PriorityQueueSUL.DOUBLE_TYPE, dit);
+                
+        
         final Constants consts = new Constants();
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
@@ -102,12 +110,12 @@ public class LearnPQIOTest extends RaLibTestSuite {
         int check = 0;
         while (true && check < 100) {
             check++;
-            rastar.learn();
+            rastar.learn();        
             Hypothesis hyp = rastar.getHypothesis();
-
+  
             DefaultQuery<PSymbolInstance, Boolean> ce
                     = iowalk.findCounterExample(hyp, null);
-
+         
             //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
@@ -128,7 +136,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 sul.getActionSymbols()
         );
 
+        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        logger.log(Level.FINE, "Resets: " + sul.getResets());        
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

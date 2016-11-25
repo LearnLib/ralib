@@ -37,11 +37,13 @@ public final class PriorityQueueOracle implements DataWordOracle {
     public static final InputSymbol POLL = new InputSymbol("poll", new DataType[]{doubleType});
     public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
 
+    private long resets = 0;
+    
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
-
+        
         for (Query<PSymbolInstance, Boolean> query : clctn) {
-
+            resets++;
             if (query.getInput().length() < 1) {
                 query.answer(true);
             } else {
@@ -85,5 +87,8 @@ public final class PriorityQueueOracle implements DataWordOracle {
         }
         return maybe;
     }
-
+    
+    public long getResets() {
+        return resets;
+    }
 }

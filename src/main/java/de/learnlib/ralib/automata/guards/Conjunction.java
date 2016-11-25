@@ -20,6 +20,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +38,7 @@ public class Conjunction extends GuardExpression {
     }
 
     @Override
-    public GuardExpression relabel(VarMapping relabelling) {
+    public Conjunction relabel(VarMapping relabelling) {
         GuardExpression[] newExpr = new GuardExpression[conjuncts.length];
         int i = 0;
         for (GuardExpression ge : conjuncts) {
@@ -72,4 +74,11 @@ public class Conjunction extends GuardExpression {
         return conjuncts;
     }
     
+    @Override
+    protected void getAtoms(Collection<AtomicGuardExpression> vals) {
+        for (GuardExpression e : conjuncts) {
+            e.getAtoms(vals);
+        }
+    }   
 }
+

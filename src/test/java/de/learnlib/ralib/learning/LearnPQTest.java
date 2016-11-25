@@ -25,6 +25,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.priority.PriorityQueueOracle;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.*;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -54,11 +55,12 @@ public class LearnPQTest extends RaLibTestSuite {
     public void PQExample() {
 
         Constants consts = new Constants();
-        DataWordOracle dwOracle = 
-                new de.learnlib.ralib.example.priority.PriorityQueueOracle();
+        PriorityQueueOracle dwOracle = new PriorityQueueOracle();
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+        DoubleInequalityTheory dit = new DoubleInequalityTheory(doubleType);
+        dit.setUseSuffixOpt(true);
+        teachers.put(doubleType, dit);
 
         
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
@@ -97,8 +99,9 @@ public class LearnPQTest extends RaLibTestSuite {
         rastar.learn();
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
+        logger.log(Level.FINE,"Resets: " + dwOracle.getResets());      
         
         Assert.assertEquals(hyp.getStates().size(), 7);
-        Assert.assertEquals(hyp.getTransitions().size(), 27);
+        Assert.assertEquals(hyp.getTransitions().size(), 27);       
     }
 }

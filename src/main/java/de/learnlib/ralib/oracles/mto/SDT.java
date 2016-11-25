@@ -44,7 +44,7 @@ import java.util.Set;
 
 /**
  * Implementation of Symbolic Decision Trees.
- * 
+ *
  * @author Sofia Cassel
  */
 public class SDT implements SymbolicDecisionTree {
@@ -68,11 +68,10 @@ public class SDT implements SymbolicDecisionTree {
 //        }
 //        return guards;
 //    }
-
     /**
      * Returns the registers of this SDT.
-     * 
-     * @return 
+     *
+     * @return
      */
     Set<Register> getRegisters() {
         Set<Register> registers = new LinkedHashSet<>();
@@ -151,7 +150,7 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled)
                 && otherRelabeled.canUse(this);
     }
-    
+
     public boolean isEquivalentUnder(
             SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
@@ -169,7 +168,7 @@ public class SDT implements SymbolicDecisionTree {
         boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
         return x;
     }
-    
+
     public SDT relabelUnderEq(List<SDTIfGuard> ds) {
         VarMapping eqRenaming = new VarMapping<>();
         for (SDTIfGuard d : ds) {
@@ -177,7 +176,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         return (SDT) this.relabel(eqRenaming);
     }
-    
+
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
         //System.out.println("relabeling " + relabelling);
@@ -189,21 +188,19 @@ public class SDT implements SymbolicDecisionTree {
         Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
-                reChildren.put(e.getKey().relabel(relabelling),
+            reChildren.put(e.getKey().relabel(relabelling),
                     (SDT) e.getValue().relabel(relabelling));
-            }
+        }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
         return relabelled;
     }
 
-    
     /* ***
      *
      * Logging helpers
      *
      */
-    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -332,33 +329,46 @@ public class SDT implements SymbolicDecisionTree {
 
     GuardExpression getAcceptingPaths(Constants consts) {
 
-        List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
+        List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), true);
         if (paths.isEmpty()) {
             return FalseGuardExpression.FALSE;
         }
-        Set<SuffixValue> svals = new LinkedHashSet<>();
         GuardExpression dis = null;
         for (List<SDTGuard> list : paths) {
-            List<GuardExpression> expr = new ArrayList<>();
-            for (SDTGuard g : list) {
-                expr.add(g.toExpr());
-                svals.add(g.getParameter());
-            }
-            Conjunction con = new Conjunction(
-                    expr.toArray(new GuardExpression[] {}));
-            
+            Conjunction con = toPathExpression(list);
             dis = (dis == null) ? con : new Disjunction(dis, con);
         }
 
         return dis;
     }
 
-    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
+    List<Conjunction> getPathsAsExpressions(Constants consts, boolean accepting) {
+
+        List<Conjunction> ret = new ArrayList<>();
+        List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), accepting);
+        for (List<SDTGuard> list : paths) {
+            ret.add(toPathExpression(list));
+        }
+        return ret;
+    }
+
+    private Conjunction toPathExpression(List<SDTGuard> list) {
+        List<GuardExpression> expr = new ArrayList<>();
+        list.stream().forEach((g) -> {
+            expr.add(g.toExpr());
+        });
+        Conjunction con = new Conjunction(
+                expr.toArray(new GuardExpression[]{}));
+        
+        return con;
+    }
+
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path, boolean accepting) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
             List<SDTGuard> nextPath = new ArrayList<>(path);
             nextPath.add(e.getKey());
-            List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath);
+            List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath, accepting);
             ret.addAll(nextRet);
         }
 

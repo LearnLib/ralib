@@ -20,7 +20,10 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,6 +37,12 @@ public abstract class GuardExpression {
 
     public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val); 
    
+    public Collection<AtomicGuardExpression> getAtoms() {
+        List<AtomicGuardExpression> set = new ArrayList<>();
+        getAtoms(set);
+        return set;
+    }
+    
     public Set<SymbolicDataValue> getSymbolicDataValues() {
         Set<SymbolicDataValue> set = new LinkedHashSet<>();
         getSymbolicDataValues(set);
@@ -41,4 +50,6 @@ public abstract class GuardExpression {
     }
     
     protected abstract void getSymbolicDataValues(Set<SymbolicDataValue> vals);
+
+    protected abstract void getAtoms(Collection<AtomicGuardExpression> vals);
 }

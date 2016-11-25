@@ -218,6 +218,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
 
     @Override
     public void setUseSuffixOpt(boolean useit) {
+        useNonFreeOptimization = useit;
         System.err.println("Optimized suffixes are currently not supported for theory "
                 + DoubleInequalityTheory.class.getName());
     }
