@@ -108,7 +108,7 @@ class IOAutomatonBuilder extends AutomatonBuilder {
                 analyzeExpression(e, outmap);
             }
         }
-        else if (expr instanceof AtomicGuardExpression) {
+        else if (expr instanceof AtomicGuardExpression && ! (expr instanceof SumCAtomicGuardExpression)) {
             AtomicGuardExpression nbe = (AtomicGuardExpression) expr;
             if (nbe.getRelation() == Relation.EQUALS) {
                 SymbolicDataValue left = nbe.getLeft();

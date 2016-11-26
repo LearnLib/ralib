@@ -32,11 +32,11 @@ import java.util.Set;
  */
 public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends SymbolicDataValue> extends GuardExpression {
 
-    private final Left left; 
+    protected final Left left; 
         
-    private final Relation relation;
+    protected final Relation relation;
 
-    private final Right right;
+    protected final Right right;
     
     public AtomicGuardExpression(Left left, Relation relation, Right right) {
         this.left = left;
@@ -55,28 +55,33 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         
         assert lv != null && rv != null;
                         
-        switch (relation) {
-            case EQUALS: 
-                return lv.equals(rv);
-            case NOT_EQUALS: 
-                return !lv.equals(rv);
+        boolean isSatisfied = isSatisfied(lv, rv, relation);
+        return isSatisfied;
+    }
+    
+    protected boolean isSatisfied(DataValue lv, DataValue rv, Relation relation) {
+    	 switch (relation) {
+         case EQUALS: 
+             return lv.equals(rv);
+         case NOT_EQUALS: 
+             return !lv.equals(rv);
 
-            case GREATER:
-            case LESSER:
-            case GREQUALS:
-            case LSREQUALS:
-                return numCompare(lv, rv, relation);
-           
-            case NOT_SUCC:
-            case SUCC:
-            case IN_WIN:
-            case NOT_IN_WIN:
-                return succ(lv, rv, relation);
-                
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not suported in guards");
-        }
+         case GREATER:
+         case LESSER:
+         case GREQUALS:
+         case LSREQUALS:
+             return numCompare(lv, rv, relation);
+        
+         case NOT_SUCC:
+         case SUCC:
+         case IN_WIN:
+         case NOT_IN_WIN:
+             return succ(lv, rv, relation);
+             
+         default:
+             throw new UnsupportedOperationException(
+                     "Relation " + relation + " is not suported in guards");
+     }
     }
                
     @Override

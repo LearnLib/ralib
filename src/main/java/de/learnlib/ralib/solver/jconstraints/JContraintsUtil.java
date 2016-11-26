@@ -75,7 +75,7 @@ public class JContraintsUtil {
             Map<SymbolicDataValue, Variable> map) {
         if (expr instanceof ConstantGuardExpression) {
         	return toExpression((ConstantGuardExpression) expr, map);
-        } if (expr instanceof AtomicGuardExpression) {
+        } if (expr instanceof AtomicGuardExpression && !(expr instanceof SumCAtomicGuardExpression)) {
             return toExpression((AtomicGuardExpression) expr, map);
         } else if (expr instanceof SumCAtomicGuardExpression) {
             return toExpression((SumCAtomicGuardExpression) expr, map);
