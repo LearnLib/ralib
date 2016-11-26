@@ -16,19 +16,36 @@
  */
 package de.learnlib.ralib.learning;
 
+import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.priority.PriorityQueueOracle;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.oracles.SimulatorOracle;
+import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
+
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
@@ -38,7 +55,6 @@ import org.testng.annotations.Test;
  */
 public class GeneralizedSymbolicSuffixTest {
     
-    @Test
     public void testGeneralizedSymbolicSuffix1() {
         
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
@@ -65,4 +81,62 @@ public class GeneralizedSymbolicSuffixTest {
         System.out.println(symSuffix);
     }
     
+    
+    @Test
+    public void testGeneralizedSymbolicSuffix2() {
+        
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_PWD, 2),
+                    new DataValue(T_PWD, 2)),
+                new PSymbolInstance(I_LOGOUT),
+                new PSymbolInstance(I_LOGIN, 
+                    new DataValue(T_PWD, 1),
+                    new DataValue(T_PWD, 1)));
+        
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(I_REGISTER, 
+                    new DataValue(T_PWD, 1),
+                    new DataValue(T_PWD, 1)));        
+
+        Map<DataType, Theory> theories = new LinkedHashMap();
+        theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+        
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), theories);
+        
+        System.out.println(symSuffix);
+    }
+    
+    
+    @Test
+    public void testGeneralizedSymbolicSuffix3() {
+    	   Constants consts = new Constants();
+           PriorityQueueOracle dwOracle = new PriorityQueueOracle();
+           
+           final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+           DoubleInequalityTheory dit = new DoubleInequalityTheory(doubleType);
+           dit.setUseSuffixOpt(true);
+           teachers.put(doubleType, dit);
+
+           final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                   new PSymbolInstance(OFFER,
+                           new DataValue(doubleType, 5.0)),
+                   new PSymbolInstance(OFFER,
+                           new DataValue(doubleType, 5.0)),
+                   new PSymbolInstance(POLL,
+                           new DataValue(doubleType, 5.0)),
+                   new PSymbolInstance(POLL,
+                           new DataValue(doubleType, 5.0)));
+           final Word<PSymbolInstance> prefix = Word.fromSymbols( new PSymbolInstance(OFFER,
+                   new DataValue(doubleType, 10.0)), new PSymbolInstance(OFFER,
+                           new DataValue(doubleType, 1.0))); 
+        		   
+        
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
+        
+        System.out.println("prefix: " + prefix + " suffix: " + suffix);
+        System.out.println(symSuffix);
+    }
 }

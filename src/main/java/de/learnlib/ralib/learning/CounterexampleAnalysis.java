@@ -103,7 +103,9 @@ public class CounterexampleAnalysis {
         System.out.println(idx + "  " + prefix);        
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-            ce.prefix(idx+1));         
+            ce.prefix(idx+1)); 
+        if (transition == null)
+        	return  new IndexResult(idx, IndexStatus.NO_CE, null);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         GeneralizedSymbolicSuffix symSuffix = 

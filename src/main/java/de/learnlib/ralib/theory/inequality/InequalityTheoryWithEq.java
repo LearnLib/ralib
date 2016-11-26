@@ -317,7 +317,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						log.log(Level.FINEST, "merged pivs = " + piv.toString());
 
 						return new SDT(merged);
-					} else {
+					}
+					else {
 						// as outputs, we can shortcut, as we only support sumc/equality, also, merging is not necessary, 
 						// since we know that an output value other than the system's is not accepted
 						SymbolicDataExpression outExpr = getSDExprForDV(d, prefixValues, currentParam, values,
@@ -621,8 +622,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 
 		if (ifValues.containsValue(dv)) {
-			int latest = Collections.min(ifValues.getAllKeys(dv));
-			return new SuffixValue(type, latest);
+			int first = Collections.min(ifValues.getAllKeys(dv));
+			return new SuffixValue(type, first);
 		}
 
 		if (constants.containsValue(dv)) {

@@ -1,5 +1,8 @@
 package de.learnlib.ralib.learning;
 
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
@@ -52,4 +55,16 @@ public interface SymbolicSuffix {
 			}
 			return query;
 		}
+		
+		public static int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {        
+	        //System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
+	        DataType t = suffix.getDataValue(pId).getType();
+	        for (int i=1; i<pId; i++) {
+	            if (!t.equals(suffix.getDataValue(i).getType())) {
+	                continue;
+	            }            
+	            if (suffix.getSuffixRelations(i, pId).contains(EQ)) return i;
+	        }
+	        return pId;
+	    }
 }
