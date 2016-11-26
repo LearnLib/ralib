@@ -64,9 +64,13 @@ public class LearnPQIOTest extends RaLibTestSuite {
         final Random random = new Random(seed);
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
-
+        DoubleInequalityTheory dit = 
+                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE);
+        
+        dit.setUseSuffixOpt(true);
+        teachers.put(PriorityQueueSUL.DOUBLE_TYPE, dit);
+                
+        
         final Constants consts = new Constants();
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
@@ -105,12 +109,12 @@ public class LearnPQIOTest extends RaLibTestSuite {
         int check = 0;
         while (true && check < 100) {
             check++;
-            rastar.learn();
+            rastar.learn();        
             Hypothesis hyp = rastar.getHypothesis();
-
+  
             DefaultQuery<PSymbolInstance, Boolean> ce
                     = iowalk.findCounterExample(hyp, null);
-
+         
             //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
@@ -131,7 +135,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 sul.getActionSymbols()
         );
 
+        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        logger.log(Level.FINE, "Resets: " + sul.getResets());        
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

@@ -26,6 +26,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -51,7 +52,25 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
     
     private final EnumSet<DataRelation>[] prefixRelations; 
     
+    public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, 
+            EnumSet<DataRelation>[] prefixRelations,
+            EnumSet<DataRelation>[][] suffixRelations) {
     
+        this.actions = Word.fromList(actions.asList()); 
+        this.prefixRelations = prefixRelations;
+        this.suffixRelations = suffixRelations;
+                    
+        SymbolicDataValueGenerator.SuffixValueGenerator valgen = 
+                new SymbolicDataValueGenerator.SuffixValueGenerator();
+        
+        int idx = 0;
+        DataType[] types = DataWords.typesOf(actions);
+        this.suffixValues = new SuffixValue[types.length];        
+        for (DataType t : types) {
+            this.suffixValues[idx++] = valgen.next(t);
+        }
+    }
+        
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, 
             Word<PSymbolInstance> suffix, Constants consts,
             Map<DataType, Theory> theories) {
@@ -64,12 +83,20 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
                 
         SymbolicDataValueGenerator.SuffixValueGenerator valgen = 
                 new SymbolicDataValueGenerator.SuffixValueGenerator();
-        
+    
+        int psIdx = 0;
+        int base = 0;
+            
         int idx = 0;
         Map<DataType, List<DataValue>> groups = new HashMap<>();
         for (DataValue v: concSuffixVals) {
             this.suffixValues[idx] = valgen.next(v.getType());
             EnumSet<DataRelation> prefixRels = EnumSet.noneOf(DataRelation.class);
+
+            while (idx >= base + actions.getSymbol(psIdx).getArity()) {
+                base += actions.getSymbol(psIdx).getArity();
+                psIdx++;
+            }    
             
             // find relations to previous suffix values
             Theory t = theories.get(v.getType());
@@ -85,7 +112,11 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             List<EnumSet<DataRelation>> crels = t.getRelations(cvals, v);
             List<EnumSet<DataRelation>> srels = t.getRelations(prevSuffixValues, v);
             prefixRels.add(DataRelation.DEFAULT);
-            if (prefix.length() == 0) {
+            
+            if (prefix.length() == 0 || 
+                    actions.getSymbol(psIdx) instanceof OutputSymbol ||
+                    psIdx == 0) {
+                
                 prefixRels.addAll(t.recognizedRelations());
             }
             prels.stream().forEach((rels) -> { prefixRels.addAll(rels); });
@@ -109,7 +140,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             Constants consts, Map<DataType, Theory> theories) {
         
         // create suffix for prefix
-        this.actions = symSuffix.actions.prepend(
+        this.actions = Word.fromList(symSuffix.actions.asList()).prepend(
                 DataWords.actsOf(prefix).lastSymbol());
         
         Word<PSymbolInstance> suffix = prefix.suffix(1);
@@ -256,6 +287,31 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         hash = 41 * hash + Arrays.deepHashCode(this.suffixRelations);
         hash = 41 * hash + Arrays.deepHashCode(this.prefixRelations);
         return hash;
+    }
+
+    public GeneralizedSymbolicSuffix suffix() {
+
+        Word<ParameterizedSymbol> sActions = 
+                actions.suffix( actions.length() - 1);
+        
+        int arity = actions.firstSymbol().getArity();
+        
+        EnumSet[] sPrefixRels = new EnumSet[prefixRelations.length-arity];
+        EnumSet[][] sSuffixRels = new EnumSet[suffixRelations.length-arity][];
+        
+        System.arraycopy(prefixRelations, arity, sPrefixRels, 0, sPrefixRels.length);
+        
+        for (int i=0; i < sSuffixRels.length; i++) {
+            sSuffixRels[i] = new EnumSet[i];
+            System.arraycopy(suffixRelations[i+arity], arity, sSuffixRels[i], 0, i);
+            
+            for (int j=0; j<arity ; j++) {
+                sPrefixRels[i].addAll(suffixRelations[i+arity][j]);
+            }
+        }
+        
+        return new GeneralizedSymbolicSuffix(
+                sActions, sPrefixRels, sSuffixRels);
     }
   
 }

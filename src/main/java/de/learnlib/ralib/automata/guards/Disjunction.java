@@ -20,6 +20,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -71,5 +73,12 @@ public class Disjunction extends GuardExpression {
     public GuardExpression[] getDisjuncts() {
         return disjuncts;
     }    
-    
+
+ 
+    @Override
+    protected void getAtoms(Collection<AtomicGuardExpression> vals) {
+        for (GuardExpression e : disjuncts) {
+            e.getAtoms(vals);
+        }
+    }   
 }

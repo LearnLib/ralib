@@ -20,6 +20,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -48,5 +50,8 @@ public class TrueGuardExpression extends GuardExpression {
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
     }
-    
+
+    @Override
+    protected void getAtoms(Collection<AtomicGuardExpression> vals) {
+    }    
 }

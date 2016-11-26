@@ -54,8 +54,22 @@ public class CounterexampleAnalysis {
     
     private final Map<DataType, Theory> teachers;
     
-    private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
+    private static enum IndexStatus {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
+    private static class IndexResult {
+        
+        private final int idx;
+        private final IndexStatus status;
+        private final GeneralizedSymbolicSuffix suffix;
+
+        private IndexResult(int idx, IndexStatus status, GeneralizedSymbolicSuffix suffix) {
+            this.idx = idx;
+            this.status = status;
+            this.suffix = suffix;
+        }
+               
+    }
+    
     private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
     
     CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
@@ -73,29 +87,23 @@ public class CounterexampleAnalysis {
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
+        IndexResult result = binarySearch(ce);
+        //IndexResult result  = linearBackWardsSearch(ce);
         
-        //int idx = binarySearch(ce);
-        int idx = linearBackWardsSearch(ce);
-        
-        Word<PSymbolInstance> prefix = ce.prefix(idx);
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        GeneralizedSymbolicSuffix symSuffix = 
-                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);        
-        
-        return new CEAnalysisResult(prefix, symSuffix);        
+        Word<PSymbolInstance> prefix = ce.prefix(result.idx);
+        GeneralizedSymbolicSuffix symSuffix = result.suffix;
+
+        assert ce.length() - result.idx == symSuffix.getActions().length();        
+        return new CEAnalysisResult(prefix, symSuffix);
     } 
     
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
-                
+        
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         System.out.println(idx + "  " + prefix);        
         Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
         Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
             ce.prefix(idx+1));         
-        // this can happen in case the register automaton is an IO automaton, where the transition is an output
-        // which isn't present in the hyp
-        if (transition == null)
-        	return IndexResult.NO_CE;
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         GeneralizedSymbolicSuffix symSuffix = 
@@ -126,18 +134,24 @@ public class CounterexampleAnalysis {
                 g, transition);
         
         if (!hasCE) {
-            return IndexResult.NO_CE;
+            return new IndexResult(idx, IndexStatus.NO_CE, null);
         }
         
-        // PIV pivSul = new PIV(location, resSul.getParsInVars());
+        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(
+                location, 
+                resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
+                resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
+                g, symSuffix.getActions());
+
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
-        boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                
+        boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
                
-        return (sulHasMoreRegs || !hypRefinesTransition) ? 
-                IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
+        return new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
+                IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,
+                gsuffix);        
     }
     
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix, 
@@ -165,19 +179,20 @@ public class CounterexampleAnalysis {
         return true;
     }
     
-    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
+    private IndexResult linearBackWardsSearch(Word<PSymbolInstance> ce) {
         
         assert ce.length() > 1;
         
         IndexResult[] results = new IndexResult[ce.length()];
-        results[ce.length()-1] = IndexResult.NO_CE;
+        results[ce.length()-1] = 
+                new IndexResult(ce.length()-1, IndexStatus.NO_CE, null);
 
         int idx = ce.length()-2;
         
         while (idx >= 0) {
             IndexResult res = computeIndex(ce, idx);
             results[idx] = res;
-            if (res != IndexResult.NO_CE) {
+            if (res.status != IndexStatus.NO_CE) {
                 break;
             }
             idx--;
@@ -187,21 +202,21 @@ public class CounterexampleAnalysis {
         
         // if in the last step there was no counterexample, 
         // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
+        if (results[idx].status == IndexStatus.NO_CE) {
             assert idx > 0;
             idx--;
         }
         
         // if the current index has no refinement use the 
         // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+        if (results[idx].status == IndexStatus.HAS_CE_NO_REFINE) {
             idx++;
         }
 
-        return idx;        
+        return results[idx];        
     }
     
-    private int binarySearch(Word<PSymbolInstance> ce) {
+    private IndexResult binarySearch(Word<PSymbolInstance> ce) {
         
         assert ce.length() > 1;
         
@@ -221,7 +236,7 @@ public class CounterexampleAnalysis {
             log.log(Level.FINEST, "" + res);
             
             results[mid] = res;
-            if (res == IndexResult.NO_CE) {
+            if (res.status == IndexStatus.NO_CE) {
                 max = mid -1;
             } else {
                 min = mid +1;
@@ -237,20 +252,24 @@ public class CounterexampleAnalysis {
         
         // if in the last step there was no counterexample, 
         // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
+        if (results[idx].status == IndexStatus.NO_CE) {
             assert idx > 0;
             idx--;
         }      
 
         // if the current index has no refinement use the 
         // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+        if (results[idx].status == IndexStatus.HAS_CE_NO_REFINE) {
+            if (results[idx+1].status == IndexStatus.NO_CE) {
+                GeneralizedSymbolicSuffix s = results[idx].suffix.suffix();
+                IndexResult old = results[idx+1];
+                results[idx+1] = new IndexResult(old.idx, old.status, s);
+            }
             idx++;
         }
 
-        //System.out.println("IDX: " + idx);
-        
-        return idx;
+        //System.out.println("IDX: " + idx);        
+        return results[idx];
     }
     
 }

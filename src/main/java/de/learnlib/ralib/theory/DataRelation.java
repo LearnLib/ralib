@@ -24,5 +24,7 @@ public enum DataRelation {
     DEFAULT, 
     EQ,
     LT,
-    GT;
+    GT,
+    GTE,
+    LTE;
 }

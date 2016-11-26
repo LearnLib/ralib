@@ -140,9 +140,11 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        logger.log(Level.FINE,"Resets: " + sul.getResets());
+
         DefaultQuery<PSymbolInstance, Boolean> ce = 
             ioEquiv.findCounterExample(hyp, null);
-            
+                    
         Assert.assertNull(ce);        
     }
 }

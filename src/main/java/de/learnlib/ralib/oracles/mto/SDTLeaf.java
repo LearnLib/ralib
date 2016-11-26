@@ -88,9 +88,9 @@ public class SDTLeaf extends SDT {
     }
     
     @Override
-    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {        
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path, boolean accepting) {        
         List<List<SDTGuard>> ret = new ArrayList<>();
-        if (this.isAccepting()) {
+        if (this.isAccepting() == accepting) {
             ret.add(path);
         }
         return ret;

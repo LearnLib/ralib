@@ -1,5 +1,6 @@
 package de.learnlib.ralib.automata.guards;
 
+import java.util.Collection;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
@@ -39,6 +40,12 @@ public class ConstantGuardExpression extends GuardExpression{
 	@Override
 	protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
 		vals.add(sdv);
+	}
+
+	@Override
+	protected void getAtoms(Collection<AtomicGuardExpression> vals) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -40,6 +40,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.equivalence.AcceptHypVerifier;
 import de.learnlib.ralib.equivalence.HypVerifier;
+import de.learnlib.ralib.example.priority.PriorityQueueOracle;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.*;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -61,11 +63,12 @@ public class LearnPQTest extends RaLibTestSuite {
     public void PQExample() {
 
         Constants consts = new Constants();
-        DataWordOracle dwOracle = 
-                new de.learnlib.ralib.example.priority.PriorityQueueOracle();
+        PriorityQueueOracle dwOracle = new PriorityQueueOracle();
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+        DoubleInequalityTheory dit = new DoubleInequalityTheory(doubleType);
+        dit.setUseSuffixOpt(true);
+        teachers.put(doubleType, dit);
 
         
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       

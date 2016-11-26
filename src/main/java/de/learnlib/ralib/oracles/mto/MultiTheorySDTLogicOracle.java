@@ -16,36 +16,41 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.ConstantGuardExpression;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
+import de.learnlib.ralib.automata.guards.Relation;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import gov.nasa.jpf.constraints.api.Valuation;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.logging.Level;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
@@ -263,6 +268,197 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         }
         
         return map;
+    }
+
+    @Override
+    public GeneralizedSymbolicSuffix suffixForCounterexample(
+            Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt1, PIV piv1, 
+            SymbolicDecisionTree sdt2, PIV piv2, 
+            TransitionGuard guard, Word<ParameterizedSymbol> actions) {
+
+        log.log(Level.FINEST,"suffixForCounterexample ------------------------------");
+        log.log(Level.FINEST,"Prefix: " + prefix);
+        log.log(Level.FINEST,"Guard: " + guard);
+        log.log(Level.FINEST,"Actions: " + actions);
+        log.log(Level.FINEST,"PIV1: " + piv1);
+        log.log(Level.FINEST,"SDT1: " + sdt1);
+        log.log(Level.FINEST,"PIV2: " + piv2);
+        log.log(Level.FINEST,"SDT2: " + sdt2);        
+        log.log(Level.FINEST,"------------------------------------------------------");        
+        
+        SDT _sdt1 = (SDT) sdt1;
+        SDT _sdt2 = (SDT) sdt2;
+        
+        // get all the paths
+        List<Conjunction> expr1_T = _sdt1.getPathsAsExpressions(consts, true);
+        List<Conjunction> expr2_T = _sdt2.getPathsAsExpressions(consts, true);                
+        List<Conjunction> expr1_F = _sdt1.getPathsAsExpressions(consts, false);
+        List<Conjunction> expr2_F = _sdt2.getPathsAsExpressions(consts, false); 
+        
+        // get guard and relabel ...
+        GuardExpression exprG = guard.getCondition();
+        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
+                new VarMapping<>();
+        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
+            if (sv instanceof Parameter) {
+                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
+            }
+        }
+        exprG = exprG.relabel(gremap);
+        
+        // remapping between sdts
+        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+                createRemapping(piv2, piv1);
+        
+        for (Conjunction e1 : expr1_T) {
+            if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
+                continue;
+            }            
+            if (expr2_F.isEmpty()) {
+                // found counterexample slice
+                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
+                Arrays.fill(e2r, TrueGuardExpression.TRUE);
+                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
+            }
+            for (Conjunction e2 : expr2_F) {
+                Conjunction e2r = e2.relabel(remap);
+                if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
+                    // found counterexample slice
+                    return counterExampleFromSlice(e1, e2r, actions);
+                }
+            }            
+        }
+        
+        for (Conjunction e1 : expr1_F) {
+            if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
+                continue;
+            }            
+            if (expr2_T.isEmpty()) {
+                // found counterexample slice
+                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
+                Arrays.fill(e2r, TrueGuardExpression.TRUE);
+                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
+            }
+            for (Conjunction e2 : expr2_T) {
+                Conjunction e2r = e2.relabel(remap);
+                if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
+                    // found counterexample slice
+                    return counterExampleFromSlice(e1, e2r, actions);
+                }
+            }              
+        }
+               
+        throw new IllegalStateException("Could not find CE slice");
+    }
+
+    private GeneralizedSymbolicSuffix counterExampleFromSlice(
+            Conjunction e1, Conjunction e2, Word<ParameterizedSymbol> actions) {
+        
+        System.out.println("-----------------------------------------------");  
+        System.out.println("Actions: " + actions);
+        System.out.println("Path 1: " + e1);
+        System.out.println("Path 2: " + e2);      
+    
+        EnumSet<DataRelation>[] prels = new EnumSet[e1.getConjuncts().length];
+        EnumSet<DataRelation>[][] srels = new EnumSet[e1.getConjuncts().length][];
+        
+        int idx = 0;
+        int base = 0;
+        
+        for (int i=0; i< e1.getConjuncts().length; i++) {
+            
+            while (i >= base + actions.getSymbol(idx).getArity()) {
+                base += actions.getSymbol(idx).getArity();
+                idx++;
+            }
+            ParameterizedSymbol ps = actions.getSymbol(idx);
+            
+            GuardExpression c1 = e1.getConjuncts()[i];
+            GuardExpression c2 = e2.getConjuncts()[i];
+
+            Collection<AtomicGuardExpression> atoms1 = c1.getAtoms();
+            Collection<AtomicGuardExpression> atoms2 = c2.getAtoms();            
+            
+            srels[i] = new EnumSet[i];
+            
+            prels[i] = prefixRelations(atoms2);
+            if (ps instanceof OutputSymbol) {
+                prels[i].add(DataRelation.DEFAULT);
+                prels[i].add(DataRelation.EQ);
+            }
+            suffixRelations(srels[i], atoms2);
+                
+            /*
+            if (implies(c1, c2) && !implies(c2, c1)) {
+                // use c1                
+                prels[i] = prefixRelations(atoms1);
+                suffixRelations(srels[i], atoms1);
+            } 
+            else if (!implies(c1, c2) && implies(c2, c1)) {
+                // use c2
+                prels[i] = prefixRelations(atoms2);
+                suffixRelations(srels[i], atoms2);
+            }
+            else {
+                // equivalent - use both or does not matter?
+                prels[i] = prefixRelations(atoms1);
+                suffixRelations(srels[i], atoms1);           
+            }
+            */
+        }
+        
+        
+        GeneralizedSymbolicSuffix suffix = 
+                new GeneralizedSymbolicSuffix(actions, prels, srels);
+        
+        System.out.println("New suffix: " + suffix);
+        
+        return suffix;
+    }
+
+    private boolean implies(GuardExpression left, GuardExpression right) {
+        return !solver.isSatisfiable(new Conjunction(left, new Negation(right)));
+    }
+    
+    private EnumSet<DataRelation> prefixRelations(
+            Collection<AtomicGuardExpression> es) {
+        
+        EnumSet<DataRelation> ret = EnumSet.of(DataRelation.DEFAULT);
+        for (AtomicGuardExpression e : es) {
+            if (!(e.getLeft() instanceof SuffixValue) || 
+                    !(e.getRight() instanceof SuffixValue)) {
+                ret.add(toDR(e.getRelation()));
+            }
+        }
+        return ret;
+    }
+
+    private void suffixRelations(EnumSet<DataRelation>[] srels, 
+            Collection<AtomicGuardExpression> es) {
+        
+        Arrays.fill(srels, EnumSet.of(DataRelation.DEFAULT));        
+        for (AtomicGuardExpression e : es) {
+            if (e.getLeft() instanceof SuffixValue && 
+                    e.getRight() instanceof SuffixValue) {
+                int idx = Math.min(e.getLeft().getId(), e.getRight().getId()) -1;
+                
+                srels[idx].add(toDR(e.getRelation()));
+                srels[idx].remove(DataRelation.DEFAULT);
+            }
+        }
+    }
+    
+    private DataRelation toDR(Relation rel) {
+        switch (rel) {
+            case EQUALS: return DataRelation.EQ;
+            case LESSER: return DataRelation.LT;
+            case GREATER: return DataRelation.GT;
+            case LSREQUALS: return DataRelation.LTE;
+            case GREQUALS: return DataRelation.GTE;            
+            case NOT_EQUALS: return DataRelation.DEFAULT;
+            default:
+                throw new IllegalStateException("Unsupported Relation: " + rel);
+        }
     }
     
 }

@@ -154,7 +154,8 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
         
-        Assert.assertNull(checker.findCounterExample(hyp, null));
-        
+        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        logger.log(Level.FINE,"Resets: " + sul.getResets());  
+        Assert.assertNull(checker.findCounterExample(hyp, null));    
     }
 }

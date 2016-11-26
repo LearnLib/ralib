@@ -1,5 +1,6 @@
 package de.learnlib.ralib.automata.guards;
 
+import java.util.Collection;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
@@ -148,7 +149,14 @@ public class SumCAtomicGuardExpression<Left extends SymbolicDataValue, Right ext
                     "Relation " + relation + " is not suported in succ guards");
     		}
     }
-        }	
+        }
+
+
+	@Override
+	protected void getAtoms(Collection<AtomicGuardExpression> vals) {
+		// TODO Auto-generated method stub
+		
+	}	
 	
 	
 }

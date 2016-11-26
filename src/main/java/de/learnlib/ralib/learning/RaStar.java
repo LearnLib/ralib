@@ -159,7 +159,7 @@ public class RaStar {
         
         //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
         
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
+        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());     
         obs.addSuffix(res.getSuffix());       
         return true;
     }

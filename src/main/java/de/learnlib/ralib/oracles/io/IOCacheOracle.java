@@ -47,6 +47,10 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 
     
+    public IOCacheOracle(IOOracle sul) {
+    	this(sul, new IOCache(), trace -> trace);
+    }
+    
     public IOCacheOracle(IOOracle sul, TraceCanonizer canonizer) {
     	this(sul, new IOCache(), canonizer);
     }
