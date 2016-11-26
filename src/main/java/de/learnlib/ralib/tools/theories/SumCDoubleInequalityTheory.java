@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
@@ -135,4 +137,34 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	public void setConstants(Constants constants) {
 		this.regularConstants = new ArrayList<>(constants.values(this.getType()));
 	}
+	
+	
+	   @Override
+	    public List<EnumSet<DataRelation>> getRelations(
+	            List<DataValue<Double>> left, DataValue<Double> right) {
+	        
+	        List<EnumSet<DataRelation>> ret = new ArrayList<>();
+	        for (DataValue<Double> dv : left) {
+	        	boolean hasEqualityWithSumC = this.sumConstants.stream()
+	        	.anyMatch( sumc -> 
+	        		Double.valueOf((sumc.getId() + dv.getId())).compareTo(right.getId()) == 0);
+	        	if (hasEqualityWithSumC) {
+	        		ret.add(EnumSet.of(DataRelation.EQ));
+	        	}
+	            final int c = dv.getId().compareTo(right.getId());
+	            switch (c) {
+	                case 0:
+	                    ret.add(EnumSet.of(DataRelation.EQ));
+	                    break;
+	                case 1:
+	                    ret.add(EnumSet.of(DataRelation.GT));
+	                    break;
+	                default: 
+	                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+	                    break;
+	            }
+	        }
+	        
+	        return ret;
+	    }
 }

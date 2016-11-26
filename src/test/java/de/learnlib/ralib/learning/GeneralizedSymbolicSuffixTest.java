@@ -22,6 +22,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
+import de.learnlib.ralib.example.succ.ModerateTCPSUL;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -41,7 +43,12 @@ import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
+
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -82,7 +89,6 @@ public class GeneralizedSymbolicSuffixTest {
     }
     
     
-    @Test
     public void testGeneralizedSymbolicSuffix2() {
         
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
@@ -109,7 +115,7 @@ public class GeneralizedSymbolicSuffixTest {
     }
     
     
-    @Test
+
     public void testGeneralizedSymbolicSuffix3() {
     	   Constants consts = new Constants();
            PriorityQueueOracle dwOracle = new PriorityQueueOracle();
@@ -132,6 +138,49 @@ public class GeneralizedSymbolicSuffixTest {
                    new DataValue(doubleType, 10.0)), new PSymbolInstance(OFFER,
                            new DataValue(doubleType, 1.0))); 
         		   
+        
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                prefix, suffix, new Constants(), teachers);
+        
+        System.out.println("prefix: " + prefix + " suffix: " + suffix);
+        System.out.println(symSuffix);
+    }
+    
+    @Test
+    public void testGeneralizedSymbolicSuffix4() {
+    	Double win = 1000.0;
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(ModerateTCPSUL.DOUBLE_TYPE, 
+                new SumCDoubleInequalityTheory(ModerateTCPSUL.DOUBLE_TYPE,
+                		Arrays.asList(
+                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, win)), // for window size
+                		Collections.emptyList()));
+
+        ModerateTCPSUL sul = new ModerateTCPSUL(win);
+        sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+                sul, ModerateTCPSUL.ERROR, teachers, 
+                new Constants(), jsolv, 
+                sul.getInputSymbols());
+        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateTCPSUL.DOUBLE_TYPE);
+                
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(ModerateTCPSUL.ISYN, 
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK),
+                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK));
+        
+        
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
+                        b.fv(1.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK));
         
         GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
                 prefix, suffix, new Constants(), teachers);
