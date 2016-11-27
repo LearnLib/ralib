@@ -72,6 +72,7 @@ import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.equality.IfElseEquGuardMerger;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -96,20 +97,21 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	/**
 	 * Builds an inequality merger for a type. Defaults to continuous and
-	 * discrete mergers, depending on the runtime class. */
+	 * discrete mergers, depending on the runtime class.
+	 */
 	protected static InequalityGuardMerger getMerger(Class<?> cls) {
 		return sdtMergers.get(cls);
 	}
-	
+
 	/**
 	 * Builds a guard instantiator. Defaults to the one implemented by z3.
 	 */
-	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType<P> type, String name) {
+	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType<P> type,
+			String name) {
 		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
 		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(name);
 		return new ConcreteInequalityGuardInstantiator<P>(type, solver);
 	}
-	
 
 	private boolean freshValues;
 	protected DataType<T> type;
@@ -120,33 +122,31 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	// private InequalityMerger inequalityMerger;
 
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier, Function<DataType<T>, InequalityGuardInstantiator<T> > instantiatorSupplier) {
+	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier,
+			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
 		this.mergerSupplier = mergerSupplier;
 		this.instantiatorSupplier = instantiatorSupplier;
 	}
-	
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier, final String jConstraintsSolver) {
+
+	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier,
+			final String jConstraintsSolver) {
 		this.freshValues = false;
 		this.mergerSupplier = mergerSupplier;
 		this.instantiatorSupplier = (t) -> getInstantiator(t, jConstraintsSolver);
 	}
-	
 
 	/**
-	 * Builds an inequality theory with default merger and instantiator suppliers. 
-	 * The merger supplier defaults to a supplier of continuous and discrete mergers, depending on the runtime class. 
-	 * The instantiator supplier supplies z3 based instantiators.
+	 * Builds an inequality theory with default merger and instantiator
+	 * suppliers. The merger supplier defaults to a supplier of continuous and
+	 * discrete mergers, depending on the runtime class. The instantiator
+	 * supplier supplies z3 based instantiators.
 	 */
 	public InequalityTheoryWithEq() {
-		this(t -> InequalityTheoryWithEq.getMerger(t.getBase()),
-				t -> InequalityTheoryWithEq.getInstantiator(t, "z3")
-				);
-		
-		
+		this(t -> InequalityTheoryWithEq.getMerger(t.getBase()), t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
+
 	}
 
-	
 	@Override
 	public void setCheckForFreshOutputs(boolean doit) {
 		this.freshValues = doit;
@@ -158,7 +158,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 
 	/**
-	 * Sets the type as well as the inequality guard merger and instantiator. 
+	 * Sets the type as well as the inequality guard merger and instantiator.
 	 */
 	public void setType(DataType<T> dataType) {
 		this.type = dataType;
@@ -169,14 +169,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	public DataType<T> getType() {
 		return this.type;
 	}
-	
+
 	protected final boolean hasFreshValues() {
 		return this.freshValues;
 	}
-	
 
 	protected Map<SDTGuard, SDT> mergeGuards(final Map<SDTGuard, SDT> tempGuards,
-			Map<SDTGuard, DataValue<T>> instantiations) {
+			Map<SDTGuard, DataValue<T>> instantiations, Branching branching) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
@@ -198,6 +197,19 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}).collect(Collectors.toList());
 
+		Map<SDTGuard, SDT> merged = null;
+		switch(branching) {
+		case FULL: 
+			merged = this.merger.merge(sortedGuards, tempGuards); break;
+		case IF_EQU_ELSE:
+			//merged = new IfElseEquGuardMerger().merge(tempGuards, elseGuard, elseSDT);
+			break;
+		case IF_INTERVALS_ELSE:
+			break;
+		default:
+			throw new DecoratedRuntimeException("Branching should have been processed earlier").addDecoration("relation", branching);
+		}
+		
 		Map<SDTGuard, SDT> merged2 = this.merger.merge(sortedGuards, tempGuards);
 
 		return merged2;
@@ -249,7 +261,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return ret;
 	}
 
-	
 	public SDT treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, WordValuation values, PIV piv,
 			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
 
@@ -317,10 +328,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						log.log(Level.FINEST, "merged pivs = " + piv.toString());
 
 						return new SDT(merged);
-					}
-					else {
-						// as outputs, we can shortcut, as we only support sumc/equality, also, merging is not necessary, 
-						// since we know that an output value other than the system's is not accepted
+					} else {
+						// as outputs, we can shortcut, as we only support
+						// sumc/equality, also, merging is not necessary,
+						// since we know that an output value other than the
+						// system's is not accepted
 						SymbolicDataExpression outExpr = getSDExprForDV(d, prefixValues, currentParam, values,
 								constants);
 						values.put(pId, d);
@@ -331,16 +343,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						eqSuffixValues.put(sv, d);
 						SDT eqSdt = oracle.treeQuery(prefix, suffix, eqValues, piv, constants, eqSuffixValues);
 						EqualityGuard eqGuard = new EqualityGuard(currentParam, outExpr);
-						
+
 						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
 						int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
-						SDT deqSdt = makeRejectingElseBranch( currentParam.getId() + 1, maxSufIndex);
-						
+						SDT deqSdt = makeRejectingElseBranch(currentParam.getId() + 1, maxSufIndex);
+
 						Map<SDTGuard, SDT> merged = new LinkedHashMap<SDTGuard, SDT>();
 						if (!deqSdt.isEquivalent(eqSdt, new VarMapping())) {
 							merged.put(eqGuard, eqSdt);
 							merged.put(deqGuard, deqSdt);
-						} else 
+						} else
 							merged.put(new SDTTrueGuard(currentParam), deqSdt);
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
@@ -349,8 +361,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}
 
+		Branching branching = computeBranchingLogic(pId, suffix);
+
 		// System.out.println("potential " + potential);
-		if (potential.isEmpty()) {
+		if (potential.isEmpty() || branching == Branching.TRUE_FRESH) {
 			// System.out.println("empty potential");
 			WordValuation elseValues = new WordValuation();
 			DataValue<T> fresh = getFreshValue(potential);
@@ -364,60 +378,81 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
-		} // process each '<' case
+		} else if (branching == Branching.TRUE_PREV) {
+			int eqIdx = findLeftMostEqual(suffix, pId);
+			DataValue prev = suffixValues.get(suffix.getDataValue(eqIdx));
+
+			// System.out.println("empty potential");
+			WordValuation equValues = new WordValuation();
+			equValues.putAll(values);
+			equValues.put(pId, prev);
+
+			// this is the valuation of the suffixvalues in the suffix
+			SuffixValuation equSuffixValues = new SuffixValuation();
+			equSuffixValues.putAll(suffixValues);
+			equSuffixValues.put(sv, prev);
+
+			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
+			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
+
+		}
+		// process each '<' case
 		else {
-			// Parameter p = new Parameter(
-			// currentParam.getType(), currentParam.getId());
 
-			// smallest case
-			WordValuation smValues = new WordValuation();
-			smValues.putAll(values);
-			SuffixValuation smSuffixValues = new SuffixValuation();
-			smSuffixValues.putAll(suffixValues);
+			if (branching == Branching.FULL) {
 
-			Valuation smVal = new Valuation();
-			DataValue<T> dvRight = potential.get(0);
-			IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, smValues, piv, constants);
-			SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
-			// System.out.println("setting valuation, symDV: " +
-			// rsm.toVariable() + " dvright: " + dvRight);
-			smVal.setValue(toVariable(rsm), dvRight.getId());
-			DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight);
-			// instantiate(sguard, smVal, constants, potential);
-			// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
-			smValues.put(pId, smcv);
-			smSuffixValues.put(sv, smcv);
+				// smallest case
+				WordValuation smValues = new WordValuation();
+				smValues.putAll(values);
+				SuffixValuation smSuffixValues = new SuffixValuation();
+				smSuffixValues.putAll(suffixValues);
 
-			SDT smoracleSdt = oracle.treeQuery(prefix, suffix, smValues, piv, constants, smSuffixValues);
+				Valuation smVal = new Valuation();
+				DataValue<T> dvRight = potential.get(0);
+				IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, smValues, piv, constants);
+				SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
+				// System.out.println("setting valuation, symDV: " +
+				// rsm.toVariable() + " dvright: " + dvRight);
+				smVal.setValue(toVariable(rsm), dvRight.getId());
+				DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight);
+				// instantiate(sguard, smVal, constants, potential);
+				// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
+				smValues.put(pId, smcv);
+				smSuffixValues.put(sv, smcv);
 
-			tempKids.put(sguard, smoracleSdt);
-			guardDvs.put(sguard, smcv);
+				SDT smoracleSdt = oracle.treeQuery(prefix, suffix, smValues, piv, constants, smSuffixValues);
 
-			// biggest case
-			WordValuation bgValues = new WordValuation();
-			bgValues.putAll(values);
-			SuffixValuation bgSuffixValues = new SuffixValuation();
-			bgSuffixValues.putAll(suffixValues);
+				tempKids.put(sguard, smoracleSdt);
+				guardDvs.put(sguard, smcv);
 
-			Valuation bgVal = new Valuation();
+				// biggest case
+				WordValuation bgValues = new WordValuation();
+				bgValues.putAll(values);
+				SuffixValuation bgSuffixValues = new SuffixValuation();
+				bgSuffixValues.putAll(suffixValues);
 
-			DataValue<T> dvLeft = potential.get(potSize - 1);
-			IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
-			updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
-			DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null);
-			// instantiate(bguard, bgVal, constants, potential);
-			// bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
-			bgValues.put(pId, bgcv);
-			bgSuffixValues.put(sv, bgcv);
+				Valuation bgVal = new Valuation();
 
-			SDT bgoracleSdt = oracle.treeQuery(prefix, suffix, bgValues, piv, constants, bgSuffixValues);
+				DataValue<T> dvLeft = potential.get(potSize - 1);
+				IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
+				updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
+				DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null);
+				// instantiate(bguard, bgVal, constants, potential);
+				// bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
+				bgValues.put(pId, bgcv);
+				bgSuffixValues.put(sv, bgcv);
 
-			tempKids.put(bguard, bgoracleSdt);
-			guardDvs.put(bguard, bgcv);
+				SDT bgoracleSdt = oracle.treeQuery(prefix, suffix, bgValues, piv, constants, bgSuffixValues);
 
-			if (potSize > 1) { // middle cases
+				tempKids.put(bguard, bgoracleSdt);
+				guardDvs.put(bguard, bgcv);
+			}
+			
+			if (branching == Branching.FULL || branching == Branching.IF_INTERVALS_ELSE) {
+
+				// middle cases
 				for (int i = 1; i < potSize; i++) {
-
+	
 					WordValuation currentValues = new WordValuation();
 					currentValues.putAll(values);
 					SuffixValuation currentSuffixValues = new SuffixValuation();
@@ -426,7 +461,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					Valuation val = new Valuation();
 					DataValue<T> dvMRight = potential.get(i);
 					DataValue<T> dvMLeft = potential.get(i - 1);
-
+	
 					// IntervalGuard smallerGuard = makeSmallerGuard(
 					// dvMRight, prefixValues,
 					// currentParam, currentValues, piv);
@@ -435,7 +470,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// currentValues, piv);
 					IntervalGuard intervalGuard = makeIntervalGuard(dvMLeft, dvMRight, prefixValues, currentParam,
 							currentValues, piv, constants);
-
+	
 					// IntervalGuard guard = new IntervalGuard(
 					// currentParam, biggerGuard.getLeftReg(),
 					// smallerGuard.getRightReg());
@@ -443,58 +478,60 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					SymbolicDataValue rb = intervalGuard.getLeftSDV();
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
-
+	
 					DataValue<T> cv = IntervalDataValue.instantiateNew(dvMLeft, dvMRight);
 					// instantiate(intervalGuard, val, constants, potential);
 					// cv = new IntervalDataValue<T>(cv, dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
 					currentSuffixValues.put(sv, cv);
-
-					SDT oracleSdt = oracle.treeQuery(prefix, suffix, currentValues, piv, constants,
-							currentSuffixValues);
-
+	
+					SDT oracleSdt = oracle.treeQuery(prefix, suffix, currentValues, piv, constants, currentSuffixValues);
+	
 					tempKids.put(intervalGuard, oracleSdt);
 					guardDvs.put(intervalGuard, cv);
 					regPotential.add(i - 1, rb);
 					regPotential.add(i, rs);
 				}
 			}
-			// System.out.println("eq potential is: " + potential);
-			for (DataValue<T> newDv : potential) {
-				// log.log(Level.FINEST, newDv.toString());
+			
+			if (branching == Branching.FULL || branching == Branching.IF_EQU_ELSE) {
 
-				// this is the valuation of the suffixvalues in the suffix
-				SuffixValuation ifSuffixValues = new SuffixValuation();
-				ifSuffixValues.putAll(suffixValues); // copy the suffix
-														// valuation
-
-				// construct the equality guard. Depending on newDv, a certain
-				// type of equality is instantiated (newDv can be a SumCDv, in
-				// which case a SumC equality is instantiated)
-				EqualityGuard eqGuard = makeEqualityGuard(newDv, prefixValues, currentParam, values, constants);
-				// log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
-
-				// we normalize newDv so that we only store plain data values in
-				// the if suffix
-				// newDv = new DataValue<T>(newDv.getType(), newDv.getId());
-				// construct the equality guard
-				// find the data value in the prefix
-				// this is the valuation of the positions in the suffix
-				WordValuation ifValues = new WordValuation();
-				ifValues.putAll(values);
-				ifValues.put(pId, newDv);
-				ifSuffixValues.put(sv, newDv);
-				SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, piv, constants, ifSuffixValues);
-
-				tempKids.put(eqGuard, eqOracleSdt);
-				guardDvs.put(eqGuard, newDv);
+				// System.out.println("eq potential is: " + potential);
+				for (DataValue<T> newDv : potential) {
+					// log.log(Level.FINEST, newDv.toString());
+	
+					// this is the valuation of the suffixvalues in the suffix
+					SuffixValuation ifSuffixValues = new SuffixValuation();
+					ifSuffixValues.putAll(suffixValues); // copy the suffix
+															// valuation
+	
+					// construct the equality guard. Depending on newDv, a certain
+					// type of equality is instantiated (newDv can be a SumCDv, in
+					// which case a SumC equality is instantiated)
+					EqualityGuard eqGuard = makeEqualityGuard(newDv, prefixValues, currentParam, values, constants);
+					// log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
+	
+					// we normalize newDv so that we only store plain data values in
+					// the if suffix
+					// newDv = new DataValue<T>(newDv.getType(), newDv.getId());
+					// construct the equality guard
+					// find the data value in the prefix
+					// this is the valuation of the positions in the suffix
+					WordValuation ifValues = new WordValuation();
+					ifValues.putAll(values);
+					ifValues.put(pId, newDv);
+					ifSuffixValues.put(sv, newDv);
+					SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, piv, constants, ifSuffixValues);
+	
+					tempKids.put(eqGuard, eqOracleSdt);
+					guardDvs.put(eqGuard, newDv);
+				}
 			}
-
 		}
 
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
-		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
+		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs, branching);
 
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
@@ -523,21 +560,68 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return returnSDT;
 
 	}
-	
 
+	private int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {
+		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
+		DataType t = suffix.getDataValue(pId).getType();
+		for (int i = 1; i < pId; i++) {
+			if (!t.equals(suffix.getDataValue(i).getType())) {
+				continue;
+			}
+			if (suffix.getSuffixRelations(i, pId).contains(EQ))
+				return i;
+		}
+		return pId;
+	}
+
+	private Branching computeBranchingLogic(int pid, GeneralizedSymbolicSuffix suffix) {
+		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
+		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
+		// branching processing based on relations included
+		//
+
+		return Branching.FULL;
+	}
+
+	private EnumSet<DataRelation> getSuffixRelations(GeneralizedSymbolicSuffix suffix, int idx) {
+		// FIXME: support muliple types
+		EnumSet<DataRelation> dset;
+		if (idx == 1) {
+			dset = EnumSet.noneOf(DataRelation.class);
+		} else {
+			dset = EnumSet.noneOf(DataRelation.class);
+			for (int i = 1; i < idx; i++) {
+				dset.addAll(suffix.getSuffixRelations(i, idx));
+			}
+		}
+
+		return dset;
+		// return !dset.contains(DataRelation.DEFAULT) || dset.size() > 1;
+	}
+
+	private static enum Branching {
+		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL,
+	}
+
+	/**
+	 * Creates a "unary tree" which of depth maxIndex - nextSufIndex which leads
+	 * to a rejecting Leaf. The edges are True guards over suffix values with
+	 * index from nextSufIndex to (excl.) maxIndex.
+	 * 
+	 * Used to shortcut output processing.
+	 */
 	private SDT makeRejectingElseBranch(int nextSufIndex, int maxIndex) {
 		if (nextSufIndex == maxIndex) {
-			//map.put(guard, SDTLeaf.REJECTING);
+			// map.put(guard, SDTLeaf.REJECTING);
 			return SDTLeaf.REJECTING;
 		} else {
 			Map<SDTGuard, SDT> map = new LinkedHashMap<>();
 			SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue(this.getType(), nextSufIndex));
-			map.put(trueGuard, makeRejectingElseBranch(nextSufIndex+1, maxIndex));
+			map.put(trueGuard, makeRejectingElseBranch(nextSufIndex + 1, maxIndex));
 			SDT sdt = new SDT(map);
 			return sdt;
 		}
 	}
-
 
 	protected DataValue<T> updateValuation(Valuation valuation, SymbolicDataExpression expr, DataValue<T> concValue) {
 		SymbolicDataValue sdvForExpr = expr.getSDV();
@@ -556,15 +640,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return sdvValuation;
 	}
 
-	protected IntervalGuard makeIntervalGuard(DataValue<T> biggerDv, DataValue<T> smallerDv, List<DataValue> prefixValues,
-			SuffixValue currentParam, WordValuation ifValues, PIV pir, Constants constants) {
+	protected IntervalGuard makeIntervalGuard(DataValue<T> biggerDv, DataValue<T> smallerDv,
+			List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir,
+			Constants constants) {
 		IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir, constants);
 		IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir, constants);
 		return new IntervalGuard(currentParam, biggerGuard.getLeftExpr(), smallerGuard.getRightExpr());
 	}
 
-	protected IntervalGuard makeBiggerGuard(DataValue<T> biggerDv, List<DataValue> prefixValues, SuffixValue currentParam,
-			WordValuation ifValues, PIV pir, Constants constants) {
+	protected IntervalGuard makeBiggerGuard(DataValue<T> biggerDv, List<DataValue> prefixValues,
+			SuffixValue currentParam, WordValuation ifValues, PIV pir, Constants constants) {
 		SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, currentParam, ifValues,
 				constants);
 		IntervalGuard bg = new IntervalGuard(currentParam, regOrSuffixExpr, null);
@@ -579,8 +664,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return sg;
 	}
 
-	protected EqualityGuard makeEqualityGuard(DataValue<T> equDv, List<DataValue> prefixValues, SuffixValue currentParam,
-			WordValuation ifValues, Constants constants) {
+	protected EqualityGuard makeEqualityGuard(DataValue<T> equDv, List<DataValue> prefixValues,
+			SuffixValue currentParam, WordValuation ifValues, Constants constants) {
 		DataType type = currentParam.getType();
 		SymbolicDataExpression sdvExpr = getSDExprForDV(equDv, prefixValues, currentParam, ifValues, constants);
 		return new EqualityGuard(currentParam, sdvExpr);
@@ -749,7 +834,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				for (DataValue<T> oldDv : oldDvs) {
 					if ((lExprVal == null || lExprVal.getId().compareTo(oldDv.getId()) < 0)
 							&& (rExprVal == null || rExprVal.getId().compareTo(oldDv.getId()) > 0))
-						return oldDv; // new IntervalDataValue<>(oldDv, lExprVal, rExprVal);
+						return oldDv; // new IntervalDataValue<>(oldDv,
+										// lExprVal, rExprVal);
 				}
 
 				if (!useSolver) {
@@ -857,7 +943,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		return returnValue;
 	}
-	
+
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right) {
 
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();
