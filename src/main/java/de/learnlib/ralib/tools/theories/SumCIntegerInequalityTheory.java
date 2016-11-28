@@ -139,7 +139,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 						SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
 						temp.put(trueGuard, sdt);
 						guardDvs.put(trueGuard, d);
-						Map<SDTGuard, SDT> merged = mergeGuards(temp, guardDvs);
+						Map<SDTGuard, SDT> merged = mergeAllGuards(temp, guardDvs);
 
 						log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
 						log.log(Level.FINEST, "merged guards = " + merged.keySet());
@@ -302,7 +302,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		// + tempKids);
 		// Map<SDTGuard, SDT> merged = mgGuards(tempKids, currentParam,
 		// regPotential);
-		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs);
+		Map<SDTGuard, SDT> merged = mergeAllGuards(tempKids, guardDvs);
 		// Map<SDTGuard, SDT> merged = tempKids;
 		// only keep registers that are referenced by the merged guards
 		// System.out.println("MERGED = " + merged);

@@ -54,7 +54,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
@@ -64,6 +63,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -99,7 +99,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 * Builds an inequality merger for a type. Defaults to continuous and
 	 * discrete mergers, depending on the runtime class.
 	 */
-	protected static InequalityGuardMerger getMerger(Class<?> cls) {
+	protected static InequalityGuardMerger getDefaultMerger(Class<?> cls) {
 		return sdtMergers.get(cls);
 	}
 
@@ -115,25 +115,27 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	private boolean freshValues;
 	protected DataType<T> type;
-	private InequalityGuardMerger merger;
+	private InequalityGuardMerger fullMerger;
+	private final IfElseEquGuardMerger equDiseqMerger;
 	private InequalityGuardInstantiator<T> instantiator;
 	private final Function<DataType<T>, InequalityGuardMerger> mergerSupplier;
 	private final Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier;
+	private IfElseGuardMerger intMerger;
 
 	// private InequalityMerger inequalityMerger;
 
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier,
+	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> fullMergerSupplier,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
-		this.mergerSupplier = mergerSupplier;
+		this.mergerSupplier = fullMergerSupplier;
 		this.instantiatorSupplier = instantiatorSupplier;
+		this.equDiseqMerger = new IfElseEquGuardMerger();
+		this.intMerger = new IfElseGuardMerger();
 	}
 
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> mergerSupplier,
+	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> fullMergerSupplier,
 			final String jConstraintsSolver) {
-		this.freshValues = false;
-		this.mergerSupplier = mergerSupplier;
-		this.instantiatorSupplier = (t) -> getInstantiator(t, jConstraintsSolver);
+		this (fullMergerSupplier, (t) -> getInstantiator(t, jConstraintsSolver));
 	}
 
 	/**
@@ -143,7 +145,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 * supplier supplies z3 based instantiators.
 	 */
 	public InequalityTheoryWithEq() {
-		this(t -> InequalityTheoryWithEq.getMerger(t.getBase()), t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
+		this(t -> InequalityTheoryWithEq.getDefaultMerger(t.getBase()), t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
 
 	}
 
@@ -162,7 +164,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 */
 	public void setType(DataType<T> dataType) {
 		this.type = dataType;
-		this.merger = mergerSupplier.apply(dataType);
+		this.fullMerger = mergerSupplier.apply(dataType);
 		this.instantiator = instantiatorSupplier.apply(dataType);
 	}
 
@@ -174,8 +176,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return this.freshValues;
 	}
 
-	protected Map<SDTGuard, SDT> mergeGuards(final Map<SDTGuard, SDT> tempGuards,
-			Map<SDTGuard, DataValue<T>> instantiations, Branching branching) {
+	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
+			Map<SDTGuard, DataValue<T>> instantiations) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
@@ -197,23 +199,24 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}).collect(Collectors.toList());
 
-		Map<SDTGuard, SDT> merged = null;
-		switch(branching) {
-		case FULL: 
-			merged = this.merger.merge(sortedGuards, tempGuards); break;
-		case IF_EQU_ELSE:
-			//merged = new IfElseEquGuardMerger().merge(tempGuards, elseGuard, elseSDT);
-			break;
-		case IF_INTERVALS_ELSE:
-			break;
-		default:
-			throw new DecoratedRuntimeException("Branching should have been processed earlier").addDecoration("relation", branching);
-		}
-		
-		Map<SDTGuard, SDT> merged2 = this.merger.merge(sortedGuards, tempGuards);
+		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards);
 
-		return merged2;
+		return merged;
 	}
+	
+	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard, SDT elseSDT) {
+		Map<SDTGuard, SDT> merged = this.equDiseqMerger.merge(equGuards, elseGuard, elseSDT);
+		
+		return merged;
+	}
+	
+	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard, SDT elseSDT) {
+		Map<SDTGuard, SDT> merged = this.intMerger.merge(intGuards, elseGuard, elseSDT);
+		
+		return merged;
+	}
+	
+	
 
 	// given a set of registers and a set of guards, keep only the registers
 	// that are mentioned in any guard
@@ -265,7 +268,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
 
 		int pId = values.size() + 1;
-		List<SymbolicDataValue> regPotential = new ArrayList<>();
 		SuffixValue sv = suffix.getDataValue(pId);
 		DataType type = sv.getType();
 
@@ -321,7 +323,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
 						temp.put(trueGuard, sdt);
 						guardDvs.put(trueGuard, d);
-						Map<SDTGuard, SDT> merged = mergeGuards(temp, guardDvs);
+						Map<SDTGuard, SDT> merged = mergeAllGuards(temp, guardDvs);
 
 						log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
 						log.log(Level.FINEST, "merged guards = " + merged.keySet());
@@ -347,13 +349,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
 						int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
 						SDT deqSdt = makeRejectingElseBranch(currentParam.getId() + 1, maxSufIndex);
-
-						Map<SDTGuard, SDT> merged = new LinkedHashMap<SDTGuard, SDT>();
-						if (!deqSdt.isEquivalent(eqSdt, new VarMapping())) {
-							merged.put(eqGuard, eqSdt);
-							merged.put(deqGuard, deqSdt);
-						} else
-							merged.put(new SDTTrueGuard(currentParam), deqSdt);
+						tempKids.put(eqGuard, eqSdt);
+						
+						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt);
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
 					}
@@ -394,7 +392,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
-
 		}
 		// process each '<' case
 		else {
@@ -474,8 +471,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// IntervalGuard guard = new IntervalGuard(
 					// currentParam, biggerGuard.getLeftReg(),
 					// smallerGuard.getRightReg());
-					SymbolicDataValue rs = intervalGuard.getRightSDV();
-					SymbolicDataValue rb = intervalGuard.getLeftSDV();
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 	
@@ -489,8 +484,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	
 					tempKids.put(intervalGuard, oracleSdt);
 					guardDvs.put(intervalGuard, cv);
-					regPotential.add(i - 1, rb);
-					regPotential.add(i, rs);
+				}
+				
+				if (branching == Branching.IF_INTERVALS_ELSE) {
+					throw new RuntimeException("Processing for " + branching.name() + " not yet implemented");
 				}
 			}
 			
@@ -526,12 +523,32 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					tempKids.put(eqGuard, eqOracleSdt);
 					guardDvs.put(eqGuard, newDv);
 				}
+				
+				if (branching == Branching.IF_EQU_ELSE) {
+					SDTGuard [] elseConjuncts = tempKids.keySet().stream()
+					.map(g -> ((EqualityGuard) g).toDeqGuard())
+					.toArray(SDTGuard []::new);
+					
+					SDTGuard elseGuard = new SDTAndGuard(currentParam, elseConjuncts);
+					WordValuation elseValues = new WordValuation();
+					SuffixValuation elseSuffixValues = new SuffixValuation();
+					elseSuffixValues.putAll(suffixValues); // copy the suffix
+					DataValue<T> elseValue = getFreshValue(potential);
+					elseValues.putAll(values);
+					elseValues.put(pId, elseValue);
+					elseSuffixValues.put(sv, elseValue);
+					SDT elseSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
+					
+					Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, elseGuard, elseSdt);
+					piv.putAll(keepMem(merged));
+					return new SDT(merged);
+				}
 			}
 		}
 
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
-		Map<SDTGuard, SDT> merged = mergeGuards(tempKids, guardDvs, branching);
+		Map<SDTGuard, SDT> merged = mergeAllGuards(tempKids, guardDvs);
 
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
