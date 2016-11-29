@@ -57,6 +57,8 @@ public interface SDTLogicOracle {
             SymbolicDecisionTree sdt2, PIV piv2, 
             TransitionGuard guard, Word<PSymbolInstance> rep);
     
+    public GeneralizedSymbolicSuffix suffixForCounterexample(SymbolicDecisionTree sutSdt, Word<ParameterizedSymbol> actions);
+    
     /**
      * computes a generalized symbolic suffix that exhibits a counterexample
      * between to SDTs.

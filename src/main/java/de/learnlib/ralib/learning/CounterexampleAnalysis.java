@@ -108,8 +108,8 @@ public class CounterexampleAnalysis {
         	return  new IndexResult(idx, IndexStatus.NO_CE, null);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        GeneralizedSymbolicSuffix symSuffix = 
-                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
+        GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+                //new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
@@ -139,7 +139,14 @@ public class CounterexampleAnalysis {
             return new IndexResult(idx, IndexStatus.NO_CE, null);
         }
         
-        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(
+        System.out.println("HYP: " + resHyp.getSdt());
+        System.out.println("SUL: " + resSul.getSdt());
+        System.out.println("Prefix: " + prefix);
+        System.out.println("Suffix: " + suffix);
+        System.out.println(sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()));
+        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()); 
+        		
+        		sdtOracle.suffixForCounterexample(
                 location, 
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 

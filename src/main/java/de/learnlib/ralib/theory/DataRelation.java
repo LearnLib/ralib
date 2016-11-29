@@ -21,7 +21,8 @@ package de.learnlib.ralib.theory;
  * @author falk
  */
 public enum DataRelation {
-    DEFAULT, 
+    DEFAULT,
+    ALL,
     EQ,
     LT,
     GT,

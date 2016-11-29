@@ -594,9 +594,26 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private Branching computeBranchingLogic(int pid, GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
+		Branching action = Branching.FULL;
+		if (prefixRel.contains(DataRelation.ALL) || suffixRel.contains(DataRelation.ALL))
+			return action;
 		// branching processing based on relations included
-		//
-
+		if (prefixRel.isEmpty()) { 
+			if (suffixRel.isEmpty())
+				action = Branching.TRUE_FRESH;
+			else if (suffixRel.contains(DataRelation.EQ))
+				action = Branching.TRUE_PREV;
+		} else {
+			if (prefixRel.contains(DataRelation.EQ) && !prefixRel.contains(DataRelation.GT) && !prefixRel.contains(DataRelation.LT)) { 
+				if (suffixRel.isEmpty())
+					action = Branching.IF_EQU_ELSE;
+				else if (suffixRel.contains(DataRelation.EQ))
+					action = Branching.TRUE_PREV;
+				else
+					action = Branching.IF_EQU_ELSE;
+			} 
+		}
+		
 		return Branching.FULL;
 	}
 
@@ -613,7 +630,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 
 		return dset;
-		// return !dset.contains(DataRelation.DEFAULT) || dset.size() > 1;
 	}
 
 	private static enum Branching {
@@ -702,7 +718,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				DataValue<T> constant = sumDv.getConstant();
 				DataValue<T> prevDV = sumDv.getOperand();
 				SymbolicDataValue prevSDV = getSDVForDV(prevDV, prefixValues, currentParam, ifValues, constants);
-				return new SumCDataExpression(prevSDV, sumDv.getConstant());
+				return new SumCDataExpression(prevSDV, constant);
 			} else {
 				return SDV;
 			}

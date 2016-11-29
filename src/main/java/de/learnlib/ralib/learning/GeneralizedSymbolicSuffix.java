@@ -70,6 +70,26 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             this.suffixValues[idx++] = valgen.next(t);
         }
     }
+    
+    public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, 
+            Word<PSymbolInstance> suffix, Constants consts,
+            Map<DataType, Theory> theories) {
+    	
+    	DataValue[] vals = DataWords.valsOf(suffix);
+    	EnumSet<DataRelation> [] prefixRelations = new EnumSet [vals.length];
+    	EnumSet<DataRelation> [][] suffixRelations = new EnumSet[vals.length][];
+		
+    	for (int i=0; i<vals.length; i++) {
+    		EnumSet<DataRelation> allRelations = EnumSet.of(DataRelation.ALL); //theories.get(vals[i].getType()).recognizedRelations();
+    		prefixRelations[i] = EnumSet.copyOf(allRelations);
+    		suffixRelations[i] = new EnumSet [i];
+    		for (int j=0; j<i; j++) 
+    			suffixRelations[i][j] = EnumSet.copyOf(allRelations);
+    	}
+    	Word<ParameterizedSymbol> suffixActs = DataWords.actsOf(suffix);
+    	
+    	return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations);
+    }
         
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, 
             Word<PSymbolInstance> suffix, Constants consts,
