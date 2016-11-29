@@ -87,8 +87,8 @@ public class CounterexampleAnalysis {
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-        IndexResult result = binarySearch(ce);
-        //IndexResult result  = linearBackWardsSearch(ce);
+        //IndexResult result = binarySearch(ce);
+        IndexResult result  = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(result.idx);
         GeneralizedSymbolicSuffix symSuffix = result.suffix;
@@ -143,10 +143,8 @@ public class CounterexampleAnalysis {
         System.out.println("SUL: " + resSul.getSdt());
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + suffix);
-        System.out.println(sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()));
-        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()); 
-        		
-        		sdtOracle.suffixForCounterexample(
+        //System.out.println(sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()));
+        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(
                 location, 
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
@@ -219,6 +217,11 @@ public class CounterexampleAnalysis {
         // if the current index has no refinement use the 
         // suffix of the next index
         if (results[idx].status == IndexStatus.HAS_CE_NO_REFINE) {
+        	if (results[idx+1].status == IndexStatus.NO_CE) {
+                GeneralizedSymbolicSuffix s = results[idx].suffix.suffix();
+                IndexResult old = results[idx+1];
+                results[idx+1] = new IndexResult(old.idx, old.status, s);
+            }
             idx++;
         }
 

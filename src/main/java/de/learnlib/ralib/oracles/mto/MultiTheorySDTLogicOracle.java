@@ -21,11 +21,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -52,6 +55,7 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -275,15 +279,31 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     
-    /** 
-     * Generates a symbolic suffix by stamping all relations in the sdt onto the symbolic suffix. 
+    /* 
+     * Generates a symbolic suffix by stamping all relations in the sdt onto the symbolic suffix. This doesn't work all the time,
+     * particularly when the hyp contains a refinement not included in the sut: 
+     * HYP: []-+
+			 []-TRUE: s1
+			        []-(s2=s1)
+			         |    [Leaf-]
+			         +-(s2!=s1)
+			              [Leaf+]
+			
+			SUL: []-+
+			  []-TRUE: s1
+			        []-TRUE: s2
+			              [Leaf+]
      */
     public GeneralizedSymbolicSuffix suffixForCounterexample(SymbolicDecisionTree sutSdt, Word<ParameterizedSymbol> actions) {
     	SDT sdt = (SDT) sutSdt;
-
-    	VarMapping<SymbolicDataValue, SymbolicDataValue> regToSuffix = new VarMapping<>();
-    	List<List<SDTGuard>> accPaths = sdt.getPaths(Collections.emptyList(), true);
-    	List<List<SDTGuard>> rejPaths = sdt.getPaths(Collections.emptyList(), false);
+    	
+    	SDT relabeledSdt = relabelPrefixesWithSuffixes(sdt);
+    	System.out.println("RELABELED SDT: " + relabeledSdt);
+    	if (!sdt.isEquivalent(relabeledSdt, new VarMapping())) {
+    		System.out.println("DIFF SDT: " + relabeledSdt);
+    	}
+    	List<List<SDTGuard>> accPaths = relabeledSdt.getPaths(Collections.emptyList(), true);
+    	List<List<SDTGuard>> rejPaths = relabeledSdt.getPaths(Collections.emptyList(), false);
     	List<List<SDTGuard>> allPaths = new ArrayList<>(accPaths.size() + rejPaths.size());
     	allPaths.addAll(accPaths);
     	allPaths.addAll(rejPaths);
@@ -292,18 +312,48 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         EnumSet<DataRelation>[][] srels = new EnumSet[pathSize][];
     	for (int i=0; i<pathSize; i++) {
     		final int idx = i;
+    		Stream<SDTGuard> guardStream = allPaths.stream().map(path -> path.get(idx));
     		Set<AtomicGuardExpression> atomicGuards = allPaths
     				.stream().map(path -> path.get(idx))
     				.map(guard -> guard.toExpr()).distinct()
     				.map(gExp -> gExp.getAtoms()).flatMap(ats -> ats.stream())
     				.collect(Collectors.toSet());
     	      srels[i] = new EnumSet[i];
-              
               prels[i] = prefixRelations(atomicGuards);
               suffixRelations(srels[i], atomicGuards);
+            
     	}
     	
+    	
+    	
     	return new GeneralizedSymbolicSuffix(actions, prels, srels);
+    }
+    
+    /**
+     * Relabeles  sdts so that registers appearing in equality expressions are replaced by the suffixes to which
+     * they bound in the context of these expressions. 
+     */
+    private SDT relabelPrefixesWithSuffixes(SDT sutSdt) {
+    	if (sutSdt instanceof SDTLeaf)
+    		return sutSdt;
+    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
+    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
+    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
+    		SDTGuard guard = entry.getKey();
+    		SDT sdt = entry.getValue();
+    		if (guard instanceof EqualityGuard) {
+    			EqualityGuard equGuard = (EqualityGuard) guard;
+    			SymbolicDataValue reg = equGuard.getRegister();
+    			if (equGuard.isEqualityWithSDV() && (reg.isRegister() || reg.isConstant())) {
+    				VarMapping<SymbolicDataValue, SymbolicDataValue> mapping = new VarMapping<>();
+    				mapping.put(reg, equGuard.getParameter());
+    				sdt = (SDT) sdt.relabel(mapping);
+    			} 
+    		}
+    		SDT relabeledSdt = relabelPrefixesWithSuffixes(sdt);
+    		newChildren.put(guard, relabeledSdt);
+    	}
+    	return new SDT(newChildren);
     }
     
     @Override
@@ -444,7 +494,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             }
             */
         }
-        
+//        if (prels.length > 0)
+//        	prels[0].add(DataRelation.ALL);
         
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels);

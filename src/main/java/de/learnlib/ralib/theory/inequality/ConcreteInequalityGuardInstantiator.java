@@ -25,6 +25,8 @@ import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.expressions.NumericCompound;
+import gov.nasa.jpf.constraints.expressions.NumericOperator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -182,6 +184,40 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 			// System.out.println("UNSAT: " + _x + " with " + newVal);
 			return null;
 		}
+	}
+	
+	
+
+	public static void main(String [] args) {
+		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
+		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver("z3");
+		
+		gov.nasa.jpf.constraints.expressions.Constant<Double> cst = new gov.nasa.jpf.constraints.expressions.Constant<Double>(
+				BuiltinTypes.DOUBLE, 1.0);
+		
+		Variable<Double> a = new Variable<Double>(BuiltinTypes.DOUBLE, "a");
+		NumericBooleanExpression equExpression = new NumericBooleanExpression(cst, NumericComparator.EQ, a);
+		Valuation ctx = new Valuation();
+		
+		Result res = solver.solve(equExpression, ctx);
+		System.out.println("Result: " + res + " Context: "  + ctx);
+		
+		NumericCompound<Double> incOfA = gov.nasa.jpf.constraints.expressions.NumericCompound.create(a, 
+	        		NumericOperator.PLUS, cst);
+		
+		equExpression = new NumericBooleanExpression(cst, NumericComparator.EQ, incOfA);
+		ctx = new Valuation();
+		
+		res = solver.solve(equExpression, ctx);
+		System.out.println("Result: " + res + " Context: "  + ctx);
+		
+		ctx = new Valuation();
+		NumericBooleanExpression impExpression = new NumericBooleanExpression(a, NumericComparator.EQ, incOfA);
+		
+		res = solver.solve(impExpression, ctx);
+		System.out.println("Result: " + res + " Context: "  + ctx);
+		
+		
 	}
 
 }

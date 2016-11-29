@@ -376,7 +376,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
-		} else if (branching == Branching.TRUE_PREV) {
+		} else if (branching == Branching.TRUE_PREV || branching == Branching.EQ_DISEQ_PREV) {
 			int eqIdx = findLeftMostEqual(suffix, pId);
 			DataValue prev = suffixValues.get(suffix.getDataValue(eqIdx));
 
@@ -390,8 +390,30 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			equSuffixValues.putAll(suffixValues);
 			equSuffixValues.put(sv, prev);
 
-			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
-			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
+			SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
+			if (branching == Branching.TRUE_PREV)
+				tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
+			else { //EQ_DISEQ_PREV
+				EqualityGuard equGuard = this.makeEqualityGuard(prev, prefixValues, currentParam, values , constants);
+				tempKids.put(equGuard, equOracleSdt);
+				
+				// System.out.println("empty potential");
+				WordValuation elseValues = new WordValuation();
+				DataValue<T> fresh = getFreshValue(potential);
+				elseValues.putAll(values);
+				elseValues.put(pId, fresh);
+
+				// this is the valuation of the suffixvalues in the suffix
+				SuffixValuation elseSuffixValues = new SuffixValuation();
+				elseSuffixValues.putAll(suffixValues);
+				elseSuffixValues.put(sv, fresh);
+
+				SDT elseSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
+				DisequalityGuard elseGuard = equGuard.toDeqGuard();
+				Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, elseGuard, elseSdt);
+				piv.putAll(keepMem(merged));
+				return new SDT(merged);
+			}
 		}
 		// process each '<' case
 		else {
@@ -601,20 +623,46 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		if (prefixRel.isEmpty()) { 
 			if (suffixRel.isEmpty())
 				action = Branching.TRUE_FRESH;
-			else if (suffixRel.contains(DataRelation.EQ))
+			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
 				action = Branching.TRUE_PREV;
+			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
+				action = Branching.IF_EQU_ELSE;
 		} else {
-			if (prefixRel.contains(DataRelation.EQ) && !prefixRel.contains(DataRelation.GT) && !prefixRel.contains(DataRelation.LT)) { 
-				if (suffixRel.isEmpty())
-					action = Branching.IF_EQU_ELSE;
-				else if (suffixRel.contains(DataRelation.EQ))
+			if (prefixRel.equals(EnumSet.of(DataRelation.EQ))) { 
+				if (suffixRel.isEmpty() 
+						|| suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))
+						|| suffixRel.equals(EnumSet.of(DataRelation.EQ)))
 					action = Branching.TRUE_PREV;
-				else
+				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
 					action = Branching.IF_EQU_ELSE;
-			} 
+			} else {
+				if (prefixRel.equals(EnumSet.of(DataRelation.EQ, DataRelation.DEFAULT))) {
+					if (suffixRel.isEmpty())
+						action = Branching.IF_EQU_ELSE;
+//					else if (suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))) 
+//						action = Branching.TRUE_FRESH;
+//					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
+//						action = Branching.TRUE_PREV;
+					else if (EnumSet.of(DataRelation.EQ, DataRelation.DEFAULT).containsAll(suffixRel))
+						action = Branching.IF_EQU_ELSE;
+				} else { 
+					if (prefixRel.equals(EnumSet.of(DataRelation.DEFAULT))) {
+						if (suffixRel.isEmpty())
+							action = Branching.TRUE_FRESH;
+						else if (suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))) 
+							action = Branching.TRUE_FRESH;
+//						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
+//							action = Branching.TRUE_PREV;
+//						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
+//							action = Branching.IF_EQU_ELSE;
+					} 
+				}
+			}
 		}
 		
-		return Branching.FULL;
+	//	System.out.println(action);
+		
+		return action;//Branching.FULL;
 	}
 
 	private EnumSet<DataRelation> getSuffixRelations(GeneralizedSymbolicSuffix suffix, int idx) {
@@ -633,7 +681,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 
 	private static enum Branching {
-		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL,
+		TRUE_FRESH, TRUE_PREV, EQ_DISEQ_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL,
 	}
 
 	/**
