@@ -380,19 +380,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			return new SDT(tempKids);
 		} else if (branching == Branching.TRUE_PREV || branching == Branching.EQ_DISEQ_PREV) {
 			int eqIdx = findLeftMostEqualSuffix(suffix, pId);
-			DataValue prev = null;
-			if (eqIdx != -1)
-				prev = suffixValues.get(suffix.getDataValue(eqIdx));
-			else {
-				eqIdx = findLeftMostEqualPrefix(suffix, pId);
-				if (eqIdx != -1)
-					System.out.println("");
-			}
-			
-			if (prev == null) {
-				System.out.println("");
-			}
-				
+			DataValue prev = suffixValues.get(suffix.getDataValue(eqIdx));
 
 			// System.out.println("empty potential");
 			WordValuation equValues = new WordValuation();
@@ -628,20 +616,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		return -1;
 	}
-	
-	private int findLeftMostEqualPrefix(GeneralizedSymbolicSuffix suffix, int pId) {
-		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
-		DataType t = suffix.getDataValue(pId).getType();
-		for (int i = 0; i < pId; i++) {
-			if (!t.equals(suffix.getDataValue(i).getType())) {
-				continue;
-			}
-			if (suffix.getPrefixRelations(i).contains(EQ))
-				return i;
-		}
-		return -1;
-	}
-	
 
 	private Branching computeBranchingLogic(int pid, GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);

@@ -66,6 +66,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTNotGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.words.DataWords;
@@ -468,17 +469,29 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		opArray[operands.size()] = next;
     		return new SDTAndGuard(head.getParameter(), opArray);
     	} else {
+    		
+    		// code for merging intervals with other guards as to simplify them
+    		if (head instanceof IntervalGuard && next instanceof DisequalityGuard ||
+    				next instanceof IntervalGuard && head instanceof DisequalityGuard) {
+    			IntervalGuard intv = head instanceof IntervalGuard ? (IntervalGuard) head : (IntervalGuard) next;
+    			DisequalityGuard deq = head instanceof DisequalityGuard ? (DisequalityGuard) head : (DisequalityGuard) next;
+    			
+    			if (!intv.isSmallerGuard() && intv.getLeftExpr().equals(deq.getExpression()) && !intv.getLeftOpen()) 
+    				return new IntervalGuard(intv.getParameter(), intv.getLeftExpr(), true, intv.getRightExpr(), intv.getRightOpen());
+    			if (!intv.isBiggerGuard() && intv.getRightExpr().equals(deq.getExpression()) && !intv.getRightOpen()) 
+    				return new IntervalGuard(intv.getParameter(), intv.getLeftExpr(), intv.getLeftOpen(), intv.getRightExpr(), true);
+    		}
     		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
     			IntervalGuard intv1 = (IntervalGuard) head;
     			IntervalGuard intv2 = (IntervalGuard) next;
-    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard()) {
+    			if (intv1.isBiggerGuard() && !intv2.isBiggerGuard()) {
     				if (intv1.getLeftExpr().equals(intv2.getRightExpr())) {
     					assert !intv1.getLeftOpen() && !intv2.getRightOpen();
     					return new EqualityGuard(intv1.getParameter(), intv1.getLeftExpr());
     				} else
     					return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
     			} 
-    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard()) {
+    			if (intv1.isSmallerGuard() && !intv2.isSmallerGuard()) {
     				if (intv1.getRightExpr().equals(intv2.getLeftExpr())) {
     					assert !intv1.getRightOpen() && !intv2.getLeftOpen();
     					return new EqualityGuard(intv1.getParameter(), intv1.getRightExpr());

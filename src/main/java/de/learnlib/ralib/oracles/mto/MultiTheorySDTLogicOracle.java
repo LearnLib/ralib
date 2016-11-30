@@ -535,7 +535,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 suffixRelations(srels[i], atoms1);           
             }
         }
-        prels[0] = EnumSet.of(DataRelation.ALL);
+      //  prels[0] = EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels);
         
