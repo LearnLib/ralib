@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
 
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class TestTreeOracle extends RaLibTestSuite {
             public List<EnumSet<DataRelation>> getRelations(List<DataValue<String>> left, DataValue<String> right) {
                 List<EnumSet<DataRelation>> ret = new ArrayList<>();
                 for (DataValue<String> v : left) {
-                    ret.add( v.equals(right) ? EnumSet.of(DEFAULT, EQ) : EnumSet.of(DEFAULT));
+                    ret.add( v.equals(right) ? EnumSet.of(DEQ, EQ) : EnumSet.noneOf(DataRelation.class));
                 }
                 return ret;                
             }
@@ -158,7 +158,7 @@ public class TestTreeOracle extends RaLibTestSuite {
             public List<EnumSet<DataRelation>> getRelations(List<DataValue<String>> left, DataValue<String> right) {
                 List<EnumSet<DataRelation>> ret = new ArrayList<>();
                 for (DataValue<String> v : left) {
-                    ret.add( v.equals(right) ? EnumSet.of(DEFAULT, EQ) : EnumSet.of(DEFAULT));
+                    ret.add( v.equals(right) ? EnumSet.of(DEQ, EQ) : EnumSet.of(DEQ));
                 }
                 return ret;                
             }

@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -356,6 +358,41 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     	return new SDT(newChildren);
     }
     
+    private EnumSet<DataRelation> getInitialBranchingRelations(SDT sutSdt, SDT hypSdt) {
+    	if (sutSdt instanceof SDTLeaf || sutSdt.isEmpty() && hypSdt.isEmpty())
+    		return EnumSet.noneOf(DataRelation.class);
+    	else {
+    		List<GuardExpression> sutGuards = sutSdt.getChildren().keySet()
+    				.stream().map(guard -> guard.toExpr()).collect(Collectors.toList());
+    		List<GuardExpression> hypGuards = hypSdt.getChildren().keySet()
+    				.stream().map(guard -> guard.toExpr()).collect(Collectors.toList());
+    		Set<GuardExpression> refinedGuards = new LinkedHashSet<>();
+    		PIV empty = new PIV();
+    		for (GuardExpression sguard : sutGuards) {
+    			for (GuardExpression hguard : hypGuards) {
+    				if (canBothBeSatisfied(sguard, empty, hguard, empty)) {
+    					if (implies(sguard, hguard))
+    						refinedGuards.add(sguard);
+    					else
+    						if (implies(hguard, sguard))
+    							refinedGuards.add(hguard);
+    						else {
+    							refinedGuards.add(hguard);
+    							refinedGuards.add(sguard);
+    						}
+    				}
+    			}
+    		}
+    		
+    		assert !solver.isSatisfiable(new Conjunction(refinedGuards.toArray(new GuardExpression[]{})));
+
+    		final EnumSet<DataRelation> rels = EnumSet.noneOf(DataRelation.class);
+    		refinedGuards.stream().map(gexp -> gexp.getAtoms())
+    		.map(atoms -> prefixRelations(atoms)).forEach(atRels -> rels.addAll(atRels));
+    		return rels;
+    	}
+    }
+    
     @Override
     public GeneralizedSymbolicSuffix suffixForCounterexample(
             Word<PSymbolInstance> prefix, SymbolicDecisionTree hypSdt, PIV hypPiv, 
@@ -396,18 +433,18 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
                 createRemapping(sutPiv, hypPiv);
         
-        // find paths in the two sdts, which under conjunction are satisfiable, s.t. sdt1 accepts, 
-        // but sdt2 rejects or vice versa, and build a suffix out of these paths 
+        // find disagreeing paths in the two sdts which are satisfiable under conjunction 
+        // (one path refines the other)
         for (Conjunction e1 : expr1_T) {
             if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
                 continue;
             }            
-            if (expr2_F.isEmpty()) {
-                // found counterexample slice
-                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
-                Arrays.fill(e2r, TrueGuardExpression.TRUE);
-                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
-            }
+//            if (expr2_F.isEmpty()) {
+//                // found counterexample slice
+//                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
+//                Arrays.fill(e2r, TrueGuardExpression.TRUE);
+//                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
+//            }
             for (Conjunction e2 : expr2_F) {
                 Conjunction e2r = e2.relabel(remap);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
@@ -421,12 +458,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
                 continue;
             }            
-            if (expr2_T.isEmpty()) {
-                // found counterexample slice
-                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
-                Arrays.fill(e2r, TrueGuardExpression.TRUE);
-                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
-            }
+//            if (expr2_T.isEmpty()) {
+//                // found counterexample slice
+//                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
+//                Arrays.fill(e2r, TrueGuardExpression.TRUE);
+//                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
+//            }
             for (Conjunction e2 : expr2_T) {
                 Conjunction e2r = e2.relabel(remap);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
@@ -452,6 +489,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         int idx = 0;
         int base = 0;
+        boolean first = true;
         
         for (int i=0; i< e1.getConjuncts().length; i++) {
             
@@ -465,18 +503,16 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             GuardExpression c2 = e2.getConjuncts()[i];
 
             Collection<AtomicGuardExpression> atoms1 = c1.getAtoms();
-            Collection<AtomicGuardExpression> atoms2 = c2.getAtoms();            
+            Collection<AtomicGuardExpression> atoms2 = c2.getAtoms();     
             
             srels[i] = new EnumSet[i];
             
-            prels[i] = prefixRelations(atoms2);
-            if (ps instanceof OutputSymbol) {
-                prels[i].add(DataRelation.DEFAULT);
-                prels[i].add(DataRelation.EQ);
-            }
-            suffixRelations(srels[i], atoms2);
-                
-            /*
+//            prels[i] = prefixRelations(allAtoms);
+//            if (ps instanceof OutputSymbol) {
+//                prels[i].add(DataRelation.DEFAULT);
+//                prels[i].add(DataRelation.EQ);
+//            }
+//            suffixRelations(srels[i], allAtoms);
             if (implies(c1, c2) && !implies(c2, c1)) {
                 // use c1                
                 prels[i] = prefixRelations(atoms1);
@@ -487,16 +523,19 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 prels[i] = prefixRelations(atoms2);
                 suffixRelations(srels[i], atoms2);
             }
-            else {
+            else  if (!implies(c1, c2) && !implies(c2, c1)) { 
+                Collection<AtomicGuardExpression> allAtoms = new HashSet<AtomicGuardExpression>(atoms1);
+                allAtoms.addAll(atoms2);
+            	// use both
+                prels[i] = prefixRelations(allAtoms);
+                suffixRelations(srels[i], allAtoms);
+            } else {
                 // equivalent - use both or does not matter?
                 prels[i] = prefixRelations(atoms1);
                 suffixRelations(srels[i], atoms1);           
             }
-            */
         }
-//        if (prels.length > 0)
-//        	prels[0].add(DataRelation.ALL);
-        
+        prels[0] = EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels);
         
@@ -520,9 +559,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             }
         }
         
-        if (ret.isEmpty())
-        	ret.add(DataRelation.DEFAULT);
-        
+//        if (ret.isEmpty())
+//        	ret.add(DataRelation.DEFAULT);
+//        
         return ret;
     }
 
@@ -539,10 +578,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             }
         }
         
-        for (EnumSet<DataRelation> srel : srels) {
-        	if (srel.isEmpty())
-        		srel.add(DataRelation.DEFAULT);
-        }
+//        for (EnumSet<DataRelation> srel : srels) {
+//        	if (srel.isEmpty())
+//        		srel.add(DataRelation.DEFAULT);
+//        }
     }
     
     private EnumSet<DataRelation> toDR(Relation rel) {
@@ -552,7 +591,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             case GREATER: return EnumSet.of(DataRelation.GT);
             case LSREQUALS: return EnumSet.of(DataRelation.LT, DataRelation.EQ);
             case GREQUALS: return EnumSet.of(DataRelation.GT, DataRelation.EQ);            
-            case NOT_EQUALS: return EnumSet.of(DataRelation.DEFAULT);
+            case NOT_EQUALS: return EnumSet.of(DataRelation.DEQ);
             default:
                 throw new IllegalStateException("Unsupported Relation: " + rel);
         }

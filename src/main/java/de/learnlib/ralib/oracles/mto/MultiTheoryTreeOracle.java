@@ -468,6 +468,25 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		opArray[operands.size()] = next;
     		return new SDTAndGuard(head.getParameter(), opArray);
     	} else {
+    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
+    			IntervalGuard intv1 = (IntervalGuard) head;
+    			IntervalGuard intv2 = (IntervalGuard) next;
+    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard()) {
+    				if (intv1.getLeftExpr().equals(intv2.getRightExpr())) {
+    					assert !intv1.getLeftOpen() && !intv2.getRightOpen();
+    					return new EqualityGuard(intv1.getParameter(), intv1.getLeftExpr());
+    				} else
+    					return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
+    			} 
+    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard()) {
+    				if (intv1.getRightExpr().equals(intv2.getLeftExpr())) {
+    					assert !intv1.getRightOpen() && !intv2.getLeftOpen();
+    					return new EqualityGuard(intv1.getParameter(), intv1.getRightExpr());
+    				} else
+    					return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
+    			}
+    		}
+    		
 //    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
 //    			IntervalGuard intv1 = (IntervalGuard) head;
 //    			IntervalGuard intv2 = (IntervalGuard) next;

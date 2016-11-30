@@ -23,7 +23,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.theory.DataRelation;
-import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -131,7 +130,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             List<EnumSet<DataRelation>> prels = t.getRelations(pvals, v);
             List<EnumSet<DataRelation>> crels = t.getRelations(cvals, v);
             List<EnumSet<DataRelation>> srels = t.getRelations(prevSuffixValues, v);
-            prefixRels.add(DataRelation.DEFAULT);
             
             if (prefix.length() == 0 || 
                     actions.getSymbol(psIdx) instanceof OutputSymbol ||
@@ -144,9 +142,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             int lidx = 0;
             for (EnumSet<DataRelation> srel : srels) {
                 // FIXME: not sure if this sufficient or if all prev. relations needed
-                if (srel.isEmpty()) {
-                    srel.add(DEFAULT);
-                }
             }
 
             this.prefixRelations[idx] = prefixRels;
@@ -202,7 +197,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             this.suffixRelations[psLength + i] = 
                     new EnumSet[sameTypePrefix + sameTypeSuffix];
             
-            Arrays.fill(this.suffixRelations[psLength + i], 0, sameTypePrefix, EnumSet.of(DEFAULT));
+            Arrays.fill(this.suffixRelations[psLength + i], 0, sameTypePrefix, EnumSet.noneOf(DataRelation.class));
             
             // FIXME: do we need do clone enumsets?            
             System.arraycopy(symSuffix.suffixRelations[i], 0, 

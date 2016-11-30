@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     @Override
     public EnumSet<DataRelation> recognizedRelations() {
-        return EnumSet.of(DEFAULT, EQ);
+        return EnumSet.of(DEQ, EQ);
     }    
     
     public EqualityTheory(boolean useNonFreeOptimization) {

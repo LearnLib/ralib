@@ -7,6 +7,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 
 public interface InequalityGuardMerger {
+	
 	/**
 	 * Merges an ordered list of inequality guards based on SDT Equivalence and returns a merged map.
 	 */

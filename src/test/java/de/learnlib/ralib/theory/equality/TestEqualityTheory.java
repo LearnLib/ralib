@@ -171,7 +171,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
         System.out.println("PWD: " + Arrays.toString(retPwd.toArray()));
         
         assert retUid.get(0).equals(EnumSet.of(DataRelation.EQ));
-        assert retPwd.get(0).equals(EnumSet.of(DataRelation.DEFAULT));
+        assert retPwd.get(0).equals(EnumSet.of(DataRelation.DEQ));
     }
     
 }

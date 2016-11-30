@@ -17,7 +17,7 @@
 package de.learnlib.ralib.theory.inequality;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
 import static de.learnlib.ralib.theory.DataRelation.GT;
 import static de.learnlib.ralib.theory.DataRelation.LT;
@@ -156,7 +156,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	@Override
 	public EnumSet<DataRelation> recognizedRelations() {
-		return EnumSet.of(DEFAULT, EQ, LT, GT);
+		return EnumSet.of(DEQ, EQ, LT, GT);
 	}
 
 	/**
@@ -376,9 +376,23 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
+			piv.putAll(keepMem(tempKids));
+			return new SDT(tempKids);
 		} else if (branching == Branching.TRUE_PREV || branching == Branching.EQ_DISEQ_PREV) {
-			int eqIdx = findLeftMostEqual(suffix, pId);
-			DataValue prev = suffixValues.get(suffix.getDataValue(eqIdx));
+			int eqIdx = findLeftMostEqualSuffix(suffix, pId);
+			DataValue prev = null;
+			if (eqIdx != -1)
+				prev = suffixValues.get(suffix.getDataValue(eqIdx));
+			else {
+				eqIdx = findLeftMostEqualPrefix(suffix, pId);
+				if (eqIdx != -1)
+					System.out.println("");
+			}
+			
+			if (prev == null) {
+				System.out.println("");
+			}
+				
 
 			// System.out.println("empty potential");
 			WordValuation equValues = new WordValuation();
@@ -391,9 +405,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			equSuffixValues.put(sv, prev);
 
 			SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
-			if (branching == Branching.TRUE_PREV)
+			if (branching == Branching.TRUE_PREV) {
 				tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
-			else { //EQ_DISEQ_PREV
+				piv.putAll(keepMem(tempKids));
+				return new SDT(tempKids);
+			} else { //EQ_DISEQ_PREV
 				EqualityGuard equGuard = this.makeEqualityGuard(prev, prefixValues, currentParam, values , constants);
 				tempKids.put(equGuard, equOracleSdt);
 				
@@ -600,7 +616,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	}
 
-	private int findLeftMostEqual(GeneralizedSymbolicSuffix suffix, int pId) {
+	private int findLeftMostEqualSuffix(GeneralizedSymbolicSuffix suffix, int pId) {
 		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
 		DataType t = suffix.getDataValue(pId).getType();
 		for (int i = 1; i < pId; i++) {
@@ -610,8 +626,22 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			if (suffix.getSuffixRelations(i, pId).contains(EQ))
 				return i;
 		}
-		return pId;
+		return -1;
 	}
+	
+	private int findLeftMostEqualPrefix(GeneralizedSymbolicSuffix suffix, int pId) {
+		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
+		DataType t = suffix.getDataValue(pId).getType();
+		for (int i = 0; i < pId; i++) {
+			if (!t.equals(suffix.getDataValue(i).getType())) {
+				continue;
+			}
+			if (suffix.getPrefixRelations(i).contains(EQ))
+				return i;
+		}
+		return -1;
+	}
+	
 
 	private Branching computeBranchingLogic(int pid, GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
@@ -621,48 +651,38 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			return action;
 		// branching processing based on relations included
 		if (prefixRel.isEmpty()) { 
-			if (suffixRel.isEmpty())
+			if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 				action = Branching.TRUE_FRESH;
 			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
 				action = Branching.TRUE_PREV;
-			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
+			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEQ))) 
 				action = Branching.IF_EQU_ELSE;
 		} else {
 			if (prefixRel.equals(EnumSet.of(DataRelation.EQ))) { 
-				if (suffixRel.isEmpty() 
-						|| suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))
-						|| suffixRel.equals(EnumSet.of(DataRelation.EQ)))
-					action = Branching.TRUE_PREV;
-				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
+				if (EnumSet.of(DataRelation.EQ,DataRelation.DEQ).containsAll(suffixRel))
 					action = Branching.IF_EQU_ELSE;
 			} else {
-				if (prefixRel.equals(EnumSet.of(DataRelation.EQ, DataRelation.DEFAULT))) {
+				if (prefixRel.equals(EnumSet.of(DataRelation.EQ, DataRelation.DEQ))) {
 					if (suffixRel.isEmpty())
 						action = Branching.IF_EQU_ELSE;
-//					else if (suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))) 
-//						action = Branching.TRUE_FRESH;
-//					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
-//						action = Branching.TRUE_PREV;
-					else if (EnumSet.of(DataRelation.EQ, DataRelation.DEFAULT).containsAll(suffixRel))
+					else if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel))
 						action = Branching.IF_EQU_ELSE;
 				} else { 
-					if (prefixRel.equals(EnumSet.of(DataRelation.DEFAULT))) {
-						if (suffixRel.isEmpty())
+					if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
+						if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 							action = Branching.TRUE_FRESH;
-						else if (suffixRel.equals(EnumSet.of(DataRelation.DEFAULT))) 
-							action = Branching.TRUE_FRESH;
-//						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
-//							action = Branching.TRUE_PREV;
-//						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEFAULT))) 
-//							action = Branching.IF_EQU_ELSE;
+						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
+							action = Branching.TRUE_PREV;
+						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEQ))) 
+							action = Branching.IF_EQU_ELSE;
 					} 
 				}
 			}
 		}
 		
 	//	System.out.println(action);
-		
-		return action;//Branching.FULL;
+		//return Branching.FULL;
+		return action;
 	}
 
 	private EnumSet<DataRelation> getSuffixRelations(GeneralizedSymbolicSuffix suffix, int idx) {
@@ -1038,7 +1058,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				ret.add(EnumSet.of(DataRelation.GT));
 				break;
 			default:
-				ret.add(EnumSet.of(DataRelation.DEFAULT));
+				ret.add(EnumSet.noneOf(DataRelation.class));
 				break;
 			}
 		});

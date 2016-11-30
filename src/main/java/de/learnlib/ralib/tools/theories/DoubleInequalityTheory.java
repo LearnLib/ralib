@@ -149,7 +149,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
                     ret.add(EnumSet.of(DataRelation.GT));
                     break;
                 default: 
-                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+                    ret.add(EnumSet.of(DataRelation.LT));
                     break;
             }
         });

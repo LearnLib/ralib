@@ -160,7 +160,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	                    ret.add(EnumSet.of(DataRelation.GT));
 	                    break;
 	                default: 
-	                    ret.add(EnumSet.of(DataRelation.DEFAULT));
+	                    ret.add(EnumSet.noneOf(DataRelation.class));
 	                    break;
 	            }
 	        }
