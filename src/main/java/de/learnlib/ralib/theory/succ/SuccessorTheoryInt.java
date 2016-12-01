@@ -30,7 +30,9 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.DefaultGuardLogic;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
@@ -192,6 +194,11 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
         }
         return mt;
     }
+
+	public SDTGuardLogic getGuardLogic() {
+		return new DefaultGuardLogic();
+	}
+    
     
     
 }

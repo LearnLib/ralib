@@ -48,7 +48,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -63,7 +62,6 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTNotGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
@@ -173,8 +171,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, pir,
+        SDT sdt = teach.treeQuery(prefix, suffix, values, pir,
                 constants, suffixValues, this, this.traceOracle);
+        return sdt;
     }
 
     /**
@@ -461,7 +460,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private SDTGuard conjunction(SDTGuard head, SDTGuard next, MultiTheorySDTLogicOracle mlo) {
 		// true guards are always refined, always!
 		assert !(head instanceof SDTTrueGuard) && !(next instanceof SDTTrueGuard);
-
+		System.out.println("Failed merging: " + head + " " + next);
     	if (head instanceof SDTAndGuard) {
     		// flattening
     		List<SDTGuard> operands = ((SDTAndGuard) head).getGuards();
@@ -470,7 +469,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		return new SDTAndGuard(head.getParameter(), opArray);
     	} else {
     		
-    		// code for merging intervals with other guards as to simplify them
+    		// code for merging intervals with other guards so as to simplify them
     		if (head instanceof IntervalGuard && next instanceof DisequalityGuard ||
     				next instanceof IntervalGuard && head instanceof DisequalityGuard) {
     			IntervalGuard intv = head instanceof IntervalGuard ? (IntervalGuard) head : (IntervalGuard) next;
@@ -498,8 +497,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     				} else
     					return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
     			}
+    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard()) {
+    				return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
+    			}
+    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard()) {
+    				return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
+    			}
     		}
-    		
 //    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
 //    			IntervalGuard intv1 = (IntervalGuard) head;
 //    			IntervalGuard intv2 = (IntervalGuard) next;

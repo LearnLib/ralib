@@ -42,7 +42,7 @@ public class ContinuousInequalityMerger implements InequalityGuardMerger{
 			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp);
 			if (equivTest != null) {
 				SDTGuard mergedGuard = merge(head, next);
-				mergedTemp.put(mergedGuard, sdtHead);
+				mergedTemp.put(mergedGuard, equivTest);
 				head = mergedGuard;
 				sdtHead = equivTest;
 			} else {

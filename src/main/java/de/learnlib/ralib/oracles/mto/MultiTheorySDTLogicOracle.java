@@ -489,7 +489,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         int idx = 0;
         int base = 0;
-        boolean first = true;
         
         for (int i=0; i< e1.getConjuncts().length; i++) {
             
@@ -527,7 +526,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 Collection<AtomicGuardExpression> allAtoms = new HashSet<AtomicGuardExpression>(atoms1);
                 allAtoms.addAll(atoms2);
             	// use both
-                prels[i] = prefixRelations(allAtoms);
+                prels[i] = EnumSet.of(DataRelation.ALL);//prefixRelations(allAtoms);
                 suffixRelations(srels[i], allAtoms);
             } else {
                 // equivalent - use both or does not matter?

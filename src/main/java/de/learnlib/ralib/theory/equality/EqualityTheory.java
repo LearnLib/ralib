@@ -52,6 +52,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -443,5 +444,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (suffix.getSuffixRelations(i, pId).contains(EQ)) return i;
         }
         return pId;
+    }
+    
+    public SDTGuardLogic getGuardLogic() {
+    	return new EqualityGuardLogic();
     }
 }

@@ -139,4 +139,9 @@ public interface Theory<T> {
      */
     public EnumSet<DataRelation> recognizedRelations();
     
+    /**
+     * Returns disjunction and conjunction logic for sdt guards.
+     */
+    public SDTGuardLogic getGuardLogic();
+    
 }

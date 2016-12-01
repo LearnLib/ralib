@@ -149,6 +149,17 @@ public class CounterexampleAnalysis {
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, symSuffix.getActions());
+        
+        TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
+        TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);
+        boolean newHasCE = sdtOracle.hasCounterexample(location, 
+                newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
+                newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
+                g, transition);
+        if (!newHasCE) {
+        	System.out.println();
+        }
+        assert newHasCE;
 
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();

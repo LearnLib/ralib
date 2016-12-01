@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -73,6 +74,8 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.equality.IfElseEquGuardMerger;
+import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
+import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingStrategy;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -269,7 +272,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		int pId = values.size() + 1;
 		SuffixValue sv = suffix.getDataValue(pId);
-		DataType type = sv.getType();
+		DataType<T> type = (DataType<T>)sv.getType();
 
 		List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
@@ -358,11 +361,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				}
 			}
 		}
+		
+		BranchingLogic<T> logic = new BranchingLogic<T>(this);
+		BranchingContext<T> context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues, suffix);
 
-		Branching branching = computeBranchingLogic(pId, suffix);
+		BranchingStrategy branching = context.getStrategy();
 
 		// System.out.println("potential " + potential);
-		if (potential.isEmpty() || branching == Branching.TRUE_FRESH) {
+		if (potential.isEmpty() || branching == BranchingStrategy.TRUE_FRESH) {
 			// System.out.println("empty potential");
 			WordValuation elseValues = new WordValuation();
 			DataValue<T> fresh = getFreshValue(potential);
@@ -378,9 +384,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
 			piv.putAll(keepMem(tempKids));
 			return new SDT(tempKids);
-		} else if (branching == Branching.TRUE_PREV || branching == Branching.EQ_DISEQ_PREV) {
-			int eqIdx = findLeftMostEqualSuffix(suffix, pId);
-			DataValue prev = suffixValues.get(suffix.getDataValue(eqIdx));
+		} else if (branching == BranchingStrategy.TRUE_PREV ) {
+			DataValue<T> prev = context.getBranchingValue();
 
 			// System.out.println("empty potential");
 			WordValuation equValues = new WordValuation();
@@ -393,36 +398,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			equSuffixValues.put(sv, prev);
 
 			SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
-			if (branching == Branching.TRUE_PREV) {
-				tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
-				piv.putAll(keepMem(tempKids));
-				return new SDT(tempKids);
-			} else { //EQ_DISEQ_PREV
-				EqualityGuard equGuard = this.makeEqualityGuard(prev, prefixValues, currentParam, values , constants);
-				tempKids.put(equGuard, equOracleSdt);
-				
-				// System.out.println("empty potential");
-				WordValuation elseValues = new WordValuation();
-				DataValue<T> fresh = getFreshValue(potential);
-				elseValues.putAll(values);
-				elseValues.put(pId, fresh);
-
-				// this is the valuation of the suffixvalues in the suffix
-				SuffixValuation elseSuffixValues = new SuffixValuation();
-				elseSuffixValues.putAll(suffixValues);
-				elseSuffixValues.put(sv, fresh);
-
-				SDT elseSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
-				DisequalityGuard elseGuard = equGuard.toDeqGuard();
-				Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, elseGuard, elseSdt);
-				piv.putAll(keepMem(merged));
-				return new SDT(merged);
-			}
+			tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
+			piv.putAll(keepMem(tempKids));
+			return new SDT(tempKids);
 		}
 		// process each '<' case
 		else {
 
-			if (branching == Branching.FULL) {
+			if (branching == BranchingStrategy.FULL) {
 
 				// smallest case
 				WordValuation smValues = new WordValuation();
@@ -471,7 +454,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				guardDvs.put(bguard, bgcv);
 			}
 			
-			if (branching == Branching.FULL || branching == Branching.IF_INTERVALS_ELSE) {
+			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.IF_INTERVALS_ELSE) {
 
 				// middle cases
 				for (int i = 1; i < potSize; i++) {
@@ -512,15 +495,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					guardDvs.put(intervalGuard, cv);
 				}
 				
-				if (branching == Branching.IF_INTERVALS_ELSE) {
+				if (branching == BranchingStrategy.IF_INTERVALS_ELSE) {
 					throw new RuntimeException("Processing for " + branching.name() + " not yet implemented");
 				}
 			}
 			
-			if (branching == Branching.FULL || branching == Branching.IF_EQU_ELSE) {
+			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.IF_EQU_ELSE) {
+				List<DataValue<T>> branchingValues = context.getBranchingValues();
 
 				// System.out.println("eq potential is: " + potential);
-				for (DataValue<T> newDv : potential) {
+				for (DataValue<T> newDv : branchingValues) {
 					// log.log(Level.FINEST, newDv.toString());
 	
 					// this is the valuation of the suffixvalues in the suffix
@@ -550,7 +534,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					guardDvs.put(eqGuard, newDv);
 				}
 				
-				if (branching == Branching.IF_EQU_ELSE) {
+				if (branching == BranchingStrategy.IF_EQU_ELSE) {
 					SDTGuard [] elseConjuncts = tempKids.keySet().stream()
 					.map(g -> ((EqualityGuard) g).toDeqGuard())
 					.toArray(SDTGuard []::new);
@@ -602,80 +586,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		SDT returnSDT = new SDT(merged);
 		return returnSDT;
 
-	}
-
-	private int findLeftMostEqualSuffix(GeneralizedSymbolicSuffix suffix, int pId) {
-		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
-		DataType t = suffix.getDataValue(pId).getType();
-		for (int i = 1; i < pId; i++) {
-			if (!t.equals(suffix.getDataValue(i).getType())) {
-				continue;
-			}
-			if (suffix.getSuffixRelations(i, pId).contains(EQ))
-				return i;
-		}
-		return -1;
-	}
-
-	private Branching computeBranchingLogic(int pid, GeneralizedSymbolicSuffix suffix) {
-		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
-		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
-		Branching action = Branching.FULL;
-		if (prefixRel.contains(DataRelation.ALL) || suffixRel.contains(DataRelation.ALL))
-			return action;
-		// branching processing based on relations included
-		if (prefixRel.isEmpty()) { 
-			if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
-				action = Branching.TRUE_FRESH;
-			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
-				action = Branching.TRUE_PREV;
-			else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEQ))) 
-				action = Branching.IF_EQU_ELSE;
-		} else {
-			if (prefixRel.equals(EnumSet.of(DataRelation.EQ))) { 
-				if (EnumSet.of(DataRelation.EQ,DataRelation.DEQ).containsAll(suffixRel))
-					action = Branching.IF_EQU_ELSE;
-			} else {
-				if (prefixRel.equals(EnumSet.of(DataRelation.EQ, DataRelation.DEQ))) {
-					if (suffixRel.isEmpty())
-						action = Branching.IF_EQU_ELSE;
-					else if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel))
-						action = Branching.IF_EQU_ELSE;
-				} else { 
-					if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
-						if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
-							action = Branching.TRUE_FRESH;
-						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ))) 
-							action = Branching.TRUE_PREV;
-						else if (suffixRel.equals(EnumSet.of(DataRelation.EQ,DataRelation.DEQ))) 
-							action = Branching.IF_EQU_ELSE;
-					} 
-				}
-			}
-		}
-		
-	//	System.out.println(action);
-		//return Branching.FULL;
-		return action;
-	}
-
-	private EnumSet<DataRelation> getSuffixRelations(GeneralizedSymbolicSuffix suffix, int idx) {
-		// FIXME: support muliple types
-		EnumSet<DataRelation> dset;
-		if (idx == 1) {
-			dset = EnumSet.noneOf(DataRelation.class);
-		} else {
-			dset = EnumSet.noneOf(DataRelation.class);
-			for (int i = 1; i < idx; i++) {
-				dset.addAll(suffix.getSuffixRelations(i, idx));
-			}
-		}
-
-		return dset;
-	}
-
-	private static enum Branching {
-		TRUE_FRESH, TRUE_PREV, EQ_DISEQ_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL,
 	}
 
 	/**

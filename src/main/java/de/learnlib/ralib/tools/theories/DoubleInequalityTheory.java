@@ -32,6 +32,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.SDTGuardLogic;
+import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -157,4 +159,8 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         return ret;
     }
     
+    
+    public SDTGuardLogic getGuardLogic() {
+    	return new InequalityGuardLogic();
+    }
 }

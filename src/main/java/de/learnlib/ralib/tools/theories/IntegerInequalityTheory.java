@@ -11,6 +11,8 @@ import java.util.Set;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.theory.SDTGuardLogic;
+import de.learnlib.ralib.theory.inequality.DiscreteInequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -91,6 +93,10 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
             nextValues.add(IntervalDataValue.instantiateNew(max, null));
         }
         return nextValues;
+    }
+    
+    public SDTGuardLogic getGuardLogic() {
+    	return new DiscreteInequalityGuardLogic();
     }
 
 }
