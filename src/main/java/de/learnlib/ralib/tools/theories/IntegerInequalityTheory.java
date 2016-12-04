@@ -12,7 +12,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.theory.SDTGuardLogic;
-import de.learnlib.ralib.theory.inequality.DiscreteInequalityGuardLogic;
+import de.learnlib.ralib.theory.inequality.DiscreteInequalityMerger;
+import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -27,10 +28,12 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
     }
 
     public IntegerInequalityTheory() {
+    	super(new DiscreteInequalityMerger(new InequalityGuardLogic()));
     }
 
     public IntegerInequalityTheory(DataType<Integer> t) {
-       super.setType(t);
+    	this();
+    	super.setType(t);
     }
     
     @Override
@@ -96,7 +99,7 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
     }
     
     public SDTGuardLogic getGuardLogic() {
-    	return new DiscreteInequalityGuardLogic();
+    	return new InequalityGuardLogic();
     }
 
 }

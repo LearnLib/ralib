@@ -6,15 +6,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class DiscreteInequalityMerger extends ContinuousInequalityMerger{
+public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 
-	public DiscreteInequalityMerger() {
+	public DiscreteInequalityMerger(InequalityGuardLogic ineqGuardLogic) {
+		super(new DiscreteInequalityGuardLogic(ineqGuardLogic));
 	}
 	
 	/**
@@ -56,38 +56,49 @@ public class DiscreteInequalityMerger extends ContinuousInequalityMerger{
 		}
 	}
 	
-	protected SDTGuard merge(SDTGuard aGuard, SDTGuard withGuard) {
-		EqualityGuard equGuard;
-		IntervalGuard intGuard;
-		if (aGuard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
-			equGuard = (EqualityGuard) aGuard;
-			EqualityGuard equGuard2 = (EqualityGuard) withGuard;
-			return new IntervalGuard(aGuard.getParameter(), equGuard.getExpression(), Boolean.FALSE, equGuard2.getExpression(), Boolean.FALSE);
-		}
-		if (aGuard instanceof IntervalGuard && withGuard instanceof EqualityGuard) {
-			equGuard = (EqualityGuard) withGuard;
-			intGuard = (IntervalGuard) aGuard;
-			return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), equGuard.getExpression(), Boolean.FALSE); 
-		} 
+	
+	/**
+	 * Logic class for discrete domains. Note, this logic is only valid in the context of merging,
+	 * where the any disjoined guards are adjacent. 
+	 */
+	private static class DiscreteInequalityGuardLogic implements SDTGuardLogic {
 		
-		if (aGuard instanceof EqualityGuard && withGuard instanceof IntervalGuard) {
-			equGuard = (EqualityGuard) aGuard;
-			intGuard = (IntervalGuard) withGuard;
-			return new IntervalGuard(aGuard.getParameter(), equGuard.getExpression(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
+
+		private InequalityGuardLogic ineqGuardLogic;
+
+
+		public DiscreteInequalityGuardLogic(InequalityGuardLogic ineqGuardLogic) {
+			this.ineqGuardLogic = ineqGuardLogic;
+		}
+
+		public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2) {
+			EqualityGuard equGuard;
+			IntervalGuard intGuard;
+			if (guard1 instanceof EqualityGuard && guard2 instanceof EqualityGuard) {
+				equGuard = (EqualityGuard) guard1;
+				EqualityGuard equGuard2 = (EqualityGuard) guard2;
+				return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, equGuard2.getExpression(), Boolean.FALSE);
+			}
+			if (guard1 instanceof IntervalGuard && guard2 instanceof EqualityGuard) {
+				equGuard = (EqualityGuard) guard2;
+				intGuard = (IntervalGuard) guard1;
+				return new IntervalGuard(guard1.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), equGuard.getExpression(), Boolean.FALSE); 
+			} 
+			
+			if (guard1 instanceof EqualityGuard && guard2 instanceof IntervalGuard) {
+				equGuard = (EqualityGuard) guard1;
+				intGuard = (IntervalGuard) guard2;
+				return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
+			}
+			
+			SDTGuard ineqDisjunction = this.ineqGuardLogic.disjunction(guard1, guard2);
+			
+			return ineqDisjunction;
 		}
 		
-		if (aGuard instanceof IntervalGuard && withGuard instanceof IntervalGuard) {
-			intGuard = (IntervalGuard) aGuard;
-			IntervalGuard intGuard2 = (IntervalGuard) withGuard;
-			assert Boolean.logicalXor(intGuard.getRightOpen(), intGuard2.getLeftOpen());
-			if (intGuard2.isBiggerGuard() && intGuard.isSmallerGuard())
-				return new SDTTrueGuard(aGuard.getParameter());
-			else
-				return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), intGuard2.getRightExpr(), intGuard2.getRightOpen());
+		public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
+			return this.ineqGuardLogic.conjunction(guard1, guard2);
 		}
-		
-		throw new DecoratedRuntimeException("Invalid inequality merge pair").
-		addDecoration("head guard", aGuard).addDecoration("next guard", withGuard);
 	}
 	
 }

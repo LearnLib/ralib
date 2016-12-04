@@ -33,8 +33,6 @@ public class BranchingLogic<T> {
 			Constants constants, SuffixValuation suffixValues, GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
-		Supplier<List<DataValue<T>>> eqDeqSuffVals = () -> getRelatedSuffixValues(suffix, pid, suffixValues,
-				EnumSet.of(DataRelation.EQ, DataRelation.DEQ));
 		Supplier<List<DataValue<T>>> prefVals = () -> Arrays.asList(DataWords.valsOf(prefix, this.type));
 		Supplier<DataValue<T>> eqSuffVal = () -> {
 			DataValue<T> eqSuffix = (DataValue<T>)suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
@@ -48,7 +46,7 @@ public class BranchingLogic<T> {
 		if (prefixRel.contains(DataRelation.ALL) || suffixRel.contains(DataRelation.ALL))
 			return action;
 
-		// branching processing based on relations included
+		// branching processing based on relations
 		if (prefixRel.isEmpty()) {
 			if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 				action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
@@ -64,14 +62,11 @@ public class BranchingLogic<T> {
 
 			else {
 				if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(prefixRel)) {
-					if (suffixRel.contains(DataRelation.EQ))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
-					else if (suffixRel.equals(DataRelation.DEQ)){ 
-						action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE,
-						 prefVals.get());
-					} else if (suffixRel.isEmpty()) {
-						action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE,
-								 prefVals.get());
+					if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel)) {
+						if (suffixRel.contains(DataRelation.EQ) )
+							action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+						else 
+							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, prefVals.get());
 					}
 				} 
 			}
@@ -117,7 +112,7 @@ public class BranchingLogic<T> {
 
 		return dset;
 	}
-	
+
 	private int findLeftMostEqualSuffix(GeneralizedSymbolicSuffix suffix, int pId) {
 		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
 		DataType t = suffix.getDataValue(pId).getType();
@@ -158,13 +153,13 @@ public class BranchingLogic<T> {
 		public List<DataValue<T>> getBranchingValues() {
 			return this.branchingValues;
 		}
-		
+
 		public DataValue<T> getBranchingValue() {
 			if (this.branchingValues != null && !this.branchingValues.isEmpty())
 				return branchingValues.get(0);
 			return null;
 		}
-		
+
 		public BranchingStrategy getStrategy() {
 			return this.strategy;
 		}

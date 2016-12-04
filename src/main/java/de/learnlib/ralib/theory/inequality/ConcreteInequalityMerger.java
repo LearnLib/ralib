@@ -8,13 +8,16 @@ import java.util.Map;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class ContinuousInequalityMerger implements InequalityGuardMerger{
+public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	
 
-	public ContinuousInequalityMerger() {
+	private SDTGuardLogic logic;
+
+	public ConcreteInequalityMerger(SDTGuardLogic logic) {
+		this.logic = logic;
 	}
 	
 	/**
@@ -41,7 +44,7 @@ public class ContinuousInequalityMerger implements InequalityGuardMerger{
 			SDTGuard next = ineqGuards[i];
 			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp);
 			if (equivTest != null) {
-				SDTGuard mergedGuard = merge(head, next);
+				SDTGuard mergedGuard = this.logic.disjunction(head, next);
 				mergedTemp.put(mergedGuard, equivTest);
 				head = mergedGuard;
 				sdtHead = equivTest;
@@ -104,37 +107,4 @@ public class ContinuousInequalityMerger implements InequalityGuardMerger{
 		}
 		return null;
 	}
-	
-	/**
-	 * Merges two inequality guards. Returns null if the guards cannot be merged. 
-	 */
-	SDTGuard merge(SDTGuard aGuard, SDTGuard withGuard) {
-		IntervalGuard intGuard;
-		
-		if (aGuard instanceof IntervalGuard && withGuard instanceof EqualityGuard) {
-			intGuard = (IntervalGuard) aGuard;
-			assert intGuard.getRightOpen();
-			return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), intGuard.getRightExpr(), Boolean.FALSE); 
-		} 
-		
-		if (aGuard instanceof EqualityGuard && withGuard instanceof IntervalGuard) {
-			intGuard = (IntervalGuard) withGuard;
-			assert intGuard.getLeftOpen();
-			return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
-		}
-		
-		if (aGuard instanceof IntervalGuard && withGuard instanceof IntervalGuard) {
-			intGuard = (IntervalGuard) aGuard;
-			IntervalGuard intGuard2 = (IntervalGuard) withGuard;
-			assert Boolean.logicalXor(intGuard.getRightOpen(), intGuard2.getLeftOpen());
-			if (intGuard2.isBiggerGuard() && intGuard.isSmallerGuard())
-				return new SDTTrueGuard(aGuard.getParameter());
-			else
-				return new IntervalGuard(aGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), intGuard2.getRightExpr(), intGuard2.getRightOpen());
-		}
-		
-		return null;
-	}
-	
-	
 }

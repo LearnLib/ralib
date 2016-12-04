@@ -1,12 +1,25 @@
 package de.learnlib.ralib.theory.inequality;
 
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SumCDataExpression;
+import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class DiscreteInequalityGuardLogic extends InequalityGuardLogic {
+/**
+ * Logic class for discrete domains. Note, this logic is only valid in the context of merging,
+ * where the any disjoined guards are adjacent. 
+ */
+public class DiscreteInequalityGuardLogic implements SDTGuardLogic {
 	
 
-	public DiscreteInequalityGuardLogic() {
+	private InequalityGuardLogic ineqGuardLogic;
+
+
+	public DiscreteInequalityGuardLogic(InequalityGuardLogic ineqGuardLogic) {
+		this.ineqGuardLogic = ineqGuardLogic;
 	}
 
 	public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2) {
@@ -29,10 +42,30 @@ public class DiscreteInequalityGuardLogic extends InequalityGuardLogic {
 			return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
 		}
 		
-		SDTGuard ineqDisjunction = super.disjunction(guard1, guard2);
+		SDTGuard ineqDisjunction = this.ineqGuardLogic.disjunction(guard1, guard2);
 		
 		return ineqDisjunction;
 	}
 	
-
+	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
+		return this.ineqGuardLogic.conjunction(guard1, guard2);
+	}
+//	
+//	
+//	private boolean succ(SymbolicDataExpression expr1, SymbolicDataExpression expr2) {
+//		if (expr1 != null && expr2 != null && expr1.getSDV().equals(expr2.getSDV())) {
+//			if (expr2 instanceof SumCDataExpression) {
+//				DataValue<?> cst = ((SumCDataExpression) expr2).getConstant();
+//				DataValue<?> cst2;
+//				if (expr1.isSDV())
+//					cst2 = DataValue.ZERO(cst.getType())
+//				else
+//					cst2 = DataV
+//				if (cst.getId().equals(DataValue.cast(1, cst.getType())))
+//					return true; 
+//					
+//			}
+//		}
+//		return false; 
+//	}
 }

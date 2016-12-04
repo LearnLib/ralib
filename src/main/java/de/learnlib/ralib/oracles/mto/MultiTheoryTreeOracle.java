@@ -60,13 +60,11 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -347,8 +345,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             // setup a guard context for checking refinement/possibility to merge
             GuardContext guardContext = new GuardContext(pval, prefix, piv);
+            SDTGuardLogic guardLogic = teach.getGuardLogic();
             // get merged guards to the set of guards they come from
-            Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewGuards(sdts, guardContext);
+            Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewGuards(sdts, guardContext, guardLogic);
             //  get old guards to the child SDT it connects to 
             Map<SDTGuard, List<SDT>> nextSDTs = getChildren(sdts);
             
@@ -404,20 +403,20 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     
     // produces a mapping from refined sdt guards to the top level sdt guards from which they are built. Multiple top level sdt guards 
     // can be combined to form a refined guard, hence each refined guard maps to a list of top level sdt guards.
-    private Map<SDTGuard, Set<SDTGuard>> getNewGuards(SDT [] sdts, GuardContext guardContext) {
+    private Map<SDTGuard, Set<SDTGuard>> getNewGuards(SDT [] sdts, GuardContext guardContext, SDTGuardLogic guardLogic) {
     	
     	Map<SDTGuard, Set<SDTGuard>> mergedGroup =   new LinkedHashMap<>();
     	MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(constants, solver);
     	for (SDT sdt : sdts) {
     		Set<SDTGuard> nextGuardGroup = sdt.getChildren().keySet();
-    		mergedGroup = combineGroups(mergedGroup, nextGuardGroup, guardContext, mlo);
+    		mergedGroup = combineGroups(mergedGroup, nextGuardGroup, guardContext, guardLogic, mlo);
     	}
     	return mergedGroup;
     }
     
     
     // returns a mapping from the new guards built to the old ones from which they were generated
-    private Map<SDTGuard, Set<SDTGuard>> combineGroups(Map<SDTGuard, Set<SDTGuard>> mergedHead , Set<SDTGuard> nextGroup,  GuardContext guardContext, MultiTheorySDTLogicOracle mlo) {
+    private Map<SDTGuard, Set<SDTGuard>> combineGroups(Map<SDTGuard, Set<SDTGuard>> mergedHead , Set<SDTGuard> nextGroup,  GuardContext guardContext, SDTGuardLogic guardLogic, MultiTheorySDTLogicOracle mlo) {
     	Map<SDTGuard, Set<SDTGuard>> mergedGroup = new LinkedHashMap<>();
     	if (mergedHead.isEmpty()) {
     		nextGroup.forEach(next -> {
@@ -447,7 +446,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 	    				if (refines(head, next, guardContext, mlo))
 	    					refinedGuard = head;
 	    				else 
-	    					refinedGuard =  conjunction(head, next, mlo);
+	    					refinedGuard =  guardLogic.conjunction(head, next);
     			
 				mergedGroup.put(refinedGuard, Sets.newLinkedHashSet(Arrays.asList(head, next)));
 				headNextPairs.add(new Pair<>(head, next));
@@ -455,68 +454,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	}
     	return mergedGroup;
     }
-    
-    // conjunction of two instantiable guards with flattening of any STDAndGuard. 
-    private SDTGuard conjunction(SDTGuard head, SDTGuard next, MultiTheorySDTLogicOracle mlo) {
-		// true guards are always refined, always!
-		assert !(head instanceof SDTTrueGuard) && !(next instanceof SDTTrueGuard);
-		System.out.println("Failed merging: " + head + " " + next);
-    	if (head instanceof SDTAndGuard) {
-    		// flattening
-    		List<SDTGuard> operands = ((SDTAndGuard) head).getGuards();
-    		SDTGuard[] opArray = operands.toArray(new SDTGuard [operands.size() + 1]);
-    		opArray[operands.size()] = next;
-    		return new SDTAndGuard(head.getParameter(), opArray);
-    	} else {
-    		
-    		// code for merging intervals with other guards so as to simplify them
-    		if (head instanceof IntervalGuard && next instanceof DisequalityGuard ||
-    				next instanceof IntervalGuard && head instanceof DisequalityGuard) {
-    			IntervalGuard intv = head instanceof IntervalGuard ? (IntervalGuard) head : (IntervalGuard) next;
-    			DisequalityGuard deq = head instanceof DisequalityGuard ? (DisequalityGuard) head : (DisequalityGuard) next;
-    			
-    			if (!intv.isSmallerGuard() && intv.getLeftExpr().equals(deq.getExpression()) && !intv.getLeftOpen()) 
-    				return new IntervalGuard(intv.getParameter(), intv.getLeftExpr(), true, intv.getRightExpr(), intv.getRightOpen());
-    			if (!intv.isBiggerGuard() && intv.getRightExpr().equals(deq.getExpression()) && !intv.getRightOpen()) 
-    				return new IntervalGuard(intv.getParameter(), intv.getLeftExpr(), intv.getLeftOpen(), intv.getRightExpr(), true);
-    		}
-    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
-    			IntervalGuard intv1 = (IntervalGuard) head;
-    			IntervalGuard intv2 = (IntervalGuard) next;
-    			if (intv1.isBiggerGuard() && !intv2.isBiggerGuard()) {
-    				if (intv1.getLeftExpr().equals(intv2.getRightExpr())) {
-    					assert !intv1.getLeftOpen() && !intv2.getRightOpen();
-    					return new EqualityGuard(intv1.getParameter(), intv1.getLeftExpr());
-    				} else
-    					return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
-    			} 
-    			if (intv1.isSmallerGuard() && !intv2.isSmallerGuard()) {
-    				if (intv1.getRightExpr().equals(intv2.getLeftExpr())) {
-    					assert !intv1.getRightOpen() && !intv2.getLeftOpen();
-    					return new EqualityGuard(intv1.getParameter(), intv1.getRightExpr());
-    				} else
-    					return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
-    			}
-    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard()) {
-    				return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
-    			}
-    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard()) {
-    				return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
-    			}
-    		}
-//    		if (head instanceof IntervalGuard && next instanceof IntervalGuard) {
-//    			IntervalGuard intv1 = (IntervalGuard) head;
-//    			IntervalGuard intv2 = (IntervalGuard) next;
-//    			if (intv1.isBiggerGuard() && intv2.isSmallerGuard())
-//    				return new IntervalGuard(intv1.getParameter(), intv1.getLeftExpr(), intv1.getLeftOpen(), intv2.getRightExpr(), intv2.getRightOpen());
-//    			if (intv1.isSmallerGuard() && intv2.isBiggerGuard())
-//    				return new IntervalGuard(intv1.getParameter(), intv2.getLeftExpr(), intv2.getLeftOpen(), intv1.getRightExpr(), intv1.getRightOpen());
-//    		}
-    		
-    		return new SDTAndGuard(head.getParameter(), head, next);
-    	}
-    }
-    
     
     private boolean canBeMerged(SDTGuard a, SDTGuard b, GuardContext guardContext, MultiTheorySDTLogicOracle mlo) {
     	if (a.equals(b) || a instanceof SDTTrueGuard || b instanceof SDTTrueGuard) 

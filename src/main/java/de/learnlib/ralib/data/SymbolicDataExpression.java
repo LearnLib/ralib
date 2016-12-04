@@ -24,6 +24,10 @@ public interface SymbolicDataExpression {
 		return this.getClass().equals(SuffixValue.class);
 	}
 	
+	public default boolean isSDV() {
+		return isRegister() || isParameter() || isConstant() || isSuffixValue();
+	}
+	
 	
 	/**
 	 * Constructs a new symbolic data expression where the register is swapped

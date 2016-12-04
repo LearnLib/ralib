@@ -37,6 +37,14 @@ public class DataValue<T> {
 
     protected final T id;
     
+    public static <P> DataValue<P> ONE(DataType<P> type) {
+    	return new DataValue<P>(type, cast(1, type));
+    }
+    
+    public static <P> DataValue<P> ZERO(DataType<P> type) {
+    	return new DataValue<P>(type, cast(0, type));
+    }
+    
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;

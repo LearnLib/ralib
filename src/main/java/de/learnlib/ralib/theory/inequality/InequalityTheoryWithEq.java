@@ -92,19 +92,6 @@ import net.automatalib.words.Word;
 public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
 
 	protected static final LearnLogger log = LearnLogger.getLogger(MethodHandles.lookup().lookupClass());
-	private static final Map<Class<?>, ContinuousInequalityMerger> sdtMergers = new LinkedHashMap<>();
-	{
-		sdtMergers.put(Integer.class, new DiscreteInequalityMerger());
-		sdtMergers.put(Double.class, new ContinuousInequalityMerger());
-	}
-
-	/**
-	 * Builds an inequality merger for a type. Defaults to continuous and
-	 * discrete mergers, depending on the runtime class.
-	 */
-	protected static InequalityGuardMerger getDefaultMerger(Class<?> cls) {
-		return sdtMergers.get(cls);
-	}
 
 	/**
 	 * Builds a guard instantiator. Defaults to the one implemented by z3.
@@ -118,37 +105,24 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	private boolean freshValues;
 	protected DataType<T> type;
-	private InequalityGuardMerger fullMerger;
-	private final IfElseEquGuardMerger equDiseqMerger;
 	private InequalityGuardInstantiator<T> instantiator;
-	private final Function<DataType<T>, InequalityGuardMerger> mergerSupplier;
 	private final Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier;
-	private IfElseGuardMerger intMerger;
+	
+	private final IfElseGuardMerger ifIntElseMerger;
+	private final InequalityGuardMerger fullMerger;
+	private final IfElseEquGuardMerger ifEquElseMerger;
 
-	// private InequalityMerger inequalityMerger;
 
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> fullMergerSupplier,
-			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
+	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger, Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
-		this.mergerSupplier = fullMergerSupplier;
 		this.instantiatorSupplier = instantiatorSupplier;
-		this.equDiseqMerger = new IfElseEquGuardMerger();
-		this.intMerger = new IfElseGuardMerger();
+		this.fullMerger = fullMerger;
+		this.ifEquElseMerger = new IfElseEquGuardMerger();
+		this.ifIntElseMerger = new IfElseGuardMerger();
 	}
 
-	public InequalityTheoryWithEq(Function<DataType<T>, InequalityGuardMerger> fullMergerSupplier,
-			final String jConstraintsSolver) {
-		this (fullMergerSupplier, (t) -> getInstantiator(t, jConstraintsSolver));
-	}
-
-	/**
-	 * Builds an inequality theory with default merger and instantiator
-	 * suppliers. The merger supplier defaults to a supplier of continuous and
-	 * discrete mergers, depending on the runtime class. The instantiator
-	 * supplier supplies z3 based instantiators.
-	 */
-	public InequalityTheoryWithEq() {
-		this(t -> InequalityTheoryWithEq.getDefaultMerger(t.getBase()), t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
+	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
+		this(fullMerger, t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
 
 	}
 
@@ -167,7 +141,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 */
 	public void setType(DataType<T> dataType) {
 		this.type = dataType;
-		this.fullMerger = mergerSupplier.apply(dataType);
 		this.instantiator = instantiatorSupplier.apply(dataType);
 	}
 
@@ -208,13 +181,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 	
 	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard, SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.equDiseqMerger.merge(equGuards, elseGuard, elseSDT);
+		Map<SDTGuard, SDT> merged = this.ifEquElseMerger.merge(equGuards, elseGuard, elseSDT);
 		
 		return merged;
 	}
 	
 	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard, SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.intMerger.merge(intGuards, elseGuard, elseSDT);
+		Map<SDTGuard, SDT> merged = this.ifIntElseMerger.merge(intGuards, elseGuard, elseSDT);
 		
 		return merged;
 	}

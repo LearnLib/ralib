@@ -33,6 +33,7 @@ import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuardLogic;
+import de.learnlib.ralib.theory.inequality.ConcreteInequalityMerger;
 import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
@@ -54,16 +55,13 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         }
     }
 
-    private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
-    private final ConstraintSolver solver = fact.createSolver("z3");
-
-    private DataType<Double> type = null;
-
     public DoubleInequalityTheory() {
+    	super(new ConcreteInequalityMerger(new InequalityGuardLogic()));
     }
 
     public DoubleInequalityTheory(DataType<Double> t) {
-        this.setType(t);
+    	this();
+        super.setType(t);
     }
 
     @Override
