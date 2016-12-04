@@ -15,6 +15,8 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
  * else guard.
  */
 public class IfElseGuardMerger {
+	
+	
 	/**
 	 * Tries to merge each if guard with an else guard based on SDT equivalence.
 	 * It assumes that the elseGuard is a conjuction over the negation of each
@@ -39,6 +41,7 @@ public class IfElseGuardMerger {
 			}
 		}
 		SDTGuard compressedElseGuard = compress(newElseGuard);
+
 		merged.put(compressedElseGuard, elseSDT);
 		return merged;
 	}

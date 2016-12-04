@@ -526,7 +526,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 Collection<AtomicGuardExpression> allAtoms = new HashSet<AtomicGuardExpression>(atoms1);
                 allAtoms.addAll(atoms2);
             	// use both
-                prels[i] = EnumSet.of(DataRelation.ALL);//prefixRelations(allAtoms);
+               // prels[i] = EnumSet.of(DataRelation.ALL);//prefixRelations(allAtoms);
                 suffixRelations(srels[i], allAtoms);
             } else {
                 // equivalent - use both or does not matter?
@@ -534,7 +534,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 suffixRelations(srels[i], atoms1);           
             }
         }
-      //  prels[0] = EnumSet.of(DataRelation.ALL);
+        prels[0] = EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels);
         

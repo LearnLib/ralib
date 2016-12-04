@@ -35,48 +35,43 @@ public class BranchingLogic<T> {
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
 		Supplier<List<DataValue<T>>> prefVals = () -> Arrays.asList(DataWords.valsOf(prefix, this.type));
 		Supplier<DataValue<T>> eqSuffVal = () -> {
-			DataValue<T> eqSuffix = (DataValue<T>)suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
-			if (eqSuffix == null)
-				eqSuffix = this.theory.getFreshValue(potential);
-			return eqSuffix;
-		};
+				DataValue<T> eqSuffix = (DataValue<T>)suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
+				if (eqSuffix == null) 
+					eqSuffix = this.theory.getFreshValue(potential);
+				return eqSuffix;
+			};
 		
 
 		BranchingContext<T> action = new BranchingContext<>(BranchingStrategy.FULL, potential);
-		if (prefixRel.contains(DataRelation.ALL) || suffixRel.contains(DataRelation.ALL))
-			return action;
-
-		// branching processing based on relations
-		if (prefixRel.isEmpty()) {
-			if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
-				action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
-			else if (suffixRel.contains(EnumSet.of(DataRelation.EQ)))
-				action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
-		} else {
-			if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
+		// if any of the pref/suff relations contains all, we do FULL and skip
+		if (!prefixRel.contains(DataRelation.ALL) &&  !suffixRel.contains(DataRelation.ALL))
+			// branching processing based on relations
+			if (prefixRel.isEmpty()) {
 				if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
-				else if (suffixRel.contains(DataRelation.EQ))
+				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+			} else {
+				if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
+					if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
+					else if (suffixRel.contains(DataRelation.EQ))
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+				}
+	
+				else {
+					if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(prefixRel)) {
+						if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel)) {
+							if (suffixRel.contains(DataRelation.EQ) )
+								action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+							else 
+								action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, potential);
+						}
+					} 
+				}
 			}
 
-			else {
-				if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(prefixRel)) {
-					if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel)) {
-						if (suffixRel.contains(DataRelation.EQ) )
-							action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
-						else 
-							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, prefVals.get());
-					}
-				} 
-			}
-		}
-		
-		if (action.strategy == BranchingStrategy.TRUE_PREV && action.getBranchingValue() == null) {
-			System.out.println("");
-		} 
-
-		//System.out.println(action.getStrategy());
+		System.out.println(action.getStrategy());
 		//return new BranchingContext<>(BranchingStrategy.FULL, potential);
 		return action;
 	}
