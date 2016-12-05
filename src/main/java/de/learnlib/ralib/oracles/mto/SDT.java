@@ -392,8 +392,23 @@ public class SDT implements SymbolicDecisionTree {
         }
         return ret;
     }
+    
+    Set<SDTGuard> getBranchingAtPath(List<SDTGuard> path) {
+    	if (path.isEmpty())
+    		return this.getChildren().keySet();
+    	else {
+    		if (this.getChildren().containsKey(path.get(0))) {
+	    		List<SDTGuard> newPath = new ArrayList<SDTGuard>(path);
+	    		newPath.remove(0);
+	    		return this.getChildren()
+	    				.get(path.get(0))
+	    				.getBranchingAtPath(newPath);
+    		}
+    	}
+    	return null;
+    }
 
-    private Conjunction toPathExpression(List<SDTGuard> list) {
+    static Conjunction toPathExpression(List<SDTGuard> list) {
         List<GuardExpression> expr = new ArrayList<>();
         list.stream().forEach((g) -> {
             expr.add(g.toExpr());

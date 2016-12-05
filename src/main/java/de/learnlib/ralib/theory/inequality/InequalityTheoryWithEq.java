@@ -107,13 +107,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	protected DataType<T> type;
 	private InequalityGuardInstantiator<T> instantiator;
 	private final Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier;
-	
+
 	private final IfElseGuardMerger ifIntElseMerger;
 	private final InequalityGuardMerger fullMerger;
 	private final IfElseEquGuardMerger ifEquElseMerger;
 
-
-	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger, Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
+	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
+			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
 		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
@@ -179,20 +179,20 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		return merged;
 	}
-	
-	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard, SDT elseSDT) {
+
+	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard,
+			SDT elseSDT) {
 		Map<SDTGuard, SDT> merged = this.ifEquElseMerger.merge(equGuards, elseGuard, elseSDT);
-		
+
 		return merged;
 	}
-	
-	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard, SDT elseSDT) {
+
+	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard,
+			SDT elseSDT) {
 		Map<SDTGuard, SDT> merged = this.ifIntElseMerger.merge(intGuards, elseGuard, elseSDT);
-		
+
 		return merged;
 	}
-	
-	
 
 	// given a set of registers and a set of guards, keep only the registers
 	// that are mentioned in any guard
@@ -245,7 +245,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		int pId = values.size() + 1;
 		SuffixValue sv = suffix.getDataValue(pId);
-		DataType<T> type = (DataType<T>)sv.getType();
+		DataType<T> type = (DataType<T>) sv.getType();
 
 		List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
@@ -326,7 +326,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
 						SDT deqSdt = makeRejectingElseBranch(currentParam.getId() + 1, maxSufIndex);
 						tempKids.put(eqGuard, eqSdt);
-						
+
 						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt);
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
@@ -334,9 +334,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				}
 			}
 		}
-		
+
 		BranchingLogic<T> logic = new BranchingLogic<T>(this);
-		BranchingContext<T> context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues, suffix);
+		BranchingContext<T> context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues,
+				suffix);
 
 		BranchingStrategy branching = context.getStrategy();
 
@@ -357,7 +358,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
 			piv.putAll(keepMem(tempKids));
 			return new SDT(tempKids);
-		} else if (branching == BranchingStrategy.TRUE_PREV ) {
+		} else if (branching == BranchingStrategy.TRUE_PREV) {
 			DataValue<T> prev = context.getBranchingValue();
 
 			// System.out.println("empty potential");
@@ -378,60 +379,75 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// process each '<' case
 		else {
 
-			if (branching == BranchingStrategy.FULL) {
+			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_GREATER
+					|| branching == BranchingStrategy.TRUE_SMALLER) {
 
-				// smallest case
-				WordValuation smValues = new WordValuation();
-				smValues.putAll(values);
-				SuffixValuation smSuffixValues = new SuffixValuation();
-				smSuffixValues.putAll(suffixValues);
+				if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_SMALLER) {
+					// smallest case
+					WordValuation smValues = new WordValuation();
+					smValues.putAll(values);
+					SuffixValuation smSuffixValues = new SuffixValuation();
+					smSuffixValues.putAll(suffixValues);
+	
+					Valuation smVal = new Valuation();
+					DataValue<T> dvRight = potential.get(0);
+					IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, smValues, piv, constants);
+					SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
+					// System.out.println("setting valuation, symDV: " +
+					// rsm.toVariable() + " dvright: " + dvRight);
+					smVal.setValue(toVariable(rsm), dvRight.getId());
+					DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight);
+					// instantiate(sguard, smVal, constants, potential);
+					// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
+					smValues.put(pId, smcv);
+					smSuffixValues.put(sv, smcv);
+	
+					SDT smoracleSdt = oracle.treeQuery(prefix, suffix, smValues, piv, constants, smSuffixValues);
+					if (branching == BranchingStrategy.TRUE_SMALLER) {
+						tempKids.put(new SDTTrueGuard(currentParam), smoracleSdt);
+						piv.putAll(keepMem(tempKids));
+						return new SDT(tempKids);
+					}
+	
+					tempKids.put(sguard, smoracleSdt);
+					guardDvs.put(sguard, smcv);
+				}
 
-				Valuation smVal = new Valuation();
-				DataValue<T> dvRight = potential.get(0);
-				IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, smValues, piv, constants);
-				SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
-				// System.out.println("setting valuation, symDV: " +
-				// rsm.toVariable() + " dvright: " + dvRight);
-				smVal.setValue(toVariable(rsm), dvRight.getId());
-				DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight);
-				// instantiate(sguard, smVal, constants, potential);
-				// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
-				smValues.put(pId, smcv);
-				smSuffixValues.put(sv, smcv);
-
-				SDT smoracleSdt = oracle.treeQuery(prefix, suffix, smValues, piv, constants, smSuffixValues);
-
-				tempKids.put(sguard, smoracleSdt);
-				guardDvs.put(sguard, smcv);
-
-				// biggest case
-				WordValuation bgValues = new WordValuation();
-				bgValues.putAll(values);
-				SuffixValuation bgSuffixValues = new SuffixValuation();
-				bgSuffixValues.putAll(suffixValues);
-
-				Valuation bgVal = new Valuation();
-
-				DataValue<T> dvLeft = potential.get(potSize - 1);
-				IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
-				updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
-				DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null);
-				// instantiate(bguard, bgVal, constants, potential);
-				// bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
-				bgValues.put(pId, bgcv);
-				bgSuffixValues.put(sv, bgcv);
-
-				SDT bgoracleSdt = oracle.treeQuery(prefix, suffix, bgValues, piv, constants, bgSuffixValues);
-
-				tempKids.put(bguard, bgoracleSdt);
-				guardDvs.put(bguard, bgcv);
+				if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_GREATER) {
+					// biggest case
+					WordValuation bgValues = new WordValuation();
+					bgValues.putAll(values);
+					SuffixValuation bgSuffixValues = new SuffixValuation();
+					bgSuffixValues.putAll(suffixValues);
+	
+					Valuation bgVal = new Valuation();
+	
+					DataValue<T> dvLeft = potential.get(potSize - 1);
+					IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
+					updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
+					DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null);
+					// instantiate(bguard, bgVal, constants, potential);
+					// bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
+					bgValues.put(pId, bgcv);
+					bgSuffixValues.put(sv, bgcv);
+	
+					SDT bgoracleSdt = oracle.treeQuery(prefix, suffix, bgValues, piv, constants, bgSuffixValues);
+					if (branching == BranchingStrategy.TRUE_GREATER) {
+						tempKids.put(new SDTTrueGuard(currentParam), bgoracleSdt);
+						piv.putAll(keepMem(tempKids));
+						return new SDT(tempKids);
+					}
+	
+					tempKids.put(bguard, bgoracleSdt);
+					guardDvs.put(bguard, bgcv);
+				}
 			}
-			
+
 			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.IF_INTERVALS_ELSE) {
 
 				// middle cases
 				for (int i = 1; i < potSize; i++) {
-	
+
 					WordValuation currentValues = new WordValuation();
 					currentValues.putAll(values);
 					SuffixValuation currentSuffixValues = new SuffixValuation();
@@ -440,7 +456,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					Valuation val = new Valuation();
 					DataValue<T> dvMRight = potential.get(i);
 					DataValue<T> dvMLeft = potential.get(i - 1);
-	
+
 					// IntervalGuard smallerGuard = makeSmallerGuard(
 					// dvMRight, prefixValues,
 					// currentParam, currentValues, piv);
@@ -449,49 +465,54 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// currentValues, piv);
 					IntervalGuard intervalGuard = makeIntervalGuard(dvMLeft, dvMRight, prefixValues, currentParam,
 							currentValues, piv, constants);
-	
+
 					// IntervalGuard guard = new IntervalGuard(
 					// currentParam, biggerGuard.getLeftReg(),
 					// smallerGuard.getRightReg());
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
-	
+
 					DataValue<T> cv = IntervalDataValue.instantiateNew(dvMLeft, dvMRight);
 					// instantiate(intervalGuard, val, constants, potential);
 					// cv = new IntervalDataValue<T>(cv, dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
 					currentSuffixValues.put(sv, cv);
-	
-					SDT oracleSdt = oracle.treeQuery(prefix, suffix, currentValues, piv, constants, currentSuffixValues);
-	
+
+					SDT oracleSdt = oracle.treeQuery(prefix, suffix, currentValues, piv, constants,
+							currentSuffixValues);
+
 					tempKids.put(intervalGuard, oracleSdt);
 					guardDvs.put(intervalGuard, cv);
 				}
-				
+
 				if (branching == BranchingStrategy.IF_INTERVALS_ELSE) {
 					throw new RuntimeException("Processing for " + branching.name() + " not yet implemented");
 				}
 			}
-			
+
 			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.IF_EQU_ELSE) {
 				List<DataValue<T>> branchingValues = context.getBranchingValues();
 
 				// System.out.println("eq potential is: " + potential);
 				for (DataValue<T> newDv : branchingValues) {
 					// log.log(Level.FINEST, newDv.toString());
-	
+
 					// this is the valuation of the suffixvalues in the suffix
 					SuffixValuation ifSuffixValues = new SuffixValuation();
 					ifSuffixValues.putAll(suffixValues); // copy the suffix
 															// valuation
-	
-					// construct the equality guard. Depending on newDv, a certain
-					// type of equality is instantiated (newDv can be a SumCDv, in
+
+					// construct the equality guard. Depending on newDv, a
+					// certain
+					// type of equality is instantiated (newDv can be a SumCDv,
+					// in
 					// which case a SumC equality is instantiated)
 					EqualityGuard eqGuard = makeEqualityGuard(newDv, prefixValues, currentParam, values, constants);
-					// log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
-	
-					// we normalize newDv so that we only store plain data values in
+					// log.log(Level.FINEST, "eqGuard is: " +
+					// eqGuard.toString());
+
+					// we normalize newDv so that we only store plain data
+					// values in
 					// the if suffix
 					// newDv = new DataValue<T>(newDv.getType(), newDv.getId());
 					// construct the equality guard
@@ -502,16 +523,15 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					ifValues.put(pId, newDv);
 					ifSuffixValues.put(sv, newDv);
 					SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, piv, constants, ifSuffixValues);
-	
+
 					tempKids.put(eqGuard, eqOracleSdt);
 					guardDvs.put(eqGuard, newDv);
 				}
-				
+
 				if (branching == BranchingStrategy.IF_EQU_ELSE) {
-					SDTGuard [] elseConjuncts = tempKids.keySet().stream()
-					.map(g -> ((EqualityGuard) g).toDeqGuard())
-					.toArray(SDTGuard []::new);
-					
+					SDTGuard[] elseConjuncts = tempKids.keySet().stream().map(g -> ((EqualityGuard) g).toDeqGuard())
+							.toArray(SDTGuard[]::new);
+
 					SDTGuard elseGuard = new SDTAndGuard(currentParam, elseConjuncts);
 					WordValuation elseValues = new WordValuation();
 					SuffixValuation elseSuffixValues = new SuffixValuation();
@@ -521,7 +541,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					elseValues.put(pId, elseValue);
 					elseSuffixValues.put(sv, elseValue);
 					SDT elseSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
-					
+
 					Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, elseGuard, elseSdt);
 					piv.putAll(keepMem(merged));
 					return new SDT(merged);
@@ -561,10 +581,31 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	}
 
+	private SDT trueShortcut(DataValue<?> dv, int pId, Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,  WordValuation values, PIV piv,
+			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
+		// System.out.println("empty potential");
+		SuffixValue currentParam = new SuffixValue(type, pId);
+		SuffixValue sv = suffix.getDataValue(pId);
+		WordValuation equValues = new WordValuation();
+		equValues.putAll(values);
+		equValues.put(pId, dv);
+
+		// this is the valuation of the suffixvalues in the suffix
+		SuffixValuation equSuffixValues = new SuffixValuation();
+		equSuffixValues.putAll(suffixValues);
+		equSuffixValues.put(sv, dv);
+		Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
+
+		SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
+		merged.put(new SDTTrueGuard(currentParam), equOracleSdt);
+		piv.putAll(keepMem(merged));
+		return new SDT(merged);
+	}
+
 	/**
-	 * Creates a "unary tree" which of depth maxIndex - nextSufIndex which leads
-	 * to a rejecting Leaf. The edges are True guards over suffix values with
-	 * index from nextSufIndex to (excl.) maxIndex.
+	 * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a
+	 * rejecting Leaf. The edges are True guards over suffix values with index
+	 * from nextSufIndex to (excl.) maxIndex.
 	 * 
 	 * Used to shortcut output processing.
 	 */

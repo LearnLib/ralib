@@ -29,50 +29,67 @@ public class BranchingLogic<T> {
 		this.type = theory.getType();
 	}
 
-	public BranchingContext<T> computeBranchingContext(int pid, List<DataValue<T>> potential, Word<PSymbolInstance> prefix,
-			Constants constants, SuffixValuation suffixValues, GeneralizedSymbolicSuffix suffix) {
+	public BranchingContext<T> computeBranchingContext(int pid, List<DataValue<T>> potential,
+			Word<PSymbolInstance> prefix, Constants constants, SuffixValuation suffixValues,
+			GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
 		Supplier<List<DataValue<T>>> prefVals = () -> Arrays.asList(DataWords.valsOf(prefix, this.type));
 		Supplier<DataValue<T>> eqSuffVal = () -> {
-				DataValue<T> eqSuffix = (DataValue<T>)suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
-				if (eqSuffix == null) 
-					eqSuffix = this.theory.getFreshValue(potential);
-				return eqSuffix;
-			};
-		
+			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
+			if (eqSuffix == null)
+				eqSuffix = this.theory.getFreshValue(potential);
+			return eqSuffix;
+		};
 
-		BranchingContext<T> action = new BranchingContext<>(BranchingStrategy.FULL, potential);
+		BranchingContext<T> action = null;
 		// if any of the pref/suff relations contains all, we do FULL and skip
-		if (!prefixRel.contains(DataRelation.ALL) &&  !suffixRel.contains(DataRelation.ALL))
+		if (prefixRel.contains(DataRelation.ALL) && suffixRel.contains(DataRelation.ALL))
+			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
+		else {
 			// branching processing based on relations
 			if (prefixRel.isEmpty()) {
 				if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
+					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
+				else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
+					action = new BranchingContext<T>(BranchingStrategy.TRUE_GREATER);
 			} else {
 				if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
 					if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 					else if (suffixRel.contains(DataRelation.EQ))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+					else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
+					else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_GREATER);
 				}
-	
+
 				else {
 					if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(prefixRel)) {
 						if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel)) {
-							if (suffixRel.contains(DataRelation.EQ) )
-								action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
-							else 
-								action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, potential);
+							// if (suffixRel.contains(DataRelation.EQ) )
+							// action = new
+							// BranchingContext<T>(BranchingStrategy.TRUE_PREV,
+							// eqSuffVal.get());
+							// else
+							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, potential);
 						}
-					} 
+					}
+
 				}
 			}
+		}
+		
+		if (action == null)
+			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
-		System.out.println(action.getStrategy());
-		//return new BranchingContext<>(BranchingStrategy.FULL, potential);
+		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel);
+			// return new BranchingContext<>(BranchingStrategy.FULL, potential);
 		return action;
 	}
 
@@ -161,6 +178,6 @@ public class BranchingLogic<T> {
 	}
 
 	public static enum BranchingStrategy {
-		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL,
+		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL, TRUE_SMALLER, TRUE_GREATER;
 	}
 }
