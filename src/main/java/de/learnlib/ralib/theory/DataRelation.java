@@ -23,7 +23,13 @@ package de.learnlib.ralib.theory;
 public enum DataRelation {
     ALL,
     EQ,
+    EQ_SUMC1,
+    EQ_SUMC2,
     DEQ,
     LT,
-    GT,
+    GT;
+    
+    public boolean isEq() {
+    	return this.name().startsWith("EQ");
+    }
 }

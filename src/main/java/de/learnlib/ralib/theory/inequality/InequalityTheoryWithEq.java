@@ -19,6 +19,8 @@ package de.learnlib.ralib.theory.inequality;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC2;
 import static de.learnlib.ralib.theory.DataRelation.GT;
 import static de.learnlib.ralib.theory.DataRelation.LT;
 
@@ -35,7 +37,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -133,7 +134,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	@Override
 	public EnumSet<DataRelation> recognizedRelations() {
-		return EnumSet.of(DEQ, EQ, LT, GT);
+		return EnumSet.of(DEQ, EQ, LT, GT, EQ_SUMC1, EQ_SUMC2);
 	}
 
 	/**

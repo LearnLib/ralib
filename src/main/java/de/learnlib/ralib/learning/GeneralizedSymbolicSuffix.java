@@ -30,11 +30,16 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
+
 import net.automatalib.words.Word;
 
 /**
@@ -51,9 +56,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
     
     private final EnumSet<DataRelation>[] prefixRelations; 
     
+    private Set<ParamSignature> [] prefixSources;
+    
     public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, 
             EnumSet<DataRelation>[] prefixRelations,
-            EnumSet<DataRelation>[][] suffixRelations) {
+            EnumSet<DataRelation>[][] suffixRelations,
+            Set<ParamSignature> [] prefixSources) {
     
         this.actions = Word.fromList(actions.asList()); 
         this.prefixRelations = prefixRelations;
@@ -68,6 +76,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         for (DataType t : types) {
             this.suffixValues[idx++] = valgen.next(t);
         }
+        this.prefixSources = prefixSources;
+    }
+    public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, 
+            EnumSet<DataRelation>[] prefixRelations,
+            EnumSet<DataRelation>[][] suffixRelations){
+    	this(actions, prefixRelations, suffixRelations, null);
     }
     
     public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, 
@@ -86,8 +100,10 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
     			suffixRelations[i][j] = EnumSet.copyOf(allRelations);
     	}
     	Word<ParameterizedSymbol> suffixActs = DataWords.actsOf(suffix);
+    	Set<ParamSignature> [] prefixSources = new Set[vals.length];
+    	Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
     	
-    	return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations);
+    	return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
     }
         
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, 
@@ -148,8 +164,15 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             this.suffixRelations[idx] = srels.toArray(new EnumSet[] {});
             prevSuffixValues.add(v);
             idx++;
-        }        
+        }
+        
+        this.prefixSources = new Set[concSuffixVals.length];
+    	Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
     }    
+    
+//    public void setPrefixSignature(Word<PSymbolInstance> prefix) {
+//    	this.prefixSignatures = prefix.transform(w -> w.getBaseSymbol()).asList().toArray(new ParameterizedSymbol[]{});
+//    }
 
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix, 
             Constants consts, Map<DataType, Theory> theories) {
@@ -240,6 +263,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         return prefixRelations[i-1];
     }
     
+    public Set<ParamSignature> getPrefixSources(int i) {
+    	if (prefixSources != null)
+    		return prefixSources[i-1];
+    	return Collections.emptySet();
+    }
+    
     public EnumSet<DataRelation> getSuffixRelations(int i, int j) {
         DataType t = suffixValues[j-1].getType();
         // have to count types to convert i
@@ -263,6 +292,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         String suffixString = DataWords.instantiate(actions, instValues).toString();
         suffixString += "_P" + Arrays.deepToString(prefixRelations);
         suffixString += "_S" + Arrays.deepToString(suffixRelations);
+        if (this.prefixSources != null)
+        	suffixString += "_PSrc" + Arrays.deepToString(prefixSources);
         return suffixString;
     }
 
@@ -291,6 +322,9 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         if (!Arrays.deepEquals(this.prefixRelations, other.prefixRelations)) {
             return false;
         }
+        if (!Arrays.deepEquals(this.prefixSources, other.prefixSources)) {
+            return false;
+        }
         return true;
     }
 
@@ -301,6 +335,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         hash = 41 * hash + Arrays.deepHashCode(this.suffixValues);
         hash = 41 * hash + Arrays.deepHashCode(this.suffixRelations);
         hash = 41 * hash + Arrays.deepHashCode(this.prefixRelations);
+        hash = 41 * hash + Arrays.deepHashCode(this.prefixSources);
         return hash;
     }
 

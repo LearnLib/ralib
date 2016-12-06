@@ -24,7 +24,6 @@ public class DefaultGuardLogic implements SDTGuardLogic{
 			conjuncts[conjuncts.length - 1] = otherGuard;
 			return new SDTAndGuard(guard1.getParameter(), conjuncts);
 		}
-		
 		return new SDTAndGuard(guard1.getParameter(), guard1, guard2);
 	}
 

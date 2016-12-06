@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -40,8 +39,7 @@ import de.learnlib.ralib.automata.guards.ConstantGuardExpression;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
+import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -51,14 +49,16 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -280,57 +280,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return map;
     }
 
-    
-    /* 
-     * Generates a symbolic suffix by stamping all relations in the sdt onto the symbolic suffix. This doesn't work all the time,
-     * particularly when the hyp contains a refinement not included in the sut: 
-     * HYP: []-+
-			 []-TRUE: s1
-			        []-(s2=s1)
-			         |    [Leaf-]
-			         +-(s2!=s1)
-			              [Leaf+]
-			
-			SUL: []-+
-			  []-TRUE: s1
-			        []-TRUE: s2
-			              [Leaf+]
-     */
-    public GeneralizedSymbolicSuffix suffixForCounterexample(SymbolicDecisionTree sutSdt, Word<ParameterizedSymbol> actions) {
-    	SDT sdt = (SDT) sutSdt;
-    	
-    	SDT relabeledSdt = relabelPrefixesWithSuffixes(sdt);
-    	System.out.println("RELABELED SDT: " + relabeledSdt);
-    	if (!sdt.isEquivalent(relabeledSdt, new VarMapping())) {
-    		System.out.println("DIFF SDT: " + relabeledSdt);
-    	}
-    	List<List<SDTGuard>> accPaths = relabeledSdt.getPaths(Collections.emptyList(), true);
-    	List<List<SDTGuard>> rejPaths = relabeledSdt.getPaths(Collections.emptyList(), false);
-    	List<List<SDTGuard>> allPaths = new ArrayList<>(accPaths.size() + rejPaths.size());
-    	allPaths.addAll(accPaths);
-    	allPaths.addAll(rejPaths);
-    	int pathSize = allPaths.get(0).size();
-        EnumSet<DataRelation>[] prels = new EnumSet[pathSize];
-        EnumSet<DataRelation>[][] srels = new EnumSet[pathSize][];
-    	for (int i=0; i<pathSize; i++) {
-    		final int idx = i;
-    		Stream<SDTGuard> guardStream = allPaths.stream().map(path -> path.get(idx));
-    		Set<AtomicGuardExpression> atomicGuards = allPaths
-    				.stream().map(path -> path.get(idx))
-    				.map(guard -> guard.toExpr()).distinct()
-    				.map(gExp -> gExp.getAtoms()).flatMap(ats -> ats.stream())
-    				.collect(Collectors.toSet());
-    	      srels[i] = new EnumSet[i];
-              prels[i] = prefixRelations(atomicGuards);
-              suffixRelations(srels[i], atomicGuards);
-            
-    	}
-    	
-    	
-    	
-    	return new GeneralizedSymbolicSuffix(actions, prels, srels);
-    }
-    
     /**
      * Relabeles  sdts so that registers appearing in equality expressions are replaced by the suffixes to which
      * they bound in the context of these expressions. 
@@ -356,41 +305,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     		newChildren.put(guard, relabeledSdt);
     	}
     	return new SDT(newChildren);
-    }
-    
-    private EnumSet<DataRelation> getInitialBranchingRelations(SDT sutSdt, SDT hypSdt) {
-    	if (sutSdt instanceof SDTLeaf || sutSdt.isEmpty() && hypSdt.isEmpty())
-    		return EnumSet.noneOf(DataRelation.class);
-    	else {
-    		List<GuardExpression> sutGuards = sutSdt.getChildren().keySet()
-    				.stream().map(guard -> guard.toExpr()).collect(Collectors.toList());
-    		List<GuardExpression> hypGuards = hypSdt.getChildren().keySet()
-    				.stream().map(guard -> guard.toExpr()).collect(Collectors.toList());
-    		Set<GuardExpression> refinedGuards = new LinkedHashSet<>();
-    		PIV empty = new PIV();
-    		for (GuardExpression sguard : sutGuards) {
-    			for (GuardExpression hguard : hypGuards) {
-    				if (canBothBeSatisfied(sguard, empty, hguard, empty)) {
-    					if (implies(sguard, hguard))
-    						refinedGuards.add(sguard);
-    					else
-    						if (implies(hguard, sguard))
-    							refinedGuards.add(hguard);
-    						else {
-    							refinedGuards.add(hguard);
-    							refinedGuards.add(sguard);
-    						}
-    				}
-    			}
-    		}
-    		
-    		assert !solver.isSatisfiable(new Conjunction(refinedGuards.toArray(new GuardExpression[]{})));
-
-    		final EnumSet<DataRelation> rels = EnumSet.noneOf(DataRelation.class);
-    		refinedGuards.stream().map(gexp -> gexp.getAtoms())
-    		.map(atoms -> prefixRelations(atoms)).forEach(atRels -> rels.addAll(atRels));
-    		return rels;
-    	}
     }
     
     public GeneralizedSymbolicSuffix suffixForCounterexample2(
@@ -475,33 +389,42 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         throw new IllegalStateException("Could not find CE slice");
     }
     
-    
+    // sdt1 is hyp, sdt2 is sut 
     public GeneralizedSymbolicSuffix suffixForCounterexample(
-            Word<PSymbolInstance> prefix, SymbolicDecisionTree hypSdt, PIV hypPiv, 
-            SymbolicDecisionTree sutSdt, PIV sutPiv, 
+            Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt1, PIV sdt1Piv, 
+            SymbolicDecisionTree sdt2, PIV sdt2Piv, 
             TransitionGuard guard, Word<ParameterizedSymbol> actions) {
 
         log.log(Level.FINEST,"suffixForCounterexample ------------------------------");
         log.log(Level.FINEST,"Prefix: " + prefix);
         log.log(Level.FINEST,"Guard: " + guard);
         log.log(Level.FINEST,"Actions: " + actions);
-        log.log(Level.FINEST,"PIV1: " + hypPiv);
-        log.log(Level.FINEST,"SDT1: " + hypSdt);
-        log.log(Level.FINEST,"PIV2: " + sutPiv);
-        log.log(Level.FINEST,"SDT2: " + sutSdt);        
+        log.log(Level.FINEST,"PIV1: " + sdt1Piv);
+        log.log(Level.FINEST,"SDT1: " + sdt1);
+        log.log(Level.FINEST,"PIV2: " + sdt2Piv);
+        log.log(Level.FINEST,"SDT2: " + sdt2);        
         log.log(Level.FINEST,"------------------------------------------------------");        
         
-        SDT _sdt1 = (SDT) hypSdt;
-        SDT _sdt2 = (SDT) sutSdt;
+        SDT _sdt1 = (SDT) sdt1;
+        SDT _sdt2 = (SDT) sdt2;
+        
+        // remapping between sdts
+        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+                createRemapping(sdt2Piv, sdt1Piv);
 
-        _sdt1 = relabelPrefixesWithSuffixes(_sdt1);
-        _sdt2 = relabelPrefixesWithSuffixes(_sdt2);
+        SDT _sdt2r = (SDT) _sdt2.relabel(remap);
+        PIV piv = sdt2Piv.relabel(remap);
+        Map<SymbolicDataValue, ParamSignature> prefixMap = this.computePrefixSourceMap(prefix, piv);
+        
+
+        //_sdt1 = relabelPrefixesWithSuffixes(_sdt1); 
+       // _sdt2 = relabelPrefixesWithSuffixes(_sdt2);
         
         // get all the paths
         List<List<SDTGuard>> expr1_T = _sdt1.getPaths(Collections.emptyList(), true);
-        List<List<SDTGuard>> expr2_T = _sdt2.getPaths(Collections.emptyList(), true);                
+        List<List<SDTGuard>> expr2_T = _sdt2r.getPaths(Collections.emptyList(), true);                
         List<List<SDTGuard>> expr1_F = _sdt1.getPaths(Collections.emptyList(), false);
-        List<List<SDTGuard>> expr2_F = _sdt2.getPaths(Collections.emptyList(), false); 
+        List<List<SDTGuard>> expr2_F = _sdt2r.getPaths(Collections.emptyList(), false); 
       
         // get guard and relabel ...
         GuardExpression exprG = guard.getCondition();
@@ -513,12 +436,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             }
         }
         exprG = exprG.relabel(gremap);
-        
-        // remapping between sdts
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-                createRemapping(sutPiv, hypPiv);
-        
-        SDT _sdt2r = (SDT) _sdt2.relabel(remap);
         
         // find disagreeing paths in the two sdts which are satisfiable under conjunction 
         // (one path refines the other)
@@ -534,11 +451,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 //                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
 //            }
             for (List<SDTGuard> e2 : expr2_F) {
-            	List<SDTGuard> e2r = e2.stream().map(g -> g.relabel(remap)).collect(Collectors.toList());
-            	Conjunction e2Conj = SDT.toPathExpression(e2r);
+            	Conjunction e2Conj = SDT.toPathExpression(e2);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1Conj, e2Conj))) {
                     // found counterexample slice
-                    return counterExampleFromSlice(e1, e2r, _sdt1, _sdt2, actions);
+                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions, prefixMap);
                 }
             }            
         }
@@ -555,11 +471,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 //                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
 //            }
             for (List<SDTGuard> e2 : expr2_T) {
-            	List<SDTGuard> e2r = e2.stream().map(g -> g.relabel(remap)).collect(Collectors.toList());
-            	Conjunction e2Conj = SDT.toPathExpression(e2r);
+            	Conjunction e2Conj = SDT.toPathExpression(e2);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1Conj, e2Conj))) {
                     // found counterexample slice
-                    return counterExampleFromSlice(e1, e2r, _sdt1, _sdt2, actions);
+                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions, prefixMap);
                 }
             }            
         }
@@ -567,8 +482,24 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         throw new IllegalStateException("Could not find CE slice");
     }
     
+    private Map<SymbolicDataValue, ParamSignature> computePrefixSourceMap(Word<PSymbolInstance> prefix, PIV piv) {
+    	Map<SymbolicDataValue, ParamSignature> regToSig = new LinkedHashMap<SymbolicDataValue, ParamSignature>();
+    	SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
+    	for(PSymbolInstance sym : prefix) {
+    		int actIndex = 0;
+    		for (DataValue dv : sym.getParameterValues()) {
+    			Register reg = piv.get(pgen.next(dv.getType()));
+    			if (reg != null)
+    			//assert reg != null;
+    				regToSig.put(reg, new ParamSignature(sym.getBaseSymbol(), actIndex));
+    			actIndex ++;
+    		}
+    	}
+    	return regToSig;
+    }
+    
     private GeneralizedSymbolicSuffix counterExampleFromSlice(
-            List<SDTGuard> e1Guards, List<SDTGuard> e2Guards, SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions) {
+            List<SDTGuard> e1Guards, List<SDTGuard> e2Guards, SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions, Map<SymbolicDataValue, ParamSignature> prefixMap) {
         
         System.out.println("-----------------------------------------------");  
         System.out.println("Actions: " + actions);
@@ -577,18 +508,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     
         EnumSet<DataRelation>[] prels = new EnumSet[e1Guards.size()];
         EnumSet<DataRelation>[][] srels = new EnumSet[e1Guards.size()][];
+        Set<ParamSignature>[] psource = new Set[e1Guards.size()];
         
         int idx = 0;
         int base = 0;
         Conjunction e1 = SDT.toPathExpression(e1Guards);
         Conjunction e2 = SDT.toPathExpression(e2Guards);
-        
-
-//        Collection<AtomicGuardExpression> initialAtoms = getBranchingAtomsAtPath(Collections.emptyList(), Collections.emptyList(), sdt1, sdt2);
-//        srels[0] = new EnumSet[0];
-//        prels[0] =  prefixRelations(initialAtoms);
-//        suffixRelations(srels[0], initialAtoms);
-//        		
         
         for (int i=0; i< e1.getConjuncts().length; i++) {
             
@@ -606,40 +531,28 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             
             srels[i] = new EnumSet[i];
             
-//            prels[i] = prefixRelations(allAtoms);
-//            if (ps instanceof OutputSymbol) {
-//                prels[i].add(DataRelation.DEFAULT);
-//                prels[i].add(DataRelation.EQ);
-//            }
-//            suffixRelations(srels[i], allAtoms);
-            if (implies(c1, c2) && !implies(c2, c1)) {
+            Collection<AtomicGuardExpression> usedAtoms;
+            
+            if (implies(c1, c2) && !implies(c2, c1)) 
                 // use c1                
-                prels[i] = prefixRelations(atoms1);
-                suffixRelations(srels[i], atoms1);
-            } 
-            else if (!implies(c1, c2) && implies(c2, c1)) {
+            	usedAtoms = atoms1;
+            else if (!implies(c1, c2) && implies(c2, c1)) 
                 // use c2
-                prels[i] = prefixRelations(atoms2);
-                suffixRelations(srels[i], atoms2);
-            }
-            else  if (!implies(c1, c2) && !implies(c2, c1)) { 
-                Collection<AtomicGuardExpression> allAtoms =
-                		getBranchingAtomsAtPath(e1Guards.subList(0, i), e2Guards.subList(0, i), sdt1, sdt2);
-//                = new HashSet<AtomicGuardExpression>(atoms1);
-//                allAtoms.addAll(atoms2);
-            	// use both
-               // prels[i] = EnumSet.of(DataRelation.ALL);
-                prels[i] = prefixRelations(allAtoms);
-                suffixRelations(srels[i], allAtoms);
-            } else {
+            	usedAtoms = atoms2;
+            else  if (!implies(c1, c2) && !implies(c2, c1))
+            	// use all atoms in the branches of c1 and c2
+                usedAtoms = getBranchingAtomsAtPath(e1Guards.subList(0, i), e2Guards.subList(0, i), sdt1, sdt2);
+            else 
                 // equivalent - use both or does not matter?
-                prels[i] = prefixRelations(atoms1);
-                suffixRelations(srels[i], atoms1);           
-            }
+            	usedAtoms = atoms1;
+                           
+            prels[i] = prefixRelations(usedAtoms);
+            suffixRelations(srels[i], usedAtoms);
+            psource[i] = this.prefixSource(usedAtoms, prefixMap);
         }
         		//EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
-                new GeneralizedSymbolicSuffix(actions, prels, srels);
+                new GeneralizedSymbolicSuffix(actions, prels, srels, psource);
         
         System.out.println("New suffix: " + suffix);
         
@@ -734,16 +647,28 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         EnumSet<DataRelation> ret = EnumSet.noneOf(DataRelation.class);
         for (AtomicGuardExpression e : es) {
+        	//TODO Constants count here as registers? 
             if (!(e.getLeft() instanceof SuffixValue) || 
                     !(e.getRight() instanceof SuffixValue)) {
-                ret.addAll(toDR(e.getRelation()));
+                ret.addAll(toDR(e));
             }
         }
-        
-//        if (ret.isEmpty())
-//        	ret.add(DataRelation.DEFAULT);
-//        
+
         return ret;
+    }
+    
+    private Set<ParamSignature> prefixSource(
+            Collection<AtomicGuardExpression> es, Map<SymbolicDataValue, ParamSignature> sourceMap) {
+        Set<ParamSignature> sigs = new LinkedHashSet<>();
+        for (AtomicGuardExpression e : es) {
+        	//TODO Constants count here as registers? 
+        	if (sourceMap.containsKey(e.getLeft()))
+        		sigs.add(sourceMap.get(e.getLeft()));
+        	if (sourceMap.containsKey(e.getRight()))
+        		sigs.add(sourceMap.get(e.getRight()));
+        }
+
+        return sigs;
     }
 
     private void suffixRelations(EnumSet<DataRelation>[] srels, 
@@ -755,26 +680,32 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                     e.getRight() instanceof SuffixValue) {
                 int idx = Math.min(e.getLeft().getId(), e.getRight().getId()) -1;
                 
-                srels[idx].addAll(toDR(e.getRelation()));
+                srels[idx].addAll(toDR(e));
             }
         }
-        
-//        for (EnumSet<DataRelation> srel : srels) {
-//        	if (srel.isEmpty())
-//        		srel.add(DataRelation.DEFAULT);
-//        }
     }
     
-    private EnumSet<DataRelation> toDR(Relation rel) {
-        switch (rel) {
-            case EQUALS: return EnumSet.of(DataRelation.EQ);
+    private EnumSet<DataRelation> toDR(AtomicGuardExpression atom) {
+        switch (atom.getRelation()) {
+            case EQUALS: 
+            	if (atom instanceof SumCAtomicGuardExpression) {
+            		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
+            		int index = consts.getSumCs(cst.getType()).indexOf(cst);
+            		if (index == 0)
+            			return EnumSet.of(DataRelation.EQ_SUMC1);
+            		if (index == 1)
+            			return EnumSet.of(DataRelation.EQ_SUMC2);
+            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+            		.addDecoration("index", index);
+            	} 
+            	else return EnumSet.of(DataRelation.EQ);
             case LESSER: return EnumSet.of(DataRelation.LT);
             case GREATER: return EnumSet.of(DataRelation.GT);
             case LSREQUALS: return EnumSet.of(DataRelation.LT, DataRelation.EQ);
             case GREQUALS: return EnumSet.of(DataRelation.GT, DataRelation.EQ);            
             case NOT_EQUALS: return EnumSet.of(DataRelation.DEQ);
             default:
-                throw new IllegalStateException("Unsupported Relation: " + rel);
+                throw new IllegalStateException("Unsupported Relation: " + atom.getRelation());
         }
     }
     

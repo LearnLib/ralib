@@ -17,6 +17,7 @@
 package de.learnlib.ralib.data;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +26,13 @@ import java.util.stream.Collectors;
  * @author falk
  */
 public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {
+	public Constants() {
+		super();
+	}
+	public Constants(SumConstants sumConstants) {
+		this();
+		this.setSumC(sumConstants);
+	}
  
 	@SuppressWarnings("unchecked")
 	public <T>  Collection<DataValue<T>> getValues(DataType<T> type) {
@@ -32,5 +40,25 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 				this.values().stream().filter(c -> c.type.equals(type)).
 				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
 		return collection;
+	}
+	
+	private SumConstants sumConstants = null;
+	public void setSumC(SumConstants sumConstants) {
+		this.sumConstants = sumConstants;
+	} 
+	
+	
+	public <T> List<DataValue<T>> getSumCs(DataType<T> type) {
+		@SuppressWarnings("unchecked")
+		List<DataValue<T>> list = (List<DataValue<T>>)  
+				this.sumConstants.values().stream().filter(c -> c.type.equals(type)).
+				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
+		return list;
+	}
+	
+	public <T> DataValue<T> getSumC(DataType<T> type, int index) {
+		List<DataValue<T>> sumConst = getSumCs(type);
+		return sumConst.get(index);
+		
 	}
 }

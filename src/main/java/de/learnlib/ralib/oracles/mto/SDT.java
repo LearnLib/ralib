@@ -176,7 +176,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         
         
-        SDT thisSdt = this;
+        SDT thisSdt = this.relabelUnderEq(ds);
         SDT relabeledDeqSDT = ((SDT) deqSDT).relabelUnderEq(ds); 
          
         boolean x = thisSdt.canUse(relabeledDeqSDT);
@@ -195,7 +195,7 @@ public class SDT implements SymbolicDecisionTree {
         		replacements.put(d.getParameter(), d.getExpression());
         }
         return (SDT) this
-        		//.replace(replacements)
+        		.replace(replacements)
         		.relabel(eqRenaming);
     }
     

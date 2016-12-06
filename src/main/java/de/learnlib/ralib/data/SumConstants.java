@@ -16,8 +16,19 @@
  */
 package de.learnlib.ralib.data;
 
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 
 public class SumConstants extends Mapping<SymbolicDataValue.SumConstant, DataValue<?>>  {
+	private static final long serialVersionUID = 1L;
+
+	public SumConstants() {
+	super();	
+	}
 	
-	
+	public SumConstants(DataValue<?> ... dvs) {
+		this();
+		SymbolicDataValueGenerator.SumConstantGenerator cgen = new SymbolicDataValueGenerator.SumConstantGenerator();
+		for (DataValue<?> dv : dvs) 
+			this.put(cgen.next(dv.getType()), dv);	
+	}
 }

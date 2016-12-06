@@ -6,7 +6,15 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
 	private Double svSeq = null;
 	private State state = State.CLOSED;
 
-    public Double IConnect() {
+    public ModerateFreshTCPExample(Double window) {
+    	super(window);
+	}
+
+	public ModerateFreshTCPExample() {
+		super();
+	}
+
+	public Double IConnect() {
     	Double ret = super.newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 

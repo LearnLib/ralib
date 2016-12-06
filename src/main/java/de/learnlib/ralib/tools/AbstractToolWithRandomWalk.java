@@ -318,6 +318,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	        	final SumConstantGenerator cgen = new SymbolicDataValueGenerator.SumConstantGenerator();
 		        Arrays.stream(cstArray).forEach(cst -> sumConstants.put(cgen.next(cst.getType()), cst));
     		}
+    		consts.setSumC(sumConstants);
 	        
 	    	for (DataType dataType : teachers.keySet()) {
 	    		Theory teacher = teachers.get(dataType);

@@ -12,6 +12,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -84,7 +85,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
     private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
     	List<DataValue<Double>> pot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
     	pot.addAll(dvs);
-    	List<DataValue<Double>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
+    	List<DataValue<Double>> dvWithoutConsts = dvs.stream()
+    			.filter(dv -> !regularConstants.contains(dv)).map(dv -> {
+    				if (dv instanceof SumCDataValue) return ((SumCDataValue<Double>)dv).toRegular(); 
+    				return dv;
+    			})
+    			.collect(Collectors.toList());
     	// potential optimization, don't make sums out of sumC
     	// dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100.0).collect(Collectors.toList()); // ignore sumc constants
     	List<DataValue<Double>> flattenedPot = new ArrayList<DataValue<Double>> (dvs.size() * (sumConstants.size()+1));
@@ -144,25 +150,27 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	            List<DataValue<Double>> left, DataValue<Double> right) {
 	        
 	        List<EnumSet<DataRelation>> ret = new ArrayList<>();
-	        for (DataValue<Double> dv : left) {
-	        	boolean hasEqualityWithSumC = this.sumConstants.stream()
-	        	.anyMatch( sumc -> 
-	        		Double.valueOf((sumc.getId() + dv.getId())).compareTo(right.getId()) == 0);
-	        	if (hasEqualityWithSumC) {
-	        		ret.add(EnumSet.of(DataRelation.EQ));
+	        LOOP: for (DataValue<Double> dv : left) {
+	        	if (!this.sumConstants.isEmpty()) {
+	        		for (int ind=0; ind < this.sumConstants.size(); ind++) 
+	        			if(	Double.valueOf((this.sumConstants.get(ind).getId() + dv.getId())).compareTo(right.getId()) == 0) {
+	        				switch (ind) {
+	        					case 0: ret.add(EnumSet.of(DataRelation.EQ_SUMC1)); break;
+	        					case 1: ret.add(EnumSet.of(DataRelation.EQ_SUMC2)); break;
+	        					default: 
+	        						throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+	        				}
+	        				continue LOOP;
+	        			} 
 	        	}
-	            final int c = dv.getId().compareTo(right.getId());
-	            switch (c) {
-	                case 0:
-	                    ret.add(EnumSet.of(DataRelation.EQ));
-	                    break;
-	                case 1:
-	                    ret.add(EnumSet.of(DataRelation.GT));
-	                    break;
-	                default: 
-	                    ret.add(EnumSet.noneOf(DataRelation.class));
-	                    break;
-	            }
+
+	        	final int c = dv.getId().compareTo(right.getId());
+	        	if (c > 0)
+	        		ret.add(EnumSet.of(DataRelation.GT));
+	        	else if (c == 0)
+	        		ret.add(EnumSet.of(DataRelation.EQ));
+	        	else 
+	        		ret.add(EnumSet.of(DataRelation.LT));
 	        }
 	        
 	        return ret;

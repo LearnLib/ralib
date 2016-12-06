@@ -1,18 +1,23 @@
 package de.learnlib.ralib.theory.inequality;
 
-import static de.learnlib.ralib.theory.DataRelation.EQ;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -20,7 +25,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
-public class BranchingLogic<T> {
+public class BranchingLogic<T extends Comparable<T>> {
 	private DataType<T> type;
 	private TypedTheory<T> theory;
 
@@ -34,11 +39,18 @@ public class BranchingLogic<T> {
 			GeneralizedSymbolicSuffix suffix) {
 		EnumSet<DataRelation> suffixRel = getSuffixRelations(suffix, pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
+		List<DataValue<T>> sumC = constants.getSumCs(this.type);
 		Supplier<List<DataValue<T>>> prefVals = () -> Arrays.asList(DataWords.valsOf(prefix, this.type));
-		Supplier<DataValue<T>> eqSuffVal = () -> {
-			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(findLeftMostEqualSuffix(suffix, pid));
+		Function<DataRelation, DataValue<T>> fromPrevSuffVal = (rel) -> {
+			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(findLeftMostRelatedSuffix(suffix, pid, rel));
 			if (eqSuffix == null)
 				eqSuffix = this.theory.getFreshValue(potential);
+			else {
+				if (rel == DataRelation.EQ_SUMC1)
+					return new SumCDataValue<T>(eqSuffix, sumC.get(0));
+				if (rel == DataRelation.EQ_SUMC2)
+					return new SumCDataValue<T>(eqSuffix, sumC.get(1));
+			}
 			return eqSuffix;
 		};
 
@@ -52,7 +64,11 @@ public class BranchingLogic<T> {
 				if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ)))
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
+				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC1)))
+					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
+				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC2)))
+					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
 				else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
@@ -62,7 +78,11 @@ public class BranchingLogic<T> {
 					if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 					else if (suffixRel.contains(DataRelation.EQ))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, eqSuffVal.get());
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
+					else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC1)))
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
+					else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC2)))
+						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 					else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
 					else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
@@ -70,14 +90,31 @@ public class BranchingLogic<T> {
 				}
 
 				else {
-					if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(prefixRel)) {
-						if (EnumSet.of(DataRelation.EQ, DataRelation.DEQ).containsAll(suffixRel)) {
+					if (EnumSet.of(DataRelation.EQ, DataRelation.EQ_SUMC1, DataRelation.EQ_SUMC2, DataRelation.DEQ).containsAll(prefixRel)) {
+						if (EnumSet.of(DataRelation.EQ, DataRelation.EQ_SUMC1, DataRelation.EQ_SUMC2, DataRelation.DEQ).containsAll(suffixRel)) {
+							//getRelatedSuffixValues(suffix, pid, suffixValues, EnumSet.of(DataRelation.EQ, DataRelation.DEQ));
 							// if (suffixRel.contains(DataRelation.EQ) )
 							// action = new
 							// BranchingContext<T>(BranchingStrategy.TRUE_PREV,
 							// eqSuffVal.get());
 							// else
-							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, potential);
+							//prefixRel.stream().map(rel -> filter(potential, sumC, rel)).flatMap(l -> l.stream()).c
+							EnumSet<DataRelation> all = EnumSet.copyOf(prefixRel);
+							all.addAll(suffixRel);
+							
+							List<DataValue<T>> newPotential = new ArrayList<>();//filter(potential, sumC, all);
+							List<DataValue<T>> regVals = prefVals.get(); 
+//									suffix.getPrefixSources(pid).stream()
+//								.map(src -> src.getDataValuesWithSignature(prefix))
+//								.flatMap(vals -> vals.stream()).map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
+							List<DataValue<T>> regPotential = pots(regVals, sumC, prefixRel);
+							Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
+							List<DataValue<T>> sufPotential = pots(sufVals, sumC, suffixRel);
+							newPotential.addAll(regPotential);
+							newPotential.addAll(sufPotential);
+							newPotential.addAll(constants.values(type));
+							Collections.sort(newPotential, (dv1, dv2) -> dv1.getId().compareTo(dv2.getId()));
+							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
 						}
 					}
 
@@ -88,21 +125,61 @@ public class BranchingLogic<T> {
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
-		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel);
-			// return new BranchingContext<>(BranchingStrategy.FULL, potential);
+//		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
+		// return new BranchingContext<>(BranchingStrategy.FULL, potential);
 		return action;
+	}
+	
+	private List<DataValue<T>> pots(Collection<DataValue<T>> vals, List<DataValue<T>> sumConstants, EnumSet<DataRelation> equRels) {
+		Set<DataValue<T>> newPots = new LinkedHashSet<>();
+		for (DataRelation rel : equRels) {
+			switch(rel) {
+			case EQ:
+				newPots.addAll(vals);
+				break;
+			case EQ_SUMC1:
+				vals.forEach(val -> newPots.add(new SumCDataValue<T>(val, sumConstants.get(0))));
+				break;
+			case EQ_SUMC2:
+				vals.forEach(val -> newPots.add(new SumCDataValue<T>(val, sumConstants.get(1))));
+				break;
+			}
+		}
+		
+		return new ArrayList<>(newPots);
+	}
+	
+	private List<DataValue<T>> filter(List<DataValue<T>> potential, List<DataValue<T>> sumConstants, EnumSet<DataRelation> equRels) {
+		List<DataValue<T>> newPots = new ArrayList<>();
+		Stream<DataValue<T>> potsStream = potential.stream();
+			if (!equRels.contains(DataRelation.EQ)) 
+				potsStream = potsStream.filter(dv -> (dv instanceof SumCDataValue));
+			if (!equRels.contains(DataRelation.EQ_SUMC1)) {
+				DataValue<T> sumC= sumConstants.get(0);
+				potsStream = potsStream.filter(dv -> !(dv instanceof SumCDataValue) || 
+						!((SumCDataValue<T>) dv).getConstant().equals(sumC));
+			}
+			if (!equRels.contains(DataRelation.EQ_SUMC2)) {
+				DataValue<T> sumC= sumConstants.get(1);
+				potsStream = potsStream.filter(dv -> !(dv instanceof SumCDataValue) || 
+						!((SumCDataValue<T>) dv).getConstant().equals(sumC));
+			}
+			
+			newPots = potsStream.collect(Collectors.toList());
+		return newPots;
 	}
 
 	private List<DataValue<T>> getRelatedSuffixValues(GeneralizedSymbolicSuffix suffix, int pId,
-			SuffixValuation suffixValues, EnumSet<DataRelation> relations) {
+			SuffixValuation suffixValues, DataRelation ... relations) {
 		List<DataValue<T>> relatedValues = new ArrayList<DataValue<T>>();
+		//List<DataRelation> rels = Arrays.asList(relations);
 		DataType<?> t = suffix.getDataValue(pId).getType();
 		for (int i = 1; i < pId; i++) {
 			if (!t.equals(suffix.getDataValue(i).getType())) {
 				continue;
 			}
 			EnumSet<DataRelation> suffRelations = suffix.getSuffixRelations(i, pId);
-			if (relations.containsAll(suffRelations) && !suffRelations.isEmpty()) {
+			if (!suffRelations.isEmpty()) { //&& rels.contains(suffRelations)) {
 				DataValue<T> suffValue = (DataValue<T>) suffixValues.get(suffix.getDataValue(i));
 				relatedValues.add(suffValue);
 			}
@@ -124,15 +201,15 @@ public class BranchingLogic<T> {
 
 		return dset;
 	}
-
-	private int findLeftMostEqualSuffix(GeneralizedSymbolicSuffix suffix, int pId) {
+	
+	private int findLeftMostRelatedSuffix(GeneralizedSymbolicSuffix suffix, int pId, DataRelation rel) {
 		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
 		DataType t = suffix.getDataValue(pId).getType();
 		for (int i = 1; i < pId; i++) {
 			if (!t.equals(suffix.getDataValue(i).getType())) {
 				continue;
 			}
-			if (suffix.getSuffixRelations(i, pId).contains(EQ))
+			if (suffix.getSuffixRelations(i, pId).contains(rel))
 				return i;
 		}
 		return -1;

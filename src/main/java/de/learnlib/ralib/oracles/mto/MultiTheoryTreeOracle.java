@@ -448,6 +448,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 	    					refinedGuard = head;
 	    				else 
 	    					refinedGuard =  guardLogic.conjunction(head, next);
+	    					
     				
 				mergedGroup.put(refinedGuard, Sets.newLinkedHashSet(Arrays.asList(head, next)));
 				headNextPairs.add(new Pair<>(head, next));

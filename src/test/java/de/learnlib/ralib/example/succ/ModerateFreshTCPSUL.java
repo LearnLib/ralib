@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
@@ -30,8 +31,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class ModerateFreshTCPSUL extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE = 
-            new DataType("DOUBLE", Double.class);    
+    public static final DataType<Double> DOUBLE_TYPE = 
+            new DataType<Double>("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
             new InputSymbol("IConnect");
@@ -55,23 +56,27 @@ public class ModerateFreshTCPSUL extends DataWordSUL {
         
     public static final ParameterizedSymbol NOK = 
             new OutputSymbol("_not_ok", new DataType[]{});
+    
+    public static final ParameterizedSymbol OCONNECT = 
+            new OutputSymbol("OCONNECT", new DataType[]{DOUBLE_TYPE});
+    
 
     public final ParameterizedSymbol[] getActionSymbols() {
-        return new ParameterizedSymbol[] { OK, NOK };
+        return new ParameterizedSymbol[] { OK, NOK, OCONNECT };
     }
 
 
-    private ModerateTCPExample tcpSut;
-    private Supplier<ModerateTCPExample> supplier;
+    private ModerateFreshTCPExample tcpSut;
+    private Supplier<ModerateFreshTCPExample> supplier;
 
 	private Option[] options ;
     
     public ModerateFreshTCPSUL() {
-    	supplier = () -> new ModerateTCPExample();
+    	supplier = () -> new ModerateFreshTCPExample();
     }
     
     public ModerateFreshTCPSUL(Double window) {
-    	supplier = () -> new ModerateTCPExample(window);
+    	supplier = () -> new ModerateFreshTCPExample(window);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class ModerateFreshTCPSUL extends DataWordSUL {
         if (x instanceof Boolean) {
             return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
         } else {
-        	throw new IllegalStateException("Output not supported");
+        	return new PSymbolInstance(OCONNECT, new DataValue<Double>(DOUBLE_TYPE, (Double) x));
         }
      }
 
@@ -104,8 +109,7 @@ public class ModerateFreshTCPSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(ICONNECT)) {
-            Object x = tcpSut.IConnect(
-            		(Double)i.getParameterValues()[0].getId());
+            Object x = tcpSut.IConnect();
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(ISYN)) {
             Object x = tcpSut.ISYN(
