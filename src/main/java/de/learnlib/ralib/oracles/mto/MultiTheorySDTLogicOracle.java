@@ -535,10 +535,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             
             if (implies(c1, c2) && !implies(c2, c1)) 
                 // use c1                
-            	usedAtoms = atoms1;
+            	usedAtoms = 
+            	getBranchingAtomsAtPath(e1Guards.subList(0, i), sdt1); 
+            	//atoms1;
             else if (!implies(c1, c2) && implies(c2, c1)) 
                 // use c2
-            	usedAtoms = atoms2;
+            	usedAtoms =
+            			getBranchingAtomsAtPath(e2Guards.subList(0, i), sdt2);
+            	// atoms2;
             else  if (!implies(c1, c2) && !implies(c2, c1))
             	// use all atoms in the branches of c1 and c2
                 usedAtoms = getBranchingAtomsAtPath(e1Guards.subList(0, i), e2Guards.subList(0, i), sdt1, sdt2);
@@ -557,6 +561,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         System.out.println("New suffix: " + suffix);
         
         return suffix;
+    }
+    
+    private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path,  SDT sdt) {
+    	Set<SDTGuard> pathBranching = sdt.getBranchingAtPath(path);
+    	List<SDTGuard> guards = new ArrayList<>(pathBranching);
+    	Conjunction falsePath = SDT.toPathExpression(guards);
+    	Collection<AtomicGuardExpression> allAtoms = falsePath.getAtoms();
+    	return allAtoms;
     }
     
     private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path1, List<SDTGuard> path2,  SDT sdt1, SDT sdt2) {
@@ -703,7 +715,19 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             case GREATER: return EnumSet.of(DataRelation.GT);
             case LSREQUALS: return EnumSet.of(DataRelation.LT, DataRelation.EQ);
             case GREQUALS: return EnumSet.of(DataRelation.GT, DataRelation.EQ);            
-            case NOT_EQUALS: return EnumSet.of(DataRelation.DEQ);
+            case NOT_EQUALS: 
+            	if (atom instanceof SumCAtomicGuardExpression) {
+            		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
+            		int index = consts.getSumCs(cst.getType()).indexOf(cst);
+            		if (index == 0)
+            			return EnumSet.of(DataRelation.DEQ_SUMC1);
+            		if (index == 1)
+            			return EnumSet.of(DataRelation.DEQ_SUMC2);
+            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+            		.addDecoration("index", index);
+            	} else
+            	
+            	return EnumSet.of(DataRelation.DEQ);
             default:
                 throw new IllegalStateException("Unsupported Relation: " + atom.getRelation());
         }

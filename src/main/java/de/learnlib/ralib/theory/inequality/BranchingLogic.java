@@ -47,6 +47,8 @@ public class BranchingLogic<T extends Comparable<T>> {
 			if (eqSuffix == null)
 				eqSuffix = this.theory.getFreshValue(potential);
 			else {
+				if (rel == DataRelation.EQ)
+					return eqSuffix;
 				if (rel == DataRelation.EQ_SUMC1)
 					return new SumCDataValue<T>(eqSuffix, sumC.get(0));
 				if (rel == DataRelation.EQ_SUMC2)
@@ -62,27 +64,27 @@ public class BranchingLogic<T extends Comparable<T>> {
 		else {
 			// branching processing based on relations
 			if (prefixRel.isEmpty()) {
-				if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
+				if (suffixRel.isEmpty() || DataRelation.DEQ_RELATIONS.containsAll(suffixRel))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
-				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ)))
+				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
-				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC1)))
+				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC1)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
-				else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC2)))
+				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC2)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
 				else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_GREATER);
 			} else {
-				if (prefixRel.equals(EnumSet.of(DataRelation.DEQ))) {
-					if (suffixRel.isEmpty() || suffixRel.equals(EnumSet.of(DataRelation.DEQ)))
+				if (DataRelation.DEQ_RELATIONS.containsAll(prefixRel)) {
+					if (suffixRel.isEmpty() || DataRelation.DEQ_RELATIONS.containsAll(suffixRel))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
-					else if (suffixRel.contains(DataRelation.EQ))
+					else if (suffixRel.equals(DataRelation.EQ))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
-					else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC1)))
+					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC1)))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
-					else if (suffixRel.contains(EnumSet.of(DataRelation.EQ_SUMC2)))
+					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC2)))
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 					else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 						action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
@@ -91,14 +93,11 @@ public class BranchingLogic<T extends Comparable<T>> {
 				}
 
 				else {
-					if (EnumSet.of(DataRelation.EQ, DataRelation.EQ_SUMC1, DataRelation.EQ_SUMC2, DataRelation.DEQ).containsAll(prefixRel)) {
-						if (EnumSet.of(DataRelation.EQ, DataRelation.EQ_SUMC1, DataRelation.EQ_SUMC2, DataRelation.DEQ).containsAll(suffixRel)) {
+					if (DataRelation.EQ_DEQ_RELATIONS.containsAll(prefixRel)) {
+						if (DataRelation.EQ_DEQ_RELATIONS.containsAll(suffixRel)) {
 	
-							EnumSet<DataRelation> all = EnumSet.copyOf(prefixRel);
-							all.addAll(suffixRel);
-							
 							List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
-									, suffixRel);
+									, suffix);
 							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
 						}
 					}
@@ -110,14 +109,14 @@ public class BranchingLogic<T extends Comparable<T>> {
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
-//		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
+		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
 		return 
 //				new BranchingContext<>(BranchingStrategy.FULL, potential);
 				action;
 	}
 	
 	private List<DataValue<T>> makeNewPots(int pid, Word<PSymbolInstance> prefix, Set<ParamSignature> prefixSource, EnumSet<DataRelation> prefixRel, Constants constants, SuffixValuation suffixValues
-			, EnumSet<DataRelation> suffixRel) {
+			, GeneralizedSymbolicSuffix suffix) {
 		List<DataValue<T>> newPotential = new ArrayList<>();
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
 		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type)); 
@@ -130,7 +129,12 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		List<DataValue<T>> regPotential = pots(regVals, sumC, prefixRel);
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
-		List<DataValue<T>> sufPotential = pots(sufVals, sumC, suffixRel);
+		List<DataValue<T>> sufPotential = new ArrayList<DataValue<T>>();
+		for (int i=1; i < pid; i++) {
+			List<DataValue<T>> sufIPotential = pots(sufVals, sumC, suffix.getSuffixRelations(i, pid));
+			sufPotential.addAll(sufIPotential);
+		}
+		
 		newPotential.addAll(regPotential);
 		newPotential.addAll(sufPotential);
 		newPotential.addAll(constants.values(type));
@@ -146,11 +150,11 @@ public class BranchingLogic<T extends Comparable<T>> {
 		if (equRels.contains(DataRelation.ALL) || equRels.contains(DataRelation.LT) || equRels.contains(DataRelation.GT)) 
 			newPots.addAll( this.theory.getPotential(new ArrayList<>(vals)));
 		else {
-			if (equRels.contains(DataRelation.EQ))
+			if (equRels.contains(DataRelation.EQ) || equRels.contains(DataRelation.DEQ))
 				newPots.addAll(vals);
-			if (equRels.contains(DataRelation.EQ_SUMC1))
+			if (equRels.contains(DataRelation.EQ_SUMC1) || equRels.contains(DataRelation.DEQ_SUMC1))
 				vals.forEach(val -> newPots.add(new SumCDataValue<T>(val, sumConstants.get(0))));
-			if (equRels.contains(DataRelation.EQ_SUMC2))
+			if (equRels.contains(DataRelation.EQ_SUMC2) || equRels.contains(DataRelation.DEQ_SUMC2))
 				vals.forEach(val -> newPots.add(new SumCDataValue<T>(val, sumConstants.get(1))));
 		}
 		

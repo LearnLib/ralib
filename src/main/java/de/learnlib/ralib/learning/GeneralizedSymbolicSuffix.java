@@ -313,7 +313,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
                 idx++;
             }
         }
-        //System.out.println(i + "(" + idx+ ") : " + j);        
+        // System.out.println(i + "(" + idx+ ") : " + j);
         return suffixRelations[j-1][idx];
     }
     
