@@ -182,8 +182,8 @@ class Component {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
-        System.out.println("OLD BRANCHING: " + b);
-        System.out.println("NEW BRANCHING: " + newB);
+//        System.out.println("OLD BRANCHING: " + b);
+//        System.out.println("NEW BRANCHING: " + newB);
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         
@@ -226,11 +226,11 @@ class Component {
         for (Parameter p : memRow.keySet()) {
             // p is used by next but not stored by this and is from this word
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                GeneralizedSymbolicSuffix suffix = r.getSuffixForMemorable(p);                
+                GeneralizedSymbolicSuffix suffix = r.getSuffixForMemorable(p);      
                 GeneralizedSymbolicSuffix newSuffix = new GeneralizedSymbolicSuffix(
                         r.getPrefix(), suffix, consts, teachers);
                 
-//               System.out.println("Found inconsistency. msissing " + p +
+//               System.out.println("Found inconsistency. missing " + p +
 //                        " in mem. of " + prefix);                
 //               System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
 //               System.out.println("New symbolic suffix: " + newSuffix);

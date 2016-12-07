@@ -40,21 +40,30 @@ import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
 
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import net.automatalib.words.Word;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.Sets;
 
 /**
  *
@@ -166,26 +175,59 @@ public class GeneralizedSymbolicSuffixTest {
                 sul.getInputSymbols());
         DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateTCPSUL.DOUBLE_TYPE);
                 
-        final Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
-        
-        
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        b.fv(1.0)),
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 100.0)),
                 new PSymbolInstance(ModerateTCPSUL.OK));
         
-        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
-                prefix, suffix, new Constants(), teachers);
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(ModerateTCPSUL.ISYN, 
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 100.0),
+                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 0.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK),
+                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 200.0),
+                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 101.0)),
+                new PSymbolInstance(ModerateTCPSUL.OK));
         
-        System.out.println("prefix: " + prefix + " suffix: " + suffix);
+        
+        EnumSet<DataRelation> [] prefRel = new EnumSet [] {
+        		EnumSet.of(DataRelation.EQ), EnumSet.noneOf(DataRelation.class),
+        		EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class)
+        		
+        };
+        
+        EnumSet<DataRelation> [][] suffRel = new EnumSet [] [] {
+        	{}, {EnumSet.noneOf(DataRelation.class)}, {EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class)},
+        	{EnumSet.of(DataRelation.EQ_SUMC1), EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class)}
+        };
+        
+        Set[] prefSources = new Set [] {
+        Sets.newHashSet(new ParamSignature(ModerateTCPSUL.ICONNECT, 0)), Collections.emptySet(),
+        Collections.emptySet(), Collections.emptySet()};
+        Word<ParameterizedSymbol> suffWord = DataWords.actsOf(suffix);
+        
+        GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
+                suffWord, prefRel, suffRel, prefSources);
+        
         System.out.println(symSuffix);
+        
+        GeneralizedSymbolicSuffix sSymSuffix = symSuffix.suffix();
+        
+        Word<ParameterizedSymbol> sSuffWord = suffWord.suffix(-1);
+        
+        EnumSet<DataRelation> [] sPrefRel = new EnumSet [] { EnumSet.noneOf(DataRelation.class),
+        		EnumSet.of(DataRelation.EQ_SUMC1)};
+        
+        
+        EnumSet<DataRelation> [][] sSuffRel = new EnumSet [] [] {
+        	{}, {EnumSet.noneOf(DataRelation.class)}
+        };
+        
+        Set[] sPrefSources =  new Set [] {
+              Collections.emptySet(), Sets.newHashSet(new ParamSignature(ModerateTCPSUL.ISYN, 0)) };
+        GeneralizedSymbolicSuffix expectedSymSuffix = new GeneralizedSymbolicSuffix(sSuffWord, sPrefRel, sSuffRel, sPrefSources);
+        Assert.assertEquals(sSymSuffix, expectedSymSuffix);
+       
     }
 }

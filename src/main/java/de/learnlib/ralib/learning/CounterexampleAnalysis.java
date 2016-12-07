@@ -110,7 +110,7 @@ public class CounterexampleAnalysis {
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
                 //new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
-        
+        System.out.println("exhaustive suffix: " + symSuffix);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
 

@@ -15,6 +15,7 @@ import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
@@ -165,12 +166,16 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	        	}
 
 	        	final int c = dv.getId().compareTo(right.getId());
-	        	if (c > 0)
-	        		ret.add(EnumSet.of(DataRelation.GT));
-	        	else if (c == 0)
+	        	if (dv instanceof IntervalDataValue) {
+		        	if (c > 0)
+		        		ret.add(EnumSet.of(DataRelation.GT));
+		        	else if (c < 0) 
+		        		ret.add(EnumSet.of(DataRelation.LT));
+	        	} else if ( c == 0){
 	        		ret.add(EnumSet.of(DataRelation.EQ));
-	        	else 
-	        		ret.add(EnumSet.of(DataRelation.LT));
+	        	} else {
+	        		ret.add(EnumSet.noneOf(DataRelation.class));
+	        	}
 	        }
 	        
 	        return ret;

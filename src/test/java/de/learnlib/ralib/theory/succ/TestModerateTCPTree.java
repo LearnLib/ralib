@@ -22,10 +22,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.Sets;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -37,6 +40,7 @@ import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -183,22 +187,25 @@ public class TestModerateTCPTree extends RaLibTestSuite {
 //                		b.fv(201002.0)),
 //                new PSymbolInstance(ModerateFreshTCPSUL.OK),
                 new PSymbolInstance(ModerateFreshTCPSUL.ISYNACK, 
-                		new DataValue(ModerateFreshTCPSUL.DOUBLE_TYPE, 5.0),
-                		new DataValue(ModerateFreshTCPSUL.DOUBLE_TYPE, 6.0)),
+                		b.dv(201002.0),
+                		b.intv(100501.5, 100002.0, 101001.0)),
                 new PSymbolInstance(ModerateFreshTCPSUL.NOK),
                 new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
                 new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
-                		b.fv(100001.0)),
+                		b.fv(302003.0)),
                 new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
-                		new DataValue(ModerateFreshTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateFreshTCPSUL.DOUBLE_TYPE, 2.0)),
+                		b.dv(302003.0),
+                		b.dv(302003.0)),
                 new PSymbolInstance(ModerateFreshTCPSUL.NOK));
         
         // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
         final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers);
+        Set<ParamSignature>[] sources = symSuffix.getPrefixSources();
+        sources[0] = Sets.newHashSet(new ParamSignature(ModerateFreshTCPSUL.ISYN, 1));
+        symSuffix.setPrefixSources(sources);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+        System.out.println(symSuffix);
         
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
@@ -206,7 +213,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         System.out.println(sdt);
         System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
         
-        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7);
+        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
     }
 
 
