@@ -28,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.util.RAToDot;
@@ -140,7 +142,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IOCounterExamplePrefixFinder ceOptPref;
 
-    private IOOracle back;
+    private IOOracle sulTraceOracle;
 
     private Map<DataType, Theory> teachers;
 
@@ -154,6 +156,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private long inputs = 0;
 
 	private IOHypVerifier hypVerifier;
+
+	private DataWordSUL sulCeAnalysis;
 
     @Override
     public String description() {
@@ -200,25 +204,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
             }
             
-            // create teachers
-            teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
-
-            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            if (this.useFresh) {
-            	this.sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulLearn);
-            }
-            if (this.timeoutMillis > 0L) {
-            	
-                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
-            }
-            sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            if (this.useFresh) {
-            	this.sulTest = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(this.teachers, consts), sulTest);
-            }
-            if (this.timeoutMillis > 0L) {
-                this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
-            }
-
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
             boolean hasError = OPTION_OUTPUT_ERROR.parse(config);
             boolean hasNull = OPTION_OUTPUT_NULL.parse(config);
@@ -237,22 +222,30 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             	actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
             
-            if (useFresh)
-            	back = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, new Constants()));
-            else 
-            	back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
+            // create teachers
+            this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
+
+            this.sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
+            
+            this.sulCeAnalysis = new ClasssAnalyzerDataWordSUL(target, methods, md); 
+            this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
+            
+            this.sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            this.sulTest = setupDataWordOracle(sulTest, teachers, consts, useFresh, timeoutMillis);
             
             IOCache ioCache = setupCache(config, IOCacheManager.JAVA_SERIALIZE);
             
-            IOCacheOracle ioCacheOracle = null;
-            if (useFresh)
-            	ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, new Constants()));
-            else 
-            	ioCacheOracle = new IOCacheOracle(back, ioCache, null);
+            IOCacheOracle ioLearnCacheOracle = setupCacheOracle(sulLearn, teachers, consts, ioCache, useFresh);
+            IOCacheOracle ioCeAnalysisCacheOracle = setupCacheOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh);
             
-            IOFilter ioOracle = new IOFilter(ioCacheOracle, inputSymbols);
+            this.sulTraceOracle = ioLearnCacheOracle;
             
-            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioCacheOracle, teachers, consts, solver);
+            IOFilter ioOracle = new IOFilter(ioLearnCacheOracle, inputSymbols);
+            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver);
+            
+            IOFilter ioCeOracle = new IOFilter(ioCeAnalysisCacheOracle, inputSymbols);
+            MultiTheoryTreeOracle ceMto = new MultiTheoryTreeOracle(ioCeOracle, ioLearnCacheOracle, teachers, consts, solver);
 
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -274,7 +267,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             
             this.hypVerifier = new IOHypVerifier(teach, consts);
 
-            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, this.hypVerifier, actions);
+            this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, true, teachers, this.hypVerifier, actions);
 
             if (findCounterexamples) {
 
@@ -301,15 +294,44 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
             
 
-            this.ceOptLoops = new IOCounterexampleLoopRemover(back, this.hypVerifier);
-            this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);
-            this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
+            this.ceOptLoops = new IOCounterexampleLoopRemover(sulTraceOracle, this.hypVerifier);
+            this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulTraceOracle, this.hypVerifier);
+            this.ceOptPref = new IOCounterExamplePrefixFinder(sulTraceOracle, this.hypVerifier);
 
         } catch (ClassNotFoundException | NoSuchMethodException ex) {
             ex.printStackTrace();
             throw new ConfigurationException(ex.getMessage());
         }
 
+    }
+    
+    // could use a builder pattern here
+    private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, boolean useFresh, long timeoutMillis) {
+    	DataWordSUL sulLearn = basicSulOracle;
+    	if (useFresh) {
+        	sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sulLearn);
+        }
+        if (timeoutMillis > 0L) {
+        	
+            sulLearn = new TimeOutSUL(sulLearn, timeoutMillis);
+        }
+        return sulLearn;
+    }
+    
+
+    private IOCacheOracle setupCacheOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh) {
+    	IOCacheOracle ioCacheOracle;
+	    if (useFresh)
+	    	sulTraceOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
+	    else 
+	    	sulTraceOracle = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
+	    
+	    if (useFresh)
+	    	ioCacheOracle = new IOCacheOracle(sulTraceOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
+	    else 
+	    	ioCacheOracle = new IOCacheOracle(sulTraceOracle, ioCache, null);
+	    
+    	return ioCacheOracle;
     }
 
 	@Override
@@ -375,7 +397,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             ceLengthsShortened.add(ce.getInput().length());
 
-            Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
+            Word<PSymbolInstance> sysTrace = sulTraceOracle.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
@@ -433,6 +455,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         // resets + inputs
         System.out.println("Resets Learning: " + sulLearn.getResets());
         System.out.println("Inputs Learning: " + sulLearn.getInputs());
+        
+        // tests during ce analysis
+        // resets + inputs
+        System.out.println("Resets Ce Analysis: " + sulCeAnalysis.getResets());
+        System.out.println("Inputs Ce Analysis: " + sulCeAnalysis.getInputs());
 
         // tests during search
         // resets + inputs
@@ -440,8 +467,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         System.out.println("Inputs Testing: " + inputs);
 
         // + sums
-        System.out.println("Resets: " + (resets + sulLearn.getResets()));
-        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
+        System.out.println("Resets: " + (resets + sulLearn.getResets() + sulCeAnalysis.getResets()));
+        System.out.println("Inputs: " + (inputs + sulLearn.getInputs() + sulCeAnalysis.getInputs()));
 
     }
 

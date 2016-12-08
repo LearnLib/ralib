@@ -57,6 +57,8 @@ public class RaStar {
     
     private final TreeOracle sulOracle;
     
+    private final TreeOracle ceSulOracle;
+    
     private final SDTLogicOracle sdtLogicOracle;
     
     private final TreeOracleFactory hypOracleFactory;
@@ -69,7 +71,7 @@ public class RaStar {
     
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
-    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
+    public RaStar(TreeOracle oracle, TreeOracle ceSulOracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             Map<DataType, Theory> teachers,
             HypVerifier hypVerifier,
@@ -91,9 +93,19 @@ public class RaStar {
         }
         
         this.sulOracle = oracle;
+        this.ceSulOracle = ceSulOracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.hypVerifier = hypVerifier;
+    }   
+    
+    public RaStar(TreeOracle oracle,TreeOracleFactory hypOracleFactory, 
+            SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
+            Map<DataType, Theory> teachers,
+            HypVerifier hypVerifier,
+            ParameterizedSymbol ... inputs) {
+    	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, false, teachers, hypVerifier, inputs);
+    	
     }   
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
@@ -145,7 +157,7 @@ public class RaStar {
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
         
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
-                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), 
+                ceSulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), 
                         consts, teachers);
         
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
