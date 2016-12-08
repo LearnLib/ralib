@@ -320,16 +320,17 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     
 
     private IOCacheOracle setupCacheOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh) {
+    	IOOracle ioOracle;
     	IOCacheOracle ioCacheOracle;
 	    if (useFresh)
-	    	sulTraceOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
+	    	ioOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
 	    else 
-	    	sulTraceOracle = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
+	    	ioOracle = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 	    
 	    if (useFresh)
-	    	ioCacheOracle = new IOCacheOracle(sulTraceOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
+	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
 	    else 
-	    	ioCacheOracle = new IOCacheOracle(sulTraceOracle, ioCache, null);
+	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, null);
 	    
     	return ioCacheOracle;
     }
