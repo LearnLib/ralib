@@ -1,0 +1,23 @@
+target=de.learnlib.ralib.sul.examples.FreshMultiLogin
+methods=ILogin(java.lang.Integer:int,java.lang.Integer:int)boolean:boolean+\
+  IRegister(java.lang.Integer:int)java.lang.Integer:int
+#  ILogout(java.lang.Integer:int)boolean:boolean
+#IChangePassword(java.lang.Integer:int,java.lang.Integer:int)boolean:boolean
+
+logging.level=WARNING
+max.time.millis=1000000
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+rwalk.prob.fresh=0.1
+rwalk.prob.reset=0.1
+rwalk.max.depth=10
+rwalk.max.runs=40000
+rwalk.reset.count=false
+rwalk.draw.uniform=false
+teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
+export.model=false
+output.error=false
+output.null=false

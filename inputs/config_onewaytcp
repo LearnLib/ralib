@@ -1,0 +1,29 @@
+target=de.learnlib.ralib.sul.examples.OneWayTCPExample
+methods=IConnect(java.lang.Double:DOUBLE)boolean:boolean+\
+  ISYN(java.lang.Double:DOUBLE)boolean:boolean+\
+  ISYNACK(java.lang.Double:DOUBLE)boolean:boolean+\
+  IACK(java.lang.Double:DOUBLE)boolean:boolean+\
+  IFINACK(java.lang.Double:DOUBLE)boolean:boolean
+  
+
+solver=z3
+logging.level=WARNING
+max.time.millis=1000000
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+rwalk.prob.fresh=0.1
+rwalk.prob.reset=0.1
+rwalk.max.depth=10
+rwalk.max.runs=40000
+rwalk.reset.count=false
+rwalk.draw.uniform=false
+#random.seed=-5696146846351487847
+random.seed=-5696146846351487849
+teachers=DOUBLE:de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory
+export.model=false
+output.error=false
+output.null=false
+constants.sumc=[{"type":"DOUBLE","value":"1.0"},{"type":"DOUBLE","value":"1000.0"}]

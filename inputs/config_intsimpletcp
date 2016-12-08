@@ -1,0 +1,20 @@
+target=de.learnlib.ralib.sul.examples.IntSimpleTCPExample
+methods=IConnect(java.lang.Integer:int)boolean:boolean+\
+  IMSG(java.lang.Integer:int)boolean:boolean
+
+solver=z3
+logging.level=WARNING
+max.time.millis=1000000
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+rwalk.prob.fresh=0.1
+rwalk.prob.reset=0.1
+rwalk.max.depth=10
+rwalk.max.runs=40000
+rwalk.reset.count=false
+rwalk.draw.uniform=false
+teachers=int:de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory
+constants.sumc=[{"type":"int","value":"1"},{"type":"int","value":"1000"}]

@@ -1,0 +1,24 @@
+target=de.learnlib.ralib.sul.examples.IntWindowProtocolExample
+methods=IConnect()java.lang.Integer:INT+\
+  INEXT(java.lang.Integer:INT)java.lang.Integer:INT
+  
+solver=z3
+logging.level=WARNING
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+rwalk.prob.fresh=0.3
+rwalk.prob.reset=0.1
+rwalk.max.depth=10
+rwalk.max.runs=4000
+rwalk.reset.count=false
+rwalk.draw.uniform=false
+teachers=INT:de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory
+export.model=false
+output.error=false
+#cache.load=win.ser
+#cache.dump=win.ser
+output.null=false
+constants.sumc=[{"type":"INT","value":"1"},{"type":"INT","value":"1000"}]
