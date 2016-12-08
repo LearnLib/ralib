@@ -156,8 +156,13 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	        		for (int ind=0; ind < this.sumConstants.size(); ind++) 
 	        			if(	Double.valueOf((this.sumConstants.get(ind).getId() + dv.getId())).compareTo(right.getId()) == 0) {
 	        				switch (ind) {
-	        					case 0: ret.add(EnumSet.of(DataRelation.EQ_SUMC1)); break;
-	        					case 1: ret.add(EnumSet.of(DataRelation.EQ_SUMC2)); break;
+	        					case 0: ret.add(
+	        							EnumSet.of(DataRelation.EQ_SUMC1
+	        									, DataRelation.DEQ_SUMC1
+	        									)); break;
+	        					case 1: ret.add(EnumSet.of(DataRelation.EQ_SUMC2
+	        							, DataRelation.DEQ_SUMC2
+	        							)); break;
 	        					default: 
 	        						throw new DecoratedRuntimeException("Over 2 sumcs not supported");
 	        				}
@@ -166,13 +171,15 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 	        	}
 
 	        	final int c = dv.getId().compareTo(right.getId());
-	        	if (dv instanceof IntervalDataValue) {
-		        	if (c > 0)
-		        		ret.add(EnumSet.of(DataRelation.GT));
-		        	else if (c < 0) 
-		        		ret.add(EnumSet.of(DataRelation.LT));
+	        	if (right instanceof IntervalDataValue) {
+	        		DataValue<Double> rEnd = ((IntervalDataValue) right).getRight();
+	        		DataValue<Double> lEnd = ((IntervalDataValue) right).getLeft();
+	        		if (rEnd != null && rEnd.equals(dv))
+		        		ret.add(EnumSet.of(DataRelation.LT, DataRelation.GT));
+		        	else if (lEnd != null && lEnd.equals(dv))
+		        		ret.add(EnumSet.of(DataRelation.GT, DataRelation.GT));
 	        	} else if ( c == 0){
-	        		ret.add(EnumSet.of(DataRelation.EQ));
+	        		ret.add(EnumSet.of(DataRelation.EQ, DataRelation.DEQ));
 	        	} else {
 	        		ret.add(EnumSet.noneOf(DataRelation.class));
 	        	}
