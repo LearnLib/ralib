@@ -104,7 +104,7 @@ public class RaStar {
             Map<DataType, Theory> teachers,
             HypVerifier hypVerifier,
             ParameterizedSymbol ... inputs) {
-    	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, false, teachers, hypVerifier, inputs);
+    	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, teachers, hypVerifier, inputs);
     	
     }   
     
