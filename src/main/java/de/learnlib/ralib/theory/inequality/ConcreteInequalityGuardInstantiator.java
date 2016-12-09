@@ -177,7 +177,7 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 			// System.out.println("SAT!!");
 			// System.out.println(newVal.getValue(sp.toVariable()) + " " +
 			// newVal.getValue(sp.toVariable()).getClass());
-			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), getType()));
+			DataValue<T> d = new DataValue(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), getType()));
 			// System.out.println("return d: " + d.toString());
 			return d;// new DataValue<Double>(doubleType, d);
 		} else {

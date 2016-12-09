@@ -226,8 +226,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						ret.put(p, (Register) r);
 					}
 				}
-			} else if (mg instanceof SDTOrGuard) {
-				Set<SymbolicDataValue> rSet = ((SDTOrGuard) mg).getAllSDVsFormingGuard();
+			} else if (mg instanceof SDTMultiGuard) {
+				Set<SymbolicDataValue> rSet = ((SDTMultiGuard) mg).getAllSDVsFormingGuard();
 				for (SymbolicDataValue r : rSet) {
 					Parameter p = new Parameter(r.getType(), r.getId());
 					if (r instanceof Register) {
@@ -235,7 +235,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					}
 				}
 			} else if (!(mg instanceof SDTTrueGuard)) {
-				throw new IllegalStateException("wrong kind of guard");
+				throw new IllegalStateException("wrong kind of guard " + mg + " type: " + mg.getClass());
 			}
 		}
 		return ret;

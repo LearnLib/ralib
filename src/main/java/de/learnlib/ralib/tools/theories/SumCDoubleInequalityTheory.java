@@ -54,7 +54,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory{
 		setupDefaultConstants(dataType);
 	}
 	
-	private void setupDefaultConstants(DataType dataType) {
+	private void setupDefaultConstants(DataType<Double> dataType) {
 		this.sumConstants = Arrays.asList(defaultSumConst).stream()
 				.map(c -> new DataValue<Double>(dataType, c))
 				.collect(Collectors.toList());

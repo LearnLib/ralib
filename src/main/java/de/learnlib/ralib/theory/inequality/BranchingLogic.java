@@ -109,7 +109,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
-		System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
+	//	System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
 		return 
 //				new BranchingContext<>(BranchingStrategy.FULL, potential);
 				action;
