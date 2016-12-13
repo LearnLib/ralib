@@ -851,62 +851,75 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 				val.setValue(toVariable(r), regVal.getId());
 			} else if (guard instanceof SDTMultiGuard) {
+
 				List<SDTGuard> allGuards = ((SDTMultiGuard) guard).getGuards();
-				List<SDTGuard> eqGuards = allGuards.stream().filter(g -> g instanceof EqualityGuard).distinct()
-						.collect(Collectors.toList());
-				if (!eqGuards.isEmpty()) {
-					// if the end guard contains two equ guards it should not be
-					// instantiateable
-					if (eqGuards.size() > 1 && guard instanceof SDTAndGuard) {
-						assert !instantiateSDExpr(((SDTIfGuard) eqGuards.get(0)).getExpression(), type, prefixValues,
-								piv, pval, constants)
-										.equals(instantiateSDExpr(((SDTIfGuard) eqGuards.get(1)).getExpression(), type,
-												prefixValues, piv, pval, constants));
-						return null;
-					}
-
-					SDTGuard firstEqGuard = eqGuards.get(0);
-					DataValue<T> equValue = instantiateSDExpr(((SDTIfGuard) firstEqGuard).getExpression(), type,
-							prefixValues, piv, pval, constants);
-					assert equValue != null;
-					// for an OR guard, we pick equality whenever there's an
-					// equality guard contained
-					if (guard instanceof SDTOrGuard)
-						return equValue;
-					// for an AND guard, we set the suffix so that it satisfied
-					// the equality guard and then we check if this relation can
-					// be satisfied
-					else {
-
-						val.setValue(toVariable(guard.getParameter()), equValue.getId());
-						alreadyUsedValues.remove(equValue);
-					}
-
+				boolean onlyDiseq = !allGuards.stream()
+						.filter(gu -> !(gu instanceof DisequalityGuard))
+						.findAny()
+						.isPresent();
+				if (onlyDiseq) {
+					Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
+							DataWords.<T>valSet(prefix, type), pval.<T>values(type));
+					returnValue = this.getFreshValue(new ArrayList<>(potSet));
 				} else {
-					if (guard instanceof SDTAndGuard) {
-						if (!useSolver) {
-							List<SDTGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard)
-									.collect(Collectors.toList());
-							if (intervalGuards.size() >= 2) {
-								throw new DecoratedRuntimeException(
-										"Cannot reliably instantiate a 2 guard interval with conjunctions")
-												.addDecoration("intervals", intervalGuards);
-							}
-							Optional<SDTGuard> intGuard = intervalGuards.stream().findAny();
-							if (intGuard.isPresent()) {
-								// this is required if we are not using the
-								// constraint solver for instantiation
-								final List<DataValue<T>> prohibitedValues = allGuards.stream()
-										.filter(g -> g instanceof DisequalityGuard)
-										.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
-												prefixValues, piv, pval, constants))
+				
+					List<SDTGuard> eqGuards = allGuards.stream().filter(g -> g instanceof EqualityGuard).distinct()
+							.collect(Collectors.toList());
+					
+					// for multi guards that have equality guards, we 
+					if (!eqGuards.isEmpty()) {
+						// if the end guard contains two equ guards it should not be 
+						if (eqGuards.size() > 1 && guard instanceof SDTAndGuard) {
+							assert !instantiateSDExpr(((SDTIfGuard) eqGuards.get(0)).getExpression(), type, prefixValues,
+									piv, pval, constants)
+											.equals(instantiateSDExpr(((SDTIfGuard) eqGuards.get(1)).getExpression(), type,
+													prefixValues, piv, pval, constants));
+							return null;
+						}
+	
+						SDTGuard firstEqGuard = eqGuards.get(0);
+						DataValue<T> equValue = instantiateSDExpr(((SDTIfGuard) firstEqGuard).getExpression(), type,
+								prefixValues, piv, pval, constants);
+						assert equValue != null;
+						// for an OR guard, we pick equality whenever there's an
+						// equality guard contained
+						if (guard instanceof SDTOrGuard)
+							return equValue;
+						// for an AND guard, we set the suffix so that it satisfied
+						// the equality guard and then we check if this relation can
+						// be satisfied
+						else {
+	
+							val.setValue(toVariable(guard.getParameter()), equValue.getId());
+							alreadyUsedValues.remove(equValue);
+						}
+	
+					} else {
+						if (guard instanceof SDTAndGuard) {
+							if (!useSolver) {
+								List<SDTGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard)
 										.collect(Collectors.toList());
-								oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a))
-										.collect(Collectors.toSet());
-								SDTGuard intv = intGuard.get();
-								DataValue<T> intDv = instantiate(prefix, ps, piv, pval, constants, intv, param, oldDvs,
-										useSolver);
-								return intDv;
+								if (intervalGuards.size() >= 2) {
+									throw new DecoratedRuntimeException(
+											"Cannot reliably instantiate a 2 guard interval with conjunctions")
+													.addDecoration("intervals", intervalGuards);
+								}
+								Optional<SDTGuard> intGuard = intervalGuards.stream().findAny();
+								if (intGuard.isPresent()) {
+									// this is required if we are not using the
+									// constraint solver for instantiation
+									final List<DataValue<T>> prohibitedValues = allGuards.stream()
+											.filter(g -> g instanceof DisequalityGuard)
+											.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
+													prefixValues, piv, pval, constants))
+											.collect(Collectors.toList());
+									oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a))
+											.collect(Collectors.toSet());
+									SDTGuard intv = intGuard.get();
+									DataValue<T> intDv = instantiate(prefix, ps, piv, pval, constants, intv, param, oldDvs,
+											useSolver);
+									return intDv;
+								}
 							}
 						}
 					}
