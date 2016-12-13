@@ -19,15 +19,31 @@ public abstract class AbstractWindowProtocol {
     }
     
 
+    /**
+     * Both numbers are not null AND nextSeq is succ of currentSeq.
+     */
 	public boolean succ(Double currentSeq, Double nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq == currentSeq + 1;
 	}
 
+	/**
+     * Both numbers are not null AND nextSeq is equal to currentSeq.
+     */
 	public boolean equ(Double currentSeq, Double nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq.equals(currentSeq);
 	}
 
+
+	/**
+     * Both numbers are not null AND nextSeq is in the range (1+currentSeq, win+currentSeq)
+     */
 	public boolean inWin(Double currentSeq, Double nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;
 	}
 }

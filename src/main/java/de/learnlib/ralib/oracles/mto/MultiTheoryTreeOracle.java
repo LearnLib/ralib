@@ -280,6 +280,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         
         Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+        System.out.println("From trees: " + Arrays.asList(sdts));
         
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {
@@ -365,8 +366,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 	                      dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), false);
 	                }
 	            	
-	            	// if merging of guards is done properly, there should be no case where the guard is not instantiable. If there is, it is worth knowing.
-	            	if (dvi == null) {
+	            	// if merging of guards is done properly, there should be no case where the guard is not instantiable.
+	            	if (dvi == null || dvi.getId().equals(Double.valueOf(0.0))) {
 //	            		continue;
 	            		throw new DecoratedRuntimeException("Unexpected ")
 	            		.addDecoration("merged guard", guard).addDecoration("from guards", oldGuards).addDecoration("context", guardContext);

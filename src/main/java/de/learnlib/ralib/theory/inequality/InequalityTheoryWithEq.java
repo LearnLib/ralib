@@ -801,8 +801,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			if (guard instanceof DisequalityGuard) {
 				DisequalityGuard diseqGuard = (DisequalityGuard) guard;
 				SymbolicDataValue r = (SymbolicDataValue) diseqGuard.getRegister();
-				DataValue<T> diseqExprVal = instantiateSDExpr(diseqGuard.getExpression(), r.getType(), prefixValues,
-						piv, pval, constants);
 				DataValue<T> rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 				val.setValue(toVariable(r), rRegVal.getId());
 
@@ -935,7 +933,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				throw new IllegalStateException("only =, !=, intervals, AND and OR are allowed");
 			}
 
-			if (!(oldDvs.isEmpty())) {
+			if (!(oldDvs.isEmpty()) && !oldDvs.contains(returnValue)) {
 				// System.out.println("old dvs: " + oldDvs);
 				for (DataValue<T> oldDv : oldDvs) {
 					Valuation newVal = new Valuation();

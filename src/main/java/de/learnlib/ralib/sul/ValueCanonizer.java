@@ -66,6 +66,7 @@ public class ValueCanonizer {
 			PSymbolInstance canSym = this.canonize(sym, inverse);
 			newTrace = newTrace.append(canSym);
 		}
+
 		return newTrace;
 	}
 	

@@ -42,6 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+
+import com.google.common.collect.Sets;
+
 import net.automatalib.words.Word;
 
 /**
@@ -91,16 +94,16 @@ public class MultiTheoryBranching implements Branching {
 				e.getValue().toString(sb, nextIndent);
 			}
 		}
+		
+		private void collectDVs(Map<Parameter, Set<DataValue>> dvs) {
+			dvs.putIfAbsent(this.parameter, new LinkedHashSet());
+			dvs.get(this.parameter).addAll(this.next.keySet());
+			this.next.values().forEach(n -> n.collectDVs(dvs));
+		}
 
 		protected Map<Parameter, Set<DataValue>> collectDVs() {
 			Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
-			if (!(this.next.keySet()).isEmpty()) {
-				dvs.put(this.parameter, this.next.keySet());
-				for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
-					dvs.putAll(e.getValue().collectDVs());
-				}
-			}
-
+			collectDVs(dvs);
 			return dvs;
 		}
     };
@@ -261,7 +264,8 @@ public class MultiTheoryBranching implements Branching {
         return "---- Branching for " + action.toString()
                 + " after " + prefix.toString() + " ----\n"
                 + node.toString()
-                + "\n-------------------------------------------------------------------------------------";
+                + "\n-------------------------------------------------------------------------------------"
+                + node.collectDVs().toString();
     }
 
 }

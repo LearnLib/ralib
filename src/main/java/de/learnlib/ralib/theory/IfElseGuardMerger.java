@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -52,9 +53,12 @@ public class IfElseGuardMerger {
 	 */
 	boolean checkSDTEquivalence(SDTGuard guard, SDT guardSdt, SDTGuard elseGuard, SDT elseGuardSdt) {
 		boolean equiv = false;
-		if (isSDVEquality(guard))
-			equiv = guardSdt.isEquivalentUnderEquality(elseGuardSdt, Arrays.asList((EqualityGuard) guard));
-		else
+		if (isSDVEquality(guard)) {
+			List<EqualityGuard> eqGuards = elseGuardSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
+			.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
+			eqGuards.add((EqualityGuard) guard);
+			equiv = guardSdt.isEquivalentUnderEquality(elseGuardSdt, eqGuards);
+		} else
 			equiv = guardSdt.isEquivalent(elseGuardSdt, new VarMapping());
 		return equiv;
 	}

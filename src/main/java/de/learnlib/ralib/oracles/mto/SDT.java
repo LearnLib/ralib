@@ -18,12 +18,16 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
@@ -235,6 +239,17 @@ public class SDT implements SymbolicDecisionTree {
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
         return relabelled;
+    }
+    
+    public List<SDTGuard> getGuards(final Predicate<SDTGuard> predicate) {
+    	if (this instanceof SDTLeaf) 
+    		return Collections.emptyList();
+    	Stream<SDTGuard> guards = this.children.keySet().stream().filter(predicate);
+    	Stream<SDTGuard> childGuards = this.children.values().stream()
+    	.map(sdt -> sdt.getGuards(predicate))
+    	.flatMap(g -> g.stream());
+    	List<SDTGuard> allGuards = Stream.concat(guards, childGuards).collect(Collectors.toList());
+    	return allGuards;
     }
 
     /* ***

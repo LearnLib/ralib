@@ -50,7 +50,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 		ValueCanonizer canonizer = new ValueCanonizer(valueMappers, constants);
 
 		try {
-			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);
+			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);  
 		
 			
 			return canonicalTrace;

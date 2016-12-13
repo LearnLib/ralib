@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -97,7 +98,11 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 		if (equGuard != null) {
 			SDT intSdt = guardSdtMap.get(intGuard);
 			SDT equSdt = guardSdtMap.get(equGuard);
-			if (equSdt.isEquivalentUnderEquality(intSdt, Arrays.asList(equGuard)))
+			List<EqualityGuard> eqGuards = //Arrays.asList(equGuard); 
+					intSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
+					.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
+			eqGuards.add(equGuard);
+			if (equSdt.isEquivalentUnderEquality(intSdt, eqGuards))
 				return intSdt;
 		} else { // two interval guards
 			SDT sdt = guardSdtMap.get(guard);

@@ -57,7 +57,7 @@ import net.automatalib.words.Word;
 
 public class TestModerateTCPTree extends RaLibTestSuite {
 
-//    @Test
+    @Test
     public void testModerateTCPTree() {
     	
     	Double win = 1000.0;
@@ -135,12 +135,12 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         System.out.println(sdt2);
         System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
 
-        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7);
-        Assert.assertEquals(((SDT)sdt2).getNumberOfLeaves() , 7);
+        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 3);
+        Assert.assertEquals(((SDT)sdt2).getNumberOfLeaves() , 3);
 
     }
     
- //   @Test
+    @Test
     public void testModerateFreshTCPTree() {
     	
     	Double win = 1000.0;
@@ -280,7 +280,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         System.out.println(sdt);
         System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
         
-        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
+        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 4);
     }
     
 }

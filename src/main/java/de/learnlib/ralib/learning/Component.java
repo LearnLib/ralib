@@ -182,8 +182,8 @@ class Component {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
-//        System.out.println("OLD BRANCHING: " + b);
-//        System.out.println("NEW BRANCHING: " + newB);
+        System.out.println("OLD BRANCHING: " + b);
+        System.out.println("NEW BRANCHING: " + newB);
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         

@@ -51,7 +51,7 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     public boolean IACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
-    		if (seq.equals(clSeq) && succ(svSeq, ack)) {
+    		if (equ(seq, clSeq) && succ(svSeq, ack)) {
     			ret = true;
     			svSeq = ack;
     			state = State.ESTABLISHED;
@@ -59,15 +59,15 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     	}
     	
     	if (state == State.ESTABLISHED) {
-    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
-    				seq.equals(clSeq) && ack.equals(svSeq)) {
+    		if (equ(seq, clSeq) && succ(svSeq, ack) ||  
+    				equ(seq, clSeq) && equ(svSeq, ack)) {
     			clSeq = seq;
     			svSeq = ack;
     			
     			ret = true;
     		} else if (
-    				seq.equals(svSeq) && succ(clSeq, ack) ||
-    				seq.equals(svSeq) && ack.equals(clSeq)) {
+    				equ(seq, svSeq) && succ(clSeq, ack) ||
+    				equ(seq, svSeq) && equ(ack, clSeq)) {
     					clSeq = ack;
     	    			svSeq = seq;
     	    			ret = true;
