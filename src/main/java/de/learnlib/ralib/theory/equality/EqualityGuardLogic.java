@@ -18,7 +18,7 @@ public class EqualityGuardLogic extends DefaultGuardLogic{
 				|| guard2 instanceof DisequalityGuard && guard1 instanceof EqualityGuard) {
 			EqualityGuard eq = guard1 instanceof EqualityGuard ? (EqualityGuard) guard1 : (EqualityGuard) guard2;
 			DisequalityGuard deq = guard1 instanceof DisequalityGuard ? (DisequalityGuard) guard1: (DisequalityGuard) guard2;
-			if (eq.getExpression().equals(eq.getExpression()))
+			if (eq.getExpression().equals(deq.getExpression()))
 				return new SDTTrueGuard(eq.getParameter());
 		}
 		

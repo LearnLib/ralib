@@ -41,13 +41,7 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
         //assume we can just sort the list and get the values
         List<DataValue<Integer>> sortedList = new ArrayList<>();
         for (DataValue<Integer> d : dvs) {
-//                    if (d.getId() instanceof Integer) {
-//                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).IntegerValue()));
-//                    } else if (d.getId() instanceof Integer) {
             sortedList.add(d);
-//                    } else {
-//                        throw new IllegalStateException("not supposed to happen");
-//                    }
         }
 
         //sortedList.addAll(dvs);
@@ -56,6 +50,17 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
         //System.out.println("I'm sorted!  " + sortedList.toString());
         return sortedList;
     }
+    
+    @Override
+    protected List<Range<Integer>> generateRangesFromPotential(List<DataValue<Integer>> potential) {
+		int potSize = potential.size();
+		List<Range<Integer>> ranges = new ArrayList<Range<Integer>>(potential.size());
+		for (int i = 1; i < potSize; i++)   {
+			if (potential.get(i).getId() - potential.get(i-1).getId() > 1)
+				ranges.add(new Range<Integer>(potential.get(i-1), potential.get(i)));
+		}
+		return ranges;
+	} 
 
     @Override
     public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {

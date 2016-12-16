@@ -20,14 +20,20 @@ public abstract class IntAbstractWindowProtocol {
     
 
 	public boolean succ(Integer currentSeq, Integer nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq == currentSeq + 1;
 	}
 
 	public boolean equ(Integer currentSeq, Integer nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq.equals(currentSeq);
 	}
 
 	public boolean inWin(Integer currentSeq, Integer nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;
 	}
 }

@@ -280,7 +280,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         
         Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
-        System.out.println("From trees: " + Arrays.asList(sdts));
+//        System.out.println("From trees: " + Arrays.asList(sdts));
         
         SDT[] casted = new SDT[sdts.length];
         for (int i = 0; i < casted.length; i++) {

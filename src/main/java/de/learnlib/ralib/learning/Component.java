@@ -182,8 +182,8 @@ class Component {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
-        System.out.println("OLD BRANCHING: " + b);
-        System.out.println("NEW BRANCHING: " + newB);
+//        System.out.println("OLD BRANCHING: " + b);
+//        System.out.println("NEW BRANCHING: " + newB);
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         
@@ -240,6 +240,11 @@ class Component {
             }
         }
         return true;
+    }
+    
+    boolean hasRowWithPrefix(Word<PSymbolInstance> prefix) {
+    	return primeRow.getPrefix().equals(prefix) ||
+    			this.otherRows.keySet().stream().anyMatch(r -> r.getPrefix().equals(prefix));
     }
     
     Word<PSymbolInstance> getAccessSequence() {

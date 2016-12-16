@@ -108,12 +108,12 @@ public class CounterexampleAnalysis {
         	return  new IndexResult(idx, IndexStatus.NO_CE, null);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-                //new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
+        GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         System.out.println("exhaustive suffix: " + symSuffix);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-
+        
         log.log(Level.FINEST,"------------------------------------------------------");
         log.log(Level.FINEST,"Computing index: " + idx);
         log.log(Level.FINEST,"Prefix: " + prefix);
@@ -134,6 +134,28 @@ public class CounterexampleAnalysis {
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
+        
+//        GeneralizedSymbolicSuffix fullSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+//        TreeQueryResult resFullHyp = hypOracle.treeQuery(location, fullSuffix);
+//        TreeQueryResult resFullSul = sulOracle.treeQuery(location, fullSuffix);
+//        boolean hasFullCE = sdtOracle.hasCounterexample(location, 
+//                resFullHyp.getSdt(), resFullHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
+//                resFullSul.getSdt(), resFullSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
+//                g, transition);
+//        if (hasFullCE && !hasCE) {
+//        	System.out.println("PIV HYP: " + resHyp.getPiv());
+//        	System.out.println("SDT HYP: " + resHyp.getSdt());
+//        	
+//        	System.out.println("PIV SYS: " + resSul.getPiv());
+//        	System.out.println("SDT SYS: " + resSul.getSdt());
+//        	
+//        	System.out.println("PIV FULL HYP: " + resFullHyp.getPiv());
+//        	System.out.println("SDT FULL HYP: " + resFullHyp.getSdt());
+//        	
+//        	System.out.println("PIV FULL SYS: " + resFullSul.getPiv());
+//        	System.out.println("SDT FULL SYS: " + resFullSul.getSdt());
+//        	System.exit(0);
+//        }
         
         if (!hasCE) {
             return new IndexResult(idx, IndexStatus.NO_CE, null);
@@ -156,9 +178,6 @@ public class CounterexampleAnalysis {
                 newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
-        if (!newHasCE) {
-        	System.out.println();
-        }
         assert newHasCE;
 
         PIV pivSul = resSul.getPiv();

@@ -67,8 +67,10 @@ public class DataValue<T> {
 		} else {
 			if (a instanceof Double) {
 				val = ((Double) a) + ((Double) b);
-			} else 
-				throw new RuntimeException("Unsupported type " + a.getClass());
+			} else if (a instanceof Long) {
+				val = ((Long) a) + ((Long) b);
+			}
+			throw new RuntimeException("Unsupported type " + a.getClass());
 		}
     	return cls.cast(val);
     }
@@ -86,6 +88,8 @@ public class DataValue<T> {
     		} else {
     			if (cls == Double.class) {
     				return cls.cast(new Double(number.doubleValue()));
+    			} else if (cls == Long.class) {
+    				return cls.cast(new Long(number.longValue()));
     			}
     		}
     	} else {
@@ -138,6 +142,4 @@ public class DataValue<T> {
     public DataType<T> getType() {
         return type;
     }
-    
-        
 }

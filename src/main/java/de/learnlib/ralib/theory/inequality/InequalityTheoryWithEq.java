@@ -83,6 +83,7 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
+import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
@@ -447,16 +448,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.IF_INTERVALS_ELSE) {
 
 				// middle cases
-				for (int i = 1; i < potSize; i++) {
+				List<Range<T>> ranges = generateRangesFromPotential(potential);
 
+				for (Range<T> range : ranges) {
 					WordValuation currentValues = new WordValuation();
 					currentValues.putAll(values);
 					SuffixValuation currentSuffixValues = new SuffixValuation();
 					currentSuffixValues.putAll(suffixValues);
 					// SDTGuard guard;
 					Valuation val = new Valuation();
-					DataValue<T> dvMRight = potential.get(i);
-					DataValue<T> dvMLeft = potential.get(i - 1);
+					DataValue<T> dvMRight = range.right;
+					DataValue<T> dvMLeft = range.left;
 
 					// IntervalGuard smallerGuard = makeSmallerGuard(
 					// dvMRight, prefixValues,
@@ -581,6 +583,25 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return returnSDT;
 
 	}
+	
+	protected List<Range<T>> generateRangesFromPotential(List<DataValue<T>> potential) {
+		int potSize = potential.size();
+		List<Range<T>> ranges = new ArrayList<Range<T>>(potential.size());
+		for (int i = 1; i < potSize; i++) 
+			ranges.add(new Range<T>(potential.get(i-1), potential.get(i)));
+		
+		return ranges;
+	} 
+	
+	protected static class Range<T>{
+		public final DataValue<T> left;
+		public final DataValue<T> right;
+		public Range(DataValue<T> left, DataValue<T> right) {
+			super();
+			this.left = left;
+			this.right = right;
+		}
+	} 
 
 	private SDT trueShortcut(DataValue<?> dv, int pId, Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,  WordValuation values, PIV piv,
 			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {

@@ -40,6 +40,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
+import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
@@ -158,6 +159,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 	private IOHypVerifier hypVerifier;
 
 	private DataWordSUL sulCeAnalysis;
+
+	private IOCounterExampleSingleTransitionRemover ceOptSTR;
 
     @Override
     public String description() {
@@ -297,6 +300,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             this.ceOptLoops = new IOCounterexampleLoopRemover(sulTraceOracle, this.hypVerifier);
             this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulTraceOracle, this.hypVerifier);
             this.ceOptPref = new IOCounterExamplePrefixFinder(sulTraceOracle, this.hypVerifier);
+            this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulTraceOracle, this.hypVerifier);
 
         } catch (ClassNotFoundException | NoSuchMethodException ex) {
             ex.printStackTrace();
@@ -389,7 +393,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             if (useCeOptimizers) {
                 ce = ceOptLoops.optimizeCE(ce.getInput(), hyp);
-                System.out.println("Shorter CE: " + ce);
+                System.out.println("Shorter CE Loops: " + ce);
+                ce = ceOptSTR.optimizeCE(ce.getInput(), hyp);
+                System.out.println("Shorter CE Single Transition Removal: " + ce);
                 ce = ceOptAsrep.optimizeCE(ce.getInput(), hyp);
                 System.out.println("New Prefix CE: " + ce);
                 ce = ceOptPref.optimizeCE(ce.getInput(), hyp);

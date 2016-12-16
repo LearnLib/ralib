@@ -121,7 +121,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
 		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type)); 
 				
-//				prefixSource.stream()
+//				regVals = prefixSource.stream()
 //			.map(src -> src.getDataValuesWithSignature(prefix))
 //			.flatMap(vals -> vals.stream())
 //			.map(dv -> (DataValue<T>) dv)

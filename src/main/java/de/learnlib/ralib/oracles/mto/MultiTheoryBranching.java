@@ -264,8 +264,7 @@ public class MultiTheoryBranching implements Branching {
         return "---- Branching for " + action.toString()
                 + " after " + prefix.toString() + " ----\n"
                 + node.toString()
-                + "\n-------------------------------------------------------------------------------------"
-                + node.collectDVs().toString();
+                + "\n-------------------------------------------------------------------------------------";
     }
 
 }
