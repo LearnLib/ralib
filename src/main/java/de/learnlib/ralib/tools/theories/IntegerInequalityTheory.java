@@ -28,7 +28,7 @@ public class IntegerInequalityTheory  extends InequalityTheoryWithEq<Integer> im
     }
 
     public IntegerInequalityTheory() {
-    	super(new DiscreteInequalityMerger(new InequalityGuardLogic()));
+    	super(new DiscreteInequalityMerger());
     }
 
     public IntegerInequalityTheory(DataType<Integer> t) {

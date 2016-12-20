@@ -20,6 +20,8 @@ public abstract class AbstractWindowProtocol {
     
 
 	public boolean succ(Double currentSeq, Double nextSeq) {
+		if (currentSeq == null || nextSeq == null)
+			return false;
 		return nextSeq == currentSeq + 1;
 	}
 

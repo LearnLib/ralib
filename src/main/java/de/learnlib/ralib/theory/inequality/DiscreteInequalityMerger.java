@@ -8,13 +8,12 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 
-	public DiscreteInequalityMerger(InequalityGuardLogic ineqGuardLogic) {
-		super(new DiscreteInequalityGuardLogic(ineqGuardLogic));
+	public DiscreteInequalityMerger() {
+		super(new DiscreteInequalityGuardLogic());
 	}
 	
 	/**
@@ -30,11 +29,11 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 			mergedGuards= super.merge(newIneqGuards, mergedGuards);
 			newIneqGuards = new ArrayList<SDTGuard>(mergedGuards.keySet());
 		}
-		
 		return mergedGuards;
 	}
 	
 	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap) {
+		SDT res = null;
 		if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
 			EqualityGuard equGuard = (EqualityGuard) guard;
 			EqualityGuard equGuard2 = (EqualityGuard) withGuard;
@@ -47,57 +46,12 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 						.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
 				eqGuards.add(equGuard);
 				if (equSdt.isEquivalentUnderEquality(equSdt2, eqGuards))
-					return equSdt2;
+					res = equSdt2;
 			} 
-			return null;
 		} else {
-			return super.checkSDTEquivalence(guard, withGuard, guardSdtMap);
+
+			res = super.checkSDTEquivalence(guard, withGuard, guardSdtMap);
 		}
+		return res;
 	}
-	
-	
-	/**
-	 * Logic class for discrete domains. Note, this logic is only valid in the context of merging,
-	 * where the any disjoined guards are adjacent. 
-	 */
-	private static class DiscreteInequalityGuardLogic implements SDTGuardLogic {
-		
-
-		private InequalityGuardLogic ineqGuardLogic;
-
-
-		public DiscreteInequalityGuardLogic(InequalityGuardLogic ineqGuardLogic) {
-			this.ineqGuardLogic = ineqGuardLogic;
-		}
-
-		public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2) {
-			EqualityGuard equGuard;
-			IntervalGuard intGuard;
-			if (guard1 instanceof EqualityGuard && guard2 instanceof EqualityGuard) {
-				equGuard = (EqualityGuard) guard1;
-				EqualityGuard equGuard2 = (EqualityGuard) guard2;
-				return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, equGuard2.getExpression(), Boolean.FALSE);
-			}
-			if (guard1 instanceof IntervalGuard && guard2 instanceof EqualityGuard) {
-				equGuard = (EqualityGuard) guard2;
-				intGuard = (IntervalGuard) guard1;
-				return new IntervalGuard(guard1.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(), equGuard.getExpression(), Boolean.FALSE); 
-			} 
-			
-			if (guard1 instanceof EqualityGuard && guard2 instanceof IntervalGuard) {
-				equGuard = (EqualityGuard) guard1;
-				intGuard = (IntervalGuard) guard2;
-				return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
-			}
-			
-			SDTGuard ineqDisjunction = this.ineqGuardLogic.disjunction(guard1, guard2);
-			
-			return ineqDisjunction;
-		}
-		
-		public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
-			return this.ineqGuardLogic.conjunction(guard1, guard2);
-		}
-	}
-	
 }

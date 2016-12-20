@@ -6,16 +6,17 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 /**
  * Logic class for discrete domains. Note, this logic is only valid in the context of merging,
- * where the any disjoined guards are adjacent. 
+ * where the any disjoined guards are adjacent. It is NOT valid as a general logic and should not
+ * be used as such.
  */
 public class DiscreteInequalityGuardLogic implements SDTGuardLogic {
 	
 
-	private InequalityGuardLogic ineqGuardLogic;
+	private SDTGuardLogic ineqGuardLogic;
 
 
-	public DiscreteInequalityGuardLogic(InequalityGuardLogic ineqGuardLogic) {
-		this.ineqGuardLogic = ineqGuardLogic;
+	public DiscreteInequalityGuardLogic() {
+		this.ineqGuardLogic = new InequalityGuardLogic();
 	}
 
 	public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2) {
@@ -37,12 +38,11 @@ public class DiscreteInequalityGuardLogic implements SDTGuardLogic {
 			intGuard = (IntervalGuard) guard2;
 			return new IntervalGuard(guard1.getParameter(), equGuard.getExpression(), Boolean.FALSE, intGuard.getRightExpr(), intGuard.getRightOpen());
 		}
-		
-		SDTGuard ineqDisjunction = this.ineqGuardLogic.disjunction(guard1, guard2);
-		
-		return ineqDisjunction;
+		SDTGuard equDisjunction = this.ineqGuardLogic.disjunction(guard1, guard2);
+		return equDisjunction;
 	}
-	
+
+	@Override
 	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
 		return this.ineqGuardLogic.conjunction(guard1, guard2);
 	}

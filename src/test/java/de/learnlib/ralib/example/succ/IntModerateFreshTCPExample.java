@@ -5,6 +5,14 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
 	private Integer clSeq = null;
 	private Integer svSeq = null;
 	private State state = State.CLOSED;
+	
+	public IntModerateFreshTCPExample(int win) {
+		super(win);
+	}
+	
+	public IntModerateFreshTCPExample() {
+		super();
+	}
 
     public Integer IConnect() {
     	Integer ret = super.newFresh();

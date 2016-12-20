@@ -37,6 +37,8 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
+import de.learnlib.ralib.example.succ.IntModerateFreshTCPSUL;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
@@ -50,6 +52,7 @@ import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -57,7 +60,7 @@ import net.automatalib.words.Word;
 
 public class TestModerateTCPTree extends RaLibTestSuite {
 
-    @Test
+  //  @Test
     public void testModerateTCPTree() {
     	
     	Double win = 1000.0;
@@ -140,7 +143,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
 
     }
     
-    @Test
+ //   @Test
     public void testModerateFreshTCPTree() {
     	
     	Double win = 1000.0;
@@ -216,7 +219,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
     }
 
-    @Test
+//    @Test
     public void testModerateFreshTCPTreeMerge() {
     	
     	Double win = 1000.0;
@@ -283,4 +286,70 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 4);
     }
     
+    
+    @Test
+    public void testIntModerateFreshTCPTreeMerge() {
+    	
+    	Integer win = 1000;
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        DataValue [] sumConsts = new DataValue [] {
+				new DataValue<Integer>(IntModerateFreshTCPSUL.INT_TYPE, 1), // for successor
+				new DataValue<Integer>(IntModerateFreshTCPSUL.INT_TYPE, win)};
+        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(IntModerateFreshTCPSUL.INT_TYPE,
+        		Arrays.asList(sumConsts), // for window size
+        		Collections.emptyList());
+        sumCTheory.setCheckForFreshOutputs(true);
+        teachers.put(IntModerateFreshTCPSUL.INT_TYPE, 
+               sumCTheory);
+
+        IntModerateFreshTCPSUL sul = new IntModerateFreshTCPSUL(win);
+        sul.configure(IntAbstractTCPExample.Option.WIN_SYNRECEIVED_TO_CLOSED, IntAbstractTCPExample.Option.WIN_SYNSENT_TO_CLOSED);
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
+        Constants consts = new Constants(new SumConstants(sumConsts));
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
+                consts, jsolv, 
+                sul.getInputSymbols());
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(IntModerateFreshTCPSUL.INT_TYPE);
+                
+        final Word<PSymbolInstance> prefix = //Word.epsilon(); 
+        		Word.fromSymbols(
+                new PSymbolInstance(IntModerateFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(IntModerateFreshTCPSUL.OCONNECT,
+                		b.fv(100001)),
+                new PSymbolInstance(IntModerateFreshTCPSUL.ISYN, 
+                		b.dv(100001),
+                		b.fv(201002)),
+                new PSymbolInstance(IntModerateFreshTCPSUL.OK)
+        				);
+        
+        
+        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+                new PSymbolInstance(IntModerateFreshTCPSUL.ISYNACK, 
+                		b.dv(100001),
+                		b.intv(100501, 100002, 101001)),
+                new PSymbolInstance(IntModerateFreshTCPSUL.NOK),
+                new PSymbolInstance(IntModerateFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(IntModerateFreshTCPSUL.OCONNECT,
+                		b.fv(302003)),
+                new PSymbolInstance(IntModerateFreshTCPSUL.ISYN, 
+                		b.dv(302003),
+                		b.dv(100001)),
+                new PSymbolInstance(IntModerateFreshTCPSUL.NOK)
+                );
+        
+        // create a symbolic suffix from the concrete suffix
+        final GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(prefix, longsuffix, consts, teachers);
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+        System.out.println(symSuffix);
+        
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
+        SymbolicDecisionTree sdt = res.getSdt();
+
+        System.out.println(sdt);
+        System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
+        
+        Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
+    }
 }

@@ -183,7 +183,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             prevSuffixValues.add(v);
             idx++;
         }
-        if( this.prefixRelations.length > 0 )//&& prefixRelations[0].isEmpty())
+        if( this.prefixRelations.length > 0)  //&& prefixRelations[0].isEmpty())
         	this.prefixRelations[0] = EnumSet.of(DataRelation.ALL);
 //        this.prefixSources = new Set[concSuffixVals.length];
 //    	Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
