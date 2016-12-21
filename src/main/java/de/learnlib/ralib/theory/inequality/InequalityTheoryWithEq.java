@@ -74,7 +74,6 @@ import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.equality.IfElseEquGuardMerger;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingStrategy;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -83,7 +82,6 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
-import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
@@ -110,17 +108,15 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private InequalityGuardInstantiator<T> instantiator;
 	private final Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier;
 
-	private final IfElseGuardMerger ifIntElseMerger;
 	private final InequalityGuardMerger fullMerger;
-	private final IfElseEquGuardMerger ifEquElseMerger;
+	private final IfElseGuardMerger ifElseMerger;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
 		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
-		this.ifEquElseMerger = new IfElseEquGuardMerger();
-		this.ifIntElseMerger = new IfElseGuardMerger();
+		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
 	}
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
@@ -184,14 +180,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard,
 			SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.ifEquElseMerger.merge(equGuards, elseGuard, elseSDT);
+		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(equGuards, elseGuard, elseSDT);
 
 		return merged;
 	}
 
 	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard,
 			SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.ifIntElseMerger.merge(intGuards, elseGuard, elseSDT);
+		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(intGuards, elseGuard, elseSDT);
 
 		return merged;
 	}

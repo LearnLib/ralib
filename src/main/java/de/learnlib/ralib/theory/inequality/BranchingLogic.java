@@ -110,9 +110,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
 	//	System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
-		return 
-//				new BranchingContext<>(BranchingStrategy.FULL, potential);
-				action;
+		return action;
 	}
 	
 	private List<DataValue<T>> makeNewPots(int pid, Word<PSymbolInstance> prefix, Set<ParamSignature> prefixSource, EnumSet<DataRelation> prefixRel, Constants constants, SuffixValuation suffixValues

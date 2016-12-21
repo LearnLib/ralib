@@ -3,7 +3,7 @@ package de.learnlib.ralib.theory;
 /**
  * Every theory should provide a logic by which guards can be conjoined or disjoined. This logic
  * should be used consistently whenever this operation is performed, like for example, when 
- * updating the branching for a component. 
+ * updating the branching for a component or when merging. 
  */
 public interface SDTGuardLogic {
 

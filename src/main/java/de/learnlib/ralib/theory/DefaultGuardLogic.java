@@ -61,8 +61,14 @@ public class DefaultGuardLogic implements SDTGuardLogic{
 			int size = conjunctList.size();
 			conjunctList.removeIf(el -> this.disjunction(el, otherGuard) instanceof SDTTrueGuard);
 			if (size != conjunctList.size()) {
-				SDTGuard[] conjuncts = conjunctList.toArray(new SDTGuard [] {});
-				return new SDTAndGuard(guard1.getParameter(), conjuncts);
+				if (conjunctList.size() == 0) 
+					return new SDTTrueGuard(guard1.getParameter());
+				else if (conjunctList.size() == 1) 
+					return conjunctList.get(0); 
+				else {
+					SDTGuard[] conjuncts = conjunctList.toArray(new SDTGuard [] {});
+					return new SDTAndGuard(guard1.getParameter(), conjuncts);
+				}
 			}
 		}
 

@@ -166,12 +166,15 @@ public class CounterexampleAnalysis {
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + suffix);
         //System.out.println(sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()));
-        GeneralizedSymbolicSuffix gsuffix = sdtOracle.suffixForCounterexample(
+        
+        GeneralizedSymbolicSuffix gsuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+        		sdtOracle.suffixForCounterexample(
                 location, 
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, symSuffix.getActions());
         
+        // perform check, no extra inputs should be run, as all should be found in cache
         TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
         TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);
         boolean newHasCE = sdtOracle.hasCounterexample(location, 

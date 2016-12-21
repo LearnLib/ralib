@@ -83,7 +83,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     public EqualityTheory(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
-        this.ifElseMerger = new IfElseEquGuardMerger();
+        this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
     }
 
     public void setFreshValues(boolean freshValues) {
