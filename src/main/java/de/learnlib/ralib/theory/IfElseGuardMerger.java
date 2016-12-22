@@ -41,8 +41,11 @@ public class IfElseGuardMerger {
 		}
 		SDTGuard finalElseGuard = newElseGuard;
 		
-		if (finalElseGuard instanceof SDTMultiGuard && ((SDTMultiGuard) finalElseGuard).getGuards().size() == 1)
-			finalElseGuard = ((SDTMultiGuard) finalElseGuard).getGuards().get(0);
+		if (finalElseGuard instanceof SDTMultiGuard)
+			 if (((SDTMultiGuard) finalElseGuard).getGuards().size() == 1)
+				 finalElseGuard = ((SDTMultiGuard) finalElseGuard).getGuards().get(0);
+			 else if (((SDTMultiGuard) finalElseGuard).getGuards().size() == 0)
+				 finalElseGuard = new SDTTrueGuard(finalElseGuard.getParameter());
 
 		merged.put(finalElseGuard, elseSDT);
 		return merged;

@@ -50,6 +50,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.TreeOracleStatsLoggerWrapper;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
@@ -245,10 +246,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             this.sulTraceOracle = ioLearnCacheOracle;
             
             IOFilter ioOracle = new IOFilter(ioLearnCacheOracle, inputSymbols);
-            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver);
+            TreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver);
             
             IOFilter ioCeOracle = new IOFilter(ioCeAnalysisCacheOracle, inputSymbols);
-            MultiTheoryTreeOracle ceMto = new MultiTheoryTreeOracle(ioCeOracle, ioLearnCacheOracle, teachers, consts, solver);
+            TreeOracle ceMto = new MultiTheoryTreeOracle(ioCeOracle, ioCeAnalysisCacheOracle, teachers, consts, solver);
+            ceMto = new TreeOracleStatsLoggerWrapper(ceMto, this.sulCeAnalysis);
 
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 

@@ -62,9 +62,4 @@ public class TimeOutSUL extends DataWordSUL {
     public long getInputs() {
         return back.getInputs(); 
     }
-
-    
-    
-    
-    
 }
