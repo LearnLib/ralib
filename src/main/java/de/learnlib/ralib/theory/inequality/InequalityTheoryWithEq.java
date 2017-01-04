@@ -21,7 +21,7 @@ import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC1;
 import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC2;
-import static de.learnlib.ralib.theory.DataRelation.GT;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 import static de.learnlib.ralib.theory.DataRelation.LT;
 
 import java.lang.invoke.MethodHandles;
@@ -131,7 +131,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	@Override
 	public EnumSet<DataRelation> recognizedRelations() {
-		return EnumSet.of(DEQ, EQ, LT, GT, EQ_SUMC1, EQ_SUMC2);
+		return EnumSet.of(DEQ, EQ, LT, DEFAULT, EQ_SUMC1, EQ_SUMC2);
 	}
 
 	/**
@@ -144,10 +144,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	public DataType<T> getType() {
 		return this.type;
-	}
-
-	protected final boolean hasFreshValues() {
-		return this.freshValues;
 	}
 
 	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
@@ -370,15 +366,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			equSuffixValues.put(sv, prev);
 
 			SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
-			tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
+			EqualityGuard eqGuard = makeEqualityGuard(prev, prefixValues, currentParam, values, constants);
+			//tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
+			//tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
+			tempKids.put(eqGuard, equOracleSdt);
 			piv.putAll(keepMem(tempKids));
 			return new SDT(tempKids);
 		}
 		// process each '<' case
 		else {
 
-			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_GREATER
-					|| branching == BranchingStrategy.TRUE_SMALLER) {
+			if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_SMALLER) {
 
 				if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_SMALLER) {
 					// smallest case
@@ -394,7 +392,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// System.out.println("setting valuation, symDV: " +
 					// rsm.toVariable() + " dvright: " + dvRight);
 					smVal.setValue(toVariable(rsm), dvRight.getId());
-					DataValue<T> smcv = IntervalDataValue.instantiateNew(null, dvRight);
+					DataValue<T> smcv = this.pickIntervalDVManually(null, dvRight);
 					// instantiate(sguard, smVal, constants, potential);
 					// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 					smValues.put(pId, smcv);
@@ -411,7 +409,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					guardDvs.put(sguard, smcv);
 				}
 
-				if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_GREATER) {
+				if (branching == BranchingStrategy.FULL) {
 					// biggest case
 					WordValuation bgValues = new WordValuation();
 					bgValues.putAll(values);
@@ -430,11 +428,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					bgSuffixValues.put(sv, bgcv);
 	
 					SDT bgoracleSdt = oracle.treeQuery(prefix, suffix, bgValues, piv, constants, bgSuffixValues);
-					if (branching == BranchingStrategy.TRUE_GREATER) {
-						tempKids.put(new SDTTrueGuard(currentParam), bgoracleSdt);
-						piv.putAll(keepMem(tempKids));
-						return new SDT(tempKids);
-					}
 	
 					tempKids.put(bguard, bgoracleSdt);
 					guardDvs.put(bguard, bgcv);
@@ -471,7 +464,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
-					DataValue<T> cv = IntervalDataValue.instantiateNew(dvMLeft, dvMRight);
+					DataValue<T> cv = this.pickIntervalDVManually(dvMLeft, dvMRight);
 					// instantiate(intervalGuard, val, constants, potential);
 					// cv = new IntervalDataValue<T>(cv, dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
@@ -579,6 +572,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return returnSDT;
 
 	}
+	
+	
 	
 	protected List<Range<T>> generateRangesFromPotential(List<DataValue<T>> potential) {
 		int potSize = potential.size();
@@ -854,7 +849,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				}
 
 				if (!useSolver) {
-					return IntervalDataValue.instantiateNew(lExprVal, rExprVal);
+					return this.pickIntervalDVManually(lExprVal, rExprVal);
 				} else {
 					// we decorate it with interval information
 					returnValue = this.instantiator.instantiateGuard(guard, val, constants, alreadyUsedValues);
@@ -971,23 +966,22 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		return returnValue;
 	}
-
+	
+	protected IntervalDataValue<T> pickIntervalDVManually(DataValue<T> left, DataValue<T> right) {
+		return IntervalDataValue.instantiateNew(left, right, DataValue.ONE(this.getType()));
+	}
+	
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right) {
 
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();
 		left.stream().forEach((dv) -> {
 			final int c = dv.getId().compareTo(right.getId());
-			switch (c) {
-			case 0:
+			if (c == 0)
 				ret.add(EnumSet.of(DataRelation.EQ));
-				break;
-			case 1:
-				ret.add(EnumSet.of(DataRelation.GT));
-				break;
-			default:
-				ret.add(EnumSet.noneOf(DataRelation.class));
-				break;
-			}
+			else if (c > 0)
+				ret.add(EnumSet.of(DataRelation.DEFAULT));
+			else 
+				ret.add(EnumSet.of(DataRelation.LT));
 		});
 
 		return ret;

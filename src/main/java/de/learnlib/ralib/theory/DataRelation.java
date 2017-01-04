@@ -30,13 +30,13 @@ public enum DataRelation {
     DEQ,
     DEQ_SUMC1,
     DEQ_SUMC2,
-    LT,
-    GT;
+    LT, 
+    DEFAULT;
     
 	
-	public static final EnumSet<DataRelation> DEQ_RELATIONS = EnumSet.of(DEQ, DEQ_SUMC2, DEQ_SUMC1);
+	public static final EnumSet<DataRelation> DEQ_DEF_RELATIONS = EnumSet.of(DEQ, DEQ_SUMC2, DEQ_SUMC1, DEFAULT);
 	public static final EnumSet<DataRelation> EQ_RELATIONS = EnumSet.of(EQ, EQ_SUMC2, EQ_SUMC1);
-	public static final EnumSet<DataRelation> EQ_DEQ_RELATIONS = EnumSet.of(EQ, EQ_SUMC2, EQ_SUMC1, DEQ, DEQ_SUMC2, DEQ_SUMC1); 
+	public static final EnumSet<DataRelation> EQ_DEQ_DEF_RELATIONS = EnumSet.of(EQ, EQ_SUMC2, EQ_SUMC1, DEQ, DEQ_SUMC2, DEQ_SUMC1, DEFAULT); 
 	
     public boolean isEq() {
     	return this.name().startsWith("EQ");

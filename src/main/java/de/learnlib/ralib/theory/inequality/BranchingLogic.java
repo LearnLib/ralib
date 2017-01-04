@@ -15,6 +15,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.theory.DataRelation;
@@ -43,7 +44,8 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		
 		Function<DataRelation, DataValue<T>> fromPrevSuffVal = (rel) -> {
-			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(suffix.findLeftMostRelatedSuffix(pid, rel));
+			SuffixValue suffixValue = suffix.findLeftMostRelatedSuffix(pid, rel);
+			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(suffixValue);
 			if (eqSuffix == null)
 				eqSuffix = this.theory.getFreshValue(potential);
 			else {
@@ -63,8 +65,8 @@ public class BranchingLogic<T extends Comparable<T>> {
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 		else {
 			// branching processing based on relations
-			if (prefixRel.isEmpty()) {
-				if (suffixRel.isEmpty() || DataRelation.DEQ_RELATIONS.containsAll(suffixRel))
+			if (DataRelation.DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
+				if (DataRelation.DEQ_DEF_RELATIONS.containsAll(suffixRel)) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
@@ -74,28 +76,10 @@ public class BranchingLogic<T extends Comparable<T>> {
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
-				else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_GREATER);
-			} else {
-				if (DataRelation.DEQ_RELATIONS.containsAll(prefixRel)) {
-					if (suffixRel.isEmpty() || DataRelation.DEQ_RELATIONS.containsAll(suffixRel))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
-					else if (suffixRel.equals(DataRelation.EQ))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
-					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC1)))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
-					else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC2)))
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
-					else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
-					else if (suffixRel.equals(EnumSet.of(DataRelation.GT))) 
-						action = new BranchingContext<T>(BranchingStrategy.TRUE_GREATER);
-				}
-
+			} 
 				else {
-					if (DataRelation.EQ_DEQ_RELATIONS.containsAll(prefixRel)) {
-						if (DataRelation.EQ_DEQ_RELATIONS.containsAll(suffixRel)) {
-	
+					if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
+						if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(suffixRel)) {
 							List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
 									, suffix);
 							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
@@ -103,7 +87,6 @@ public class BranchingLogic<T extends Comparable<T>> {
 					}
 
 				}
-			}
 		}
 		
 		if (action == null)
@@ -145,7 +128,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 	
 	private List<DataValue<T>> pots(Collection<DataValue<T>> vals, List<DataValue<T>> sumConstants, EnumSet<DataRelation> equRels) {
 		Set<DataValue<T>> newPots = new LinkedHashSet<>();
-		if (equRels.contains(DataRelation.ALL) || equRels.contains(DataRelation.LT) || equRels.contains(DataRelation.GT)) 
+		if (equRels.contains(DataRelation.ALL) || equRels.contains(DataRelation.LT)) 
 			newPots.addAll( this.theory.getPotential(new ArrayList<>(vals)));
 		else {
 			if (equRels.contains(DataRelation.EQ) || equRels.contains(DataRelation.DEQ))
@@ -217,6 +200,6 @@ public class BranchingLogic<T extends Comparable<T>> {
 	}
 
 	public static enum BranchingStrategy {
-		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL, TRUE_SMALLER, TRUE_GREATER;
+		TRUE_FRESH, TRUE_PREV, IF_EQU_ELSE, IF_INTERVALS_ELSE, FULL, TRUE_SMALLER;
 	}
 }

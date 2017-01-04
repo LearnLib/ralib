@@ -37,7 +37,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -409,6 +408,11 @@ public class SDT implements SymbolicDecisionTree {
     }
     
     Set<SDTGuard> getBranchingAtPath(List<SDTGuard> path) {
+    	if (this instanceof SDTLeaf) {
+    		assert path.isEmpty();
+    		return Collections.emptySet();
+    	}
+    		
     	if (path.isEmpty())
     		return this.getChildren().keySet();
     	else {

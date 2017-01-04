@@ -1,6 +1,5 @@
 package de.learnlib.ralib.theory.inequality;
 
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 
 public class SumCDataValue<T> extends DataValue<T>{
@@ -13,11 +12,6 @@ public class SumCDataValue<T> extends DataValue<T>{
 		this.operand = dv;
 		this.constant = constant;
 		
-	}
-
-	private SumCDataValue(DataType type, T id, DataValue<T> constant) {
-		super(type, id);
-		this.constant = constant;
 	}
 	
 	public DataValue<T> getConstant() {

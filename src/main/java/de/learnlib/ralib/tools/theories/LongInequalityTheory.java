@@ -147,10 +147,10 @@ public class LongInequalityTheory extends InequalityTheoryWithEq<Long> implement
                     ret.add(EnumSet.of(DataRelation.EQ));
                     break;
                 case 1:
-                    ret.add(EnumSet.of(DataRelation.GT));
+                    ret.add(EnumSet.of(DataRelation.LT));
                     break;
                 default: 
-                    ret.add(EnumSet.of(DataRelation.LT));
+                    ret.add(EnumSet.of(DataRelation.DEFAULT));
                     break;
             }
         });

@@ -1,60 +1,23 @@
 package de.learnlib.ralib.tools.theories;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SumConstants;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalDataValue;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
-import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Valuation;
-import net.automatalib.words.Word;
 
 public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
-	// default constants
-	private static Integer [] defaultSumConst = new Integer [] {
-			1,
-			1000
-			//10000.0
-			};
-	private static Integer [] defaultRegularConst = new Integer [] {
-		//	0.0
-			};
-	
 	
 	private List<DataValue<Integer>> sumConstants;
 	private List<DataValue<Integer>> regularConstants;
@@ -69,6 +32,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	public void setConstants(Constants constants) {
 		this.regularConstants = new ArrayList<>(constants.values(this.type));
+		this.sumConstants = constants.getSumCs(this.type);
 	}
 	
 
@@ -85,8 +49,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	public SumCIntegerInequalityTheory(DataType<Integer> dataType) {
 		// the constants have to be introduced manually
-		super(dataType);
-		setupDefaultConstants(dataType);
+		this(dataType, Collections.emptyList(), Collections.emptyList());
 	}
 	
 	public SumCIntegerInequalityTheory(DataType<Integer> dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
@@ -95,10 +58,6 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		this.regularConstants = regularConstants;
 	}
 	
-	public void setType(DataType<Integer> dataType) {
-		super.setType(dataType);
-		setupDefaultConstants(dataType);
-	}
 	
 	
     public ValueMapper<Integer> getValueMapper() {
@@ -115,12 +74,6 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
     }
 
     
-	private void setupDefaultConstants(DataType<Integer> dataType) {
-		this.sumConstants = Arrays.asList(defaultSumConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
-		this.regularConstants = Arrays.asList(defaultRegularConst).stream().map(c -> new DataValue<Integer>(dataType, c)).collect(Collectors.toList());
-	}
-	
-	
     public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
         //assume we can just sort the list and get the values
         List<DataValue<Integer>> sortedList = makeNewPotsWithSumC(dvs);

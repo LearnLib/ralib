@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
@@ -533,20 +535,25 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             
             Collection<AtomicGuardExpression> usedAtoms;
             
-            if (implies(c1, c2) && !implies(c2, c1)) 
+            LinkedHashSet<AtomicGuardExpression> allAtoms;
+			if (implies(c1, c2) && !implies(c2, c1)) 
                 // use c1                
             	usedAtoms = 
-            	getBranchingAtomsAtPath(e1Guards.subList(0, i), sdt1); 
-            	//atoms1;
+            	//getBranchingAtomsAtPath(e1Guards.subList(0, i), sdt1); 
+            	atoms1;
             else if (!implies(c1, c2) && implies(c2, c1)) 
                 // use c2
-            	usedAtoms =
-            			getBranchingAtomsAtPath(e2Guards.subList(0, i), sdt2);
-            	// atoms2;
-            else  if (!implies(c1, c2) && !implies(c2, c1))
+            	usedAtoms = 
+            	//		getBranchingAtomsAtPath(e2Guards.subList(0, i), sdt2);
+            	atoms2;
+            else  if (!implies(c1, c2) && !implies(c2, c1)) {
             	// use all atoms in the branches of c1 and c2
-                usedAtoms = getBranchingAtomsAtPath(e1Guards.subList(0, i), e2Guards.subList(0, i), sdt1, sdt2);
-            else 
+            	allAtoms = new LinkedHashSet<>(atoms1);
+            	allAtoms.addAll(atoms2);
+				
+                usedAtoms = allAtoms;
+                		//getBranchingAtomsAtPath(e1Guards.subList(0, i), e2Guards.subList(0, i), sdt1, sdt2);
+        	} else 
                 // equivalent - use both or does not matter?
             	usedAtoms = atoms1;
                            
@@ -554,6 +561,11 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             suffixRelations(srels[i], usedAtoms);
             psource[i] = this.prefixSource(usedAtoms, prefixMap);
         }
+        
+//        if (prels.length > 0) {
+//        	Collection<AtomicGuardExpression> usedAtoms = getBranchingAtomsAtPath(Collections.emptyList(), Collections.emptyList(), sdt1, sdt2);
+//        	prels[0] = prefixRelations(usedAtoms);
+//        }
         		//EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels, psource);
@@ -686,8 +698,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     private void suffixRelations(EnumSet<DataRelation>[] srels, 
             Collection<AtomicGuardExpression> es) {
         
-        Arrays.fill(srels, EnumSet.noneOf(DataRelation.class));   
-        for (AtomicGuardExpression e : es) {
+    	for (int i = 0; i < srels.length; i ++)
+    		srels[i] = EnumSet.noneOf(DataRelation.class);
+
+    	for (AtomicGuardExpression e : es) {
             if (e.getLeft() instanceof SuffixValue && 
                     e.getRight() instanceof SuffixValue) {
                 int idx = Math.min(e.getLeft().getId(), e.getRight().getId()) -1;
@@ -712,9 +726,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             	} 
             	else return EnumSet.of(DataRelation.EQ);
             case LESSER: return EnumSet.of(DataRelation.LT);
-            case GREATER: return EnumSet.of(DataRelation.GT);
+            case GREATER: return EnumSet.of(DataRelation.DEFAULT);
             case LSREQUALS: return EnumSet.of(DataRelation.LT, DataRelation.EQ);
-            case GREQUALS: return EnumSet.of(DataRelation.GT, DataRelation.EQ);            
+            case GREQUALS: return EnumSet.of(DataRelation.DEFAULT, DataRelation.EQ);            
             case NOT_EQUALS: 
             	if (atom instanceof SumCAtomicGuardExpression) {
             		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();

@@ -330,8 +330,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	    		
 	    		if (teacher instanceof SumCDoubleInequalityTheory) {
 	    			((SumCDoubleInequalityTheory) teacher).setConstants(consts);
-	    			//if (sumcString != null)
-	    			((SumCDoubleInequalityTheory) teacher).setSumcConstants(sumConstants);
 	    		}
 	    	}
     	}

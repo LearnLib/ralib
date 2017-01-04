@@ -185,14 +185,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         }
         if( this.prefixRelations.length > 0)  //&& prefixRelations[0].isEmpty())
         	this.prefixRelations[0] = EnumSet.of(DataRelation.ALL);
-//        this.prefixSources = new Set[concSuffixVals.length];
-//    	Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
     }    
     
-//    public void setPrefixSignature(Word<PSymbolInstance> prefix) {
-//    	this.prefixSignatures = prefix.transform(w -> w.getBaseSymbol()).asList().toArray(new ParameterizedSymbol[]{});
-//    }
-
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix, 
             Constants consts, Map<DataType, Theory> theories) {
         
@@ -241,12 +235,11 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             
             this.suffixRelations[psLength + i] = 
                     new EnumSet[sameTypePrefix + sameTypeSuffix];
-            
-            Arrays.fill(this.suffixRelations[psLength + i], 0, sameTypePrefix, EnumSet.noneOf(DataRelation.class));
-            
-            // FIXME: do we need do clone enumsets?            Yes!
-            System.arraycopy(symSuffix.suffixRelations[i], 0, 
-                this.suffixRelations[psLength + i], sameTypePrefix, sameTypeSuffix);
+
+            for (int j = 0; j < sameTypePrefix; j ++) 
+            	this.suffixRelations[psLength + i][j] = EnumSet.noneOf(DataRelation.class);
+            for (int j = sameTypePrefix; j < sameTypePrefix + sameTypeSuffix; j++) 
+            	this.suffixRelations[psLength + i][j] = symSuffix.suffixRelations[i][j-sameTypePrefix];
         }
     }
         
@@ -341,7 +334,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
      * Returns the left most suffix that is an the given relation
      * with suffix s_pId. 
      */
-	public int findLeftMostRelatedSuffix(int pId, DataRelation rel) {
+	public SuffixValue findLeftMostRelatedSuffix(int pId, DataRelation rel) {
 		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
 		DataType t = this.getDataValue(pId).getType();
 		for (int i = 1; i < pId; i++) {
@@ -349,9 +342,9 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
 				continue;
 			}
 			if (this.getSuffixRelations(i, pId).contains(rel))
-				return i;
+				return this.getDataValue(i);
 		}
-		return -1;
+		return null;
 	}
 
     @Override
@@ -364,8 +357,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         String suffixString = DataWords.instantiate(actions, instValues).toString();
         suffixString += "_P" + Arrays.deepToString(prefixRelations);
         suffixString += "_S" + Arrays.deepToString(suffixRelations);
-        if (this.prefixSources != null)
-        	suffixString += "_PSrc" + Arrays.deepToString(prefixSources);
+//        if (this.prefixSources != null)
+//        	suffixString += "_PSrc" + Arrays.deepToString(prefixSources);
         return suffixString;
     }
 

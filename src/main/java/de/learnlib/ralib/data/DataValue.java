@@ -45,6 +45,10 @@ public class DataValue<T> {
     	return new DataValue<P>(type, cast(0, type));
     }
     
+    public static <P> DataValue<P> CONST(int val, DataType<P> type) {
+    	return new DataValue<P>(type, cast(val, type));
+    }
+    
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;

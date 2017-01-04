@@ -47,7 +47,7 @@ public class PIV extends VarMapping<Parameter, Register> {
         Map<DataType, Integer> ret = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
             Integer i = ret.get(p.getType());
-            i = (i == null) ? 1 : i+1;
+            i = (i == null) ? 1 : i+1;	
             ret.put(p.getType(), i);
         }
         return ret;

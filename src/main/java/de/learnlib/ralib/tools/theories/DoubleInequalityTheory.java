@@ -38,8 +38,6 @@ import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import gov.nasa.jpf.constraints.api.ConstraintSolver;
-import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 
 /**
  *
@@ -146,10 +144,10 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
                     ret.add(EnumSet.of(DataRelation.EQ));
                     break;
                 case 1:
-                    ret.add(EnumSet.of(DataRelation.GT));
+                    ret.add(EnumSet.of(DataRelation.LT));
                     break;
                 default: 
-                    ret.add(EnumSet.of(DataRelation.LT));
+                    ret.add(EnumSet.of(DataRelation.DEFAULT));
                     break;
             }
         });

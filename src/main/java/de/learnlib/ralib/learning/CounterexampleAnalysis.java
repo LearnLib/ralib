@@ -108,8 +108,8 @@ public class CounterexampleAnalysis {
         	return  new IndexResult(idx, IndexStatus.NO_CE, null);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-                //new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
+        GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         System.out.println("exhaustive suffix: " + symSuffix);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
@@ -181,7 +181,12 @@ public class CounterexampleAnalysis {
                 newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
-        assert newHasCE;
+        if (! newHasCE) {
+        	System.out.println("CE not preserved by optimized suffix");
+        	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
+        	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
+        	throw new RuntimeException("CE not preserved by optimized suffix");
+        }
 
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
