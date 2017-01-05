@@ -183,9 +183,62 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             prevSuffixValues.add(v);
             idx++;
         }
-        if( this.prefixRelations.length > 0)  //&& prefixRelations[0].isEmpty())
-        	this.prefixRelations[0] = EnumSet.of(DataRelation.ALL);
+    	
+        if( this.prefixRelations.length > 0)  //&& prefixRelations[0].isEmpty()) {
+        {
+        	int symInd = 0;
+        	for (symInd = 0; actions.getSymbol(symInd).getArity() == 0; symInd ++);
+        	int paramsInAction = actions.getSymbol(symInd).getArity();
+        	
+            removeUnneededRelations(this.prefixRelations, this.suffixRelations, paramsInAction);
+        	for (int i = 0; i < paramsInAction; i ++) {
+        		extendRelationSet(this.prefixRelations[i]);
+        		for (int sind = 0; sind < i; sind ++) 
+        			extendRelationSet(this.suffixRelations[i][sind]);
+        	}
+        		//this.prefixRelations[i] = EnumSet.of(DataRelation.ALL);
+        	
+   //     	this.prefixRelations[0] = EnumSet.of(DataRelation.ALL);
+    	}
     }    
+    
+    private void extendRelationSet (EnumSet<DataRelation> rels) {
+    	if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(rels)) {
+    		if (rels.contains(DataRelation.EQ))
+    			rels.add(DataRelation.DEQ);
+    		if (rels.contains(DataRelation.EQ_SUMC1))
+    			rels.add(DataRelation.DEQ_SUMC1);
+    		if (rels.contains(DataRelation.EQ_SUMC2))
+    			rels.add(DataRelation.DEQ_SUMC2);
+    	} else {
+    		rels.clear();
+    		rels.add(DataRelation.ALL);
+    	}
+    		
+    }
+    
+    private void removeUnneededRelations( EnumSet<DataRelation>[] prefixRelations,
+            EnumSet<DataRelation>[][] suffixRelations, int fromIndex) {
+    	for (int ind = fromIndex; ind < prefixRelations.length; ind ++) {
+    		EnumSet<DataRelation> prefRel = prefixRelations[ind];
+    		EnumSet<DataRelation> suffRel = EnumSet.noneOf(DataRelation.class);
+    		for (int sind = 0; sind< ind; sind++) 
+    			suffRel.addAll(suffixRelations[ind][sind]);
+    		EnumSet<DataRelation> allRel = EnumSet.copyOf(prefRel);
+    		allRel.addAll(suffRel);
+    		DataRelation eqRel = allRel.contains(DataRelation.EQ) ? DataRelation.EQ : 
+    			allRel.contains(DataRelation.EQ_SUMC1) ? DataRelation.EQ_SUMC1 :
+    				allRel.contains(DataRelation.EQ_SUMC2) ? DataRelation.EQ_SUMC2 :
+    					null;
+    		// if there is an equality relations, all other relations are removed, as equality is enough to reproduce the value
+    		if (eqRel != null) {
+    			for (int sind = 0; sind < ind; sind ++) {
+    				suffixRelations[ind][sind].removeIf( rel -> eqRel != rel);
+    			}
+    			prefRel.removeIf(rel -> eqRel != rel);
+    		}
+    	}
+    }
     
     public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix, 
             Constants consts, Map<DataType, Theory> theories) {

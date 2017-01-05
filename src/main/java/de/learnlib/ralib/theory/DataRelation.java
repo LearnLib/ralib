@@ -31,11 +31,14 @@ public enum DataRelation {
     DEQ_SUMC1,
     DEQ_SUMC2,
     LT, 
+    LT_SUMC1,
+    LT_SUMC2,
     DEFAULT;
     
 	
 	public static final EnumSet<DataRelation> DEQ_DEF_RELATIONS = EnumSet.of(DEQ, DEQ_SUMC2, DEQ_SUMC1, DEFAULT);
-	public static final EnumSet<DataRelation> EQ_RELATIONS = EnumSet.of(EQ, EQ_SUMC2, EQ_SUMC1);
+	public static final EnumSet<DataRelation> EQ_RELATIONS = EnumSet.of(EQ, EQ_SUMC1, EQ_SUMC2);
+	public static final EnumSet<DataRelation> LT_RELATIONS = EnumSet.of(LT, LT_SUMC1, LT_SUMC2); 
 	public static final EnumSet<DataRelation> EQ_DEQ_DEF_RELATIONS = EnumSet.of(EQ, EQ_SUMC2, EQ_SUMC1, DEQ, DEQ_SUMC2, DEQ_SUMC1, DEFAULT); 
 	
     public boolean isEq() {

@@ -725,14 +725,33 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             		.addDecoration("index", index);
             	} 
             	else return EnumSet.of(DataRelation.EQ);
-            case LESSER: return EnumSet.of(DataRelation.LT);
+            case LESSER: 
+             	if (atom instanceof SumCAtomicGuardExpression) {
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
+            		if (index == 0)
+            			return EnumSet.of(DataRelation.LT_SUMC1);
+            		if (index == 1)
+            			return EnumSet.of(DataRelation.LT_SUMC2);
+            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+            		.addDecoration("index", index);
+            	} else
+            		return EnumSet.of(DataRelation.LT);
             case GREATER: return EnumSet.of(DataRelation.DEFAULT);
-            case LSREQUALS: return EnumSet.of(DataRelation.LT, DataRelation.EQ);
+            case LSREQUALS: 
+            	if (atom instanceof SumCAtomicGuardExpression) {
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
+            		if (index == 0)
+            			return EnumSet.of(DataRelation.LT_SUMC1, DataRelation.EQ_SUMC1);
+            		if (index == 1)
+            			return EnumSet.of(DataRelation.LT_SUMC2, DataRelation.EQ_SUMC2);
+            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+            		.addDecoration("index", index);
+            	} else
+            		return EnumSet.of(DataRelation.LT, DataRelation.EQ);
             case GREQUALS: return EnumSet.of(DataRelation.DEFAULT, DataRelation.EQ);            
             case NOT_EQUALS: 
             	if (atom instanceof SumCAtomicGuardExpression) {
-            		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
-            		int index = consts.getSumCs(cst.getType()).indexOf(cst);
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
             		if (index == 0)
             			return EnumSet.of(DataRelation.DEQ_SUMC1);
             		if (index == 1)
@@ -740,11 +759,17 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
             		.addDecoration("index", index);
             	} else
-            	
-            	return EnumSet.of(DataRelation.DEQ);
+            		return EnumSet.of(DataRelation.DEQ);
             default:
                 throw new IllegalStateException("Unsupported Relation: " + atom.getRelation());
         }
+    }
+    
+    private int getSumCIndex(SumCAtomicGuardExpression atom) {
+    	DataValue cst = ((SumCAtomicGuardExpression) atom).getRightConst();
+    	System.out.println(cst + " " + atom);
+		int index = consts.getSumCs(cst.getType()).indexOf(cst);
+		return index;
     }
     
 }

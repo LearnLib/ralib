@@ -57,7 +57,7 @@ public class IfElseGuardMerger {
 	 */
 	boolean checkSDTEquivalence(SDTGuard guard, SDT guardSdt, SDTGuard elseGuard, SDT elseGuardSdt) {
 		boolean equiv = false;
-		if (isSDVEquality(guard)) {
+		if (guard instanceof EqualityGuard) {
 			List<EqualityGuard> eqGuards = elseGuardSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
 			.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
 			eqGuards.add((EqualityGuard) guard);
@@ -66,8 +66,8 @@ public class IfElseGuardMerger {
 			equiv = guardSdt.isEquivalent(elseGuardSdt, new VarMapping());
 		return equiv;
 	}
-
-	private boolean isSDVEquality(SDTGuard guard) {
-		return guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV();
-	}
+//
+//	private boolean isSDVEquality(SDTGuard guard) {
+//		return guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV();
+//	}
 }

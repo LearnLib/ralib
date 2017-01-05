@@ -159,8 +159,22 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 					ret.add(EnumSet.of(DataRelation.EQ));
 				else if (c > 0)
 					ret.add(EnumSet.of(DataRelation.LT));
-				else
+				else {
+					if (!this.sumConstants.isEmpty()) {
+						for (int ind = 0; ind < this.sumConstants.size(); ind++)
+							if (Double.valueOf((this.sumConstants.get(ind).getId() + dv.getId()))
+									.compareTo(right.getId()) > 0) {
+								if (ind == 0)
+									ret.add(EnumSet.of(DataRelation.LT_SUMC1));
+								else if (ind == 1)
+									ret.add(EnumSet.of(DataRelation.LT_SUMC2));
+								else
+									throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+								continue LOOP;
+							}
+					}
 					ret.add(EnumSet.of(DataRelation.DEFAULT));
+				}
 			}
 		return ret;
 	}

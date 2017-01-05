@@ -334,7 +334,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (i == ps.getArity() + 1) {
             return new Node(new Parameter(null, i));
         } else {
-
+        	
             // obtain the data type, teacher, parameter
             DataType type = ps.getPtypes()[i - 1];
             Theory teach = teachers.get(type);
@@ -352,7 +352,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewGuards(sdts, guardContext, guardLogic);
             //  get old guards to the child SDT it connects to 
             Map<SDTGuard, List<SDT>> nextSDTs = getChildren(sdts);
-            
             
             for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
             	SDTGuard guard = mergedGuardEntry.getKey();
@@ -450,8 +449,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 	    				else 
 	    					refinedGuard =  guardLogic.conjunction(head, next);
 	    					
-    				
-				mergedGroup.put(refinedGuard, Sets.newLinkedHashSet(Arrays.asList(head, next)));
+    			// we compute the old guard set, that is the guards over which conjunction was applied to form the refined guard
+    			LinkedHashSet<SDTGuard> oldGuards = Sets.newLinkedHashSet(mergedHead.get(head));
+    			oldGuards.add(next);
+				mergedGroup.put(refinedGuard, oldGuards);
 				headNextPairs.add(new Pair<>(head, next));
     		}
     	}
