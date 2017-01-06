@@ -79,6 +79,22 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
             this.suffixValues[idx++] = valgen.next(t);
         }
         this.prefixSources = prefixSources;
+        
+//        if( this.prefixRelations.length > 0)  //&& prefixRelations[0].isEmpty()) {
+//        {
+//        	int symInd = 0;
+//        	for (symInd = 0; actions.getSymbol(symInd).getArity() == 0; symInd ++);
+//        	int paramsInAction = actions.getSymbol(symInd).getArity();
+//        	
+//            //removeUnneededRelations(this.prefixRelations, this.suffixRelations, paramsInAction);
+//        	for (int i = 0; i < paramsInAction; i ++) {
+//        		this.prefixRelations[i] = EnumSet.of(DataRelation.ALL);
+//        		//extendRelationSet(this.prefixRelations[i]);
+//        		for (int sind = 0; sind < i; sind ++)
+//        			this.suffixRelations[i][sind] = EnumSet.of(DataRelation.ALL);
+//        			//extendRelationSet(this.suffixRelations[i][sind]);
+//        	}
+//    	}
     }
     public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, 
             EnumSet<DataRelation>[] prefixRelations,
@@ -196,11 +212,9 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix{
         		for (int sind = 0; sind < i; sind ++) 
         			extendRelationSet(this.suffixRelations[i][sind]);
         	}
-        		//this.prefixRelations[i] = EnumSet.of(DataRelation.ALL);
-        	
-   //     	this.prefixRelations[0] = EnumSet.of(DataRelation.ALL);
     	}
     }    
+    
     
     private void extendRelationSet (EnumSet<DataRelation> rels) {
     	if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(rels)) {

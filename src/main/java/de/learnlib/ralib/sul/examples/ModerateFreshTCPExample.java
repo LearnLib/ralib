@@ -1,5 +1,7 @@
 package de.learnlib.ralib.sul.examples;
 
+import de.learnlib.ralib.sul.examples.AbstractTCPExample.State;
+
 public class ModerateFreshTCPExample extends AbstractTCPExample{
 
 	private Double clSeq = null;
@@ -76,4 +78,33 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     	
     	return ret;
     }
+    
+
+    public boolean IFINACK(Double seq, Double ack) {
+    	boolean ret = false;
+    	if (state == State.ESTABLISHED) {
+    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
+    				seq.equals(clSeq) && ack.equals(svSeq)) {
+    			state = State.CLOSEWAIT;
+    			
+    			ret = true;
+    		} else if (
+    				seq.equals(svSeq) && succ(clSeq, ack) ||
+    				seq.equals(svSeq) && ack.equals(clSeq)) {
+    				state = State.CLOSEWAIT;
+    	    		ret = true;
+    		} 
+    	}
+    	
+    	return ret;
+    }
+    
+    public boolean ICLOSE() {
+    	if (state == State.CLOSEWAIT) {
+    		state = State.CLOSED;
+    		return true;
+    	}
+    	return false;
+    }
+    
 }

@@ -85,4 +85,23 @@ public class ModerateTCPExample extends AbstractTCPExample{
     	
     	return ret;
     }
+    
+    public boolean IFINACK(Double seq, Double ack) {
+    	boolean ret = false;
+    	if (state == State.ESTABLISHED) {
+    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
+    				seq.equals(clSeq) && ack.equals(svSeq)) {
+    			state = State.CLOSED;
+    			
+    			ret = true;
+    		} else if (
+    				seq.equals(svSeq) && succ(clSeq, ack) ||
+    				seq.equals(svSeq) && ack.equals(clSeq)) {
+    				state = State.CLOSED;
+    	    		ret = true;
+    		} 
+    	}
+    	
+    	return ret;
+    }
 }

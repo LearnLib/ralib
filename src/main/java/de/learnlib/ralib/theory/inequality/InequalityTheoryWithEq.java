@@ -841,15 +841,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					val.setValue(toVariable(l), lRegVal.getId());
 				}
 
-				for (DataValue<T> oldDv : oldDvs) {
-					if ((lExprVal == null || lExprVal.getId().compareTo(oldDv.getId()) < 0)
-							&& (rExprVal == null || rExprVal.getId().compareTo(oldDv.getId()) > 0))
-						return oldDv; // new IntervalDataValue<>(oldDv,
-										// lExprVal, rExprVal);
-				}
+//				for (DataValue<T> oldDv : oldDvs) {
+//					if ((lExprVal == null || 
+//							lExprVal.getId().compareTo(oldDv.getId()) < 0)
+//							&& (rExprVal == null || rExprVal.getId().compareTo(oldDv.getId()) > 0))
+//						return oldDv; // new IntervalDataValue<>(oldDv,
+//										// lExprVal, rExprVal);
+//				}
 
 				if (!useSolver) {
-					return this.pickIntervalDVManually(lExprVal, rExprVal);
+					returnValue = this.pickIntervalDVManually(lExprVal, rExprVal);
 				} else {
 					// we decorate it with interval information
 					returnValue = this.instantiator.instantiateGuard(guard, val, constants, alreadyUsedValues);

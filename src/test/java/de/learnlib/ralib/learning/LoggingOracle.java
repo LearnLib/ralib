@@ -58,7 +58,6 @@ public class LoggingOracle implements TreeOracle {
         //System.out.println("QUERY (update branching): " + prefix + 
         //        " and " + ps + " with " + sdts.length + " sdts");
         Branching b = treeoracle.updateBranching(prefix, ps, current, piv, sdts);
-        //System.out.println(b.getBranches().size());
         return b;
     }
 

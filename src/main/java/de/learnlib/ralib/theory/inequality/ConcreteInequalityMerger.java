@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
@@ -59,23 +60,47 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 			}
 		}
 		
-		if (mergedResult.size() == 3) {
-			SDTGuard[] finalGuards = mergedResult.keySet().toArray(new SDTGuard [3]);
-			if (finalGuards[1] instanceof EqualityGuard) {
-				assert finalGuards[0] instanceof IntervalGuard && finalGuards[2] instanceof IntervalGuard;
-				// the first and last inequality guards were merged to form the first, respectively third final guard.
-				SDT equivTest = checkSDTEquivalence(finalGuards[0], finalGuards[2], mergedResult); 
-				if (equivTest != null) {
-					mergedResult.clear();
-					mergedResult.put(finalGuards[1], mergedTemp.get(finalGuards[1]));
-					mergedResult.put(((EqualityGuard) finalGuards[1]).toDeqGuard(), equivTest);
-					
+		if (mergedResult.size() > 1) {
+			// we need to check if the merged guard don't fit into a pattern where all interval SDTs are equivalent, in which case, 
+			// we can replace all interval guards by a conjunction of disequalities.
+			SDTGuard [] intervalGuards = mergedResult.keySet().stream()
+					.filter(sdt -> sdt instanceof IntervalGuard).toArray(SDTGuard []::new);
+			boolean areEquivalent = true;
+			SDT equivSDT = null;
+			for (int i=1; i<intervalGuards.length; i++) {  
+				equivSDT = checkSDTEquivalence(intervalGuards[i-1], intervalGuards[i], mergedResult);
+				if (equivSDT == null) {
+					areEquivalent = false;
+					break;
 				}
 			}
-		} 
-		
+			
+			if (areEquivalent) {
+				LinkedHashMap<SDTGuard, SDT> eqDeqMergedResult = new LinkedHashMap<>();
+				
+				mergedResult.forEach((guard, sdt) -> {
+					if (guard instanceof EqualityGuard)
+						eqDeqMergedResult.put(guard, sdt);
+				});
+				
+				SDTGuard elseGuard;
+			
+				SDTGuard[] deq = eqDeqMergedResult.keySet().stream()
+					.map(eq -> ((EqualityGuard) eq).toDeqGuard())
+					.toArray(SDTGuard []::new);
+				if (deq.length > 1)
+					elseGuard = new SDTAndGuard(head.getParameter(), deq);
+				else
+					elseGuard = deq[0];
+				
+				eqDeqMergedResult.put(elseGuard, equivSDT);
+				return eqDeqMergedResult;
+			}	
+		}
 		return mergedResult;
 	}
+	
+	
 	
 	
 	/**

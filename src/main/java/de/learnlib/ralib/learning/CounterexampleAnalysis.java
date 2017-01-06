@@ -25,6 +25,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -109,8 +110,9 @@ public class CounterexampleAnalysis {
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
         GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
+               new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         System.out.println("exhaustive suffix: " + symSuffix);
+        System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
         
@@ -165,7 +167,6 @@ public class CounterexampleAnalysis {
         System.out.println("SUL: " + resSul.getSdt());
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + suffix);
-        //System.out.println(sdtOracle.suffixForCounterexample(resSul.getSdt(), symSuffix.getActions()));
         
         GeneralizedSymbolicSuffix gsuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
         		sdtOracle.suffixForCounterexample(
@@ -174,6 +175,12 @@ public class CounterexampleAnalysis {
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, symSuffix.getActions());
         
+//        if(prefix.toString().equals("I_IConnect[] O_IConnect[100001.0[DOUBLE]] I_ISYN[100001.0[DOUBLE], 201002.0[DOUBLE]] TRUE[]")) {
+//	        gsuffix.getPrefixRelations(2).add(DataRelation.EQ_SUMC1);
+//	        gsuffix.getPrefixRelations(5).add(DataRelation.EQ);
+//        }
+        
+      //  gsuffix = symSuffix;
         // perform check, no extra inputs should be run, as all should be found in cache
         TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
         TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);
@@ -181,6 +188,7 @@ public class CounterexampleAnalysis {
                 newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
+        
         if (! newHasCE) {
         	System.out.println("CE not preserved by optimized suffix");
         	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());

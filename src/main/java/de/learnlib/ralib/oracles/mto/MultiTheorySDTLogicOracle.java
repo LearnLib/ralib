@@ -46,6 +46,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -309,6 +310,29 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     	return new SDT(newChildren);
     }
     
+    private SDT replaceSuffixesWithPrefixes(SDT sutSdt) {
+    	if (sutSdt instanceof SDTLeaf)
+    		return sutSdt;
+    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
+    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
+    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
+    		SDTGuard guard = entry.getKey();
+    		SDT sdt = entry.getValue();
+    		if (guard instanceof EqualityGuard) {
+    			EqualityGuard equGuard = (EqualityGuard) guard;
+    			SymbolicDataValue reg = equGuard.getRegister();
+    			if (reg.isRegister() || reg.isConstant()) {
+    				Replacement repl = new Replacement();
+    				repl.put(equGuard.getParameter(), equGuard.getExpression());
+    				sdt = (SDT) sdt.replace(repl);
+    			} 
+    		}
+    		SDT relabeledSdt = replaceSuffixesWithPrefixes(sdt);
+    		newChildren.put(guard, relabeledSdt);
+    	}
+    	return new SDT(newChildren);
+    }
+    
     public GeneralizedSymbolicSuffix suffixForCounterexample2(
             Word<PSymbolInstance> prefix, SymbolicDecisionTree hypSdt, PIV hypPiv, 
             SymbolicDecisionTree sutSdt, PIV sutPiv, 
@@ -419,8 +443,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         Map<SymbolicDataValue, ParamSignature> prefixMap = this.computePrefixSourceMap(prefix, piv);
         
 
-        //_sdt1 = relabelPrefixesWithSuffixes(_sdt1); 
-       // _sdt2 = relabelPrefixesWithSuffixes(_sdt2);
+       // _sdt1 = replaceSuffixesWithPrefixes(_sdt1); 
+        //_sdt2r = replaceSuffixesWithPrefixes(_sdt2r);
+        //System.out.println(_sdt2r);
         
         // get all the paths
         List<List<SDTGuard>> expr1_T = _sdt1.getPaths(Collections.emptyList(), true);
@@ -543,8 +568,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             	atoms1;
             else if (!implies(c1, c2) && implies(c2, c1)) 
                 // use c2
-            	usedAtoms = 
-            	//		getBranchingAtomsAtPath(e2Guards.subList(0, i), sdt2);
+            	usedAtoms =  
+            			//getBranchingAtomsAtPath(e2Guards.subList(0, i), sdt2);
             	atoms2;
             else  if (!implies(c1, c2) && !implies(c2, c1)) {
             	// use all atoms in the branches of c1 and c2
@@ -556,17 +581,13 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         	} else 
                 // equivalent - use both or does not matter?
             	usedAtoms = atoms1;
-                           
+                
+			usedAtoms = getBranchingAtomsAtLevel(i, sdt1, sdt2);
             prels[i] = prefixRelations(usedAtoms);
             suffixRelations(srels[i], usedAtoms);
             psource[i] = this.prefixSource(usedAtoms, prefixMap);
         }
         
-//        if (prels.length > 0) {
-//        	Collection<AtomicGuardExpression> usedAtoms = getBranchingAtomsAtPath(Collections.emptyList(), Collections.emptyList(), sdt1, sdt2);
-//        	prels[0] = prefixRelations(usedAtoms);
-//        }
-        		//EnumSet.of(DataRelation.ALL);
         GeneralizedSymbolicSuffix suffix = 
                 new GeneralizedSymbolicSuffix(actions, prels, srels, psource);
         
@@ -581,6 +602,28 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     	Conjunction falsePath = SDT.toPathExpression(guards);
     	Collection<AtomicGuardExpression> allAtoms = falsePath.getAtoms();
     	return allAtoms;
+    }
+    
+    private Collection<AtomicGuardExpression> getBranchingAtomsAtLevel(int level,  SDT sdt, SDT sdt2) {
+    	Collection<AtomicGuardExpression> atoms = new LinkedHashSet<>();
+    	atoms.addAll(getBranchingAtomsAtLevel(level, sdt, 0));
+    	atoms.addAll(getBranchingAtomsAtLevel(level, sdt2, 0));
+    	return atoms;
+    }
+    
+    private Collection<AtomicGuardExpression> getBranchingAtomsAtLevel(int level,  SDT sdt, int crtLevel) {
+    	if (sdt instanceof SDTLeaf)
+    		return Collections.emptySet();
+    	Map<SDTGuard, SDT> children = sdt.getChildren();
+    	if (crtLevel == level) {
+    		return SDT.toPathExpression(children.keySet()).getAtoms();
+    	} else {
+    		Collection<AtomicGuardExpression> atoms = new LinkedHashSet<>();
+        	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
+        		atoms.addAll(getBranchingAtomsAtLevel(level, entry.getValue(), crtLevel + 1));
+        	}
+        	return atoms;
+    	}
     }
     
     private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path1, List<SDTGuard> path2,  SDT sdt1, SDT sdt2) {
@@ -767,7 +810,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     
     private int getSumCIndex(SumCAtomicGuardExpression atom) {
     	DataValue cst = ((SumCAtomicGuardExpression) atom).getRightConst();
-    	System.out.println(cst + " " + atom);
+    	if (cst == null)
+    		cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
+    	System.out.println(atom + " " + cst + " " + atom);
 		int index = consts.getSumCs(cst.getType()).indexOf(cst);
 		return index;
     }

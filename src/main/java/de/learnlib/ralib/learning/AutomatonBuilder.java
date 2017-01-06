@@ -34,6 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+
 import net.automatalib.words.Word;
 
 /**
@@ -119,7 +121,9 @@ class AutomatonBuilder {
         
         if (guard == null) {
         	throw new RuntimeException("Guard is null \n"+
-        " src component " + src_c + "\n row prefix: " + r.getPrefix() + "\n component branching: " + b);
+	        " src component " + src_c + "\n row prefix: " + r.getPrefix() + "\n component branching: " + b +
+	        "\n\n\n branchings of all components: " + this.components.values().stream().
+	        map(c -> c.getBranching(action)).filter(br -> br != null).collect(Collectors.toList()));
         }
         assert guard!=null;
         

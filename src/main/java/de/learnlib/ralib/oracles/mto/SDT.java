@@ -18,6 +18,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -427,7 +428,7 @@ public class SDT implements SymbolicDecisionTree {
     	return null;
     }
 
-    static Conjunction toPathExpression(List<SDTGuard> list) {
+    static Conjunction toPathExpression(Collection<SDTGuard> list) {
         List<GuardExpression> expr = new ArrayList<>();
         list.stream().forEach((g) -> {
             expr.add(g.toExpr());

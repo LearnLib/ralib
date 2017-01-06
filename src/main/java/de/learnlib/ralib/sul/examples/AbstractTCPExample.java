@@ -46,6 +46,8 @@ public class AbstractTCPExample extends AbstractWindowProtocol{
 		// a(11, 21)
 		ESTABLISHED,
 		FIN_WAIT_1,
-		TIME_WAIT;
+		TIME_WAIT,
+		
+		CLOSEWAIT;
 	}
 }

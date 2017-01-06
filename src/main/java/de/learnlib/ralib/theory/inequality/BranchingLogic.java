@@ -77,22 +77,21 @@ public class BranchingLogic<T extends Comparable<T>> {
 				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
 			} 
-				else {
-					if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
-						if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(suffixRel)) {
-							List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
-									, suffix);
-							action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
-						}
+			
+			if (action == null) {
+				if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
+					if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(suffixRel)) {
+						List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
+								, suffix);
+						action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
 					}
-
 				}
+			}
 		}
 		
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 
-	//	System.out.println(action.getStrategy() + " pref rel: " + prefixRel + " suf rel: " + suffixRel + " " + action.getBranchingValues());
 		return action;
 	}
 	
