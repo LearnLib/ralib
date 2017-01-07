@@ -95,6 +95,14 @@ public class MultiTheoryBranching implements Branching {
 			}
 		}
 		
+		public Set<DataValue> getDvs() {
+			return Sets.newLinkedHashSet(this.next.keySet());
+		}
+		
+		public Node getChildNode(DataValue dv) {
+			return this.next.get(dv);
+		}
+		
 		private void collectDVs(Map<Parameter, Set<DataValue>> dvs) {
 			dvs.putIfAbsent(this.parameter, new LinkedHashSet());
 			dvs.get(this.parameter).addAll(this.next.keySet());
@@ -152,6 +160,10 @@ public class MultiTheoryBranching implements Branching {
 
     public PIV getPiv() {
         return piv;
+    }
+    
+    public Node getRootNode() {
+    	return this.node;
     }
 
     public Set<SDTGuard> getGuards() {

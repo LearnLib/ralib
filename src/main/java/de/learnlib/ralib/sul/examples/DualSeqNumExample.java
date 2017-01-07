@@ -14,19 +14,19 @@ public class DualSeqNumExample extends AbstractWindowProtocol{
 		return false;
 	}
 	
-	public boolean INEXT(Double next) {
+	public boolean INEXT(Double nextSeq1, Double nextSeq2) {
 		if (this.seq1 != null) {
-			if (succ(this.seq1, next)) {
-				this.seq1 = next;
+			if (succ(this.seq1, nextSeq1) && equ(this.seq2, nextSeq2)) {
+				this.seq1 = nextSeq1;
 				return true;
 			}
 			
-			if (succ(this.seq2, next)) {
-				this.seq2 = next;
+			if (succ(this.seq2, nextSeq2) && equ(this.seq1, nextSeq1)) {
+				this.seq2 = nextSeq2;
 				return true;
 			}
 		}
-		this.seq1 = this.seq2 = null;
+		//this.seq1 = this.seq2 = null;
 		return false;
 	}
 	

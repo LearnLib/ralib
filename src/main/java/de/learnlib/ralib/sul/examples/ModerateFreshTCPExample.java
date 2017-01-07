@@ -67,13 +67,15 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     			svSeq = ack;
     			
     			ret = true;
-    		} else if (
-    				equ(seq, svSeq) && succ(clSeq, ack) ||
-    				equ(seq, svSeq) && equ(ack, clSeq)) {
-    					clSeq = ack;
-    	    			svSeq = seq;
-    	    			ret = true;
     		} 
+    		
+//    		else if (
+//    				equ(seq, svSeq) && succ(clSeq, ack) ||
+//    				equ(seq, svSeq) && equ(ack, clSeq)) {
+//    					clSeq = ack;
+//    	    			svSeq = seq;
+//    	    			ret = true;
+//    		} 
     	}
     	
     	return ret;

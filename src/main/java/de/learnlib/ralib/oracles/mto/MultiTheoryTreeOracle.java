@@ -245,6 +245,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Parameter p = new Parameter(type, i);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, i));
             Theory teach = teachers.get(type);
+            Node b;
 
             DataValue dvi = teach.instantiate(prefix, ps, piv, pval,
                     constants, guard, p, new LinkedHashSet<>(), false);
@@ -263,13 +264,17 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             SDT... sdts) {
-        Node n = createNode(i, prefix, ps, piv, pval, Collections.emptyMap(), sdts);
+        Node n = createNode(i, prefix, ps, piv, pval, null, sdts);
         return n;
     }
     
     /**
      * This method computes the initial branching for an SDT. It re-uses
      * existing valuations where possible.
+     * 
+     * It is essential that the new branching includes all representatives of
+     * the initial guards from the old branching, otherwise rows formed from the old
+     * representatives will no longer be linkable with the source component.
      *
      */
     @Override
@@ -279,7 +284,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
         
-        Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+        Node rootNode = oldBranching.getRootNode();
 //        System.out.println("From trees: " + Arrays.asList(sdts));
         
         SDT[] casted = new SDT[sdts.length];
@@ -300,7 +305,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             return new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
         } else {
-            n = createNode(1, prefix, ps, piv, pval, oldDvs,  casted);
+            n = createNode(1, prefix, ps, piv, pval, rootNode,  casted);
             MultiTheoryBranching fluff = new MultiTheoryBranching(
                     prefix, ps, n, piv, pval, constants, casted);
             return fluff;
@@ -328,12 +333,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     // TODO PIV is not correctly registered and should be made available
     private Node createNode(int i, Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps,
-            PIV piv, ParValuation pval, Map<Parameter, Set<DataValue>> oldDvs, 
+            PIV piv, ParValuation pval, @Nullable Node oldNode, 
             SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
             return new Node(new Parameter(null, i));
         } else {
+        	Set<DataValue> oldDvs = oldNode != null ? oldNode.getDvs() : Collections.emptySet();
         	
             // obtain the data type, teacher, parameter
             DataType type = ps.getPtypes()[i - 1];
@@ -359,11 +365,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             	DataValue dvi = null;
             	try {
             		// first solve using a constraint solver
-	            	if (oldDvs.containsKey(p)) {
-	                     dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs.get(p), false);
-	                } else {
-	                      dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>(), false);
-	                }
+            		 dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs, false);
 	            	
 	            	// if merging of guards is done properly, there should be no case where the guard is not instantiable.
 	            	if (dvi == null || dvi.getId().equals(Double.valueOf(0.0))) {
@@ -384,8 +386,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                  otherPval.putAll(pval);
                      otherPval.put(p, dvi);
 
+                Node nextOldNode = oldNode != null? oldNode.getChildNode(dvi) : null;
                 nextMap.put(dvi, createNode(i + 1, prefix, ps, piv,
-                          otherPval, oldDvs, nextLevelSDTs));
+                          otherPval, nextOldNode, nextLevelSDTs));
                 if (guardMap.containsKey(dvi)) {
                 	throw new DecoratedRuntimeException( " New guards instantiated with same dvi in branching")
                 	.addDecoration("guard map", guardMap).addDecoration("guard to be added", guard).
