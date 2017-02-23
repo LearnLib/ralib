@@ -66,7 +66,7 @@ import net.automatalib.words.Word;
  */
 public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
-    private final DataWordOracle oracle;
+    private DataWordOracle oracle;
 
     private final Constants constants;
 
@@ -156,7 +156,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
 
-        log.log(Level.INFO,
+        log.log(Level.FINEST,
                 "computing initial branching for {0} after {1}",
                 new Object[]{ps, prefix});
 
@@ -522,6 +522,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //            log.log(Level.FINEST, e.toString());
 //        }  
         //return updatedBranching;
+    }
+
+    /**
+     * @param oracle the oracle to set
+     */
+    public void setOracle(DataWordOracle oracle) {
+        this.oracle = oracle;
     }
 
 }

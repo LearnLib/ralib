@@ -99,14 +99,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         
         DataExpression<Boolean> test = DataExpression.or(left, right);
 
-        System.out.println("A1:  " + expr1);
-        System.out.println("A2:  " + expr2);
-        System.out.println("G:   " + exprG);
-        System.out.println("MAP: " + remap);
-        System.out.println("A2': " + expr2r);
-        System.out.println("TEST:" + test);
-        
-        System.out.println("HAS CE: " + test.getExpression());
+//        System.out.println("A1:  " + expr1);
+//        System.out.println("A2:  " + expr2);
+//        System.out.println("G:   " + exprG);
+//        System.out.println("MAP: " + remap);
+//        System.out.println("A2': " + expr2r);
+//        System.out.println("TEST:" + test);
+//        
+//        System.out.println("HAS CE: " + test.getExpression());
         Result r = solver.isSatisfiable(test.getExpression());
         log.log(Level.FINEST,"Res:" + r);
         if (r == Result.DONT_KNOW) {

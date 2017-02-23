@@ -5,7 +5,7 @@
  */
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -69,7 +69,7 @@ public class SDTAndGuard extends SDTMultiGuard {
         if (thisList.size() == 1) {
             return thisList.get(0);
         } else {
-            return new Conjuction(thisList.toArray(new GuardExpression[]{}));
+            return new Conjunction(thisList.toArray(new GuardExpression[]{}));
         }
     }
 

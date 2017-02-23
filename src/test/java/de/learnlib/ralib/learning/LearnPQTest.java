@@ -217,7 +217,7 @@ public class LearnPQTest {
             }
         };
 
-        RaStar rastar = new RaStar(mto, hypFactory, slo,
+        RaStar rastar = new RaStar(teachers, mto, hypFactory, slo,
                 consts, OFFER, POLL);
 
         rastar.learn();

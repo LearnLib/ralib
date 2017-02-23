@@ -41,6 +41,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL.Actions;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
@@ -284,12 +285,24 @@ public class LearnPQIOTest {
         
 
         DataWordSUL sul = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
-
+        DataWordSUL sulCE = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
+        DataWordSUL sulEQ = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
+        DataWordSUL sulStats = new PriorityQueueSUL(teachers, consts, inputs, outputs, 3);
+        
         //SimulatorOracle oracle = new SimulatorOracle(model);
+
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache,inputArray);
+        IOFilter ioFilter = new IOFilter(ioCache, inputArray);
+        
+        IOOracle ioOracleCE = new SULOracle(sulCE, ERROR);
+        IOCache ioCacheCE = new IOCache(ioOracleCE);
+        IOFilter ioFilterCE = new IOFilter(ioCacheCE, inputArray);
 
+        IOOracle ioOracleStats = new SULOracle(sulStats, ERROR);
+        IOCache ioCacheStats = new IOCache(ioOracleStats);
+        IOFilter ioFilterStats = new IOFilter(ioCacheStats, inputArray);
+        
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
 
@@ -301,10 +314,12 @@ public class LearnPQIOTest {
             }
         };
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actionArray);
-
+        RaStar rastar = new RaStar(teachers, mto, hypFactory, mlo, consts, true, actionArray);
+        rastar.setSulOracleCE(new MultiTheoryTreeOracle(ioFilterCE, teachers, consts));
+        rastar.setSulOracleStats(new MultiTheoryTreeOracle(ioFilterStats, teachers, consts));
+        
         IORandomWalk iowalk = new IORandomWalk(random,
-                sul,
+                sulEQ,
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
@@ -360,6 +375,18 @@ public class LearnPQIOTest {
         System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
         System.out.println("SUL resets: " + sul.getResets());
         System.out.println("SUL inputs: " + sul.getInputs());
+
+        System.out.println("SUL EQ resets: " + sulEQ.getResets());
+        System.out.println("SUL EQ inputs: " + sulEQ.getInputs());        
+        
+        System.out.println("IO-Oracle CE: " + ioOracleCE.getQueryCount());
+        System.out.println("SUL resets: " + sulCE.getResets());
+        System.out.println("SUL inputs: " + sulCE.getInputs());
+
+        System.out.println("IO-Oracle Stats: " + ioOracleStats.getQueryCount());
+        System.out.println("SUL resets: " + sulStats.getResets());
+        System.out.println("SUL inputs: " + sulStats.getInputs());
+        
         System.out.println("Rounds: " + check);
 
     }

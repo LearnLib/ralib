@@ -34,11 +34,11 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author falk
  */
-public class Conjuction extends GuardExpression {
+public class Conjunction extends GuardExpression {
 
     private final GuardExpression[] conjuncts;
 
-    public Conjuction(GuardExpression ... conjuncts) {
+    public Conjunction(GuardExpression ... conjuncts) {
         this.conjuncts = conjuncts;
     }
     
@@ -59,7 +59,7 @@ public class Conjuction extends GuardExpression {
         for (GuardExpression ge : conjuncts) {
             newExpr[i++] = ge.relabel(relabelling);
         }
-        return new Conjuction(newExpr);
+        return new Conjunction(newExpr);
     }
 
     @Override
@@ -85,4 +85,7 @@ public class Conjuction extends GuardExpression {
         }
     }
 
+    public GuardExpression[] getConjuncts() {
+        return conjuncts;
+    }    
 }

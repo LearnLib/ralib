@@ -84,5 +84,9 @@ public class Disjunction extends GuardExpression {
             ge.getSymbolicDataValues(vals);
         }        
     }
+
+    public GuardExpression[] getDisjuncts() {
+        return disjuncts;
+    }
     
 }

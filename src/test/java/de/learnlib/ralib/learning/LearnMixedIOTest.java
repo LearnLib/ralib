@@ -140,7 +140,7 @@ public class LearnMixedIOTest {
             }
         };
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        RaStar rastar = new RaStar(teachers, mto, hypFactory, mlo, consts, true, actions);
 
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);

@@ -26,7 +26,7 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
@@ -80,7 +80,7 @@ public final class LoginAutomatonExample {
         
         // guards
                
-        GuardExpression condition = new Conjuction(
+        GuardExpression condition = new Conjunction(
                 new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
         

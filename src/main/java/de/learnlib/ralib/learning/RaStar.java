@@ -22,14 +22,17 @@ package de.learnlib.ralib.learning;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -55,17 +58,26 @@ public class RaStar {
     
     private final TreeOracle sulOracle;
     
+    private TreeOracle sulOracleCE;
+    
+    private TreeOracle sulOracleStats;
+    
     private final SDTLogicOracle sdtLogicOracle;
     
     private final TreeOracleFactory hypOracleFactory;
+
+    private final Map<DataType, Theory> teachers;
     
     private final boolean ioMode;
     
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
-    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
+    public RaStar(Map<DataType, Theory> teachers, 
+            TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             ParameterizedSymbol ... inputs) {
+        
+        this.teachers = teachers;
         
         this.ioMode = ioMode;
         this.obs = new ObservationTable(oracle, ioMode, consts, inputs);
@@ -84,13 +96,17 @@ public class RaStar {
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;        
+        
+        this.sulOracleCE = oracle;
+        this.sulOracleStats = oracle;
     }   
     
-    public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
+    public RaStar(Map<DataType, Theory> teachers,
+            TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, 
             ParameterizedSymbol ... inputs) {
         
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
+        this(teachers, oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
     }
         
     public void learn() {
@@ -131,8 +147,11 @@ public class RaStar {
         
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
         
+        CounterexampleStatistics stats = new CounterexampleStatistics(
+                teachers, sulOracleStats, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), consts);
+                
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
-                sulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), consts);
+                sulOracleCE, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), consts);
         
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
@@ -147,7 +166,9 @@ public class RaStar {
         
         System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
         
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
+        Word<PSymbolInstance> nce = stats.analyzeCounterexample(ce.getInput());        
+        
+        CEAnalysisResult res = analysis.analyzeCounterexample(nce);        
         obs.addSuffix(res.getSuffix());       
         return true;
     }
@@ -159,6 +180,20 @@ public class RaStar {
             ab = new IOAutomatonBuilder(obs.getComponents(), consts);
         }
         return ab.toRegisterAutomaton();   
+    }
+
+    /**
+     * @param sulOracleCE the sulOracleCE to set
+     */
+    public void setSulOracleCE(TreeOracle sulOracleCE) {
+        this.sulOracleCE = sulOracleCE;
+    }
+
+    /**
+     * @param sulOracleStats the sulOracleStats to set
+     */
+    public void setSulOracleStats(TreeOracle sulOracleStats) {
+        this.sulOracleStats = sulOracleStats;
     }
     
 }

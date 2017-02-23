@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="IPleaseAck"/>
+         <symbol name="IFrame"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="OOut"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="OAck"> 
+            <param type="int" name="p0"/> 
+         </symbol>
+         <symbol name="ONOK"/>
+      </outputs>
+   </alphabet>
+   <constants>
+      <constant type="int" name="zero">0</constant>
+      <constant type="int" name="one">1</constant>
+   </constants>
+   <globals>
+      <variable type="int" name="vb">0</variable>
+      <variable type="int" name="vd">0</variable>
+      <variable type="int" name="expectedBit">0</variable>
+   </globals>
+   <locations>
+      <location name="id4"/> 
+      <location name="id5" initial="true"/> 
+      <location name="id2"/> 
+      <location name="id3"/> 
+      <location name="id0"/> 
+      <location name="id1"/> 
+   </locations>
+   <transitions>
+      <transition from="id0" to="id3" symbol="ONOK" />
+      <transition from="id3" to="id0" symbol="IFrame" params="d,b"/>
+      <transition from="id1" to="id5" symbol="ONOK" />
+      <transition from="id5" to="id1" symbol="IPleaseAck" />
+      <transition from="id2" to="id5" symbol="OAck" params="expectedBit">
+         <guard>expectedBit==zero</guard>
+         <assignments>
+            <assign to="expectedBit">one</assign>
+         </assignments>
+      </transition>
+      <transition from="id2" to="id5" symbol="OAck" params="expectedBit">
+         <guard>expectedBit==one</guard>
+         <assignments>
+            <assign to="expectedBit">zero</assign>
+         </assignments>
+      </transition>
+      <transition from="id3" to="id2" symbol="IPleaseAck" />
+      <transition from="id4" to="id5" symbol="ONOK" >
+         <guard>vb==one &amp;&amp; expectedBit==zero ||
+vb==zero &amp;&amp; expectedBit==one ||
+vb != one &amp;&amp; vb != 0</guard>
+      </transition>
+      <transition from="id4" to="id3" symbol="OOut" params="vd">
+         <guard>vb==zero &amp;&amp; expectedBit==zero ||
+vb==one &amp;&amp; expectedBit==one</guard>
+      </transition>
+      <transition from="id5" to="id4" symbol="IFrame" params="d,b">
+         <assignments>
+            <assign to="vd">d</assign>
+            <assign to="vb">b</assign>
+         </assignments>
+      </transition>
+   </transitions>
+</register-automaton>

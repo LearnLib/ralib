@@ -103,7 +103,7 @@ public class LearnLoginTest {
             }
         };
         
-        RaStar rastar = new RaStar(mto, hypFactory, slo, 
+        RaStar rastar = new RaStar(teachers, mto, hypFactory, slo, 
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
         
         rastar.learn();        

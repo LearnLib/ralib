@@ -154,6 +154,10 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         return right;
     }    
 
+    public Relation getRelation() {
+        return relation;
+    } 
+    
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
         vals.add(left);

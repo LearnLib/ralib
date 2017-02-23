@@ -87,10 +87,10 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         return locations;
     }
     
-    protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
+    public VarValuation getTransitions(Word<PSymbolInstance> dw, List<Transition> tseq) {
         VarValuation vars = new VarValuation(getInitialRegisters());
         RALocation current = initial;
-        List<Transition> tseq = new ArrayList<>();
+        //List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
             
             ParValuation pars = new ParValuation(psi);
@@ -117,13 +117,14 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                 return null;
             }
         }
-        return tseq;        
+        return vars;        
     }
     
     @Override
     public RALocation getLocation(Word<PSymbolInstance> dw) {
-        List<Transition> tseq = getTransitions(dw);
-        if (tseq == null) {
+        List<Transition> tseq = new ArrayList<>();
+        getTransitions(dw, tseq);
+        if (tseq.size() != dw.length()) {
             return null;
         }
         if (tseq.isEmpty()) {
@@ -134,6 +135,15 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         }
     }
 
+    public VarValuation getRegisters(Word<PSymbolInstance> dw) {
+        List<Transition> tseq = new ArrayList<>();
+        VarValuation registers = getTransitions(dw, tseq);
+        if (tseq.size() != dw.length()) {
+            return null;
+        }
+        return registers;
+    }    
+    
     @Override
     public boolean accepts(Word<PSymbolInstance> dw) {        
         RALocation dest = getLocation(dw);

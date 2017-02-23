@@ -19,21 +19,40 @@
 
 package de.learnlib.ralib.learning;
 
-import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.TrueGuardExpression;
+import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -42,7 +61,7 @@ import net.automatalib.words.Word;
  * 
  * @author falk
  */
-public class CounterexampleAnalysis {
+public class CounterexampleStatistics {
 
     private final TreeOracle sulOracle;
     
@@ -55,15 +74,19 @@ public class CounterexampleAnalysis {
     private final Map<Word<PSymbolInstance>, Component> components;
     
     private final Constants consts;
+
+    private final Map<DataType, Theory> teachers;
     
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
-    private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
+    private static final LearnLogger log = LearnLogger.getLogger(CounterexampleStatistics.class);
     
-    CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
+    CounterexampleStatistics(Map<DataType, Theory> teachers,
+            TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
             Map<Word<PSymbolInstance>, Component> components, Constants consts) {
         
+        this.teachers = teachers;
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
         this.hypothesis = hypothesis;
@@ -72,16 +95,47 @@ public class CounterexampleAnalysis {
         this.consts = consts;
     }
     
-    CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
+    Word<PSymbolInstance> analyzeCounterexample(Word<PSymbolInstance> ce) {
         
-        int idx = binarySearch(ce);
-        //int idx = linearBackWardsSearch(ce);
+        System.out.println("================================================ CE REPORT ================================================");
+        System.out.println("");
+        System.out.println("Counterexample: " + ce);
+        System.out.println("------------------------------------------------------");                
+        List<Transition> tseq = new ArrayList<>();
+        hypothesis.getTransitions(ce, tseq);
+        for (Transition t : tseq) {
+            System.out.println(t);
+        }        
+        System.out.println("------------------------------------------------------");
+        if (false) {
+            Word<PSymbolInstance> tCe = findWordFor(tseq);        
+            System.out.println("TCE: " + tCe);
+            Word<PSymbolInstance> eps = Word.<PSymbolInstance>epsilon();
+            SymbolicSuffix symSuffix = new SymbolicSuffix(tCe, eps);
+
+            TreeQueryResult resHyp = hypOracle.treeQuery(tCe, symSuffix);
+            TreeQueryResult resSul = sulOracle.treeQuery(tCe, symSuffix);        
+
+            SDTLeaf l1 = (SDTLeaf) resHyp.getSdt();
+            SDTLeaf l2 = (SDTLeaf) resSul.getSdt();
+
+            System.out.println("TCE is CE: " + (l1.isAccepting() ^ l2.isAccepting()));
+            if (l1.isAccepting() ^ l2.isAccepting()) {
+                ce = tCe;
+            }
+        }
+        if (true) return ce;
         
-        Word<PSymbolInstance> prefix = ce.prefix(idx);
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);        
+        IndexResult[] ir = new IndexResult[ce.length()];
+        for (int idx=0; idx<ce.length(); idx++) {
+            ir[idx] = computeIndex(ce, idx);
+        }
         
-        return new CEAnalysisResult(prefix, symSuffix);        
+        System.out.println("Index Results:" + Arrays.toString(ir));
+        
+        System.out.println("================================================ CE REPORT ================================================");
+        
+        return ce;
     } 
     
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
@@ -97,18 +151,6 @@ public class CounterexampleAnalysis {
         
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-
-        log.log(Level.FINEST,"------------------------------------------------------");
-        log.log(Level.FINEST,"Computing index: " + idx);
-        log.log(Level.FINEST,"Prefix: " + prefix);
-        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
-        log.log(Level.FINEST,"Location: " + location);
-        log.log(Level.FINEST,"Transition: " + transition);
-        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
-        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
-        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
-        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
-        log.log(Level.FINEST,"------------------------------------------------------");
         
         System.out.println("------------------------------------------------------");
         System.out.println("Computing index: " + idx);
@@ -120,7 +162,6 @@ public class CounterexampleAnalysis {
         System.out.println("SDT HYP: " + resHyp.getSdt());
         System.out.println("PIV SYS: " + resSul.getPiv());
         System.out.println("SDT SYS: " + resSul.getSdt());        
-        System.out.println("------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
@@ -144,6 +185,7 @@ public class CounterexampleAnalysis {
         
         System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
         System.out.println("hypRefinesTransition: " + hypRefinesTransition);
+        System.out.println("------------------------------------------------------");
         
         return (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexResult.HAS_CE_AND_REFINES : IndexResult.HAS_CE_NO_REFINE;        
@@ -156,14 +198,14 @@ public class CounterexampleAnalysis {
         Component c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
         
-        System.out.println("Branching Hyp:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
-        System.out.println("Branching Sys:");
-        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+//        System.out.println("Branching Hyp:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Sys:");
+//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
         
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
@@ -183,92 +225,103 @@ public class CounterexampleAnalysis {
         return true;
     }
     
-    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
+    private Word<PSymbolInstance> findWordFor(List<Transition> tseq) {
         
-        assert ce.length() > 1;
+        Word<ParameterizedSymbol> acts = Word.<ParameterizedSymbol>epsilon();
+        Map<Integer, DataValue> vals = new HashMap<>();
         
-        IndexResult[] results = new IndexResult[ce.length()];
-        results[ce.length()-1] = IndexResult.NO_CE;
-
-        int idx = ce.length()-2;
+        VarValuation regs = hypothesis.getInitialRegisters();
         
-        while (idx >= 0) {
-            IndexResult res = computeIndex(ce, idx);
-            results[idx] = res;
-            if (res != IndexResult.NO_CE) {
-                break;
+        int dIdx = 1;
+        for (Transition t : tseq) {
+            acts = acts.append(t.getLabel());            
+            ParValuation pval = new ParValuation();
+            SymbolicDataValueGenerator.ParameterGenerator pgen = 
+                    new SymbolicDataValueGenerator.ParameterGenerator();
+                        
+            Map<Integer, Register> map = findValuesForTransition(t);
+            for (DataType type : t.getLabel().getPtypes()) {
+                DataValue v;
+                Parameter p = pgen.next(type);
+                if (map.containsKey(p.getId())) {
+                    v = regs.get(map.get(p.getId()));
+                }
+                else {
+                    Theory theory = teachers.get(type);
+                    List<DataValue> used = new ArrayList<>();
+                    used.addAll(vals.values());
+                    v = theory.getFreshValue(used);
+                }
+                
+                pval.put(p, v);
+                vals.put(dIdx, v);
+                dIdx++;
             }
-            idx--;
-        }
-        
-        assert (idx >= 0);
-        
-        // if in the last step there was no counterexample, 
-        // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
-            assert idx > 0;
-            idx--;
-        }
-        
-        // if the current index has no refinement use the 
-        // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
-            idx++;
-        }
-
-        return idx;        
-    }
-    
-    private int binarySearch(Word<PSymbolInstance> ce) {
-        
-        assert ce.length() > 1;
-        
-        IndexResult[] results = new IndexResult[ce.length()];
-        //results[0] = IndexResult.HAS_CE_NO_REFINE;
-        //results[ce.length()-1] = IndexResult.NO_CE;
-        
-        int min = 0;
-        int max = ce.length() - 1;
-        int mid = -1;
-        
-        while (max >= min) {
-
-            mid = (max+min+1) / 2;
-         
-            IndexResult res = computeIndex(ce, mid);
-            log.log(Level.FINEST, "" + res);
             
-            results[mid] = res;
-            if (res == IndexResult.NO_CE) {
-                max = mid -1;
-            } else {
-                min = mid +1;
-            }            
+            regs = t.execute(regs, pval, consts);            
         }
         
-        assert mid >= 0;
-        
-        int idx = mid;
-        
-        System.out.println(Arrays.toString(results));
-        System.out.println(idx + " : " + results[idx]);
-        
-        // if in the last step there was no counterexample, 
-        // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
-            assert idx > 0;
-            idx--;
-        }      
-
-        // if the current index has no refinement use the 
-        // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
-            idx++;
-        }
-
-        System.out.println("IDX: " + idx);
-        
-        return idx;
+        return DataWords.instantiate(acts, vals);
     }
     
+    private Map<Integer, Register> findValuesForTransition(Transition t) {
+        return (t instanceof OutputTransition) ?
+                findValuesForOutputTransition( (OutputTransition)t ) : 
+                findValuesForInputTransition( t );
+    }
+
+    private Map<Integer, Register> findValuesForInputTransition(Transition t) {
+        Map<Integer, Register> ret = new HashMap<>();        
+        getEqualities(t.getGuard().getCondition(), ret);       
+        return ret;
+    }
+
+    private Map<Integer, Register> findValuesForOutputTransition(OutputTransition t) {
+        Map<Integer, Register> ret = new HashMap<>();                
+        for (Entry<Parameter, SymbolicDataValue> e :
+                t.getOutput().getOutput().entrySet()) {
+            
+            ret.put(e.getKey().getId(), (Register) e.getValue());
+        }        
+        return ret;
+    }
+    
+    private void getEqualities(GuardExpression expr, Map<Integer, Register> map) {
+        if (expr instanceof Conjunction) {
+            Conjunction c = (Conjunction) expr;
+            for (GuardExpression e : c.getConjuncts()) {
+                getEqualities(e, map);
+            }
+        }
+        else if (expr instanceof AtomicGuardExpression) {
+            AtomicGuardExpression e = (AtomicGuardExpression) expr;
+            switch (e.getRelation()) {
+                case EQUALS:
+                    if (e.getLeft() instanceof Parameter) {
+                        map.put(e.getLeft().getId(), (Register)e.getRight());
+                    }
+                    else {
+                        map.put(e.getRight().getId(), (Register)e.getLeft());
+                    }
+                case NOT_EQUALS:
+                    return;
+                default:
+                    throw new IllegalStateException("not implemented yet.");
+            }           
+        }
+        else if (expr instanceof Disjunction) {
+            Disjunction d = (Disjunction) expr;
+            // FIXME: picking the first is a heuristic!!!
+            for (GuardExpression e : d.getDisjuncts()) {
+                getEqualities(e, map);
+                return;
+            }
+        }
+        else if (expr instanceof TrueGuardExpression) {
+            return;
+        }
+        else {
+            throw new IllegalStateException("not implemented yet.");
+        }
+    }
 }

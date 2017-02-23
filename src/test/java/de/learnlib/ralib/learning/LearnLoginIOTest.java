@@ -81,8 +81,8 @@ public class LearnLoginIOTest {
 
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(
                 RegisterAutomatonLoaderTest.class.getResourceAsStream(
-                        "/de/learnlib/ralib/automata/xml/keygen.xml"));
-//                       "/de/learnlib/ralib/automata/xml/sip.xml"));
+                        "/de/learnlib/ralib/automata/xml/abp.receiver.xml"));
+//                       "/de/learnlib/ralib/automata/xml/login.xml"));
 
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
@@ -98,14 +98,14 @@ public class LearnLoginIOTest {
 
         final Constants consts = loader.getConstants();
 
-        long seed = -1386796323025681754L; 
+        long seed = -8337884369407515062L; 
         //long seed = (new Random()).nextLong();
         System.out.println("SEED=" + seed);
         final Random random = new Random(seed);
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
         for (final DataType t : loader.getDataTypes()) {
-            teachers.put(t, new EqualityTheoryMS<Integer>() {
+            teachers.put(t, new EqualityTheoryMS<Integer>(true) {
                 @Override
                 public DataValue getFreshValue(List<DataValue<Integer>> vals) {
                     //System.out.println("GENERATING FRESH: " + vals.size());
@@ -120,16 +120,27 @@ public class LearnLoginIOTest {
         }
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-
-        //SimulatorOracle oracle = new SimulatorOracle(model);
+        DataWordSUL sulCE = new SimulatorSUL(model, teachers, consts);
+        DataWordSUL sulEQ = new SimulatorSUL(model, teachers, consts);
+        DataWordSUL sulStats = new SimulatorSUL(model, teachers, consts);
         
+        //SimulatorOracle oracle = new SimulatorOracle(model);
+
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        
+        IOOracle ioOracleCE = new SULOracle(sulCE, ERROR);
+        IOCache ioCacheCE = new IOCache(ioOracleCE);
+        IOFilter ioFilterCE = new IOFilter(ioCacheCE, inputs);
 
-        for (Theory t : teachers.values()) {
-            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
-        }
+        IOOracle ioOracleStats = new SULOracle(sulStats, ERROR);
+        IOCache ioCacheStats = new IOCache(ioOracleStats);
+        IOFilter ioFilterStats = new IOFilter(ioCacheStats, inputs);
+        
+//        for (Theory t : teachers.values()) {
+//            ((EqualityTheoryMS)t).setFreshValues(true, ioCache);
+//        }
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts);
@@ -142,13 +153,15 @@ public class LearnLoginIOTest {
             }
         };
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-
+        RaStar rastar = new RaStar(teachers, mto, hypFactory, mlo, consts, true, actions);
+        rastar.setSulOracleCE(new MultiTheoryTreeOracle(ioFilterCE, teachers, consts));
+        rastar.setSulOracleStats(new MultiTheoryTreeOracle(ioFilterStats, teachers, consts));
+        
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
         
         IORandomWalk iowalk = new IORandomWalk(random,
-                sul,
+                sulEQ,
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
@@ -184,8 +197,8 @@ public class LearnLoginIOTest {
                 System.out.println("EQ-TEST did not find counterexample!");                
             }
 
-            DefaultQuery<PSymbolInstance, Boolean> ce = _ce;
-//                    iowalk.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = //_ce;
+                    iowalk.findCounterExample(hyp, null);
            
             System.out.println("CE: " + ce);
             if (ce == null) {
@@ -202,9 +215,8 @@ public class LearnLoginIOTest {
             
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());
-            
+                       
             rastar.addCounterexample(ce);
-
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
@@ -216,6 +228,18 @@ public class LearnLoginIOTest {
         System.out.println("IO-Oracle MQ: " + ioOracle.getQueryCount());
         System.out.println("SUL resets: " + sul.getResets());
         System.out.println("SUL inputs: " + sul.getInputs());
+
+        System.out.println("SUL EQ resets: " + sulEQ.getResets());
+        System.out.println("SUL EQ inputs: " + sulEQ.getInputs());        
+        
+        System.out.println("IO-Oracle CE: " + ioOracleCE.getQueryCount());
+        System.out.println("SUL resets: " + sulCE.getResets());
+        System.out.println("SUL inputs: " + sulCE.getInputs());
+
+        System.out.println("IO-Oracle Stats: " + ioOracleStats.getQueryCount());
+        System.out.println("SUL resets: " + sulStats.getResets());
+        System.out.println("SUL inputs: " + sulStats.getInputs());
+        
         System.out.println("Rounds: " + check);
         
     }

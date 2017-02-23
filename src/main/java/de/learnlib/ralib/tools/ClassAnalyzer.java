@@ -215,7 +215,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
         
-            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+            this.rastar = new RaStar(teachers, mto, hypFactory, mlo, consts, true, actions);
 
             if (findCounterexamples) {
 

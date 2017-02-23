@@ -26,6 +26,7 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.words.PSymbolInstance;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +68,8 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 
     @Override
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
-        List<Transition> tseq = getTransitions(word);
+        List<Transition> tseq = new ArrayList<>();
+        getTransitions(word, tseq);
         //System.out.println("TSEQ: " + tseq);
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);        

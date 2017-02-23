@@ -20,7 +20,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjuction;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
@@ -267,7 +267,7 @@ public class MultiTheoryBranching implements Branching {
                 gExpr.add(renameSuffixValues(g.toExpr()));
             }
             TransitionGuard tg = new TransitionGuard(
-                    new Conjuction(gExpr.toArray(
+                    new Conjunction(gExpr.toArray(
                                     new GuardExpression[]{})));
             assert tg != null;
 
