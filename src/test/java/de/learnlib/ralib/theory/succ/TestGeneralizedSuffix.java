@@ -33,6 +33,7 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.DataRelation;
+import static de.learnlib.ralib.theory.DataRelation.*;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
@@ -56,8 +57,105 @@ public class TestGeneralizedSuffix extends RaLibTestSuite{
 			return new SDT(children);
 		}
 	}
-
+	
     @Test
+    public void testModerateFreshTCPSymbolicSuffix2() {
+    	
+    	Double win = 1000.0;
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        DataValue<Double> inc = new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, 1.0);
+        DataValue [] sumConsts = new DataValue [] {
+				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, win)};
+        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(ModerateFreshTCPSUL.DOUBLE_TYPE,
+        		Arrays.asList(sumConsts), // for window size
+        		Collections.emptyList());
+        sumCTheory.setCheckForFreshOutputs(true);
+        teachers.put(ModerateFreshTCPSUL.DOUBLE_TYPE, 
+               sumCTheory);
+
+        ModerateFreshTCPSUL sul = new ModerateFreshTCPSUL(win);
+        sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
+        Constants consts = new Constants(new SumConstants(sumConsts));
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), ModerateFreshTCPSUL.ERROR, teachers, 
+                consts, jsolv, 
+                sul.getInputSymbols());
+        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
+        //I_IConnect[] O_IConnect[100001.0[DOUBLE]] I_ISYN[201002.0[DOUBLE], 302003.0[DOUBLE]] FALSE[] I_IACK[403004.0[DOUBLE], 302003.0[DOUBLE] + 1.0[DOUBLE]] 
+        final Word<PSymbolInstance> prefix = //Word.epsilon(); 
+        		Word.fromSymbols(
+                new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
+                		b.fv(100001.0)),
+                new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
+                		b.fv(201002.0),
+                		b.fv(302003.0))
+        				);
+        
+        
+        final Word<PSymbolInstance> longSuffix = Word.fromSymbols(
+                new PSymbolInstance(ModerateFreshTCPSUL.NOK),
+                new PSymbolInstance(ModerateFreshTCPSUL.IACK, 
+                		b.dv(100001.0),
+                		b.dv(100001.0)), 
+                new PSymbolInstance(ModerateFreshTCPSUL.NOK),
+                new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
+                		b.fv(201002.0),
+                		b.fv(302003.0)),
+                new PSymbolInstance(ModerateFreshTCPSUL.OK),
+                new PSymbolInstance(ModerateFreshTCPSUL.ISYNACK, 
+                		b.dv(201002.0),
+                		b.dv(100001.0)),
+                new PSymbolInstance(ModerateFreshTCPSUL.OK),
+                new PSymbolInstance(ModerateFreshTCPSUL.IACK, 
+                		b.dv(100001.0),
+                		b.dv(100001.0)), 
+                new PSymbolInstance(ModerateFreshTCPSUL.OK));
+        
+        EnumSet<DataRelation> na = EnumSet.noneOf(DataRelation.class);
+        EnumSet<DataRelation> [] prefRel = new EnumSet [] {
+        		EnumSet.noneOf(DataRelation.class),
+        		EnumSet.noneOf(DataRelation.class),//EnumSet.of(EQ_SUMC1),
+        		EnumSet.of(EQ, DEQ),
+        		EnumSet.noneOf(DataRelation.class),
+        		EnumSet.noneOf(DataRelation.class),//EnumSet.of(EQ),
+        		EnumSet.noneOf(DataRelation.class),//EnumSet.of(EQ_SUMC1, DEQ_SUMC1),
+        		EnumSet.noneOf(DataRelation.class),
+        		EnumSet.noneOf(DataRelation.class),
+        }; 
+        
+        EnumSet<DataRelation> [][] suffRel = new EnumSet [][]{
+        	new EnumSet []{},
+        	new EnumSet []{na},
+        	new EnumSet []{na, na},
+        	new EnumSet []{na, na, na},
+        	new EnumSet []{na, na, na, na},
+        	new EnumSet []{na, na, EnumSet.of(EQ_SUMC1), na, na},
+        	new EnumSet []{na, na, na, na, na, EnumSet.of(EQ)},
+        	new EnumSet []{na, EnumSet.of(EQ), na, na, EnumSet.of(EQ_SUMC1), na, na}
+        };
+        
+        // create a symbolic suffix from the concrete suffix
+        final GeneralizedSymbolicSuffix symSuffix =// GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers); 
+        		new GeneralizedSymbolicSuffix(DataWords.actsOf(longSuffix), prefRel, suffRel, null);
+        		//GeneralizedSymbolicSuffix.fullSuffix(prefix, longSuffix, consts, teachers);
+
+        
+        		//GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers);
+        System.out.println(symSuffix);
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+        
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
+        SymbolicDecisionTree sdt = res.getSdt();
+
+        System.out.println(sdt);
+        System.out.println("inputs: " + sul.getInputs() + " resets: " + sul.getResets());
+    }
+	
+//    @Test
     public void testModerateFreshTCPSymbolicSuffix() {
     	
     	Double win = 1000.0;
