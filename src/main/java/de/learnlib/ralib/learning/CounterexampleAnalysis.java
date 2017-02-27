@@ -175,12 +175,6 @@ public class CounterexampleAnalysis {
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, symSuffix.getActions());
         
-//        if(prefix.toString().equals("I_IConnect[] O_IConnect[100001.0[DOUBLE]] I_ISYN[100001.0[DOUBLE], 201002.0[DOUBLE]] TRUE[]")) {
-//	        gsuffix.getPrefixRelations(2).add(DataRelation.EQ_SUMC1);
-//	        gsuffix.getPrefixRelations(5).add(DataRelation.EQ);
-//        }
-        
-      //  gsuffix = symSuffix;
         // perform check, no extra inputs should be run, as all should be found in cache
         TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
         TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);
@@ -188,19 +182,24 @@ public class CounterexampleAnalysis {
                 newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
-        
+
+        System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
+        System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         if (! newHasCE) {
-        	System.out.println("CE not preserved by optimized suffix");
-        	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
-        	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
+           	System.out.println("CE not preserved by optimized suffix");
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
 
-        PIV pivSul = resSul.getPiv();
+        //PIV pivSul = resSul.getPiv();
+        //PIV pivHyp = c.getPrimeRow().getParsInVars();
+        //boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
+        //boolean hypRefinesTransition = 
+        //        hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
+        PIV pivSul = newResSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
         boolean hypRefinesTransition = 
-                hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
+                hypRefinesTransitions(location, act, newResSul.getSdt(), pivSul);
                
         return new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,

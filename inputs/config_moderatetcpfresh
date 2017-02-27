@@ -3,7 +3,6 @@ methods=IConnect()java.lang.Double:DOUBLE+\
   ISYN(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
   ISYNACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
   IACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean
-random.seed=-8614666413428793206
 config=win:1000.0
 solver=z3
 logging.level=WARNING
@@ -21,4 +20,5 @@ rwalk.reset.count=false
 rwalk.draw.uniform=false
 teachers=DOUBLE:de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory
 constants.sumc=[{"type":"DOUBLE","value":"1.0"},{"type":"DOUBLE","value":"1000.0"}]
-traces.words=I_IConnect()I_ISYN(0.0, 10000.0)I_ISYNACK(20000.0, 10001.0)I_IACK(20001.0, 10001.0)
+traces.words=I_IConnect()I_ISYN(100000.0, 200000.0)I_ISYNACK(200000.0, 100001.0)I_IACK(100001.0, 200001.0);\
+I_IConnect()I_ISYN(100000.0, 200000.0)I_ISYNACK(200000.0, 100001.0)I_IACK(100001.0, 200001.0)I_IConnect()I_ISYN(300000.0,400000.0)

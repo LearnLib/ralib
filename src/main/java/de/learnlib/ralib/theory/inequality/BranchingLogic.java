@@ -94,7 +94,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 		
 		ParamSignature signature = suffix.getParamSignature(pid);
-		//System.out.println(signature);
+		// an example on how to restrict ISYNACK
 		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
 			List<DataValue<T>> bValues = action.getBranchingValues();
 			bValues.removeIf(dv -> dv.equals(constants.getSumC(type, 1) ) );
@@ -105,9 +105,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 				break;
 				default: break;
 			}
-		} else {
-			System.out.println("restricted");
-		}
+		} 
 
 		return action;
 	}

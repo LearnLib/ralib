@@ -400,6 +400,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             SimpleProfiler.start(__SEARCH__);
             if (findCounterexamples) {
                 ce = this.randomWalk.findCounterExample(hyp, null);
+            } if (ce == null && traceTester != null) {
+            	ce = this.traceTester.findCounterExample(hyp, null);
             }
 
             SimpleProfiler.stop(__SEARCH__);

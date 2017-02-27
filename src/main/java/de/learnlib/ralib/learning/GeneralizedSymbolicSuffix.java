@@ -76,8 +76,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			this.suffixValues[idx++] = valgen.next(t);
 		}
 		this.prefixSources = prefixSources;
-
-		extendRelationsOfFirstSuffixAction();
 		// if( this.prefixRelations.length > 0) //&&
 		// prefixRelations[0].isEmpty()) {
 		// {

@@ -35,6 +35,8 @@ public class IOHypVerifier implements HypVerifier {
 				PSymbolInstance input = sulTrace.getSymbol(i);
 				PSymbolInstance output = hypSim.step(input);
 				if (!output.equals(sulTrace.getSymbol(i+1))) {
+					System.out.println("After " + sulTrace.prefix(i+1) + " the outputs are:\n" + 
+							"HYP: " + output + " SUT: " + sulTrace.getSymbol(i+1));
 					ret = true;
 					break;
 				}
