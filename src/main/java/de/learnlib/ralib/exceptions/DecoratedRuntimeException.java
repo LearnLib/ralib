@@ -28,7 +28,7 @@ public class DecoratedRuntimeException extends RuntimeException {
 	}
 	
 	// adds the surpressed exception.
-	public DecoratedRuntimeException addSurpressed(Exception exception) {
+	public DecoratedRuntimeException addSuppressedExc(Exception exception) {
 		this.addSuppressed(exception);
 		return this;
 	}

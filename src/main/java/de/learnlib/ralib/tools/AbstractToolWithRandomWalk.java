@@ -150,7 +150,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT
             = new ConfigurationOption.BooleanOption("use.suffixopt",
                     "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
-
+    
     protected static final ConfigurationOption.LongOption OPTION_TIMEOUT
             = new ConfigurationOption.LongOption("max.time.millis",
                     "Maximal run time for experiment in milliseconds", -1L, true);
@@ -158,6 +158,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_ROUNDS
             = new ConfigurationOption.IntegerOption("max.rounds",
                     "Maximum number of rounds", -1, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
+    = new ConfigurationOption.StringOption("traces.words",
+            "Test traces format: test1; test2; ...", null, false);
 
     protected static final ConfigurationOption.BooleanOption OPTION_RWALK_DRAW
             = new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
@@ -371,22 +375,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     		if (type.getName().compareTo(this.type) != 0) {
     			throw new RuntimeException("Type name mismatch");
     		}
-    		Class<T> cls = type.getBase();
-    		T realValue = null;
-    		if (Number.class.isAssignableFrom(cls)) {
-    			Object objVal;
-				try {
-					objVal = cls.getMethod("valueOf", String.class).invoke(cls, value);
-				
-					realValue = cls.cast(objVal);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-    		} else {
-    			throw new RuntimeException("Cannot deserialize constants of the class " + cls);
-    		}
+    		DataValue<T> dv = DataValue.valueOf(value, type);
     		
-    		return new DataValue<T>(type, realValue);
+    		return dv;
     	}
     }
     

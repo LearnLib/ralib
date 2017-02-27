@@ -2,7 +2,7 @@ package de.learnlib.ralib.sul.examples;
 
 public abstract class AbstractWindowProtocol {
 	private static Double DEFAULT_WIN = 1000.0;
-	private Double win;
+	Double win;
 	private Double gen = 0.0;
 
 	public AbstractWindowProtocol(Double windowSize) {

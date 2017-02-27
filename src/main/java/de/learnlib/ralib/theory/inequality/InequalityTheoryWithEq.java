@@ -392,7 +392,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// System.out.println("setting valuation, symDV: " +
 					// rsm.toVariable() + " dvright: " + dvRight);
 					smVal.setValue(toVariable(rsm), dvRight.getId());
-					DataValue<T> smcv = this.pickIntervalDVManually(null, dvRight);
+					DataValue<T> smcv = this.pickIntervalDataValue(null, dvRight);
 					// instantiate(sguard, smVal, constants, potential);
 					// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 					smValues.put(pId, smcv);
@@ -464,7 +464,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
 					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
-					DataValue<T> cv = this.pickIntervalDVManually(dvMLeft, dvMRight);
+					DataValue<T> cv = this.pickIntervalDataValue(dvMLeft, dvMRight);
 					// instantiate(intervalGuard, val, constants, potential);
 					// cv = new IntervalDataValue<T>(cv, dvMLeft, dvMRight);
 					currentValues.put(pId, cv);
@@ -850,7 +850,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 //				}
 
 				if (!useSolver) {
-					returnValue = this.pickIntervalDVManually(lExprVal, rExprVal);
+					returnValue = this.pickIntervalDataValue(lExprVal, rExprVal);
 				} else {
 					// we decorate it with interval information
 					returnValue = this.instantiator.instantiateGuard(guard, val, constants, alreadyUsedValues);
@@ -968,7 +968,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return returnValue;
 	}
 	
-	protected IntervalDataValue<T> pickIntervalDVManually(DataValue<T> left, DataValue<T> right) {
+	public IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right) {
 		return IntervalDataValue.instantiateNew(left, right, DataValue.ONE(this.getType()));
 	}
 	

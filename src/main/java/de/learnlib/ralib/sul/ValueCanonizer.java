@@ -96,7 +96,7 @@ public class ValueCanonizer {
 					addDecoration("method", (reverse?"de":"") + "canonize ").
 					addDecoration("processed value", dvs[i]).
 					addDecoration("state", this.buckets).
-					addSurpressed(exception);
+					addSuppressedExc(exception);
 			
 			throw exc;
 		}

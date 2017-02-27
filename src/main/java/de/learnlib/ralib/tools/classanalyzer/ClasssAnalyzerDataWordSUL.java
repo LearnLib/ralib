@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.tools.classanalyzer;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -42,11 +43,18 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     private final int maxDepth;
 
     private int depth = 0;
+    
+    private FieldConfig fieldConfigurator;
 
     public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
-        this.sulClass = sulClass;
+        this(sulClass, methods, d, null);
+    }
+    
+    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d, FieldConfig fieldConfiguration) {
+    	this.sulClass = sulClass;
         this.methods = methods;
         this.maxDepth = d;
+        this.fieldConfigurator = fieldConfiguration;
     }
 
     @Override
@@ -56,6 +64,8 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         depth = 0;
         try {
             sul = sulClass.newInstance();
+            this.fieldConfigurator.setFields(sul);
+            	
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new RuntimeException(ex);
         }

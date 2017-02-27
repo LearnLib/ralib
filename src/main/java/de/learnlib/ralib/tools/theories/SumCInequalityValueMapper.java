@@ -68,7 +68,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 				left = decanonize(interval.getLeft(), canToDecMap, constants);
 			if (interval.getRight() != null) 
 				right = decanonize(interval.getRight(), canToDecMap, constants);
-			return IntervalDataValue.instantiateNew(left, right);
+			return this.theory.pickIntervalDataValue(left, right);
 			
 		}
 		

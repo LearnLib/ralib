@@ -75,5 +75,13 @@ public class ParamSignature {
 		}
 		return dvs;
 	} 
+	
+	public String getActionName() {
+		return this.symbol.getName();
+	}
+	
+	public int getParamIndex() {
+		return this.index;
+	}
 
 }

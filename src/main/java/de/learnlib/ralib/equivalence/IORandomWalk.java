@@ -23,6 +23,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -128,31 +129,35 @@ public class IORandomWalk implements IOEquivalenceOracle {
         target.pre();
         Word<PSymbolInstance> run = Word.epsilon();
         PSymbolInstance out;
-        do {
-            PSymbolInstance next = nextInput(run);
-            depth++;
-            out = null;
-            run = run.append(next);
-            out = target.step(next);
-            run = run.append(out);
-
-            if (this.hypVerifier.isCEForHyp(run, hyp)) {
-                log.log(Level.FINE, "Run with CE: {0}", run);     
-                System.out.format("Run with CE: {0}", run);
-                hyp.accepts(run);
-                target.post();
-                target.pre();
-                for (int i = 0; i < run.size(); i +=2) {
-                	out = target.step(run.getSymbol(i));
-                }
-                target.post();
-                
-                return run;
-            }
-            RALocation location = hyp.getLocation(run);
-
-        } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
-                !out.getBaseSymbol().equals(error));
+        try {
+	        do {
+	            PSymbolInstance next = nextInput(run);
+	            depth++;
+	            out = null;
+	            run = run.append(next);
+	            out = target.step(next);
+	            run = run.append(out);
+	
+	            if (this.hypVerifier.isCEForHyp(run, hyp)) {
+	                log.log(Level.FINE, "Run with CE: {0}", run);     
+	                System.out.format("Run with CE: {0}", run);
+	                hyp.accepts(run);
+	                target.post();
+	                target.pre();
+	                for (int i = 0; i < run.size(); i +=2) {
+	                	out = target.step(run.getSymbol(i));
+	                }
+	                target.post();
+	                
+	                return run;
+	            }
+	            RALocation location = hyp.getLocation(run);
+	
+	        } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
+	                !out.getBaseSymbol().equals(error));
+        } catch(DecoratedRuntimeException exc) {
+        	throw exc.addDecoration("run", run);
+        }
 //        System.out.println(run);
         log.log(Level.FINE, "Run /wo CE: {0}", run);
         target.post();

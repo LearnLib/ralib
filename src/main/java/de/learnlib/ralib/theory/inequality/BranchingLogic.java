@@ -36,6 +36,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 	public BranchingContext<T> computeBranchingContext(int pid, List<DataValue<T>> potential,
 			Word<PSymbolInstance> prefix, Constants constants, SuffixValuation suffixValues,
 			GeneralizedSymbolicSuffix suffix) {
+		
 		EnumSet<DataRelation> suffixRel = suffix.getSuffixRelations(pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
 		Set<ParamSignature> prefixSource = suffix.getPrefixSources(pid);
@@ -91,6 +92,22 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
+		
+		ParamSignature signature = suffix.getParamSignature(pid);
+		//System.out.println(signature);
+		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
+			List<DataValue<T>> bValues = action.getBranchingValues();
+			bValues.removeIf(dv -> dv.equals(constants.getSumC(type, 1) ) );
+			BranchingStrategy strategy = action.getStrategy();
+			switch(strategy) {
+			case FULL:
+				strategy=BranchingStrategy.IF_EQU_ELSE;
+				break;
+				default: break;
+			}
+		} else {
+			System.out.println("restricted");
+		}
 
 		return action;
 	}
@@ -165,7 +182,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 
 		public BranchingContext(BranchingStrategy strategy) {
 			this.strategy = strategy;
-			this.branchingValues = null;
+			this.branchingValues = Collections.emptyList();
 		}
 
 		public BranchingContext(BranchingStrategy strategy, DataValue<T> potValue) {

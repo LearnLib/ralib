@@ -49,6 +49,43 @@ public class DataValue<T> {
     	return new DataValue<P>(type, cast(val, type));
     }
     
+    public static <P> DataValue<P> valueOf(String strVal, DataType<P> type) {
+    	Class<P> cls = type.getBase();
+		P realValue = null;
+		if (Number.class.isAssignableFrom(cls)) {
+			Object objVal;
+			try {
+				objVal = cls.getMethod("valueOf", String.class).invoke(cls, strVal);
+			
+				realValue = cls.cast(objVal);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			throw new RuntimeException("Cannot deserialize values of the class " + cls);
+		}
+    	
+		return new DataValue<>(type, realValue);
+    }
+    
+    public static <P> P valueOf(String strVal, Class<P> cls) {
+		P realValue = null;
+		if (Number.class.isAssignableFrom(cls)) {
+			Object objVal;
+			try {
+				objVal = cls.getMethod("valueOf", String.class).invoke(cls, strVal);
+			
+				realValue = cls.cast(objVal);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			throw new RuntimeException("Cannot deserialize values of the class " + cls);
+		}
+    	
+		return realValue;
+    }
+    
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;

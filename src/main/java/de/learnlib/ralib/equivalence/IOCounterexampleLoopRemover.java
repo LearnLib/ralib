@@ -118,7 +118,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
                 if (verifier.isCEForHyp(candidate, this.hypothesis)) {
-                    return removeLoops(candidate, hyp);
+                    return removeLoops(shorter, hyp);
                 }
             }
         }

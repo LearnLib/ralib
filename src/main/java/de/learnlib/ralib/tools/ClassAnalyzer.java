@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -44,6 +45,7 @@ import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -66,6 +68,7 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.ClasssAnalyzerDataWordSUL;
+import de.learnlib.ralib.tools.classanalyzer.FieldConfig;
 import de.learnlib.ralib.tools.classanalyzer.MethodConfig;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.config.Configuration;
@@ -86,6 +89,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private static final ConfigurationOption.StringOption OPTION_TARGET
             = new ConfigurationOption.StringOption("target",
                     "traget class name", null, false);
+    
+    private static final ConfigurationOption.StringOption OPTION_CONFIG
+    = new ConfigurationOption.StringOption("config",
+            "sets class fields to given values after instantiation, format: field:value[;field:value]* ", null, true);
 
     private static final ConfigurationOption.StringOption OPTION_METHODS
             = new ConfigurationOption.StringOption("methods",
@@ -163,6 +170,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
 	private IOCounterExampleSingleTransitionRemover ceOptSTR;
 
+	private TracesEquivalenceOracle traceTester;
+
     @Override
     public String description() {
         return "analyzes Java classes";
@@ -229,13 +238,20 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             // create teachers
             this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
 
-            this.sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            FieldConfig fieldConfig = null;
+            String fieldConfigString = OPTION_CONFIG.parse(config);
+            if (fieldConfigString != null) {
+            	String[] fieldConfigSplit = fieldConfigString.replaceAll("\\s", "").split("\\;");
+            	fieldConfig = new FieldConfig(target, fieldConfigSplit);
+            }
+            
+            this.sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md, fieldConfig);
             this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
             
-            this.sulCeAnalysis = new ClasssAnalyzerDataWordSUL(target, methods, md); 
+            this.sulCeAnalysis = new ClasssAnalyzerDataWordSUL(target, methods, md, fieldConfig); 
             this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
             
-            this.sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            this.sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md, fieldConfig);
             this.sulTest = setupDataWordOracle(sulTest, teachers, consts, useFresh, timeoutMillis);
             
             IOCache ioCache = setupCache(config, IOCacheManager.JAVA_SERIALIZE);
@@ -296,6 +312,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         inputSymbols);
 
                 this.randomWalk.setError(SpecialSymbols.ERROR);
+                String ver = OPTION_TEST_TRACES.parse(config);
+                if (ver != null) {
+                	List<String> tests = Arrays.stream(ver.split(";")).collect(Collectors.toList());
+                	traceTester = new TracesEquivalenceOracle(sulTest, teachers, consts, tests, actList);
+                }
             }
             
 
@@ -428,6 +449,12 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         if (useCeOptimizers) {
             System.out.println("ce lengths (shortend): "
                     + Arrays.toString(ceLengthsShortened.toArray()));
+        }
+        if (this.traceTester != null) {
+        	DefaultQuery<PSymbolInstance, Boolean> ce = this.traceTester.findCounterExample(hyp, null);
+        	if (ce != null) {
+        		System.out.println("Learned model is incorrect " + ce);
+        	}
         }
 
         // model
