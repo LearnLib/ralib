@@ -283,137 +283,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return map;
     }
 
-    /**
-     * Relabeles  sdts so that registers appearing in equality expressions are replaced by the suffixes to which
-     * they bound in the context of these expressions. 
-     */
-    private SDT relabelPrefixesWithSuffixes(SDT sutSdt) {
-    	if (sutSdt instanceof SDTLeaf)
-    		return sutSdt;
-    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
-    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
-    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
-    		SDTGuard guard = entry.getKey();
-    		SDT sdt = entry.getValue();
-    		if (guard instanceof EqualityGuard) {
-    			EqualityGuard equGuard = (EqualityGuard) guard;
-    			SymbolicDataValue reg = equGuard.getRegister();
-    			if (equGuard.isEqualityWithSDV() && (reg.isRegister() || reg.isConstant())) {
-    				VarMapping<SymbolicDataValue, SymbolicDataValue> mapping = new VarMapping<>();
-    				mapping.put(reg, equGuard.getParameter());
-    				sdt = (SDT) sdt.relabel(mapping);
-    			} 
-    		}
-    		SDT relabeledSdt = relabelPrefixesWithSuffixes(sdt);
-    		newChildren.put(guard, relabeledSdt);
-    	}
-    	return new SDT(newChildren);
-    }
-    
-    private SDT replaceSuffixesWithPrefixes(SDT sutSdt) {
-    	if (sutSdt instanceof SDTLeaf)
-    		return sutSdt;
-    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
-    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
-    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
-    		SDTGuard guard = entry.getKey();
-    		SDT sdt = entry.getValue();
-    		if (guard instanceof EqualityGuard) {
-    			EqualityGuard equGuard = (EqualityGuard) guard;
-    			SymbolicDataValue reg = equGuard.getRegister();
-    			if (reg.isRegister() || reg.isConstant()) {
-    				Replacement repl = new Replacement();
-    				repl.put(equGuard.getParameter(), equGuard.getExpression());
-    				sdt = (SDT) sdt.replace(repl);
-    			} 
-    		}
-    		SDT relabeledSdt = replaceSuffixesWithPrefixes(sdt);
-    		newChildren.put(guard, relabeledSdt);
-    	}
-    	return new SDT(newChildren);
-    }
-    
-    public GeneralizedSymbolicSuffix suffixForCounterexample2(
-            Word<PSymbolInstance> prefix, SymbolicDecisionTree hypSdt, PIV hypPiv, 
-            SymbolicDecisionTree sutSdt, PIV sutPiv, 
-            TransitionGuard guard, Word<ParameterizedSymbol> actions) {
-
-        log.log(Level.FINEST,"suffixForCounterexample ------------------------------");
-        log.log(Level.FINEST,"Prefix: " + prefix);
-        log.log(Level.FINEST,"Guard: " + guard);
-        log.log(Level.FINEST,"Actions: " + actions);
-        log.log(Level.FINEST,"PIV1: " + hypPiv);
-        log.log(Level.FINEST,"SDT1: " + hypSdt);
-        log.log(Level.FINEST,"PIV2: " + sutPiv);
-        log.log(Level.FINEST,"SDT2: " + sutSdt);        
-        log.log(Level.FINEST,"------------------------------------------------------");        
-        
-        SDT _sdt1 = (SDT) hypSdt;
-        SDT _sdt2 = (SDT) sutSdt;
-        
-        // get all the paths
-        List<Conjunction> expr1_T = _sdt1.getPathsAsExpressions(consts, true);
-        List<Conjunction> expr2_T = _sdt2.getPathsAsExpressions(consts, true);                
-        List<Conjunction> expr1_F = _sdt1.getPathsAsExpressions(consts, false);
-        List<Conjunction> expr2_F = _sdt2.getPathsAsExpressions(consts, false); 
-      
-        // get guard and relabel ...
-        GuardExpression exprG = guard.getCondition();
-        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
-                new VarMapping<>();
-        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
-            if (sv instanceof Parameter) {
-                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
-            }
-        }
-        exprG = exprG.relabel(gremap);
-        
-        // remapping between sdts
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-                createRemapping(sutPiv, hypPiv);
-        
-        // find disagreeing paths in the two sdts which are satisfiable under conjunction 
-        // (one path refines the other)
-        for (Conjunction e1 : expr1_T) {
-            if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
-                continue;
-            }            
-//            if (expr2_F.isEmpty()) {
-//                // found counterexample slice
-//                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
-//                Arrays.fill(e2r, TrueGuardExpression.TRUE);
-//                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
-//            }
-            for (Conjunction e2 : expr2_F) {
-                Conjunction e2r = e2.relabel(remap);
-                if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
-                    // found counterexample slice
-                    return counterExampleFromSlice(e1, e2r, actions);
-                }
-            }            
-        }
-        
-        for (Conjunction e1 : expr1_F) {
-            if (!solver.isSatisfiable(new Conjunction(exprG, e1))) {
-                continue;
-            }            
-//            if (expr2_T.isEmpty()) {
-//                // found counterexample slice
-//                GuardExpression[] e2r = new GuardExpression[e1.getConjuncts().length];
-//                Arrays.fill(e2r, TrueGuardExpression.TRUE);
-//                return counterExampleFromSlice(e1, new Conjunction(e2r), actions);
-//            }
-            for (Conjunction e2 : expr2_T) {
-                Conjunction e2r = e2.relabel(remap);
-                if (solver.isSatisfiable(new Conjunction(exprG, e1, e2r))) {
-                    // found counterexample slice
-                    return counterExampleFromSlice(e1, e2r, actions);
-                }
-            }              
-        }
-               
-        throw new IllegalStateException("Could not find CE slice");
-    }
     
     // sdt1 is hyp, sdt2 is sut 
     public GeneralizedSymbolicSuffix suffixForCounterexample(
@@ -443,9 +312,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         Map<SymbolicDataValue, ParamSignature> prefixMap = this.computePrefixSourceMap(prefix, piv);
         
 
-       // _sdt1 = replaceSuffixesWithPrefixes(_sdt1); 
+        //_sdt1 = replaceSuffixesWithPrefixes(_sdt1); 
         //_sdt2r = replaceSuffixesWithPrefixes(_sdt2r);
-        //System.out.println(_sdt2r);
         
         // get all the paths
         List<List<SDTGuard>> expr1_T = _sdt1.getPaths(Collections.emptyList(), true);
@@ -582,6 +450,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 // equivalent - use both or does not matter?
             	usedAtoms = atoms1;
                 
+			// seems to preserve succint-ness
 			usedAtoms = getBranchingAtomsAtLevel(i, sdt1, sdt2);
             prels[i] = prefixRelations(usedAtoms);
             suffixRelations(srels[i], usedAtoms);
@@ -594,14 +463,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         System.out.println("New suffix: " + suffix);
         
         return suffix;
-    }
-    
-    private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path,  SDT sdt) {
-    	Set<SDTGuard> pathBranching = sdt.getBranchingAtPath(path);
-    	List<SDTGuard> guards = new ArrayList<>(pathBranching);
-    	Conjunction falsePath = SDT.toPathExpression(guards);
-    	Collection<AtomicGuardExpression> allAtoms = falsePath.getAtoms();
-    	return allAtoms;
     }
     
     private Collection<AtomicGuardExpression> getBranchingAtomsAtLevel(int level,  SDT sdt, SDT sdt2) {
@@ -626,85 +487,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     	}
     }
     
-    private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path1, List<SDTGuard> path2,  SDT sdt1, SDT sdt2) {
-    	Set<SDTGuard> path1Branching = sdt1.getBranchingAtPath(path1);
-    	List<SDTGuard> guards = new ArrayList<>(path1Branching);
-    	Set<SDTGuard> path2Branching = sdt2.getBranchingAtPath(path2);
-    	guards.addAll(path2Branching);
-    	Conjunction falsePath = SDT.toPathExpression(guards);
-    	Collection<AtomicGuardExpression> allAtoms = falsePath.getAtoms();
-    	return allAtoms;
-    	
-    }
-
-    private GeneralizedSymbolicSuffix counterExampleFromSlice(
-            Conjunction e1, Conjunction e2, Word<ParameterizedSymbol> actions) {
-        
-        System.out.println("-----------------------------------------------");  
-        System.out.println("Actions: " + actions);
-        System.out.println("Path 1: " + e1);
-        System.out.println("Path 2: " + e2);      
-    
-        EnumSet<DataRelation>[] prels = new EnumSet[e1.getConjuncts().length];
-        EnumSet<DataRelation>[][] srels = new EnumSet[e1.getConjuncts().length][];
-        
-        int idx = 0;
-        int base = 0;
-        
-        for (int i=0; i< e1.getConjuncts().length; i++) {
-            
-            while (i >= base + actions.getSymbol(idx).getArity()) {
-                base += actions.getSymbol(idx).getArity();
-                idx++;
-            }
-            ParameterizedSymbol ps = actions.getSymbol(idx);
-            
-            GuardExpression c1 = e1.getConjuncts()[i];
-            GuardExpression c2 = e2.getConjuncts()[i];
-
-            Collection<AtomicGuardExpression> atoms1 = c1.getAtoms();
-            Collection<AtomicGuardExpression> atoms2 = c2.getAtoms();     
-            
-            srels[i] = new EnumSet[i];
-            
-//            prels[i] = prefixRelations(allAtoms);
-//            if (ps instanceof OutputSymbol) {
-//                prels[i].add(DataRelation.DEFAULT);
-//                prels[i].add(DataRelation.EQ);
-//            }
-//            suffixRelations(srels[i], allAtoms);
-            if (implies(c1, c2) && !implies(c2, c1)) {
-                // use c1                
-                prels[i] = prefixRelations(atoms1);
-                suffixRelations(srels[i], atoms1);
-            } 
-            else if (!implies(c1, c2) && implies(c2, c1)) {
-                // use c2
-                prels[i] = prefixRelations(atoms2);
-                suffixRelations(srels[i], atoms2);
-            }
-            else  if (!implies(c1, c2) && !implies(c2, c1)) { 
-                Collection<AtomicGuardExpression> allAtoms = new HashSet<AtomicGuardExpression>(atoms1);
-                allAtoms.addAll(atoms2);
-            	// use both
-               // prels[i] = EnumSet.of(DataRelation.ALL);
-                prels[i] = prefixRelations(allAtoms);
-                suffixRelations(srels[i], allAtoms);
-            } else {
-                // equivalent - use both or does not matter?
-                prels[i] = prefixRelations(atoms1);
-                suffixRelations(srels[i], atoms1);           
-            }
-        }
-        prels[0] = EnumSet.of(DataRelation.ALL);
-        GeneralizedSymbolicSuffix suffix = 
-                new GeneralizedSymbolicSuffix(actions, prels, srels);
-        
-        System.out.println("New suffix: " + suffix);
-        
-        return suffix;
-    }
-
     private boolean implies(GuardExpression left, GuardExpression right) {
         return !solver.isSatisfiable(new Conjunction(left, new Negation(right)));
     }
@@ -817,4 +599,68 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 		return index;
     }
     
+    
+    
+    
+    /* METHODS that could be used (if not, should be removed)
+     */
+
+    private Collection<AtomicGuardExpression> getBranchingAtomsAtPath(List<SDTGuard> path,  SDT sdt) {
+    	Set<SDTGuard> pathBranching = sdt.getBranchingAtPath(path);
+    	List<SDTGuard> guards = new ArrayList<>(pathBranching);
+    	Conjunction falsePath = SDT.toPathExpression(guards);
+    	Collection<AtomicGuardExpression> allAtoms = falsePath.getAtoms();
+    	return allAtoms;
+    }
+    
+
+    /**
+     * Relabeles  sdts so that registers appearing in equality expressions are replaced by the suffixes to which
+     * they bound in the context of these expressions. 
+     */
+    private SDT relabelPrefixesWithSuffixes(SDT sutSdt) {
+    	if (sutSdt instanceof SDTLeaf)
+    		return sutSdt;
+    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
+    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
+    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
+    		SDTGuard guard = entry.getKey();
+    		SDT sdt = entry.getValue();
+    		if (guard instanceof EqualityGuard) {
+    			EqualityGuard equGuard = (EqualityGuard) guard;
+    			SymbolicDataValue reg = equGuard.getRegister();
+    			if (equGuard.isEqualityWithSDV() && (reg.isRegister() || reg.isConstant())) {
+    				VarMapping<SymbolicDataValue, SymbolicDataValue> mapping = new VarMapping<>();
+    				mapping.put(reg, equGuard.getParameter());
+    				sdt = (SDT) sdt.relabel(mapping);
+    			} 
+    		}
+    		SDT relabeledSdt = relabelPrefixesWithSuffixes(sdt);
+    		newChildren.put(guard, relabeledSdt);
+    	}
+    	return new SDT(newChildren);
+    }
+    
+    private SDT replaceSuffixesWithPrefixes(SDT sutSdt) {
+    	if (sutSdt instanceof SDTLeaf)
+    		return sutSdt;
+    	Map<SDTGuard, SDT> children = sutSdt.getChildren();
+    	Map<SDTGuard, SDT> newChildren = new LinkedHashMap<SDTGuard, SDT>();
+    	for (Map.Entry<SDTGuard, SDT> entry : children.entrySet()) {
+    		SDTGuard guard = entry.getKey();
+    		SDT sdt = entry.getValue();
+    		if (guard instanceof EqualityGuard) {
+    			EqualityGuard equGuard = (EqualityGuard) guard;
+    			SymbolicDataValue reg = equGuard.getRegister();
+    			if (reg.isRegister() || reg.isConstant()) {
+    				Replacement repl = new Replacement();
+    				repl.put(equGuard.getParameter(), equGuard.getExpression());
+    				sdt = (SDT) sdt.replace(repl);
+    			} 
+    		}
+    		SDT relabeledSdt = replaceSuffixesWithPrefixes(sdt);
+    		newChildren.put(guard, relabeledSdt);
+    	}
+    	return new SDT(newChildren);
+    }
 }

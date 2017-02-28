@@ -190,11 +190,6 @@ public class CounterexampleAnalysis {
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
 
-        //PIV pivSul = resSul.getPiv();
-        //PIV pivHyp = c.getPrimeRow().getParsInVars();
-        //boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
-        //boolean hypRefinesTransition = 
-        //        hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         PIV pivSul = newResSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
