@@ -1,33 +1,5 @@
-/*
- * Copyright (C) 2014-2015 The LearnLib Contributors
- * This file is part of LearnLib, http://www.learnlib.de/.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -39,51 +11,44 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import de.learnlib.logging.LearnLogger;
+import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
+import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
-/**
- *
- * @author falk
- */
-public class IORandomWalk implements IOEquivalenceOracle {
+public class IORWalkFromState implements IOEquivalenceOracle{
+	
+	private IOHypVerifier hypVerifier;
+	private DataWordSUL target;
+	private Random rand;
+	private boolean resetRuns;
+	private ParameterizedSymbol[] inputs;
+	private boolean uniform;
+	private double resetProbability;
+	private long maxRuns;
+	private Constants constants;
+	private int maxDepth;
+	private Map<DataType, Theory> teachers;
+	private double newDataProbability;
+	private AccessSequenceProvider accSeqProvider;
+	private RegisterAutomaton hyp;
+	private int runs;
+	private ParameterizedSymbol error;
+	private static LearnLogger log = LearnLogger.getLogger(IORWalkFromState.class);
 
-    private final Random rand;
-    private RegisterAutomaton hyp;
-    private final DataWordSUL target;
-    private final ParameterizedSymbol[] inputs;
-    private final boolean uniform;
-    private final double resetProbability;
-    private final double newDataProbability;
-    private final long maxRuns;
-    private final boolean resetRuns;
-    private long runs;
-    private final int maxDepth;
-    private final Constants constants;
-    private final Map<DataType, Theory> teachers;
-    
-    private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
-
-    private ParameterizedSymbol error = null;
-	private HypVerifier hypVerifier;
-    
-    /**
-     * creates an IO random walk
-     * 
-     * @param rand Random 
-     * @param target SUL
-     * @param uniform draw from inputs uniformly or according to possible concrete instances
-     * @param resetProbability prob. to reset after each step
-     * @param newDataProbability prob. for using a fresh data value
-     * @param maxRuns max. number of runs
-     * @param maxDepth max length of a run
-     * @param constants constants
-     * @param resetRuns reset runs every time findCounterExample is called
-     * @param teachers teachers for creating fresh data values
-     * @param inputs inputs
-     */
-    public IORandomWalk(Random rand, DataWordSUL target, boolean uniform,
+	public IORWalkFromState(Random rand, DataWordSUL target, boolean uniform,
             double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants,
-            boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
+            boolean resetRuns, Map<DataType, Theory> teachers, AccessSequenceProvider accessSequenceProvider, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
         this.rand = rand;
@@ -97,6 +62,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         this.maxDepth = maxDepth;
         this.teachers = teachers;
         this.newDataProbability = newDataProbability;
+        this.accSeqProvider = accessSequenceProvider;
     }
 
     @Override
@@ -108,7 +74,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         }
         
         this.hyp = a;
-        // reset the counter for number of runs?
+		// reset the counter for number of runs?
         if (resetRuns) {
             runs = 0;
         }
@@ -128,6 +94,17 @@ public class IORandomWalk implements IOEquivalenceOracle {
         target.pre();
         Word<PSymbolInstance> run = Word.epsilon();
         PSymbolInstance out;
+        Word<PSymbolInstance> accessSequence = pickRandomAccessSequence(this.hyp, this.accSeqProvider, this.rand);
+        for (int i=0; i < accessSequence.length(); i=i+2) {
+        	PSymbolInstance next = accessSequence.getSymbol(i);
+        	run = run.append(next);
+        	out = target.step(next);
+        	run =run.append(out);
+        	if (this.hypVerifier.isCEForHyp(run, hyp)) 
+        		throw new DecoratedRuntimeException("An access sequence should never yield a CE")
+        		.addDecoration("access sequence", accessSequence).addDecoration("ce run", run);
+        } 
+        	
         try {
 	        do {
 	            PSymbolInstance next = nextInput(run);
@@ -161,6 +138,13 @@ public class IORandomWalk implements IOEquivalenceOracle {
         return null;
     }
     
+    private Word<PSymbolInstance> pickRandomAccessSequence(RegisterAutomaton hyp, AccessSequenceProvider accSeqProvider, Random rand) {
+        Collection<RALocation> locations = hyp.getInputStates();
+        RALocation randLocation = new ArrayList<>(locations).get(this.rand.nextInt(locations.size()));
+        Word<PSymbolInstance> randAccSeq = this.accSeqProvider.getAccessSequence(hyp, randLocation);
+        return randAccSeq;
+    }
+     
     public void setError(ParameterizedSymbol error) {
         this.error = error;
     }
@@ -190,7 +174,8 @@ public class IORandomWalk implements IOEquivalenceOracle {
             }
             
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
-            if (!oldSet.isEmpty() && rand.nextBoolean()) {
+            boolean drawFromReg = rand.nextBoolean();
+            if (!oldSet.isEmpty() && drawFromReg) {
             	List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream()
             			.filter(reg -> reg.getType().equals(t))
             			.map(dv -> (DataValue<Object>) dv)

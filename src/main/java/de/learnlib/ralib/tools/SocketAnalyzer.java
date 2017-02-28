@@ -17,7 +17,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -92,7 +92,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 
 	private RaStar rastar;
 
-	private IOCounterexampleLoopRemover ceOptLoops;
+	private IOCounterExampleLoopRemover ceOptLoops;
 
 	private IOCounterExamplePrefixReplacer ceOptAsrep;
 
@@ -251,7 +251,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 				this.randomWalk.setError(SpecialSymbols.ERROR);
 			}
 
-			this.ceOptLoops = new IOCounterexampleLoopRemover(back, this.hypVerifier);
+			this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);
 			this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);
 			this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
 

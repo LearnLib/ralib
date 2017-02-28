@@ -42,8 +42,10 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.AccessSequenceProvider;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
+import de.learnlib.ralib.equivalence.IORWalkFromState;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -113,7 +115,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     protected static final ConfigurationOption.BooleanOption OPTION_CACHE_TESTS
     = new ConfigurationOption.BooleanOption("cache.tests",
             "Also cache tests", false, true);
-    
+
     private static final ConfigurationOption<?>[] OPTIONS = new ConfigurationOption[]{
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
@@ -134,22 +136,24 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
         OPTION_OUTPUT_NULL,
-        OPTION_OUTPUT_ERROR
+        OPTION_OUTPUT_ERROR,
     };
 
     private DataWordSUL sulLearn;
 
     private DataWordSUL sulTest;
 
-    private IORandomWalk randomWalk = null;
+    private IORWalkFromState randomWalk = null;
 
     private RaStar rastar;
 
-    private IOCounterexampleLoopRemover ceOptLoops;
+    private IOCounterExampleLoopRemover ceOptLoops;
 
     private IOCounterExamplePrefixReplacer ceOptAsrep;
 
     private IOCounterExamplePrefixFinder ceOptPref;
+
+	private IOCounterExampleSingleTransitionRemover ceOptSTR;
 
     private IOOracle sulTraceOracle;
 
@@ -167,8 +171,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 	private IOHypVerifier hypVerifier;
 
 	private DataWordSUL sulCeAnalysis;
-
-	private IOCounterExampleSingleTransitionRemover ceOptSTR;
 
 	private TracesEquivalenceOracle traceTester;
 
@@ -299,7 +301,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
                 boolean resetRuns = OPTION_RWALK_RESET.parse(config);
 
-                this.randomWalk = new IORandomWalk(random,
+                this.randomWalk = new IORWalkFromState(random,
                         sulTest,
                         drawUniformly, // do not draw symbols uniformly 
                         resetProbabilty, // reset probability 
@@ -309,7 +311,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         consts,
                         resetRuns, // reset runs 
                         teachers,
-                        inputSymbols);
+                        new AccessSequenceProvider.HypAccessSequenceProvider(), inputSymbols);
 
                 this.randomWalk.setError(SpecialSymbols.ERROR);
                 String ver = OPTION_TEST_TRACES.parse(config);
@@ -320,7 +322,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             }
             
 
-            this.ceOptLoops = new IOCounterexampleLoopRemover(sulTraceOracle, this.hypVerifier);
+            this.ceOptLoops = new IOCounterExampleLoopRemover(sulTraceOracle, this.hypVerifier);
             this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulTraceOracle, this.hypVerifier);
             this.ceOptPref = new IOCounterExamplePrefixFinder(sulTraceOracle, this.hypVerifier);
             this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulTraceOracle, this.hypVerifier);
@@ -400,8 +402,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             SimpleProfiler.start(__SEARCH__);
             if (findCounterexamples) {
                 ce = this.randomWalk.findCounterExample(hyp, null);
-            } if (ce == null && traceTester != null) {
-            	ce = this.traceTester.findCounterExample(hyp, null);
+                if (ce == null && traceTester != null) {
+                	ce = this.traceTester.findCounterExample(hyp, null);
+                }
             }
 
             SimpleProfiler.stop(__SEARCH__);

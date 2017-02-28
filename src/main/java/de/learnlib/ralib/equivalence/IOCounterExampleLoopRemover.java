@@ -52,7 +52,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
+public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
 
     private static class Loop {
 
@@ -73,7 +73,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
     private RegisterAutomaton hypothesis;
 	private HypVerifier verifier;
 
-    public IOCounterexampleLoopRemover(IOOracle sulOracle, HypVerifier verifier) {
+    public IOCounterExampleLoopRemover(IOOracle sulOracle, HypVerifier verifier) {
         this.sulOracle = sulOracle;
         this.verifier = verifier;
     }

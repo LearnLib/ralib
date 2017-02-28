@@ -34,7 +34,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
@@ -110,7 +110,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private RaStar rastar;
 
-    private IOCounterexampleLoopRemover ceOptLoops;
+    private IOCounterExampleLoopRemover ceOptLoops;
     
     private IOCounterExamplePrefixReplacer ceOptAsrep;                      
     
@@ -226,7 +226,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             
         }
           
-        this.ceOptLoops = new IOCounterexampleLoopRemover(back, this.hypVerifier);
+        this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);
         this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);                        
         this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
     }

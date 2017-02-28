@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -30,7 +31,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	// in increasing order, starting from 0.
 	private static int freshFactor = 100; 
 	
-	private List<DataValue<Double>> sumConstants;
+	private List<DataValue<Double>> sortedSumConsts;
 	private List<DataValue<Double>> regularConstants;
 
 	// fresh step
@@ -56,10 +57,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	
 	private void setConstants (List<DataValue<Double>> sumConstants,
 			List<DataValue<Double>> regularConstants) {
-		this.sumConstants = sumConstants;
+		this.sortedSumConsts = new ArrayList<>(sumConstants);
+		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		DataValue<Double> maxSumC = this.sumConstants.isEmpty() ? DataValue.ZERO(this.getType())
-				: Collections.max(this.sumConstants, new Cpr());
+		DataValue<Double> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ZERO(this.getType())
+				: this.sortedSumConsts.get(this.sortedSumConsts.size()-1);
 		this.freshStep = maxSumC.getId() * freshFactor;
 		this.smBgStep = new DataValue<Double>(type, maxSumC.getId() * smBgFactor);
 	}
@@ -87,7 +89,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 				dvs.stream().filter(dv -> !regularConstants.contains(dv));
 		Stream<DataValue<Double>> valAndSums = dvWithoutConsts
 				.map(val -> Stream.concat(Stream.of(val), 
-					sumConstants.stream()
+					sortedSumConsts.stream()
 						.map(sum -> new SumCDataValue<Double>(val, sum))
 						.filter(sumc -> !dvs.contains(sumc)))
 				).flatMap(s -> s).distinct()
@@ -139,7 +141,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	}
 
 	public ValueMapper<Double> getValueMapper() {
-		return new SumCInequalityValueMapper<Double>(this, this.sumConstants);
+		return new SumCInequalityValueMapper<Double>(this, this.sortedSumConsts);
 	}
 
 	public Collection<DataValue<Double>> getAllNextValues(List<DataValue<Double>> vals) {
@@ -156,9 +158,9 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 		LOOP: 
 			for (DataValue<Double> dv : left) {
 				EnumSet<DataRelation> rels = EnumSet.noneOf(DataRelation.class);
-				if (!this.sumConstants.isEmpty()) {
-					for (int ind = 0; ind < this.sumConstants.size(); ind++)
-						if (Double.valueOf((this.sumConstants.get(ind).getId() + dv.getId()))
+				if (!this.sortedSumConsts.isEmpty()) {
+					for (int ind = 0; ind < this.sortedSumConsts.size(); ind++)
+						if (Double.valueOf((this.sortedSumConsts.get(ind).getId() + dv.getId()))
 								.compareTo(right.getId()) == 0) {
 							if (ind == 0)
 								rels.add(DataRelation.EQ_SUMC1);
@@ -176,9 +178,9 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 				else if (c > 0)
 					ret.add(EnumSet.of(DataRelation.LT));
 				else 
-					if (!this.sumConstants.isEmpty()) {
-						for (int ind = 0; ind < this.sumConstants.size(); ind++)
-							if (Double.valueOf((this.sumConstants.get(ind).getId() + dv.getId()))
+					if (!this.sortedSumConsts.isEmpty()) {
+						for (int ind = 0; ind < this.sortedSumConsts.size(); ind++)
+							if (Double.valueOf((this.sortedSumConsts.get(ind).getId() + dv.getId()))
 									.compareTo(right.getId()) > 0) {
 								if (ind == 0)
 									rels.add(DataRelation.LT_SUMC1);
@@ -194,5 +196,47 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 				ret.add(rels);
 			}
 		return ret;
+	}
+	
+	private DataValue<Double> maxSumC () {
+		return this.sortedSumConsts.get(sortedSumConsts.size()-1);
+	}
+	
+	private DataRelation getRelation(DataValue<Double> dv, DataValue<Double> right) {
+		DataRelation rel = null;
+		if (dv.equals(right))
+			rel = DataRelation.EQ;
+		else if (dv.getId().compareTo(right.getId()) > 0)
+			rel = DataRelation.LT;
+		else if ( Double.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
+			rel = DataRelation.DEFAULT;
+		else 
+		{
+			Optional<DataValue<Double>> sumcEqual = sortedSumConsts.stream().filter(c -> Double.valueOf(c.getId() + dv.getId())
+					.equals(right.getId())).findAny();
+			if (sumcEqual.isPresent()) {
+				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
+				if (ind == 0) 
+					rel = DataRelation.EQ_SUMC1; 
+				else if (ind == 1) 
+					rel = DataRelation.EQ_SUMC2;
+				else
+					throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+			} else {
+				Optional<DataValue<Double>> sumcLt = sortedSumConsts.stream().filter(c -> 
+				Double.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findAny();
+				if (sumcLt.isPresent()) {
+					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
+					if (ind == 0) 
+						rel = DataRelation.LT_SUMC1; 
+					else if (ind == 1) 
+						rel = DataRelation.LT_SUMC2;
+					else
+						throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+				} else 
+					throw new DecoratedRuntimeException("Exhausted all cases");
+			}
+		}
+		return rel;
 	}
 }
