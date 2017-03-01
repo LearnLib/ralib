@@ -181,7 +181,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     @Override
     public void setup(Configuration config) throws ConfigurationException {
-
+    	
         List<ParameterizedSymbol> inList = new ArrayList<>();
         List<ParameterizedSymbol> actList = new ArrayList<>();
         try {

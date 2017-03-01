@@ -37,6 +37,7 @@ package de.learnlib.ralib.equivalence;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.equivalence.HypVerifier.PositiveResult;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -117,12 +118,13 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
-                if (verifier.isCEForHyp(candidate, this.hypothesis)) {
-                    return removeLoops(shorter, hyp);
+                PositiveResult check = verifier.isCEForHyp(candidate, this.hypothesis);
+                if (check != null) {
+                    return removeLoops(check.testPrefix, hyp);
                 }
             }
         }
-        return ce;
+        return sulOracle.trace(ce);
     }
 
     private Word<PSymbolInstance> shorten(Word<PSymbolInstance> ce, Loop loop) {

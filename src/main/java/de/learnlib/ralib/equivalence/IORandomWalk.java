@@ -137,7 +137,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
 	            out = target.step(next);
 	            run = run.append(out);
 	
-	            if (this.hypVerifier.isCEForHyp(run, hyp)) {
+	            if (this.hypVerifier.isCEForHyp(run, hyp) != null) {
 	                log.log(Level.FINE, "Run with CE: {0}", run);     
 	                System.out.format("Run with CE: {0}", run);
 	                hyp.accepts(run);

@@ -35,7 +35,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
@@ -102,7 +102,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 teachers,
                 sul.getInputSymbols());
 
-        IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle, hypVerifier);
+        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
 

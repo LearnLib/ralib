@@ -163,7 +163,7 @@ public class RaStar {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
         // check if ce still is a counterexample ...
-        if (!hypVerifier.isCEForHyp(ce.getInput(), hyp)) {
+        if (hypVerifier.isCEForHyp(ce.getInput(), hyp) == null) {
             log.logEvent("word is not a counterexample: " + ce);           
             counterexamples.poll();
             return false;

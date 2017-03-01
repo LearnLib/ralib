@@ -15,6 +15,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -39,7 +40,10 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private Constants constants;
 	private int maxDepth;
 	private Map<DataType, Theory> teachers;
-	private double newDataProbability;
+	private double freshProbability;
+	private double drawFromRegister = 0.7; 
+	private double drawFromHistory = 0.2;
+	private double drawNew=0.3; 
 	private AccessSequenceProvider accSeqProvider;
 	private RegisterAutomaton hyp;
 	private int runs;
@@ -47,7 +51,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private static LearnLogger log = LearnLogger.getLogger(IORWalkFromState.class);
 
 	public IORWalkFromState(Random rand, DataWordSUL target, boolean uniform,
-            double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants,
+            double resetProbability, double freshProbability, long maxRuns, int maxDepth, Constants constants,
             boolean resetRuns, Map<DataType, Theory> teachers, AccessSequenceProvider accessSequenceProvider, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
@@ -61,7 +65,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         this.constants = constants;
         this.maxDepth = maxDepth;
         this.teachers = teachers;
-        this.newDataProbability = newDataProbability;
+        this.freshProbability = freshProbability;
         this.accSeqProvider = accessSequenceProvider;
     }
 
@@ -100,7 +104,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         	run = run.append(next);
         	out = target.step(next);
         	run =run.append(out);
-        	if (this.hypVerifier.isCEForHyp(run, hyp)) 
+        	if (this.hypVerifier.isCEForHyp(run, hyp) != null) 
         		throw new DecoratedRuntimeException("An access sequence should never yield a CE")
         		.addDecoration("access sequence", accessSequence).addDecoration("ce run", run);
         } 
@@ -114,15 +118,9 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	            out = target.step(next);
 	            run = run.append(out);
 	
-	            if (this.hypVerifier.isCEForHyp(run, hyp)) {
+	            if (this.hypVerifier.isCEForHyp(run, hyp) != null) {
 	                log.log(Level.FINE, "Run with CE: {0}", run);     
 	                System.out.format("Run with CE: {0}", run);
-	                hyp.accepts(run);
-	                target.post();
-	                target.pre();
-	                for (int i = 0; i < run.size(); i +=2) {
-	                	out = target.step(run.getSymbol(i));
-	                }
 	                target.post();
 	                
 	                return run;
@@ -150,8 +148,13 @@ public class IORWalkFromState implements IOEquivalenceOracle{
     }
 
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {
-        ParameterizedSymbol ps = this.inputs[this.rand.nextInt(this.inputs.length)]; 
-        		//nextSymbol(run);
+        ParameterizedSymbol ps = nextSymbol(run); 
+        RALocation location = this.hyp.getLocation(run);
+        List<Transition> transitions = this.hyp.getInputTransitions().stream()
+        		.filter(tr -> tr.getSource().equals(location))
+        		.collect(Collectors.toList());
+        Transition trans = transitions.get(this.rand.nextInt(transitions.size()));
+        trans.getGuard().getCondition();
         PSymbolInstance psi = nextDataValues(run, ps);
         return psi;
     }
@@ -174,35 +177,49 @@ public class IORWalkFromState implements IOEquivalenceOracle{
             }
             
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
-            boolean drawFromReg = rand.nextBoolean();
-            if (!oldSet.isEmpty() && drawFromReg) {
-            	List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream()
-            			.filter(reg -> reg.getType().equals(t))
-            			.map(dv -> (DataValue<Object>) dv)
-            			.collect(Collectors.toList());
-            	if (!regs.isEmpty()) 
-            		old = regs;
+        	List<DataValue<Object>> regs = getRegisterValuesForType(run, t);
+            Double draw = rand.nextDouble();
+            if (draw <= drawFromRegister && !regs.isEmpty()) {
+            	 double drawNew = rand.nextDouble();
+                 if (drawNew > this.drawNew) {
+                	 vals[i] = pick(regs);
+                 } else {
+                	 Collection<DataValue> nextVals = teacher.getAllNextValues(regs);
+                	 nextVals.removeAll(regs);
+                	 vals[i] = pick(new ArrayList<DataValue>(nextVals));
+                 }
             }
-
-            Set<DataValue<Object>> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
             
-            newSet.removeAll(old);
-            List<DataValue<Object>> newList = new ArrayList<>(newSet);
-            
-            double draw = rand.nextDouble();
-            if (draw <= newDataProbability || old.isEmpty()) {
-                int idx = rand.nextInt(newList.size());
-                vals[i] = newList.get(idx);
-            } else {
-                int idx = rand.nextInt(old.size());
-                vals[i] = old.get(idx);
+          	List<DataValue<Object>> history = new ArrayList<>(oldSet);
+        	history.removeAll(regs);
+            if (draw > drawFromRegister && draw <= drawFromHistory + drawFromRegister && !history.isEmpty()) {
+          
+            	double drawNew = rand.nextDouble();
+                if (drawNew > this.drawNew) {
+               	 	vals[i] = pick(history);
+                } else {
+	               	 Collection<DataValue> nextVals = teacher.getAllNextValues(history);
+	               	 nextVals.removeAll(history);
+	               	 vals[i] = pick(new ArrayList<DataValue>(nextVals));
+                } 
             }
-
+            if (vals[i] == null)
+            	vals[i] = teacher.getFreshValue(old);
             i++;
         }
         return new PSymbolInstance(ps, vals);
     }
+    
+    private <T> T pick(List<T> list) {
+    	return list.get(rand.nextInt(list.size()));
+    }
+
+	private List<DataValue<Object>> getRegisterValuesForType(Word<PSymbolInstance> run, DataType t) {
+		return hyp.getRegisterValuation(run).values().stream()
+				.filter(reg -> reg.getType().equals(t))
+				.map(dv -> (DataValue<Object>) dv)
+				.collect(Collectors.toList());
+	}
 
     private ParameterizedSymbol nextSymbol(Word<PSymbolInstance> run) {
         ParameterizedSymbol ps = null;

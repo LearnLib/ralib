@@ -5,5 +5,17 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public interface HypVerifier {
-	public boolean isCEForHyp(Word<PSymbolInstance> test, RegisterAutomaton hyp);
+	
+	/**
+	 * Returns either null (if it isn't a CE) or a PositiveResult (encapsulating CE info)
+	 */
+	public PositiveResult isCEForHyp(Word<PSymbolInstance> test, RegisterAutomaton hyp);
+	
+	class PositiveResult {
+		public final Word<PSymbolInstance> testPrefix;
+		public PositiveResult(Word<PSymbolInstance> testPrefix) {
+			super();
+			this.testPrefix = testPrefix;
+		}
+	}
 }

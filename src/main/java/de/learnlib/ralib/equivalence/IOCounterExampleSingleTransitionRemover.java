@@ -25,7 +25,7 @@ public class IOCounterExampleSingleTransitionRemover implements IOCounterExample
 			Word<PSymbolInstance> testCe = reducedCe.subWord(0, transIndex)
 					.concat(reducedCe.subWord(transIndex + 2, reducedCe.length()));
 			Word<PSymbolInstance> tracedCe = this.sulOracle.trace(testCe);
-			if (this.verifier.isCEForHyp(tracedCe, hyp)) {
+			if (this.verifier.isCEForHyp(tracedCe, hyp) != null) {
 				reducedCe = tracedCe;
 			} else {
 				transIndex += 2;

@@ -61,7 +61,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
 		DataValue<Double> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ZERO(this.getType())
-				: this.sortedSumConsts.get(this.sortedSumConsts.size()-1);
+				: maxSumC();
 		this.freshStep = maxSumC.getId() * freshFactor;
 		this.smBgStep = new DataValue<Double>(type, maxSumC.getId() * smBgFactor);
 	}
@@ -122,14 +122,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	 */
 	public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
 		List<DataValue<Double>> valsWithConsts = new ArrayList<>(vals);
+		// we add regular constants
 		valsWithConsts.addAll(this.regularConstants);
 
-		// we add regular constants
-		
 		DataValue<Double> fv = super.getFreshValue(valsWithConsts);
 		Double nextFresh;
 		for(nextFresh=0.0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
-		//Double nextFresh = (Math.floor(fv.getId() / this.freshStep) + 1) * this.freshStep;
 		
 		
 		return new DataValue<Double>(fv.getType(), nextFresh);
@@ -155,46 +153,10 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Double>> left, DataValue<Double> right) {
 
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();
-		LOOP: 
-			for (DataValue<Double> dv : left) {
-				EnumSet<DataRelation> rels = EnumSet.noneOf(DataRelation.class);
-				if (!this.sortedSumConsts.isEmpty()) {
-					for (int ind = 0; ind < this.sortedSumConsts.size(); ind++)
-						if (Double.valueOf((this.sortedSumConsts.get(ind).getId() + dv.getId()))
-								.compareTo(right.getId()) == 0) {
-							if (ind == 0)
-								rels.add(DataRelation.EQ_SUMC1);
-							else if (ind == 1)
-								rels.add(DataRelation.EQ_SUMC2);
-							else
-								throw new DecoratedRuntimeException("Over 2 sumcs not supported");
-							//continue LOOP;
-						}
-				}
-
-				final int c = dv.getId().compareTo(right.getId());
-				if (c == 0)
-					ret.add(EnumSet.of(DataRelation.EQ));
-				else if (c > 0)
-					ret.add(EnumSet.of(DataRelation.LT));
-				else 
-					if (!this.sortedSumConsts.isEmpty()) {
-						for (int ind = 0; ind < this.sortedSumConsts.size(); ind++)
-							if (Double.valueOf((this.sortedSumConsts.get(ind).getId() + dv.getId()))
-									.compareTo(right.getId()) > 0) {
-								if (ind == 0)
-									rels.add(DataRelation.LT_SUMC1);
-								else if (ind == 1)
-									rels.add(DataRelation.LT_SUMC2);
-								else
-									throw new DecoratedRuntimeException("Over 2 sumcs not supported");
-							//	continue LOOP;
-							}
-					}
-				if (rels.isEmpty())
-					rels.add(DataRelation.DEFAULT);
-				ret.add(rels);
-			}
+		for (DataValue<Double> dv : left) {
+			DataRelation rel = getRelation(dv, right);
+			ret.add(EnumSet.of(rel));
+		}
 		return ret;
 	}
 	

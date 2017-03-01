@@ -41,8 +41,6 @@ import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.equivalence.AcceptHypVerifier;
 import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
-import static de.learnlib.ralib.example.priority.PriorityQueueOracle.*;
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -109,6 +107,6 @@ public class LearnPQTest extends RaLibTestSuite {
         
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        Assert.assertFalse(hypVerifier.isCEForHyp(ce, hyp));
+        Assert.assertNull(hypVerifier.isCEForHyp(ce, hyp));
     }
 }

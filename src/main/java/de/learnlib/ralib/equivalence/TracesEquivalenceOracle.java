@@ -92,7 +92,7 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 				run = run.append(input);
 				PSymbolInstance out = target.step(input);
 				run = run.append(out);
-				if (this.hypVerifier.isCEForHyp(run, hypothesis)) {
+				if (this.hypVerifier.isCEForHyp(run, hypothesis) != null) {
 					//return new DefaultQuery<>(run, true);
 					return null;
 				}
