@@ -17,6 +17,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
+import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
@@ -78,17 +79,13 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 	protected static final ConfigurationOption.BooleanOption OPTION_CACHE_TESTS = new ConfigurationOption.BooleanOption(
 			"cache.tests", "Also cache tests", false, true);
 
-	private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] { OPTION_LOGGING_LEVEL,
-			OPTION_LOGGING_CATEGORY, OPTION_INPUTS, OPTION_TEACHERS, OPTION_RANDOM_SEED, OPTION_USE_CEOPT,
-			OPTION_USE_SUFFIXOPT, OPTION_EXPORT_MODEL, OPTION_TARGET_IP, OPTION_USE_RWALK, OPTION_MAX_ROUNDS,
-			OPTION_MAX_DEPTH, OPTION_TIMEOUT, OPTION_RWALK_FRESH_PROB, OPTION_RWALK_RESET_PROB, OPTION_RWALK_MAX_DEPTH,
-			OPTION_RWALK_MAX_RUNS, OPTION_RWALK_RESET, OPTION_OUTPUT_ERROR };
+	private static final ConfigurationOption[] OPTIONS = getOptions(SocketAnalyzer.class, EquivalenceOracleFactory.class);
 
 	private DataWordSUL sulLearn;
 
 	private DataWordSUL sulTest;
 
-	private IORandomWalk randomWalk = null;
+	private IOEquivalenceOracle randomWalk = null;
 
 	private RaStar rastar;
 
@@ -227,28 +224,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.teachers, this.hypVerifier, actions);
 
 			if (findCounterexamples) {
-
-				boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
-				double resetProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
-				double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);
-				long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
-				int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
-				boolean resetRuns = OPTION_RWALK_RESET.parse(config);
-
-				this.randomWalk = new IORandomWalk(random, sulTest, drawUniformly, // do
-																					// not
-																					// draw
-																					// symbols
-																					// uniformly
-						resetProbabilty, // reset probability
-						freshProbability, // prob. of choosing a fresh data
-											// value
-						maxTestRuns, // 1000 runs
-						maxDepth, // max depth
-						consts, resetRuns, // reset runs
-						teachers, inputSymbols);
-
-				this.randomWalk.setError(SpecialSymbols.ERROR);
+				this.randomWalk = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teachers, consts, random, inputSymbols); 
 			}
 
 			this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);

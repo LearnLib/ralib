@@ -2,7 +2,6 @@ package de.learnlib.ralib.equivalence;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +39,9 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private Constants constants;
 	private int maxDepth;
 	private Map<DataType, Theory> teachers;
-	private double freshProbability;
 	private double drawFromRegister = 0.7; 
 	private double drawFromHistory = 0.2;
-	private double drawNew=0.3; 
+	private double drawNew=0.8; 
 	private AccessSequenceProvider accSeqProvider;
 	private RegisterAutomaton hyp;
 	private int runs;
@@ -51,7 +49,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private static LearnLogger log = LearnLogger.getLogger(IORWalkFromState.class);
 
 	public IORWalkFromState(Random rand, DataWordSUL target, boolean uniform,
-            double resetProbability, double freshProbability, long maxRuns, int maxDepth, Constants constants,
+            double resetProbability, double regProb, double hisProb, double newProb, long maxRuns, int maxDepth, Constants constants,
             boolean resetRuns, Map<DataType, Theory> teachers, AccessSequenceProvider accessSequenceProvider, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
@@ -61,11 +59,13 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         this.inputs = inputs;
         this.uniform = uniform;
         this.resetProbability = resetProbability;
+        this.drawFromHistory = hisProb;
+        this.drawFromRegister = regProb;
+        this.drawNew = newProb;
         this.maxRuns = maxRuns;
         this.constants = constants;
         this.maxDepth = maxDepth;
         this.teachers = teachers;
-        this.freshProbability = freshProbability;
         this.accSeqProvider = accessSequenceProvider;
     }
 

@@ -163,6 +163,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     = new ConfigurationOption.StringOption("traces.words",
             "Test traces format: test1; test2; ...", null, false);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_EQ_ORACLE = 
+    		new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
+    				"Draw next input uniformly", null, false);
+    
     protected static final ConfigurationOption.BooleanOption OPTION_RWALK_DRAW
             = new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
                     "Draw next input uniformly", null, false);
@@ -178,7 +182,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.DoubleOption OPTION_RWALK_FRESH_PROB
             = new ConfigurationOption.DoubleOption("rwalk.prob.fresh",
                     "Probability of using a fresh data value", null, false);
-
+    
     protected static final ConfigurationOption.LongOption OPTION_RWALK_MAX_RUNS
             = new ConfigurationOption.LongOption("rwalk.max.runs",
                     "Maximum number of random walks", null, false);
@@ -408,6 +412,30 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 				}}));
         }
         return ioCache;
+    }
+    
+    /**
+     * Collects all configuration options from classes
+     */
+    public static ConfigurationOption [] getOptions(Class<?>... classes ) {
+    	Stream<ConfigurationOption> arrayStream= Stream.empty();
+    	for (Class<?> cls : classes) {
+    		arrayStream = Stream.concat(arrayStream,
+    				Arrays.stream(cls.getDeclaredFields()).filter(f -> 
+    		    	ConfigurationOption.class.isAssignableFrom(f.getType())).map(f -> {
+    		    		ConfigurationOption ret = null;
+    		    		boolean acc = f.isAccessible();
+    		    		f.setAccessible(true);
+    					try {
+    						ret = ((ConfigurationOption) f.get(EquivalenceOracleFactory.class));
+    					} catch (Exception e) {
+    						e.printStackTrace();
+    					}
+    					f.setAccessible(acc);
+    					return ret;
+    				}));
+    	}
+    	return arrayStream.toArray(ConfigurationOption []::new); 
     }
 
 }

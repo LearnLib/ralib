@@ -42,6 +42,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
+import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.AccessSequenceProvider;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
@@ -115,35 +116,14 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     protected static final ConfigurationOption.BooleanOption OPTION_CACHE_TESTS
     = new ConfigurationOption.BooleanOption("cache.tests",
             "Also cache tests", false, true);
-
-    private static final ConfigurationOption<?>[] OPTIONS = new ConfigurationOption[]{
-        OPTION_LOGGING_LEVEL,
-        OPTION_LOGGING_CATEGORY,
-        OPTION_TARGET,
-        OPTION_METHODS,
-        OPTION_TEACHERS,
-        OPTION_RANDOM_SEED,
-        OPTION_USE_CEOPT,
-        OPTION_USE_SUFFIXOPT,
-        OPTION_EXPORT_MODEL,
-        OPTION_USE_RWALK,
-        OPTION_MAX_ROUNDS,
-        OPTION_MAX_DEPTH,
-        OPTION_TIMEOUT,
-        OPTION_RWALK_FRESH_PROB,
-        OPTION_RWALK_RESET_PROB,
-        OPTION_RWALK_MAX_DEPTH,
-        OPTION_RWALK_MAX_RUNS,
-        OPTION_RWALK_RESET,
-        OPTION_OUTPUT_NULL,
-        OPTION_OUTPUT_ERROR,
-    };
+    
+    private final ConfigurationOption<?>[] OPTIONS = getOptions(ClassAnalyzer.class, EquivalenceOracleFactory.class);
 
     private DataWordSUL sulLearn;
 
     private DataWordSUL sulTest;
 
-    private IORWalkFromState randomWalk = null;
+    private IOEquivalenceOracle equOracle = null;
 
     private RaStar rastar;
 
@@ -293,27 +273,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, true, teachers, this.hypVerifier, actions);
 
             if (findCounterexamples) {
-
-                boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
-                double resetProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
-                double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);
-                long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
-                int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
-                boolean resetRuns = OPTION_RWALK_RESET.parse(config);
-
-                this.randomWalk = new IORWalkFromState(random,
-                        sulTest,
-                        drawUniformly, // do not draw symbols uniformly 
-                        resetProbabilty, // reset probability 
-                        freshProbability, // prob. of choosing a fresh data value
-                        maxTestRuns, // 1000 runs 
-                        maxDepth, // max depth
-                        consts,
-                        resetRuns, // reset runs 
-                        teachers,
-                        new AccessSequenceProvider.HypAccessSequenceProvider(), inputSymbols);
-
-                this.randomWalk.setError(SpecialSymbols.ERROR);
+                this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, inputSymbols);
                 String ver = OPTION_TEST_TRACES.parse(config);
                 if (ver != null) {
                 	List<String> tests = Arrays.stream(ver.split(";")).collect(Collectors.toList());
@@ -401,7 +361,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
             if (findCounterexamples) {
-                ce = this.randomWalk.findCounterExample(hyp, null);
+                ce = this.equOracle.findCounterExample(hyp, null);
                 if (ce == null && traceTester != null) {
                 	ce = this.traceTester.findCounterExample(hyp, null);
                 }

@@ -2,7 +2,9 @@ target=de.learnlib.ralib.sul.examples.ModerateFreshTCPExample
 methods=IConnect()java.lang.Double:DOUBLE+\
   ISYN(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
   ISYNACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
-  IACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean
+  IACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
+  IFINACK(java.lang.Double:DOUBLE,java.lang.Double:DOUBLE)boolean:boolean+\
+  ICLOSE()boolean:boolean
 config=win:1000.0
 solver=z3
 logging.level=WARNING
@@ -12,12 +14,21 @@ use.suffixopt=true
 use.fresh=true
 use.rwalk=true
 export.model=false
+eqoracle=rwalkfromstate
 rwalk.prob.fresh=0.1
 rwalk.prob.reset=0.1
-rwalk.max.depth=15
-rwalk.max.runs=40000
+rwalk.max.depth=10
+rwalk.max.runs=100000
 rwalk.reset.count=false
-rwalk.draw.uniform=false
+rwalk.draw.uniform=true
+rwalkfromstate.prob.history=0.2
+rwalkfromstate.prob.register=0.6
+rwalkfromstate.prob.new=0.3
+rwalkfromstate.prob.reset=0.1
+rwalkfromstate.max.depth=4
+rwalkfromstate.max.runs=100000
+rwalkfromstate.reset.count=false
+rwalkfromstate.draw.uniform=true
 teachers=DOUBLE:de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory
 constants.sumc=[{"type":"DOUBLE","value":"1.0"},{"type":"DOUBLE","value":"1000.0"}]
 traces.words=I_IConnect()I_ISYN(100000.0, 200000.0)I_ISYNACK(200000.0, 100001.0)I_IACK(100001.0, 200001.0);\
