@@ -190,28 +190,27 @@ public class IORandomWalk implements IOEquivalenceOracle {
             }
             
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
-            if (!oldSet.isEmpty() && rand.nextBoolean()) {
-            	List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream()
-            			.filter(reg -> reg.getType().equals(t))
-            			.map(dv -> (DataValue<Object>) dv)
-            			.collect(Collectors.toList());
-            	if (!regs.isEmpty()) 
-            		old = regs;
-            }
-
-            Set<DataValue<Object>> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
-            
-            newSet.removeAll(old);
-            List<DataValue<Object>> newList = new ArrayList<>(newSet);
-            
-            double draw = rand.nextDouble();
-            if (draw <= newDataProbability || old.isEmpty()) {
-                int idx = rand.nextInt(newList.size());
-                vals[i] = newList.get(idx);
-            } else {
-                int idx = rand.nextInt(old.size());
-                vals[i] = old.get(idx);
+            List<DataValue<Object>> regs = hyp.getRegisterValuation(run).values().stream()
+        			.filter(reg -> reg.getType().equals(t))
+        			.map(dv -> (DataValue<Object>) dv)
+        			.collect(Collectors.toList());
+            if (!oldSet.isEmpty() && rand.nextBoolean() && !regs.isEmpty()) 
+            	vals[i] = regs.get(rand.nextInt(regs.size()));
+            else {
+	            Set<DataValue<Object>> newSet = new HashSet<>(
+	                teacher.getAllNextValues(old));
+	            
+	            newSet.removeAll(old);
+	            List<DataValue<Object>> newList = new ArrayList<>(newSet);
+	            
+	            double draw = rand.nextDouble();
+	            if (draw <= newDataProbability || old.isEmpty()) {
+	                int idx = rand.nextInt(newList.size());
+	                vals[i] = newList.get(idx);
+	            } else {
+	                int idx = rand.nextInt(old.size());
+	                vals[i] = old.get(idx);
+	            }
             }
 
             i++;

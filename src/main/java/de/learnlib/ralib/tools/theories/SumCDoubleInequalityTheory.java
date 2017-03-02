@@ -104,16 +104,16 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	// if a value is already a SumCDv, it can only be operand in another SumCDv if its sum constant is ONE.
 	// this is a hack optimization for TCP
 	private boolean canRemove(DataValue<Double> dv) {
-		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
-		while (dv instanceof SumCDataValue) {
-			SumCDataValue<Double> sum = ((SumCDataValue<Double>) dv);
-			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
-				if (sumCsOtherThanOne.contains(sum.getConstant()))
-					return true;
-				sumCsOtherThanOne.add(sum.getConstant());
-			}
-			dv = sum.getOperand();
-		}
+//		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
+//		while (dv instanceof SumCDataValue) {
+//			SumCDataValue<Double> sum = ((SumCDataValue<Double>) dv);
+//			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
+//				if (sumCsOtherThanOne.contains(sum.getConstant()))
+//					return true;
+//				sumCsOtherThanOne.add(sum.getConstant());
+//			}
+//			dv = sum.getOperand();
+//		}
 		return false;
 	}
 
@@ -135,6 +135,9 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	
 	
 	public IntervalDataValue<Double> pickIntervalDataValue(DataValue<Double> left, DataValue<Double> right) {
+		if (right != null && left!=null) 
+			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
+				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 

@@ -66,15 +66,15 @@ public class EquivalenceOracleFactory {
 	
 	protected static final ConfigurationOption.DoubleOption OPTION_RWALKFROMSTATE_HISTORY_PROB
 	    = new ConfigurationOption.DoubleOption(rws + ".prob.history",
-	            "Probability of generating from a reg value", null, false);
+	            "Probability of generating a reg value", null, false);
 	
 	protected static final ConfigurationOption.DoubleOption OPTION_RWALKFROMSTATE_REGISTER_PROB
     = new ConfigurationOption.DoubleOption(rws + ".prob.register",
-            "Probability of generating from a history(excl reg) value", null, false);
+            "Probability of generating a history(excl reg) value", null, false);
 	
-	protected static final ConfigurationOption.DoubleOption OPTION_RWALKFROMSTATE_NEW_PROB
-    = new ConfigurationOption.DoubleOption(rws + ".prob.new",
-            "Probability of selecting a new value (in case the value is generated from his/reg)", null, false);
+	protected static final ConfigurationOption.DoubleOption OPTION_RWALKFROMSTATE_RELATED_PROB
+    = new ConfigurationOption.DoubleOption(rws + ".prob.related",
+            "Probability of generated a value from his/reg that is not equal", null, false);
 	
 	protected static final ConfigurationOption.LongOption OPTION_RWALKFROMSTATE_MAX_RUNS
 	    = new ConfigurationOption.LongOption(rws + ".max.runs",
@@ -113,10 +113,14 @@ public class EquivalenceOracleFactory {
 		} else {
 			boolean drawUniformly = OPTION_RWALKFROMSTATE_DRAW.parse(config);
 			double resetProbabilty = OPTION_RWALKFROMSTATE_RESET_PROB.parse(config);
-			double drawFromReg = OPTION_RWALKFROMSTATE_REGISTER_PROB.parse(config);
-			double drawFromHistory = OPTION_RWALKFROMSTATE_HISTORY_PROB.parse(config);
-			double drawNew = OPTION_RWALKFROMSTATE_NEW_PROB.parse(config);
+			double drawRegister = OPTION_RWALKFROMSTATE_REGISTER_PROB.parse(config);
+			double drawHistory = OPTION_RWALKFROMSTATE_HISTORY_PROB.parse(config);
+			double drawRelated = OPTION_RWALKFROMSTATE_RELATED_PROB.parse(config);
 			long maxTestRuns = OPTION_RWALKFROMSTATE_MAX_RUNS.parse(config);
+			if (drawRegister + drawHistory + drawRelated > 1.0) 
+				throw new ConfigurationException("The sum of the draw probabilities should be less than 1, "
+						+ "with the difference being the fresh probability");
+			
 			int maxDepth = OPTION_RWALKFROMSTATE_MAX_DEPTH.parse(config);
 			boolean resetRuns = OPTION_RWALKFROMSTATE_RESET.parse(config);
 			IORWalkFromState rwalk  = new IORWalkFromState(random, target, drawUniformly, // do
@@ -125,9 +129,9 @@ public class EquivalenceOracleFactory {
 									// symbols
 									// uniformly
 					resetProbabilty, // reset probability
-					drawFromReg,
-					drawFromHistory,
-					drawNew, // prob. of choosing a fresh data
+					drawRegister,
+					drawHistory,
+					drawRelated, // prob. of choosing a fresh data
 					// value
 					maxTestRuns, // 1000 runs
 					maxDepth, // max depth

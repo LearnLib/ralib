@@ -39,9 +39,9 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private Constants constants;
 	private int maxDepth;
 	private Map<DataType, Theory> teachers;
-	private double drawFromRegister = 0.7; 
-	private double drawFromHistory = 0.2;
-	private double drawNew=0.8; 
+	private double drawRegister = 0.4; 
+	private double drawHistory = 0.2;
+	private double drawRelated=0.2; 
 	private AccessSequenceProvider accSeqProvider;
 	private RegisterAutomaton hyp;
 	private int runs;
@@ -49,7 +49,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	private static LearnLogger log = LearnLogger.getLogger(IORWalkFromState.class);
 
 	public IORWalkFromState(Random rand, DataWordSUL target, boolean uniform,
-            double resetProbability, double regProb, double hisProb, double newProb, long maxRuns, int maxDepth, Constants constants,
+            double resetProbability, double regProb, double hisProb, double relatedProb, long maxRuns, int maxDepth, Constants constants,
             boolean resetRuns, Map<DataType, Theory> teachers, AccessSequenceProvider accessSequenceProvider, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
@@ -59,9 +59,9 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         this.inputs = inputs;
         this.uniform = uniform;
         this.resetProbability = resetProbability;
-        this.drawFromHistory = hisProb;
-        this.drawFromRegister = regProb;
-        this.drawNew = newProb;
+        this.drawHistory = hisProb;
+        this.drawRegister = regProb;
+        this.drawRelated = relatedProb;
         this.maxRuns = maxRuns;
         this.constants = constants;
         this.maxDepth = maxDepth;
@@ -175,34 +175,24 @@ public class IORWalkFromState implements IOEquivalenceOracle{
                     oldSet.add(vals[j]);
                 }
             }
-            
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
         	List<DataValue<Object>> regs = getRegisterValuesForType(run, t);
             Double draw = rand.nextDouble();
-            if (draw <= drawFromRegister && !regs.isEmpty()) {
-            	 double drawNew = rand.nextDouble();
-                 if (drawNew > this.drawNew) {
-                	 vals[i] = pick(regs);
-                 } else {
-                	 Collection<DataValue> nextVals = teacher.getAllNextValues(regs);
-                	 nextVals.removeAll(regs);
-                	 vals[i] = pick(new ArrayList<DataValue>(nextVals));
-                 }
+            if (draw <= drawRegister && !regs.isEmpty()) {
+            	 vals[i] = pick(regs);
             }
             
           	List<DataValue<Object>> history = new ArrayList<>(oldSet);
         	history.removeAll(regs);
-            if (draw > drawFromRegister && draw <= drawFromHistory + drawFromRegister && !history.isEmpty()) {
-          
-            	double drawNew = rand.nextDouble();
-                if (drawNew > this.drawNew) {
-               	 	vals[i] = pick(history);
-                } else {
-	               	 Collection<DataValue> nextVals = teacher.getAllNextValues(history);
-	               	 nextVals.removeAll(history);
-	               	 vals[i] = pick(new ArrayList<DataValue>(nextVals));
-                } 
+            if (draw > drawRegister && draw <= drawHistory + drawRegister && !history.isEmpty()) {
+               	 vals[i] = pick(history);
             }
+            
+            List<DataValue<Object>> related = new ArrayList<>(oldSet);
+            related = new ArrayList<>(teacher.getAllNextValues(related));
+            if (draw > drawRegister + drawHistory && draw <= drawRegister + drawHistory + drawRelated && !related.isEmpty()) 
+            	vals[i] = pick(related);
+            
             if (vals[i] == null)
             	vals[i] = teacher.getFreshValue(old);
             i++;
