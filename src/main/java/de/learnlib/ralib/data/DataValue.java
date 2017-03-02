@@ -89,29 +89,43 @@ public class DataValue<T> {
     public static DataValue<?> add(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return lv;
     	if (lv == null) return rv;
-    	double sumValue = Double.valueOf(rv.getId().toString()) + Double.valueOf(lv.getId().toString());
+    	Object sumValue = add(rv.getType().getBase(), rv.id, lv.getId());
     	return new DataValue(rv.getType(), cast(sumValue, rv.getType()));
     }
     
     public static DataValue<?> sub(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return sub(new DataValue(lv.getType(), 0.0), lv);
     	if (lv == null) return rv;
-    	double subValue = Double.valueOf(rv.getId().toString()) - Double.valueOf(lv.getId().toString());
-    	
+    	Object subValue = sub(rv.getType().getBase(), rv.id, lv.getId());
     	return new DataValue(rv.getType(), cast(subValue, rv.getType()) );
     }
     
-    protected static <NT> NT add(Class<NT> cls, NT a, NT b) {
+    protected static <NT> NT add(Class<NT> cls, Object a, Object b) {
     	Number val;
     	if (a instanceof Integer) {
 			val = Math.addExact(((Integer) a),((Integer) b));
 		} else {
-			if (a instanceof Double) {
+			if (a instanceof Double) 
 				val = ((Double) a) + ((Double) b);
-			} else if (a instanceof Long) {
+			else if (a instanceof Long) 
 				val = ((Long) a) + ((Long) b);
-			}
-			throw new RuntimeException("Unsupported type " + a.getClass());
+			else
+				throw new RuntimeException("Unsupported type " + a.getClass());
+		}
+    	return cls.cast(val);
+    }
+    
+    protected static <NT> NT sub(Class<NT> cls, Object a, Object b) {
+    	Number val;
+    	if (a instanceof Integer) {
+			val = Math.subtractExact(((Integer) a),((Integer) b));
+		} else {
+			if (a instanceof Double) {
+				val = ((Double) a) - ((Double) b);
+			} else if (a instanceof Long) 
+				val = ((Long) a) - ((Long) b);
+			else
+				throw new RuntimeException("Unsupported type " + a.getClass());
 		}
     	return cls.cast(val);
     }

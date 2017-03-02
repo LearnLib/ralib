@@ -120,14 +120,14 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             Collections.sort(distinctValList , new Cpr());
             if (distinctValList.size() > 1) {
                 for (int i = 0; i < (distinctValList.size() - 1); i++) {
-                    IntervalDataValue<Double> intVal = IntervalDataValue.instantiateNew(distinctValList.get(i), distinctValList .get(i + 1));
+                    IntervalDataValue<Double> intVal = this.pickIntervalDataValue(distinctValList.get(i), distinctValList .get(i + 1));
                     nextValues.add(intVal);
                 }
             }
             DataValue<Double> min = Collections.min(distinctValList, new Cpr());
-            nextValues.add(IntervalDataValue.instantiateNew(null, min));
+            nextValues.add(this.pickIntervalDataValue(null, min));
             DataValue<Double> max = Collections.max(distinctValList, new Cpr());
-            nextValues.add(IntervalDataValue.instantiateNew(max, null));
+            nextValues.add(this.pickIntervalDataValue(max, null));
         }
         return nextValues;
     }

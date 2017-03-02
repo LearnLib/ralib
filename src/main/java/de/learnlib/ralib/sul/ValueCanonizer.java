@@ -3,6 +3,7 @@ package de.learnlib.ralib.sul;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -95,17 +96,30 @@ public class ValueCanonizer {
 					new DecoratedRuntimeException(exception.getMessage()).
 					addDecoration("method", (reverse?"de":"") + "canonize ").
 					addDecoration("processed value", dvs[i]).
-					addDecoration("state", this.buckets).
+					addDecoration("state", stateString()).
 					addSuppressedExc(exception);
 			
 			throw exc;
 		}
-//				
-//				Stream.of(dvs).map(dv -> 
-//		this.valueMatchers.containsKey(dv.getType()) ? inverse ? decanonize(dv) : canonize(dv) : dv).toArray(DataValue []::new);
 	    return resultDvs;
 	}
-		
+
+	private String stateString() {
+		StringBuilder b = new StringBuilder();
+		for (DataType type : this.buckets.keySet()) {
+			b.append("\n ").append(type.toString());
+			BiMap<DataValue, DataValue> bucket = this.buckets.get(type);
+			TreeMap<DataValue, DataValue> sortedMap = new TreeMap<DataValue, DataValue> ((dv1,dv2) -> {
+				if (Comparable.class.isAssignableFrom(dv1.getType().getBase())) 
+					return ((Comparable)dv1.getId()).compareTo((Comparable)dv2.getId());
+				else 
+					return dv1.getId().toString().compareTo(dv2.getId().toString());
+			});
+			sortedMap.putAll(bucket);
+			sortedMap.forEach((cdv, ddv) -> b.append("\n 	").append(cdv).append(":").append(ddv));
+		}
+		return b.toString();
+	}
 	
 	private DataValue  canonize(DataValue dv) {
 		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
