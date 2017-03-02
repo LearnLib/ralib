@@ -63,7 +63,8 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         depth = 0;
         try {
             sul = sulClass.newInstance();
-            this.fieldConfigurator.setFields(sul);
+            if (this.fieldConfigurator != null)
+            	this.fieldConfigurator.setFields(sul);
             	
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new RuntimeException(ex);

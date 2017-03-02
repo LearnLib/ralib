@@ -116,12 +116,6 @@ public class BranchingLogic<T extends Comparable<T>> {
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
 		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type)); 
 				
-//				regVals = prefixSource.stream()
-//			.map(src -> src.getDataValuesWithSignature(prefix))
-//			.flatMap(vals -> vals.stream())
-//			.map(dv -> (DataValue<T>) dv)
-//			.collect(Collectors.toList());
-		
 		List<DataValue<T>> regPotential = pots(regVals, sumC, prefixRel);
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
 		List<DataValue<T>> sufPotential = new ArrayList<DataValue<T>>();
@@ -210,6 +204,10 @@ public class BranchingLogic<T extends Comparable<T>> {
 
 		public BranchingStrategy getStrategy() {
 			return this.strategy;
+		}
+		
+		public String toString() {
+			return "Strategy: " + this.strategy + (this.branchingValues.isEmpty()? "" : " Branching Values: " +this.branchingValues);
 		}
 	}
 

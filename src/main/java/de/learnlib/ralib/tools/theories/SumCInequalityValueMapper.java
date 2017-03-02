@@ -22,7 +22,6 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 	public SumCInequalityValueMapper(InequalityTheoryWithEq<T> theory) {
 		this(theory, Collections.emptyList());
 	}
-			
 	
 	public SumCInequalityValueMapper(InequalityTheoryWithEq<T> theory, List<DataValue<T>> sumConstants) {
 		this.theory = theory;

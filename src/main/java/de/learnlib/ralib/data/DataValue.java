@@ -49,6 +49,10 @@ public class DataValue<T> {
     	return new DataValue<P>(type, cast(val, type));
     }
     
+    public static <P> P CONST(int val, Class<P> type) {
+    	return cast(val, type);
+    }
+    
     public static <P> DataValue<P> valueOf(String strVal, DataType<P> type) {
     	Class<P> cls = type.getBase();
 		P realValue = null;
@@ -149,6 +153,27 @@ public class DataValue<T> {
     		}
     	} else {
     		throw new RuntimeException("Cast not supported for " + toType + " on object " + numObject );
+    	}
+    	return null;
+    }
+    
+    public static <T> T cast(Object numObject, Class<T> cls) {
+    	if (cls == numObject.getClass()) {
+    		return cls.cast(numObject);
+    	}
+    	if (Number.class.isAssignableFrom(cls) && numObject instanceof Number) {
+    		Number number = (Number)(numObject);
+    		if (cls == Integer.class) {
+    			return cls.cast(new Integer(number.intValue()));
+    		} else {
+    			if (cls == Double.class) {
+    				return cls.cast(new Double(number.doubleValue()));
+    			} else if (cls == Long.class) {
+    				return cls.cast(new Long(number.longValue()));
+    			}
+    		}
+    	} else {
+    		throw new RuntimeException("Cast not supported for " + cls + " on object " + numObject );
     	}
     	return null;
     }

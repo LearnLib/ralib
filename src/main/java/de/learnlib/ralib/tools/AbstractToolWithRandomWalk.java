@@ -161,7 +161,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
     = new ConfigurationOption.StringOption("traces.words",
-            "Test traces format: test1; test2; ...", null, false);
+            "Test traces format: test1; test2; ...", null, true);
 
     protected static final ConfigurationOption.BooleanOption OPTION_EQ_ORACLE = 
     		new ConfigurationOption.BooleanOption("rwalk.draw.uniform",

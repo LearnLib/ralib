@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -449,6 +450,18 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         return ret;
+    }
+    
+
+    public SDT transform(final UnaryOperator<SDTGuard> func) {
+    	if (this instanceof SDTLeaf) 
+    		return this;
+	    Map<SDTGuard, SDT> children = new LinkedHashMap<SDTGuard, SDT> ();
+	    this.children.forEach((g,c) -> { 
+	    	children.put(func.apply(g), c.transform(func));
+	    });
+    	
+    	return new SDT(children);
     }
 
     public static SDT getFinest(SDT... sdts) {

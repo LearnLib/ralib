@@ -130,5 +130,11 @@ public class IntModerateFreshTCPSUL extends DataWordSUL {
             throw new IllegalStateException("i must be instance of connect or flag config. i: " + i);
         }
     }
+
+	public void configure(de.learnlib.ralib.example.succ.AbstractTCPExample.Option winSynreceivedToClosed,
+			de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option winSynsentToClosed) {
+		tcpSut.configure(winSynsentToClosed);
+		
+	}
     
 }

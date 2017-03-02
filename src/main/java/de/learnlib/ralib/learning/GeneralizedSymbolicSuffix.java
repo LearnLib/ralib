@@ -242,29 +242,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 	}
 
-	private void removeUnneededRelations(EnumSet<DataRelation>[] prefixRelations,
-			EnumSet<DataRelation>[][] suffixRelations, int fromIndex) {
-		for (int ind = fromIndex; ind < prefixRelations.length; ind++) {
-			EnumSet<DataRelation> prefRel = prefixRelations[ind];
-			EnumSet<DataRelation> suffRel = EnumSet.noneOf(DataRelation.class);
-			for (int sind = 0; sind < ind; sind++)
-				suffRel.addAll(suffixRelations[ind][sind]);
-			EnumSet<DataRelation> allRel = EnumSet.copyOf(prefRel);
-			allRel.addAll(suffRel);
-			DataRelation eqRel = allRel.contains(DataRelation.EQ) ? DataRelation.EQ
-					: allRel.contains(DataRelation.EQ_SUMC1) ? DataRelation.EQ_SUMC1
-							: allRel.contains(DataRelation.EQ_SUMC2) ? DataRelation.EQ_SUMC2 : null;
-			// if there is an equality relations, all other relations are
-			// removed, as equality is enough to reproduce the value
-			if (eqRel != null) {
-				for (int sind = 0; sind < ind; sind++) {
-					suffixRelations[ind][sind].removeIf(rel -> eqRel != rel);
-				}
-				prefRel.removeIf(rel -> eqRel != rel);
-			}
-		}
-	}
-
 	public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix,
 			Constants consts, Map<DataType, Theory> theories) {
 

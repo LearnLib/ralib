@@ -1,5 +1,7 @@
 package de.learnlib.ralib.tools.theories;
 
+import static de.learnlib.ralib.theory.DataRelation.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -65,7 +67,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 		this.freshStep = maxSumC.getId() * freshFactor;
 		this.smBgStep = new DataValue<Double>(type, maxSumC.getId() * smBgFactor);
 	}
-
+	
+	@Override
+	public EnumSet<DataRelation> recognizedRelations() {
+		return EnumSet.of(DEQ, EQ, LT, DEFAULT, LT_SUMC1, LT_SUMC2, EQ_SUMC1, EQ_SUMC2, DEQ_SUMC1, DEQ_SUMC2);
+	}
 
 	public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
 		// assume we can just sort the list and get the values
@@ -104,16 +110,16 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 	// if a value is already a SumCDv, it can only be operand in another SumCDv if its sum constant is ONE.
 	// this is a hack optimization for TCP
 	private boolean canRemove(DataValue<Double> dv) {
-//		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
-//		while (dv instanceof SumCDataValue) {
-//			SumCDataValue<Double> sum = ((SumCDataValue<Double>) dv);
-//			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
-//				if (sumCsOtherThanOne.contains(sum.getConstant()))
-//					return true;
-//				sumCsOtherThanOne.add(sum.getConstant());
-//			}
-//			dv = sum.getOperand();
-//		}
+		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
+		while (dv instanceof SumCDataValue) {
+			SumCDataValue<Double> sum = ((SumCDataValue<Double>) dv);
+			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
+				if (sumCsOtherThanOne.contains(sum.getConstant()))
+					return true;
+				sumCsOtherThanOne.add(sum.getConstant());
+			}
+			dv = sum.getOperand();
+		}
 		return false;
 	}
 

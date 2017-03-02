@@ -23,7 +23,7 @@ public class EquivalenceOracleFactory {
     
 	protected static final ConfigurationOption.StringOption OPTION_EQ_ORACLE = 
     		new ConfigurationOption.StringOption("eqoracle",
-    				"Select Equivalence Oracle [ " + rw + "," + rws + "]",rw, false);
+    				"Select Equivalence Oracle [ " + rw + "," + rws + "]",rw, true);
     
     
 

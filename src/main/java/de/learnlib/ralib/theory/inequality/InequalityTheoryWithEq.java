@@ -129,11 +129,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		this.freshValues = doit;
 	}
 
-	@Override
-	public EnumSet<DataRelation> recognizedRelations() {
-		return EnumSet.of(DEQ, EQ, LT, DEFAULT, EQ_SUMC1, EQ_SUMC2);
-	}
-
 	/**
 	 * Sets the type as well as the inequality guard merger and instantiator.
 	 */
@@ -236,7 +231,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	public SDT treeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, WordValuation values, PIV piv,
 			Constants constants, SuffixValuation suffixValues, SDTConstructor oracle, IOOracle traceOracle) {
-
+		
 		int pId = values.size() + 1;
 		SuffixValue sv = suffix.getDataValue(pId);
 		DataType<T> type = (DataType<T>) sv.getType();

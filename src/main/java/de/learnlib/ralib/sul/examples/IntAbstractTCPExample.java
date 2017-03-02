@@ -36,7 +36,7 @@ public class IntAbstractTCPExample extends IntAbstractWindowProtocol{
 	}
 	
 	public enum State{
-		CLOSED,
+		//	INIT,
 		// connect...
 		CONNECTING, // special state after a connect call has been received, before issuing of a SYN
 		// s(10,0)
@@ -46,6 +46,8 @@ public class IntAbstractTCPExample extends IntAbstractWindowProtocol{
 		// a(11, 21)
 		ESTABLISHED,
 		FIN_WAIT_1,
-		TIME_WAIT;
+		TIME_WAIT,		
+		CLOSEWAIT,
+		CLOSED;
 	}
 }

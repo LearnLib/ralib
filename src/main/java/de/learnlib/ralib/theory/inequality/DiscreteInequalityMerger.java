@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
@@ -37,8 +40,8 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
 			EqualityGuard equGuard = (EqualityGuard) guard;
 			EqualityGuard equGuard2 = (EqualityGuard) withGuard;
-			SDT equSdt = guardSdtMap.get(equGuard);
-			SDT equSdt2 = guardSdtMap.get(equGuard2);
+			SDT equSdt = guardSdtMap.get(equGuard).transform(g -> makeIntGuardsConsistent(g));
+			SDT equSdt2 = guardSdtMap.get(equGuard2).transform(g -> makeIntGuardsConsistent(g));
 			if (equGuard.isEqualityWithSDV() && !equGuard2.isEqualityWithSDV()) {
 				
 				List<EqualityGuard> eqGuards = //Arrays.asList(equGuard); 
@@ -53,5 +56,26 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 			res = super.checkSDTEquivalence(guard, withGuard, guardSdtMap);
 		}
 		return res;
+	}
+	
+	// Replaces x+1 <= p with x < p and p <= x+1 with p < x
+	private SDTGuard makeIntGuardsConsistent(SDTGuard sdtGuard) {
+		SDTGuard ret = sdtGuard;
+		if (sdtGuard instanceof IntervalGuard) {
+			IntervalGuard intGuard = (IntervalGuard) sdtGuard;
+			if (Boolean.FALSE.equals(intGuard.getLeftOpen()) && intGuard.getLeftExpr() instanceof SumCDataExpression) {
+				SumCDataExpression sumExpr = (SumCDataExpression) intGuard.getLeftExpr();
+				if (sumExpr.getConstant().equals(DataValue.ONE(sumExpr.getConstant().getType()))) 
+					intGuard = new IntervalGuard(intGuard.getParameter(), sumExpr.getSDV(), Boolean.TRUE, intGuard.getRightExpr(), intGuard.getRightOpen());
+			}
+			
+			if (Boolean.FALSE.equals(intGuard.getRightOpen()) && intGuard.getRightExpr() instanceof SumCDataExpression) {
+				SumCDataExpression sumExpr = (SumCDataExpression) intGuard.getRightExpr();
+				if (sumExpr.getConstant().equals(DataValue.ONE(sumExpr.getConstant().getType()))) 
+					intGuard = new IntervalGuard(intGuard.getParameter(), intGuard.getLeftExpr(), intGuard.getLeftOpen(),  sumExpr.getSDV(), Boolean.TRUE);
+			}
+			ret = intGuard;
+		}
+		return ret;
 	}
 }

@@ -1,11 +1,26 @@
 package de.learnlib.ralib.tools.theories;
 
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
+import static de.learnlib.ralib.theory.DataRelation.DEQ_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.DEQ_SUMC2;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC2;
+import static de.learnlib.ralib.theory.DataRelation.LT;
+import static de.learnlib.ralib.theory.DataRelation.LT_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.LT_SUMC2;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -14,38 +29,27 @@ import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.sul.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
+
+	private static int smBgFactor = 10;  
 	
-	private List<DataValue<Integer>> sumConstants;
+	// maxSumC multiplied this factor results in the fresh step. Fresh values at a fresh step distance, 
+	// in increasing order, starting from 0.
+	private static int freshFactor = 100; 
+
+	
+	private List<DataValue<Integer>> sortedSumConsts;
 	private List<DataValue<Integer>> regularConstants;
+	private int freshStep;
+	private DataValue<Integer> smBgStep;
 
 	public SumCIntegerInequalityTheory() {
 		super();
 	}
-	
-	public void setSumcConstants(SumConstants constants) {
-		this.sumConstants = new ArrayList<>(constants.values(this.type));
-	}
-	
-	public void setConstants(Constants constants) {
-		this.regularConstants = new ArrayList<>(constants.values(this.type));
-		this.sumConstants = constants.getSumCs(this.type);
-	}
-	
 
-    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-    	List<DataValue<Integer>> valsWithConsts = new ArrayList<>(vals);
-    	valsWithConsts.addAll(this.regularConstants);
-    	
-    	// we add regular constants
-    	DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
-    	DataValue<Integer> maxSumC = this.sumConstants.isEmpty()? new DataValue<Integer>(this.getType(), 1) : 
-    		Collections.max(this.sumConstants, new Cpr());
-    	return new DataValue<Integer>(fv.getType(), fv.getId() + maxSumC.getId() * 100); // * 100);
-    }
-	
 	public SumCIntegerInequalityTheory(DataType<Integer> dataType) {
 		// the constants have to be introduced manually
 		this(dataType, Collections.emptyList(), Collections.emptyList());
@@ -53,101 +57,170 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	public SumCIntegerInequalityTheory(DataType<Integer> dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
 		super(dataType);
-		this.sumConstants = sumConstants;
+		this.sortedSumConsts = sumConstants;
 		this.regularConstants = regularConstants;
+	}
+
+	public void setSumcConstants(SumConstants constants) {
+		this.sortedSumConsts = new ArrayList<>(constants.values(this.type));
+	}
+	
+	public void setConstants(Constants constants) {
+		setConstants (constants.getSumCs(this.getType()), new ArrayList<>(constants.values(this.getType())));
+	}
+	
+	private void setConstants (List<DataValue<Integer>> sumConstants,
+			List<DataValue<Integer>> regularConstants) {
+		this.sortedSumConsts = new ArrayList<>(sumConstants);
+		Collections.sort(this.sortedSumConsts, new Cpr());
+		this.regularConstants = regularConstants;
+		DataValue<Integer> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ZERO(this.getType())
+				: maxSumC();
+		this.freshStep = maxSumC.getId() * freshFactor;
+		this.smBgStep = new DataValue<Integer>(type, maxSumC.getId() * smBgFactor);
 	}
 	
 	
-	
-    public ValueMapper<Integer> getValueMapper() {
-    	return new SumCInequalityValueMapper<Integer>(this, this.sumConstants);
-    }
-	
-    public Collection<DataValue<Integer>> getAllNextValues(
-            List<DataValue<Integer>> vals) {
-    	// adds sumc constants to interesting values
-    	List<DataValue<Integer>> potential = getPotential(vals);
-    	
-    	// the superclass should complete this list with in-between values.
-    	return super.getAllNextValues(potential);
-    }
+    @Override
+	public EnumSet<DataRelation> recognizedRelations() {
+		return EnumSet.of(DEQ, EQ, LT, DEFAULT, LT_SUMC1, LT_SUMC2, EQ_SUMC1, EQ_SUMC2, DEQ_SUMC1, DEQ_SUMC2);
+	}
 
-    
-    public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
-        //assume we can just sort the list and get the values
-        List<DataValue<Integer>> sortedList = makeNewPotsWithSumC(dvs);
-        //sortedList.addAll(dvs);
-        Collections.sort(sortedList, new Cpr());
+	public List<DataValue<Integer>> getPotential(List<DataValue<Integer>> dvs) {
+		// assume we can just sort the list and get the values
+		List<DataValue<Integer>> sortedList = makeNewPotsWithSumC(dvs);
 
-        //System.out.println("I'm sorted!  " + sortedList.toString());
-        return sortedList;
-    }
-    
-    /** Creates a list of values comprising the data values supplied, plus all values
-     * obtained by adding each of the sum constants to each of the data values supplied.
-     * 
-     *  The sum values are wrapped around a {@link SumCDataValue} element. In case sums
-     *  with different constants lead to the same value (for example 100+1.0 and 1+100.0 with
-     *  1.0 and 100.0 as constants), we pick the sum with the constant of the smallest index
-     *  in the sumConstants list.  
-     * 
-     */
-    private List<DataValue<Integer>> makeNewPotsWithSumC(List<DataValue<Integer>> dvs) {
-    	List<DataValue<Integer>> pot = new ArrayList<DataValue<Integer>> (dvs.size() * (sumConstants.size()+1));
-    	pot.addAll(dvs);
-    	List<DataValue<Integer>> dvWithoutConsts = dvs.stream().filter(dv -> !regularConstants.contains(dv)).collect(Collectors.toList());
-    	// potential optimization, don't make sums out of sumC
-    	//dvWithoutConsts = dvWithoutConsts.stream().filter(dv -> dv.getId() < 100).collect(Collectors.toList()); // ignore sumc constants
-    	List<DataValue<Integer>> flattenedPot = new ArrayList<DataValue<Integer>> (dvs.size() * (sumConstants.size()+1));
-    	flattenedPot.addAll(pot);
-    	for (DataValue<Integer> sumConst : sumConstants) {
-	    	for (DataValue<Integer> dv : dvWithoutConsts.stream().filter(pdv -> pdv.getType().equals(sumConst.getType())).collect(Collectors.toList()) ) {
-	    		DataValue<Integer> regularSum = (DataValue<Integer>) DataValue.add(dv, sumConst);
-	    		if ( !flattenedPot.contains(regularSum)) {
-	    			SumCDataValue<Integer> sumDv = new SumCDataValue<Integer>(dv, sumConst);
-	    			pot.add(sumDv);
-	    		}
-	    		flattenedPot.add(regularSum);
-	    	}
-    	}
-    	
-    	
-    	return pot;
-    }
-    
-    
-	@Override
+		// sortedList.addAll(dvs);
+		Collections.sort(sortedList, new Cpr());
+
+		// System.out.println("I'm sorted! " + sortedList.toString());
+		return sortedList;
+	}
+
+	/**
+	 * Creates a list of values comprising the data values supplied, plus all
+	 * values obtained by adding each of the sum constants to each of the data
+	 * values supplied.
+	 * 
+	 */
+	private List<DataValue<Integer>> makeNewPotsWithSumC(List<DataValue<Integer>> dvs) {
+		Stream<DataValue<Integer>> dvWithoutConsts = 
+				dvs.stream().filter(dv -> !regularConstants.contains(dv));
+		Stream<DataValue<Integer>> valAndSums = dvWithoutConsts
+				.map(val -> Stream.concat(Stream.of(val), 
+					sortedSumConsts.stream()
+						.map(sum -> new SumCDataValue<Integer>(val, sum))
+						.filter(sumc -> !dvs.contains(sumc)))
+				).flatMap(s -> s).distinct()
+				.filter(dv -> !canRemove(dv));
+		
+		List<DataValue<Integer>> valAndSumsAndConsts = Stream.concat(valAndSums, regularConstants.stream())
+				.collect(Collectors.toList()); 
+
+		return valAndSumsAndConsts;
+	}
+	
+	// if a value is already a SumCDv, it can only be operand in another SumCDv if its sum constant is ONE.
+	// this is a hack optimization for TCP
+	private boolean canRemove(DataValue<Integer> dv) {
+		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
+		while (dv instanceof SumCDataValue) {
+			SumCDataValue<Integer> sum = ((SumCDataValue<Integer>) dv);
+			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
+				if (sumCsOtherThanOne.contains(sum.getConstant()))
+					return true;
+				sumCsOtherThanOne.add(sum.getConstant());
+			}
+			dv = sum.getOperand();
+		}
+		return false;
+	}
+
+	/**
+	 * The next fresh value
+	 */
+	public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
+		List<DataValue<Integer>> valsWithConsts = new ArrayList<>(vals);
+		// we add regular constants
+		valsWithConsts.addAll(this.regularConstants);
+
+		DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
+		Integer nextFresh;
+		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
+		
+		
+		return new DataValue<Integer>(fv.getType(), nextFresh);
+	}
+	
+	
+	public IntervalDataValue<Integer> pickIntervalDataValue(DataValue<Integer> left, DataValue<Integer> right) {
+		if (right != null && left!=null) 
+			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
+				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
+		return IntervalDataValue.instantiateNew(left, right, smBgStep);
+	}
+
+	public ValueMapper<Integer> getValueMapper() {
+		return new SumCInequalityValueMapper<Integer>(this, this.sortedSumConsts);
+	}
+
+	public Collection<DataValue<Integer>> getAllNextValues(List<DataValue<Integer>> vals) {
+		// adds sumc constants to interesting values
+		List<DataValue<Integer>> potential = getPotential(vals);
+
+		// the superclass should complete this list with in-between values.
+		return super.getAllNextValues(potential);
+	}
+
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Integer>> left, DataValue<Integer> right) {
 
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();
-		LOOP: for (DataValue<Integer> dv : left) {
-			if (!this.sumConstants.isEmpty()) {
-				for (int ind = 0; ind < this.sumConstants.size(); ind++)
-					if (Integer.valueOf((this.sumConstants.get(ind).getId() + dv.getId()))
-							.compareTo(right.getId()) == 0) {
-						switch (ind) {
-						case 0:
-							ret.add(EnumSet.of(DataRelation.EQ_SUMC1, DataRelation.DEQ_SUMC1));
-							break;
-						case 1:
-							ret.add(EnumSet.of(DataRelation.EQ_SUMC2, DataRelation.DEQ_SUMC2));
-							break;
-						default:
-							throw new DecoratedRuntimeException("Over 2 sumcs not supported");
-						}
-						continue LOOP;
-					}
-			}
-
-			final int c = dv.getId().compareTo(right.getId());
-			if (c == 0)
-				ret.add(EnumSet.of(DataRelation.EQ, DataRelation.DEQ));
-			else if (c > 0)
-				ret.add(EnumSet.of(DataRelation.LT));
-			else
-				ret.add(EnumSet.noneOf(DataRelation.class));
+		for (DataValue<Integer> dv : left) {
+			DataRelation rel = getRelation(dv, right);
+			ret.add(EnumSet.of(rel));
 		}
-
 		return ret;
+	}
+	
+	private DataValue<Integer> maxSumC () {
+		return this.sortedSumConsts.get(sortedSumConsts.size()-1);
+	}
+	
+	private DataRelation getRelation(DataValue<Integer> dv, DataValue<Integer> right) {
+		DataRelation rel = null;
+		if (dv.equals(right))
+			rel = DataRelation.EQ;
+		else if (dv.getId().compareTo(right.getId()) > 0)
+			rel = DataRelation.LT;
+		else if ( Integer.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
+			rel = DataRelation.DEFAULT;
+		else 
+		{
+			Optional<DataValue<Integer>> sumcEqual = sortedSumConsts.stream().filter(c -> Integer.valueOf(c.getId() + dv.getId())
+					.equals(right.getId())).findAny();
+			if (sumcEqual.isPresent()) {
+				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
+				if (ind == 0) 
+					rel = DataRelation.EQ_SUMC1; 
+				else if (ind == 1) 
+					rel = DataRelation.EQ_SUMC2;
+				else
+					throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+			} else {
+				Optional<DataValue<Integer>> sumcLt = sortedSumConsts.stream().filter(c -> 
+				Integer.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findAny();
+				if (sumcLt.isPresent()) {
+					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
+					if (ind == 0) 
+						rel = DataRelation.LT_SUMC1; 
+					else if (ind == 1) 
+						rel = DataRelation.LT_SUMC2;
+					else
+						throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+				} else 
+					throw new DecoratedRuntimeException("Exhausted all cases");
+			}
+		}
+		return rel;
 	}
 }
