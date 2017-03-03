@@ -95,17 +95,17 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		ParamSignature signature = suffix.getParamSignature(pid);
 		// an example on how to restrict ISYNACK
-		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
-			List<DataValue<T>> bValues = action.getBranchingValues();
-			bValues.removeIf(dv -> dv.equals(constants.getSumC(type, 1) ) );
-			BranchingStrategy strategy = action.getStrategy();
-			switch(strategy) {
-			case FULL:
-				strategy=BranchingStrategy.IF_EQU_ELSE;
-				break;
-				default: break;
-			}
-		} 
+//		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
+//			List<DataValue<T>> bValues = action.getBranchingValues();
+//			bValues.removeIf(dv -> dv.equals(constants.getSumC(type, 1) ) );
+//			BranchingStrategy strategy = action.getStrategy();
+//			switch(strategy) {
+//			case FULL:
+//				strategy=BranchingStrategy.IF_EQU_ELSE;
+//				break;
+//				default: break;
+//			}
+//		} 
 
 		return action;
 	}
