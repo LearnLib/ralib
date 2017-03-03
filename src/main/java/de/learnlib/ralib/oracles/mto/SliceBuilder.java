@@ -30,6 +30,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
@@ -37,6 +38,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -176,7 +178,7 @@ public class SliceBuilder {
 
     }
     
-    public Slice sliceFromSDTs(SDT sdt1, SDT sdt2) {
+    public Slice sliceFromSDTs(SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions) {
         
         List<Pair<Conjunction>> cand = new ArrayList<>();
         cand.addAll(getCandidates(sdt1, sdt2, true));
@@ -185,7 +187,7 @@ public class SliceBuilder {
         Slice minSlice = null;
         for (Pair<Conjunction> p : cand) {
             Slice act = sliceFromPaths(p.e1, p.e2);
-            int rank = rankSlice(act);
+            int rank = rankSlice(act, actions);
             if (minSlice == null || rank < minRank) {
                 minRank = rank;
                 minSlice = act;
@@ -197,7 +199,8 @@ public class SliceBuilder {
 
     public Slice sliceFromTransitionAndSDT(
             Word<PSymbolInstance> ua, TransitionGuard guard,
-            Parameter p, PIV pivU, PIV pivUA, SymbolicDecisionTree sdt) {
+            Parameter p, PIV pivU, PIV pivUA, SymbolicDecisionTree sdt,
+            Word<ParameterizedSymbol> actions) {
 
         SDT _sdt = (SDT) sdt;
         Slice minSlice = null;
@@ -210,7 +213,7 @@ public class SliceBuilder {
         for (Conjunction c : paths) {
             Slice cur = sliceFromTransitionAndPath(ua, guard, p, pivU, pivUA, c);
             if (cur != null) {
-                int rank = rankSlice(cur);
+                int rank = rankSlice(cur, actions.prepend(ua.lastSymbol().getBaseSymbol()));
                 if (minSlice == null || rank < minRank) {
                     minRank = rank;
                     minSlice = cur;
@@ -331,15 +334,13 @@ public class SliceBuilder {
         return ret;
     }
 
-    public int rankSlice(Slice slice) {
+    public int rankSlice(Slice slice, Word<ParameterizedSymbol> actions) {
 
-        // (x2 = s2)
-        // -> relational impact once!
-        // (x2 = s2) /\ (s3 = s2)
-        // -> relational impact twice!
-        // (s3 = s2)
-        // -> enforce one value
-        return 0;
+        GeneralizedSymbolicSuffix suffix = 
+                SymbolicSuffixBuilder.suffixFromSlice(actions, slice);
+        
+        System.out.println("RANK " + suffix.rank() + " FOR " + suffix);       
+        return suffix.rank();
     }
 
 }

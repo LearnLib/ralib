@@ -246,7 +246,8 @@ class Component {
                 SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
                 
                 Slice slice = sb.sliceFromTransitionAndSDT(
-                        r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT());
+                        r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT(),
+                        c.getSuffix().getActions());
                   
                 GeneralizedSymbolicSuffix newSuffix = 
                         SymbolicSuffixBuilder.suffixFromSlice(

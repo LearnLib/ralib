@@ -50,6 +50,7 @@ public class SymbolicSuffixBuilder {
         List<SuffixValue> svals = new ArrayList<>();
         
         SuffixValueGenerator sgen = new SuffixValueGenerator();
+        int arityFirst = actions.firstSymbol().getArity();
         int idx = 0;
         for (DataType type : DataWords.typesOf(actions)) {            
             SuffixValue sv = sgen.next(type);            
@@ -59,6 +60,8 @@ public class SymbolicSuffixBuilder {
             for (SuffixValue prev : svals) {
                 if (prefixRelations[idx].isEmpty()) {
                     suffixRelations[idx][jdx] = 
+                            (idx < arityFirst) ?
+                            close(slice.getSuffixRelationsFor(prev, sv)) :
                             slice.getSuffixRelationsFor(prev, sv);
                 }
                 else {

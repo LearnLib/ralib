@@ -135,19 +135,16 @@ public class CounterexampleAnalysis {
         Slice slice = sb.sliceFromWord(prefix, suffix);
         System.out.println("Slice from word: " + slice);
         
-        GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-               new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
-        System.out.println("exhaustive suffix: " + symSuffix);
+//        GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+//               new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
+//        System.out.println("exhaustive suffix: " + symSuffix);
+
+        GeneralizedSymbolicSuffix symSuffix =
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
         
         System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-
-        GeneralizedSymbolicSuffix symSuffixSlice = 
-                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
-
-        System.out.println("slice suffix: " + symSuffixSlice);
-        symSuffix = symSuffixSlice;
                 
         log.log(Level.FINEST,"------------------------------------------------------");
         log.log(Level.FINEST,"Computing index: " + idx);
@@ -194,7 +191,7 @@ public class CounterexampleAnalysis {
         SDT sdt1 = (SDT) resSul.getSdt();
         SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
         
-        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2);
+        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, DataWords.actsOf(suffix));
         System.out.println("Slice from word: " + sliceSdts);
         
 //        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?
