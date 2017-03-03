@@ -40,7 +40,11 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
+
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 import net.automatalib.words.Word;
 
 /**
@@ -135,19 +139,20 @@ public class CounterexampleAnalysis {
         Slice slice = sb.sliceFromWord(prefix, suffix);
         System.out.println("Slice from word: " + slice);
         
-        GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-               new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
-        System.out.println("exhaustive suffix: " + symSuffix);
+        GeneralizedSymbolicSuffix symSuffix = 
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
+        		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
         
+        symSuffix.extendRelationsOfFirstSuffixAction();
+        
+        System.out.println("exhaustive suffix: " + symSuffix);
         System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
 
-        GeneralizedSymbolicSuffix symSuffixSlice = 
-                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
+       
 
-        System.out.println("slice suffix: " + symSuffixSlice);
-        symSuffix = symSuffixSlice;
+        System.out.println("slice suffix: " + symSuffix);
                 
         log.log(Level.FINEST,"------------------------------------------------------");
         log.log(Level.FINEST,"Computing index: " + idx);
@@ -221,10 +226,28 @@ public class CounterexampleAnalysis {
         	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
+        
+        boolean sulBranchingRetained = retainsBranching(prefix, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
+        if (!sulBranchingRetained ) {
+        	System.out.println("Branching not retained, however learning continues");
+        	System.out.println("OLD SUL :" + resSul.getSdt());
+        	System.out.println("NEW SUL :" + newResSul.getSdt());
+        }
+        
 
         return new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,
                 sliceSdts);        
+    }
+    
+    
+    private boolean retainsBranching(Word<PSymbolInstance> prefix, 
+            ParameterizedSymbol action, SymbolicDecisionTree oldSdtSUL, PIV oldPiv, SymbolicDecisionTree newSdtSUL, PIV newPiv) {
+    	Branching oldBranching = sulOracle.getInitialBranching(prefix, action, oldPiv, oldSdtSUL);
+    	Branching newBranching = sulOracle.getInitialBranching(prefix, action, newPiv, newSdtSUL);
+    	Set<Word<PSymbolInstance>> oldBranches = oldBranching.getBranches().keySet();
+    	Set<Word<PSymbolInstance>> newBranches = newBranching.getBranches().keySet();
+    	return oldBranches.equals(newBranches);
     }
     
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix, 

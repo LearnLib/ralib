@@ -39,6 +39,7 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -47,6 +48,8 @@ import java.util.Map;
  */
 public class JContraintsUtil {
 
+    //TODO The only type in use is DOUBLE. That is not ok for discrete domains.
+	
     public static Expression<Boolean> toExpression(
             LogicalOperator op,
             Map<SymbolicDataValue, Variable> map,
@@ -176,10 +179,25 @@ public class JContraintsUtil {
     }
     
     public static Constant toConstant(DataValue v) {
-        return new Constant(BuiltinTypes.DOUBLE, v.getId());
+        return new Constant( BuiltinTypes.DOUBLE, v.getId());
     }
 
     public static Variable toVariable(DataValue v) {
-        return new Variable(BuiltinTypes.DOUBLE, v.toString());
+        return new Variable(BuiltinTypes.DOUBLE);
     }
+    
+
+	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
+	static {
+		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
+		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
+		typeMap.put(Float.class, BuiltinTypes.FLOAT);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Type<T> getJCType(Class<T> cls) {
+		if (!typeMap.containsKey(cls))
+			throw new RuntimeException("No JConstraints type defined for " + cls);
+		return (Type<T>) typeMap.get(cls);
+	}
 }

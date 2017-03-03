@@ -211,7 +211,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	 * replace existing pref/suff sets by the set {DataRelation.ALL} .
 	 * 
 	 */
-	private void extendRelationsOfFirstSuffixAction() {
+	void extendRelationsOfFirstSuffixAction() {
 		if (this.prefixRelations.length > 0) // && prefixRelations[0].isEmpty())
 												// {
 		{
