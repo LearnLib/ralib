@@ -197,11 +197,14 @@ public class CounterexampleAnalysis {
         Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2);
         System.out.println("Slice from word: " + sliceSdts);
         
-        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?
-                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts) :
-                SymbolicSuffixBuilder.suffixFromSliceRetainBranching(
-                        DataWords.actsOf(suffix), sliceSdts, sdt1);
-
+//        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?
+//                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts) :
+//                SymbolicSuffixBuilder.suffixFromSliceRetainBranching(
+//                        DataWords.actsOf(suffix), sliceSdts, sdt1);
+        
+        GeneralizedSymbolicSuffix gsuffix = 
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
+        
         System.out.println("G-Suffix: " + gsuffix);
         
         // perform check, no extra inputs should be run, as all should be found in cache

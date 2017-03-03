@@ -132,20 +132,22 @@ public class IntervalGuard extends SDTGuard {
     	GuardExpression smaller = null;
     	GuardExpression bigger = null;
         if (rightEnd != null) {
-        	Relation lsrRel = rightOpen? Relation.LESSER : Relation.LSREQUALS;
+        	Relation lsrRel = rightOpen? Relation.GREATER : Relation.GREQUALS;
         	if (rightEnd instanceof SymbolicDataValue)
-        		smaller = new AtomicGuardExpression(parameter, lsrRel, rightEnd.getSDV());
+        		smaller = new AtomicGuardExpression(rightEnd.getSDV(), lsrRel, parameter);
         	else
         		if (rightEnd instanceof SumCDataExpression)
-        			smaller =  new SumCAtomicGuardExpression(parameter, null, lsrRel, rightEnd.getSDV(), ((SumCDataExpression) rightEnd).getConstant());
+        			smaller =  new SumCAtomicGuardExpression(
+                                        rightEnd.getSDV(), ((SumCDataExpression) rightEnd).getConstant(), lsrRel, parameter, null);
         }
         if (leftEnd!= null) {
-        	Relation grRel = leftOpen? Relation.GREATER : Relation.GREQUALS;
+        	Relation grRel = leftOpen? Relation.LESSER : Relation.LSREQUALS;
         	if (leftEnd instanceof SymbolicDataValue)
-        		bigger = new AtomicGuardExpression(parameter, grRel, leftEnd.getSDV());
+        		bigger = new AtomicGuardExpression(leftEnd.getSDV(), grRel, parameter);
         	else
         		if (leftEnd instanceof SumCDataExpression)
-        			bigger = new SumCAtomicGuardExpression(parameter, null,  grRel, leftEnd.getSDV(), ((SumCDataExpression) leftEnd).getConstant());
+        			bigger = new SumCAtomicGuardExpression(
+                                        leftEnd.getSDV(), ((SumCDataExpression) leftEnd).getConstant(),  grRel, parameter, null);
         } 
         
         GuardExpression ret = smaller != null && bigger != null ? new Conjunction(smaller, bigger) : 

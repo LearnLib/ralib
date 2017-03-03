@@ -150,6 +150,10 @@ public class SliceBuilder {
 
         Slice slice = new Slice();
 
+        System.out.println(p1);
+        System.out.println(p2);
+        
+        
         for (AtomicGuardExpression a : p1.getAtoms()) {
             assert (a.getRight() instanceof SuffixValue);
             for (DataRelation r : MultiTheorySDTLogicOracle.toDR(a, constants)) {
