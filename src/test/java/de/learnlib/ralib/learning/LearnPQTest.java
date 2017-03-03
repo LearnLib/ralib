@@ -80,7 +80,8 @@ public class LearnPQTest extends RaLibTestSuite {
                 TestUtil.createMTO(hyp,  teachers, new Constants(), jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, 
-                mlo, consts, teachers, hypVerifier, OFFER, POLL);
+                mlo, consts, teachers, hypVerifier, jsolv,
+                OFFER, POLL);
 
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();

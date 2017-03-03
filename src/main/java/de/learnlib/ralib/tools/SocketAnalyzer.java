@@ -221,7 +221,8 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 
 			this.hypVerifier = new IOHypVerifier(teach, consts);
 
-			this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, this.teachers, this.hypVerifier, actions);
+			this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
+                                this.teachers, this.hypVerifier, solver, actions);
 
 			if (findCounterexamples) {
 				this.randomWalk = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teachers, consts, random, inputSymbols); 

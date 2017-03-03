@@ -16,21 +16,31 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.Map;
-import java.util.logging.Level;
-
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
+import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.oracles.mto.Slice;
+import de.learnlib.ralib.oracles.mto.SliceBuilder;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -54,6 +64,8 @@ public class CounterexampleAnalysis {
     private final Constants consts;
     
     private final Map<DataType, Theory> teachers;
+
+    private final ConstraintSolver solver;
     
     private static enum IndexStatus {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
@@ -61,12 +73,12 @@ public class CounterexampleAnalysis {
         
         private final int idx;
         private final IndexStatus status;
-        private final GeneralizedSymbolicSuffix suffix;
+        private final Slice slice;
 
-        private IndexResult(int idx, IndexStatus status, GeneralizedSymbolicSuffix suffix) {
+        private IndexResult(int idx, IndexStatus status, Slice slice) {
             this.idx = idx;
             this.status = status;
-            this.suffix = suffix;
+            this.slice = slice;
         }
                
     }
@@ -76,7 +88,8 @@ public class CounterexampleAnalysis {
     CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
             Map<Word<PSymbolInstance>, Component> components, 
-            Constants consts, Map<DataType, Theory> teachers) {
+            Constants consts, Map<DataType, Theory> teachers,
+            ConstraintSolver solver) {
         
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
@@ -85,6 +98,7 @@ public class CounterexampleAnalysis {
         this.components = components;
         this.consts = consts;
         this.teachers = teachers;
+        this.solver = solver;
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
@@ -92,11 +106,17 @@ public class CounterexampleAnalysis {
         IndexResult result  = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(result.idx);
-        GeneralizedSymbolicSuffix symSuffix = result.suffix;
+        Word<PSymbolInstance> suffix = ce.suffix(ce.length() - result.idx);
+        
+        GeneralizedSymbolicSuffix symSuffix = 
+                SymbolicSuffixBuilder.suffixFromSlice(
+                        DataWords.actsOf(suffix), result.slice);
 
-        assert ce.length() - result.idx == symSuffix.getActions().length();        
+        assert ce.length() - result.idx == symSuffix.getActions().length();     
+        
         return new CEAnalysisResult(prefix, symSuffix);
     } 
+
     
     private IndexResult computeIndex(Word<PSymbolInstance> ce, int idx) {
         
@@ -109,13 +129,26 @@ public class CounterexampleAnalysis {
         	return  new IndexResult(idx, IndexStatus.NO_CE, null);
         
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);        
+        
+        SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
+        
+        Slice slice = sb.sliceFromWord(prefix, suffix);
+        System.out.println("Slice from word: " + slice);
+        
         GeneralizedSymbolicSuffix symSuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
                new GeneralizedSymbolicSuffix(prefix, suffix, consts, teachers);
         System.out.println("exhaustive suffix: " + symSuffix);
+        
         System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-        
+
+        GeneralizedSymbolicSuffix symSuffixSlice = 
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
+
+        System.out.println("slice suffix: " + symSuffixSlice);
+        symSuffix = symSuffixSlice;
+                
         log.log(Level.FINEST,"------------------------------------------------------");
         log.log(Level.FINEST,"Computing index: " + idx);
         log.log(Level.FINEST,"Prefix: " + prefix);
@@ -136,29 +169,7 @@ public class CounterexampleAnalysis {
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
-        
-//        GeneralizedSymbolicSuffix fullSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-//        TreeQueryResult resFullHyp = hypOracle.treeQuery(location, fullSuffix);
-//        TreeQueryResult resFullSul = sulOracle.treeQuery(location, fullSuffix);
-//        boolean hasFullCE = sdtOracle.hasCounterexample(location, 
-//                resFullHyp.getSdt(), resFullHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
-//                resFullSul.getSdt(), resFullSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
-//                g, transition);
-//        if (hasFullCE && !hasCE) {
-//        	System.out.println("PIV HYP: " + resHyp.getPiv());
-//        	System.out.println("SDT HYP: " + resHyp.getSdt());
-//        	
-//        	System.out.println("PIV SYS: " + resSul.getPiv());
-//        	System.out.println("SDT SYS: " + resSul.getSdt());
-//        	
-//        	System.out.println("PIV FULL HYP: " + resFullHyp.getPiv());
-//        	System.out.println("SDT FULL HYP: " + resFullHyp.getSdt());
-//        	
-//        	System.out.println("PIV FULL SYS: " + resFullSul.getPiv());
-//        	System.out.println("SDT FULL SYS: " + resFullSul.getSdt());
-//        	System.exit(0);
-//        }
-        
+                
         if (!hasCE) {
             return new IndexResult(idx, IndexStatus.NO_CE, null);
         }
@@ -167,13 +178,31 @@ public class CounterexampleAnalysis {
         System.out.println("SUL: " + resSul.getSdt());
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + suffix);
+
+        PIV pivSul = resSul.getPiv();
+        PIV pivHyp = c.getPrimeRow().getParsInVars();
+        boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
+        boolean hypRefinesTransition = 
+                hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         
-        GeneralizedSymbolicSuffix gsuffix = //GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
-        		sdtOracle.suffixForCounterexample(
-                location, 
-                resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
-                resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
-                g, symSuffix.getActions());
+        System.out.println("retain branching: " + !hypRefinesTransition);
+        
+        // remapping between sdts
+        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+                MultiTheorySDTLogicOracle.createRemapping(resHyp.getPiv(), resSul.getPiv());
+        
+        SDT sdt1 = (SDT) resSul.getSdt();
+        SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
+        
+        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2);
+        System.out.println("Slice from word: " + sliceSdts);
+        
+        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts) :
+                SymbolicSuffixBuilder.suffixFromSliceRetainBranching(
+                        DataWords.actsOf(suffix), sliceSdts, sdt1);
+
+        System.out.println("G-Suffix: " + gsuffix);
         
         // perform check, no extra inputs should be run, as all should be found in cache
         TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
@@ -182,23 +211,17 @@ public class CounterexampleAnalysis {
                 newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
-
-        System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
-        System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
+        
         if (! newHasCE) {
-           	System.out.println("CE not preserved by optimized suffix");
+        	System.out.println("CE not preserved by optimized suffix");
+        	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
+        	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
 
-        PIV pivSul = newResSul.getPiv();
-        PIV pivHyp = c.getPrimeRow().getParsInVars();
-        boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
-        boolean hypRefinesTransition = 
-                hypRefinesTransitions(location, act, newResSul.getSdt(), pivSul);
-               
         return new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,
-                gsuffix);        
+                sliceSdts);        
     }
     
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix, 
@@ -207,6 +230,11 @@ public class CounterexampleAnalysis {
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
         Component c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
+        
+        System.out.println("Hyp Branching:");
+        System.out.println(Arrays.toString(branchHyp.getBranches().values().toArray()));
+        System.out.println("Sul Branching:");
+        System.out.println(Arrays.toString(branchSul.getBranches().values().toArray()));
         
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
@@ -253,12 +281,14 @@ public class CounterexampleAnalysis {
             assert idx > 0;
             idx--;
         }
-        
+                
         // if the current index has no refinement use the 
         // suffix of the next index
         if (results[idx].status == IndexStatus.HAS_CE_NO_REFINE) {
         	if (results[idx+1].status == IndexStatus.NO_CE) {
-                GeneralizedSymbolicSuffix s = results[idx].suffix.suffix();
+                int arity = ce.getSymbol(idx).getBaseSymbol().getArity();
+                Slice s = results[idx].slice.suffix(arity);
+                System.out.println("Suffix slice: " + s);
                 IndexResult old = results[idx+1];
                 results[idx+1] = new IndexResult(old.idx, old.status, s);
             }
@@ -313,7 +343,9 @@ public class CounterexampleAnalysis {
         // suffix of the next index
         if (results[idx].status == IndexStatus.HAS_CE_NO_REFINE) {
             if (results[idx+1].status == IndexStatus.NO_CE) {
-                GeneralizedSymbolicSuffix s = results[idx].suffix.suffix();
+                int arity = ce.getSymbol(idx).getBaseSymbol().getArity();
+                Slice s = results[idx].slice.suffix(arity);
+                System.out.println("Suffix slice: " + s);                
                 IndexResult old = results[idx+1];
                 results[idx+1] = new IndexResult(old.idx, old.status, s);
             }

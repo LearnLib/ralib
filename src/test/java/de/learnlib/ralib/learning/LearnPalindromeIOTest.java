@@ -96,7 +96,8 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 TestUtil.createMTO(hyp, teachers, consts, solver);
 
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, actions);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
+                teachers, hypVerifier, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);

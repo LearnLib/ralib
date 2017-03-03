@@ -198,7 +198,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         
         this.hypVerifier = new IOHypVerifier(teachers, consts);
 
-        this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, actions);
+        this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
+                teachers, hypVerifier, solver, actions);
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         this.useEqTest = OPTION_USE_EQTEST.parse(config);

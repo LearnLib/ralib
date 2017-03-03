@@ -270,7 +270,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             
             this.hypVerifier = new IOHypVerifier(teach, consts);
 
-            this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, true, teachers, this.hypVerifier, actions);
+            this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
+                    true, teachers, this.hypVerifier, solver, actions);
 
             if (findCounterexamples) {
                 this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, inputSymbols);

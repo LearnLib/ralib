@@ -114,10 +114,10 @@ class Row {
         this.cells.put(c.getSuffix(), c.relabel(relabelling));
     }
 
-    GeneralizedSymbolicSuffix getSuffixForMemorable(Parameter p) {
+    Cell getCellForMemorable(Parameter p) {
         for (Entry<GeneralizedSymbolicSuffix, Cell> c : cells.entrySet()) {
             if (c.getValue().getParsInVars().containsKey(p)) {
-                return c.getKey();
+                return c.getValue();
             }
         }
 

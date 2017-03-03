@@ -20,6 +20,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -58,16 +59,20 @@ class ObservationTable {
     
     private final Map<DataType, Theory> teachers;
     
+    private final ConstraintSolver solver;
+    
     private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
     
     public ObservationTable(TreeOracle oracle, boolean ioMode, 
             Constants consts, Map<DataType, Theory> teachers,
+            ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
         this.ioMode = ioMode;
         this.consts = consts;
         this.teachers = teachers;
+        this.solver = solver;
     }
         
     void addComponent(Component c) {
@@ -161,7 +166,7 @@ class ObservationTable {
                 return;
             }
         }
-        Component c = new Component(r, this, ioMode, consts, teachers);
+        Component c = new Component(r, this, ioMode, consts, teachers, solver);
         addComponent(c);
     }
 

@@ -27,6 +27,10 @@ import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.mto.Slice;
+import de.learnlib.ralib.oracles.mto.SliceBuilder;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
@@ -64,15 +68,18 @@ class Component {
     
     private final Map<DataType, Theory> teachers;
     
+    private final ConstraintSolver solver;
+    
     private static final LearnLogger log = LearnLogger.getLogger(Component.class);
     
     public Component(Row primeRow, ObservationTable obs, boolean ioMode, 
-            Constants consts, Map<DataType, Theory> teachers) {
+            Constants consts, Map<DataType, Theory> teachers, ConstraintSolver solver) {
         this.primeRow = primeRow;
         this.obs = obs;
         this.ioMode = ioMode;
         this.consts = consts;
         this.teachers = teachers;
+        this.solver = solver;
     }
 
     /**
@@ -156,7 +163,7 @@ class Component {
             }
 
             if (!added) {
-                Component c = new Component(r, obs, ioMode, consts, teachers);
+                Component c = new Component(r, obs, ioMode, consts, teachers, solver);
                 newComponents.add(c);
             }
         }
@@ -215,26 +222,49 @@ class Component {
             return true;
         }
             
-        Word<PSymbolInstance> prefix = r.getPrefix().prefix(r.getPrefix().length() -1);
-        Row prefixRow = obs.getComponents().get(prefix).primeRow;
-                
-        PIV memPrefix = prefixRow.getParsInVars();
-        PIV memRow = r.getParsInVars();
+        Word<PSymbolInstance> prefix = r.getPrefix().prefix(r.getPrefix().length() -1);        
+        Component prefixComponent = obs.getComponents().get(prefix);        
+        Branching prefixBranching = prefixComponent.getBranching(
+                r.getPrefix().lastSymbol().getBaseSymbol());
+        
+        TransitionGuard prefixGuard = prefixBranching.getBranches().get(r.getPrefix());
+        PIV pivU = prefixComponent.primeRow.getParsInVars();
+        PIV pivUA = r.getParsInVars();
+        
+        
+//        Row prefixRow = obs.getComponents().get(prefix).primeRow;
+//                
+//        PIV memPrefix = prefixRow.getParsInVars();
+//        PIV memRow = r.getParsInVars();
         
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
         
-        for (Parameter p : memRow.keySet()) {
+        for (Parameter p : pivUA.keySet()) {
             // p is used by next but not stored by this and is from this word
-            if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                GeneralizedSymbolicSuffix suffix = r.getSuffixForMemorable(p);      
-                GeneralizedSymbolicSuffix newSuffix = new GeneralizedSymbolicSuffix(
-                        r.getPrefix(), suffix, consts, teachers);
+            if (!pivU.containsKey(p) && p.getId() <= max) {
+                Cell c = r.getCellForMemorable(p);
+                SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
                 
-//               System.out.println("Found inconsistency. missing " + p +
-//                        " in mem. of " + prefix);                
-//               System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
-//               System.out.println("New symbolic suffix: " + newSuffix);
+                Slice slice = sb.sliceFromTransitionAndSDT(
+                        r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT());
+                  
+                GeneralizedSymbolicSuffix newSuffix = 
+                        SymbolicSuffixBuilder.suffixFromSlice(
+                                c.getSuffix().getActions().prepend(
+                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
+                                slice);
 
+                System.out.println("Long Prefix:" + r.getPrefix());
+                System.out.println("Original Suffix:" + c.getSuffix().getActions());                
+                System.out.println(prefixGuard);                
+                System.out.println(pivU);                
+                System.out.println(pivUA);                
+                System.out.println(c.getSDT());                
+                System.out.println(slice);
+                System.out.println(newSuffix);
+                
+                //if (true) throw new IllegalStateException("untested");
+                
                 obs.addSuffix(newSuffix);
                 return false;
             }

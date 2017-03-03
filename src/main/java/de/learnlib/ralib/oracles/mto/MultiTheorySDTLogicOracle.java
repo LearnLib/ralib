@@ -259,7 +259,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return ret;       
     }
     
-    private VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(
+    public static VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(
             PIV from, PIV to) {
                 
         // there should not be any register with id > n
@@ -499,7 +499,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         	//TODO Constants count here as registers? 
             if (!(e.getLeft() instanceof SuffixValue) || 
                     !(e.getRight() instanceof SuffixValue)) {
-                ret.addAll(toDR(e));
+                ret.addAll(toDR(e, consts));
             }
         }
 
@@ -531,12 +531,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                     e.getRight() instanceof SuffixValue) {
                 int idx = Math.min(e.getLeft().getId(), e.getRight().getId()) -1;
                 
-                srels[idx].addAll(toDR(e));
+                srels[idx].addAll(toDR(e, consts));
             }
         }
     }
     
-    private EnumSet<DataRelation> toDR(AtomicGuardExpression atom) {
+   static EnumSet<DataRelation> toDR(AtomicGuardExpression atom, Constants consts) {
         switch (atom.getRelation()) {
             case EQUALS: 
             	if (atom instanceof SumCAtomicGuardExpression) {
@@ -552,7 +552,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             	else return EnumSet.of(DataRelation.EQ);
             case LESSER: 
              	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
             		if (index == 0)
             			return EnumSet.of(DataRelation.LT_SUMC1);
             		if (index == 1)
@@ -564,7 +564,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             case GREATER: return EnumSet.of(DataRelation.DEFAULT);
             case LSREQUALS: 
             	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
             		if (index == 0)
             			return EnumSet.of(DataRelation.LT_SUMC1, DataRelation.EQ_SUMC1);
             		if (index == 1)
@@ -576,7 +576,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             case GREQUALS: return EnumSet.of(DataRelation.DEFAULT, DataRelation.EQ);            
             case NOT_EQUALS: 
             	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom);
+            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
             		if (index == 0)
             			return EnumSet.of(DataRelation.DEQ_SUMC1);
             		if (index == 1)
@@ -590,7 +590,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         }
     }
     
-    private int getSumCIndex(SumCAtomicGuardExpression atom) {
+    static int getSumCIndex(SumCAtomicGuardExpression atom, Constants consts) {
     	DataValue cst = ((SumCAtomicGuardExpression) atom).getRightConst();
     	if (cst == null)
     		cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
@@ -598,9 +598,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 		int index = consts.getSumCs(cst.getType()).indexOf(cst);
 		return index;
     }
+
     
-    
-    
+        
     
     /* METHODS that could be used (if not, should be removed)
      */

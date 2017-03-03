@@ -88,7 +88,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         
         RaStar rastar = new RaStar(mto, hypFactory, mlo,
-                consts, true, teachers, hypVerifier, sul.getActionSymbols());
+                consts, true, teachers, hypVerifier, jsolv,
+                sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,

@@ -16,10 +16,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Map;
-
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
@@ -28,10 +24,14 @@ import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -68,6 +68,8 @@ public class RaStar {
 	private HypVerifier hypVerifier;
     
     private final Map<DataType, Theory> teachers;
+
+    private final ConstraintSolver solver;
     
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
@@ -75,13 +77,15 @@ public class RaStar {
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             Map<DataType, Theory> teachers,
             HypVerifier hypVerifier,
+            ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
         
         this.ioMode = ioMode;
-        this.obs = new ObservationTable(oracle, ioMode, consts, teachers, inputs);
+        this.obs = new ObservationTable(oracle, ioMode, consts, teachers, solver, inputs);
         this.consts = consts;
         this.teachers = teachers;
-        
+        this.solver = solver;
+
         this.obs.addPrefix(EMPTY_PREFIX);
         this.obs.addSuffix(EMPTY_SUFFIX);
   
@@ -102,18 +106,20 @@ public class RaStar {
     public RaStar(TreeOracle oracle,TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             Map<DataType, Theory> teachers,
-            HypVerifier hypVerifier,
+            HypVerifier hypVerifier, ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
-    	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, teachers, hypVerifier, inputs);
+    	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, 
+                teachers, hypVerifier, solver, inputs);
     	
     }   
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts,  Map<DataType, Theory> teachers, 
-            HypVerifier hypVerifier,
+            HypVerifier hypVerifier, ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
         
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, teachers, hypVerifier, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, 
+                teachers, hypVerifier, solver, inputs);
     }
         
     public void learn() {
@@ -158,7 +164,7 @@ public class RaStar {
         
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(
                 ceSulOracle, hypOracle, hyp, sdtLogicOracle, obs.getComponents(), 
-                        consts, teachers);
+                        consts, teachers, solver);
         
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
