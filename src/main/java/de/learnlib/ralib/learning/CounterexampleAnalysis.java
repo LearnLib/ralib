@@ -143,16 +143,10 @@ public class CounterexampleAnalysis {
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
         		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
         
-        symSuffix.extendRelationsOfFirstSuffixAction();
-        
         System.out.println("exhaustive suffix: " + symSuffix);
         System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-
-       
-
-        System.out.println("slice suffix: " + symSuffix);
                 
         log.log(Level.FINEST,"------------------------------------------------------");
         log.log(Level.FINEST,"Computing index: " + idx);
@@ -199,7 +193,7 @@ public class CounterexampleAnalysis {
         SDT sdt1 = (SDT) resSul.getSdt();
         SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
         
-        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2);
+        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, DataWords.actsOf(suffix));
         System.out.println("Slice from word: " + sliceSdts);
         
 //        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?

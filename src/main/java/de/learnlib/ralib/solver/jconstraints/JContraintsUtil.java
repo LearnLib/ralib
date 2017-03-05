@@ -183,7 +183,7 @@ public class JContraintsUtil {
     }
 
     public static Variable toVariable(DataValue v) {
-        return new Variable(BuiltinTypes.DOUBLE);
+        return new Variable(BuiltinTypes.DOUBLE, v.toString());
     }
     
 

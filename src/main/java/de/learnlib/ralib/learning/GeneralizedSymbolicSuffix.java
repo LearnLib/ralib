@@ -524,4 +524,27 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			arr[i - from] = new HashSet<>(array[i]);
 		return arr;
 	}
+        
+        
+        public int rank() {
+            int val = 0;
+            for (EnumSet<DataRelation> dr : prefixRelations) {
+                if (dr.contains(DataRelation.EQ)) {
+                    val += 10;
+                }
+                if (dr.contains(DataRelation.EQ_SUMC1)) {
+                    val += 10;
+                }
+                if (dr.contains(DataRelation.EQ_SUMC2)) {
+                    val += 10;
+                }
+                if (dr.contains(DataRelation.LT)) {
+                    val += 25;
+                }
+                if (dr.contains(DataRelation.ALL)) {
+                    val += 55;
+                }                
+            }
+            return val;
+        }
 }
