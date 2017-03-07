@@ -1,5 +1,6 @@
 package de.learnlib.ralib.theory.inequality;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	
 
-	private SDTGuardLogic logic;
+	protected SDTGuardLogic logic;
 
 	public ConcreteInequalityMerger(SDTGuardLogic logic) {
 		this.logic = logic;
@@ -88,6 +89,9 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 				SDTGuard[] deq = eqDeqMergedResult.keySet().stream()
 					.map(eq -> ((EqualityGuard) eq).toDeqGuard())
 					.toArray(SDTGuard []::new);
+				if (deq.length == 0)
+					System.out.println(mergedResult);
+				
 				if (deq.length > 1)
 					elseGuard = new SDTAndGuard(head.getParameter(), deq);
 				else
@@ -122,10 +126,11 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 		if (equGuard != null) {
 			SDT intSdt = guardSdtMap.get(intGuard);
 			SDT equSdt = guardSdtMap.get(equGuard);
-			List<EqualityGuard> eqGuards = //Arrays.asList(equGuard); 
-					intSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
-					.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
-			eqGuards.add(equGuard);
+			List<EqualityGuard> eqGuards = Arrays.asList(equGuard); 
+			//List<EqualityGuard> eqGuards =  
+			//		intSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
+			//		.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
+			//eqGuards.add(equGuard);
 			if (equSdt.isEquivalentUnderEquality(intSdt, eqGuards))
 				return intSdt;
 		} else { // two interval guards

@@ -21,8 +21,9 @@ import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.sul.examples.AbstractTCPExample.Option;
+import de.learnlib.ralib.sul.examples.ModerateTCPExample;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;

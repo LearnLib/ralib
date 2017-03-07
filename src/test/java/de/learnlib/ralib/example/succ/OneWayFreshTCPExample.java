@@ -1,5 +1,7 @@
 package de.learnlib.ralib.example.succ;
 
+import de.learnlib.ralib.sul.examples.AbstractTCPExample;
+
 public class OneWayFreshTCPExample extends AbstractTCPExample{
 
 	private Double seq = 0.0;

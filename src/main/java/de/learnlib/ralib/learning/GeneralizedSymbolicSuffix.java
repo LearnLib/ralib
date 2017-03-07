@@ -199,8 +199,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			prevSuffixValues.add(v);
 			idx++;
 		}
-		
-		this.extendRelationsOfFirstSuffixAction();
 	}
 
 	/**
@@ -211,20 +209,25 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	 * replace existing pref/suff sets by the set {DataRelation.ALL} .
 	 * 
 	 */
-	void extendRelationsOfFirstSuffixAction() {
+	public GeneralizedSymbolicSuffix getSuffixWithExtendedRelationsOnFirstAction() {
+		 GeneralizedSymbolicSuffix gSuffix = new GeneralizedSymbolicSuffix(this.actions, 
+				 this.prefixRelations,
+				this.suffixRelations,this.prefixSources);
+		 
 		if (this.prefixRelations.length > 0) // && prefixRelations[0].isEmpty())
-												// {
 		{
 			int symInd = 0;
 			for (symInd = 0; actions.getSymbol(symInd).getArity() == 0; symInd++);
 			int paramsInAction = actions.getSymbol(symInd).getArity();
 
 			for (int i = 0; i < paramsInAction; i++) {
-				extendRelationSet(this.prefixRelations[i]);
+				extendRelationSet(gSuffix.prefixRelations[i]);
 				for (int sind = 0; sind < i; sind++)
-					extendRelationSet(this.suffixRelations[i][sind]);
+					extendRelationSet(gSuffix.suffixRelations[i][sind]);
 			}
 		}
+		
+		return gSuffix;
 	}
 
 	private void extendRelationSet(EnumSet<DataRelation> rels) {
@@ -291,7 +294,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 				this.suffixRelations[psLength + i][j] = symSuffix.suffixRelations[i][j - sameTypePrefix];
 		}
 		
-		this.extendRelationsOfFirstSuffixAction();
+		//this.extendRelationsOfFirstSuffixAction();
 	}
 
 	public GeneralizedSymbolicSuffix(ParameterizedSymbol ps, Map<DataType, Theory> theories) {

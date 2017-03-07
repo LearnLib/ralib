@@ -68,5 +68,9 @@ public class SumCDataExpression implements SymbolicDataExpression{
 		return  new SumCDataValue(operand, constant);
 	}
 
+	public SymbolicDataExpression getOperand() {
+		return this.expr;
+	}
+
 
 }

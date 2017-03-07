@@ -57,8 +57,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	public SumCIntegerInequalityTheory(DataType<Integer> dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
 		super(dataType);
-		this.sortedSumConsts = sumConstants;
-		this.regularConstants = regularConstants;
+		setConstants(sumConstants, regularConstants);
 	}
 
 	public void setSumcConstants(SumConstants constants) {
@@ -71,10 +70,11 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	private void setConstants (List<DataValue<Integer>> sumConstants,
 			List<DataValue<Integer>> regularConstants) {
-		this.sortedSumConsts = new ArrayList<>(sumConstants);
+		this.sortedSumConsts = sumConstants;
 		Collections.sort(this.sortedSumConsts, new Cpr());
+		this.sortedSumConsts = new ArrayList<>(sumConstants);
 		this.regularConstants = regularConstants;
-		DataValue<Integer> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ZERO(this.getType())
+		DataValue<Integer> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ONE(this.getType())
 				: maxSumC();
 		this.freshStep = maxSumC.getId() * freshFactor;
 		this.smBgStep = new DataValue<Integer>(type, maxSumC.getId() * smBgFactor);

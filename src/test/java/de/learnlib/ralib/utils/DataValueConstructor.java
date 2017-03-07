@@ -22,8 +22,12 @@ public class DataValueConstructor<T extends Comparable<T>> {
 		return new FreshValue<T>(this.type, val);
 	}
 	
-	public SumCDataValue<T> sumcv(T val, T cons) {
-		return new SumCDataValue<T>(dv(val), dv(cons));
+	public DataValue<T> sumcv(T val, T... constants ) {
+		DataValue<T> v = new DataValue<T>(type, val);
+		for (T cons : constants) {
+			v = new SumCDataValue<T>(v, dv(cons));
+		}
+		return v;
 	}
 	
 	public IntervalDataValue<T> intv(T val, DataValue<T> biggerThan, DataValue<T> smallerThan) {
