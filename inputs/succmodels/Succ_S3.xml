@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+
+int seqNr;
+
+void IMSG(int p) {
+}
+
+void IACK(int p) {
+}
+
+void OOK() {
+}
+
+void ONOK() {
+}</declaration><template><name x="5" y="5">Template</name><declaration>// Place local declarations here.
+</declaration><location id="id0" x="136" y="344"></location><location id="id1" x="-152" y="216"></location><location id="id2" x="-32" y="344"></location><location id="id3" x="104" y="-88"></location><location id="id4" x="-32" y="216"></location><location id="id5" x="120" y="96"></location><location id="id6" x="-32" y="96"></location><location id="id7" x="-32" y="16"></location><location id="id8" x="-32" y="-80"></location><init ref="id8"/><transition><source ref="id2"/><target ref="id0"/><label kind="synchronisation" x="32" y="320">IACK()</label></transition><transition><source ref="id1"/><target ref="id6"/><label kind="synchronisation" x="-152" y="141">OOK()</label></transition><transition><source ref="id2"/><target ref="id1"/><label kind="guard" x="-184" y="274">p==seqNr+1</label><label kind="synchronisation" x="-184" y="256">IMSG(p)</label><label kind="assignment" x="-184" y="304">seqNr=seqNr+1;</label></transition><transition><source ref="id0"/><target ref="id2"/><label kind="synchronisation" x="40" y="400">ONOK()</label><nail x="56" y="400"/></transition><transition><source ref="id2"/><target ref="id0"/><label kind="guard" x="64" y="264">p!=seqNr+1</label><label kind="synchronisation" x="64" y="279">IMSG(p)</label><nail x="48" y="288"/></transition><transition><source ref="id4"/><target ref="id2"/><label kind="synchronisation" x="-16" y="256">OOK()</label></transition><transition><source ref="id6"/><target ref="id5"/><label kind="synchronisation" x="32" y="0">IMSG(p)</label><nail x="40" y="24"/></transition><transition><source ref="id3"/><target ref="id8"/><label kind="synchronisation" x="16" y="-144">ONOK()</label><nail x="48" y="-120"/></transition><transition><source ref="id8"/><target ref="id3"/><label kind="synchronisation" x="24" y="-48">IACK(p)</label><nail x="48" y="-48"/></transition><transition><source ref="id5"/><target ref="id6"/><label kind="synchronisation" x="56" y="128">ONOK()</label><nail x="56" y="120"/></transition><transition><source ref="id6"/><target ref="id5"/><label kind="guard" x="0" y="72">p!=seqNr+1</label><label kind="synchronisation" x="8" y="56">IACK(p)</label></transition><transition><source ref="id6"/><target ref="id4"/><label kind="guard" x="-16" y="168">p==seqNr+1</label><label kind="synchronisation" x="-8" y="144">IACK(p)</label></transition><transition><source ref="id7"/><target ref="id6"/><label kind="synchronisation" x="-80" y="24">OOK()</label></transition><transition><source ref="id8"/><target ref="id7"/><label kind="synchronisation" x="-104" y="-71">IMSG(p)</label><label kind="assignment" x="-104" y="-56">seqNr=p;</label></transition></template><system>// Place template instantiations here.
+Process = Template();
+
+// List one or more processes to be composed into a system.
+system Process;</system></nta>

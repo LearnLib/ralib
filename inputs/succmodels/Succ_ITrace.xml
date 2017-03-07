@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+int p;
+int v;
+int w;
+
+void IGET() {
+}
+
+void IIN(int p) {
+}
+
+void OOK() {
+}
+
+void ONOK() {
+}
+
+void OPUT() {
+}</declaration><template><name x="5" y="5">Template</name><declaration>// Place local declarations here.
+</declaration><location id="id0" x="128" y="-400"></location><location id="id1" x="-72" y="-200"></location><location id="id2" x="-336" y="-392"></location><location id="id3" x="-592" y="-384"></location><location id="id4" x="-72" y="-392"></location><location id="id5" x="144" y="-296"></location><location id="id6" x="40" y="-296"></location><location id="id7" x="-72" y="-296"></location><location id="id8" x="-200" y="-296"></location><location id="id9" x="-328" y="-296"></location><location id="id10" x="-464" y="-296"></location><location id="id11" x="-584" y="-296"></location><init ref="id11"/><transition><source ref="id5"/><target ref="id0"/><label kind="synchronisation" x="104" y="-360">IIN(p)</label><nail x="160" y="-352"/></transition><transition><source ref="id0"/><target ref="id5"/><label kind="synchronisation" x="240" y="-344">ONOK()</label><nail x="240" y="-360"/></transition><transition><source ref="id5"/><target ref="id0"/><label kind="synchronisation" x="48" y="-368">IGET()</label><nail x="96" y="-352"/></transition><transition><source ref="id1"/><target ref="id7"/><label kind="synchronisation" x="-168" y="-248">ONOK()</label><nail x="-104" y="-240"/></transition><transition><source ref="id7"/><target ref="id1"/><label kind="synchronisation" x="-24" y="-240">IGET()</label><nail x="-32" y="-248"/></transition><transition><source ref="id2"/><target ref="id9"/><label kind="synchronisation" x="-312" y="-352">ONOK()</label><nail x="-312" y="-344"/></transition><transition><source ref="id9"/><target ref="id2"/><label kind="synchronisation" x="-408" y="-360">IIN(p)</label><nail x="-368" y="-352"/></transition><transition><source ref="id3"/><target ref="id11"/><label kind="synchronisation" x="-560" y="-352">ONOK()</label><nail x="-568" y="-336"/></transition><transition><source ref="id11"/><target ref="id3"/><label kind="synchronisation" x="-696" y="-336">IGET()</label><nail x="-616" y="-336"/></transition><transition><source ref="id6"/><target ref="id5"/><label kind="synchronisation" x="56" y="-320">OPUT(p)</label><label kind="assignment" x="72" y="-296">p=v;</label></transition><transition><source ref="id7"/><target ref="id6"/><label kind="guard" x="-48" y="-320">p==w</label><label kind="synchronisation" x="-40" y="-296">IIN(p)</label></transition><transition><source ref="id4"/><target ref="id7"/><label kind="synchronisation" x="-32" y="-352">ONOK()</label><nail x="-48" y="-344"/></transition><transition><source ref="id7"/><target ref="id4"/><label kind="guard" x="-144" y="-376">p!=w</label><label kind="synchronisation" x="-144" y="-360">IIN(p)</label><nail x="-104" y="-352"/></transition><transition><source ref="id8"/><target ref="id7"/><label kind="synchronisation" x="-176" y="-320">OPUT(p)</label><label kind="assignment" x="-192" y="-288">p=random();w=p;</label></transition><transition><source ref="id9"/><target ref="id8"/><label kind="synchronisation" x="-288" y="-320">IGET()</label></transition><transition><source ref="id10"/><target ref="id9"/><label kind="synchronisation" x="-432" y="-320">OOK()</label></transition><transition><source ref="id11"/><target ref="id10"/><label kind="synchronisation" x="-552" y="-320">IIN(p)</label><label kind="assignment" x="-544" y="-296">v=p;</label><nail x="-544" y="-296"/></transition></template><system>// Place template instantiations here.
+Process = Template();
+
+// List one or more processes to be composed into a system.
+system Process;</system></nta>
