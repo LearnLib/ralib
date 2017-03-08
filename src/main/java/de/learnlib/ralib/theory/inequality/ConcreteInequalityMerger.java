@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
@@ -97,8 +98,10 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 				else
 					elseGuard = deq[0];
 				
-				eqDeqMergedResult.put(elseGuard, equivSDT);
-				return eqDeqMergedResult;
+				// the if else branching might still be further merged, for which we use an if else merger.
+				IfElseGuardMerger ifElse = new IfElseGuardMerger(this.logic);
+				LinkedHashMap<SDTGuard, SDT> result = ifElse.merge(eqDeqMergedResult, elseGuard, equivSDT);
+				return result;
 			}	
 		}
 		return mergedResult;

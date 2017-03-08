@@ -26,8 +26,8 @@ public class IfElseGuardMerger {
 	 * It assumes that the elseGuard is a conjunction over the negation of each
 	 * of the if guards.
 	 */
-	public Map<SDTGuard, SDT> merge(Map<SDTGuard, SDT> ifGuards, SDTGuard elseGuard, SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
+	public LinkedHashMap<SDTGuard, SDT> merge(Map<SDTGuard, SDT> ifGuards, SDTGuard elseGuard, SDT elseSDT) {
+		LinkedHashMap<SDTGuard, SDT> merged = new LinkedHashMap<>();
 		SDTGuard newElseGuard = elseGuard;
 		for (SDTGuard ifGuard : ifGuards.keySet()) {
 			SDT ifSdt = ifGuards.get(ifGuard);

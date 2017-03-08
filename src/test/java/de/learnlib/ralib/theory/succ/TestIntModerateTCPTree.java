@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -161,6 +162,37 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
 	  //      Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
 	    }
 	
+	public void testModerateFreshTCPTree4() {
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(IntModerateFreshTCPSUL.INT_TYPE);
+		 final Word<PSymbolInstance> prefix = //Word.epsilon(); 
+	        		Word.fromSymbols(
+	                new PSymbolInstance(IntModerateFreshTCPSUL.ICONNECT),
+	                new PSymbolInstance(IntModerateFreshTCPSUL.OCONNECT,
+	                		b.fv(100000))
+	                ,
+	                new PSymbolInstance(IntModerateFreshTCPSUL.ISYNACK, 
+	                		b.sumcv(100000, 1),
+	                		b.sumcv(100000, 1)),
+	                new PSymbolInstance(IntModerateFreshTCPSUL.NOK));
+	        
+	        
+	        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+	                new PSymbolInstance(IntModerateFreshTCPSUL.ISYNACK, 
+	                		b.sumcv(100000, 1),
+	                		b.sumcv(300000, 1, 1)),
+	                new PSymbolInstance(IntModerateFreshTCPSUL.NOK),
+	                new PSymbolInstance(IntModerateFreshTCPSUL.ISYN, 
+	                		b.sumcv(100000, 1),
+	                		b.sumcv(300000, 1, 1)),
+	                new PSymbolInstance(IntModerateFreshTCPSUL.NOK));
+	       
+	        
+	        testTreeQuery(prefix, (teach, cons) ->  GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, cons, teach)
+	        		, sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7) ); 
+	        		//sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6));
+	  //      Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
+	    }
+	
 	@SafeVarargs
 	public final void testTreeQuery(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Consumer<SDT>... assertions) {
 		Integer win = 1000;
@@ -210,7 +242,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
 
 	
 	@SafeVarargs
-	public final void testTreeQuery(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix, Consumer<SDT>... assertions) {
+	public final void testTreeQuery(Word<PSymbolInstance> prefix, BiFunction<Map<DataType, Theory>, Constants, GeneralizedSymbolicSuffix> symSuffProvider, Consumer<SDT>... assertions) {
 		Integer win = 1000;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DataValue [] sumConsts = new DataValue [] {
@@ -231,6 +263,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
                 new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
+        GeneralizedSymbolicSuffix symSuffix = symSuffProvider.apply(teachers, consts);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
         System.out.println(symSuffix);
@@ -249,9 +282,10 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
 	
     public static void main(String args []) {
     	TestIntModerateTCPTree testSuite = new TestIntModerateTCPTree();
-    	testSuite.testModerateFreshTCPTree();
-    	testSuite.testModerateFreshTCPTree2();
-    	testSuite.testModerateFreshTCPTree3();
+//    	testSuite.testModerateFreshTCPTree();
+//    	testSuite.testModerateFreshTCPTree2();
+//    	testSuite.testModerateFreshTCPTree3();
+    	testSuite.testModerateFreshTCPTree4();
     }
 
 }

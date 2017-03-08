@@ -21,6 +21,10 @@ public class DiscreteInequalityGuardLogic implements SDTGuardLogic {
 		this.ineqGuardLogic = new InequalityGuardLogic();
 	}
 
+	/**
+	 * Builds a disjunction between two guards, merging them wherever possible. Note, this 
+	 * logic does not merge two equality guards, it always applies an OR gate over them.
+	 */
 	public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2) {
 		EqualityGuard equGuard;
 		IntervalGuard intGuard;
