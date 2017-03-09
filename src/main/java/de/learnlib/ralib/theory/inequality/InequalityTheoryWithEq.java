@@ -393,7 +393,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// smcv = new IntervalDataValue<T>(smcv, null, dvRight);
 					smValues.put(pId, smcv);
 					smSuffixValues.put(sv, smcv);
-	
 					SDT smoracleSdt = oracle.treeQuery(prefix, suffix, smValues, piv, constants, smSuffixValues);
 					if (branching == BranchingStrategy.TRUE_SMALLER) {
 						tempKids.put(new SDTTrueGuard(currentParam), smoracleSdt);
@@ -417,7 +416,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					DataValue<T> dvLeft = potential.get(potSize - 1);
 					IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, bgValues, piv, constants);
 					updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
-					DataValue<T> bgcv = IntervalDataValue.instantiateNew(dvLeft, null);
+					DataValue<T> bgcv = this.pickIntervalDataValue(dvLeft, null);
 					// instantiate(bguard, bgVal, constants, potential);
 					// bgcv = new IntervalDataValue<T>(bgcv, dvLeft, null);
 					bgValues.put(pId, bgcv);

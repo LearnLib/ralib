@@ -114,7 +114,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 				if (!Boolean.logicalXor(newRight == null, intv.getRight() == null) && !Boolean.logicalXor(newLeft == null, intv.getLeft() == null)
 						&& (newRight != null || newLeft != null)) {
 					if ((newRight == null || newLeft == null) || (newRight.getId().compareTo(newLeft.getId()) > 0))
-						return IntervalDataValue.instantiateNew(newLeft, newRight);
+						return ((NumberInequalityTheory<T>)this.theory).pickIntervalDataValue(newLeft, newRight); 
 					else 
 						// since we use this to canonize a trace from which segments where removed, it can happen that fresh values appear disorderly,
 						// that is a bigger fresh value appears before a smaller one. In such cases, intervals are mapped to fresh values
