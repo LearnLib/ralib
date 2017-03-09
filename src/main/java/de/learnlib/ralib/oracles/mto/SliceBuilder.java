@@ -19,7 +19,10 @@ package de.learnlib.ralib.oracles.mto;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.automata.guards.Negation;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -34,7 +37,6 @@ import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -45,7 +47,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import net.automatalib.words.Word;
 
@@ -128,7 +129,8 @@ public class SliceBuilder {
                     continue;
                 }
 
-                EnumSet<DataRelation> rels = (EnumSet<DataRelation>) theory.getRelations(Collections.singletonList(psv), val).get(0);
+                EnumSet<DataRelation> rels = (EnumSet<DataRelation>) 
+                        theory.getRelations(Collections.singletonList(psv), val).get(0);
 
                 assert !rels.isEmpty();
 
@@ -206,9 +208,9 @@ public class SliceBuilder {
         Slice minSlice = null;
         int minRank = 0;
 
-        List<Conjunction> paths = new ArrayList<>();
-        paths.addAll(_sdt.getPathsAsExpressions(constants, true));
-        paths.addAll(_sdt.getPathsAsExpressions(constants, false));
+        List<Conjunction> paths = getPathsForMemorable(_sdt, pivUA.get(p));
+        //paths.addAll(_sdt.getPathsAsExpressions(constants, true));
+        //paths.addAll(_sdt.getPathsAsExpressions(constants, false));
 
         for (Conjunction c : paths) {
             Slice cur = sliceFromTransitionAndPath(ua, guard, p, pivU, pivUA, c);
@@ -232,7 +234,7 @@ public class SliceBuilder {
         if (!path.getSymbolicDataValues().contains(reg)) {
             return null;
         }
-
+        
         Word<PSymbolInstance> prefix = ua.prefix(ua.length() - 1);
         Word<PSymbolInstance> suffix = ua.suffix(1);
         int arityU = DataWords.paramLength(DataWords.actsOf(prefix));
@@ -341,6 +343,53 @@ public class SliceBuilder {
         
         System.out.println("RANK " + suffix.rank() + " FOR " + suffix);       
         return suffix.rank();
+    }
+
+    
+    private List<Conjunction> getPathsForMemorable(SDT sdt, Register r) {
+        List<Conjunction> cand = new ArrayList<>();
+        
+        for (Conjunction c : sdt.getPathsAsExpressions(constants, true)) {
+            if (isMemorablePath(c, r, true, sdt)) {
+                cand.add(c);
+            }
+        }
+        for (Conjunction c : sdt.getPathsAsExpressions(constants, false)) {
+            if (isMemorablePath(c, r, false, sdt)) {
+                cand.add(c);
+            }
+        }        
+        return cand;
+    }
+    
+    private boolean isMemorablePath(Conjunction c, Register r, boolean accepting, SDT sdt) {
+        boolean relevant = false;
+        List<GuardExpression> ges = new ArrayList<>();        
+        for (AtomicGuardExpression e : c.getAtoms()) {
+            if (e.getSymbolicDataValues().contains(r) && 
+                    e.getRelation() != Relation.NOT_EQUALS &&
+                    e.getRelation() != Relation.NOT_SUCC &&
+                    e.getRelation() != Relation.NOT_IN_WIN &&
+                    e.getRelation() != Relation.GREATER) { // NOT SURE ABOUT THIS LAST ONE ...
+                
+                relevant = true;
+                ges.add(new Negation(e));
+            } else {
+                ges.add(e);
+            }
+        }
+        // Default case or irrelevant branch ...
+        if (!relevant) {
+            return false;
+        }
+
+        List<Conjunction> otherPaths = sdt.getPathsAsExpressions(constants, !accepting);
+        
+        Conjunction path = new Conjunction(ges.toArray(new GuardExpression[] {}));
+        Disjunction other = new Disjunction(otherPaths.toArray(new GuardExpression[] {}));
+        
+        Conjunction test = new Conjunction(path, other);
+        return solver.isSatisfiable(test);
     }
 
 }
