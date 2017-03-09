@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,7 +61,7 @@ public class SymbolicSuffixBuilder {
             for (SuffixValue prev : svals) {
                 if (prefixRelations[idx].isEmpty()) {
                     suffixRelations[idx][jdx] = 
-                            (idx < arityFirst) ?
+                            (idx < arityFirst || isOutputIdx(idx, actions)) ?
                             close(slice.getSuffixRelationsFor(prev, sv)) :
                             slice.getSuffixRelationsFor(prev, sv);
                 }
@@ -119,6 +120,18 @@ public class SymbolicSuffixBuilder {
         System.out.println("Sdt:" + sdt);
         
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static boolean isOutputIdx(int idx, Word<ParameterizedSymbol> actions) {
+        int offset = 0;
+        for (ParameterizedSymbol a : actions) {
+            int arity = a.getArity();
+            offset += arity;
+            if (idx < offset) {
+                return (a instanceof OutputSymbol);
+            }
+        }
+        throw new IllegalStateException("Should be unreachable.");
     }
     
     

@@ -174,7 +174,7 @@ public class CounterexampleAnalysis {
         System.out.println("HYP: " + resHyp.getSdt());
         System.out.println("SUL: " + resSul.getSdt());
         System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + suffix);
+        System.out.println("Suffix: " + symSuffix);
 
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
@@ -203,7 +203,7 @@ public class CounterexampleAnalysis {
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
         
         System.out.println("G-Suffix: " + gsuffix);
-        
+                
         // perform check, no extra inputs should be run, as all should be found in cache
         TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
         TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);

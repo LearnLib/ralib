@@ -95,8 +95,9 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         
         List<EnumSet<DataRelation>> ret = new ArrayList<>();
         left.stream().forEach((dv) -> {
-            ret.add(dv.getId().equals(right.getId()) ?EnumSet.of(
-                    DataRelation.EQ) : EnumSet.noneOf(DataRelation.class));
+            ret.add(dv.getId().equals(right.getId()) ? 
+                    EnumSet.of(DataRelation.EQ) :  
+                    EnumSet.of(DataRelation.DEFAULT));
         });
         
         return ret;
