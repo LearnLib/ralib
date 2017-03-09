@@ -83,6 +83,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.words.Word;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -178,9 +179,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	protected Map<SDTGuard, SDT> mergeIntervalGuards(final Map<SDTGuard, SDT> intGuards, SDTGuard elseGuard,
 			SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(intGuards, elseGuard, elseSDT);
-
-		return merged;
+		throw new NotImplementedException();
+		//Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(intGuards, elseGuard, elseSDT);
+		//return merged;
 	}
 
 	// given a set of registers and a set of guards, keep only the registers

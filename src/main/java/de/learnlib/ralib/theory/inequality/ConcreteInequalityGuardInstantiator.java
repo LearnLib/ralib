@@ -14,6 +14,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.solver.jconstraints.JContraintsUtil;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
@@ -33,20 +34,6 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
 
-	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
-	static {
-		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
-		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
-		typeMap.put(Float.class, BuiltinTypes.FLOAT);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> Type<T> getJCType(Class<T> cls) {
-		if (!typeMap.containsKey(cls))
-			throw new RuntimeException("No JConstraints type defined for " + cls);
-		return (Type<T>) typeMap.get(cls);
-	}
-
 	private final DataType<T> type;
 	private final Type<T> jcType;
 	private final ConstraintSolver solver;
@@ -58,7 +45,7 @@ public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implem
 	}
 
 	public ConcreteInequalityGuardInstantiator(DataType<T> type, ConstraintSolver solver) {
-		this(type, getJCType(type.getBase()), solver);
+		this(type, JContraintsUtil.getJCType(type.getBase()), solver);
 	}
 
 	private DataType<T> getType() {

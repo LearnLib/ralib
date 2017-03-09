@@ -40,6 +40,7 @@ import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -59,6 +60,9 @@ public class SDT implements SymbolicDecisionTree {
 
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
+        if (this.children != null && this.children.containsValue(null)) 
+        	throw new DecoratedRuntimeException("Child map contains null values")
+        	.addDecoration("child map", children);
     }
 
 //    public Set<SDTGuard> getGuards() {

@@ -6,14 +6,14 @@ public class ModerateTCPExample extends AbstractTCPExample{
 	private Double svSeq = null;
 	private State state = State.CLOSED;
 
-    //handling each Input
+	public ModerateTCPExample() {
+		
+	}
 
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
+    public ModerateTCPExample(Double window) {
+    	super(window);
+	}
+
     public boolean IConnect(Double initSeq) {
     	boolean ret = false;
     	if (state == State.CLOSED 

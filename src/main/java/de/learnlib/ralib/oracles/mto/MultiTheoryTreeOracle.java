@@ -111,8 +111,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix) {
         PIV pir = new PIV();
-        SDT sdt = treeQuery(prefix, suffix,
+        SDT sdt;
+        try {
+        	sdt = treeQuery(prefix, suffix,
                 new WordValuation(), pir, constants, new SuffixValuation());
+        } catch(DecoratedRuntimeException e) {
+        	throw e.addDecoration("prefix", prefix).addDecoration("suffix", suffix);
+        }
      
 //        System.out.println(prefix + " . " + suffix);
 //        System.out.println(sdt);

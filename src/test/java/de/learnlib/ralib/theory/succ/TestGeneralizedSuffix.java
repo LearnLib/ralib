@@ -1,5 +1,9 @@
 package de.learnlib.ralib.theory.succ;
 
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC1;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -7,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
@@ -21,7 +24,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -32,8 +34,8 @@ import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.ValueCanonizer;
+import de.learnlib.ralib.sul.examples.AbstractTCPExample.Option;
 import de.learnlib.ralib.theory.DataRelation;
-import static de.learnlib.ralib.theory.DataRelation.*;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;

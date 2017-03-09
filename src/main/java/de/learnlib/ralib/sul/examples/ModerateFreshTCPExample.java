@@ -12,7 +12,15 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
 	// if true, the looping variable makes it always possible to transition out of the CLOSED state by a Connect. 
 	private boolean looping = true;
 
-    public Double IConnect() {
+	public ModerateFreshTCPExample() {
+		super();
+	}
+	
+    public ModerateFreshTCPExample(Double window) {
+    	super(window);
+	}
+
+	public Double IConnect() {
     	Double ret = super.newFresh();
     	if (state == State.CLOSED && 
     			(looping || this.clSeq == null) 

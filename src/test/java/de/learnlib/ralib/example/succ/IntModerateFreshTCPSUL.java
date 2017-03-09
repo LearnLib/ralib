@@ -22,8 +22,9 @@ import java.util.function.Supplier;
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.sul.examples.IntAbstractTCPExample.Option;
+import de.learnlib.ralib.sul.examples.IntModerateFreshTCPExample;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -42,13 +43,15 @@ public class IntModerateFreshTCPSUL extends DataWordSUL {
             new InputSymbol("ISYNACK", new DataType[]{INT_TYPE, INT_TYPE});
     public static final ParameterizedSymbol IACK = 
             new InputSymbol("IACK", new DataType[]{INT_TYPE, INT_TYPE});
+    public static final ParameterizedSymbol IFINACK = 
+            new InputSymbol("IFINACK", new DataType[]{INT_TYPE, INT_TYPE});
     
     public static final ParameterizedSymbol ERROR = 
             new OutputSymbol("_io_err", new DataType[]{});
 
     
     public final ParameterizedSymbol[] getInputSymbols() {
-        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK};
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, IFINACK};
     }
         
     public static final ParameterizedSymbol OK = 
@@ -126,15 +129,13 @@ public class IntModerateFreshTCPSUL extends DataWordSUL {
             		(Integer)i.getParameterValues()[0].getId(), 
             		(Integer)i.getParameterValues()[1].getId());
             return createOutputSymbol(x); 
+        } else if (i.getBaseSymbol().equals(IFINACK)) {
+            Object x = tcpSut.IFINACK(
+            		(Integer)i.getParameterValues()[0].getId(), 
+            		(Integer)i.getParameterValues()[1].getId());
+            return createOutputSymbol(x); 
         } else {
             throw new IllegalStateException("i must be instance of connect or flag config. i: " + i);
         }
     }
-
-	public void configure(de.learnlib.ralib.example.succ.AbstractTCPExample.Option winSynreceivedToClosed,
-			de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option winSynsentToClosed) {
-		tcpSut.configure(winSynsentToClosed);
-		
-	}
-    
 }

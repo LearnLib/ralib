@@ -1,0 +1,36 @@
+target.ip=127.0.0.1
+target.port=7892
+inputs=ISYN(java.lang.Integer:int,java.lang.Integer:int)+\
+  IACK(java.lang.Integer:int,java.lang.Integer:int)+\
+  IACKPSH(java.lang.Integer:int,java.lang.Integer:int)+\
+  IFINACK(java.lang.Integer:int,java.lang.Integer:int)+\
+
+outputs=OTIMEOUT()java.lang.Integer:int+\
+  OACK(java.lang.Integer:int,java.lang.Integer:int)+\
+  OSYNACK(java.lang.Integer:int,java.lang.Integer:int)
+
+solver=z3
+logging.level=WARNING
+max.time.millis=1000000
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=false
+eqoracle=rwalkfromstate
+rwalkfromstate.prob.history=0.3
+rwalkfromstate.prob.register=0.4
+rwalkfromstate.prob.related=0.2
+rwalkfromstate.prob.reset=0.1
+rwalkfromstate.max.depth=10
+rwalkfromstate.max.runs=30000
+rwalkfromstate.reset.count=false
+rwalkfromstate.draw.uniform=true
+rwalk.prob.fresh=0.1
+rwalk.prob.reset=0.1
+rwalk.max.depth=10
+rwalk.max.runs=40000
+rwalk.reset.count=false
+rwalk.draw.uniform=false
+teachers=int:de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory
+constants.sumc=[{"type":"int","value":"1"}]

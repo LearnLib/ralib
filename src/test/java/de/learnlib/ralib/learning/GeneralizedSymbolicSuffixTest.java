@@ -23,13 +23,13 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.sul.examples.AbstractTCPExample.Option;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;

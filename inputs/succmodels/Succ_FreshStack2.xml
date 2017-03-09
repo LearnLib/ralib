@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_1.dtd'><nta><declaration>// Place global declarations here.
+
+int p;
+int r1;
+int r2;
+
+void IPush() {
+}
+
+void IPop() {
+}
+
+void OFRESH(int p) {
+}
+
+void OPop(int p) { 
+}
+
+void OOK() {
+}
+
+void ONOK() {
+}
+</declaration><template><name x="5" y="5">Template</name><declaration>// Place local declarations here.
+        </declaration><location id="id0" x="-384" y="48"></location><location id="id1" x="-80" y="48"></location><location id="id2" x="224" y="48"></location><location id="id3" x="-208" y="48"></location><location id="id4" x="-384" y="136"></location><location id="id5" x="80" y="48"></location><location id="id6" x="-208" y="-24"></location><location id="id7" x="80" y="-24"></location><location id="id8" x="224" y="136"></location><init ref="id0"/><transition><source ref="id0"/><target ref="id3"/><label kind="synchronisation" x="-320" y="32">IPush()</label></transition><transition><source ref="id3"/><target ref="id1"/><label kind="synchronisation" x="-192" y="32">OFRESH(p)</label><label kind="assignment" x="-208" y="56">p=random();r1=p;</label></transition><transition><source ref="id0"/><target ref="id4"/><label kind="synchronisation" x="-368" y="96">IPop()</label><nail x="-368" y="88"/></transition><transition><source ref="id4"/><target ref="id0"/><label kind="synchronisation" x="-456" y="96">ONOK()</label><nail x="-400" y="88"/></transition><transition><source ref="id1"/><target ref="id5"/><label kind="synchronisation" x="-24" y="32">IPush()</label></transition><transition><source ref="id5"/><target ref="id2"/><label kind="synchronisation" x="112" y="32">OFRESH(p)</label><label kind="assignment" x="112" y="48">p=r1+1;
+r2=p;</label></transition><transition><source ref="id1"/><target ref="id6"/><label kind="synchronisation" x="-168" y="-16">IPop()</label></transition><transition><source ref="id6"/><target ref="id0"/><label kind="synchronisation" x="-328" y="-16">OPop(r1)</label></transition><transition><source ref="id2"/><target ref="id7"/><label kind="synchronisation" x="128" y="-16">IPop()</label></transition><transition><source ref="id7"/><target ref="id1"/><label kind="synchronisation" x="-40" y="-16">OPop(r2)</label></transition><transition><source ref="id2"/><target ref="id8"/><label kind="synchronisation" x="240" y="88">IPush()</label><nail x="240" y="80"/></transition><transition><source ref="id8"/><target ref="id2"/><label kind="synchronisation" x="152" y="88">ONOK()</label><nail x="208" y="80"/></transition></template><system>int fresh() { return 1; }
+
+// Place template instantiations here.
+Process = Template();
+
+// List one or more processes to be composed into a system.
+system Process;
+    </system></nta>

@@ -8,7 +8,15 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
 	// if true, the looping variable makes it always possible to transition out of the CLOSED state by a Connect. 
 	private boolean looping = true;
 
-    public Integer IConnect() {
+    public IntModerateFreshTCPExample(Integer window) {
+		super(window);
+	}
+    
+    public IntModerateFreshTCPExample() {
+    	super();
+    }
+
+	public Integer IConnect() {
     	Integer ret = super.newFresh();
     	if (state == State.CLOSED && 
     			(looping || this.clSeq == null) 

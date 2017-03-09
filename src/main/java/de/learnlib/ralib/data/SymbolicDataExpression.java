@@ -19,6 +19,10 @@ public interface SymbolicDataExpression {
 	public default boolean isConstant() {
 		return this.getClass().equals(Constant.class);
 	}
+	
+	public default boolean isSumCExpression() {
+		return this.getClass().equals(SumCDataExpression.class);
+	}
 
 	public default boolean isSuffixValue() {
 		return this.getClass().equals(SuffixValue.class);
