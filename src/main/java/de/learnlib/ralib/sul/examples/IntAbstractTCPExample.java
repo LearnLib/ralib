@@ -50,4 +50,12 @@ public class IntAbstractTCPExample extends IntAbstractWindowProtocol{
 		CLOSEWAIT,
 		CLOSED;
 	}
+	
+	public enum FlagConfig {
+		SYNACK,
+		ACK,
+		FINACK,
+		RST,
+		RSTACK
+	}
 }
