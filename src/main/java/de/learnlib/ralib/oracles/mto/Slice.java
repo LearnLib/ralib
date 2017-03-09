@@ -165,4 +165,28 @@ public class Slice {
         
         return ret;
     }    
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + Objects.hashCode(this.constraints);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Slice other = (Slice) obj;
+        if (!Objects.equals(this.constraints, other.constraints)) {
+            return false;
+        }
+        return true;
+    }
+    
+
 }

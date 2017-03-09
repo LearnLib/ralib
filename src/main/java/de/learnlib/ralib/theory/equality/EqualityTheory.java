@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import de.learnlib.logging.LearnLogger;
+import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -53,6 +54,7 @@ import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
+import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -158,6 +160,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         if (!free && useNonFreeOptimization) {
             int eqIdx = findLeftMostEqual(suffix, pId);
             DataValue d = suffixValues.get(suffix.getDataValue(eqIdx));
+            boolean fresh = (eqIdx == pId);
             if (d == null) {
                 d = getFreshValue(potential);
             }
@@ -173,9 +176,14 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
             log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
+            SDTAndGuard deqGuard = fresh ?
+                    new SDTAndGuard(currentParam) :
+                    new SDTAndGuard(currentParam, new EqualityGuard(
+                            currentParam, new SuffixValue(d.getType(), eqIdx)));
+                                    
             Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
-                    new SDTAndGuard(currentParam), sdt);
-
+                   deqGuard, sdt);
+            
             log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
             //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
             log.log(Level.FINEST, "merged guards = " + merged.keySet());

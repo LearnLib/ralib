@@ -34,6 +34,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -114,7 +115,9 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);                        
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
-                                                
+        IOCounterExampleRelationRemover rels = new IOCounterExampleRelationRemover(
+                teachers, consts, solver, ioOracle, hypVerifier);
+        
         int check = 0;
         while (true && check < 100) {
             
@@ -132,7 +135,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-
+            //ce = rels.optimizeCE(ce.getInput(), hyp);
+            
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
             
