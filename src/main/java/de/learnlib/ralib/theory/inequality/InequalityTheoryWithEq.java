@@ -185,6 +185,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	//
 	protected PIV keepMem(Map<SDTGuard, SDT> guardMap) {
 		PIV ret = new PIV();
+		
 		for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
 			SDTGuard mg = e.getKey();
 			if (mg instanceof SDTIfGuard) {

@@ -83,12 +83,6 @@ public class NumberInequalityTheory<N extends Comparable<N>> extends InequalityT
 	}
 
 	@Override
-	public void setUseSuffixOpt(boolean useit) {
-		System.err.println(
-				"Optimized suffixes are currently not supported for theory " + DoubleInequalityTheory.class.getName());
-	}
-
-	@Override
 	public Collection<DataValue<N>> getAllNextValues(List<DataValue<N>> vals) {
 		Set<DataValue<N>> nextValues = new LinkedHashSet<>();
 		nextValues.addAll(vals);
