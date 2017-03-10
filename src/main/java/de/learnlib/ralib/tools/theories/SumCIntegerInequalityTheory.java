@@ -27,7 +27,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -70,14 +70,12 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	private void setConstants (List<DataValue<Integer>> sumConstants,
 			List<DataValue<Integer>> regularConstants) {
-		this.sortedSumConsts = sumConstants;
-		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.sortedSumConsts = new ArrayList<>(sumConstants);
+		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		DataValue<Integer> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ONE(this.getType())
-				: maxSumC();
-		this.freshStep = maxSumC.getId() * freshFactor;
-		this.smBgStep = new DataValue<Integer>(type, maxSumC.getId() * smBgFactor);
+		Integer step = this.sortedSumConsts.isEmpty() ? 1 : maxSumC().getId();
+		this.freshStep = step * freshFactor;
+		this.smBgStep = new DataValue<Integer>(type, step * smBgFactor);
 	}
 	
 	
@@ -154,9 +152,9 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 	
 	
 	public IntervalDataValue<Integer> pickIntervalDataValue(DataValue<Integer> left, DataValue<Integer> right) {
-		if (right != null && left!=null) 
-			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
-				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
+//		if (right != null && left!=null) 
+//			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
+//				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 

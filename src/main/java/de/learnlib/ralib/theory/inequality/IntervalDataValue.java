@@ -5,39 +5,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 
 public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
-	// the minimum distance from the endpoint of a smaller/bigger interval value.
-	public static int DEFAULT_SM_BG_STEP = 10000; 
-	
-	/**
-	 * Constructs interval DVs from left and right ends, by selecting a value
-	 * in between. One of left or right can be null, meaning there is no boundary. 
-	 * 
-	 * In case where there is no boundary, a step
-	 */
-	public static <T extends Comparable<T>>  IntervalDataValue<T>  instantiateNew(DataValue<T> left, DataValue<T> right) {
-		DataType<T> type = left != null ? left.getType() : right.getType();
-		Class<T> cls = type.getBase();
-		
-		T intvVal;
-		
-		// in case either is null, we just provide an increment/decrement
-		if (left == null && right != null) {
-			// we select a value at least 
-			intvVal = cls.cast(DataValue.sub(right, DataValue.CONST(DEFAULT_SM_BG_STEP, type)).getId());
-		} else if (left != null && right == null) {
-			intvVal = cls.cast(DataValue.add(left, DataValue.CONST(DEFAULT_SM_BG_STEP, type)).getId());
-		} else if (left != null && right != null) {
-			intvVal = pickInBetweenValue(type.getBase(), left.getId(), right.getId());
-			if (intvVal == null)
-				throw new DecoratedRuntimeException("Invalid interval, left end bigger or equal to right end \n ")
-				.addDecoration("left", left).addDecoration("right", right);
-		} else {
-			throw new RuntimeException("Both ends of the Interval cannot be null");
-		}
-
-		return new IntervalDataValue<T>(new DataValue<T>(type, intvVal), left, right);
-	}
-	
 	/**
 	 * Constructs interval DVs from left and right ends, by selecting a value
 	 * in between. One of left or right can be null, meaning there is no boundary. 

@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul;
+package de.learnlib.ralib.mapper;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.theory.Theory;

@@ -7,10 +7,13 @@ import java.util.Map;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 
+/**
+ * A concrete value mapper for equality theories with fresh values.
+ */
 public class FreshValueMapper<T> implements ValueMapper<T>{
 
 	private Theory<T> theory;
@@ -38,8 +41,6 @@ public class FreshValueMapper<T> implements ValueMapper<T>{
 
 		List<DataValue<T>> valList = DataWords.joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
 		DataValue<T> fv = this.theory.getFreshValue(valList);
-//				this.theory.getFreshValue(thisToOtherMap.values().stream().
-//				map(v -> new DataValue<>(this.type, v)).collect(Collectors.toList()));
 		return fv;
 	}
 }

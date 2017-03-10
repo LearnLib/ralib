@@ -1,9 +1,9 @@
 package de.learnlib.ralib.theory;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -16,7 +16,6 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 public class IfElseGuardMerger {
 	
 	private SDTGuardLogic logic;
-	
 	public IfElseGuardMerger(SDTGuardLogic logic) {
 		this.logic = logic;
 	}
@@ -58,16 +57,11 @@ public class IfElseGuardMerger {
 	boolean checkSDTEquivalence(SDTGuard guard, SDT guardSdt, SDTGuard elseGuard, SDT elseGuardSdt) {
 		boolean equiv = false;
 		if (guard instanceof EqualityGuard) {
-			List<EqualityGuard> eqGuards = elseGuardSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
-			.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
-			eqGuards.add((EqualityGuard) guard);
+			List<EqualityGuard> eqGuards =  new ArrayList<EqualityGuard>();
+			eqGuards.add((EqualityGuard)guard);
 			equiv = guardSdt.isEquivalentUnderEquality(elseGuardSdt, eqGuards);
 		} else
 			equiv = guardSdt.isEquivalent(elseGuardSdt, new VarMapping());
 		return equiv;
 	}
-//
-//	private boolean isSDVEquality(SDTGuard guard) {
-//		return guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV();
-//	}
 }

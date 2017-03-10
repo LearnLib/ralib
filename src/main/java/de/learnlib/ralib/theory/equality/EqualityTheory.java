@@ -18,6 +18,7 @@ package de.learnlib.ralib.theory.equality;
 
 import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,6 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import de.learnlib.logging.LearnLogger;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -46,6 +46,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
@@ -54,7 +55,6 @@ import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
-import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -80,7 +80,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     @Override
     public EnumSet<DataRelation> recognizedRelations() {
-        return EnumSet.of(DEQ, EQ);
+        return EnumSet.of(DEQ, EQ, DEFAULT);
     }    
     
     public EqualityTheory(boolean useNonFreeOptimization) {
@@ -104,7 +104,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     // use another SDT.  Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT>
             mergeGuards(Map<SDTGuard, SDT> ifGuards,
-                    SDTAndGuard deqGuard, SDT deqSdt) {
+                    SDTGuard deqGuard, SDT deqSdt) {
         Map<SDTGuard, SDT> retMap = this.ifElseMerger.merge(ifGuards, deqGuard, deqSdt);
         assert !retMap.isEmpty();
         return retMap;
@@ -158,48 +158,62 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         boolean free = suffix.getPrefixRelations(pId).contains(EQ);
         if (!free && useNonFreeOptimization) {
-            int eqIdx = findLeftMostEqual(suffix, pId);
-            DataValue d = suffixValues.get(suffix.getDataValue(eqIdx));
-            boolean fresh = (eqIdx == pId);
-            if (d == null) {
-                d = getFreshValue(potential);
-            }
-            values.put(pId, d);
-            WordValuation trueValues = new WordValuation();
-            trueValues.putAll(values);
-            SuffixValuation trueSuffixValues = new SuffixValuation();
-            trueSuffixValues.putAll(suffixValues);
-            trueSuffixValues.put(sv, d);
-            SDT sdt = oracle.treeQuery(
-                    prefix, suffix, trueValues,
-                    pir, constants, trueSuffixValues);
+        	   int eqIdx = findLeftMostEqual(suffix, pId);
+               DataValue d = suffixValues.get(suffix.getDataValue(eqIdx));
+               Map<SDTGuard, SDT> merged;
+               if (d == null) {
+                   d = getFreshValue(potential);
+                   values.put(pId, d);
+                   WordValuation trueValues = new WordValuation();
+                   trueValues.putAll(values);
+                   SuffixValuation trueSuffixValues = new SuffixValuation(suffixValues);
+                   trueSuffixValues.put(sv, d);
+                   SDT sdt = oracle.treeQuery(
+                           prefix, suffix, trueValues,
+                           pir, constants, trueSuffixValues);
 
-            log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+                   log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
-            SDTAndGuard deqGuard = fresh ?
-                    new SDTAndGuard(currentParam) :
-                    new SDTAndGuard(currentParam, new EqualityGuard(
-                            currentParam, new SuffixValue(d.getType(), eqIdx)));
-                                    
-            Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
-                   deqGuard, sdt);
-            
-            log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-            //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
-            log.log(Level.FINEST, "merged guards = " + merged.keySet());
-            log.log(Level.FINEST, "merged pivs = " + pir.toString());
+                   merged = mergeGuards(tempKids,
+                           new SDTAndGuard(currentParam), sdt);
 
-            return new SDT(merged);
+                   log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
+                   //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+                   log.log(Level.FINEST, "merged guards = " + merged.keySet());
+                   log.log(Level.FINEST, "merged pivs = " + pir.toString());
+               } else {
+            	   values.put(pId, d);
+                   WordValuation equValues = new WordValuation();
+                   equValues.putAll(values);
+                   SuffixValuation equSuffixValues = new SuffixValuation(suffixValues);
+                   equSuffixValues.put(sv, d);
+                   SDT sdt = oracle.treeQuery(
+                           prefix, suffix, equValues,
+                           pir, constants, equSuffixValues);
+                   
+                   log.log(Level.FINEST, " single equ SDT : " + sdt.toString());
+                   EqualityGuard equ = pickupDataValue(d, Arrays.asList(DataWords.valsOf(prefix)), currentParam, values, constants);
+                   merged = mergeGuards(tempKids,
+                           equ, sdt);
+
+                   log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
+                   //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+                   log.log(Level.FINEST, "merged guards = " + merged.keySet());
+                   log.log(Level.FINEST, "merged pivs = " + pir.toString());
+                   
+               }
+              
+               return new SDT(merged);
         }
 
         // special case: fresh values in outputs
         if (freshValues) {
 
-            ParameterizedSymbol ps = computeSymbol(suffix, pId);
+            ParameterizedSymbol ps = SymbolicSuffix.computeSymbol(suffix, pId);
 
             if (ps instanceof OutputSymbol && ps.getArity() > 0) {
 
-                int idx = computeLocalIndex(suffix, pId);
+                int idx =  SymbolicSuffix.computeLocalIndex(suffix, pId);
                 Word<PSymbolInstance> query = buildQuery(
                         prefix, suffix, values);
                 Word<PSymbolInstance> trace = traceOracle.trace(query);
@@ -297,9 +311,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // merge the guards
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
         		
-//        		mergeGuards(
-//                tempKids, deqGuard, elseOracleSdt);
-
         // only keep registers that are referenced by the merged guards
         pir.putAll(keepMem(merged));
 
@@ -399,30 +410,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         return fresh;
 
     }
-
-    private ParameterizedSymbol computeSymbol(GeneralizedSymbolicSuffix suffix, int pId) {
-        int idx = 0;
-        for (ParameterizedSymbol a : suffix.getActions()) {
-            idx += a.getArity();
-            if (idx >= pId) {
-                return a;
-            }
-        }
-        return suffix.getActions().size() > 0
-                ? suffix.getActions().firstSymbol() : null;
-    }
-
-    private int computeLocalIndex(GeneralizedSymbolicSuffix suffix, int pId) {
-        int idx = 0;
-        for (ParameterizedSymbol a : suffix.getActions()) {
-            idx += a.getArity();
-            if (idx >= pId) {
-                return pId - (idx - a.getArity()) - 1;
-            }
-        }
-        return pId - 1;
-    }
-
+    
     private Word<PSymbolInstance> buildQuery(Word<PSymbolInstance> prefix,
             GeneralizedSymbolicSuffix suffix, WordValuation values) {
 

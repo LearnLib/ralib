@@ -173,8 +173,8 @@ public class CounterexampleAnalysis {
             return new IndexResult(idx, IndexStatus.NO_CE, null);
         }
         
-        System.out.println("HYP: " + resHyp.getSdt());
-        System.out.println("SUL: " + resSul.getSdt());
+        System.out.println("HYP: " + resHyp.getPiv() + " " + resHyp.getSdt());
+        System.out.println("SUL: " + resSul.getPiv() + " " + resSul.getSdt());
         System.out.println("Prefix: " + prefix);
         System.out.println("Suffix: " + symSuffix);
 
@@ -221,7 +221,7 @@ public class CounterexampleAnalysis {
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
         
-        boolean sulBranchingRetained = retainsBranching(prefix, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
+        boolean sulBranchingRetained = retainsBranching(location, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
         if (!sulBranchingRetained ) {
         	System.out.println("Branching not retained, however learning continues");
         	System.out.println("OLD SUL :" + resSul.getSdt());
@@ -235,10 +235,10 @@ public class CounterexampleAnalysis {
     }
     
     
-    private boolean retainsBranching(Word<PSymbolInstance> prefix, 
+    private boolean retainsBranching(Word<PSymbolInstance> location, 
             ParameterizedSymbol action, SymbolicDecisionTree oldSdtSUL, PIV oldPiv, SymbolicDecisionTree newSdtSUL, PIV newPiv) {
-    	Branching oldBranching = sulOracle.getInitialBranching(prefix, action, oldPiv, oldSdtSUL);
-    	Branching newBranching = sulOracle.getInitialBranching(prefix, action, newPiv, newSdtSUL);
+    	Branching oldBranching = sulOracle.getInitialBranching(location, action, oldPiv, oldSdtSUL);
+    	Branching newBranching = sulOracle.getInitialBranching(location, action, newPiv, newSdtSUL);
     	Set<Word<PSymbolInstance>> oldBranches = oldBranching.getBranches().keySet();
     	Set<Word<PSymbolInstance>> newBranches = newBranching.getBranches().keySet();
     	return oldBranches.equals(newBranches);

@@ -21,6 +21,7 @@ import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
 import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.mapper.ValueCanonizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -29,7 +30,6 @@ import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.ValueCanonizer;
 import de.learnlib.ralib.sul.examples.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
@@ -105,6 +105,34 @@ public class TestIntHardTCPTree {
 //	        		, sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7) ); 
 	        		//sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6));
 	  //      Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);
+	    }
+	
+
+	public void testHardFreshTCPTree3() {
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(IntHardFreshTCPSUL.INT_TYPE);
+		 final Word<PSymbolInstance> prefix = Word.fromSymbols(
+	                new PSymbolInstance(IntHardFreshTCPSUL.ISYN, 
+	                		b.fv(100),
+	                		b.fv(200)),
+	                new PSymbolInstance(IntHardFreshTCPSUL.OSYNACK,
+	                		b.fv(300),
+	                		b.sumcv(100, 1))
+				 );
+	        
+	        //IACK[10001[int], 30000[int] + 1[int]] OTIMEOUT[] IFINACK[10001[int], 30001[int]] OACK[30000[int], 10001[int]]
+	        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
+	        		new PSymbolInstance(IntHardFreshTCPSUL.IACK, 
+	                		b.sumcv(100, 1),
+	                		b.sumcv(300, 1)),
+	                new PSymbolInstance(IntHardFreshTCPSUL.OTIMEOUT),
+	                new PSymbolInstance(IntHardFreshTCPSUL.IFINACK, 
+	                		b.sumcv(100, 1),
+	                		b.sumcv(300, 1)),
+	                new PSymbolInstance(IntHardFreshTCPSUL.OACK,
+	                		b.dv(300),
+	                		b.sumcv(100, 1)));
+	       
+	        testTreeQuery(prefix, longsuffix);
 	    }
 	
 	
@@ -199,6 +227,6 @@ public class TestIntHardTCPTree {
 
     public static void main(String args []) {
     	TestIntHardTCPTree testSuite = new TestIntHardTCPTree();
-    	testSuite.testHardFreshTCPTree2();
+    	testSuite.testHardFreshTCPTree3();
     }
 }

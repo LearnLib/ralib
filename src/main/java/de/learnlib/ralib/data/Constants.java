@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
  */
 public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {
 	public Constants() {
-		super();
+		this(new SumConstants());
 	}
 	public Constants(SumConstants sumConstants) {
-		this();
+		super();
 		this.setSumC(sumConstants);
 	}
  

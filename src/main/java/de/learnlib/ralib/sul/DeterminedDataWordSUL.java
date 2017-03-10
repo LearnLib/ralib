@@ -3,6 +3,7 @@ package de.learnlib.ralib.sul;
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
+import de.learnlib.ralib.mapper.ValueCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 public class DeterminedDataWordSUL extends DataWordSUL{

@@ -8,12 +8,15 @@ import java.lang.Number;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.words.DataWords;
 
+/**
+ * Concrete value mapper for theories of inequality with sumc and fresh data values.
+ */
 public class SumCInequalityValueMapper<T extends Number & Comparable<T>> implements ValueMapper<T>{
 
 	private InequalityTheoryWithEq<T> theory;
@@ -39,6 +42,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 		}
 		if (constants.containsValue(decValue))
 			return decValue;
+		
 		for (DataValue<T> constant : this.sumConstants) {
 			if (decToCanMap.containsKey(DataValue.sub(decValue, constant))) {
 				DataValue<T> operand = decToCanMap.get(DataValue.sub(decValue, constant));

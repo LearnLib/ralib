@@ -17,7 +17,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -62,10 +62,9 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 		this.sortedSumConsts = new ArrayList<>(sumConstants);
 		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		DataValue<Double> maxSumC = this.sortedSumConsts.isEmpty() ? DataValue.ZERO(this.getType())
-				: maxSumC();
-		this.freshStep = maxSumC.getId() * freshFactor;
-		this.smBgStep = new DataValue<Double>(type, maxSumC.getId() * smBgFactor);
+		Double step = this.sortedSumConsts.isEmpty() ? 1.0 : maxSumC().getId();
+		this.freshStep = step * freshFactor;
+		this.smBgStep = new DataValue<Double>(type, step * smBgFactor);
 	}
 	
 	@Override
@@ -179,7 +178,8 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory {
 			rel = DataRelation.EQ;
 		else if (dv.getId().compareTo(right.getId()) > 0)
 			rel = DataRelation.LT;
-		else if ( Double.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
+		else if ( this.sortedSumConsts.isEmpty() || 
+				Double.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
 			rel = DataRelation.DEFAULT;
 		else 
 		{

@@ -1,16 +1,13 @@
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 public class SoundSDTEquivalenceChecker implements de.learnlib.ralib.theory.SDTEquivalenceChecker{
 	private ConstraintSolver cSolver;

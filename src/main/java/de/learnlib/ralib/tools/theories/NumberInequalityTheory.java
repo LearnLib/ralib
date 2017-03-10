@@ -16,7 +16,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.sul.ValueMapper;
+import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;

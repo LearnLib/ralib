@@ -75,8 +75,6 @@ public class BranchingLogic<T extends Comparable<T>> {
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC2)))
 					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
-				else if (suffixRel.equals(EnumSet.of(DataRelation.LT))) 
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_SMALLER);
 			} 
 			
 			if (action == null) {
@@ -93,7 +91,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 		
-		ParamSignature signature = suffix.getParamSignature(pid);
+//		ParamSignature signature = suffix.getParamSignature(pid);
 		// an example on how to restrict ISYNACK
 //		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
 //			List<DataValue<T>> bValues = action.getBranchingValues();

@@ -31,6 +31,7 @@ import de.learnlib.ralib.oracles.mto.Slice;
 import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
@@ -242,6 +243,12 @@ class Component {
         for (Parameter p : pivUA.keySet()) {
             // p is used by next but not stored by this and is from this word
             if (!pivU.containsKey(p) && p.getId() <= max) {
+//            	StringBuilder b = new StringBuilder();
+//            	b.append("Component \n");
+//            	this.toString(b);
+//            	b.append("\n Prefix Component \n");
+//            	prefixComponent.toString(b);
+//            	System.out.println(b.toString());
                 Cell c = r.getCellForMemorable(p);
                 SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
                 
@@ -254,7 +261,6 @@ class Component {
                                 c.getSuffix().getActions().prepend(
                                         r.getPrefix().lastSymbol().getBaseSymbol()), 
                                 slice);
-
                 System.out.println("Long Prefix:" + r.getPrefix());
                 System.out.println("Original Suffix:" + c.getSuffix().getActions());                
                 System.out.println(prefixGuard);                

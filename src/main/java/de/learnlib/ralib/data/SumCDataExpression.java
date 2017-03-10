@@ -10,6 +10,9 @@ public class SumCDataExpression implements SymbolicDataExpression{
 	private DataValue<?> constant;
 
 	public SumCDataExpression(SymbolicDataExpression expr, DataValue<?> constant) {
+		if (expr == null) {
+			throw new RuntimeException("Shouldn't happen");
+		}
 		this.expr = expr;
 		assert !(expr instanceof Constant);
 		this.constant = constant;

@@ -31,12 +31,12 @@ public class IOHypVerifier implements HypVerifier {
 		PositiveResult ret = null;
 		hypSim.pre();
 		try {
-			for(i=0; i< sulTrace.length(); i = i+2) {
-				PSymbolInstance input = sulTrace.getSymbol(i);
+			for(i=1; i< sulTrace.length(); i = i+2) {
+				PSymbolInstance input = sulTrace.getSymbol(i-1);
 				PSymbolInstance output = hypSim.step(input);
-				if (!output.equals(sulTrace.getSymbol(i+1))) {
-					System.out.println("After " + sulTrace.prefix(i+1) + " the outputs are:\n" + 
-							"HYP: " + output + " SUT: " + sulTrace.getSymbol(i+1));
+				if (!output.equals(sulTrace.getSymbol(i))) {
+					System.out.println("After " + sulTrace.prefix(i) + " the outputs are:\n" + 
+							"HYP: " + output + " SUT: " + sulTrace.getSymbol(i));
 					
 					ret = new PositiveResult(sulTrace.prefix(i+1));
 					break;
