@@ -16,11 +16,6 @@
  */
 package de.learnlib.ralib.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import de.learnlib.ralib.theory.SDTGuard;
-
 /**
  *
  * @author falk
@@ -31,7 +26,6 @@ public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, Data
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public List<SDTGuard> suffGuards = new ArrayList<>();
     
     public SuffixValuation() {
     	super();

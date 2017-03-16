@@ -201,7 +201,8 @@ public class CounterexampleAnalysis {
 //                SymbolicSuffixBuilder.suffixFromSliceRetainBranching(
 //                        DataWords.actsOf(suffix), sliceSdts, sdt1);
         
-        GeneralizedSymbolicSuffix gsuffix = 
+        GeneralizedSymbolicSuffix gsuffix =
+        	//	this.sdtOracle.suffixForCounterexample(prefix, sdt1, piv1, sdt2, piv2, guard, actions)
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
         
         System.out.println("G-Suffix: " + gsuffix);
@@ -214,10 +215,10 @@ public class CounterexampleAnalysis {
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
         
+    	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
+    	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         if (! newHasCE) {
         	System.out.println("CE not preserved by optimized suffix");
-        	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
-        	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
         

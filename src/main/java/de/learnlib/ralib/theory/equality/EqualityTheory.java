@@ -163,9 +163,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                Map<SDTGuard, SDT> merged;
                if (d == null) {
                    d = getFreshValue(potential);
-                   values.put(pId, d);
-                   WordValuation trueValues = new WordValuation();
-                   trueValues.putAll(values);
+                   WordValuation trueValues = new WordValuation(values);
+                   trueValues.put(pId, d);
                    SuffixValuation trueSuffixValues = new SuffixValuation(suffixValues);
                    trueSuffixValues.put(sv, d);
                    SDT sdt = oracle.treeQuery(
@@ -182,9 +181,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                    log.log(Level.FINEST, "merged guards = " + merged.keySet());
                    log.log(Level.FINEST, "merged pivs = " + pir.toString());
                } else {
-            	   values.put(pId, d);
-                   WordValuation equValues = new WordValuation();
-                   equValues.putAll(values);
+                   WordValuation equValues = new WordValuation(values);
+                   equValues.put(pId, d);
                    SuffixValuation equSuffixValues = new SuffixValuation(suffixValues);
                    equSuffixValues.put(sv, d);
                    SDT sdt = oracle.treeQuery(
@@ -226,11 +224,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     if (d instanceof FreshValue) {
                         d = getFreshValue(potential);
                         values.put(pId, d);
-                        WordValuation trueValues = new WordValuation();
-                        trueValues.putAll(values);
+                        WordValuation trueValues = new WordValuation(values);
                         SuffixValuation trueSuffixValues
-                                = new SuffixValuation();
-                        trueSuffixValues.putAll(suffixValues);
+                                = new SuffixValuation(suffixValues);
                         trueSuffixValues.put(sv, d);
                         SDT sdt = oracle.treeQuery(
                                 prefix, suffix, trueValues,
@@ -270,8 +266,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             log.log(Level.FINEST, newDv.toString());
 
             // this is the valuation of the suffixvalues in the suffix
-            SuffixValuation ifSuffixValues = new SuffixValuation();
-            ifSuffixValues.putAll(suffixValues);  // copy the suffix valuation
+            SuffixValuation ifSuffixValues = new SuffixValuation(suffixValues);
+            ifSuffixValues.put(sv, newDv);
 
             EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues,
                     currentParam, values, constants);
@@ -281,8 +277,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             //construct the equality guard
             // find the data value in the prefix
             // this is the valuation of the positions in the suffix
-            WordValuation ifValues = new WordValuation();
-            ifValues.putAll(values);
+            WordValuation ifValues = new WordValuation(values);
             ifValues.put(pId, newDv);
             SDT eqOracleSdt = oracle.treeQuery(
                     prefix, suffix, ifValues, pir, constants, ifSuffixValues);
@@ -292,13 +287,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         // process the 'else' case
         // this is the valuation of the positions in the suffix
-        WordValuation elseValues = new WordValuation();
-        elseValues.putAll(values);
+        WordValuation elseValues = new WordValuation(values);
         elseValues.put(pId, fresh);
 
         // this is the valuation of the suffixvalues in the suffix
-        SuffixValuation elseSuffixValues = new SuffixValuation();
-        elseSuffixValues.putAll(suffixValues);
+        SuffixValuation elseSuffixValues = new SuffixValuation(suffixValues);
         elseSuffixValues.put(sv, fresh);
 
         SDT elseOracleSdt = oracle.treeQuery(

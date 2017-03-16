@@ -98,7 +98,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 	public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, EnumSet<DataRelation>[] prefixRelations,
 			EnumSet<DataRelation>[][] suffixRelations) {
-		this(actions, prefixRelations, suffixRelations, null);
+		this(actions, prefixRelations, suffixRelations, new Set[prefixRelations.length]);
 	}
 
 	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix,
@@ -441,6 +441,10 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	public SymbolicDataValue.SuffixValue getDataValue(int i) {
 		return suffixValues[i - 1];
 	}
+	
+	public int size() {
+		return this.prefixRelations.length;
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -498,18 +502,18 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			}
 		}
 
-		ParameterizedSymbol first = actions.firstSymbol();
-		for (int i = 0; i < sSuffixRels.length; i++) {
-			for (int j = 0; j < arity; j++) {
-				EnumSet<DataRelation> sufRel = suffixRelations[i + arity].length > 0 ? suffixRelations[i + arity][j]
-						: EnumSet.noneOf(DataRelation.class);
-				if (!sufRel.isEmpty()) {
-					sPrefixSource[i].add(new ParamSignature(first, j));
-				}
-
-				sPrefixRels[i].addAll(sufRel);
-			}
-		}
+//		ParameterizedSymbol first = actions.firstSymbol();
+//		for (int i = 0; i < sSuffixRels.length; i++) {
+//			for (int j = 0; j < arity; j++) {
+//				EnumSet<DataRelation> sufRel = suffixRelations[i + arity].length > 0 ? suffixRelations[i + arity][j]
+//						: EnumSet.noneOf(DataRelation.class);
+//				if (!sufRel.isEmpty()) {
+//					sPrefixSource[i].add(new ParamSignature(first, j));
+//				}
+//
+//				sPrefixRels[i].addAll(sufRel);
+//			}
+//		}
 
 		return new GeneralizedSymbolicSuffix(sActions, sPrefixRels, sSuffixRels, sPrefixSource);
 	}
@@ -522,6 +526,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	}
 
 	private <T> Set<T>[] deepCopy(Set<T>[] array, int from) {
+		if (array == null)
+			return null;
 		Set[] arr = new Set[array.length - from];
 		for (int i = from; i < array.length; i++)
 			arr[i - from] = new HashSet<>(array[i]);

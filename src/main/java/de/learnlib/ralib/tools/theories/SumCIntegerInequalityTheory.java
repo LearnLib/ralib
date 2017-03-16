@@ -73,7 +73,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		this.sortedSumConsts = new ArrayList<>(sumConstants);
 		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		Integer step = this.sortedSumConsts.isEmpty() ? 1 : maxSumC().getId();
+		Integer step = this.sortedSumConsts.isEmpty() ? 1 :this.sortedSumConsts.get(this.sortedSumConsts.size()-1).getId();
 		this.freshStep = step * freshFactor;
 		this.smBgStep = new DataValue<Integer>(type, step * smBgFactor);
 	}
@@ -146,6 +146,8 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		Integer nextFresh;
 		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
 		
+		while (nextFresh - fv.getId() < this.smBgStep.getId() * 5) 
+			nextFresh += this.freshStep;
 		
 		return new DataValue<Integer>(fv.getType(), nextFresh);
 	}
@@ -175,13 +177,14 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 		List<EnumSet<DataRelation>> ret = new ArrayList<>();
 		for (DataValue<Integer> dv : left) {
 			DataRelation rel = getRelation(dv, right);
-			ret.add(EnumSet.of(rel));
+			ret.add(EnumSet.of(rel));	
 		}
 		return ret;
 	}
 	
-	private DataValue<Integer> maxSumC () {
-		return this.sortedSumConsts.get(sortedSumConsts.size()-1);
+	private DataValue<Integer> maxSumCOrZero () {
+		return this.sortedSumConsts.isEmpty() ? DataValue.ZERO(type):
+				this.sortedSumConsts.get(sortedSumConsts.size()-1);
 	}
 	
 	private DataRelation getRelation(DataValue<Integer> dv, DataValue<Integer> right) {
@@ -190,7 +193,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 			rel = DataRelation.EQ;
 		else if (dv.getId().compareTo(right.getId()) > 0)
 			rel = DataRelation.LT;
-		else if ( Integer.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
+		else if ( Integer.valueOf(dv.getId()+ maxSumCOrZero().getId()).compareTo(right.getId()) < 0) 
 			rel = DataRelation.DEFAULT;
 		else 
 		{

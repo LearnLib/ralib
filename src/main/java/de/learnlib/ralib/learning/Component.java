@@ -255,12 +255,15 @@ class Component {
                 Slice slice = sb.sliceFromTransitionAndSDT(
                         r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT(),
                         c.getSuffix().getActions());
-                  
+                
                 GeneralizedSymbolicSuffix newSuffix = 
-                        SymbolicSuffixBuilder.suffixFromSlice(
-                                c.getSuffix().getActions().prepend(
-                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
-                                slice);
+//                        SymbolicSuffixBuilder.suffixFromSlice(
+//                                c.getSuffix().getActions().prepend(
+//                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
+//                                slice);
+                new GeneralizedSymbolicSuffix(r.getPrefix(), c.getSuffix(),
+            			consts, teachers);
+                
                 System.out.println("Long Prefix:" + r.getPrefix());
                 System.out.println("Original Suffix:" + c.getSuffix().getActions());                
                 System.out.println(prefixGuard);                

@@ -1,35 +1,19 @@
 package de.learnlib.ralib.sul.examples;
 
 import java.util.HashMap;
-import java.util.Random;
 
 
-public class FreshMultiLogin {
+public class MultiLogin {
 
     // Initialize statemachine constants,variables and locations
     
     HashMap < Integer,Integer > id2pwd = new HashMap < Integer,Integer > ();
     HashMap < Integer,Boolean > id2loggedin = new HashMap < Integer,Boolean > ();
 
-    private int base =0;
 	private int MAX_REGISTERED_USERS=2;
 	private int MAX_LOGGEDIN_USERS=1000000;
 	private int loggedin_users=0;
-	private Random random = new Random(1);
 
-	
-	public FreshMultiLogin() {
-	}
-	
-	public void setMaxRegUsers(int maxRegUsers) {
-		this.MAX_REGISTERED_USERS = 2;
-	}
-	
-	private int fresh() {
-		int fresh = base + random.nextInt(900)+100;
-		base+=1000;
-		return fresh;
-	}
 
     //handling each Input
 
@@ -39,13 +23,13 @@ public class FreshMultiLogin {
      *   - you can only register once for a specific uid
      *   - at max only MAX_REGISTERED_USERS may be registered 
      */
-    public Integer IRegister(Integer uid) {
-        Integer pwd = fresh();
+    public boolean IRegister(Integer uid, Integer pwd) {
         if ( ! id2pwd.containsKey(uid)  && id2pwd.keySet().size() < MAX_REGISTERED_USERS ) {
         	id2pwd.put(uid, pwd);
         	id2loggedin.put(uid, false);
+        	return true;
         } 
-        return pwd;
+        return false;
     }    
     
     /* login an user with uid
@@ -94,5 +78,5 @@ public class FreshMultiLogin {
             return true;        	
         } 
         return false;
-    } 
+    }      
 }

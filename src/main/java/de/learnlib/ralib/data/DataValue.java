@@ -84,6 +84,12 @@ public class DataValue<T> {
 				throw new RuntimeException(e);
 			}
 		} else {
+			if (cls.isPrimitive()) {
+				if (cls.equals(int.class)) 
+					return (P) Integer.valueOf(strVal);
+				else if (cls.equals(double.class))
+					return (P) Double.valueOf(strVal);
+			}
 			throw new RuntimeException("Cannot deserialize values of the class " + cls);
 		}
     	

@@ -320,7 +320,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 	    if (useFresh)
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
 	    else 
-	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, null);
+	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, trace -> trace);
 	    
     	return ioCacheOracle;
     }

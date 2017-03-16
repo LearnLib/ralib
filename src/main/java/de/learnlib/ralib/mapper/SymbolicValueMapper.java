@@ -31,7 +31,8 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 	public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
 		if (thisToOtherMap.containsKey(value)) {
 			DataValue<T> mapping = thisToOtherMap.get(value);
-			return new DataValue<T>( mapping.getType(), mapping.getId());
+			return mapping;
+					// new DataValue<T>( mapping.getType(), mapping.getId());
 		}
 		if (constants.containsValue(value)) 
 			return value;
@@ -69,12 +70,16 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 			// if the endpoints of the interval were resolved
 			if (!Boolean.logicalXor(newRight == null, intv.getRight() == null) && !Boolean.logicalXor(newLeft == null, intv.getLeft() == null)
 					&& (newRight != null || newLeft != null)) {
-				if ((newRight == null || newLeft == null) || (newRight.getId().compareTo(newLeft.getId()) > 0))
-					return ((NumberInequalityTheory<T>)this.theory).pickIntervalDataValue(newLeft, newRight); 
-				else 
+				if ((newRight == null || newLeft == null) || (newRight.getId().compareTo(newLeft.getId()) > 0)) {
+					IntervalDataValue<T> val = ((NumberInequalityTheory<T>)this.theory).pickIntervalDataValue(newLeft, newRight);
+					return val;
+				} else 
 					// since we use this to canonize a trace from which segments where removed, it can happen that fresh values appear disorderly,
 					// that is a bigger fresh value appears before a smaller one. In such cases, intervals are mapped to fresh values
-					
+					//
+					if (Boolean.logicalXor(intv.getLeft() == null, intv.getRight() == null)) {
+						throw new RuntimeException("Cannot canonize " + newLeft + " " + newRight);
+					}
 					return null;
 			} else {
 				return null;

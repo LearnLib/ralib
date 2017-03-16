@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.example.login.FreshMultiLoginSUL;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;

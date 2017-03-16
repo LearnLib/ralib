@@ -23,5 +23,15 @@ package de.learnlib.ralib.data;
 //TODO: check is necessary
 public class WordValuation extends 
         Mapping<Integer, DataValue<?>> {
+    public WordValuation() {
+    	super();
+    }
     
+    /**
+     * Instantiates a copy of a given valuation. 
+     */
+    public WordValuation(WordValuation valuation) {
+    	super();
+    	this.putAll(valuation);
+    }
 }

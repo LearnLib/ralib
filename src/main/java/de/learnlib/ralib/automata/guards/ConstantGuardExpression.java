@@ -47,5 +47,9 @@ public class ConstantGuardExpression extends GuardExpression{
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String toString() {
+		return "(" + sdv + "=" + this.constant.getId() + ")";
+	}
 
 }
