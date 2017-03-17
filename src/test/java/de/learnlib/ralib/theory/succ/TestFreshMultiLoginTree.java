@@ -28,6 +28,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.DataWords;
@@ -92,6 +93,66 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
         sulProvider.mto.treeQuery(prefix, gsuff);
     }
     
+    public void testSuffixBuilder() {
+       	FreshMultiLoginProvider sulProvider = new FreshMultiLoginProvider();
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(FreshMultiLoginSUL.INT_TYPE);
+        
+        final Word<PSymbolInstance> prefix = //Word.epsilon(); 
+        		Word.fromSymbols(
+                new PSymbolInstance(FreshMultiLoginSUL.IREGISTER, b.dv(100)),
+                new PSymbolInstance(FreshMultiLoginSUL.OREGISTER, b.fv(200)),
+                new PSymbolInstance(FreshMultiLoginSUL.IREGISTER, b.dv(200)),
+                new PSymbolInstance(FreshMultiLoginSUL.OREGISTER, b.fv(300)),
+                new PSymbolInstance(FreshMultiLoginSUL.ILOGIN, 
+                		b.dv(200), b.dv(300)),
+                new PSymbolInstance(FreshMultiLoginSUL.OK));
+    	
+        final Word<PSymbolInstance> suffix = //Word.epsilon(); 
+        		Word.fromSymbols(
+                new PSymbolInstance(FreshMultiLoginSUL.ILOGIN, 
+                		b.dv(100), b.dv(100)),
+                new PSymbolInstance(FreshMultiLoginSUL.NOK),
+                new PSymbolInstance(FreshMultiLoginSUL.IREGISTER, b.dv(300)),
+                new PSymbolInstance(FreshMultiLoginSUL.OREGISTER, b.fv(400)),
+                new PSymbolInstance(FreshMultiLoginSUL.ILOGIN, 
+                		b.dv(300), b.dv(400)) );
+        SliceBuilder builder = sulProvider.buildSliceBuilder();
+        Slice slice = builder.sliceFromWord(prefix, suffix);
+        System.out.println(slice);
+    }
+    
+    public void testFreshMultiLoginSystem3() {
+    	FreshMultiLoginProvider sulProvider = new FreshMultiLoginProvider();
+    	sulProvider.useOptimizedSuffix();
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(FreshMultiLoginSUL.INT_TYPE);
+                
+        final Word<PSymbolInstance> prefix = //Word.epsilon(); 
+        		Word.fromSymbols(
+                new PSymbolInstance(FreshMultiLoginSUL.IREGISTER, b.dv(100)),
+                new PSymbolInstance(FreshMultiLoginSUL.OREGISTER, b.fv(200)),
+                new PSymbolInstance(FreshMultiLoginSUL.ILOGIN, 
+                		b.dv(100), b.dv(200)),
+                new PSymbolInstance(FreshMultiLoginSUL.OK),
+                new PSymbolInstance(FreshMultiLoginSUL.ILOGIN, 
+                		b.dv(300), b.dv(400)) );
+
+        
+        final Word<ParameterizedSymbol> actions = Word.fromSymbols(FreshMultiLoginSUL.NOK, FreshMultiLoginSUL.IREGISTER, FreshMultiLoginSUL.OREGISTER, FreshMultiLoginSUL.ILOGIN, FreshMultiLoginSUL.NOK);
+        GeneralizedSymbolicSuffix gsuff = new GeneralizedSymbolicSuffix(actions, 
+        		new EnumSet[]{EnumSet.of(DataRelation.EQ, DataRelation.DEQ), EnumSet.noneOf(DataRelation.class), EnumSet.of(DataRelation.EQ, DataRelation.DEQ), EnumSet.noneOf(DataRelation.class)}, 
+        		new EnumSet[][]{{},{EnumSet.noneOf(DataRelation.class)}, {EnumSet.noneOf(DataRelation.class),EnumSet.noneOf(DataRelation.class)}, 
+        	{EnumSet.noneOf(DataRelation.class),EnumSet.of(DataRelation.EQ),EnumSet.noneOf(DataRelation.class)}});
+        
+//        GeneralizedSymbolicSuffix gsuff = new GeneralizedSymbolicSuffix(actions, 
+//        		new EnumSet[]{EnumSet.of(DataRelation.EQ, DataRelation.DEQ), EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class)}, 
+//        		new EnumSet[][]{{},{EnumSet.noneOf(DataRelation.class)}, {EnumSet.of(DataRelation.EQ, DataRelation.DEQ),EnumSet.noneOf(DataRelation.class)}, 
+//        	{EnumSet.noneOf(DataRelation.class),EnumSet.of(DataRelation.EQ),EnumSet.noneOf(DataRelation.class)}});
+        
+        TreeQueryResult tree = sulProvider.mto.treeQuery(prefix, gsuff);
+        System.out.println(tree.getSdt());
+    }
+    
+    
     @SafeVarargs
 	public final GeneralizedSymbolicSuffix testTreeQuery(FreshMultiLoginProvider sulProvider, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Consumer<SDT>... assertions) {
         MultiTheoryTreeOracle mto = sulProvider.mto;
@@ -123,7 +184,7 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
     }
     
     public static void main(String args []) {
-    	new TestFreshMultiLoginTree().testFreshMultiLoginSystem2();
+    	new TestFreshMultiLoginTree().testSuffixBuilder();
     }
     
     class FreshMultiLoginProvider {
@@ -152,6 +213,10 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
 	                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), FreshMultiLoginSUL.ERROR, teachers, 
 	                consts, consSolver, 
 	                sul.getInputSymbols());
+    	}
+    	
+    	private void useOptimizedSuffix() {
+    		((TypedTheory)this.teachers.get(FreshMultiLoginSUL.INT_TYPE)).setUseSuffixOpt(true);
     	}
     	
     	private DataWordSUL getSUL() {

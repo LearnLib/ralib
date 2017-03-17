@@ -18,6 +18,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
+import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -95,6 +96,8 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 	private IOCounterExamplePrefixFinder ceOptPref;
 
 	private IOOracle back;
+	
+    private IOOracle sulTraceOracle;
 
 	private Map<DataType, Theory> teachers;
 
@@ -110,6 +113,8 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 	private String systemIP;
 
 	private Integer systemPort;
+
+	private IOCounterExampleRelationRemover ceOptRelation;
 
 	@Override
 	public String description() {
@@ -196,6 +201,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, consts));
 			else
 				ioCacheOracle = new IOCacheOracle(back, ioCache, null);
+			this.sulTraceOracle = ioCacheOracle;
 
 			IOFilter ioOracle = new IOFilter(ioCacheOracle, inputSymbols);
 
@@ -230,6 +236,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 			this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);
 			this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);
 			this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
+			this.ceOptRelation = new IOCounterExampleRelationRemover(this.teachers, consts, this.solver, this.sulTraceOracle, this.hypVerifier);
 
 		} catch (ClassNotFoundException | NoSuchMethodException ex) {
 			ex.printStackTrace();
@@ -297,11 +304,13 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 				System.out.println("New Prefix CE: " + ce);
 				ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
 				System.out.println("Prefix of CE is CE: " + ce);
+                ce = ceOptRelation.optimizeCE(ce.getInput(), hyp);
+                System.out.println("Relation reduced CE : " + ce);
 			}
 
 			ceLengthsShortened.add(ce.getInput().length());
 
-			Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
+			Word<PSymbolInstance> sysTrace = this.sulTraceOracle.trace(ce.getInput());
 			System.out.println("### SYS TRACE: " + sysTrace);
 
 			SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());

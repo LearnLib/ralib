@@ -103,7 +103,7 @@ public class FreshMultiLoginSUL extends DataWordSUL  {
 		} 
 
 		else {
-			throw new IllegalStateException("i must be instance of connect or flag config");
+			throw new IllegalStateException("must be instance of connect or flag config");
 		}
 	}
 	

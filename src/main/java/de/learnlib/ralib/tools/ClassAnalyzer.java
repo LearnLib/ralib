@@ -41,6 +41,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
+import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
 import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.AccessSequenceProvider;
@@ -128,6 +129,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private RaStar rastar;
 
     private IOCounterExampleLoopRemover ceOptLoops;
+    
+    private IOCounterExampleRelationRemover ceOptRelation;
 
     private IOCounterExamplePrefixReplacer ceOptAsrep;
 
@@ -287,6 +290,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulTraceOracle, this.hypVerifier);
             this.ceOptPref = new IOCounterExamplePrefixFinder(sulTraceOracle, this.hypVerifier);
             this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulTraceOracle, this.hypVerifier);
+            this.ceOptRelation = new IOCounterExampleRelationRemover(this.teachers, consts, this.solver, this.sulTraceOracle, this.hypVerifier);
 
         } catch (ClassNotFoundException | NoSuchMethodException ex) {
             ex.printStackTrace();
@@ -389,6 +393,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 System.out.println("New Prefix CE: " + ce);
                 ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
                 System.out.println("Prefix of CE is CE: " + ce);
+                ce = ceOptRelation.optimizeCE(ce.getInput(), hyp);
+                System.out.println("Relation reduced CE : " + ce);
+            
             }
 
             ceLengthsShortened.add(ce.getInput().length());

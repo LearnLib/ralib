@@ -99,35 +99,68 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt2 = (SDT) sdt2;
         
         GuardExpression expr1 = _sdt1.getAcceptingPaths(consts);
-        GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);        
+        GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);      
         GuardExpression exprG = guard.getCondition();
+        boolean acceptSat = satisfiable(expr1, piv1, expr2, piv2, exprG);
+        GuardExpression expr1R =  _sdt1.getRejectingPaths(consts);
+        GuardExpression expr2R = _sdt2.getRejectingPaths(consts);  
+        boolean rejSat = satisfiable(expr1R, piv1, expr2R, piv2, exprG);
+        return acceptSat | rejSat;
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
-                new VarMapping<>();
-        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
-            if (sv instanceof Parameter) {
-                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
-            }
-        }
-        
-        exprG = exprG.relabel(gremap);
-        
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-                createRemapping(piv2, piv1);
-        
-        GuardExpression expr2r = expr2.relabel(remap);
-        
-        GuardExpression left = new Conjunction(
-                exprG, expr1, new Negation(expr2r));
-        
-        GuardExpression right = new Conjunction(
-                exprG, expr2r, new Negation(expr1));
-        
-        GuardExpression test = new Disjunction(left, right);
+//        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
+//                new VarMapping<>();
+//        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
+//            if (sv instanceof Parameter) {
+//                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
+//            }
+//        }
+//        
+//        exprG = exprG.relabel(gremap);
+//        
+//        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+//                createRemapping(piv2, piv1);
+//        
+//        GuardExpression expr2r = expr2.relabel(remap);
+//        
+//        GuardExpression left = new Conjunction(
+//                exprG, expr1, new Negation(expr2r));
+//        
+//        GuardExpression right = new Conjunction(
+//                exprG, expr2r, new Negation(expr1));
+//        
+//        GuardExpression test = new Disjunction(left, right);
+//
+//        boolean r = solver.isSatisfiable(test);
+//        log.log(Level.FINEST,"Res:" + r);
+//        return r;
+    }
+    
+    private boolean satisfiable(GuardExpression expr1, PIV piv1, GuardExpression expr2, PIV piv2, GuardExpression exprG) {
+    	 VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
+                 new VarMapping<>();
+         for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
+             if (sv instanceof Parameter) {
+                 gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
+             }
+         }
+         
+         exprG = exprG.relabel(gremap);
+         
+         VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+                 createRemapping(piv2, piv1);
+         
+         GuardExpression expr2r = expr2.relabel(remap);
+         
+         GuardExpression left = new Conjunction(
+                 exprG, expr1, new Negation(expr2r));
+         
+         GuardExpression right = new Conjunction(
+                 exprG, expr2r, new Negation(expr1));
+         
+         GuardExpression test = new Disjunction(left, right);
 
-        boolean r = solver.isSatisfiable(test);
-        log.log(Level.FINEST,"Res:" + r);
-        return r;
+         boolean r = solver.isSatisfiable(test);
+         return r;
     }
 
     @Override
@@ -618,7 +651,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
      * Relabeles  sdts so that registers appearing in equality expressions are replaced by the suffixes to which
      * they bound in the context of these expressions. 
      */
-    private SDT relabelPrefixesWithSuffixes(SDT sutSdt) {
+    public SDT relabelPrefixesWithSuffixes(SDT sutSdt) {
     	if (sutSdt instanceof SDTLeaf)
     		return sutSdt;
     	Map<SDTGuard, SDT> children = sutSdt.getChildren();

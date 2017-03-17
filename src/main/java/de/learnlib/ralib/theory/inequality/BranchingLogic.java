@@ -112,10 +112,13 @@ public class BranchingLogic<T extends Comparable<T>> {
 			, GeneralizedSymbolicSuffix suffix) {
 		List<DataValue<T>> newPotential = new ArrayList<>();
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
-		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type)); 
-				
-		List<DataValue<T>> regPotential = pots(regVals, sumC, prefixRel);
+		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type));
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
+		List<DataValue<T>> allVals = new ArrayList<DataValue<T>>(regVals);
+		allVals.addAll(sufVals);
+		
+		List<DataValue<T>> regPotential = pots(allVals, sumC, prefixRel);
+
 		List<DataValue<T>> sufPotential = new ArrayList<DataValue<T>>();
 		for (int i=1; i < pid; i++) {
 			List<DataValue<T>> sufIPotential = pots(sufVals, sumC, suffix.getSuffixRelations(i, pid));
