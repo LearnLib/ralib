@@ -17,8 +17,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
-import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
-import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.mapper.ValueCanonizer;

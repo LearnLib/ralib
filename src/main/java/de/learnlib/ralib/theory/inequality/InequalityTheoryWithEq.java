@@ -332,18 +332,18 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						//guardDvs.put(eqGuard, d);
 						//Map<SDTGuard, SDT> merged = this.mergeAllGuards(tempKids, guardDvs);
 						
-//						WordValuation deqValues = new WordValuation(values);
-//						SuffixValuation deqSuffixValues = new SuffixValuation(suffixValues);
-//						DataValue<T> deqValue = this.getFreshValue(potential);
-//						deqValues.put(pId, deqValue);
-//						deqSuffixValues.put(sv, deqValue);
-//						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
-//						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
-//						
-//						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(deqSuffixValues, tempKids, deqGuard, deqSdt);
+						WordValuation deqValues = new WordValuation(values);
+						SuffixValuation deqSuffixValues = new SuffixValuation(suffixValues);
+						DataValue<T> deqValue = this.getFreshValue(potential);
+						deqValues.put(pId, deqValue);
+						deqSuffixValues.put(sv, deqValue);
+						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
+						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
 						
-						piv.putAll(keepMem(tempKids));
-						return new SDT(tempKids);
+						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(deqSuffixValues, tempKids, deqGuard, deqSdt);
+						
+						piv.putAll(keepMem(merged));
+						return new SDT(merged);
 					}
 				}
 			}

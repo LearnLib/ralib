@@ -43,7 +43,7 @@ public class FieldConfig {
 		return null;
 	}
 
-	void setFields(Object clsInstance) {
+	public void setFields(Object clsInstance) {
 		assert cls.isInstance(clsInstance);
 		fieldConfig.forEach((f,v) -> {
 			try {

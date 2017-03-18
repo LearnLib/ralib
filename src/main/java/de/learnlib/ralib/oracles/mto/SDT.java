@@ -402,6 +402,21 @@ public class SDT implements SymbolicDecisionTree {
 
         return dis;
     }
+    
+    GuardExpression getRejectingPaths(Constants consts) {
+
+        List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), false);
+        if (paths.isEmpty()) {
+            return FalseGuardExpression.FALSE;
+        }
+        GuardExpression dis = null;
+        for (List<SDTGuard> list : paths) {
+            Conjunction con = toPathExpression(list);
+            dis = (dis == null) ? con : new Disjunction(dis, con);
+        }
+
+        return dis;
+    }
 
     List<Conjunction> getPathsAsExpressions(Constants consts, boolean accepting) {
 

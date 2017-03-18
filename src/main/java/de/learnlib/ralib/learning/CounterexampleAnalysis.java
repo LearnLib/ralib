@@ -16,6 +16,11 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -33,18 +38,10 @@ import de.learnlib.ralib.oracles.mto.Slice;
 import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-
-import javax.swing.plaf.synth.SynthSpinnerUI;
-
 import net.automatalib.words.Word;
 
 /**
@@ -196,11 +193,6 @@ public class CounterexampleAnalysis {
         Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, DataWords.actsOf(suffix));
         System.out.println("Slice from word: " + sliceSdts);
         
-//        GeneralizedSymbolicSuffix gsuffix = (hypRefinesTransition) ?
-//                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts) :
-//                SymbolicSuffixBuilder.suffixFromSliceRetainBranching(
-//                        DataWords.actsOf(suffix), sliceSdts, sdt1);
-        
         GeneralizedSymbolicSuffix gsuffix =
         	//	this.sdtOracle.suffixForCounterexample(prefix, sdt1, piv1, sdt2, piv2, guard, actions)
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
@@ -273,6 +265,10 @@ public class CounterexampleAnalysis {
         }
         
         return true;
+    }
+    
+    private SDT trans(SDT sdt) {
+    	return ((MultiTheorySDTLogicOracle)this.sdtOracle).relabelPrefixesWithSuffixes(sdt);
     }
     
     private IndexResult linearBackWardsSearch(Word<PSymbolInstance> ce) {
