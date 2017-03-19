@@ -60,7 +60,7 @@ import net.automatalib.words.Word;
 
 // This template can be used to define analyzers by connecting it
 // to a parser class which provides alphabet and SUL info.
-public abstract class GeneralToolTemplate extends AbstractToolWithRandomWalk{
+public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	
 	private final ConfigurationOption<?>[] OPTIONS;
 	
@@ -88,7 +88,7 @@ public abstract class GeneralToolTemplate extends AbstractToolWithRandomWalk{
 
 	private SULParser sulParser;
 
-	public GeneralToolTemplate(SULParser parser) throws ConfigurationException {
+	public ToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
 		this.sulParser = parser;
 	

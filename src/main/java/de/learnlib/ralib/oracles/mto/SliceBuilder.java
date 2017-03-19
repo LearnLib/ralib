@@ -28,6 +28,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -310,6 +311,8 @@ public class SliceBuilder {
                     }
                 }
 
+            } else if (a.getLeft() instanceof Constant) {
+            	left = a.getLeft();
             } else {
                 assert (a.getLeft() instanceof SuffixValue);
                 left = new SuffixValue(

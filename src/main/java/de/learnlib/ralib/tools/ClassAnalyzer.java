@@ -23,7 +23,7 @@ import de.learnlib.ralib.tools.config.ConfigurationException;
  *
  * @author falk
  */
-public class ClassAnalyzer extends GeneralToolTemplate {
+public class ClassAnalyzer extends ToolTemplate {
 	ClassAnalyzer() throws ConfigurationException {
 		super(new ClassAnalyzerParser());
 	}

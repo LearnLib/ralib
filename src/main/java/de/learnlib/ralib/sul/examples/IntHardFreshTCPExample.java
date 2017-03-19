@@ -4,6 +4,9 @@ package de.learnlib.ralib.sul.examples;
 // mimics the model of the windows server learned in 2014
 public class IntHardFreshTCPExample extends IntAbstractTCPExample{
 
+	// zero is constant used by tcp
+	public static final Integer ZERO = Integer.valueOf(0);
+	
 	private Integer clSeq = null;
 	private Integer svSeq = null;
 	private State state = State.CLOSED;
@@ -48,8 +51,17 @@ public class IntHardFreshTCPExample extends IntAbstractTCPExample{
     		return new Packet(FlagConfig.SYNACK, rseq, rack);
     	}
     	if (state == State.CLOSEWAIT) {
-    		if (equ(clSeq, seq)) 
+    		if (equ(clSeq, seq)) { 
     			state = State.CLOSED;
+    			return new Packet(FlagConfig.RSTACK, ZERO, clSeq+1);
+    		}
+    	}
+    	
+    	if (state == State.SYN_RECEIVED) {
+    		if (succ(clSeq, seq)) { 
+    			state = State.CLOSED;
+    			return new Packet(FlagConfig.RSTACK, ZERO, clSeq+1);
+    		}
     	}
     	
     	return new Timeout();
