@@ -46,7 +46,8 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 		for (DataValue<T> constant : this.sumConstants) {
 			if (decToCanMap.containsKey(DataValue.sub(decValue, constant))) {
 				DataValue<T> operand = decToCanMap.get(DataValue.sub(decValue, constant));
-				return new SumCDataValue<T>(operand, constant);
+				SumCDataValue<T> sumc = new SumCDataValue<T>(operand, constant);
+				return sumc;
 			}
 		}
 		

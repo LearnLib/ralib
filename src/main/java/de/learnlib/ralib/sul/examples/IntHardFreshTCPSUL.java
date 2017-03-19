@@ -22,7 +22,6 @@ import de.learnlib.ralib.sul.examples.IntHardFreshTCPExample.Timeout;
 import de.learnlib.ralib.tools.sulanalyzer.ConcreteInput;
 import de.learnlib.ralib.tools.sulanalyzer.ConcreteOutput;
 import de.learnlib.ralib.tools.sulanalyzer.ConcreteSUL;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class IntHardFreshTCPSUL extends ConcreteSUL {
 
@@ -49,16 +48,7 @@ public class IntHardFreshTCPSUL extends ConcreteSUL {
 			ret = new ConcreteOutput("OTIMEOUT");
 		} else {
 			Packet pkt = ((Packet) x);
-			switch (pkt.flags) {
-			case ACK:
-				ret = new ConcreteOutput("OACK", new Object[] { pkt.seqNum, pkt.ackNum });
-				break;
-			case SYNACK:
-				ret = new ConcreteOutput("OSYNACK", new Object[] { pkt.seqNum, pkt.ackNum });
-				break;
-			default:
-				throw new NotImplementedException();
-			}
+			ret = new ConcreteOutput("O"+pkt.flags.name(), new Object[] { pkt.seqNum, pkt.ackNum });
 		}
 		return ret;
 	}

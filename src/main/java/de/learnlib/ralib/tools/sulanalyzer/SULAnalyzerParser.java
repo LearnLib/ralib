@@ -51,7 +51,6 @@ public class SULAnalyzerParser extends SULParser {
 		this.inputs = parseSymbols(inpStrings, types, true);
 		String[] outStrings = OPTION_OUTPUTS.parse(config).split("\\+");
 		this.outputs = parseSymbols(outStrings, types, false);
-		
 	}
 	
 	private ParameterizedSymbol [] parseSymbols(String [] symStrings, Map<String, DataType> types, boolean isInput) throws ConfigurationException {
@@ -95,6 +94,10 @@ public class SULAnalyzerParser extends SULParser {
 	@Override
 	public Map<String, DataType> getTypes() {
 		return this.types;
+	}
+	
+	public String getTargetName() {
+		return this.sulTarget.getSimpleName();
 	}
 
 	@Override

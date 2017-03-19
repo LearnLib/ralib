@@ -105,10 +105,6 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
             return trace;
         }
         trace = sul.trace(fixedQuery);
-//        if (! this.ioCache.addToCache(trace)) {
-//        	throw new DecoratedRuntimeException("Cache wasn't updated by new sul trace")
-//        	.addDecoration("query", query).addDecoration("sul trace", trace);
-//        }
         return trace;
     }
 }

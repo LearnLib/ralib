@@ -31,6 +31,7 @@ import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 
@@ -42,6 +43,9 @@ public class EqualityGuard extends SDTIfGuard {
 
     public EqualityGuard(SuffixValue param, SymbolicDataExpression reg) {
         super(param, reg, Relation.EQUALS);
+        if (reg == null) {
+        	throw new DecoratedRuntimeException("Equality guard over null register").addDecoration("suff param", param);
+        }
     }
 
     @Override

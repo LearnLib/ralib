@@ -289,7 +289,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				Word<PSymbolInstance> trace = traceOracle.trace(query);
 				PSymbolInstance out = trace.lastSymbol();
 
-				if (out.getBaseSymbol().equals(ps)) {
+				// we compare not only the output generated to the suffix, but also the query thus far to the trace obtained.
+				// In case outputs in the trace are different, tracing an output value to a sdv 
+				// might not be possible, since it could originate from an output value the system generated
+				// that was not captured by the suffix. In such cases, we terminate recursion by returning a rejecting subtree.
+				if (out.getBaseSymbol().equals(ps) && query.equals(trace.prefix(-1))) {
 
 					DataValue<T> d = out.getParameterValues()[idx];
 
@@ -322,6 +326,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						// system's is not accepted
 						SymbolicDataExpression outExpr = getSDExprForDV(d, prefixValues,  values,
 								constants);
+						if (outExpr == null) {
+							throw new DecoratedRuntimeException("Couldn't find " + d + " in prefixValues: " + prefixValues + " values:" + values + " "
+									+ "constants: " + constants + "\n query:" + query + "\n trace:" + trace);
+						}
 						WordValuation eqValues = new WordValuation(values);
 						SuffixValuation eqSuffixValues = new SuffixValuation(suffixValues);
 						eqValues.put(pId, d);
@@ -345,6 +353,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
 					}
+				} else {
+					int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
+					SDT rejSdt = makeRejectingBranch(currentParam.getId() + 1, maxSufIndex);
+					SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
+					tempKids.put(trueGuard, rejSdt);
+
+					piv.putAll(keepMem(tempKids));
+					return new SDT(tempKids);
 				}
 			}
 		}
@@ -598,14 +614,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 * 
 	 * Used to shortcut output processing.
 	 */
-	private SDT makeRejectingElseBranch(int nextSufIndex, int maxIndex) {
+	private SDT makeRejectingBranch(int nextSufIndex, int maxIndex) {
 		if (nextSufIndex == maxIndex) {
 			// map.put(guard, SDTLeaf.REJECTING);
 			return SDTLeaf.REJECTING;
 		} else {
 			Map<SDTGuard, SDT> map = new LinkedHashMap<>();
 			SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue(this.getType(), nextSufIndex));
-			map.put(trueGuard, makeRejectingElseBranch(nextSufIndex + 1, maxIndex));
+			map.put(trueGuard, makeRejectingBranch(nextSufIndex + 1, maxIndex));
 			SDT sdt = new SDT(map);
 			return sdt;
 		}

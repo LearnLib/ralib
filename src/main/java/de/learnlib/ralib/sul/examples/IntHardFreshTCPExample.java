@@ -1,5 +1,7 @@
 package de.learnlib.ralib.sul.examples;
 
+
+// mimics the model of the windows server learned in 2014
 public class IntHardFreshTCPExample extends IntAbstractTCPExample{
 
 	private Integer clSeq = null;
@@ -59,7 +61,15 @@ public class IntHardFreshTCPExample extends IntAbstractTCPExample{
     			svSeq = ack;
     			clSeq = seq;
     			state = State.ESTABLISHED;
+    		} else {
+    			if (succ(clSeq, seq) && !succ(svSeq, ack)) 
+    				return new Packet(FlagConfig.RST, ack, ack);
     		} 
+    	}
+    	if (state == State.CLOSEWAIT || state == State.ESTABLISHED) {
+    		if (!equ(clSeq, seq)) {
+    			return new Packet(FlagConfig.ACK, this.svSeq, this.clSeq);
+    		}
     	}
     	
     	return new Timeout();
@@ -84,12 +94,20 @@ public class IntHardFreshTCPExample extends IntAbstractTCPExample{
     		} 
     	}
     	
-//    	if (state == State.SYN_RECEIVED) {
-//    		if (succ(clSeq, seq) && succ(svSeq, ack)) {
-//    			state = State.CLOSEWAIT;
-//    			return new Packet(FlagConfig.ACK, this.newFresh(), this.newFresh());
-//    		}
-//    	}
+    	if (state == State.SYN_RECEIVED) {
+    		if (succ(clSeq, seq) && succ(svSeq, ack)) {
+    			svSeq = ack;
+    			clSeq = seq;
+    			state = State.CLOSEWAIT;
+    			return new Packet(FlagConfig.ACK, svSeq, clSeq);
+    		}
+    	}
+    	
+    	if (state == State.CLOSEWAIT || state == State.ESTABLISHED) {
+    		if (!equ(clSeq, seq)) {
+    			return new Packet(FlagConfig.ACK, this.svSeq, this.clSeq);
+    		}
+    	}
     	
     	return new Timeout();
     }

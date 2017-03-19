@@ -60,7 +60,7 @@ import net.automatalib.words.Word;
 
 // This template can be used to define analyzers by connecting it
 // to a parser class which provides alphabet and SUL info.
-public class GenericTool extends AbstractToolWithRandomWalk{
+public abstract class GeneralToolTemplate extends AbstractToolWithRandomWalk{
 	
 	private final ConfigurationOption<?>[] OPTIONS;
 	
@@ -88,13 +88,14 @@ public class GenericTool extends AbstractToolWithRandomWalk{
 
 	private SULParser sulParser;
 
-	public GenericTool(SULParser parser) throws ConfigurationException {
+	public GeneralToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
 		this.sulParser = parser;
 	
 	}
 	
 	public void setup(Configuration config) throws ConfigurationException{
+		super.setup(config);
 		this.sulParser.parseConfig(config);
 		this.sulLearn = sulParser.newSUL();
 		this.targetName = sulParser.targetName();
@@ -108,6 +109,7 @@ public class GenericTool extends AbstractToolWithRandomWalk{
          	DataValue<?> [] cstArray = super.parseDataValues(cstString, types);
          	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
          }
+		
 		this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
         this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
         
@@ -152,10 +154,10 @@ public class GenericTool extends AbstractToolWithRandomWalk{
         this.hypVerifier = new IOHypVerifier(teach, consts);
 
         this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
-                true, teachers, this.hypVerifier, solver, sulParser.getInputs());
+                true, teachers, this.hypVerifier, solver, sulParser.getAlphabet());
 
         if (findCounterexamples) {
-            this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, sulParser.getAlphabet());
+            this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, sulParser.getInputs());
             String ver = OPTION_TEST_TRACES.parse(config);
             if (ver != null) {
             	List<String> tests = Arrays.stream(ver.split(";")).collect(Collectors.toList());
@@ -367,9 +369,6 @@ public class GenericTool extends AbstractToolWithRandomWalk{
 
 
 	@Override
-	public String description() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract String description();
 
 }

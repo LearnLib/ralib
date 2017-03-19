@@ -13,6 +13,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 

@@ -9,6 +9,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.SULParser;
 import de.learnlib.ralib.tools.config.Configuration;
+import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
@@ -50,7 +51,7 @@ public class ClassAnalyzerParser extends SULParser{
 	private Integer md;
 
 	
-	public void parseConfig(Configuration config) {
+	public void parseConfig(Configuration config) throws ConfigurationException{
 		List<ParameterizedSymbol> inList = new ArrayList<>();
         List<ParameterizedSymbol> outList = new ArrayList<>();
         this.types = new LinkedHashMap<String, DataType>();
@@ -101,7 +102,7 @@ public class ClassAnalyzerParser extends SULParser{
             	outList.add(SpecialSymbols.DEPTH);
             this.outputSymbols = outList.toArray(new ParameterizedSymbol[]{});
         }catch(Exception e){
-        	
+        	throw new ConfigurationException(e.getMessage());
         }
 	}
 	
