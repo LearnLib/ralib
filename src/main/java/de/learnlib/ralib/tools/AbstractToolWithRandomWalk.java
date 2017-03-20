@@ -17,7 +17,6 @@
 package de.learnlib.ralib.tools;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -26,8 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,6 +49,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
+import de.learnlib.ralib.tools.config.ConfigurationOption.BooleanOption;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import net.automatalib.commons.util.Pair;
@@ -209,6 +207,13 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     = new ConfigurationOption.StringOption("cache.load",
             "Load cache from file if file exists", null, true);
     
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_SYSTEM 
+    = new ConfigurationOption.StringOption("cache.system",
+            "The type of caching employed: serialize|mock", "serialize", true);
+    
+    protected static final BooleanOption OPTION_CACHE_TESTS 
+    = new ConfigurationOption.BooleanOption("cache.tests",
+            "Are tests cached as well?", true, false);
     
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
     = new ConfigurationOption.StringOption("constants",

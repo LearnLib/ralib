@@ -45,6 +45,8 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 	private final TraceCanonizer traceCanonizer;
 
     private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
+    
+    public final static PSymbolInstance CACHE_DUMMY = new PSymbolInstance(new OutputSymbol("__cache_dummy"));
 
     
     public IOCacheOracle(IOOracle sul) {
@@ -79,7 +81,7 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         }
         Word<PSymbolInstance> test = fixedQuery;
         if (fixedQuery.length() % 2 != 0) {
-            test = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
+            test = fixedQuery.append(CACHE_DUMMY);
         }
         Word<PSymbolInstance> trace  = null;
         try {
@@ -100,11 +102,13 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
 
-        Word<PSymbolInstance> trace = this.ioCache.traceFromCache(fixedQuery);
+        Word<PSymbolInstance> trace = this.ioCache.traceFromCache(fixedQuery, this.traceCanonizer);
         if (trace != null) {
             return trace;
         }
         trace = sul.trace(fixedQuery);
+        boolean added = this.ioCache.addToCache(trace);
+//        assert added;
         return trace;
     }
 }

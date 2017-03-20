@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -119,6 +120,40 @@ public class IOCache {
             }
 
             trace = trace.append(in).append(out);
+            
+        }
+        return trace;
+    }
+    
+    /**
+     * Also performs canonization of the query as it searches the cache.  This helps improve the cache hit rate.
+     * 
+     */
+    Word<PSymbolInstance> traceFromCache(Word<PSymbolInstance> query, TraceCanonizer traceCanonizer) {
+        Word<PSymbolInstance> trace = Word.epsilon();
+        
+        Iterator<PSymbolInstance> iter = query.iterator();
+        PSymbolInstance out = null;
+        CacheNode cur = root;
+
+        while (iter.hasNext()) {
+
+            PSymbolInstance in = iter.next(); 
+            PSymbolInstance ignoredOut = iter.next();
+            
+            trace = trace.append(in);
+            trace = traceCanonizer.canonizeTrace(trace);
+            PSymbolInstance canonizedIn = trace.lastSymbol();
+            
+
+            out = cur.output.get(canonizedIn);
+            cur = cur.next.get(canonizedIn);
+
+            if (out == null) {
+                return null;
+            }
+
+            trace = trace.append(out);
             
         }
         return trace;

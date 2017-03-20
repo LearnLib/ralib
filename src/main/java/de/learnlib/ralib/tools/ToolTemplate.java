@@ -36,6 +36,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeOracleStatsLoggerWrapper;
+import de.learnlib.ralib.oracles.io.CachingSUL;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
@@ -119,10 +120,14 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         this.sulTest = sulParser.newSUL();
         this.sulTest = setupDataWordOracle(sulParser.newSUL(), teachers, consts, useFresh, timeoutMillis);
         
-        IOCache ioCache = setupCache(config, IOCacheManager.JAVA_SERIALIZE);
+        String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
+        IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
+        IOCache ioCache = setupCache(config, cacheManager);
         
         IOCacheOracle ioLearnCacheOracle = setupCacheOracle(sulLearn, teachers, consts, ioCache, useFresh);
         IOCacheOracle ioCeAnalysisCacheOracle = setupCacheOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh);
+        if (OPTION_CACHE_TESTS.parse(config)) 
+        	this.sulTest = new CachingSUL(this.sulTest, ioCache);
         
         this.sulTraceOracle = ioLearnCacheOracle;
         
