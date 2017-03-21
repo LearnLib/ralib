@@ -127,7 +127,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		newPotential.addAll(regPotential);
 		newPotential.addAll(sufPotential);
-		newPotential.addAll(constants.values(type));
+		//newPotential.addAll(constants.values(type));
 		List<DataValue<T>> distinctPotential = newPotential.stream().distinct().collect(Collectors.toList());
 		Collections.sort(distinctPotential, (dv1, dv2) -> dv1.getId().compareTo(dv2.getId()));
 		return distinctPotential;

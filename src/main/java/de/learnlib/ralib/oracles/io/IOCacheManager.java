@@ -51,10 +51,7 @@ public interface IOCacheManager {
 		}
 	}
 	
-	//public static final IOCacheManager KRYO = new KryoCacheManager();
-	public static final IOCacheManager JAVA_SERIALIZE = //new MockCacheManager();
-			new JavaSerializeCacheManager();
-
+	
 	static class MockCacheManager implements IOCacheManager {
 
 		public IOCache loadCacheFromFile(String file, Constants consts) throws IOException {
@@ -82,12 +79,14 @@ public interface IOCacheManager {
  			ObjectInput input = new ObjectInputStream (buffer);
 			try {
 				SerializableCacheNode cacheNode = (SerializableCacheNode) input.readObject();
-
+				input.close();
 				return new IOCache(cacheNode.toCacheNode(consts));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
+				input.close();
 				throw new RuntimeException(e);
 			}
+			
 			
 		}
 
@@ -146,8 +145,8 @@ public interface IOCacheManager {
 				if (dv == null) {
 					return null;
 				}
-				if (consts.containsValue(dv)) {
-					return new ConstantSerializableDataValue<T>(dv, consts);
+				if (dv instanceof Constant) {
+					return new ConstantSerializableDataValue<T>((Constant) dv, consts);
 				} 
 				
 				if (dv instanceof SumCDataValue) {
@@ -277,11 +276,8 @@ public interface IOCacheManager {
 			
 			private Integer cIdx;
 
-			public ConstantSerializableDataValue(DataValue<T> constant, Constants consts){
-				Optional<Constant> symConst = consts.keySet()
-				.stream().filter(c -> consts.get(c).equals(constant)).findFirst();
-				assert symConst.isPresent();
-				this.cIdx = symConst.get().getId();
+			public ConstantSerializableDataValue(Constant constant, Constants consts){
+				this.cIdx = constant.getId();
 			}
 
 			@Override
@@ -303,7 +299,7 @@ public interface IOCacheManager {
 			private Integer cIdx;
 
 			public SumConstantSerializableDataValue(DataValue<T> constant, Constants consts){
-				Optional<SumConstant> symConst = consts.getSumC().keySet()
+				Optional<SumConstant> symConst = consts.getSumCs().keySet()
 				.stream().filter(c -> consts.get(c).equals(constant)).findFirst();
 				assert symConst.isPresent();
 				this.cIdx = symConst.get().getId();
@@ -311,7 +307,7 @@ public interface IOCacheManager {
 
 			@Override
 			public DataValue<T> toDataValue(Constants consts) {
-				Optional<SumConstant> symConst = consts.getSumC().keySet()
+				Optional<SumConstant> symConst = consts.getSumCs().keySet()
 						.stream().filter(c -> c.getId().equals(cIdx)).findFirst();
 				if (!symConst.isPresent()) {
 					throw new DecoratedRuntimeException("Constant with id " + cIdx + " not found in constants. " 

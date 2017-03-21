@@ -112,7 +112,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory{
 				).flatMap(s -> s).distinct()
 				.filter(dv -> !canRemove(dv));
 		
-		List<DataValue<Integer>> valAndSumsAndConsts = Stream.concat(valAndSums, regularConstants.stream())
+		List<DataValue<Integer>> valAndSumsAndConsts = valAndSums//Stream.concat(valAndSums, regularConstants.stream())
 				.collect(Collectors.toList()); 
 
 		return valAndSumsAndConsts;
