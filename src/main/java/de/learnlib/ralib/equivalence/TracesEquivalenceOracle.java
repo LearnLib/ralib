@@ -45,7 +45,7 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 	private static String TEST_EX =  "(" +  INPUT_EX + ")+"; 
 	private static Pattern INPUT_MATCH = Pattern.compile(INPUT_EX);
 
-	private List<List<PSymbolInstance>> parseTestsFromStrings(List<String> testStrings,
+	public static List<List<PSymbolInstance>> parseTestsFromStrings(List<String> testStrings,
 			List<ParameterizedSymbol> actionSignatures) {
 		List<List<PSymbolInstance>> tests = new ArrayList<>();
 		List<String> actionNames = actionSignatures.stream().map(actSig -> actSig.getName()).collect(Collectors.toList());
@@ -65,7 +65,7 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 		return tests;
 	}
 	
-	private PSymbolInstance parseSymInst(String inpString,  List<ParameterizedSymbol> actSignature) {
+	private static PSymbolInstance parseSymInst(String inpString,  List<ParameterizedSymbol> actSignature) {
 		DataValue dv;
 		String[] inpSplit = inpString.split("\\(|\\)|\\,");
 		String actName = inpSplit[0].trim();

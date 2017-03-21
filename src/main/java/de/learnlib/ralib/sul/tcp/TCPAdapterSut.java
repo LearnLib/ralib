@@ -62,7 +62,7 @@ public class TCPAdapterSut extends ConcreteSUL{
 	}
 
 	private ConcreteOutput sendInput( ConcreteInput action) {
-		//System.out.println("Input from RaLib: " + action);
+		System.out.println("Input from RaLib: " + action);
 		String inputString = Serializer.concreteInputToString(action);
 		this.senderSocket.writeInput(inputString);
 		String outputString = this.senderSocket.readOutput();

@@ -114,6 +114,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
         this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
         
+
+        String debug = OPTION_DEBUG_TRACES.parse(config);
+        if (debug != null) 
+        	runDebugTraceAndExit(debug, this.sulLearn);
+        
         this.sulCeAnalysis = sulParser.newSUL(); 
         this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
         
@@ -160,7 +165,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 
         this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
                 true, teachers, this.hypVerifier, solver, sulParser.getAlphabet());
-
+        
         if (findCounterexamples) {
             this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, sulParser.getInputs());
             String ver = OPTION_TEST_TRACES.parse(config);
@@ -179,6 +184,21 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	}
 	
 	
+	private void runDebugTraceAndExit(String debug, DataWordSUL sul) {
+		List<String> testStrings = Arrays.stream(debug.split(";")).collect(Collectors.toList());
+    	List<List<PSymbolInstance>> tests = TracesEquivalenceOracle.parseTestsFromStrings(testStrings, Arrays.asList(this.sulParser.getAlphabet()));
+    	for (List<PSymbolInstance> test : tests) {
+    		Word<PSymbolInstance> res = Word.epsilon();
+    		sul.pre();
+    		for (PSymbolInstance inp : test) {
+    			PSymbolInstance out = sul.step(inp);
+    			res = res.append(inp).append(out);
+    		}
+    		sul.post();
+    		System.out.println(res);
+    	}
+    	System.exit(0);
+	}
 	
     // could use a builder pattern here
     private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, boolean useFresh, long timeoutMillis) {

@@ -157,8 +157,13 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.IntegerOption("max.rounds",
                     "Maximum number of rounds", -1, true);
     
+    protected static final ConfigurationOption.StringOption OPTION_DEBUG_TRACES
+    = new ConfigurationOption.StringOption("debug.traces",
+            "Debug traces are run on the system at start with printing of the output, followed by exit. No learning is done."
+            + "Debug traces format: test1; test2; ...", null, true);
+    
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
-    = new ConfigurationOption.StringOption("traces.words",
+    = new ConfigurationOption.StringOption("test.traces",
             "Test traces format: test1; test2; ...", null, true);
 
     protected static final ConfigurationOption.BooleanOption OPTION_EQ_ORACLE = 
@@ -213,7 +218,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     
     protected static final BooleanOption OPTION_CACHE_TESTS 
     = new ConfigurationOption.BooleanOption("cache.tests",
-            "Are tests cached as well?", true, false);
+            "Are tests cached as well?", true, true);
     
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
     = new ConfigurationOption.StringOption("constants",
