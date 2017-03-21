@@ -89,6 +89,8 @@ public class DataValue<T> {
 					return (P) Integer.valueOf(strVal);
 				else if (cls.equals(double.class))
 					return (P) Double.valueOf(strVal);
+				else if (cls.equals(long.class))
+					return (P) Long.valueOf(strVal);
 			}
 			throw new RuntimeException("Cannot deserialize values of the class " + cls);
 		}

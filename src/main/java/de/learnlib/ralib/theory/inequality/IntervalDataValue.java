@@ -42,28 +42,20 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		}
 		
 		if (clz.isAssignableFrom(Integer.class)) {
-			Integer intVal; 
-//			if ((((Integer) rightVal) - ((Integer) leftVal)) > INSIDE_STEP) {
-//				intVal = ((Integer) leftVal) + INSIDE_STEP;
-//			} else {
-			// to avoid overflow
-				intVal = Math.addExact((Integer) leftVal, Math.subtractExact((Integer) rightVal, (Integer) leftVal)/2) ;
-				
-//			}
-			
+			Integer intVal = 
+					Math.addExact((Integer) leftVal, Math.subtractExact((Integer) rightVal, (Integer) leftVal)/2) ;
 			betweenVal =  clz.cast( intVal);
 		} else {
 			if(clz.isAssignableFrom(Double.class)) {
-				Double doubleVal;
-//				if ((((Double) rightVal) - ((Double) leftVal)) > INSIDE_STEP) {
-//					doubleVal = ((Double) leftVal) + INSIDE_STEP;
-//				} else {
-					doubleVal = (((Double) rightVal) + ((Double) leftVal))/2 ;
-//				}
+				Double doubleVal = (((Double) rightVal) + ((Double) leftVal))/2 ;
 				betweenVal = clz.cast(doubleVal);
-			} else {
-				throw new RuntimeException("Unsupported type " + leftVal.getClass());
-			}
+			} else if (clz.isAssignableFrom(Long.class)) {
+				Long longVal = (((Long) rightVal) + ((Long) leftVal))/2 ;
+				betweenVal = clz.cast(longVal);
+				} 
+				else {
+						throw new RuntimeException("Unsupported type " + leftVal.getClass());
+				}
 		}
 		
 		return betweenVal;

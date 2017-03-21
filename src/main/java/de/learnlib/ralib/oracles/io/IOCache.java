@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.DataWords;
@@ -60,6 +59,7 @@ public class IOCache {
 
             CacheNode next = cur.next.get(in);
             if (next != null) {
+            	// check for non-determinism
                 assert out.equals(cur.output.get(in));
             } else  {
                 next = new CacheNode();

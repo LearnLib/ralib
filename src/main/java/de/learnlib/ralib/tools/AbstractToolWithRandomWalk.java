@@ -52,6 +52,8 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.config.ConfigurationOption.BooleanOption;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
+import de.learnlib.ralib.tools.theories.SumCLongInequalityTheory;
+import de.learnlib.ralib.tools.theories.SumCTheory;
 import net.automatalib.commons.util.Pair;
 
 /**
@@ -328,7 +330,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     
     private void applyCustomTeacherSettings(Map<DataType, Theory> teachers, Configuration config, Map<String, DataType> types, Constants consts) throws ConfigurationException {
-    	if (teachers.values().stream().anyMatch(th -> th instanceof SumCIntegerInequalityTheory || th instanceof SumCDoubleInequalityTheory)) {
+    	Theory[] sumCTheories = teachers.values().stream()
+    			.filter(th -> th instanceof SumCTheory).toArray(Theory []::new);
+    	if (sumCTheories.length > 0) {
     		SumConstants sumConstants = new SumConstants();
     		String sumcString = OPTION_CONSTANTS_SUMC.parse(config);
     		if (sumcString != null) {
@@ -338,17 +342,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     		}
     		consts.setSumC(sumConstants);
 	        
-	    	for (DataType dataType : teachers.keySet()) {
-	    		Theory teacher = teachers.get(dataType);
-	    		if (teacher instanceof SumCIntegerInequalityTheory) {
-	    			((SumCIntegerInequalityTheory) teacher).setConstants(consts);
-	    			//if (sumcString != null)
-	    			((SumCIntegerInequalityTheory) teacher).setSumcConstants(sumConstants);
-	    		}
-	    		
-	    		if (teacher instanceof SumCDoubleInequalityTheory) {
-	    			((SumCDoubleInequalityTheory) teacher).setConstants(consts);
-	    		}
+    		
+	    	for (Theory teacher : sumCTheories) {
+	    		((SumCTheory) teacher).setConstants(consts);
 	    	}
     	}
 	}

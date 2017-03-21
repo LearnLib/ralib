@@ -190,6 +190,7 @@ public class JContraintsUtil {
 	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
 	static {
 		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
+		typeMap.put(Long.class, BuiltinTypes.INTEGER);
 		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
 		typeMap.put(Float.class, BuiltinTypes.FLOAT);
 	}
