@@ -89,6 +89,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 
 	private SULParser sulParser;
 
+	private Constants constants;
+
 	public ToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
 		this.sulParser = parser;
@@ -110,6 +112,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
          	DataValue<?> [] cstArray = super.parseDataValues(cstString, types);
          	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
          }
+         this.constants = consts;
 		
 		this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, consts);
         this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
@@ -304,7 +307,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             Word<PSymbolInstance> sysTrace = sulTraceOracle.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
+            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, this.constants);
             IOOracle iosul = new BasicSULOracle(hypSul, SpecialSymbols.ERROR);        
 
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());

@@ -134,9 +134,12 @@ public class SimulatorSUL extends DataWordSUL {
             else {
                 SymbolicDataExpression sv = mapping.getOutput().get(p);    
                 Mapping varMapping = new Mapping(register, consts);
+                //TODO this is not sufficient, to instantiate expr we should also pass along constants
                 if (sv.isParameter())
                 	throw new UnsupportedOperationException("not supported yet.");
-                else 
+                else if (sv.isConstant()) {
+                	vals[i] = this.consts.get(sv);
+                } else
                 	vals[i] = sv.instantiateExprForValuation(varMapping);
             }
             assert vals[i] != null;
