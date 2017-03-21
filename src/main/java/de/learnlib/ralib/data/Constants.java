@@ -47,6 +47,10 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 		this.sumConstants = sumConstants;
 	} 
 	
+	public SumConstants getSumC() {
+		return sumConstants;
+	}
+	
 	
 	public <T> List<DataValue<T>> getSumCs(DataType<T> type) {
 		@SuppressWarnings("unchecked")

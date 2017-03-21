@@ -195,7 +195,7 @@ public class SocketAnalyzer extends AbstractToolWithRandomWalk {
 				back = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 
 			IOCacheOracle ioCacheOracle = null;
-			IOCache ioCache = super.setupCache(config, IOCacheManager.JAVA_SERIALIZE);
+			IOCache ioCache = super.setupCache(config, IOCacheManager.JAVA_SERIALIZE, consts);
 
 			if (useFresh)
 				ioCacheOracle = new IOCacheOracle(back, ioCache, new SymbolicTraceCanonizer(this.teachers, consts));

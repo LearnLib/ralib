@@ -390,12 +390,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     	}
     }
     
-    protected IOCache setupCache(Configuration config, IOCacheManager cacheMgr) throws ConfigurationException {
+    protected IOCache setupCache(Configuration config, IOCacheManager cacheMgr, Constants consts) throws ConfigurationException {
     	IOCache ioCache = null;
         String load = OPTION_CACHE_LOAD.parse(config);
         if (load != null && new File(load).exists()) {
         	try {
-				ioCache = cacheMgr.loadCacheFromFile(load);
+				ioCache = cacheMgr.loadCacheFromFile(load, consts);
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new ConfigurationException(e.getMessage());
@@ -409,7 +409,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         	Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 				public void run() {
 					try {
-						cacheMgr.dumpCacheToFile(dump, finalCache);
+						cacheMgr.dumpCacheToFile(dump, finalCache, consts);
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw new RuntimeException(e);

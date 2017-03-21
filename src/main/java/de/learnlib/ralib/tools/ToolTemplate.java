@@ -122,7 +122,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
         IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
-        IOCache ioCache = setupCache(config, cacheManager);
+        IOCache ioCache = setupCache(config, cacheManager, consts);
         
         IOCacheOracle ioLearnCacheOracle = setupCacheOracle(sulLearn, teachers, consts, ioCache, useFresh);
         IOCacheOracle ioCeAnalysisCacheOracle = setupCacheOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh);

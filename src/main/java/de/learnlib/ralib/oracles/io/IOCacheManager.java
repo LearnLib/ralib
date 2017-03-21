@@ -15,14 +15,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-import com.beust.jcommander.internal.Maps;
-
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataValue.SumConstant;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.io.IOCache.CacheNode;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -35,8 +38,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public interface IOCacheManager {
 	
 	
-	public IOCache loadCacheFromFile(String file)  throws IOException ;
-	public void dumpCacheToFile(String file, IOCache cache)  throws IOException ;
+	public IOCache loadCacheFromFile(String file, Constants consts)  throws IOException ;
+	public void dumpCacheToFile(String file, IOCache cache, Constants consts)  throws IOException ;
 	
 	
 	public static IOCacheManager getCacheManager(String caching) {
@@ -54,12 +57,12 @@ public interface IOCacheManager {
 
 	static class MockCacheManager implements IOCacheManager {
 
-		public IOCache loadCacheFromFile(String file) throws IOException {
+		public IOCache loadCacheFromFile(String file, Constants consts) throws IOException {
 			return new IOCache();
 		}
 
 		@Override
-		public void dumpCacheToFile(String file, IOCache cache) throws IOException {
+		public void dumpCacheToFile(String file, IOCache cache, Constants consts) throws IOException {
 	//		nothing
 		}
 		
@@ -73,14 +76,14 @@ public interface IOCacheManager {
 	 */
 	static class JavaSerializeCacheManager implements IOCacheManager {
 
-		public IOCache loadCacheFromFile(String fileName) throws IOException {
+		public IOCache loadCacheFromFile(String fileName, Constants consts) throws IOException {
 			InputStream file = new FileInputStream(fileName);
 			InputStream buffer = new BufferedInputStream(file);
  			ObjectInput input = new ObjectInputStream (buffer);
 			try {
 				SerializableCacheNode cacheNode = (SerializableCacheNode) input.readObject();
 
-				return new IOCache(cacheNode.toCacheNode());
+				return new IOCache(cacheNode.toCacheNode(consts));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				throw new RuntimeException(e);
@@ -89,8 +92,8 @@ public interface IOCacheManager {
 		}
 
 		@Override
-		public void dumpCacheToFile(String fileName, IOCache cache) throws IOException {
-			SerializableCacheNode cacheNode = new SerializableCacheNode(cache.getRoot());
+		public void dumpCacheToFile(String fileName, IOCache cache, Constants consts) throws IOException {
+			SerializableCacheNode cacheNode = new SerializableCacheNode(cache.getRoot(), consts);
 			OutputStream file = new FileOutputStream(fileName);
 			OutputStream buffer = new BufferedOutputStream(file);
 			ObjectOutput output = new ObjectOutputStream(buffer);
@@ -103,22 +106,22 @@ public interface IOCacheManager {
 	        final Map<SerializablePSymbolInstance, SerializablePSymbolInstance> output;
 	        final Map<SerializablePSymbolInstance, SerializableCacheNode> next;
 	        
-	        public SerializableCacheNode(IOCache.CacheNode cache) {
+	        public SerializableCacheNode(IOCache.CacheNode cache, Constants consts) {
 		        this.output = new LinkedHashMap<>();
 		        this.next = new LinkedHashMap<>();
 	        	cache.output.forEach((inp,out) 
-	        			-> this.output.put(new SerializablePSymbolInstance(inp), new SerializablePSymbolInstance(out)));
+	        			-> this.output.put(new SerializablePSymbolInstance(inp, consts), new SerializablePSymbolInstance(out, consts)));
 	        	cache.next.forEach((inp,node) 
-	        			-> this.next.put(new SerializablePSymbolInstance(inp), new SerializableCacheNode(node)));
+	        			-> this.next.put(new SerializablePSymbolInstance(inp, consts), new SerializableCacheNode(node, consts)));
 	        	//System.out.println("Storing: "+ cache);
 	        }
 	        
-	        public IOCache.CacheNode toCacheNode() {
+	        public IOCache.CacheNode toCacheNode(Constants consts) {
 	        	IOCache.CacheNode cache = new CacheNode();
 	        	this.output.forEach((inp,out) 
-	        			-> cache.output.put(inp.toPSymbolInstance(), out.toPSymbolInstance()));
+	        			-> cache.output.put(inp.toPSymbolInstance(consts), out.toPSymbolInstance(consts)));
 	        	this.next.forEach((inp,node) 
-	        			-> cache.next.put(inp.toPSymbolInstance(), node.toCacheNode()));
+	        			-> cache.next.put(inp.toPSymbolInstance(consts), node.toCacheNode(consts)));
 	        	//System.out.println("Loading: "+ cache);
 	        	return cache;
 	        }
@@ -129,31 +132,36 @@ public interface IOCacheManager {
 			public SerializableParameterSymbol baseSymbol;
 			private SerializableDataValue[] dvs;
 			
-			SerializablePSymbolInstance(PSymbolInstance inst) {
+			SerializablePSymbolInstance(PSymbolInstance inst, Constants consts) {
 				baseSymbol = new SerializableParameterSymbol(inst.getBaseSymbol());
-				dvs = Arrays.stream(inst.getParameterValues()).map(val -> visit(val)).toArray(SerializableDataValue []::new);
+				dvs = Arrays.stream(inst.getParameterValues()).map(val -> visit(val, consts)).toArray(SerializableDataValue []::new);
 			}
 			
-			public PSymbolInstance toPSymbolInstance() {
-				DataValue[] dataValues = Arrays.stream(dvs).map(dvs -> dvs == null? null:dvs.toDataValue()).toArray(DataValue []::new);
+			public PSymbolInstance toPSymbolInstance(Constants consts) {
+				DataValue[] dataValues = Arrays.stream(dvs).map(dvs -> dvs == null? null:dvs.toDataValue(consts)).toArray(DataValue []::new);
 				return new PSymbolInstance(baseSymbol.toPSym(), dataValues);
 			}
 			
-			<T> SerializableDataValue<T>   visit(DataValue<T> dv) {
+			<T> SerializableDataValue<T>   visit(DataValue<T> dv, Constants consts) {
 				if (dv == null) {
 					return null;
 				}
+				if (consts.containsValue(dv)) {
+					return new ConstantSerializableDataValue<T>(dv, consts);
+				} 
+				
 				if (dv instanceof SumCDataValue) {
-					return new SumCSerializableDataValue<T>(visit(((SumCDataValue<T>) dv).getOperand()), visit(((SumCDataValue<T>) dv).getConstant()));
+					return new SumCSerializableDataValue<T>(visit(((SumCDataValue<T>) dv).getOperand(), consts), 
+							new SumConstantSerializableDataValue<T>(((SumCDataValue<T>) dv).getConstant(), consts));
 				}
 				if (dv instanceof FreshValue) {
 					return new FreshSerializableDataValue<T>(dv);
 				}
 				if (dv instanceof IntervalDataValue) {
 					return new IntervalSerializableDataValue(
-							visit(new DataValue( dv.getType(), dv.getId())), 
-							visit(((IntervalDataValue) dv).getLeft()), 
-							visit(((IntervalDataValue) dv).getRight()));
+							visit(new DataValue( dv.getType(), dv.getId()), consts), 
+							visit(((IntervalDataValue) dv).getLeft(), consts), 
+							visit(((IntervalDataValue) dv).getRight(), consts));
 				}
 				if (dv.getClass() != DataValue.class) {
 					throw new RuntimeException("Serialization not implemented for DataValue of subtype: " + dv.getClass());
@@ -202,8 +210,8 @@ public interface IOCacheManager {
 			 */
 			private static final long serialVersionUID = 1L;
 			
-			public DataValue<T> toDataValue() {
-				DataValue<T> dv = super.toDataValue();
+			public DataValue<T> toDataValue(Constants consts) {
+				DataValue<T> dv = super.toDataValue(consts);
 				return new FreshValue<T>(dv.getType(), dv.getId());
 			}
 			
@@ -222,8 +230,8 @@ public interface IOCacheManager {
 
 			private static final long serialVersionUID = 1L;
 			
-			public DataValue<T> toDataValue() {
-				return new SumCDataValue<T>(opValue.toDataValue(), constValue.toDataValue());
+			public DataValue<T> toDataValue(Constants consts) {
+				return new SumCDataValue<T>(opValue.toDataValue(consts), constValue.toDataValue(consts));
 			}
 		}
 		
@@ -241,8 +249,9 @@ public interface IOCacheManager {
 
 			private static final long serialVersionUID = 1L;
 			
-			public DataValue<T> toDataValue() {
-				return new IntervalDataValue<T>(val.toDataValue(), min == null? null : min.toDataValue(), max == null? null : max.toDataValue());
+			public DataValue<T> toDataValue(Constants consts) {
+				return new IntervalDataValue<T>(val.toDataValue(consts), min == null? null : 
+					min.toDataValue(consts), max == null? null : max.toDataValue(consts));
 			}
 		}
 		
@@ -259,14 +268,63 @@ public interface IOCacheManager {
 				dvType = dataValue.getClass();
 			}
 			
-			public DataValue<T> toDataValue() {
+			public DataValue<T> toDataValue(Constants consts) {
 				return new DataValue<T>(dataType.toDataType(), object);
+			}
+		}
+		
+		static class ConstantSerializableDataValue<T> implements SerializableDataValue<T> {
+			
+			private Integer cIdx;
+
+			public ConstantSerializableDataValue(DataValue<T> constant, Constants consts){
+				Optional<Constant> symConst = consts.keySet()
+				.stream().filter(c -> consts.get(c).equals(constant)).findFirst();
+				assert symConst.isPresent();
+				this.cIdx = symConst.get().getId();
+			}
+
+			@Override
+			public DataValue<T> toDataValue(Constants consts) {
+				Optional<Constant> symConst = consts.keySet()
+						.stream().filter(c -> c.getId().equals(cIdx)).findFirst();
+				if (!symConst.isPresent()) {
+					throw new DecoratedRuntimeException("Constant with id " + cIdx + " not found in constants. " 
+							+ "Ensure that the current configuration uses the same constant setup as the previous")
+					.addDecoration("constants", consts);
+				} 
+				return (DataValue<T>) symConst.get();
+			}
+		}
+
+		
+		static class SumConstantSerializableDataValue<T> implements SerializableDataValue<T> {
+			
+			private Integer cIdx;
+
+			public SumConstantSerializableDataValue(DataValue<T> constant, Constants consts){
+				Optional<SumConstant> symConst = consts.getSumC().keySet()
+				.stream().filter(c -> consts.get(c).equals(constant)).findFirst();
+				assert symConst.isPresent();
+				this.cIdx = symConst.get().getId();
+			}
+
+			@Override
+			public DataValue<T> toDataValue(Constants consts) {
+				Optional<SumConstant> symConst = consts.getSumC().keySet()
+						.stream().filter(c -> c.getId().equals(cIdx)).findFirst();
+				if (!symConst.isPresent()) {
+					throw new DecoratedRuntimeException("Constant with id " + cIdx + " not found in constants. " 
+							+ "Ensure that the current configuration uses the same constant setup as the previous")
+					.addDecoration("constants", consts);
+				} 
+				return (DataValue<T>) symConst.get();
 			}
 		}
 		
 		
 		static interface SerializableDataValue<T> extends Serializable {
-			public DataValue<T> toDataValue();
+			public DataValue<T> toDataValue(Constants consts);
 		}
 		
 		static class SerializableDataType<T> implements Serializable{
