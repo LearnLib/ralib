@@ -36,7 +36,7 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 		}
 		if (constants.containsValue(value)) 
 			return value;
-		DataValue<T> mappedValue = resolveValue(value, thisToOtherMap);
+		DataValue<T> mappedValue = resolveValue(value, thisToOtherMap, constants);
 		if (mappedValue == null) {
 			mappedValue = getFreshValue(thisToOtherMap, constants);
 		}
@@ -46,10 +46,12 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 	// returns the resolved value or null, if the value cannot be resolved. The value cannot be resolved if:
 	// 	for SumC the operand is missing
 	//  for Interval data guards, at least one of the endpoints are missing or the interval is invalid
-	private DataValue<T> resolveValue(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap) {
+	private DataValue<T> resolveValue(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
+		if (constants.containsValue(value))
+			return value;
 		if (value instanceof SumCDataValue) {
 			SumCDataValue<T> sumc = (SumCDataValue<T>) value;
-			DataValue<T> operand = resolveValue(sumc.getOperand(), thisToOtherMap);
+			DataValue<T> operand = resolveValue(sumc.getOperand(), thisToOtherMap, constants);
 			if (operand != null) {
 				return  new SumCDataValue<T>(operand, sumc.getConstant());
 			} else {
@@ -59,12 +61,12 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 			IntervalDataValue<T> intv = (IntervalDataValue<T>) value;
 			DataValue<T> newLeft = null;
 			if (intv.getLeft() != null) {
-				newLeft = resolveValue(intv.getLeft(), thisToOtherMap);
+				newLeft = resolveValue(intv.getLeft(), thisToOtherMap, constants);
 			}
 			
 			DataValue<T> newRight = null;
 			if (intv.getRight() != null) {
-				newRight = resolveValue(intv.getRight(), thisToOtherMap);
+				newRight = resolveValue(intv.getRight(), thisToOtherMap, constants);
 			}
 
 			// if the endpoints of the interval were resolved

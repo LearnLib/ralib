@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.SumConstant;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -273,7 +274,7 @@ public interface IOCacheManager {
 		}
 		
 		static class ConstantSerializableDataValue<T> implements SerializableDataValue<T> {
-			
+			private static final long serialVersionUID = 1L;
 			private Integer cIdx;
 
 			public ConstantSerializableDataValue(Constant constant, Constants consts){
@@ -295,26 +296,31 @@ public interface IOCacheManager {
 
 		
 		static class SumConstantSerializableDataValue<T> implements SerializableDataValue<T> {
-			
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 			private Integer cIdx;
 
 			public SumConstantSerializableDataValue(DataValue<T> constant, Constants consts){
-				Optional<SumConstant> symConst = consts.getSumCs().keySet()
-				.stream().filter(c -> consts.get(c).equals(constant)).findFirst();
+				SumConstants sumCs = consts.getSumCs();
+				Optional<SumConstant> symConst = sumCs.keySet()
+				.stream().filter(c -> sumCs.get(c).equals(constant)).findFirst();
 				assert symConst.isPresent();
 				this.cIdx = symConst.get().getId();
 			}
 
 			@Override
 			public DataValue<T> toDataValue(Constants consts) {
-				Optional<SumConstant> symConst = consts.getSumCs().keySet()
+				SumConstants sumCs = consts.getSumCs();
+				Optional<SumConstant> symConst = sumCs.keySet()
 						.stream().filter(c -> c.getId().equals(cIdx)).findFirst();
 				if (!symConst.isPresent()) {
 					throw new DecoratedRuntimeException("Constant with id " + cIdx + " not found in constants. " 
 							+ "Ensure that the current configuration uses the same constant setup as the previous")
 					.addDecoration("constants", consts);
 				} 
-				return (DataValue<T>) symConst.get();
+				return (DataValue<T>) sumCs.get(symConst.get());
 			}
 		}
 		

@@ -256,7 +256,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
-		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(//constants.<T>values(type),
+		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
 				DataWords.<T>valSet(prefix, type), values.<T>values(type));
 
 		List<DataValue<T>> potList = new ArrayList<>(potSet);

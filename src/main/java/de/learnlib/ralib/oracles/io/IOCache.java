@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -42,6 +46,11 @@ public class IOCache {
      */
     boolean addToCache(Word<PSymbolInstance> query) {
         assert query.length() % 2 == 0;
+        // TODO Remove this once everything is clarified.
+        Optional<DataValue> hasSym = DataWords.valSet(query).stream().filter(a -> a instanceof de.learnlib.ralib.data.SymbolicDataValue).findAny();
+        if (hasSym.isPresent()) {
+        	throw new DecoratedRuntimeException("Only concrete values expected").addDecoration("Symbolic value", hasSym.get());
+        }
         Iterator<PSymbolInstance> iter = query.iterator();
         CacheNode cur = root;
         boolean cacheUpdated = false;
