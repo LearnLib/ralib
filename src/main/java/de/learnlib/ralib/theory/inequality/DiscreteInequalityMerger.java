@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
@@ -61,7 +62,13 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		// the other OR guards (which should only contain unmerge-able equality guards), are split
 		LinkedHashMap<SDTGuard, SDT> noOrResult = splitOrGuardsToConstituents(compressedResult);
 		
-		mergedResult = noOrResult;
+		// at this point we should have maximal intervals along with equality guards
+		// it could be that some guards could be expressed by expressions in the adjacent guards above them 
+		// for example, suppose guards <=r1 and ==r2, are adjacent, r2=r1+1. <= r1 could be expressed by
+		// <r2, removing the need to keep r1 as a register
+		LinkedHashMap<SDTGuard, SDT> regReducedResult = relabelByExpressingLowerExprByUpper(noOrResult);
+		
+		mergedResult = regReducedResult;
 		
 		if (mergedResult.size() > 1) {
 			// we need to check if the merged guard fit into a pattern where all interval SDTs are equivalent, in which case, 
@@ -107,6 +114,37 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		return mergedResult;
 	}
 	
+	private LinkedHashMap<SDTGuard, SDT> relabelByExpressingLowerExprByUpper(
+			LinkedHashMap<SDTGuard, SDT> mergedResult) {
+		final LinkedHashMap<SDTGuard, SDT> relabelledResult = new LinkedHashMap<>();
+		SDTGuard[] guards = mergedResult.keySet().toArray(new SDTGuard []{});
+		for (int i=0; i<guards.length-1; i++) {
+			SDTGuard crtGuard = guards[i];
+			SDTGuard nxtGuard = guards[i+1];
+			SDTGuard newGuard;
+			if (crtGuard instanceof IntervalGuard && 
+					Boolean.FALSE.equals(((IntervalGuard) crtGuard).getRightOpen())) {
+				SymbolicDataExpression nxtExpr;
+				if (nxtGuard instanceof EqualityGuard)
+					nxtExpr = ((EqualityGuard) nxtGuard).getExpression();
+				else if (nxtGuard instanceof IntervalGuard) {
+					nxtExpr = ((IntervalGuard) nxtGuard).getLeftExpr();
+					assert Boolean.FALSE.equals(((IntervalGuard) nxtGuard).getLeftOpen());
+				} else {
+					throw new DecoratedRuntimeException("Unexpected guard type").addDecoration("guard", nxtGuard);
+				}
+				newGuard = new IntervalGuard(crtGuard.getParameter(), ((IntervalGuard) crtGuard).getLeftExpr(), 
+							((IntervalGuard) crtGuard).getLeftOpen(), nxtExpr, Boolean.TRUE);
+			} else 
+				newGuard = crtGuard;
+			
+			SDT sdt = mergedResult.get(crtGuard);
+			relabelledResult.put(newGuard, sdt);
+		}
+		relabelledResult.put(guards[guards.length-1], mergedResult.get(guards[guards.length-1]));
+		return relabelledResult;
+	}
+
 	private LinkedHashMap<SDTGuard, SDT> splitOrGuardsToConstituents(LinkedHashMap<SDTGuard, SDT> mergedResult) {
 		final LinkedHashMap<SDTGuard, SDT> noOrGateResult = new LinkedHashMap<>();
 		mergedResult.forEach((g,sdt)

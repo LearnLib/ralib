@@ -563,65 +563,66 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             if (e.getLeft() instanceof SuffixValue && 
                     e.getRight() instanceof SuffixValue) {
                 int idx = Math.min(e.getLeft().getId(), e.getRight().getId()) -1;
-                
+                assert e.getLeft().getId() < e.getRight().getId();
                 srels[idx].addAll(toDR(e, consts));
             }
         }
     }
     
-   static EnumSet<DataRelation> toDR(AtomicGuardExpression atom, Constants consts) {
-        switch (atom.getRelation()) {
-            case EQUALS: 
-            	if (atom instanceof SumCAtomicGuardExpression) {
-            		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
-            		int index = consts.getSumCs(cst.getType()).indexOf(cst);
-            		if (index == 0)
-            			return EnumSet.of(DataRelation.EQ_SUMC1);
-            		if (index == 1)
-            			return EnumSet.of(DataRelation.EQ_SUMC2);
-            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
-            		.addDecoration("index", index);
-            	} 
-            	else return EnumSet.of(DataRelation.EQ);
-            case LESSER: 
+
+    static EnumSet<DataRelation> toDR(AtomicGuardExpression atom, Constants consts) {
+         switch (atom.getRelation()) {
+             case EQUALS: 
              	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
-            		if (index == 0)
-            			return EnumSet.of(DataRelation.LT_SUMC1);
-            		if (index == 1)
-            			return EnumSet.of(DataRelation.LT_SUMC2);
-            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
-            		.addDecoration("index", index);
-            	} else
-            		return EnumSet.of(DataRelation.LT);
-            case GREATER: return EnumSet.of(DataRelation.DEFAULT);
-            case LSREQUALS: 
-            	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
-            		if (index == 0)
-            			return EnumSet.of(DataRelation.LT_SUMC1, DataRelation.EQ_SUMC1);
-            		if (index == 1)
-            			return EnumSet.of(DataRelation.LT_SUMC2, DataRelation.EQ_SUMC2);
-            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
-            		.addDecoration("index", index);
-            	} else
-            		return EnumSet.of(DataRelation.LT, DataRelation.EQ);
-            case GREQUALS: return EnumSet.of(DataRelation.DEFAULT, DataRelation.EQ);            
-            case NOT_EQUALS: 
-            	if (atom instanceof SumCAtomicGuardExpression) {
-            		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
-            		if (index == 0)
-            			return EnumSet.of(DataRelation.DEQ_SUMC1);
-            		if (index == 1)
-            			return EnumSet.of(DataRelation.DEQ_SUMC2);
-            		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
-            		.addDecoration("index", index);
-            	} else
-            		return EnumSet.of(DataRelation.DEQ);
-            default:
-                throw new IllegalStateException("Unsupported Relation: " + atom.getRelation());
-        }
-    }
+             		DataValue cst = ((SumCAtomicGuardExpression) atom).getLeftConst();
+             		int index = consts.getSumCs(cst.getType()).indexOf(cst);
+             		if (index == 0)
+             			return EnumSet.of(DataRelation.EQ_SUMC1);
+             		if (index == 1)
+             			return EnumSet.of(DataRelation.EQ_SUMC2);
+             		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+             		.addDecoration("index", index);
+             	} 
+             	else return EnumSet.of(DataRelation.EQ);
+             case GREATER: 
+              	if (atom instanceof SumCAtomicGuardExpression) {
+             		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
+             		if (index == 0)
+             			return EnumSet.of(DataRelation.LT_SUMC1);
+             		if (index == 1)
+             			return EnumSet.of(DataRelation.LT_SUMC2);
+             		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+             		.addDecoration("index", index);
+             	} else
+             		return EnumSet.of(DataRelation.LT);
+             case GREQUALS: 
+             	if (atom instanceof SumCAtomicGuardExpression) {
+             		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
+             		if (index == 0)
+             			return EnumSet.of(DataRelation.LT_SUMC1, DataRelation.EQ_SUMC1);
+             		if (index == 1)
+             			return EnumSet.of(DataRelation.LT_SUMC2, DataRelation.EQ_SUMC2);
+             		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+             		.addDecoration("index", index);
+             	} else
+             		return EnumSet.of(DataRelation.LT, DataRelation.EQ);
+             case LESSER: return EnumSet.of(DataRelation.DEFAULT);
+             case LSREQUALS: return EnumSet.of(DataRelation.DEFAULT, DataRelation.EQ);            
+             case NOT_EQUALS: 
+             	if (atom instanceof SumCAtomicGuardExpression) {
+             		int index = getSumCIndex((SumCAtomicGuardExpression) atom, consts);
+             		if (index == 0)
+             			return EnumSet.of(DataRelation.DEQ_SUMC1);
+             		if (index == 1)
+             			return EnumSet.of(DataRelation.DEQ_SUMC2);
+             		throw new DecoratedRuntimeException("No relations for more than 2 sumc s")
+             		.addDecoration("index", index);
+             	} else
+             		return EnumSet.of(DataRelation.DEQ);
+             default:
+                 throw new IllegalStateException("Unsupported Relation: " + atom.getRelation());
+         }
+     }
     
     static int getSumCIndex(SumCAtomicGuardExpression atom, Constants consts) {
     	DataValue cst = ((SumCAtomicGuardExpression) atom).getRightConst();
