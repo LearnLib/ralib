@@ -19,6 +19,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
+import de.learnlib.ralib.exceptions.SULRestartException;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -84,12 +85,22 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         }
         // find counterexample ...
         while (runs < maxRuns) {
-            Word<PSymbolInstance> ce = run();
+            Word<PSymbolInstance> ce = runExc();
             if (ce != null) {
                 return new DefaultQuery<>(ce, true);
             }
         }
         return null;
+    }
+    
+    private Word<PSymbolInstance> runExc() {
+    	Word<PSymbolInstance> run =null;
+    	try {
+    		run = this.run();
+    	} catch(SULRestartException exc) {
+    		run = this.runExc();
+    	}
+    	return run;
     }
 
     private Word<PSymbolInstance> run() {
@@ -119,11 +130,17 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	            run = run.append(out);
 	
 	            if (this.hypVerifier.isCEForHyp(run, hyp) != null) {
-	                log.log(Level.FINE, "Run with CE: {0}", run);     
-	                System.out.format("Run with CE: {0}", run);
-	                target.post();
-	                
-	                return run;
+	            //	if (!run.toString().contains("CLOSE") ||  !run.toString().contains("OFA")) { 
+		                log.log(Level.FINE, "Run with CE: {0}", run);     
+		                System.out.format("Run with CE: {0}", run);
+		                target.post();
+		                
+		                return run;
+//	            	} else {
+//	            		target.post();
+//	            		System.out.println("IGNORED " + run);
+//	            		return null;
+//	            	}
 	            }
 	        } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
 	                !out.getBaseSymbol().equals(error));

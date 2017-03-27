@@ -17,10 +17,10 @@ public class Serializer {
 		// packet input
 		if (params.length > 0) {
 			String flags = methodName;
-			int seqNr = (int) params[0];
-			int ackNr = (int) params[1];
+			long seqNr = (long) params[0];
+			long ackNr = (long) params[1];
 			int payload = methodName.contains("P") ? 1 : 0;
-			inputString = concreteMessageToString(flags, int2ULong(seqNr), int2ULong(ackNr), payload);
+			inputString = concreteMessageToString(flags, seqNr, ackNr, payload);
 		}
 
 		// tcp adapter input
@@ -51,8 +51,8 @@ public class Serializer {
 			output = new ConcreteOutput(methodName);
 		} else {
 			// SA 299 390 [] or AP 300 300 [x]
-			Integer seqReceived = uLongString2Int(outputValues[1]);
-			Integer ackReceived = uLongString2Int(outputValues[2]);
+			Long seqReceived = Long.valueOf(outputValues[1]);
+			Long ackReceived = Long.valueOf(outputValues[2]);
 			String payload = outputValues[3];
 			if (payload.length() < 2 || payload.charAt(0) != '[' || payload.charAt(payload.length() - 1) != ']') {
 				throw new RuntimeException("Cannot parse packet '" + payload + "'");

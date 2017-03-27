@@ -54,7 +54,7 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		}
 		
 		// compared to the concrete merger, we need these two extra steps (perhaps it should be a function
-		// of the disjunction algorithm)
+		// of the disjunction logic algorithm)
 		
 		// we turn or guards to intervals where possible, that is whenever they contain IntervalGuards. 
 		LinkedHashMap<SDTGuard, SDT> compressedResult = changeOrGuardsWithIntervalsToIntervals(mergedResult);
@@ -133,8 +133,13 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 				} else {
 					throw new DecoratedRuntimeException("Unexpected guard type").addDecoration("guard", nxtGuard);
 				}
-				newGuard = new IntervalGuard(crtGuard.getParameter(), ((IntervalGuard) crtGuard).getLeftExpr(), 
-							((IntervalGuard) crtGuard).getLeftOpen(), nxtExpr, Boolean.TRUE);
+				// if the expressions are different, the second is a successor, we formulate the first guard in terms of the second expression
+				// and remove the = from <=
+				if (!nxtExpr.equals(((IntervalGuard) crtGuard).getRightExpr()))
+					newGuard = new IntervalGuard(crtGuard.getParameter(), ((IntervalGuard) crtGuard).getLeftExpr(), 
+								((IntervalGuard) crtGuard).getLeftOpen(), nxtExpr, Boolean.TRUE);
+				else 
+					newGuard = crtGuard;
 			} else 
 				newGuard = crtGuard;
 			

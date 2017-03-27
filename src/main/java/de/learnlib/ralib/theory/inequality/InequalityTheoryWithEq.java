@@ -256,7 +256,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
-		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
+		if (values.<T>values(type).contains(constants.<T>values(type))) {
+			throw new DecoratedRuntimeException("Shouldn't happen");
+		}
+		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(//constants.<T>values(type),
 				DataWords.<T>valSet(prefix, type), values.<T>values(type));
 
 		List<DataValue<T>> potList = new ArrayList<>(potSet);

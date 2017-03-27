@@ -25,6 +25,8 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -190,7 +192,12 @@ public class CounterexampleAnalysis {
         SDT sdt1 = (SDT) resSul.getSdt();
         SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
         
-        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, DataWords.actsOf(suffix));
+        Mapping<SymbolicDataValue, DataValue<?>> contextValuation = new Mapping<SymbolicDataValue, DataValue<?>>();
+		DataValue<?> [] values = DataWords.valsOf(prefix);
+		resSul.getPiv().forEach((param, reg) 
+				-> contextValuation.put(reg, values[param.getId()-1]));
+        
+        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, contextValuation, DataWords.actsOf(suffix));
         System.out.println("Slice from word: " + sliceSdts);
         
         GeneralizedSymbolicSuffix gsuffix =
@@ -211,6 +218,9 @@ public class CounterexampleAnalysis {
     	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         if (! newHasCE) {
         	System.out.println("CE not preserved by optimized suffix");
+        	GeneralizedSymbolicSuffix exhSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+        	TreeQueryResult debugSdt = sulOracle.treeQuery(location, exhSuffix);
+        	System.out.println(debugSdt.getPiv() + "\n" + debugSdt.getSdt());
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
         

@@ -53,5 +53,7 @@ public class TreeQueryResult {
         return sdt;
     }
 
-    
+    public String toString() {
+    	return " PIV: " + piv + " \n SDT: " + this.sdt;
+    }
 }

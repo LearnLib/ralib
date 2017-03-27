@@ -155,6 +155,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
+            if (DataWords.valSet(concSuffix).contains(DataValue.ONE(this.teachers.keySet().iterator().next()))) {
+        			throw new DecoratedRuntimeException("Sum over constant");
+            }
 
             DefaultQuery<PSymbolInstance, Boolean> query
                     = new DefaultQuery<>(prefix, concSuffix);
@@ -478,13 +481,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	if (b instanceof EqualityGuard)
     		if (a.equals(((EqualityGuard)b).toDeqGuard()))
     			return false;
-    	return mlo.canBothBeSatisfied(a.toTG(), new PIV(), b.toTG(), new PIV(), guardContext.contextValuation); 
+    	return mlo.canBothBeSatisfied(a.toExpr(), new PIV(), b.toExpr(), new PIV(), guardContext.contextValuation); 
     }
     
     private boolean refines(SDTGuard a, SDTGuard b,  GuardContext guardContext, MultiTheorySDTLogicOracle mlo) {
     	if (b instanceof SDTTrueGuard) 
     		return true;
-    	boolean ref1 = mlo.doesRefine(a.toTG(), new PIV(), b.toTG(), new PIV(), guardContext.contextValuation);
+    	boolean ref1 = mlo.doesRefine(a.toExpr(), new PIV(), b.toExpr(), new PIV(), guardContext.contextValuation);
     	return ref1;
     }
     

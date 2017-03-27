@@ -198,7 +198,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		else 
 		{
 			Optional<DataValue<Integer>> sumcEqual = sortedSumConsts.stream().filter(c -> Integer.valueOf(c.getId() + dv.getId())
-					.equals(right.getId())).findAny();
+					.equals(right.getId())).findFirst();
 			if (sumcEqual.isPresent()) {
 				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
 				if (ind == 0) 
@@ -209,7 +209,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 					throw new DecoratedRuntimeException("Over 2 sumcs not supported");
 			} else {
 				Optional<DataValue<Integer>> sumcLt = sortedSumConsts.stream().filter(c -> 
-				Integer.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findAny();
+				Integer.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findFirst();
 				if (sumcLt.isPresent()) {
 					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
 					if (ind == 0) 

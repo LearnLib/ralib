@@ -26,6 +26,7 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
@@ -74,12 +75,15 @@ public class SliceBuilder {
 
     private final ConstraintSolver solver;
 
+	private MultiTheorySDTLogicOracle mlo;
+
     public SliceBuilder(Map<DataType, Theory> teachers,
             Constants constants, ConstraintSolver solver) {
 
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
+        this.mlo = new MultiTheorySDTLogicOracle(this.constants, this.solver);
     }
 
     public Slice sliceFromWord(
@@ -181,16 +185,16 @@ public class SliceBuilder {
 
     }
     
-    public Slice sliceFromSDTs(SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions) {
+    public Slice sliceFromSDTs(SDT sdt1, SDT sdt2, Mapping<SymbolicDataValue, DataValue<?>> contextValuation, Word<ParameterizedSymbol> suffixActions) {
         
         List<Pair<Conjunction>> cand = new ArrayList<>();
-        cand.addAll(getCandidates(sdt1, sdt2, true));
-        cand.addAll(getCandidates(sdt1, sdt2, false));
+        cand.addAll(getCandidates(sdt1, sdt2, contextValuation, true));
+        cand.addAll(getCandidates(sdt1, sdt2, contextValuation, false));
         int minRank = 0;
         Slice minSlice = null;
         for (Pair<Conjunction> p : cand) {
             Slice act = sliceFromPaths(p.e1, p.e2);
-            int rank = rankSlice(act, actions);
+            int rank = rankSlice(act, suffixActions);
             if (minSlice == null || rank < minRank) {
                 minRank = rank;
                 minSlice = act;
@@ -330,7 +334,7 @@ public class SliceBuilder {
     }
 
     private List<Pair<Conjunction>> getCandidates(
-            SDT sdt1, SDT sdt2, boolean accepting) {
+            SDT sdt1, SDT sdt2, Mapping<SymbolicDataValue, DataValue<?>> contextValuation, boolean accepting) {
 
         List<Pair<Conjunction>> ret = new ArrayList<>();
 
@@ -341,9 +345,8 @@ public class SliceBuilder {
 
         for (Conjunction c1 : paths1) {
             for (Conjunction c2 : paths2) {
-                // check if paths satisfiable ...
-                GuardExpression test = new Conjunction(c1, c2);
-                boolean r = solver.isSatisfiable(test);
+            	// check if paths satisfiable ...
+            	boolean r = this.mlo.canBothBeSatisfied(c1, new PIV(), c2, new PIV(), contextValuation);
                 if (r) {
                     ret.add(new Pair<>(c1, c2));
                 }

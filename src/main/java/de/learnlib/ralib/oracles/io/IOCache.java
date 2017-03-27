@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
+import de.learnlib.ralib.exceptions.NonDeterminismException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -53,14 +54,20 @@ public class IOCache {
         Iterator<PSymbolInstance> iter = query.iterator();
         CacheNode cur = root;
         boolean cacheUpdated = false;
+        int index = 0;
         while (iter.hasNext()) {
             PSymbolInstance in = iter.next();
             PSymbolInstance out = iter.next();
-
+            index = index+2;
+            
             CacheNode next = cur.next.get(in);
             if (next != null) {
             	// check for non-determinism
-                assert out.equals(cur.output.get(in));
+                if (!out.equals(cur.output.get(in))) {
+                	throw new NonDeterminismException().addDecoration("after", query.prefix(index-1))
+                	.addDecoration("expected", cur.output.get(in))
+                	.addDecoration("got", out);
+                }
             } else  {
                 next = new CacheNode();
                 cur.next.put(in, next);

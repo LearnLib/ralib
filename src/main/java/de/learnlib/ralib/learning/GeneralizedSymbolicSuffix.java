@@ -121,6 +121,25 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
 	}
+	
+	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffixActs,  Map<DataType, Theory> theories) {
+
+		int paramNum = DataWords.paramLength(suffixActs);
+		EnumSet<DataRelation>[] prefixRelations = new EnumSet[paramNum];
+		EnumSet<DataRelation>[][] suffixRelations = new EnumSet[paramNum][];
+
+		for (int i = 0; i < paramNum; i++) {
+			EnumSet<DataRelation> allRelations = EnumSet.of(DataRelation.ALL); // theories.get(vals[i].getType()).recognizedRelations();
+			prefixRelations[i] = EnumSet.copyOf(allRelations);
+			suffixRelations[i] = new EnumSet[i];
+			for (int j = 0; j < i; j++)
+				suffixRelations[i][j] = EnumSet.copyOf(allRelations);
+		}
+		Set<ParamSignature>[] prefixSources = new Set[paramNum];
+		Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
+
+		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
+	}
 
 	public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts,
 			Map<DataType, Theory> theories) {
@@ -319,6 +338,19 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			this.prefixRelations[i] = theories.get(t).recognizedRelations();
 			// this.prefixSources[i] = Sets.newHashSet(ParamSignature.ANY);
 		}
+	}
+	
+	public GeneralizedSymbolicSuffix toFullSymSuffix() {
+		EnumSet<DataRelation>[][] suffixRelations = new EnumSet[this.size()][];
+		EnumSet<DataRelation>[] prefixRelations = new EnumSet[this.size()];
+		for (int i=0; i<this.size(); i++) {
+			prefixRelations[i] = EnumSet.of(DataRelation.ALL);
+			suffixRelations[i] = new EnumSet[i];
+			for (int j=0; j<i; j++) {
+				suffixRelations[i][j] = EnumSet.of(DataRelation.ALL);
+			}
+		}
+		return new GeneralizedSymbolicSuffix(this.actions, prefixRelations, suffixRelations);
 	}
 
 	public SuffixValue getValue(int i) {

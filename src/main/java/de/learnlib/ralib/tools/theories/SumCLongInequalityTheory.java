@@ -112,7 +112,7 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 				).flatMap(s -> s).distinct()
 				.filter(dv -> !canRemove(dv));
 		
-		List<DataValue<Long>> valAndSumsAndConsts = Stream.concat(valAndSums, regularConstants.stream())
+		List<DataValue<Long>> valAndSumsAndConsts = valAndSums //Stream.concat(valAndSums, regularConstants.stream())
 				.collect(Collectors.toList()); 
 
 		return valAndSumsAndConsts;
@@ -169,7 +169,10 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 		List<DataValue<Long>> potential = getPotential(vals);
 
 		// the superclass should complete this list with in-between values.
-		return super.getAllNextValues(potential);
+		Collection<DataValue<Long>> nextValues = super.getAllNextValues(potential);
+		// We are not interested in negative numbers.
+		nextValues.removeIf(v -> v.getId() <= 0L);
+		return nextValues;
 	}
 
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Long>> left, DataValue<Long> right) {
@@ -198,7 +201,7 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 		else 
 		{
 			Optional<DataValue<Long>> sumcEqual = sortedSumConsts.stream().filter(c -> Long.valueOf(c.getId() + dv.getId())
-					.equals(right.getId())).findAny();
+					.equals(right.getId())).findFirst();
 			if (sumcEqual.isPresent()) {
 				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
 				if (ind == 0) 
@@ -209,7 +212,7 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 					throw new DecoratedRuntimeException("Over 2 sumcs not supported");
 			} else {
 				Optional<DataValue<Long>> sumcLt = sortedSumConsts.stream().filter(c -> 
-				Long.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findAny();
+				Long.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findFirst();
 				if (sumcLt.isPresent()) {
 					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
 					if (ind == 0) 

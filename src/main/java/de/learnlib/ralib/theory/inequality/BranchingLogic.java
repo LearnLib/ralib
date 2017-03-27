@@ -91,19 +91,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		if (action == null)
 			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
 		
-//		ParamSignature signature = suffix.getParamSignature(pid);
-		// an example on how to restrict ISYNACK
-//		if (!signature.getActionName().contains("ISYNACK") || signature.getParamIndex() != 1 && !action.strategy.name().startsWith("TRUE")) {
-//			List<DataValue<T>> bValues = action.getBranchingValues();
-//			bValues.removeIf(dv -> dv.equals(constants.getSumC(type, 1) ) );
-//			BranchingStrategy strategy = action.getStrategy();
-//			switch(strategy) {
-//			case FULL:
-//				strategy=BranchingStrategy.IF_EQU_ELSE;
-//				break;
-//				default: break;
-//			}
-//		} 
+		action.branchingValues.removeIf(dv -> dv.getId().compareTo(DataValue.ZERO(type).getId())<=0);
 
 		return action;
 	}
@@ -112,7 +100,8 @@ public class BranchingLogic<T extends Comparable<T>> {
 			, GeneralizedSymbolicSuffix suffix) {
 		List<DataValue<T>> newPotential = new ArrayList<>();
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
-		List<DataValue<T>> regVals = Arrays.asList(DataWords.valsOf(prefix, this.type));
+		List<DataValue<T>> regVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(prefix, this.type)));
+		regVals.removeAll(constants.values(type));
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
 		List<DataValue<T>> allVals = new ArrayList<DataValue<T>>(regVals);
 		allVals.addAll(sufVals);
@@ -127,7 +116,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		newPotential.addAll(regPotential);
 		newPotential.addAll(sufPotential);
-		newPotential.addAll(constants.values(type));
+	//	newPotential.addAll(constants.values(type));
 		List<DataValue<T>> distinctPotential = newPotential.stream().distinct().collect(Collectors.toList());
 		Collections.sort(distinctPotential, (dv1, dv2) -> dv1.getId().compareTo(dv2.getId()));
 		return distinctPotential;

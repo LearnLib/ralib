@@ -84,14 +84,28 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
             test = fixedQuery.append(CACHE_DUMMY);
         }
         Word<PSymbolInstance> trace  = null;
-        try {
-        	trace = this.sul.trace(test);
-        } catch(DecoratedRuntimeException exc) {
-        	throw exc.addDecoration("trace ", query);
+        boolean added = false;
+        int numAttempts = 3;
+        while (!added && numAttempts>0) {
+	        try {
+	        	trace = this.sul.trace(test);
+	        } catch(DecoratedRuntimeException exc) {
+	        	throw exc.addDecoration("trace ", query);
+	        }
+        	added = this.ioCache.addToCache(trace);
+        	numAttempts--;
         }
-        boolean added = this.ioCache.addToCache(trace);
         assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
+        if (ret == null)  {
+        	for (int i=0; i<5; i++) {
+        		System.out.println(this.sul.trace(test));
+        	}
+        	throw new DecoratedRuntimeException("Could not find answer for query, even after "
+        			+ "it had been added to cache")
+        	.addDecoration("fixedQuery", fixedQuery).addDecoration("original query", query)
+        	.addDecoration("trace", trace);
+        }
         return ret;
     }
 

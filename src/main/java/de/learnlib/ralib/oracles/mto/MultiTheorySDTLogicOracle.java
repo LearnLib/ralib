@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -29,9 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-
-import com.google.common.collect.Sets;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -106,33 +102,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         GuardExpression expr2R = _sdt2.getRejectingPaths(consts);  
         boolean rejSat = satisfiable(expr1R, piv1, expr2R, piv2, exprG);
         return acceptSat | rejSat;
-
-//        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
-//                new VarMapping<>();
-//        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
-//            if (sv instanceof Parameter) {
-//                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
-//            }
-//        }
-//        
-//        exprG = exprG.relabel(gremap);
-//        
-//        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-//                createRemapping(piv2, piv1);
-//        
-//        GuardExpression expr2r = expr2.relabel(remap);
-//        
-//        GuardExpression left = new Conjunction(
-//                exprG, expr1, new Negation(expr2r));
-//        
-//        GuardExpression right = new Conjunction(
-//                exprG, expr2r, new Negation(expr1));
-//        
-//        GuardExpression test = new Disjunction(left, right);
-//
-//        boolean r = solver.isSatisfiable(test);
-//        log.log(Level.FINEST,"Res:" + r);
-//        return r;
     }
     
     private boolean satisfiable(GuardExpression expr1, PIV piv1, GuardExpression expr2, PIV piv2, GuardExpression exprG) {
@@ -166,28 +135,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     @Override
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining, 
             TransitionGuard refined, PIV pivRefined) {
-        
-        log.log(Level.FINEST, "refining: {0}", refining);
-        log.log(Level.FINEST, "refined: {0}", refined);
-        log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
-        log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
-        
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-                createRemapping(pivRefined, pivRefining);
-        
-        GuardExpression exprRefining = refining.getCondition();
-        GuardExpression exprRefined = 
-                refined.getCondition().relabel(remap);
-        
-        // is there any case for which refining is true but refined is false?
-        GuardExpression test = new Conjunction(
-            exprRefining, new Negation(exprRefined));
-        
-        log.log(Level.FINEST,"MAP: " + remap);
-        log.log(Level.FINEST,"TEST:" + test);        
-                
-        boolean r = solver.isSatisfiable(test);
-        return !r;       
+        boolean doesRefine = this.doesRefine(refining.getCondition(), pivRefining, refined.getCondition(), pivRefined);
+        return doesRefine;
     }
     
     public boolean doesRefine(GuardExpression refining, PIV pivRefining, 
@@ -216,19 +165,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return !r;       
     }
     
-    public boolean doesRefine(TransitionGuard refining, PIV pivRefining, 
-            TransitionGuard refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextMapping) {
-    	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining.getCondition(), contextMapping);
-    	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined.getCondition(), contextMapping);
+    public boolean doesRefine(GuardExpression refining, PIV pivRefining, 
+            GuardExpression refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextMapping) {
+    	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining, contextMapping);
+    	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined, contextMapping);
     	
     	return this.doesRefine(refiningConjunction, pivRefining, refinedConjunction, pivRefined);
-    }
-    
-    
-    public boolean canBothBeSatisfied(TransitionGuard refining, PIV pivRefining, 
-            TransitionGuard refined, PIV pivRefined) {
-        boolean r = this.canBothBeSatisfied(refining.getCondition(), pivRefining, refined.getCondition(), pivRefined);
-        return r;       
     }
     
     public boolean canBothBeSatisfied(GuardExpression refining, PIV pivRefining, 
@@ -257,11 +199,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return r;       
     }
     
-
-    public boolean canBothBeSatisfied(TransitionGuard refining, PIV pivRefining, 
-            TransitionGuard refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextValuation) {
-    	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining.getCondition(), contextValuation);
-    	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined.getCondition(), contextValuation);
+    public boolean canBothBeSatisfied(GuardExpression refining, PIV pivRefining, 
+            GuardExpression refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextValuation) {
+    	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining, contextValuation);
+    	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined, contextValuation);
     	
     	return canBothBeSatisfied(refiningConjunction, pivRefining, refinedConjunction, pivRefined);
     }
@@ -284,13 +225,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     	return fixedValues.toArray(new GuardExpression[]{});
     }
     
-    public boolean areEquivalent(TransitionGuard refining, PIV pivRefining, 
-            TransitionGuard refined, PIV pivRefined) {
-        
-        boolean ret = 
-        		doesRefine(refining, pivRefining, refined, pivRefined) && doesRefine(refined, pivRefined, refining, pivRefining);
-        return ret;       
-    }
     
     public static VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(
             PIV from, PIV to) {

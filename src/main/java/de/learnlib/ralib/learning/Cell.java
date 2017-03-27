@@ -110,6 +110,12 @@ final class Cell {
 
     	try {
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
+        if (tqr.getPiv().size() > 4) {
+        	TreeQueryResult res = oracle.treeQuery(prefix, suffix.toFullSymSuffix());
+        	System.out.println(tqr);
+        	System.out.println(res);
+        	System.exit(0);
+        }
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
 
          System.out.println("END: computecell " + c.toString());
