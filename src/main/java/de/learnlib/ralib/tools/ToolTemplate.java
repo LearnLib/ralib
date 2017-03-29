@@ -133,7 +133,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
         
         this.sulTest = sulParser.newSUL();
-        this.sulTest = setupDataWordOracle(sulParser.newSUL(), teachers, consts, useFresh, timeoutMillis);
+        this.sulTest = setupDataWordOracle(sulTest, teachers, consts, useFresh, timeoutMillis);
         
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
         IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
@@ -268,6 +268,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     private IOCacheOracle setupCacheOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh) {
     	IOOracle ioOracle;
     	IOCacheOracle ioCacheOracle;
+    	sulLearn = new CachingSUL(sulLearn, ioCache);
 	    if (useFresh)
 	    	ioOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
 	    else 

@@ -322,18 +322,28 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		}
 	}
 	
-	public GeneralizedSymbolicSuffix toFullSymSuffix() {
+	/**
+	 * Returns an exhaustive version of this suffix. All non-EMPTY and non-DEFAULT relation sets
+	 * are replaced by ALL in the generated suffix.
+	 */
+	public GeneralizedSymbolicSuffix toExhaustiveSymbolicSuffix() {
 		EnumSet<DataRelation>[][] suffixRelations = new EnumSet[this.size()][];
 		EnumSet<DataRelation>[] prefixRelations = new EnumSet[this.size()];
+		EnumSet<DataRelation> defRels = EnumSet.of(DataRelation.DEFAULT);
 		for (int i=0; i<this.size(); i++) {
-			prefixRelations[i] = EnumSet.of(DataRelation.ALL);
-			suffixRelations[i] = new EnumSet[i];
-			for (int j=0; j<i; j++) {
-				suffixRelations[i][j] = EnumSet.of(DataRelation.ALL);
-			}
+			if (!defRels.containsAll(this.prefixRelations[i]))
+				prefixRelations[i] = EnumSet.of(DataRelation.ALL);
+			else 
+				prefixRelations[i] = EnumSet.copyOf(this.prefixRelations[i]);
+			for (int j=0; j<i; j++) 
+				if (!defRels.containsAll(this.suffixRelations[i][j]))
+					suffixRelations[i][j] = EnumSet.of(DataRelation.ALL);
+				else 
+					suffixRelations[i][j] = EnumSet.copyOf(this.suffixRelations[i][j]);
 		}
 		return new GeneralizedSymbolicSuffix(this.actions, prefixRelations, suffixRelations);
 	}
+	
 
 	public SuffixValue getValue(int i) {
 		return suffixValues[i - 1];

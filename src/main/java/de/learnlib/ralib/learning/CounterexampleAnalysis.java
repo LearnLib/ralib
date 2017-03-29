@@ -141,6 +141,7 @@ public class CounterexampleAnalysis {
         GeneralizedSymbolicSuffix symSuffix = 
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
         		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
+        symSuffix = symSuffix.toExhaustiveSymbolicSuffix();
         
         System.out.println("exhaustive suffix: " + symSuffix);
         System.out.println("location: " + location);
@@ -214,21 +215,21 @@ public class CounterexampleAnalysis {
                 newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
                 g, transition);
         
-    	System.out.println("HYP (Opt. Suff): " + newResHyp.getSdt());
-    	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
+    	System.out.println("HYP (Opt. Suff): " + newResHyp);
+    	System.out.println("SUL (Opt. Suff): " + newResSul);
         if (! newHasCE) {
         	System.out.println("CE not preserved by optimized suffix");
         	GeneralizedSymbolicSuffix exhSuffix = GeneralizedSymbolicSuffix.fullSuffix(suffix, consts, teachers);
         	TreeQueryResult debugSdt = sulOracle.treeQuery(location, exhSuffix);
-        	System.out.println(debugSdt.getPiv() + "\n" + debugSdt.getSdt());
+        	System.out.println(debugSdt);
         	throw new RuntimeException("CE not preserved by optimized suffix");
         }
         
         boolean sulBranchingRetained = retainsBranching(location, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
         if (!sulBranchingRetained ) {
         	System.out.println("Branching not retained, however learning continues");
-        	System.out.println("OLD SUL :" + resSul.getSdt());
-        	System.out.println("NEW SUL :" + newResSul.getSdt());
+        	System.out.println("OLD SUL :" + resSul);
+        	System.out.println("NEW SUL :" + newResSul);
         }
         
 
