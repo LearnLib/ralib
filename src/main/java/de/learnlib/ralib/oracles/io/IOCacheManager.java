@@ -350,7 +350,6 @@ public interface IOCacheManager {
 		
 	}
 	
-	
 	// experiments with kryo, maybe these can be resumed
 //	
 //	static class KryoCacheManager implements IOCacheManager{

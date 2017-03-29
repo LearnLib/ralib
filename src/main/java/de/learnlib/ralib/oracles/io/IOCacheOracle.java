@@ -85,16 +85,9 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
         }
         Word<PSymbolInstance> trace  = null;
         boolean added = false;
-        int numAttempts = 3;
-        while (!added && numAttempts>0) {
-	        try {
-	        	trace = this.sul.trace(test);
-	        } catch(DecoratedRuntimeException exc) {
-	        	throw exc.addDecoration("trace ", query);
-	        }
-        	added = this.ioCache.addToCache(trace);
-        	numAttempts--;
-        }
+	    trace = this.sul.trace(test);
+	    added = this.ioCache.addToCache(trace);
+	
         assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
         if (ret == null)  {

@@ -50,8 +50,9 @@ public class CachingSUL extends DataWordSUL{
 		else
 			out = sul.step(in);
 		trace = trace.append(out);
-		if (!found) 
+		if (!found) {
 			this.cache.addToCache(trace);
+		}
 		
 		
 		return out;

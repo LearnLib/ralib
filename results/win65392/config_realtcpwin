@@ -1,0 +1,40 @@
+target=de.learnlib.ralib.sul.tcp.TCPAdapterSut
+inputs=IConnect()+\
+  ISA(java.lang.Long:long,java.lang.Long:long)+\
+  IFA(java.lang.Long:long,java.lang.Long:long)+\
+  CLOSE()
+
+outputs=OTIMEOUT()+\
+  OA(java.lang.Long:long,java.lang.Long:long)+\
+  OFA(java.lang.Long:long,java.lang.Long:long)+\
+  OS(java.lang.Long:long,java.lang.Long:long)+\
+  OSA(java.lang.Long:long,java.lang.Long:long)+\
+  OR(java.lang.Long:long,java.lang.Long:long)+\
+  OAR(java.lang.Long:long,java.lang.Long:long)
+
+solver=z3
+logging.level=WARNING
+max.time.millis=100000000
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+cache.load=tcp-win-cache.ser
+cache.dump=tcp-win-cache.ser
+cache.tests=true
+export.model=false
+eqoracle=rwalkfromstate
+random.seed=1
+#debug.traces=IConnect[] OS[6540000[long] , 0[long]] ISA[13080000[long], 6540000[long] + 1[long] ] OA[6540000[long] + 1[long], 13080000[long] + 1[long]] CLOSE[] OFA[6540000[long] + 1[long], 13080000[long] + 1[long]]
+#debug.suffixes=IFA[s1, s2] OTIMEOUT[]
+rwalkfromstate.prob.history=0.3
+rwalkfromstate.prob.register=0.4
+rwalkfromstate.prob.related=0.2
+rwalkfromstate.prob.reset=0.1
+rwalkfromstate.max.depth=10
+rwalkfromstate.max.runs=1000
+rwalkfromstate.reset.count=false
+rwalkfromstate.draw.uniform=true
+teachers=long:de.learnlib.ralib.tools.theories.SumCLongInequalityTheory
+constants=[{"type":"long","value":"0"}]
+constants.sumc=[{"type":"long","value":"1"}, {"type":"long","value":"65392"}]

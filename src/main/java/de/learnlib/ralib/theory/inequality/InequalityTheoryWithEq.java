@@ -329,6 +329,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						// system's is not accepted
 						SymbolicDataExpression outExpr = getSDExprForDV(d, prefixValues,  values,
 								constants);
+						//System.out.println(currentParam + " " + d + " " + outExpr);
 						if (outExpr == null) {
 							throw new DecoratedRuntimeException("Couldn't find " + d + " in prefixValues: " + prefixValues + " values:" + values + " "
 									+ "constants: " + constants + "\n query:" + query + "\n trace:" + trace);

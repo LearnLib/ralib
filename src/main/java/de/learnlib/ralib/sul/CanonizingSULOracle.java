@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.sul;
 
-import de.learnlib.ralib.exceptions.SULRestartException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -50,7 +49,6 @@ public class CanonizingSULOracle extends IOOracle {
         countQueries(1);
         Word<PSymbolInstance> trace = Word.epsilon();
         Word<PSymbolInstance> fixedQuery = query;
-        try {
         canonizedSul.pre();
        
         for (int i = 0; i < query.length(); i += 2) {
@@ -77,10 +75,6 @@ public class CanonizingSULOracle extends IOOracle {
         }
         
         canonizedSul.post();
-        } catch(SULRestartException sul) {
-        	System.out.println("SUL issued restart");
-        	trace = this.trace(query);
-        }
         return trace;
     }
 }

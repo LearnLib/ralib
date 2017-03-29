@@ -218,7 +218,7 @@ public class CounterexampleAnalysis {
     	System.out.println("SUL (Opt. Suff): " + newResSul.getSdt());
         if (! newHasCE) {
         	System.out.println("CE not preserved by optimized suffix");
-        	GeneralizedSymbolicSuffix exhSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, suffix, consts, teachers);
+        	GeneralizedSymbolicSuffix exhSuffix = GeneralizedSymbolicSuffix.fullSuffix(suffix, consts, teachers);
         	TreeQueryResult debugSdt = sulOracle.treeQuery(location, exhSuffix);
         	System.out.println(debugSdt.getPiv() + "\n" + debugSdt.getSdt());
         	throw new RuntimeException("CE not preserved by optimized suffix");

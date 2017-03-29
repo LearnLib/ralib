@@ -3,6 +3,7 @@ package de.learnlib.ralib.sul.tcp;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
@@ -103,15 +104,16 @@ public class TCPAdapterSut extends ConcreteSUL{
 	    if (oa.getParameterValues().length > 1) {
             String sutFlags = oa.getMethodName();
             if (!sutFlags.contains("R")) {
-                long nextSeq = (long) oa.getParameterValues()[1];
-                if (nextSeq != 0) {
-                  //  sutSeqNums.remove(nextSeq-1);
-                    sutSeqNums.add(nextSeq);
-                    sutSeqNums.add(nextSeq+1);
-                }
+                long [] seqs = {
+                		(long) oa.getParameterValues()[1],
+                		(long) oa.getParameterValues()[0] };
+                for (long seq : seqs) 
+	                if (seq != 0) {
+	                    sutSeqNums.add(seq);
+	                }
             }
 	    }
-	    System.out.println(sutSeqNums);
+//	    System.out.println(sutSeqNums);
     }
 
 	public void close() {

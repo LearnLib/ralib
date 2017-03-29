@@ -187,7 +187,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
 	                new PSymbolInstance(IntModerateFreshTCPSUL.NOK));
 	       
 	        
-	        testTreeQuery(prefix, (teach, cons) ->  GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, cons, teach)
+	        testTreeQuery(prefix, (teach, cons) ->  GeneralizedSymbolicSuffix.fullSuffix(longsuffix, cons, teach)
 	        		, sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 7) ); 
 	        		//sdt -> Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6));
 	  //      Assert.assertEquals(((SDT)sdt).getNumberOfLeaves() , 6);

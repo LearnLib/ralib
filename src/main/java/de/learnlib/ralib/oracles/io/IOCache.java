@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -29,6 +30,19 @@ public class IOCache {
         			.append(next.get(key).toString()));
         	builder.append(")");
         	return builder.toString();
+        }
+        
+        public CacheNode getCacheExcluding(BiPredicate<PSymbolInstance, PSymbolInstance> exclusionPredicate) {
+        	CacheNode node = new CacheNode();
+        	for (PSymbolInstance in : this.next.keySet()) {
+        		PSymbolInstance out = output.get(in);
+        		CacheNode n = next.get(in);
+        		if (!exclusionPredicate.test(in, out)) {
+        			node.output.put(in, out);
+        			node.next.put(in, n.getCacheExcluding(exclusionPredicate));
+        		}
+        	}
+        	return node; 
         }
     }
     
@@ -177,5 +191,9 @@ public class IOCache {
     
     CacheNode getRoot() {
     	return this.root;
+    }
+    
+    public IOCache getCacheExcluding(BiPredicate<PSymbolInstance, PSymbolInstance> exclusionPredicate) {
+    	return new IOCache(this.root.getCacheExcluding(exclusionPredicate));
     }
 }

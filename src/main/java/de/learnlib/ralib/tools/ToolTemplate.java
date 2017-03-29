@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -28,6 +29,7 @@ import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
+import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
 import de.learnlib.ralib.mapper.ValueCanonizer;
@@ -36,7 +38,10 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeOracleStatsLoggerWrapper;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.CachingSUL;
+import de.learnlib.ralib.oracles.io.ExceptionHandlerOracle;
+import de.learnlib.ralib.oracles.io.ExceptionHandlerSUL;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
@@ -55,6 +60,7 @@ import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.statistics.SimpleProfiler;
 import net.automatalib.words.Word;
@@ -70,7 +76,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	private DataWordSUL sulCeAnalysis;
 	private DataWordSUL sulTest;
 	private IOHypVerifier hypVerifier;
-	private IOCacheOracle sulTraceOracle;
+	private IOOracle sulTraceOracle;
 	private RaStar rastar;
 	private TracesEquivalenceOracle traceTester;
 	private IOCounterExampleLoopRemover ceOptLoops;
@@ -118,9 +124,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         this.sulLearn = setupDataWordOracle(sulLearn, teachers, consts, useFresh, timeoutMillis);
         
 
-        String debug = OPTION_DEBUG_TRACES.parse(config);
-        if (debug != null) 
-        	runDebugTraceAndExit(debug, this.sulLearn);
+        String debugTraces = OPTION_DEBUG_TRACES.parse(config);
+        String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
+        if (debugTraces != null && debugSuffixes == null) 
+        	runDebugTracesAndExit(debugTraces, this.sulLearn);
         
         this.sulCeAnalysis = sulParser.newSUL(); 
         this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
@@ -131,6 +138,17 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
         IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
         IOCache ioCache = setupCache(config, cacheManager, consts);
+//        IOCache newIoCache = ioCache.getCacheExcluding((in, out) -> {
+//        	return (in.toString()).contains("65400"); 
+//        			} 
+//        );
+//        try {
+//			cacheManager.dumpCacheToFile("dump.ser", newIoCache, consts);
+//			System.exit(0);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
         
         IOCacheOracle ioLearnCacheOracle = setupCacheOracle(sulLearn, teachers, consts, ioCache, useFresh);
         IOCacheOracle ioCeAnalysisCacheOracle = setupCacheOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh);
@@ -139,13 +157,22 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         this.sulTraceOracle = ioLearnCacheOracle;
         
-        IOFilter ioOracle = new IOFilter(ioLearnCacheOracle, sulParser.getInputs());
+        IOFilter ioOracle = new IOFilter(new ExceptionHandlerOracle(ioLearnCacheOracle), sulParser.getInputs());
         TreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver);
+        if (debugSuffixes != null) {
+        	if (debugTraces == null) {
+        		System.err.println("No debug traces given");
+        		System.exit(0);
+        	} else {
+        		runDebugSuffixesAndExit(debugTraces, debugSuffixes, mto, teachers, consts);
+        	}
+        }
         
-        IOFilter ioCeOracle = new IOFilter(ioCeAnalysisCacheOracle,  sulParser.getInputs());
+        
+        IOFilter ioCeOracle = new IOFilter(new ExceptionHandlerOracle(ioCeAnalysisCacheOracle),  sulParser.getInputs());
         TreeOracle ceMto = new MultiTheoryTreeOracle(ioCeOracle, ioCeAnalysisCacheOracle, teachers, consts, solver);
         ceMto = new TreeOracleStatsLoggerWrapper(ceMto, this.sulCeAnalysis);
-
+        
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
@@ -170,7 +197,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 true, teachers, this.hypVerifier, solver, sulParser.getAlphabet());
         
         if (findCounterexamples) {
-            this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config, sulTest, teach, consts, random, sulParser.getInputs());
+            this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+            		sulTest, teach, consts, random, sulParser.getInputs());
             String ver = OPTION_TEST_TRACES.parse(config);
             if (ver != null) {
             	List<String> tests = Arrays.stream(ver.split(";")).collect(Collectors.toList());
@@ -187,18 +215,37 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	}
 	
 	
-	private void runDebugTraceAndExit(String debug, DataWordSUL sul) {
+	private void runDebugTracesAndExit(String debug, DataWordSUL sul) {
 		List<String> testStrings = Arrays.stream(debug.split(";")).collect(Collectors.toList());
-    	List<List<PSymbolInstance>> tests = TracesEquivalenceOracle.parseTestsFromStrings(testStrings, Arrays.asList(this.sulParser.getAlphabet()));
-    	for (List<PSymbolInstance> test : tests) {
+    	List<Word<PSymbolInstance>> tests = new TraceParser(testStrings, Arrays.asList(this.sulParser.getAlphabet())).getTraces();
+    	for (Word<PSymbolInstance> test : tests) {
     		Word<PSymbolInstance> res = Word.epsilon();
     		sul.pre();
-    		for (PSymbolInstance inp : test) {
+    		List<PSymbolInstance> inputs = test.stream().filter(s -> 
+    		(s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList());
+    		for (PSymbolInstance inp : inputs) {
     			PSymbolInstance out = sul.step(inp);
     			res = res.append(inp).append(out);
     		}
     		sul.post();
     		System.out.println(res);
+    	}
+    	System.exit(0);
+	}
+	
+	private void runDebugSuffixesAndExit(String debugPrefixes, String debugSuffixes, TreeOracle mto, Map<DataType, Theory> teachers, Constants constants) {
+		List<String> prefixStrings = Arrays.stream(debugPrefixes.split(";")).collect(Collectors.toList());
+		List<String> suffixStrings = Arrays.stream(debugSuffixes.split(";")).collect(Collectors.toList());
+		List<Word<PSymbolInstance>> prefixes = new TraceParser(prefixStrings, Arrays.asList(this.sulParser.getAlphabet())).getTraces();
+    	List<GeneralizedSymbolicSuffix> suffixes = new SuffixParser(suffixStrings, Arrays.asList(this.sulParser.getAlphabet()), teachers).getSuffixes();
+    	SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, constants);
+    	for (GeneralizedSymbolicSuffix suffix : suffixes) {
+    		for (Word<PSymbolInstance> prefix : prefixes) {
+    			prefix = canonizer.canonizeTrace(prefix);
+        		System.out.println(prefix + " " + suffix);
+        		TreeQueryResult tree = mto.treeQuery(prefix, suffix);
+        		System.out.println(tree.toString());
+    		}
     	}
     	System.exit(0);
 	}
@@ -213,6 +260,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         	
             sulLearn = new TimeOutSUL(sulLearn, timeoutMillis);
         }
+        sulLearn = new ExceptionHandlerSUL(sulLearn);
         return sulLearn;
     }
     

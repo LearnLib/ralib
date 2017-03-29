@@ -119,10 +119,10 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
-        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers);
+        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        final GeneralizedSymbolicSuffix symSuffix2 = GeneralizedSymbolicSuffix.fullSuffix(prefix2, longsuffix2, consts, teachers);
+        final GeneralizedSymbolicSuffix symSuffix2 = GeneralizedSymbolicSuffix.fullSuffix(longsuffix2, consts, teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix2);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
         
@@ -202,7 +202,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
                 new PSymbolInstance(ModerateFreshTCPSUL.NOK));
         
         // create a symbolic suffix from the concrete suffix
-        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers);
+        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
         Set<ParamSignature>[] sources = symSuffix.getPrefixSources();
         sources[0] = Sets.newHashSet(new ParamSignature(ModerateFreshTCPSUL.ISYN, 1));
         symSuffix.setPrefixSources(sources);
@@ -269,7 +269,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
                 new PSymbolInstance(ModerateFreshTCPSUL.OK));
         
         // create a symbolic suffix from the concrete suffix
-        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers);
+        final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
         Set<ParamSignature>[] sources = symSuffix.getPrefixSources();
         sources[0] = Sets.newHashSet(new ParamSignature(ModerateFreshTCPSUL.ISYN, 1));
         symSuffix.setPrefixSources(sources);

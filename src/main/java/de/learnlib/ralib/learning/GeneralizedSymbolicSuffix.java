@@ -76,24 +76,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			this.suffixValues[idx++] = valgen.next(t);
 		}
 		this.prefixSources = prefixSources;
-		// if( this.prefixRelations.length > 0) //&&
-		// prefixRelations[0].isEmpty()) {
-		// {
-		// int symInd = 0;
-		// for (symInd = 0; actions.getSymbol(symInd).getArity() == 0; symInd
-		// ++);
-		// int paramsInAction = actions.getSymbol(symInd).getArity();
-		//
-		// //removeUnneededRelations(this.prefixRelations, this.suffixRelations,
-		// paramsInAction);
-		// for (int i = 0; i < paramsInAction; i ++) {
-		// this.prefixRelations[i] = EnumSet.of(DataRelation.ALL);
-		// //extendRelationSet(this.prefixRelations[i]);
-		// for (int sind = 0; sind < i; sind ++)
-		// this.suffixRelations[i][sind] = EnumSet.of(DataRelation.ALL);
-		// //extendRelationSet(this.suffixRelations[i][sind]);
-		// }
-		// }
 	}
 
 	public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, EnumSet<DataRelation>[] prefixRelations,
@@ -101,7 +83,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		this(actions, prefixRelations, suffixRelations, new Set[prefixRelations.length]);
 	}
 
-	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix,
+	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> suffix,
 			Constants consts, Map<DataType, Theory> theories) {
 
 		DataValue[] vals = DataWords.valsOf(suffix);
@@ -122,7 +104,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
 	}
 	
-	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffixActs,  Map<DataType, Theory> theories) {
+	public static GeneralizedSymbolicSuffix fullSuffix(Word<ParameterizedSymbol> suffixActs,  Map<DataType, Theory> theories) {
 
 		int paramNum = DataWords.paramLength(suffixActs);
 		EnumSet<DataRelation>[] prefixRelations = new EnumSet[paramNum];

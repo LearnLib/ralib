@@ -164,6 +164,11 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             "Debug traces are run on the system at start with printing of the output, followed by exit. No learning is done."
             + "Debug traces format: test1; test2; ...", null, true);
     
+    protected static final ConfigurationOption.StringOption OPTION_DEBUG_SUFFIXES
+    = new ConfigurationOption.StringOption("debug.suffixes",
+            "For the debug traces given, run the given suffixes exhaustively and exit. No learning is done."
+            + "Debug suffixes format: suff1; suff2; ...", null, true);
+    
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
     = new ConfigurationOption.StringOption("test.traces",
             "Test traces format: test1; test2; ...", null, true);
