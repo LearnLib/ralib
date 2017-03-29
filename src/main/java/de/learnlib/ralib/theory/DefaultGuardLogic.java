@@ -12,7 +12,7 @@ public class DefaultGuardLogic implements SDTGuardLogic{
 		if (guard1 instanceof SDTAndGuard && guard2 instanceof SDTAndGuard) {
 			List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTAndGuard) guard1).getGuards());
 			guards.addAll(((SDTAndGuard) guard2).getGuards());
-			return new SDTAndGuard(guard1.getParameter(), guards.toArray(new SDTAndGuard []{}));
+			return new SDTAndGuard(guard1.getParameter(), guards.toArray(new SDTGuard []{}));
 		}
 		
 		if (guard1 instanceof SDTAndGuard  || guard2 instanceof SDTAndGuard) {
