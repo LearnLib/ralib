@@ -335,6 +335,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 				prefixRelations[i] = EnumSet.of(DataRelation.ALL);
 			else 
 				prefixRelations[i] = EnumSet.copyOf(this.prefixRelations[i]);
+			suffixRelations[i] = new EnumSet [i];
 			for (int j=0; j<i; j++) 
 				if (!defRels.containsAll(this.suffixRelations[i][j]))
 					suffixRelations[i][j] = EnumSet.of(DataRelation.ALL);
