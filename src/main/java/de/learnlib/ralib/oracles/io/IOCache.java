@@ -118,10 +118,6 @@ public class IOCache {
                 return null;
             }
 
-            if (!out.getBaseSymbol().equals(ref.getBaseSymbol())) {
-                return Boolean.FALSE;
-            }
-
             if (!out.equals(ref)) {
                 return Boolean.FALSE;
             }

@@ -101,11 +101,12 @@ public class BranchingLogic<T extends Comparable<T>> {
 		List<DataValue<T>> newPotential = new ArrayList<>();
 		List<DataValue<T>> sumC = constants.getSumCs(this.type);
 		List<DataValue<T>> regVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(prefix, this.type)));
-		regVals.removeAll(constants.values(type));
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
 		List<DataValue<T>> allVals = new ArrayList<DataValue<T>>(regVals);
 		allVals.addAll(sufVals);
 		
+		allVals.removeAll(constants.getValues(type));
+		sufVals.removeAll(constants.getValues(type));
 		List<DataValue<T>> regPotential = pots(allVals, sumC, prefixRel);
 
 		List<DataValue<T>> sufPotential = new ArrayList<DataValue<T>>();

@@ -18,7 +18,10 @@ package de.learnlib.ralib.data;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 
 /**
  * Named constants.
@@ -40,6 +43,12 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 				this.values().stream().filter(c -> c.type.equals(type)).
 				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
 		return collection;
+	}
+	
+	public SymbolicDataValue.Constant getConstantWithValue(DataValue<?> dv) {
+		Optional<Constant> cst = this.keySet().stream().filter(c -> this.get(c).equals(dv)).findFirst();
+		cst.orElse(null);
+		return cst.get();
 	}
 	
 	private SumConstants sumConstants = null;

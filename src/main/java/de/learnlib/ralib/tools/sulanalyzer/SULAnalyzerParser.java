@@ -6,6 +6,7 @@ import java.util.Map;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.SULParser;
+import de.learnlib.ralib.tools.classanalyzer.FieldConfig;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -39,6 +40,8 @@ public class SULAnalyzerParser extends SULParser {
 
 	private ParameterizedSymbol[] outputs;
 
+	private FieldConfig fieldConfig;
+
 	public void parseConfig(Configuration config) throws ConfigurationException {
 		Class<?> target = loadClass(OPTION_TARGET.parse(config));
 		if (!ConcreteSUL.class.isAssignableFrom(target)) {
@@ -51,6 +54,12 @@ public class SULAnalyzerParser extends SULParser {
 		this.inputs = parseSymbols(inpStrings, types, true);
 		String[] outStrings = OPTION_OUTPUTS.parse(config).split("\\+");
 		this.outputs = parseSymbols(outStrings, types, false);
+		 this.fieldConfig = null;
+         String fieldConfigString = OPTION_CONFIG.parse(config);
+         if (fieldConfigString != null) {
+         	String[] fieldConfigSplit = fieldConfigString.replaceAll("\\s", "").split("\\;");
+         	fieldConfig = new FieldConfig(target, fieldConfigSplit);
+         }
 	}
 	
 	private ParameterizedSymbol [] parseSymbols(String [] symStrings, Map<String, DataType> types, boolean isInput) throws ConfigurationException {
@@ -102,7 +111,7 @@ public class SULAnalyzerParser extends SULParser {
 
 	@Override
 	public DataWordSUL newSUL() {
-		return new ConcreteDataWordWrapper(this.sulTarget, this.getOutput());
+		return new ConcreteDataWordWrapper(this.sulTarget, this.getOutput(), fieldConfig);
 	}
 	
 

@@ -38,7 +38,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 	public DataValue<T> canonize(DataValue<T> decValue, Map<DataValue<T>, DataValue<T>> decToCanMap, Constants constants) {
 		if (decToCanMap.containsKey(decValue)) {
 			DataValue<T> mapping = decToCanMap.get(decValue);
-			return new DataValue<>(mapping.getType(), mapping.getId()); 
+			return  mapping; 
 		}
 		if (constants.containsValue(decValue))
 			return decValue;

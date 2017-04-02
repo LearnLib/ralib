@@ -261,6 +261,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 		Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(//constants.<T>values(type),
 				DataWords.<T>valSet(prefix, type), values.<T>values(type));
+		potSet.removeAll(constants.values());
 
 		List<DataValue<T>> potList = new ArrayList<>(potSet);
 		List<DataValue<T>> potential = getPotential(potList);
@@ -682,7 +683,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private SymbolicDataExpression getSDExprForDV(DataValue<T> dv, List<DataValue> prefixValues,
 			WordValuation ifValues, Constants constants) {
 		SymbolicDataValue SDV;
-		if (dv instanceof SumCDataValue) {
+		if (constants.containsValue(dv)) {
+			return constants.getConstantWithValue(dv);
+		} else if (dv instanceof SumCDataValue) {
 			SumCDataValue<T> sumDv = (SumCDataValue<T>) dv;
 			SDV = getSDVForDV(sumDv.toRegular(), prefixValues, ifValues, constants);
 			// if there is no previous value equal to the summed value, we pick
@@ -708,6 +711,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		int newDv_i;
 		DataType type = dv.getType();
 
+		if (constants.containsValue(dv)) {
+			return constants.getConstantWithValue(dv);
+		}
+
 		if (prefixValues.contains(dv)) {
 			newDv_i = prefixValues.indexOf(dv) + 1;
 			Register newDv_r = new Register(type, newDv_i);
@@ -717,14 +724,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		if (ifValues.containsValue(dv)) {
 			int first = Collections.min(ifValues.getAllKeys(dv));
 			return new SuffixValue(type, first);
-		}
-
-		if (constants.containsValue(dv)) {
-			for (SymbolicDataValue.Constant c : constants.keySet()) {
-				if (constants.get(c).equals(dv)) {
-					return c;
-				}
-			}
 		}
 
 		return null;

@@ -72,8 +72,8 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	}
 	
 	public String toString() {
-		return super.toString() + " ( " + (this.getLeft() != null ? this.getLeft().getId().toString() : "") + ":" +
-					(this.getRight() != null ? this.getRight().getId().toString() : "") + ")"; 
+		return super.toString() + " ( " + (this.getLeft() != null ? this.getLeft().toString() : "") + ":" +
+					(this.getRight() != null ? this.getRight().toString() : "") + ")"; 
 	}
 
 	

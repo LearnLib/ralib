@@ -35,6 +35,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.solver.ConstraintSolver;
@@ -260,20 +261,27 @@ public class SliceBuilder {
         Slice slice = new Slice();
 
         for (AtomicGuardExpression a : guard.getCondition().getAtoms()) {
-            assert (a.getLeft() instanceof Register);
-            Register rOrig = (Register) a.getLeft();
-            Register rMapped = rMap.get(rOrig);
-            if (rMapped == null) {
-                rMapped = rgen.next(rOrig.getType());
-                rMap.put(rOrig, rMapped);
-            }
+            assert a.getLeft() instanceof Register || a.getLeft() instanceof Constant;
+             SymbolicDataValue sdv = null;
+        	if (a.getLeft() instanceof Register) {
+        		sdv = reg;
+	            Register rOrig = (Register) a.getLeft();
+	            Register rMapped = rMap.get(rOrig);
+	            if (rMapped == null) {
+	                rMapped = rgen.next(rOrig.getType());
+	                rMap.put(rOrig, rMapped);
+	            }
+            } else if (a.getLeft() instanceof Constant) 
+            	sdv = a.getLeft();
+            else 
+            	throw new DecoratedRuntimeException("Unexpected type").addDecoration("SDV", a);
 
             assert (a.getRight() instanceof Parameter);
             SuffixValue sv = new SuffixValue(
                     a.getRight().getType(), a.getRight().getId());
 
             for (DataRelation dr : MultiTheorySDTLogicOracle.toDR(a, constants)) {
-                slice.addPredicate(reg, dr, sv);
+                slice.addPredicate(sdv, dr, sv);
             }
         }
 

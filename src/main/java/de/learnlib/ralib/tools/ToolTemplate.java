@@ -55,6 +55,7 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -127,7 +128,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         String debugTraces = OPTION_DEBUG_TRACES.parse(config);
         String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
         if (debugTraces != null && debugSuffixes == null) 
-        	runDebugTracesAndExit(debugTraces, this.sulLearn);
+        	runDebugTracesAndExit(debugTraces, this.sulLearn, this.teachers, consts);
         
         this.sulCeAnalysis = sulParser.newSUL(); 
         this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
@@ -139,8 +140,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
         IOCache ioCache = setupCache(config, cacheManager, consts);
 //        IOCache newIoCache = ioCache.getCacheExcluding((in, out) -> {
-//        	return (in.toString()).contains("65400"); 
-//        			} 
+//        	return Arrays.stream(out.getParameterValues()).anyMatch(dv -> !(dv instanceof SumCDataValue) && dv.getId().equals(2920002L));
+//        	}
 //        );
 //        try {
 //			cacheManager.dumpCacheToFile("dump.ser", newIoCache, consts);
@@ -215,13 +216,15 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	}
 	
 	
-	private void runDebugTracesAndExit(String debug, DataWordSUL sul) {
+	private void runDebugTracesAndExit(String debug, DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts) {
 		List<String> testStrings = Arrays.stream(debug.split(";")).collect(Collectors.toList());
     	List<Word<PSymbolInstance>> tests = new TraceParser(testStrings, Arrays.asList(this.sulParser.getAlphabet())).getTraces();
+    	SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
     	for (Word<PSymbolInstance> test : tests) {
+    		Word<PSymbolInstance> canonizedTest = canonizer.canonizeTrace(test);
     		Word<PSymbolInstance> res = Word.epsilon();
     		sul.pre();
-    		List<PSymbolInstance> inputs = test.stream().filter(s -> 
+    		List<PSymbolInstance> inputs = canonizedTest.stream().filter(s -> 
     		(s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList());
     		for (PSymbolInstance inp : inputs) {
     			PSymbolInstance out = sul.step(inp);
