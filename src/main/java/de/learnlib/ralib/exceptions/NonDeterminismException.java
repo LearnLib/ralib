@@ -6,4 +6,11 @@ package de.learnlib.ralib.exceptions;
 public class NonDeterminismException extends DecoratedRuntimeException{
 	private static final long serialVersionUID = 1L;
 
+	public NonDeterminismException() {
+		super();
+	}
+	
+	public NonDeterminismException(String message) {
+		super(message);
+	}
 }

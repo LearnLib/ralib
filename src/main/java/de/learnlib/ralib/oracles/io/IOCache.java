@@ -44,6 +44,28 @@ public class IOCache {
         	}
         	return node; 
         }
+        
+        public CacheNode getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
+        	CacheNode node = new CacheNode();
+        	if (exclusionPrefix.size() > 1) {
+        		PSymbolInstance exclInp = exclusionPrefix.firstSymbol();
+        		for (PSymbolInstance in : this.next.keySet()) {
+            		CacheNode n = next.get(in);
+            		PSymbolInstance out = output.get(in);
+            		if (in.equals(exclInp)) {
+            			if (exclusionPrefix.size() >1) {
+	            			node.output.put(in, out);
+	            			node.next.put(in, n.getCacheExcluding(exclusionPrefix.suffix(-2)));
+            			}
+            		} else {
+            			node.output.put(in, out);
+            			node.next.put(in, n);
+            		}
+            	}
+        	}
+        	
+        	return node; 
+        }
     }
     
     public IOCache() {
@@ -192,4 +214,10 @@ public class IOCache {
     public IOCache getCacheExcluding(BiPredicate<PSymbolInstance, PSymbolInstance> exclusionPredicate) {
     	return new IOCache(this.root.getCacheExcluding(exclusionPredicate));
     }
+    
+    public IOCache getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
+    	return new IOCache(this.root.getCacheExcluding(exclusionPrefix));
+    }
+    
+    
 }

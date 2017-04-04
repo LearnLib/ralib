@@ -22,8 +22,10 @@ public class TCPAdapterSut extends ConcreteSUL{
 	private SocketWrapper senderSocket;
 	private Set<Long> sutSeqNums = new HashSet<Long>();
 	// we don't want to be sending needless resets
-	private static boolean needsReset = false;
-	private static long maxNum =  4031380001L; //4231380001L;
+	private static boolean needsReset = true;
+	private static long maxNum =  4201380001L; //4231380001L;
+	private static long minNum =  201380001L;
+	
 	
 	public TCPAdapterSut() throws FileNotFoundException, IOException {
     	Properties simProperties = new Properties();
@@ -69,7 +71,7 @@ public class TCPAdapterSut extends ConcreteSUL{
 		needsReset = true;
 		ConcreteOutput oa = this.sendOneInput(ia);
 		updateSeqNums(oa);
-		if (isMaxSeqCloseToEdge()) {
+		if (isSeqCloseToEdge()) {
 			this.sendReset();
 			throw new SULRestartException();
 		}
@@ -109,7 +111,7 @@ public class TCPAdapterSut extends ConcreteSUL{
                 for (long seq : seqs) 
 	                if (seq != 0) {
 	                    sutSeqNums.add(seq);
-	                }
+	                } 
             }
 	    }
 //	    System.out.println(sutSeqNums);
@@ -129,13 +131,13 @@ public class TCPAdapterSut extends ConcreteSUL{
     	}
 	}
     
-    private boolean isMaxSeqCloseToEdge() {
-    	return !sutSeqNums.isEmpty() && Collections.max(sutSeqNums) > maxNum;
+    private boolean isSeqCloseToEdge() {
+    	return !sutSeqNums.isEmpty() && ( Collections.max(sutSeqNums) > maxNum ||  Collections.min(sutSeqNums) < minNum);
     }
     
     private void sendResetBurst(Set<Long> seqNums) {
     	for (Long seqNum : seqNums) {
-    		ConcreteInput resetInput = new ConcreteInput("R", seqNum, seqNum);
+    		ConcreteInput resetInput = new ConcreteInput("AR", seqNum, seqNum);
     		this.sendOneInput(resetInput);
         }
     }

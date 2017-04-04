@@ -156,7 +156,7 @@ public class SimulatorSUL extends DataWordSUL {
                 return ot;
             }
         }
-        throw new IllegalStateException("No suitable output transition.");
+        throw new IllegalStateException("No suitable output transition. \n Location: " +loc.getName()+ "\n Transitions: " + loc.getOut() + "\n Registers: " + reg);
     }
 
     private List<DataValue> computeOld(DataType t, ParValuation pval) {

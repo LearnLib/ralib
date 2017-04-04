@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.sul;
 
+import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -55,11 +56,15 @@ public class CanonizingSULOracle extends IOOracle {
         	fixedQuery = trace.concat(fixedQuery.suffix(fixedQuery.size() - trace.size()));
         	fixedQuery = traceCanonizer.canonizeTrace(fixedQuery);
             PSymbolInstance in = fixedQuery.getSymbol(i);
-            
-            PSymbolInstance out = canonizedSul.step(in);
-
-            
-            trace = trace.append(in).append(out);
+            trace = trace.append(in);
+            PSymbolInstance out = null;
+            try {
+            	out = canonizedSul.step(in);
+            } catch(DecoratedRuntimeException exc) {
+            	exc.addDecoration("trace", trace);
+            	throw exc;
+            }
+            trace = trace.append(out);
 
             if (out.getBaseSymbol().equals(error)) {
                 break;

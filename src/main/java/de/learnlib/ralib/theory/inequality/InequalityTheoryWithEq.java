@@ -161,7 +161,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}).collect(Collectors.toList());
 
+		//System.out.println("TEMP: " + tempGuards);
 		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards);
+		//System.out.println("RES: " + merged);
 
 		return merged;
 	}
@@ -301,11 +303,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 					DataValue<T> d = out.getParameterValues()[idx];
 
-					if (d instanceof FreshValue) {
+					if (d instanceof FreshValue && !potential.contains(d)) {
 						d = getFreshValue(potential);
-						values.put(pId, new FreshValue<T>(d.getType(), d.getId()));
 						WordValuation trueValues = new WordValuation();
 						trueValues.putAll(values);
+						trueValues.put(pId, new FreshValue<T>(d.getType(), d.getId()));
 						SuffixValuation trueSuffixValues = new SuffixValuation(suffixValues);
 						trueSuffixValues.put(sv, d);
 						SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, piv, constants, trueSuffixValues);
@@ -609,6 +611,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			super();
 			this.left = left;
 			this.right = right;
+		}
+		
+		public String toString() {
+			return this.left + "..." + this.right;
 		}
 	} 
 

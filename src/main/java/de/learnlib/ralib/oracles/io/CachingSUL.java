@@ -1,6 +1,7 @@
 package de.learnlib.ralib.oracles.io;
 
 import de.learnlib.api.SULException;
+import de.learnlib.ralib.exceptions.NonDeterminismException;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -43,8 +44,16 @@ public class CachingSUL extends DataWordSUL{
 				out = trWithResp.lastSymbol();
 			else {
 				found = false;
-				for (int i=0; i< trace.length(); i=i+2) 
+				for (int i=0; i< trace.length(); i=i+2) {
 					out = sul.step(trace.getSymbol(i));
+					if (i+1 < trace.length()) {
+						PSymbolInstance expected = trace.getSymbol(i+1);
+						if (!out.equals(expected)) 
+							throw new NonDeterminismException(
+									" After: " + trace.prefix(i) +
+									"\n Expected: " + expected + " Got: " + out);
+					}
+				}
 			}
 		}
 		else
