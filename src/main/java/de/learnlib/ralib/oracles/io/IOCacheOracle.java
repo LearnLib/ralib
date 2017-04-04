@@ -88,7 +88,7 @@ public class IOCacheOracle extends IOOracle implements DataWordOracle {
 	    trace = this.sul.trace(test);
 	    added = this.ioCache.addToCache(trace);
 	
-        assert added;
+        //assert added;
         ret = this.ioCache.answerFromCache(fixedQuery);
         if (ret == null)  {
         	for (int i=0; i<5; i++) {

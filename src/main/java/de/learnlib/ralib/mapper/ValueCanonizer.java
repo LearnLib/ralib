@@ -91,7 +91,15 @@ public class ValueCanonizer {
 					this.valueMappers.containsKey(dvs[i].getType()) ? 
 					reverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
 		}
-		} catch(Exception exception) {
+		} 
+		catch(DecoratedRuntimeException exc) {
+				exc.addDecoration("method", (reverse?"de":"") + "canonize ").
+					addDecoration("processed value", dvs[i]).
+					addDecoration("state", stateString());
+			
+			throw exc;
+		}
+		catch(Exception exception) {
 			DecoratedRuntimeException exc = 
 					new DecoratedRuntimeException(exception.getMessage()).
 					addDecoration("method", (reverse?"de":"") + "canonize ").
