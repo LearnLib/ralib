@@ -83,12 +83,17 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         if (resetRuns) {
             runs = 0;
         }
+        int tens = 1;
         // find counterexample ...
         while (runs < maxRuns) {
             Word<PSymbolInstance> ce = runExc();
             if (ce != null) {
                 return new DefaultQuery<>(ce, true);
             }
+            if (maxRuns / 100 * tens < runs) {
+            	System.out.println(tens + "% percent completed");
+            	tens ++;
+            } 
         }
         return null;
     }

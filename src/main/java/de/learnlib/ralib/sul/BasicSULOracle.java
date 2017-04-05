@@ -32,7 +32,7 @@ import net.automatalib.words.Word;
  * Previous implementation of the SUL Oracle. Works well for fresh and in/equality. Doesn't work for
  * sumC/increments. 
  */
-public class BasicSULOracle extends IOOracle {
+public class BasicSULOracle implements IOOracle {
 
     private final DataWordSUL sul;
 
@@ -49,9 +49,7 @@ public class BasicSULOracle extends IOOracle {
 
     @Override
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-        countQueries(1);
         Word<PSymbolInstance> act = query;
-        log.log(Level.FINEST, "MQ: {0}", query);
         sul.pre();
         replacements.clear();
         Word<PSymbolInstance> trace = Word.epsilon();

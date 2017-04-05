@@ -6,6 +6,7 @@ import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.exceptions.NonDeterminismException;
 import de.learnlib.ralib.exceptions.SULRestartException;
 import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -13,7 +14,7 @@ import net.automatalib.words.Word;
 /**
  * A wrapper class for the exceptional cases
  */
-public class ExceptionHandlerOracle extends IOOracle implements DataWordOracle, ExceptionHandler{
+public class ExceptionHandlerOracle extends QueryCounter implements DataWordIOOracle, ExceptionHandler{
 	public DataWordOracle oracle;
 	public <T extends DataWordOracle,IOOracle> ExceptionHandlerOracle(T oracle) {
 		this.oracle = oracle;
@@ -29,6 +30,7 @@ public class ExceptionHandlerOracle extends IOOracle implements DataWordOracle, 
 				this.oracle.processQueries(queries);
 				return;
 			} catch(NonDeterminismException exc) {
+				System.out.println("Non determinism:" + exc.getMessage());
 				nonDet ++;
 				lastExc = exc;
 			} catch(SULRestartException exc) {
@@ -63,8 +65,24 @@ public class ExceptionHandlerOracle extends IOOracle implements DataWordOracle, 
 
 	@Override
 	public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-		Word<PSymbolInstance> trace = ((IOOracle) this.oracle).trace(query);
-		return trace;
+		int nonDet = 0, sulRest = 0;
+		DecoratedRuntimeException lastExc = null;
+		Word<PSymbolInstance> trace  = Word.epsilon();
+		while (nonDet < NON_DET_ATTEMPTS && sulRest < SUL_RESTART_ATTEMPTS) {
+			try {
+				trace = ((IOOracle) this.oracle).trace(query);
+				return trace;
+			} catch(NonDeterminismException exc) {
+				System.out.println("Non determinism:" + exc.getMessage());
+				nonDet ++;
+				lastExc = exc;
+			} catch(SULRestartException exc) {
+				sulRest ++;
+				System.out.println("SUL issued restart");
+				lastExc = exc;
+			}
+		}
+		throw lastExc;
 	}
 
 }

@@ -129,7 +129,7 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 					nxtExpr = ((EqualityGuard) nxtGuard).getExpression();
 				else if (nxtGuard instanceof IntervalGuard) {
 					nxtExpr = ((IntervalGuard) nxtGuard).getLeftExpr();
-					assert Boolean.FALSE.equals(((IntervalGuard) nxtGuard).getLeftOpen());
+					//assert Boolean.FALSE.equals(((IntervalGuard) nxtGuard).getLeftOpen());
 				} else {
 					throw new DecoratedRuntimeException("Unexpected guard type").addDecoration("guard", nxtGuard);
 				}

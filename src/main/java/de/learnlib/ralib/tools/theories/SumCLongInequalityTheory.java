@@ -145,7 +145,6 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 		DataValue<Long> fv = super.getFreshValue(valsWithConsts);
 		Long nextFresh;
 		for(nextFresh=0L; nextFresh<fv.getId(); nextFresh+=this.freshStep);
-		
 		while (nextFresh - fv.getId() < this.smBgStep.getId() * 5) 
 			nextFresh += this.freshStep;
 		

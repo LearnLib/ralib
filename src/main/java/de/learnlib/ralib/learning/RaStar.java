@@ -141,7 +141,7 @@ public class RaStar {
             hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
-            //System.out.println(hyp.toString());
+            System.out.println("New Hyp: \n" + hyp.toString());
             log.logModel(hyp);
             
         } while (analyzeCounterExample());

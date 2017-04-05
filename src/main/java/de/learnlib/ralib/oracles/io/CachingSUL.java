@@ -62,8 +62,6 @@ public class CachingSUL extends DataWordSUL{
 		if (!found) {
 			this.cache.addToCache(trace);
 		}
-		
-		
 		return out;
 	}
 

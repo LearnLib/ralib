@@ -114,6 +114,7 @@ public class CounterexampleAnalysis {
         GeneralizedSymbolicSuffix symSuffix = 
                 SymbolicSuffixBuilder.suffixFromSlice(
                         DataWords.actsOf(suffix), result.slice);
+      //  symSuffix = GeneralizedSymbolicSuffix.fullSuffix(DataWords.actsOf(suffix), this.teachers);
 
         assert ce.length() - result.idx == symSuffix.getActions().length();     
         
@@ -163,6 +164,8 @@ public class CounterexampleAnalysis {
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
         TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+        System.out.println(resHyp);
+        System.out.println(resSul);
         
         boolean hasCE = sdtOracle.hasCounterexample(location, 
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 

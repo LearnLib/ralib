@@ -18,7 +18,7 @@ package de.learnlib.ralib.automata;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -102,7 +102,7 @@ public abstract class RegisterAutomaton
     }    
     
     public Collection<RALocation> getInputStates() { 
-        Set<RALocation> ret = new HashSet<>();
+        Set<RALocation> ret = new LinkedHashSet<>();
         for (Transition t : getInputTransitions()) {
             ret.add(t.getSource());
         }
@@ -110,7 +110,7 @@ public abstract class RegisterAutomaton
     }
     
     public Collection<Register> getRegisters() {
-        Set<Register> regs = new HashSet<>();
+        Set<Register> regs = new LinkedHashSet<>();
         for (Transition t : getTransitions()) {
             regs.addAll(t.getAssignment().getAssignment().keySet());
         }

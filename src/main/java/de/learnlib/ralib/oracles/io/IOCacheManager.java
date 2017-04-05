@@ -2,18 +2,22 @@ package de.learnlib.ralib.oracles.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -30,6 +34,7 @@ import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.io.IOCache.CacheNode;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
+import de.learnlib.ralib.tools.TraceParser;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -449,5 +454,108 @@ public interface IOCacheManager {
 //			
 //			System.out.println(map);
 //		}
+//	}
+	
+//	public static void main(String args []) {
+//		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//		PrintStream out = System.out;
+//		String cacheFile = args.length > 0 ? args[0] : "dump.ser";
+//		IOCacheManager cm = IOCacheManager.getCacheManager("java");
+//		Constants consts = new Constants();
+//		IOCache cache = cm.loadCacheFromFile(cacheFile, consts);
+//		// useless opt fun
+//		out.print("Cache loaded: " + cacheFile);
+//		boolean exit = false;
+//		do {
+//			out.print("Operations Available: \n"
+//					+ "0. Load DB \n"
+//					+ "1. Remove all entries with prefix \n"
+//					+ "2. Remove all entries with output \n"
+//					+ "3. Dump new cache \n"
+//					+ "4. Exit (Default Operation) \n" );
+//			int read = Integer.valueOf(br.readLine());
+//			int rowCount;
+//			String ans;
+//			switch(read) {
+//			case 0:
+//				out.println("Load database");
+//				out.println("Database name:");
+//				cacheFile = br.readLine();
+//				cache = cm.loadCacheFromFile(cacheFile, consts);
+//				out.print("Database loaded: " + cacheFile);
+//				break;
+//			case 1:
+//				out.println("Enter prefix" );
+//				String prefix = br.readLine().trim();
+//				TraceParser traceParser = new TraceParser(prefix);
+//				break;
+//			case 2:
+//                out.println("Selected Column from "  + columns);
+//                column = br.readLine().trim().toLowerCase();
+//                if (!columns.contains(column)) {
+//                    System.err.println("Column " + column + " does not exist");
+//                    continue;
+//                } else {
+//                    out.println("Selected "+ column + " Update");
+//                    out.println("Old String occurrence (empty means all entries):");
+//                    String oldVal = br.readLine();
+//                    out.println("New Value:");
+//                    String newVal = br.readLine();
+//                    rowCount = logger.replaceColumn(column, newVal, oldVal);
+//                    out.println(rowCount + " rows updated");
+//                }
+//			case 3:
+//				out.println("Selected Entry Removal");
+//				out.println("Prefix of traces to be removed:");
+//				String prefix = br.readLine();
+//				rowCount = logger.deleteEntriesForTracesWithPrefix(prefix);
+//				out.println(rowCount + " rows removed");
+//				break;
+//			case 4:
+//				out.println("Selected Output Removal");
+//				out.println("Output for traces to be removed:");
+//				String output = br.readLine();
+//				rowCount = logger.deleteEntriesForTracesWithOutput(output);
+//				out.println(rowCount + " rows removed");
+//				break;
+//			case 5:
+//			    out.println("Query fortrace");
+//			    out.println("Prefix for traces to be selected:");
+//                prefix = br.readLine();
+//                ans = logger.query(prefix);
+//                out.println(ans);
+//			    break;
+//			
+//			case 6:
+//			    out.println("Get existing traces with prefix");
+//			    out.println("Prefix for traces to be selected:");
+//                prefix = br.readLine();
+//                List<String> resSel = logger.selectTracesWithPrefix(prefix);
+//                out.println(resSel);
+//                out.println("Num Traces: " + resSel.size());
+//			    break;
+//			case 7:
+//			    out.println("Give databases to normalize sep. by ;");
+//			    String[] dbs = br.readLine().split(";");
+//			    // to make alphabets consistent again
+//			    for (String db : dbs) {
+//			        Logger dbLogger = new Logger(db.trim());
+//			        int row = 0;
+//			        row =+dbLogger.replaceColumn("sequence", "UNIMPLEMENTED", "UNIMPL");
+//			        row =+dbLogger.replaceColumn("sequence", "SERVICE_REQUEST_AUTH", "SR_AUTH");
+//			        row =+dbLogger.replaceColumn("sequence", "SERVICE_REQUEST_CONN", "SR_CONN");
+//			        row =+dbLogger.replaceColumn("result", "UNIMPLEMENTED", "UNIMPL");
+//			        row =+dbLogger.replaceColumn("result", "SERVICE_ACCEPT", "SR_ACCEPT");
+//			        row =+dbLogger.replaceColumn("result", "+", "_");
+//			        System.out.println(row + "rows changed in " + db);
+//			    }
+//			    break;
+//			default:
+//				out.println("Selected Exit");
+//				logger.close();
+//				exit = true;
+//			}
+//			
+//		} while(!exit);
 //	}
 }

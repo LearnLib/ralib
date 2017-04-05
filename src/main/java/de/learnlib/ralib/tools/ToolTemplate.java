@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +41,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeOracleStatsLoggerWrapper;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.CachingSUL;
+import de.learnlib.ralib.oracles.io.DataWordIOOracle;
 import de.learnlib.ralib.oracles.io.ExceptionHandlerOracle;
 import de.learnlib.ralib.oracles.io.ExceptionHandlerSUL;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -77,7 +79,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	private DataWordSUL sulCeAnalysis;
 	private DataWordSUL sulTest;
 	private IOHypVerifier hypVerifier;
-	private IOOracle sulTraceOracle;
+	private IOOracle sulReductionTraceOracle;
 	private RaStar rastar;
 	private TracesEquivalenceOracle traceTester;
 	private IOCounterExampleLoopRemover ceOptLoops;
@@ -97,6 +99,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	private SULParser sulParser;
 
 	private Constants constants;
+
+	private IOCacheManager cacheManager;
+
+	private IOCache ioCache;
 
 	public ToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
@@ -137,12 +143,14 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         this.sulTest = setupDataWordOracle(sulTest, teachers, consts, useFresh, timeoutMillis);
         
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
-        IOCacheManager cacheManager = IOCacheManager.getCacheManager(cacheSystem);
-        IOCache ioCache = setupCache(config, cacheManager, consts);
-//        IOCache newIoCache = ioCache.getCacheExcluding((in, out) -> {
-//        	return Arrays.stream(out.getParameterValues()).anyMatch(dv -> !(dv instanceof SumCDataValue) && dv.getId().equals(2920002L));
-//        	}
-//        );
+        this.cacheManager = IOCacheManager.getCacheManager(cacheSystem);
+        this.ioCache = setupCache(config, cacheManager, consts);
+        
+//        IOCache newIoCache = ioCache.getCacheExcluding(
+//        		new TraceParser(
+//        				Collections.singletonList("IConnect[] OS[2920000[long], 0[long]] ISA[5840000[long], 2920000[long] + 1[long]] OA[2920000[long] + 1[long], 5840000[long] + 1[long]] CLOSE[] OFA[2920000[long] + 1[long], 5840000[long] + 1[long]] IConnect[] OTIMEOUT[]"),
+//        				Arrays.asList(sulParser.getAlphabet())).getTraces().get(0)
+//        		);
 //        try {
 //			cacheManager.dumpCacheToFile("dump.ser", newIoCache, consts);
 //			System.exit(0);
@@ -151,14 +159,19 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 //			e.printStackTrace();
 //		}
         
-        IOCacheOracle ioLearnCacheOracle = setupCacheOracle(sulLearn, teachers, consts, ioCache, useFresh);
-        IOCacheOracle ioCeAnalysisCacheOracle = setupCacheOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh);
-        if (OPTION_CACHE_TESTS.parse(config)) 
+        boolean handleExc = true;
+        DataWordIOOracle ioLearnCacheOracle = setupDataWordIOOracle(sulLearn, teachers, consts, ioCache, useFresh, handleExc);
+        DataWordIOOracle ioCeAnalysisCacheOracle = setupDataWordIOOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh, handleExc);
+
+        if (OPTION_CACHE_TESTS.parse(config)) {
         	this.sulTest = new CachingSUL(this.sulTest, ioCache);
+        	this.sulTest = new ExceptionHandlerSUL(this.sulTest); 
+        }
         
-        this.sulTraceOracle = ioLearnCacheOracle;
+        // we need to also add caching at the SUL level, since reduced CE's cannot be found
+        this.sulReductionTraceOracle = setupDataWordIOOracle(new CachingSUL(this.sulCeAnalysis, ioCache), teachers, consts, ioCache, useFresh, handleExc);
         
-        IOFilter ioOracle = new IOFilter(new ExceptionHandlerOracle(ioLearnCacheOracle), sulParser.getInputs());
+        IOFilter ioOracle = new IOFilter(ioLearnCacheOracle, sulParser.getInputs());
         TreeOracle mto = new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver);
         if (debugSuffixes != null) {
         	if (debugTraces == null) {
@@ -170,7 +183,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         }
         
         
-        IOFilter ioCeOracle = new IOFilter(new ExceptionHandlerOracle(ioCeAnalysisCacheOracle),  sulParser.getInputs());
+        IOFilter ioCeOracle = new IOFilter(ioCeAnalysisCacheOracle,  sulParser.getInputs());
         TreeOracle ceMto = new MultiTheoryTreeOracle(ioCeOracle, ioCeAnalysisCacheOracle, teachers, consts, solver);
         ceMto = new TreeOracleStatsLoggerWrapper(ceMto, this.sulCeAnalysis);
         
@@ -208,11 +221,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         }
         
 
-        this.ceOptLoops = new IOCounterExampleLoopRemover(sulTraceOracle, this.hypVerifier);
-        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulTraceOracle, this.hypVerifier);
-        this.ceOptPref = new IOCounterExamplePrefixFinder(sulTraceOracle, this.hypVerifier);
-        this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulTraceOracle, this.hypVerifier);
-        this.ceOptRelation = new IOCounterExampleRelationRemover(this.teachers, consts, this.solver, this.sulTraceOracle, this.hypVerifier);
+        this.ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle, this.hypVerifier);
+        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle, this.hypVerifier);
+        this.ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle, this.hypVerifier);
+        this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle, this.hypVerifier);
+        this.ceOptRelation = new IOCounterExampleRelationRemover(this.teachers, consts, this.solver, this.sulReductionTraceOracle, this.hypVerifier);
 	}
 	
 	
@@ -254,7 +267,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	}
 	
     // could use a builder pattern here
-    private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, boolean useFresh, long timeoutMillis) {
+    private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, 
+    		boolean useFresh, long timeoutMillis) {
     	DataWordSUL sulLearn = basicSulOracle;
     	if (useFresh) {
         	sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sulLearn);
@@ -263,15 +277,14 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         	
             sulLearn = new TimeOutSUL(sulLearn, timeoutMillis);
         }
-        sulLearn = new ExceptionHandlerSUL(sulLearn);
         return sulLearn;
     }
     
 
-    private IOCacheOracle setupCacheOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh) {
+    private DataWordIOOracle setupDataWordIOOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh, boolean handleExceptions) {
     	IOOracle ioOracle;
     	IOCacheOracle ioCacheOracle;
-    	sulLearn = new CachingSUL(sulLearn, ioCache);
+    	
 	    if (useFresh)
 	    	ioOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
 	    else 
@@ -281,8 +294,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
 	    else 
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, trace -> trace);
-	    
-    	return ioCacheOracle;
+	    if (handleExceptions)
+	    	return new ExceptionHandlerOracle(ioCacheOracle);
+	    else 
+	    	return ioCacheOracle;
     }
 
 	@Override
@@ -314,6 +329,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
             System.out.println("----------------------------------------------------");
+//            try {
+//				this.cacheManager.dumpCacheToFile(this.targetName.toLowerCase()+"-hyp"+rounds, this.ioCache, constants);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
@@ -326,6 +346,22 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 if (ce == null && traceTester != null) {
                 	ce = this.traceTester.findCounterExample(hyp, null);
                 }
+                
+                if (ce != null && rounds > 10) {
+	                CanonizingSULOracle testOracle = new CanonizingSULOracle(new ExceptionHandlerSUL(this.sulLearn), SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, this.constants));
+	                Word<PSymbolInstance> obtainedResult = testOracle.trace(ce.getInput());
+	                if (!ce.getInput().equals(obtainedResult)) {
+	                	System.err.println("Problem");
+	                	IOCache cacheWithoutCE = this.ioCache.getCacheExcluding(ce.getInput());
+	                	try {
+							this.cacheManager.dumpCacheToFile(this.targetName+".nocecache.ser", cacheWithoutCE, constants);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+	                	System.exit(0);
+	                }
+                }
+                
             }
 
             SimpleProfiler.stop(__SEARCH__);
@@ -356,7 +392,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 
             ceLengthsShortened.add(ce.getInput().length());
 
-            Word<PSymbolInstance> sysTrace = sulTraceOracle.trace(ce.getInput());
+            Word<PSymbolInstance> sysTrace = sulReductionTraceOracle.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, this.constants);

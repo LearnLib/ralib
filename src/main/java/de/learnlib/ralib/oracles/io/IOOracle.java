@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles.io;
 
-import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -24,7 +23,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public abstract class IOOracle extends QueryCounter {
+public interface IOOracle {
     
 	/**
 	 * Transforms a query into a trace of the system by preserving the input 
@@ -35,6 +34,6 @@ public abstract class IOOracle extends QueryCounter {
 	 * What is left might not belong to the system's traces. This operation "repairs" the trace.
 	 *  
 	 */
-    public abstract Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
+    public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
 
 }

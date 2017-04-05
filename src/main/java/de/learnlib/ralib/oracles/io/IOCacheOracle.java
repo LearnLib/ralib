@@ -22,7 +22,7 @@ import java.util.logging.Level;
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -36,7 +36,7 @@ import net.automatalib.words.Word;
  * are canonized, and then searched for in the cache. 
  * @author falk
  */
-public class IOCacheOracle extends IOOracle implements DataWordOracle {
+public class IOCacheOracle extends QueryCounter implements DataWordIOOracle {
 
     private final IOOracle sul;
 

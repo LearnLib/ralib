@@ -28,7 +28,7 @@ import net.automatalib.words.Word;
  * before executing each input.  
  *  
  */
-public class CanonizingSULOracle extends IOOracle {
+public class CanonizingSULOracle implements IOOracle{
 
     private final DataWordSUL canonizedSul;
 
@@ -47,7 +47,6 @@ public class CanonizingSULOracle extends IOOracle {
      * Returns a canonical trace.
      */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-        countQueries(1);
         Word<PSymbolInstance> trace = Word.epsilon();
         Word<PSymbolInstance> fixedQuery = query;
         canonizedSul.pre();
