@@ -169,7 +169,7 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 
 		// the superclass should complete this list with in-between values.
 		Collection<DataValue<Long>> nextValues = super.getAllNextValues(potential);
-		// We are not interested in negative numbers.
+		// We are not interested non positive numbers. (incl constant)
 		nextValues.removeIf(v -> v.getId() <= 0L);
 		return nextValues;
 	}

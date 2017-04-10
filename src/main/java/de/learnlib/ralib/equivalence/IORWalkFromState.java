@@ -192,6 +192,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
             // TODO: generics hack?
             // TODO: add constants?
             Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
+            oldSet.addAll(this.constants.getValues(t));
             for (int j = 0; j < i; j++) {
                 if (vals[j].getType().equals(t)) {
                     oldSet.add(vals[j]);

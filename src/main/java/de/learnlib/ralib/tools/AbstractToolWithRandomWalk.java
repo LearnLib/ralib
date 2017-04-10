@@ -28,6 +28,7 @@ import java.util.Random;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
@@ -54,7 +55,11 @@ import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCLongInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCTheory;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.commons.util.Pair;
+import net.automatalib.words.Word;
 
 /**
  *
@@ -164,10 +169,19 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             "Debug traces are run on the system at start with printing of the output, followed by exit. No learning is done."
             + "Debug traces format: test1; test2; ...", null, true);
     
+    protected static final ConfigurationOption.IntegerOption OPTION_DEBUG_REPEATS
+    = new ConfigurationOption.IntegerOption("debug.repeats",
+            "Number of times a trace is executed."
+            + "Non-negative number.", 1, true);
+    
     protected static final ConfigurationOption.StringOption OPTION_DEBUG_SUFFIXES
     = new ConfigurationOption.StringOption("debug.suffixes",
             "For the debug traces given, run the given suffixes exhaustively and exit. No learning is done."
             + "Debug suffixes format: suff1; suff2; ...", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_EXCLUDE
+    = new ConfigurationOption.StringOption("cache.exclude",
+            "Excludes the specified traces after loading the cache. ", null, true);
     
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
     = new ConfigurationOption.StringOption("test.traces",
@@ -396,12 +410,23 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     	}
     }
     
-    protected IOCache setupCache(Configuration config, IOCacheManager cacheMgr, Constants consts) throws ConfigurationException {
+    protected IOCache setupCache(Configuration config, ParameterizedSymbol [] alphabet, Map<DataType, Theory>  teachers, IOCacheManager cacheMgr, Constants consts) throws ConfigurationException {
     	IOCache ioCache = null;
         String load = OPTION_CACHE_LOAD.parse(config);
+    		
         if (load != null && new File(load).exists()) {
         	try {
 				ioCache = cacheMgr.loadCacheFromFile(load, consts);
+				String excludedTraces = OPTION_CACHE_EXCLUDE.parse(config);
+	        	if (excludedTraces != null) { 
+	        		List<Word<PSymbolInstance>> traces = getCanonizedWordsFromString(excludedTraces, alphabet, teachers, consts);
+	        		System.out.println("Cache Size: " + ioCache.getSize());
+	        		for (Word<PSymbolInstance> trace : traces) {
+	        			ioCache = ioCache.getCacheExcluding(trace);
+	        			System.out.println("Cache Size After Excluding "+ trace +" : " + ioCache.getSize());
+	        		}
+	        		
+	        	}
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new ConfigurationException(e.getMessage());
@@ -409,6 +434,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         } else {
         	ioCache = new IOCache();
         }
+        
+//        System.out.println(ioCache.getSize());
+//        ioCache = ioCache.getCacheExcluding((i,o) -> i.getBaseSymbol().getName().contains("IFA"));
+//        System.out.println(ioCache.getSize());
+        
+        
         final String dump = OPTION_CACHE_DUMP.parse(config);
         final IOCache finalCache = ioCache;
         if (dump != null) {
@@ -448,5 +479,19 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     	}
     	return arrayStream.toArray(ConfigurationOption []::new); 
     }
+    
+
+	protected List<Word<PSymbolInstance>> getCanonizedWordsFromString(String debugString, ParameterizedSymbol [] alphabet, Map<DataType, Theory> teachers, Constants consts) {
+		List<Word<PSymbolInstance>> tests = getWordsFromString(debugString, alphabet);
+		SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
+		List<Word<PSymbolInstance>> canonizedTests = tests.stream().map(w -> canonizer.canonizeTrace(w)).collect(Collectors.toList());
+    	return canonizedTests;
+	}
+	
+	protected List<Word<PSymbolInstance>> getWordsFromString(String debugString, ParameterizedSymbol [] alphabet) {
+		List<String> testStrings = Arrays.stream(debugString.split(";")).collect(Collectors.toList());
+    	List<Word<PSymbolInstance>> tests = new TraceParser(testStrings, Arrays.asList(alphabet)).getTraces();
+    	return tests;
+	}
 
 }

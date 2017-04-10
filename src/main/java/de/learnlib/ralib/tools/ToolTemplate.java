@@ -133,8 +133,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 
         String debugTraces = OPTION_DEBUG_TRACES.parse(config);
         String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
-        if (debugTraces != null && debugSuffixes == null) 
-        	runDebugTracesAndExit(debugTraces, this.sulLearn, this.teachers, consts);
+        if (debugTraces != null && debugSuffixes == null) {
+        	int repeats = OPTION_DEBUG_REPEATS.parse(config);
+        	runDebugTracesAndExit(debugTraces, repeats, this.sulLearn, this.teachers, consts);
+        }
         
         this.sulCeAnalysis = sulParser.newSUL(); 
         this.sulCeAnalysis = setupDataWordOracle(sulCeAnalysis, teachers, consts, useFresh, timeoutMillis);
@@ -144,20 +146,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
         this.cacheManager = IOCacheManager.getCacheManager(cacheSystem);
-        this.ioCache = setupCache(config, cacheManager, consts);
-        
-//        IOCache newIoCache = ioCache.getCacheExcluding(
-//        		new TraceParser(
-//        				Collections.singletonList("IConnect[] OS[2920000[long], 0[long]] ISA[5840000[long], 2920000[long] + 1[long]] OA[2920000[long] + 1[long], 5840000[long] + 1[long]] CLOSE[] OFA[2920000[long] + 1[long], 5840000[long] + 1[long]] IConnect[] OTIMEOUT[]"),
-//        				Arrays.asList(sulParser.getAlphabet())).getTraces().get(0)
-//        		);
-//        try {
-//			cacheManager.dumpCacheToFile("dump.ser", newIoCache, consts);
-//			System.exit(0);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+        this.ioCache = setupCache(config, sulParser.getAlphabet(), teachers, cacheManager, consts);
+
         
         boolean handleExc = true;
         DataWordIOOracle ioLearnCacheOracle = setupDataWordIOOracle(sulLearn, teachers, consts, ioCache, useFresh, handleExc);
@@ -229,35 +219,33 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	}
 	
 	
-	private void runDebugTracesAndExit(String debug, DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts) {
-		List<String> testStrings = Arrays.stream(debug.split(";")).collect(Collectors.toList());
-    	List<Word<PSymbolInstance>> tests = new TraceParser(testStrings, Arrays.asList(this.sulParser.getAlphabet())).getTraces();
-    	SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
-    	for (Word<PSymbolInstance> test : tests) {
-    		Word<PSymbolInstance> canonizedTest = canonizer.canonizeTrace(test);
-    		Word<PSymbolInstance> res = Word.epsilon();
-    		sul.pre();
-    		List<PSymbolInstance> inputs = canonizedTest.stream().filter(s -> 
-    		(s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList());
-    		for (PSymbolInstance inp : inputs) {
-    			PSymbolInstance out = sul.step(inp);
-    			res = res.append(inp).append(out);
-    		}
-    		sul.post();
-    		System.out.println(res);
-    	}
+	private void runDebugTracesAndExit(String debug, int numRepeats, DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts) {
+    	List<Word<PSymbolInstance>> canonizedTests = getCanonizedWordsFromString(debug, this.sulParser.getAlphabet(), teachers, consts);
+    	sul = new ExceptionHandlerSUL(sul);
+    	for (int i=0; i<numRepeats; i++) 
+	    	for (Word<PSymbolInstance> canonizedTest : canonizedTests) {
+	    		Word<PSymbolInstance> res = Word.epsilon();
+	    		sul.pre();
+	    		List<PSymbolInstance> inputs = canonizedTest.stream().filter(s -> 
+	    		(s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList());
+	    		for (PSymbolInstance inp : inputs) {
+	    			PSymbolInstance out = sul.step(inp);
+	    			res = res.append(inp).append(out);
+	    		}
+	    		sul.post();
+	    		System.out.println(res);
+	    	}
     	System.exit(0);
 	}
 	
 	private void runDebugSuffixesAndExit(String debugPrefixes, String debugSuffixes, TreeOracle mto, Map<DataType, Theory> teachers, Constants constants) {
-		List<String> prefixStrings = Arrays.stream(debugPrefixes.split(";")).collect(Collectors.toList());
 		List<String> suffixStrings = Arrays.stream(debugSuffixes.split(";")).collect(Collectors.toList());
-		List<Word<PSymbolInstance>> prefixes = new TraceParser(prefixStrings, Arrays.asList(this.sulParser.getAlphabet())).getTraces();
+		List<Word<PSymbolInstance>> prefixes = getCanonizedWordsFromString(debugPrefixes, this.sulParser.getAlphabet(), teachers, constants);
     	List<GeneralizedSymbolicSuffix> suffixes = new SuffixParser(suffixStrings, Arrays.asList(this.sulParser.getAlphabet()), teachers).getSuffixes();
     	SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, constants);
+    	
     	for (GeneralizedSymbolicSuffix suffix : suffixes) {
     		for (Word<PSymbolInstance> prefix : prefixes) {
-    			prefix = canonizer.canonizeTrace(prefix);
         		System.out.println(prefix + " " + suffix);
         		TreeQueryResult tree = mto.treeQuery(prefix, suffix);
         		System.out.println(tree.toString());
@@ -266,7 +254,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     	System.exit(0);
 	}
 	
-    // could use a builder pattern here
+
+	// could use a builder pattern here
     private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, 
     		boolean useFresh, long timeoutMillis) {
     	DataWordSUL sulLearn = basicSulOracle;
@@ -347,20 +336,20 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 	ce = this.traceTester.findCounterExample(hyp, null);
                 }
                 
-                if (ce != null && rounds > 10) {
-	                CanonizingSULOracle testOracle = new CanonizingSULOracle(new ExceptionHandlerSUL(this.sulLearn), SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, this.constants));
-	                Word<PSymbolInstance> obtainedResult = testOracle.trace(ce.getInput());
-	                if (!ce.getInput().equals(obtainedResult)) {
-	                	System.err.println("Problem");
-	                	IOCache cacheWithoutCE = this.ioCache.getCacheExcluding(ce.getInput());
-	                	try {
-							this.cacheManager.dumpCacheToFile(this.targetName+".nocecache.ser", cacheWithoutCE, constants);
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-	                	System.exit(0);
-	                }
-                }
+//                if (ce != null && rounds > 10) {
+//	                CanonizingSULOracle testOracle = new CanonizingSULOracle(new ExceptionHandlerSUL(this.sulLearn), SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, this.constants));
+//	                Word<PSymbolInstance> obtainedResult = testOracle.trace(ce.getInput());
+//	                if (!ce.getInput().equals(obtainedResult)) {
+//	                	System.err.println("Problem");
+//	                	IOCache cacheWithoutCE = this.ioCache.getCacheExcluding(ce.getInput());
+//	                	try {
+//							this.cacheManager.dumpCacheToFile(this.targetName+".nocecache.ser", cacheWithoutCE, constants);
+//						} catch (IOException e) {
+//							e.printStackTrace();
+//						}
+//	                	System.exit(0);
+//	                }
+//                }
                 
             }
 

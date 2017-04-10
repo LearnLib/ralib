@@ -66,6 +66,12 @@ public class IOCache {
         	
         	return node; 
         }
+        
+        public int size() {
+        	int childrenSize = this.next.values()
+        			.stream().mapToInt(node -> node.size()).sum();
+        	return childrenSize + 1;
+        }
     }
     
     public IOCache() {
@@ -217,6 +223,10 @@ public class IOCache {
     
     public IOCache getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
     	return new IOCache(this.root.getCacheExcluding(exclusionPrefix));
+    }
+    
+    public int getSize() {
+    	return this.root.size();
     }
     
     
