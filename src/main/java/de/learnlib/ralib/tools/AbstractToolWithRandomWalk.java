@@ -134,6 +134,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
                 }
             };
+            
+    protected static final ConfigurationOption.IntegerOption OPTION_SUL_INSTANCES
+           = new ConfigurationOption.IntegerOption("sul.instances",
+                    "Number of sul instances to be run in parallel by tree queries. The SUL must be fork-able. ", 1, true);
 
     protected static final ConfigurationOption.BooleanOption OPTION_USE_RWALK
             = new ConfigurationOption.BooleanOption("use.rwalk",

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import de.learnlib.api.SUL;
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -122,5 +123,12 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         return new PSymbolInstance(in.getOutput(), retVal);
 
     }
+    
+    public boolean canFork() {
+    	return true;
+    }
 
+    public SUL<PSymbolInstance, PSymbolInstance> fork() {
+    	return new ClasssAnalyzerDataWordSUL(sulClass, methods, this.maxDepth, this.fieldConfigurator) ;
+    }
 }

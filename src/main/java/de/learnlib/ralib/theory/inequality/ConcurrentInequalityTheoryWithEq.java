@@ -71,7 +71,6 @@ import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingStrategy;
-import de.learnlib.ralib.theory.inequality.ConcurrentInequalityTheoryWithEq.Range;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -86,7 +85,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  * @author Sofia Cassel
  * @param<T>
  */
-public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
+public abstract class ConcurrentInequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
 
 	protected static final LearnLogger log = LearnLogger.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -109,7 +108,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
 
-	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
+	public ConcurrentInequalityTheoryWithEq(InequalityGuardMerger fullMerger,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
@@ -118,8 +117,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
 	}
 
-	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
-		this(fullMerger, t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
+	public ConcurrentInequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
+		this(fullMerger, t -> ConcurrentInequalityTheoryWithEq.getInstantiator(t, "z3"));
 
 	}
 
@@ -170,7 +169,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return merged;
 	}
 
-	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard,
+	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(SuffixValuation elseSuffixValues, final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard,
 			SDT elseSDT) {
 		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(equGuards, elseGuard, elseSDT);
 
@@ -357,7 +356,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
 						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
 						
-						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt);
+						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(deqSuffixValues, tempKids, deqGuard, deqSdt);
 						
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
@@ -491,20 +490,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
-		
-		Map<SDTGuard, SDT> merged;
-		if (branching == BranchingStrategy.FULL) {
-			merged = mergeAllGuards(tempKids, guardDvs);
-		} else {
-			if (tempKids.size() == 1)
-				merged = tempKids;
-			else {
-				assert tempKids.keySet().stream().allMatch(g -> (g instanceof DisequalityGuard || g instanceof SDTAndGuard || g instanceof EqualityGuard));
-				SDTGuard elseGuard = tempKids.keySet().stream().filter(g -> (g instanceof DisequalityGuard || g instanceof SDTAndGuard)).findFirst().get();
-				SDT elseSDT = tempKids.remove(elseGuard);
-				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT);
-			}
-		}
+		Map<SDTGuard, SDT> merged = mergeAllGuards(tempKids, guardDvs);
 
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();

@@ -26,7 +26,10 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
+import java.util.Map;
+
 import net.automatalib.words.Word;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -42,5 +45,17 @@ public interface SDTConstructor {
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
             List<SDTGuard> guards, SDT ... sdts);    
+    
+    public default void concurrentTreeQuery(
+    		SDTQuery id,
+            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,
+            WordValuation values, PIV piv,
+            Constants constants, SuffixValuation suffixValues) {
+    	throw new NotImplementedException();
+    }
+    
+    public default void processConcurrentTreeQueries() {
+    	throw new NotImplementedException();
+    }
 
 }
