@@ -16,8 +16,8 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
@@ -26,13 +26,12 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.List;
-import java.util.Map;
 
 import net.automatalib.words.Word;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
- *
+ * An sdt constructor by default should only support single threaded operation. 
  * @author falk
  */
 public interface SDTConstructor {
@@ -46,7 +45,11 @@ public interface SDTConstructor {
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
             List<SDTGuard> guards, SDT ... sdts);    
     
-    public default void concurrentTreeQuery(
+    /**
+     *  Submits a tree query for execution. The tree query will be executed once   
+     *  processConcurrentTreeQueries is called. The result is stored in the SDTQuery object.
+     */
+    public default void submitConcurrentTreeQuery(
     		SDTQuery id,
             Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,
             WordValuation values, PIV piv,
@@ -54,6 +57,10 @@ public interface SDTConstructor {
     	throw new NotImplementedException();
     }
     
+    /**
+     * Processes all scheduled queries and blocks until all queries are done or an exception is thrown. 
+     * Clears out the queries from the processing buffer.
+     */
     public default void processConcurrentTreeQueries() {
     	throw new NotImplementedException();
     }

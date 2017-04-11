@@ -170,7 +170,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         //new CachingSUL(this.sulCeAnalysis, ioCache)
         // we need to also add caching at the SUL level, since reduced CE's cannot be found
-        this.sulReductionTraceOracle = setupDataWordIOOracle(this.sulCeAnalysis, teachers, consts, new IOCache(), useFresh, handleExc);
+        // reduction implies that we use a determinize-type oracle
+        this.sulReductionTraceOracle = setupDataWordIOOracle(this.sulCeAnalysis, teachers, consts, ioCache, true, handleExc);
         
         IOFilter ioOracle = new IOFilter(ioLearnCacheOracle, sulParser.getInputs());
         TreeOracle mto = !isConcurrent ? new MultiTheoryTreeOracle(ioOracle, ioLearnCacheOracle, teachers, consts, solver) :
@@ -271,9 +272,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 
 	// could use a builder pattern here
     private DataWordSUL setupDataWordOracle(DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, 
-    		boolean useFresh, long timeoutMillis) {
+    		boolean determinize, long timeoutMillis) {
     	DataWordSUL sulLearn = basicSulOracle;
-    	if (useFresh) {
+    	if (determinize) {
         	sulLearn = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sulLearn);
         }
         if (timeoutMillis > 0L) {
@@ -284,25 +285,25 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     }
     
     private List<DataWordSUL> setupDataWordOracle(Integer forkableInstances, DataWordSUL basicSulOracle, Map<DataType, Theory> teachers, Constants consts, 
-    		boolean useFresh, long timeoutMillis) {
+    		boolean determinize, long timeoutMillis) {
     	List<DataWordSUL> forks = new ArrayList<>(forkableInstances);
     	for (int i=0; i<forkableInstances; i++) {
-    		forks.add(this.setupDataWordOracle(basicSulOracle, teachers, consts, useFresh, timeoutMillis));
+    		forks.add(this.setupDataWordOracle(basicSulOracle, teachers, consts, determinize, timeoutMillis));
     		basicSulOracle = (DataWordSUL) basicSulOracle.fork();
     	}
     	return forks;
     }
 
-    private DataWordIOOracle setupDataWordIOOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh, boolean handleExceptions) {
+    private DataWordIOOracle setupDataWordIOOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean determinize, boolean handleExceptions) {
     	IOOracle ioOracle;
     	IOCacheOracle ioCacheOracle;
     	
-	    if (useFresh)
+	    if (determinize)
 	    	ioOracle = new CanonizingSULOracle(sulLearn, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
 	    else 
 	    	ioOracle = new BasicSULOracle(sulLearn, SpecialSymbols.ERROR);
 	    
-	    if (useFresh)
+	    if (determinize)
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
 	    else 
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, trace -> trace);
@@ -312,18 +313,18 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	    	return ioCacheOracle;
     }
     
-    private DataWordIOOracle setupDataWordIOOracle(List<DataWordSUL> forks, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean useFresh, boolean handleExceptions) {
+    private DataWordIOOracle setupDataWordIOOracle(List<DataWordSUL> forks, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean determinize, boolean handleExceptions) {
     	IOOracle ioOracle;
     	ConcurrentIOCacheOracle ioCacheOracle;
     	
     	List<IOOracle> oracles = forks.stream().map(sul -> {
-    		if (useFresh)
+    		if (determinize)
     	    	return new CanonizingSULOracle(sul, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
     	    else 
     	    	return new BasicSULOracle(sul, SpecialSymbols.ERROR);	
     	}).collect(Collectors.toList());
 	    
-	    if (useFresh)
+	    if (determinize)
 	    	ioCacheOracle = new ConcurrentIOCacheOracle(oracles, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
 	    else 
 	    	ioCacheOracle = new ConcurrentIOCacheOracle(oracles, ioCache, tr -> tr);

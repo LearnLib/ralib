@@ -37,6 +37,7 @@ import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -144,4 +145,10 @@ public interface Theory<T> {
      */
     public SDTGuardLogic getGuardLogic();
     
+    /**
+     * Enables the tree queries to assume concurrent processing capability of the SDT constructor.
+     */
+    public default void enableConcurrentProcessing() {
+    	throw new NotImplementedException();
+    }
 }

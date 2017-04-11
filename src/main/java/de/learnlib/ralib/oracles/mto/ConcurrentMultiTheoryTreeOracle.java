@@ -1,7 +1,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class ConcurrentMultiTheoryTreeOracle extends MultiTheoryTreeOracle {
 		this.queriesToExecute = new LinkedHashMap<>();
 	}
 
-    public void concurrentTreeQuery(
+    public void submitConcurrentTreeQuery(
     		SDTQuery sdtQuery,
             Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,
             WordValuation values, PIV piv,

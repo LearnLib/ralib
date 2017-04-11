@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -32,12 +31,12 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
+import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
-import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -49,11 +48,10 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -77,26 +75,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             new ConfigurationOption.BooleanOption("use.eqtest", 
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
                 
-    private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
-        OPTION_LOGGING_LEVEL,
-        OPTION_LOGGING_CATEGORY,
-        OPTION_TARGET,
-        OPTION_RANDOM_SEED,
-        OPTION_TEACHERS,
-        OPTION_USE_CEOPT,
-        OPTION_USE_SUFFIXOPT,
-        OPTION_USE_FRESH_VALUES,
-        OPTION_EXPORT_MODEL,
-        OPTION_USE_EQTEST,
-        OPTION_USE_RWALK,
-        OPTION_MAX_ROUNDS,
-        OPTION_TIMEOUT,
-        OPTION_RWALK_FRESH_PROB,
-        OPTION_RWALK_RESET_PROB,
-        OPTION_RWALK_MAX_DEPTH,
-        OPTION_RWALK_MAX_RUNS,
-        OPTION_RWALK_RESET
-        };
+    private static final ConfigurationOption[] OPTIONS = getOptions(IOSimulator.class, EquivalenceOracleFactory.class);
     
     private RegisterAutomaton model;
 
@@ -104,7 +83,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private DataWordSUL sulTest;
         
-    private IORandomWalk randomWalk = null;
+    private IOEquivalenceOracle randomWalk = null;
     
     private IOEquivalenceTest eqTest;
     
@@ -205,26 +184,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
       
         if (findCounterexamples) {
-
-            boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
-            double resetProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
-            double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);        
-            long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
-            int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);        
-            boolean resetRuns = OPTION_RWALK_RESET.parse(config);
-
-            this.randomWalk = new IORandomWalk(random,
-                    sulTest,
-                    drawUniformly, // do not draw symbols uniformly 
-                    resetProbabilty, // reset probability 
-                    freshProbability, // prob. of choosing a fresh data value
-                    maxTestRuns, // 1000 runs 
-                    maxDepth, // max depth
-                    consts,
-                    resetRuns, // reset runs 
-                    teachers,
-                    inputSymbols);
-            
+        	this.randomWalk = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+            		sulTest, this.teachers, consts, random, inputSymbols);            
         }
           
         this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);

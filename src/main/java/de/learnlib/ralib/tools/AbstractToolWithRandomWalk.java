@@ -51,9 +51,6 @@ import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.config.ConfigurationOption.BooleanOption;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
-import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
-import de.learnlib.ralib.tools.theories.SumCLongInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCTheory;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -137,7 +134,9 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             
     protected static final ConfigurationOption.IntegerOption OPTION_SUL_INSTANCES
            = new ConfigurationOption.IntegerOption("sul.instances",
-                    "Number of sul instances to be run in parallel by tree queries. The SUL must be fork-able. ", 1, true);
+                    "Number of sul instances to be run in parallel by tree queries. If set to more than 1, enables concurrent processing"
+                    + "on all theories. The SUL must be fork-able. Forking is the way by which separate independent SUL instances are"
+                    + "generated. ", 1, true);
 
     protected static final ConfigurationOption.BooleanOption OPTION_USE_RWALK
             = new ConfigurationOption.BooleanOption("use.rwalk",
@@ -190,34 +189,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
     = new ConfigurationOption.StringOption("test.traces",
             "Test traces format: test1; test2; ...", null, true);
-
-    protected static final ConfigurationOption.BooleanOption OPTION_EQ_ORACLE = 
-    		new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
-    				"Draw next input uniformly", null, false);
-    
-    protected static final ConfigurationOption.BooleanOption OPTION_RWALK_DRAW
-            = new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
-                    "Draw next input uniformly", null, false);
-
-    protected static final ConfigurationOption.BooleanOption OPTION_RWALK_RESET
-            = new ConfigurationOption.BooleanOption("rwalk.reset.count",
-                    "Reset limit counters after each counterexample", null, false);
-
-    protected static final ConfigurationOption.DoubleOption OPTION_RWALK_RESET_PROB
-            = new ConfigurationOption.DoubleOption("rwalk.prob.reset",
-                    "Probability of performing reset instead of step", null, false);
-
-    protected static final ConfigurationOption.DoubleOption OPTION_RWALK_FRESH_PROB
-            = new ConfigurationOption.DoubleOption("rwalk.prob.fresh",
-                    "Probability of using a fresh data value", null, false);
-    
-    protected static final ConfigurationOption.LongOption OPTION_RWALK_MAX_RUNS
-            = new ConfigurationOption.LongOption("rwalk.max.runs",
-                    "Maximum number of random walks", null, false);
-
-    protected static final ConfigurationOption.IntegerOption OPTION_RWALK_MAX_DEPTH
-            = new ConfigurationOption.IntegerOption("rwalk.max.depth",
-                    "Maximum length of each random walk", null, false);
 
     protected static final ConfigurationOption.StringOption OPTION_TEACHERS
             = new ConfigurationOption.StringOption("teachers",
@@ -369,6 +340,11 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	    	for (Theory teacher : sumCTheories) {
 	    		((SumCTheory) teacher).setConstants(consts);
 	    	}
+    	}
+    	
+    	// 
+    	if (OPTION_SUL_INSTANCES.parse(config) > 1) {
+    		teachers.values().forEach(th -> th.enableConcurrentProcessing());
     	}
 	}
     

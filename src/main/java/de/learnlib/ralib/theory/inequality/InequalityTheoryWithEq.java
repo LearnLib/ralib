@@ -71,7 +71,6 @@ import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingStrategy;
-import de.learnlib.ralib.theory.inequality.ConcurrentInequalityTheoryWithEq.Range;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -108,11 +107,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final InequalityGuardMerger fullMerger;
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
+	private boolean concurrent;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
+		this.concurrent = false;
 		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
 		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
@@ -138,6 +139,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	public DataType<T> getType() {
 		return this.type;
+	}
+	
+	public void enableConcurrentProcessing() {
+		this.concurrent = true;
 	}
 
 	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
@@ -480,7 +485,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				SDTGuard[] elseConjuncts = guardDvs.keySet().stream().map(g -> ((EqualityGuard) g).toDeqGuard())
 						.toArray(SDTGuard[]::new);
 
-				SDTGuard elseGuard = new SDTAndGuard(currentParam, elseConjuncts);
+				SDTGuard elseGuard = elseConjuncts.length == 1? elseConjuncts[0] : new SDTAndGuard(currentParam, elseConjuncts);
 				DataValue<T> elseValue = getFreshValue(potential);
 				guardDvs.put(elseGuard, elseValue);
 			}
@@ -498,15 +503,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		} else {
 			if (tempKids.size() == 1)
 				merged = tempKids;
-			else {
-				assert tempKids.keySet().stream().allMatch(g -> (g instanceof DisequalityGuard || g instanceof SDTAndGuard || g instanceof EqualityGuard));
-				SDTGuard elseGuard = tempKids.keySet().stream().filter(g -> (g instanceof DisequalityGuard || g instanceof SDTAndGuard)).findFirst().get();
+			else { 
+				assert branching == BranchingStrategy.IF_EQU_ELSE;
+				SDTGuard elseGuard = new ArrayList<>(tempKids.keySet()).get(tempKids.size()-1);
 				SDT elseSDT = tempKids.remove(elseGuard);
 				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT);
 			}
 		}
 
-		// System.out.println("MERGED = " + merged);
+		
+		System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
 
 		// System.out.println("MERGED = " + merged);
@@ -534,10 +540,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	}
 	
+	// Probably can be extracted to a separate class.
 	private Map<SDTGuard, SDT> treeQueriesForInstantiations(Map<SDTGuard, DataValue<T>> guardDvs, GeneralizedSymbolicSuffix suffix, SDTConstructor oracle, Word<PSymbolInstance> prefix, WordValuation wordVals, PIV piv, Constants constants, SuffixValuation suffixVals) {
 		int pId = wordVals.size() +1;
 		SuffixValue sv = suffix.getDataValue(pId);
 		Map<SDTGuard, SDTQuery> answers = new LinkedHashMap<>(); 
+		final Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 		
 		for (SDTGuard sdtGuard : guardDvs.keySet()) {
 			DataValue<T> dv = guardDvs.get(sdtGuard);
@@ -546,12 +554,18 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			SuffixValuation newSuffixVals = new SuffixValuation(suffixVals);
 			newSuffixVals.put(sv, dv);
 			SDTQuery gQuery = new SDTQuery();
-			oracle.concurrentTreeQuery(gQuery, prefix, suffix, newWordVals, piv, constants, newSuffixVals);
+			if (this.concurrent)
+				oracle.submitConcurrentTreeQuery(gQuery, prefix, suffix, newWordVals, piv, constants, newSuffixVals);
+			else { 
+				SDT sdt = oracle.treeQuery(prefix, suffix, newWordVals, piv, constants, newSuffixVals);
+				gQuery.setAnswer(sdt);
+			}
 			answers.put(sdtGuard, gQuery);
 		}
 		
-		oracle.processConcurrentTreeQueries();
-		final Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
+		if (this.concurrent) 
+			oracle.processConcurrentTreeQueries();
+
 		answers.forEach((g, ans) -> tempKids.put(g, ans.getAnswer()));
 		return tempKids;
 	}
