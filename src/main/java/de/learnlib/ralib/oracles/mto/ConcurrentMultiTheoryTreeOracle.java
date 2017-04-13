@@ -50,14 +50,16 @@ public class ConcurrentMultiTheoryTreeOracle extends MultiTheoryTreeOracle {
     }
     
     public void processConcurrentTreeQueries() {
-    	List<DefaultQuery<PSymbolInstance, Boolean>> queries = new ArrayList<>(queriesToExecute.values());
-    	this.concurrentOracle.processQueries(queries);
-    	for (SDTQuery id : queriesToExecute.keySet()) {
-    		DefaultQuery<PSymbolInstance, Boolean> query = queriesToExecute.get(id);
-    		Boolean output = query.getOutput();
-    		id.setAnswer(output.equals(Boolean.TRUE) ? SDTLeaf.ACCEPTING  : SDTLeaf.REJECTING);
+    	if (!queriesToExecute.isEmpty()) {
+	    	List<DefaultQuery<PSymbolInstance, Boolean>> queries = new ArrayList<>(queriesToExecute.values());
+	    	this.concurrentOracle.processQueries(queries);
+	    	for (SDTQuery id : queriesToExecute.keySet()) {
+	    		DefaultQuery<PSymbolInstance, Boolean> query = queriesToExecute.get(id);
+	    		Boolean output = query.getOutput();
+	    		id.setAnswer(output.equals(Boolean.TRUE) ? SDTLeaf.ACCEPTING  : SDTLeaf.REJECTING);
+	    	}
+	    	this.queriesToExecute.clear();
     	}
-    	this.queriesToExecute.clear();
     }
 
 

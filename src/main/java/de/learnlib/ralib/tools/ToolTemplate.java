@@ -40,7 +40,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.CachingSUL;
 import de.learnlib.ralib.oracles.io.ConcurrentIOCacheOracle;
 import de.learnlib.ralib.oracles.io.DataWordIOOracle;
-import de.learnlib.ralib.oracles.io.ExceptionHandlerOracle;
+import de.learnlib.ralib.oracles.io.ExceptionHandlers;
 import de.learnlib.ralib.oracles.io.ExceptionHandlerSUL;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
@@ -203,7 +203,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                     hypOracle = new TimeOutOracle(hypOracle, timeout);
                 }
                 SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
-                IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));  
+                IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));
+                System.out.println("IS concurrent " + isConcurrent);
                 
                 return !isConcurrent? new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver):
                 	new ConcurrentMultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
@@ -308,20 +309,24 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	    else 
 	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, trace -> trace);
 	    if (handleExceptions)
-	    	return new ExceptionHandlerOracle(ioCacheOracle);
+	    	return ExceptionHandlers.wrapDataWordIOOracle(ioCacheOracle);
 	    else 
 	    	return ioCacheOracle;
     }
     
     private DataWordIOOracle setupDataWordIOOracle(List<DataWordSUL> forks, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean determinize, boolean handleExceptions) {
-    	IOOracle ioOracle;
     	ConcurrentIOCacheOracle ioCacheOracle;
     	
     	List<IOOracle> oracles = forks.stream().map(sul -> {
+    		IOOracle oracle;
     		if (determinize)
-    	    	return new CanonizingSULOracle(sul, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
+    	    	oracle =  new CanonizingSULOracle(sul, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
     	    else 
-    	    	return new BasicSULOracle(sul, SpecialSymbols.ERROR);	
+    	    	oracle = new BasicSULOracle(sul, SpecialSymbols.ERROR);
+    		if (handleExceptions)
+    			oracle =  ExceptionHandlers.wrapIOOracle(oracle);
+    		return oracle;
+    		
     	}).collect(Collectors.toList());
 	    
 	    if (determinize)
@@ -329,7 +334,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	    else 
 	    	ioCacheOracle = new ConcurrentIOCacheOracle(oracles, ioCache, tr -> tr);
 	    if (handleExceptions)
-	    	return new ExceptionHandlerOracle(ioCacheOracle);
+	    	return ExceptionHandlers.wrapDataWordIOOracle(ioCacheOracle);
 	    else 
 	    	return ioCacheOracle;
     }

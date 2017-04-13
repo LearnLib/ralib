@@ -49,9 +49,7 @@ public class CachingSUL extends DataWordSUL{
 					if (i+1 < trace.length()) {
 						PSymbolInstance expected = trace.getSymbol(i+1);
 						if (!out.equals(expected)) 
-							throw new NonDeterminismException(
-									" After: " + trace.prefix(i) +
-									"\n Expected: " + expected + " Got: " + out);
+							throw new NonDeterminismException(trace.prefix(i), expected, out);
 					}
 				}
 			}

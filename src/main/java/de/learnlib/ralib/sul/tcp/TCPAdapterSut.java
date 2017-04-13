@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ public class TCPAdapterSut extends ConcreteSUL{
 	private String senderAddress;
 	// we don't want to be sending needless resets
 	private static boolean needsReset = true;
+	private static Map<Integer, Boolean> parallelNeedsReset = new LinkedHashMap<>();
 	private static long maxNum =  4201380001L; //4231380001L;
 	private static long minNum =  201380001L;
 	
@@ -36,12 +39,14 @@ public class TCPAdapterSut extends ConcreteSUL{
     	senderPortNumber = Integer.valueOf(getProperty(simProperties, "senderPort"));
     	senderAddress = getProperty(simProperties, "senderAddress");
     	this.senderSocket = new SocketWrapper(senderAddress, senderPortNumber);
+    	parallelNeedsReset.putIfAbsent(this.senderPortNumber, true);
 	}
 	
 	public TCPAdapterSut(String address, Integer port) throws IOException {
 		senderPortNumber = port;
     	senderAddress = address;
     	this.senderSocket = new SocketWrapper(senderAddress, senderPortNumber);
+    	parallelNeedsReset.putIfAbsent(this.senderPortNumber, true);
 	}
 	
 
@@ -77,7 +82,8 @@ public class TCPAdapterSut extends ConcreteSUL{
 
 	private ConcreteOutput sendInput( ConcreteInput ia) {
 		//System.out.println("Input from RaLib: " + action);
-		needsReset = true;
+		//needsReset = true;
+		parallelNeedsReset.put(this.senderPortNumber, true);
 		ConcreteOutput oa = this.sendOneInput(ia);
 		updateSeqNums(oa);
 		if (isSeqCloseToEdge()) {
@@ -149,11 +155,11 @@ public class TCPAdapterSut extends ConcreteSUL{
 
 
     private void sendReset() {
-    	if (needsReset) {
+    	if (parallelNeedsReset.get(this.senderPortNumber)) {
 	    	sendResetBurst(this.sutSeqNums);
 	        this.senderSocket.writeInput("reset");
 		    this.sutSeqNums = new HashSet<Long>();
-			needsReset = false;
+		    parallelNeedsReset.put(this.senderPortNumber, false);
     	}
 	}
     

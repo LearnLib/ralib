@@ -218,11 +218,15 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
     = new ConfigurationOption.StringOption("constants",
-            "Regular constants of format [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
+            "Regular constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
+   
+    protected static final ConfigurationOption.StringOption OPTION_CONSTANTS_OUTPUT
+    = new ConfigurationOption.StringOption("constants.output",
+            "Output constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
     
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS_SUMC
     = new ConfigurationOption.StringOption("constants.sumc",
-            "SumC constants of format [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
+            "SumC constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
     
     
     protected Random random = null;

@@ -1,6 +1,7 @@
 package de.learnlib.ralib.tools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -18,7 +20,7 @@ import net.automatalib.words.Word;
 
 // Parses tests from strings
 public class TraceParser {
-	private static String INPUT_EX = "\\w+\\s*\\[[0-9\\.\\+\\s\\,]*\\]\\s*";
+	private static String INPUT_EX = "\\w+\\s*\\[[0-9\\.\\(\\)\\+\\:\\s\\,]*\\]\\s*";
 	private static Pattern SYMINST_MATCH = Pattern.compile(INPUT_EX);
 	private static String TRACE_EX =  "(" +  INPUT_EX + ")+";
 	private List<Word<PSymbolInstance>> traces; 
@@ -69,7 +71,7 @@ public class TraceParser {
 	private PSymbolInstance parseSymInst(String inpString,  Map<String, ParameterizedSymbol> strToSym) {
 		DataValue dv;
 		String[] inpSplit = inpString.split("\\[|\\]|\\,");
-		String actName = inpSplit[0].trim();
+		String actName = inpSplit[0];
 		ParameterizedSymbol matchingSig = strToSym.get(actName);
 		if (matchingSig == null) 
 			throw new RuntimeException("Could not find action " + actName + " in the list of signatures " + strToSym);
@@ -77,17 +79,51 @@ public class TraceParser {
 			throw new RuntimeException("Arity mismatch for " + actName);
 		DataType [] pTypes = matchingSig.getPtypes();
 		DataValue [] dvs = new DataValue [inpSplit.length-1];
-		for (int i=1; i < inpSplit.length; i++) {
-			if (inpSplit[i].contains("+")) {
-				String[] terms = inpSplit[i].split("\\+");
-				dvs[i-1] = DataValue.valueOf(terms[0].trim(), pTypes[i-1]);
-				for (int j=1; j < terms.length; j++) 
-					dvs[i-1] = new SumCDataValue(dvs[i-1], DataValue.valueOf(terms[j], pTypes[i-1]));
-			} else {
-				dvs[i-1] = DataValue.valueOf(inpSplit[i], pTypes[i-1]);
-			}
-		}
+		
+		for (int i=1; i < inpSplit.length; i++) 
+			dvs[i-1] = parseInput(inpSplit[i], pTypes[i-1]);
+		
 		return new PSymbolInstance(matchingSig, dvs);
 	} 
+	
+	public DataValue parseInput(String inpString, DataType type) {
+		DataValue dv;
+		
+		if (inpString.contains("(")) {
+			String beforeParan = inpString.substring(0, inpString.indexOf("("));
+			DataValue actDv = parseInput(beforeParan, type);
+			String betweenParan =  inpString.substring(inpString.indexOf("(")+1, inpString.lastIndexOf(")"));
+			char[] chars = betweenParan.toCharArray();
+			int lvl = 0, intSplit;
+			for (intSplit =0; intSplit < chars.length; intSplit++) {
+				char c = chars[intSplit];
+				if (c == '(')
+					lvl ++;
+				else if (c==')')
+					lvl --;
+				else if (c== ':' && lvl == 0) 
+					break;
+			}
+			String smDvString = betweenParan.substring(0, intSplit);
+			String bgDvString = betweenParan.substring(intSplit+1);
+			DataValue smDv = null;
+			DataValue bgDv = null;
+			if (!smDvString.isEmpty())
+				smDv = parseInput(smDvString, type);
+			if (!bgDvString.isEmpty())
+				bgDv = parseInput(bgDvString, type);
+			
+			dv = new IntervalDataValue(actDv, smDv, bgDv);
+		} else if (inpString.contains("+")) {
+			String[] terms = inpString.split("\\+");
+			dv = parseInput(terms[0], type);
+			for (int j=1; j < terms.length; j++) 
+				dv = new SumCDataValue(dv, DataValue.valueOf(terms[j], type));
+		} else {
+			dv = DataValue.valueOf(inpString, type);
+		}
+		
+		return dv;
+	}
 	
 }

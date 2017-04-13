@@ -86,7 +86,7 @@ public class IORWalkFromState implements IOEquivalenceOracle{
         int tens = 1;
         // find counterexample ...
         while (runs < maxRuns) {
-            Word<PSymbolInstance> ce = runExc();
+            Word<PSymbolInstance> ce = run();
             if (ce != null) {
                 return new DefaultQuery<>(ce, true);
             }
@@ -96,16 +96,6 @@ public class IORWalkFromState implements IOEquivalenceOracle{
             } 
         }
         return null;
-    }
-    
-    private Word<PSymbolInstance> runExc() {
-    	Word<PSymbolInstance> run =null;
-    	try {
-    		run = this.run();
-    	} catch(SULRestartException exc) {
-    		run = this.runExc();
-    	}
-    	return run;
     }
 
     private Word<PSymbolInstance> run() {

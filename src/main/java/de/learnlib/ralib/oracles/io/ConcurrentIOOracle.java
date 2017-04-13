@@ -23,6 +23,7 @@ public class ConcurrentIOOracle implements IOOracle{
 
 	public List<Word<PSymbolInstance>> processQueries(List<Word<PSymbolInstance>> queries) {
 		final List<Word<PSymbolInstance>> answers = new ArrayList<>(queries.size());
+		System.out.println("Processing " + queries.size() + " queries in parallel");
 		for (int i=0; i<queries.size(); i=i+independentOracles.size()) {
 			ExecutorService executorService = Executors.newFixedThreadPool(this.independentOracles.size());
 			List<Future<Word<PSymbolInstance>>> submittedQueries = new ArrayList<>(independentOracles.size());
@@ -34,7 +35,7 @@ public class ConcurrentIOOracle implements IOOracle{
 			}
 			try {
 				executorService.shutdown();
-				boolean terminated = executorService.awaitTermination(100L, TimeUnit.SECONDS);
+				boolean terminated = executorService.awaitTermination(100L * (1 + queries.size()/independentOracles.size()), TimeUnit.SECONDS);
 				if (!terminated) {
 					throw new DecoratedRuntimeException("Took too long to terminate");
 				}
@@ -47,6 +48,13 @@ public class ConcurrentIOOracle implements IOOracle{
 					} catch (ExecutionException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						if (e.getCause() instanceof DecoratedRuntimeException) {
+							throw ((DecoratedRuntimeException) e.getCause());
+						} else {
+							DecoratedRuntimeException exc = new DecoratedRuntimeException();
+							exc.addSuppressed(e.getCause());
+							throw exc;
+						}
 					}
 				});
 			} catch (InterruptedException e) {

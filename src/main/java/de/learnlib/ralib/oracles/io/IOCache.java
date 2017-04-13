@@ -106,9 +106,7 @@ public class IOCache {
             if (next != null) {
             	// check for non-determinism
                 if (!out.equals(cur.output.get(in))) {
-                	throw new NonDeterminismException().addDecoration("after", query.prefix(index-1))
-                	.addDecoration("expected", cur.output.get(in))
-                	.addDecoration("got", out);
+                	throw new NonDeterminismException(query.prefix(index-1), cur.output.get(in), out);
                 }
             } else  {
                 next = new CacheNode();

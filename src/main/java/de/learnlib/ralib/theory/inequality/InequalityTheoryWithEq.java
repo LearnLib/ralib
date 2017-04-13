@@ -512,7 +512,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 
 		
-		System.out.println("MERGED = " + merged);
+		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
 
 		// System.out.println("MERGED = " + merged);
