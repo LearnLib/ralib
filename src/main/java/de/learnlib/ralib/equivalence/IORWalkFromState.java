@@ -121,6 +121,10 @@ public class IORWalkFromState implements IOEquivalenceOracle{
 	            depth++;
 	            out = null;
 	            run = run.append(next);
+	            if (DataWords.valSet(run).stream().map(dv -> dv.getId()).filter(l -> l.equals(1L)).findAny().isPresent()) {
+	            	System.out.println(run);
+	            	System.exit(0);
+	            }
 	            out = target.step(next);
 	            run = run.append(out);
 	
@@ -182,12 +186,14 @@ public class IORWalkFromState implements IOEquivalenceOracle{
             // TODO: generics hack?
             // TODO: add constants?
             Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
-            oldSet.addAll(this.constants.getValues(t));
-            for (int j = 0; j < i; j++) {
-                if (vals[j].getType().equals(t)) {
-                    oldSet.add(vals[j]);
-                }
-            }
+            //an adjustment for TCP
+            oldSet.removeAll(this.constants.values());
+//            oldSet.addAll(this.constants.getValues(t));
+//            for (int j = 0; j < i; j++) {
+//                if (vals[j].getType().equals(t)) {
+//                    oldSet.add(vals[j]);
+//                }
+//            }
             List<DataValue<Object>> old = new ArrayList<>(oldSet);
         	List<DataValue<Object>> regs = getRegisterValuesForType(run, t);
             Double draw = rand.nextDouble();
@@ -208,12 +214,13 @@ public class IORWalkFromState implements IOEquivalenceOracle{
             
             if (vals[i] == null)
             	vals[i] = teacher.getFreshValue(old);
+            
             i++;
         }
         return new PSymbolInstance(ps, vals);
     }
     
-    private <T> T pick(List<T> list) {
+    private <T> DataValue<T> pick(List<DataValue<T>> list) {
     	return list.get(rand.nextInt(list.size()));
     }
 

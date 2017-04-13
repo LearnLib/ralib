@@ -52,6 +52,7 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 	}
 	
 	private SumConstants sumConstants = null;
+	
 	public void setSumC(SumConstants sumConstants) {
 		this.sumConstants = sumConstants;
 	} 

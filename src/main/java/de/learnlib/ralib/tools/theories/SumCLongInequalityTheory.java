@@ -166,12 +166,16 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 	public Collection<DataValue<Long>> getAllNextValues(List<DataValue<Long>> vals) {
 		// adds sumc constants to interesting values
 		List<DataValue<Long>> potential = getPotential(vals);
-
-		// the superclass should complete this list with in-between values.
-		Collection<DataValue<Long>> nextValues = super.getAllNextValues(potential);
-		// We are not interested non positive numbers. (incl constant)
-		nextValues.removeIf(v -> v.getId() <= 0L);
-		return nextValues;
+		
+		if (potential.isEmpty()) 
+			return Collections.singleton(this.getFreshValue(vals));
+		else {
+			// the superclass should complete this list with in-between values.
+			Collection<DataValue<Long>> nextValues = super.getAllNextValues(potential);
+			// We are not interested non positive numbers. (incl constant)
+			nextValues.removeIf(v -> v.getId() <= 0L);
+			return nextValues;
+		}
 	}
 
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Long>> left, DataValue<Long> right) {

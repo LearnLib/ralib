@@ -26,9 +26,9 @@ public class TCPAdapterSut extends ConcreteSUL{
 	private Set<Long> sutSeqNums = new HashSet<Long>();
 	private Integer senderPortNumber;
 	private String senderAddress;
-	// we don't want to be sending needless resets
-	private static boolean needsReset = true;
-	private static Map<Integer, Boolean> parallelNeedsReset = new LinkedHashMap<>();
+	// we don't want to be sending needless resets, having a port based reset system
+	// ensures that we also handle concurrent cases
+	private volatile static Map<Integer, Boolean> needsReset = new LinkedHashMap<>();
 	private static long maxNum =  4201380001L; //4231380001L;
 	private static long minNum =  201380001L;
 	
@@ -39,14 +39,14 @@ public class TCPAdapterSut extends ConcreteSUL{
     	senderPortNumber = Integer.valueOf(getProperty(simProperties, "senderPort"));
     	senderAddress = getProperty(simProperties, "senderAddress");
     	this.senderSocket = new SocketWrapper(senderAddress, senderPortNumber);
-    	parallelNeedsReset.putIfAbsent(this.senderPortNumber, true);
+    	needsReset.putIfAbsent(this.senderPortNumber, true);
 	}
 	
 	public TCPAdapterSut(String address, Integer port) throws IOException {
 		senderPortNumber = port;
     	senderAddress = address;
     	this.senderSocket = new SocketWrapper(senderAddress, senderPortNumber);
-    	parallelNeedsReset.putIfAbsent(this.senderPortNumber, true);
+    	needsReset.putIfAbsent(this.senderPortNumber, true);
 	}
 	
 
@@ -83,7 +83,7 @@ public class TCPAdapterSut extends ConcreteSUL{
 	private ConcreteOutput sendInput( ConcreteInput ia) {
 		//System.out.println("Input from RaLib: " + action);
 		//needsReset = true;
-		parallelNeedsReset.put(this.senderPortNumber, true);
+		needsReset.put(this.senderPortNumber, true);
 		ConcreteOutput oa = this.sendOneInput(ia);
 		updateSeqNums(oa);
 		if (isSeqCloseToEdge()) {
@@ -155,11 +155,11 @@ public class TCPAdapterSut extends ConcreteSUL{
 
 
     private void sendReset() {
-    	if (parallelNeedsReset.get(this.senderPortNumber)) {
+    	if (needsReset.get(this.senderPortNumber)) {
 	    	sendResetBurst(this.sutSeqNums);
 	        this.senderSocket.writeInput("reset");
 		    this.sutSeqNums = new HashSet<Long>();
-		    parallelNeedsReset.put(this.senderPortNumber, false);
+		    needsReset.put(this.senderPortNumber, false);
     	}
 	}
     
