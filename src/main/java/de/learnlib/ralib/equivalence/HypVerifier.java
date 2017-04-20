@@ -12,10 +12,19 @@ public interface HypVerifier {
 	public PositiveResult isCEForHyp(Word<PSymbolInstance> test, RegisterAutomaton hyp);
 	
 	class PositiveResult {
-		public final Word<PSymbolInstance> testPrefix;
+		private final Word<PSymbolInstance> testPrefix;
 		public PositiveResult(Word<PSymbolInstance> testPrefix) {
 			super();
 			this.testPrefix = testPrefix;
+		}
+		
+		/**
+		 * The CE trace should be minimal, that is, the CE trace excluding the last transition
+		 * should not be a CE.
+		 * @return minimal CE
+		 */
+		public Word<PSymbolInstance> getCETrace() {
+			return this.testPrefix;
 		}
 	}
 }

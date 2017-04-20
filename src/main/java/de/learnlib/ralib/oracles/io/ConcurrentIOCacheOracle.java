@@ -49,7 +49,7 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 		        			if (tr.size()%2==1) return tr.append(CACHE_DUMMY);
 		        			else return tr;
 		        		}).collect(Collectors.toList());
-		        List<Word<PSymbolInstance>> traceAnswers = this.concurrentSulOracle.processQueries(traceQueries);
+		        List<Word<PSymbolInstance>> traceAnswers = this.concurrentSulOracle.traces(traceQueries);
 		        traceAnswers.forEach(ans -> this.ioCache.addToCache(ans));
 		        List<Query<PSymbolInstance, Boolean>> remaining = answerQueriesFromCache(queriesToProcess);
 		        if (!remaining.isEmpty()) {
@@ -58,6 +58,14 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 		        }
 		        assert remaining.isEmpty();
 	        }
+	    }
+	    
+	    public List<Word<PSymbolInstance>> traces(List<Word<PSymbolInstance>> queries) {
+	    	List<Word<PSymbolInstance>> unanswered = queries.stream().filter(q -> this.ioCache.traceFromCache(q) == null).collect(Collectors.toList());
+	    	List<Word<PSymbolInstance>>  newSulTraces = this.concurrentSulOracle.traces(unanswered);
+	    	newSulTraces.stream().forEach(q -> this.ioCache.addToCache(q));
+	    	List<Word<PSymbolInstance>> allAnswered = queries.stream().map(q -> this.ioCache.traceFromCache(q)).collect(Collectors.toList());
+	    	return allAnswered;
 	    }
 	    
 	    // Returns unanswered queries

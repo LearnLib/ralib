@@ -156,7 +156,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	public IntervalDataValue<Integer> pickIntervalDataValue(DataValue<Integer> left, DataValue<Integer> right) {
 		if (right != null && left!=null) 
 			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
-				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
+				throw new DecoratedRuntimeException("Unexpectedly broad range").addDecoration("left", left).addDecoration("right", right);
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 

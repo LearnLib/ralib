@@ -151,13 +151,33 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.BooleanOption("use.fresh",
                     "Allow fresh values in output", Boolean.FALSE, true);
 
-    protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_MODEL
-            = new ConfigurationOption.BooleanOption("export.model",
-                    "Export final model to model.xml", Boolean.FALSE, true);
-
     protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT
             = new ConfigurationOption.BooleanOption("use.suffixopt",
                     "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
+    
+    protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_MODEL
+    = new ConfigurationOption.BooleanOption("export.model",
+            "Export final model to model.xml", Boolean.FALSE, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_EXCLUDE
+    = new ConfigurationOption.StringOption("cache.exclude",
+            "Excludes the specified traces after loading the cache. ", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_DUMP
+    = new ConfigurationOption.StringOption("cache.dump",
+            "Dump cache to file", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_LOAD
+    = new ConfigurationOption.StringOption("cache.load",
+            "Load cache from file if file exists", null, true);
+    
+    protected static final ConfigurationOption.StringOption OPTION_CACHE_SYSTEM 
+    = new ConfigurationOption.StringOption("cache.system",
+            "The type of caching employed: serialize|mock", "serialize", true);
+    
+    protected static final BooleanOption OPTION_CACHE_TESTS 
+    = new ConfigurationOption.BooleanOption("cache.tests",
+            "Are tests cached as well?", true, true);
     
     protected static final ConfigurationOption.LongOption OPTION_TIMEOUT
             = new ConfigurationOption.LongOption("max.time.millis",
@@ -182,10 +202,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             "For the debug traces given, run the given suffixes exhaustively and exit. No learning is done."
             + "Debug suffixes format: suff1; suff2; ...", null, true);
     
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_EXCLUDE
-    = new ConfigurationOption.StringOption("cache.exclude",
-            "Excludes the specified traces after loading the cache. ", null, true);
-    
     protected static final ConfigurationOption.StringOption OPTION_TEST_TRACES
     = new ConfigurationOption.StringOption("test.traces",
             "Test traces format: test1; test2; ...", null, true);
@@ -200,22 +216,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                             ", " + ConstraintSolverFactory.ID_Z3 + ".", 
                             ConstraintSolverFactory.ID_SIMPLE, true);
 
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_DUMP
-    = new ConfigurationOption.StringOption("cache.dump",
-            "Dump cache to file", null, true);
-    
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_LOAD
-    = new ConfigurationOption.StringOption("cache.load",
-            "Load cache from file if file exists", null, true);
-    
-    protected static final ConfigurationOption.StringOption OPTION_CACHE_SYSTEM 
-    = new ConfigurationOption.StringOption("cache.system",
-            "The type of caching employed: serialize|mock", "serialize", true);
-    
-    protected static final BooleanOption OPTION_CACHE_TESTS 
-    = new ConfigurationOption.BooleanOption("cache.tests",
-            "Are tests cached as well?", true, true);
-    
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
     = new ConfigurationOption.StringOption("constants",
             "Regular constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...] ", null, true);
@@ -418,11 +418,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         } else {
         	ioCache = new IOCache();
         }
-        
-//        System.out.println(ioCache.getSize());
-//        ioCache = ioCache.getCacheExcluding((i,o) -> i.getBaseSymbol().getName().contains("IFA"));
-//        System.out.println(ioCache.getSize());
-        
         
         final String dump = OPTION_CACHE_DUMP.parse(config);
         final IOCache finalCache = ioCache;

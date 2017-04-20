@@ -2,6 +2,7 @@ package de.learnlib.ralib.oracles.io;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,21 +22,35 @@ public class ConcurrentIOOracle implements IOOracle{
 		
 	}
 
-	public List<Word<PSymbolInstance>> processQueries(List<Word<PSymbolInstance>> queries) {
-		final List<Word<PSymbolInstance>> answers = new ArrayList<>(queries.size());
-		System.out.println("Processing " + queries.size() + " queries in parallel");
-		for (int i=0; i<queries.size(); i=i+independentOracles.size()) {
+	/**
+	 * Provides a basic concurrent implementation of the batch trace function.
+	 */
+	public List<Word<PSymbolInstance>> traces(List<Word<PSymbolInstance>> querries) {
+		final List<Word<PSymbolInstance>> answers = new ArrayList<>(querries.size());
+		//System.out.println("Processing " + querries.size() + " queries in parallel");
+		for (int i=0; i<querries.size(); i=i+independentOracles.size()) {
 			ExecutorService executorService = Executors.newFixedThreadPool(this.independentOracles.size());
 			List<Future<Word<PSymbolInstance>>> submittedQueries = new ArrayList<>(independentOracles.size());
-			for (int j=0; i+j<queries.size() && j<independentOracles.size(); j++) {
+			for (int j=0; i+j<querries.size() && j<independentOracles.size(); j++) {
 				IOOracle oracle = independentOracles.get(j);
-				Word<PSymbolInstance> query = queries.get(i+j);
-				Future<Word<PSymbolInstance>> submitted = executorService.submit(() -> oracle.trace(query));
+				Word<PSymbolInstance> query = querries.get(i+j);
+				Future<Word<PSymbolInstance>> submitted = executorService.submit(new Callable<Word<PSymbolInstance>>(){
+					public Word<PSymbolInstance> call() throws Exception {
+						Word<PSymbolInstance> tr = null;
+						try {
+							tr = oracle.trace(query);
+						} catch(Exception exc) {
+							System.err.println(exc);
+						}
+						return tr;
+					}
+					
+				});
 				submittedQueries.add(submitted);
 			}
 			try {
 				executorService.shutdown();
-				boolean terminated = executorService.awaitTermination(100L * (1 + queries.size()/independentOracles.size()), TimeUnit.SECONDS);
+				boolean terminated = executorService.awaitTermination(10L * (1 + querries.size()/independentOracles.size()), TimeUnit.SECONDS);
 				if (!terminated) {
 					throw new DecoratedRuntimeException("Took too long to terminate");
 				}
@@ -45,6 +60,7 @@ public class ConcurrentIOOracle implements IOOracle{
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						throw new RuntimeException(e.getCause());
 					} catch (ExecutionException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

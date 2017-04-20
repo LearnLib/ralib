@@ -39,6 +39,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.CachingSUL;
 import de.learnlib.ralib.oracles.io.ConcurrentIOCacheOracle;
+import de.learnlib.ralib.oracles.io.ConcurrentIOOracle;
 import de.learnlib.ralib.oracles.io.DataWordIOOracle;
 import de.learnlib.ralib.oracles.io.ExceptionHandlers;
 import de.learnlib.ralib.oracles.io.ExceptionHandlerSUL;
@@ -146,11 +147,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		
         this.sulTest = sulParser.newSUL();
         this.sulTest = setupDataWordOracle(sulTest, teachers, consts, useFresh, timeoutMillis);
-        if (OPTION_CACHE_TESTS.parse(config)) {
-        	this.sulTest = new CachingSUL(this.sulTest, ioCache);
-        	this.sulTest = new ExceptionHandlerSUL(this.sulTest); 
-        }
-        
         
         Integer sulInstances = OPTION_SUL_INSTANCES.parse(config);
         boolean isConcurrent = sulInstances > 1 && canFork; 
@@ -204,7 +200,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 }
                 SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
                 IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));
-                System.out.println("IS concurrent " + isConcurrent);
                 
                 return !isConcurrent? new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver):
                 	new ConcurrentMultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
@@ -216,9 +211,33 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
                 true, teachers, this.hypVerifier, solver, sulParser.getAlphabet());
         
-        if (findCounterexamples) {
-            this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
-            		sulTest, teach, consts, random, sulParser.getInputs());
+        if (findCounterexamples) { //uglyyyyy
+        	IOOracle testOracle;
+        	if (!isConcurrent) {
+        		testOracle = new CanonizingSULOracle(sulTest, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts));
+	        	if (OPTION_CACHE_TESTS.parse(config))
+	        		testOracle = new IOCacheOracle(testOracle, ioCache, new SymbolicTraceCanonizer(teachers, consts));
+	        	if (handleExc)
+        			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
+	        	this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+	            		testOracle, teach, consts, random, sulParser.getInputs());
+        	} else {
+        		List<DataWordSUL> sulTestForks = setupDataWordOracle(sulInstances, sulParser.newSUL(), teachers, consts, useFresh, timeoutMillis);
+        		List<IOOracle> concurrentOracles = sulTestForks.stream()
+        				.map(st -> new CanonizingSULOracle(st, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, consts)))
+        				.map(st -> ExceptionHandlers.wrapIOOracle(st))
+        				.collect(Collectors.toList());
+        		if (OPTION_CACHE_TESTS.parse(config)){
+	        		testOracle = new ConcurrentIOCacheOracle(concurrentOracles, ioCache, new SymbolicTraceCanonizer(teachers, consts));
+	        	} else {
+	        		testOracle = new ConcurrentIOOracle(concurrentOracles);
+	        	}
+        		if (handleExc)
+        			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
+        		this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+        				testOracle,  sulTestForks.size(), teach, consts, random, sulParser.getInputs());
+        	}
+            
             String ver = OPTION_TEST_TRACES.parse(config);
             if (ver != null) {
             	List<String> tests = Arrays.stream(ver.split(";")).collect(Collectors.toList());
@@ -258,7 +277,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		List<String> suffixStrings = Arrays.stream(debugSuffixes.split(";")).collect(Collectors.toList());
 		List<Word<PSymbolInstance>> prefixes = getCanonizedWordsFromString(debugPrefixes, this.sulParser.getAlphabet(), teachers, constants);
     	List<GeneralizedSymbolicSuffix> suffixes = new SuffixParser(suffixStrings, Arrays.asList(this.sulParser.getAlphabet()), teachers).getSuffixes();
-    	SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, constants);
     	
     	for (GeneralizedSymbolicSuffix suffix : suffixes) {
     		for (Word<PSymbolInstance> prefix : prefixes) {
@@ -295,7 +313,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     	return forks;
     }
 
-    private DataWordIOOracle setupDataWordIOOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, IOCache ioCache, boolean determinize, boolean handleExceptions) {
+    private DataWordIOOracle setupDataWordIOOracle(DataWordSUL sulLearn, Map<DataType, Theory> teachers, Constants consts, 
+    		IOCache ioCache, boolean determinize, boolean handleExceptions) {
     	IOOracle ioOracle;
     	IOCacheOracle ioCacheOracle;
     	
@@ -385,22 +404,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 if (ce == null && traceTester != null) {
                 	ce = this.traceTester.findCounterExample(hyp, null);
                 }
-                
-//                if (ce != null && rounds > 10) {
-//	                CanonizingSULOracle testOracle = new CanonizingSULOracle(new ExceptionHandlerSUL(this.sulLearn), SpecialSymbols.ERROR, new SymbolicTraceCanonizer(this.teachers, this.constants));
-//	                Word<PSymbolInstance> obtainedResult = testOracle.trace(ce.getInput());
-//	                if (!ce.getInput().equals(obtainedResult)) {
-//	                	System.err.println("Problem");
-//	                	IOCache cacheWithoutCE = this.ioCache.getCacheExcluding(ce.getInput());
-//	                	try {
-//							this.cacheManager.dumpCacheToFile(this.targetName+".nocecache.ser", cacheWithoutCE, constants);
-//						} catch (IOException e) {
-//							e.printStackTrace();
-//						}
-//	                	System.exit(0);
-//	                }
-//                }
-                
             }
 
             SimpleProfiler.stop(__SEARCH__);

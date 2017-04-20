@@ -215,12 +215,41 @@ public class IOCache {
     	return this.root;
     }
     
+    public IOCache asThreadSafeCache() {
+    	ThreadSafeIOCache tCache = new ThreadSafeIOCache(this);
+    	return tCache;
+    	
+    }
+    
     public IOCache getCacheExcluding(BiPredicate<PSymbolInstance, PSymbolInstance> exclusionPredicate) {
     	return new IOCache(this.root.getCacheExcluding(exclusionPredicate));
     }
     
     public IOCache getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
     	return new IOCache(this.root.getCacheExcluding(exclusionPrefix));
+    }
+    
+    class ThreadSafeIOCache extends IOCache {
+    	public ThreadSafeIOCache(IOCache cache) {
+    		super(cache.getRoot());
+    	}
+    	
+    	public Object lock = new Object();
+    	public boolean addToCache(Word<PSymbolInstance> query) {
+    		synchronized(lock) {
+    			Boolean res = this.answerFromCache(query);
+    			if (res == null)
+    				return super.addToCache(query);
+    			else 
+    				return false; 
+    		}
+    	}
+    	public Boolean answerFromCache(Word<PSymbolInstance> query) {
+    		synchronized(lock) {
+    			Boolean res = super.answerFromCache(query);
+    			return res;
+    		}
+    	}
     }
     
     public int getSize() {

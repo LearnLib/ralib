@@ -16,6 +16,9 @@
  */
 package de.learnlib.ralib.oracles.io;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -35,5 +38,18 @@ public interface IOOracle {
 	 *  
 	 */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
+    
+    /**
+     * Batch traces. By default, traces are executed sequentially, one at a time.
+     */
+    public default List<Word<PSymbolInstance>> traces(List<Word<PSymbolInstance>> queries) {
+    	List<Word<PSymbolInstance>> traces = new ArrayList<>(queries.size());
+    	for (Word<PSymbolInstance> q : queries) {
+    		Word<PSymbolInstance> trace = this.trace(q);
+    		traces.add(trace);
+    	}
+    	
+    	return traces;
+    }
 
 }

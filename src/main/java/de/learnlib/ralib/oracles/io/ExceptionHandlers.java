@@ -1,5 +1,6 @@
 package de.learnlib.ralib.oracles.io;
 import java.util.Collection;
+import java.util.List;
 
 import de.learnlib.api.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -83,6 +84,13 @@ public class ExceptionHandlers{
 			Word<PSymbolInstance> trace = this.exceptionHandler(() -> ((IOOracle) this.oracle).trace(query));
 			return trace;
 		}
+		
+		@Override
+		public List<Word<PSymbolInstance>> traces(List<Word<PSymbolInstance>> query) {
+			List<Word<PSymbolInstance>> traces = this.exceptionHandler(() -> ((IOOracle) this.oracle).traces(query));
+			return traces;
+		}
+
 	}
 
 }

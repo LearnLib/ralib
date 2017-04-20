@@ -89,7 +89,8 @@ public class NumberInequalityTheory<N extends Comparable<N>> extends InequalityT
 		List<DataValue<N>> distinctValList = new ArrayList<>(nextValues);
 
 		if (distinctValList.isEmpty()) {
-			nextValues.add(DataValue.ONE(this.type));
+			DataValue<N> fv = this.getFreshValue(vals);
+			nextValues.add(fv);
 		} else {
 			Collections.sort(distinctValList, new Cpr());
 			if (distinctValList.size() > 1) {

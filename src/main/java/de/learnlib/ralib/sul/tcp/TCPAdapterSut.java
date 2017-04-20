@@ -29,8 +29,8 @@ public class TCPAdapterSut extends ConcreteSUL{
 	// we don't want to be sending needless resets, having a port based reset system
 	// ensures that we also handle concurrent cases
 	private volatile static Map<Integer, Boolean> needsReset = new LinkedHashMap<>();
-	private static long maxNum =  4201380001L; //4231380001L;
-	private static long minNum =  201380001L;
+	private static long maxNum =  4200000000L; //4231380001L;
+	private static long minNum =  1000000L;
 	
 	
 	public TCPAdapterSut() throws FileNotFoundException, IOException {
@@ -87,10 +87,12 @@ public class TCPAdapterSut extends ConcreteSUL{
 		ConcreteOutput oa = this.sendOneInput(ia);
 		updateSeqNums(oa);
 		if (isSeqCloseToEdge()) {
+			System.out.println(this.sutSeqNums);
 			this.sendReset();
+			System.out.println(this.sutSeqNums);
 			throw new SULRestartException();
 		}
-		
+
 		//System.out.println("Output for RaLIB: " + oa);
 		return oa;  //oa implements sut.interfaces.OutputAction interface
 	}	

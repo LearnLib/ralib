@@ -1,7 +1,5 @@
 package de.learnlib.ralib.oracles.io;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;

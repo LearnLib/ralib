@@ -52,6 +52,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
@@ -184,8 +185,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
       
         if (findCounterexamples) {
+        	IOOracle testOracle = new BasicSULOracle(sulTest, SpecialSymbols.ERROR);
         	this.randomWalk = EquivalenceOracleFactory.buildEquivalenceOracle(config,
-            		sulTest, this.teachers, consts, random, inputSymbols);            
+        			testOracle, this.teachers, consts, random, inputSymbols);            
         }
           
         this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);

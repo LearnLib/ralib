@@ -102,7 +102,7 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("candidate:" + candidate);
                 PositiveResult check = verifier.isCEForHyp(candidate, this.hypothesis);
                 if (check != null) {
-                    return removeLoops(check.testPrefix, hyp);
+                    return removeLoops(check.getCETrace(), hyp);
                 }
             }
         }
