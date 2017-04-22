@@ -1,0 +1,29 @@
+target=de.learnlib.ralib.sul.examples.ProofSolverMerge
+methods=in(java.lang.Integer:INT)boolean:boolean+\
+	test(java.lang.Integer:INT,java.lang.Integer:INT,java.lang.Integer:INT)boolean:boolean
+  
+solver=z3
+logging.level=WARNING
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+eqoracle=rwalkfromstate
+rwalkfromstate.prob.register=0.3
+rwalkfromstate.prob.history=0.3
+rwalkfromstate.prob.related=0.2
+rwalkfromstate.prob.reset=0.1
+rwalkfromstate.max.depth=4
+rwalkfromstate.max.runs=400000
+rwalkfromstate.reset.count=false
+rwalkfromstate.draw.uniform=false
+#debug.traces=I_in[100[INT]] TRUE[] 
+#debug.suffixes=I_test[s1, s2, s3] TRUE[]
+teachers=INT:de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory
+export.model=false
+output.error=false
+#cache.load=win.ser
+#cache.dump=win.ser
+output.null=false
+constants.sumc=[{"type":"INT","value":"1"}]
