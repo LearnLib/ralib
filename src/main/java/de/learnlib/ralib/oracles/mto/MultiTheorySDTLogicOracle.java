@@ -94,12 +94,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
         
-        GuardExpression expr1 = _sdt1.getAcceptingPaths(consts);
-        GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);      
+        GuardExpression expr1 = _sdt1.getAcceptingPaths();
+        GuardExpression expr2 = _sdt2.getAcceptingPaths();      
         GuardExpression exprG = guard.getCondition();
         boolean acceptSat = satisfiable(expr1, piv1, expr2, piv2, exprG);
-        GuardExpression expr1R =  _sdt1.getRejectingPaths(consts);
-        GuardExpression expr2R = _sdt2.getRejectingPaths(consts);  
+        GuardExpression expr1R =  _sdt1.getRejectingPaths();
+        GuardExpression expr2R = _sdt2.getRejectingPaths();  
         boolean rejSat = satisfiable(expr1R, piv1, expr2R, piv2, exprG);
         return acceptSat | rejSat;
     }
@@ -166,7 +166,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
     
     public boolean doesRefine(GuardExpression refining, PIV pivRefining, 
-            GuardExpression refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextMapping) {
+            GuardExpression refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
     	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining, contextMapping);
     	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined, contextMapping);
     	
@@ -200,7 +200,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
     
     public boolean canBothBeSatisfied(GuardExpression refining, PIV pivRefining, 
-            GuardExpression refined, PIV pivRefined, Mapping<? extends SymbolicDataValue, DataValue<?>> contextValuation) {
+            GuardExpression refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> contextValuation) {
     	GuardExpression refiningConjunction = this.augmentGuardWithContext(refining, contextValuation);
     	GuardExpression refinedConjunction = this.augmentGuardWithContext(refined, contextValuation);
     	
@@ -208,7 +208,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
     
     
-    private GuardExpression augmentGuardWithContext(GuardExpression guardExpresion, Mapping<? extends SymbolicDataValue, DataValue<?>> contextValuation) {
+    private GuardExpression augmentGuardWithContext(GuardExpression guardExpresion, Mapping<SymbolicDataValue, DataValue<?>> contextValuation) {
     	if (contextValuation.isEmpty())
     		return guardExpresion;
     	GuardExpression [] contextGuards = buildConstantExpressions(contextValuation);
@@ -218,7 +218,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
     
     
-    private GuardExpression [] buildConstantExpressions(Mapping<? extends SymbolicDataValue, DataValue<?>> contextMapping) {
+    private GuardExpression [] buildConstantExpressions(Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
     	List<GuardExpression> fixedValues = new ArrayList<GuardExpression> (contextMapping.size());
     	contextMapping.forEach((var,dv) 
     			-> fixedValues.add(new ConstantGuardExpression(var, dv)));

@@ -53,8 +53,10 @@ import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.theory.SDTEquivalenceChecker;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
+import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -105,7 +107,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     private Map<SDTGuard, SDT>
             mergeGuards(Map<SDTGuard, SDT> ifGuards,
                     SDTGuard deqGuard, SDT deqSdt) {
-        Map<SDTGuard, SDT> retMap = this.ifElseMerger.merge(ifGuards, deqGuard, deqSdt);
+    	SDTEquivalenceChecker sdtChecker = new SyntacticEquivalenceChecker();
+        Map<SDTGuard, SDT> retMap = this.ifElseMerger.merge(ifGuards, deqGuard, deqSdt, sdtChecker);
         assert !retMap.isEmpty();
         return retMap;
     }

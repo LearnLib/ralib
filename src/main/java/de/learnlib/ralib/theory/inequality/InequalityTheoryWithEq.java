@@ -41,6 +41,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
@@ -50,6 +51,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
@@ -59,14 +61,17 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SDTQuery;
+import de.learnlib.ralib.oracles.mto.ThoroughSDTEquivalenceChecker;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.theory.SDTEquivalenceChecker;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
@@ -76,6 +81,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.words.Word;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -89,13 +95,19 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	protected static final LearnLogger log = LearnLogger.getLogger(MethodHandles.lookup().lookupClass());
 
+	protected static  de.learnlib.ralib.solver.ConstraintSolver getSolver(String name) {
+		de.learnlib.ralib.solver.ConstraintSolver raLibSolver = de.learnlib.ralib.solver.ConstraintSolverFactory.createSolver(name);
+		return raLibSolver;
+	}
+	
 	/**
-	 * Builds a guard instantiator. Defaults to the one implemented by z3.
+	 * Builds a guard instantiator. 
 	 */
 	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType<P> type,
 			String name) {
 		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
-		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(name);
+		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(name);;
+		de.learnlib.ralib.solver.ConstraintSolver a;
 		return new ConcreteInequalityGuardInstantiator<P>(type, solver);
 	}
 
@@ -108,19 +120,21 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
 	private boolean concurrent;
+	private de.learnlib.ralib.solver.ConstraintSolver solver;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
-			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier) {
+			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier, de.learnlib.ralib.solver.ConstraintSolver solver) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
 		this.concurrent = false;
 		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
 		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
+		this.solver = solver;
 	}
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
-		this(fullMerger, t -> InequalityTheoryWithEq.getInstantiator(t, "z3"));
+		this(fullMerger, t -> InequalityTheoryWithEq.getInstantiator(t, "z3"), getSolver("z3") );
 
 	}
 
@@ -146,7 +160,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 
 	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
-			Map<SDTGuard, DataValue<T>> instantiations) {
+			Map<SDTGuard, DataValue<T>> instantiations, SDTEquivalenceChecker sdtChecker) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
@@ -167,17 +181,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				return ret;
 			}
 		}).collect(Collectors.toList());
-
+		
 		//System.out.println("TEMP: " + tempGuards);
-		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards);
+		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards, sdtChecker);
 		//System.out.println("RES: " + merged);
 
 		return merged;
 	}
 
 	protected Map<SDTGuard, SDT> mergeEquDiseqGuards(final Map<SDTGuard, SDT> equGuards, SDTGuard elseGuard,
-			SDT elseSDT) {
-		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(equGuards, elseGuard, elseSDT);
+			SDT elseSDT, SDTEquivalenceChecker sdtChecker) {
+		Map<SDTGuard, SDT> merged = this.ifElseMerger.merge(equGuards, elseGuard, elseSDT, sdtChecker);
 
 		return merged;
 	}
@@ -250,16 +264,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		for (int i = 0; i < typedPrefixValues.length; i++) {
 			typedPrefixValuation.put(i + 1, typedPrefixValues[i]);
 		}
-		
-//		Replacement regContext = new Replacement();
-//		List<DataValue<T>> indexed = Arrays.asList(typedPrefixValues).stream().distinct().collect(Collectors.toList());
-//		for (DataValue<T> regValue : typedPrefixValues) 
-//			if (regValue instanceof DataValue || regValue instanceof SumCDataValue) { 
-//				SymbolicDataExpression regEq = this.getSDExprForDV(regValue, prefixValues, new WordValuation(), constants);
-//				if (regEq.isSDV() || regEq.) 
-//					regContext.put(new SymbolicDataValue.Register(this.type, indexed.indexOf(regEq)), regEq );
-//			}
-
 
 		SuffixValue currentParam = new SuffixValue(type, pId);
 
@@ -321,15 +325,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 						log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
-						Map<SDTGuard, SDT> temp = new LinkedHashMap<SDTGuard, SDT>();
+						Map<SDTGuard, SDT> merged = new LinkedHashMap<SDTGuard, SDT>();
 						SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
-						temp.put(trueGuard, sdt);
-						guardDvs.put(trueGuard, d);
-						Map<SDTGuard, SDT> merged = mergeAllGuards(temp, guardDvs);
-
-						log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-						log.log(Level.FINEST, "merged guards = " + merged.keySet());
-						log.log(Level.FINEST, "merged pivs = " + piv.toString());
+						merged.put(trueGuard, sdt);
 
 						return new SDT(merged);
 					} else {
@@ -361,8 +359,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						deqSuffixValues.put(sv, deqValue);
 						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
 						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
+						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
+						SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, guardContext);
 						
-						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt);
+						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
 						
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
@@ -498,8 +498,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// + tempKids);
 		
 		Map<SDTGuard, SDT> merged;
+		Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
+		SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, guardContext);
+		
 		if (branching == BranchingStrategy.FULL) {
-			merged = mergeAllGuards(tempKids, guardDvs);
+			merged = mergeAllGuards(tempKids, guardDvs, eqChecker);
 		} else {
 			if (tempKids.size() == 1)
 				merged = tempKids;
@@ -507,7 +510,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				assert branching == BranchingStrategy.IF_EQU_ELSE;
 				SDTGuard elseGuard = new ArrayList<>(tempKids.keySet()).get(tempKids.size()-1);
 				SDT elseSDT = tempKids.remove(elseGuard);
-				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT);
+				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT, eqChecker);
 			}
 		}
 
@@ -538,6 +541,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		SDT returnSDT = new SDT(merged);
 		return returnSDT;
 
+	}
+	
+	public Mapping<SymbolicDataValue, DataValue<?>> buildContext(List<DataValue> prefixValues,
+			WordValuation ifValues, Constants constants) {
+		Mapping<SymbolicDataValue, DataValue<?>> context = new Mapping<SymbolicDataValue, DataValue<?>>();
+		for (DataValue dv : prefixValues) {
+			SymbolicDataValue sdv = this.getSDVForDV(dv, prefixValues, ifValues, constants);
+			context.put(sdv, dv);
+		}
+		context.putAll(constants.ofType(this.getType()));
+		return context;
 	}
 	
 	// Probably can be extracted to a separate class.

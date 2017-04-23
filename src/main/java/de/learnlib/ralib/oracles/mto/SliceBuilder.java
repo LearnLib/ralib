@@ -347,9 +347,9 @@ public class SliceBuilder {
         List<Pair<Conjunction>> ret = new ArrayList<>();
 
         List<Conjunction> paths1
-                = sdt1.getPathsAsExpressions(constants, accepting);
+                = sdt1.getPathsAsExpressions(accepting);
         List<Conjunction> paths2
-                = sdt2.getPathsAsExpressions(constants, !accepting);
+                = sdt2.getPathsAsExpressions(!accepting);
 
         for (Conjunction c1 : paths1) {
             for (Conjunction c2 : paths2) {
@@ -376,12 +376,12 @@ public class SliceBuilder {
     private List<Conjunction> getPathsForMemorable(SDT sdt, Register r) {
         List<Conjunction> cand = new ArrayList<>();
         
-        for (Conjunction c : sdt.getPathsAsExpressions(constants, true)) {
+        for (Conjunction c : sdt.getPathsAsExpressions(true)) {
             if (isMemorablePath(c, r, true, sdt)) {
                 cand.add(c);
             }
         }
-        for (Conjunction c : sdt.getPathsAsExpressions(constants, false)) {
+        for (Conjunction c : sdt.getPathsAsExpressions(false)) {
             if (isMemorablePath(c, r, false, sdt)) {
                 cand.add(c);
             }
@@ -410,7 +410,7 @@ public class SliceBuilder {
             return false;
         }
 
-        List<Conjunction> otherPaths = sdt.getPathsAsExpressions(constants, !accepting);
+        List<Conjunction> otherPaths = sdt.getPathsAsExpressions(!accepting);
         
         Conjunction path = new Conjunction(ges.toArray(new GuardExpression[] {}));
         Disjunction other = new Disjunction(otherPaths.toArray(new GuardExpression[] {}));

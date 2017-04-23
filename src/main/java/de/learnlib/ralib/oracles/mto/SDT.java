@@ -35,7 +35,6 @@ import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Replacement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -388,7 +387,7 @@ public class SDT implements SymbolicDecisionTree {
         return this.getChildren().isEmpty();
     }
 
-    GuardExpression getAcceptingPaths(Constants consts) {
+    GuardExpression getAcceptingPaths() {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), true);
         if (paths.isEmpty()) {
@@ -403,7 +402,7 @@ public class SDT implements SymbolicDecisionTree {
         return dis;
     }
     
-    GuardExpression getRejectingPaths(Constants consts) {
+    GuardExpression getRejectingPaths() {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), false);
         if (paths.isEmpty()) {
@@ -418,7 +417,7 @@ public class SDT implements SymbolicDecisionTree {
         return dis;
     }
 
-    List<Conjunction> getPathsAsExpressions(Constants consts, boolean accepting) {
+    List<Conjunction> getPathsAsExpressions(boolean accepting) {
 
         List<Conjunction> ret = new ArrayList<>();
         List<List<SDTGuard>> paths = getPaths(new ArrayList<>(), accepting);

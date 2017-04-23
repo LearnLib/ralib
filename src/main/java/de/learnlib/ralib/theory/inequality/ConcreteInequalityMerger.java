@@ -1,15 +1,13 @@
 package de.learnlib.ralib.theory.inequality;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.theory.SDTEquivalenceChecker;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
@@ -31,7 +29,7 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	 * Sorted guards in this case means that any two adjacent guards are connected. Connectivity depends on whether the
 	 * domain is discrete or continuous. (in discrete domains, two equality guards can also be connected)  
 	 */
-	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap) {
+	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker) {
 		final LinkedHashMap<SDTGuard, SDT> mergedResult = new LinkedHashMap<>(); // contains the final merged result
 		LinkedHashMap<SDTGuard, SDT> mergedTemp= new LinkedHashMap<>(sdtMap); // contains initial and all intermediate merging entries.
 		if (sortedInequalityGuards.size() <= 2)  {
@@ -45,7 +43,7 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 		
 		for (int i=1; i<ineqGuards.length; i++) {
 			SDTGuard next = ineqGuards[i];
-			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp);
+			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp, sdtChecker);
 			if (equivTest != null) {
 				SDTGuard mergedGuard = this.logic.disjunction(head, next);
 				mergedTemp.put(mergedGuard, equivTest);
@@ -70,7 +68,7 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 			boolean areEquivalent = true;
 			SDT equivSDT = null;
 			for (int i=1; i<intervalGuards.length; i++) {  
-				equivSDT = checkSDTEquivalence(intervalGuards[i-1], intervalGuards[i], mergedResult);
+				equivSDT = checkSDTEquivalence(intervalGuards[i-1], intervalGuards[i], mergedResult, sdtChecker);
 				if (equivSDT == null) {
 					areEquivalent = false;
 					break;
@@ -100,7 +98,7 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 				
 				// the if else branching might still be further merged, for which we use an if else merger.
 				IfElseGuardMerger ifElse = new IfElseGuardMerger(this.logic);
-				LinkedHashMap<SDTGuard, SDT> result = ifElse.merge(eqDeqMergedResult, elseGuard, equivSDT);
+				LinkedHashMap<SDTGuard, SDT> result = ifElse.merge(eqDeqMergedResult, elseGuard, equivSDT, sdtChecker);
 				return result;
 			}	
 		}
@@ -112,36 +110,22 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	
 	/**
 	 * Checks if SDTs for guards are equivalent and if so, returns the preferred SDT.
+	 * @param sdtChecker 
 	 */
-	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap) {
-		IntervalGuard intGuard = null;
-		EqualityGuard equGuard = null;
-		if (guard instanceof EqualityGuard && withGuard instanceof IntervalGuard) { 
-			equGuard = (EqualityGuard) guard;
-			intGuard = (IntervalGuard) withGuard;
-		} else if (guard instanceof IntervalGuard && withGuard instanceof EqualityGuard) {
-			equGuard = (EqualityGuard) withGuard;
-			intGuard = (IntervalGuard) guard;
-		} else if (guard instanceof EqualityGuard && withGuard instanceof EqualityGuard) {
+	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard otherGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
+		if (guard instanceof EqualityGuard && otherGuard instanceof EqualityGuard) {
 			return null; 
 		}
 		
-		if (equGuard != null) {
-			SDT intSdt = guardSdtMap.get(intGuard);
-			SDT equSdt = guardSdtMap.get(equGuard);
-			List<EqualityGuard> eqGuards = Arrays.asList(equGuard); 
-			//List<EqualityGuard> eqGuards =  
-			//		intSdt.getGuards(g -> g instanceof EqualityGuard && !((EqualityGuard) g).isEqualityWithSDV())
-			//		.stream().map(g -> ((EqualityGuard) g)).collect(Collectors.toList());
-			//eqGuards.add(equGuard);
-			if (equSdt.isEquivalentUnderEquality(intSdt, eqGuards))
-				return intSdt;
-		} else { // two interval guards
-			SDT sdt = guardSdtMap.get(guard);
-			SDT otherSdt = guardSdtMap.get(withGuard);
-			if (sdt.isEquivalent(otherSdt, new VarMapping()))
-				return sdt;
-		}
-		return null;
+		SDT sdt = guardSdtMap.get(guard);
+		SDT otherSdt = guardSdtMap.get(otherGuard);
+		boolean equiv = sdtChecker.checkSDTEquivalence(guard, sdt, otherGuard, otherSdt);
+		SDT retSdt = null;
+		if (equiv) 
+			if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV())
+				retSdt = otherSdt;
+			else
+				retSdt = sdt;
+		return retSdt;	
 	}
 }

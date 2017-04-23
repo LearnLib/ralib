@@ -32,6 +32,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
+//TODO instead of 0 reduction, just use output constants (constants that are only found in outputs and should not be used)
 public class SumCIntegerInequalityTheory extends IntegerInequalityTheory implements SumCTheory{
 
 	private static int smBgFactor = 10;  
@@ -112,7 +113,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 				).flatMap(s -> s).distinct()
 				.filter(dv -> !canRemove(dv));
 		
-		List<DataValue<Integer>> valAndSumsAndConsts = Stream.concat(valAndSums, regularConstants.stream())
+		List<DataValue<Integer>> valAndSumsAndConsts = valAndSums //Stream.concat(valAndSums, regularConstants.stream())
 				.collect(Collectors.toList()); 
 
 		return valAndSumsAndConsts;
@@ -145,7 +146,6 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
 		Integer nextFresh;
 		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
-		
 		while (nextFresh - fv.getId() < this.smBgStep.getId() * 5) 
 			nextFresh += this.freshStep;
 		
@@ -154,9 +154,9 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	
 	
 	public IntervalDataValue<Integer> pickIntervalDataValue(DataValue<Integer> left, DataValue<Integer> right) {
-		if (right != null && left!=null) 
-			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
-				throw new DecoratedRuntimeException("Unexpectedly broad range").addDecoration("left", left).addDecoration("right", right);
+//		if (right != null && left!=null) 
+//			if (right.getId() - left.getId() > this.freshStep && right.getId() - left.getId() < this.freshStep * 10) 
+//				throw new DecoratedRuntimeException("This shouldn't be happening").addDecoration("left", left).addDecoration("right", right);
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 
@@ -167,9 +167,16 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	public Collection<DataValue<Integer>> getAllNextValues(List<DataValue<Integer>> vals) {
 		// adds sumc constants to interesting values
 		List<DataValue<Integer>> potential = getPotential(vals);
-
-		// the superclass should complete this list with in-between values.
-		return super.getAllNextValues(potential);
+		
+		if (potential.isEmpty()) 
+			return Collections.singleton(this.getFreshValue(vals));
+		else {
+			// the superclass should complete this list with in-between values.
+			Collection<DataValue<Integer>> nextValues = super.getAllNextValues(potential);
+			// We are not interested non positive numbers. (incl constant)
+			nextValues.removeIf(v -> v.getId() <= 0L);
+			return nextValues;
+		}
 	}
 
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<Integer>> left, DataValue<Integer> right) {

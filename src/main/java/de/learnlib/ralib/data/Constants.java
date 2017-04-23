@@ -17,7 +17,9 @@
 package de.learnlib.ralib.data;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,6 +45,13 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 				this.values().stream().filter(c -> c.type.equals(type)).
 				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
 		return collection;
+	}
+	
+	public <T> Map<SymbolicDataValue.Constant, DataValue<T>> ofType(DataType<T> type) {
+		final LinkedHashMap<SymbolicDataValue.Constant, DataValue<T>> cMap = new LinkedHashMap<>();
+		this.entrySet().stream().filter(e -> e.getValue().type.equals(type))
+		.forEach(e -> cMap.put(e.getKey(), (DataValue<T>) e.getValue()) );
+		return cMap;
 	}
 	
 	public SymbolicDataValue.Constant getConstantWithValue(DataValue<?> dv) {
