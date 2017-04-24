@@ -35,6 +35,7 @@ import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.ConstantGuardExpression;
 import de.learnlib.ralib.automata.guards.Disjunction;
+import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.automata.guards.SumCAtomicGuardExpression;
@@ -112,19 +113,32 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt2 = (SDT) sdt2;
 		GuardExpression acc1 = _sdt1.getAcceptingPaths();
 		GuardExpression acc2 = _sdt2.getAcceptingPaths();
+		if (acc1 instanceof FalseGuardExpression)
+			return acc2 instanceof FalseGuardExpression;
+		else if (acc2 instanceof FalseGuardExpression)
+			return acc1 instanceof FalseGuardExpression;
 		
 		GuardExpression[] contextConjuncts = this.buildContextExpressions(contextMapping);
 		GuardExpression common = new Conjunction(contextConjuncts);
 		
-		Conjunction acc1WithCommon = new Conjunction(common, acc1);
-		Conjunction acc2WithCommon = new Conjunction(common, acc2);
+		VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
+	                createRemapping(piv1, piv2);
 		
+		GuardExpression acc2r = acc2.relabel(remap);
+		GuardExpression guard2r = guard2.relabel(remap);
 		
-		boolean sat1 = satisfiable(acc1WithCommon, piv1, acc2WithCommon, piv2, guard1);
-		boolean sat2 = satisfiable(acc1WithCommon, piv1, acc2WithCommon, piv2, guard2);
+		GuardExpression eqTest = new Disjunction(
+				new Conjunction(acc1, new Negation(acc2r)),
+				new Conjunction(new Negation(acc1), acc2r));
 		
-		boolean equiv = !sat1 || !sat2;
-		return equiv;
+		GuardExpression eqTestGuard1 = new Conjunction(common, eqTest, guard1);
+		GuardExpression eqTestGuard2 = new Conjunction(common, eqTest, guard2r);
+		GuardExpression expr = new Conjunction(eqTestGuard1, eqTestGuard2);
+
+		boolean sat = this.solver.isSatisfiable(expr);
+		
+		boolean isEquivalent = !sat; 
+		return isEquivalent;
     }
     
     private boolean satisfiable(GuardExpression expr1, PIV piv1, GuardExpression expr2, PIV piv2, GuardExpression exprG) {
