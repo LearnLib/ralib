@@ -104,6 +104,29 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return acceptSat | rejSat;
     }
     
+    
+    //TODO the context Mappings should be replaced by ParValuation/Word<PSymbol> prefix (for prefix... ) which are more accurate in terms of defining the context
+    public boolean areEquivalent(SymbolicDecisionTree sdt1, PIV piv1, GuardExpression guard1, SymbolicDecisionTree sdt2, PIV piv2, GuardExpression guard2,
+    		Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
+        SDT _sdt1 = (SDT) sdt1;
+        SDT _sdt2 = (SDT) sdt2;
+		GuardExpression acc1 = _sdt1.getAcceptingPaths();
+		GuardExpression acc2 = _sdt2.getAcceptingPaths();
+		
+		GuardExpression[] contextConjuncts = this.buildContextExpressions(contextMapping);
+		GuardExpression common = new Conjunction(contextConjuncts);
+		
+		Conjunction acc1WithCommon = new Conjunction(common, acc1);
+		Conjunction acc2WithCommon = new Conjunction(common, acc2);
+		
+		
+		boolean sat1 = satisfiable(acc1WithCommon, piv1, acc2WithCommon, piv2, guard1);
+		boolean sat2 = satisfiable(acc1WithCommon, piv1, acc2WithCommon, piv2, guard2);
+		
+		boolean equiv = !sat1 || !sat2;
+		return equiv;
+    }
+    
     private boolean satisfiable(GuardExpression expr1, PIV piv1, GuardExpression expr2, PIV piv2, GuardExpression exprG) {
     	 VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = 
                  new VarMapping<>();
@@ -211,14 +234,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     private GuardExpression augmentGuardWithContext(GuardExpression guardExpresion, Mapping<SymbolicDataValue, DataValue<?>> contextValuation) {
     	if (contextValuation.isEmpty())
     		return guardExpresion;
-    	GuardExpression [] contextGuards = buildConstantExpressions(contextValuation);
+    	GuardExpression [] contextGuards = buildContextExpressions(contextValuation);
     	GuardExpression [] allGuards = Arrays.copyOf(contextGuards, contextGuards.length + 1);
     	allGuards[contextGuards.length] = guardExpresion;
     	return new Conjunction(allGuards);
     }
     
     
-    private GuardExpression [] buildConstantExpressions(Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
+    private GuardExpression [] buildContextExpressions(Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
     	List<GuardExpression> fixedValues = new ArrayList<GuardExpression> (contextMapping.size());
     	contextMapping.forEach((var,dv) 
     			-> fixedValues.add(new ConstantGuardExpression(var, dv)));

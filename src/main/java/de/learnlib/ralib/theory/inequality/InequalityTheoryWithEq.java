@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -321,12 +322,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						trueValues.put(pId, new FreshValue<T>(d.getType(), d.getId()));
 						SuffixValuation trueSuffixValues = new SuffixValuation(suffixValues);
 						trueSuffixValues.put(sv, d);
+						SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
+						trueSuffixValues.addSuffGuard(trueGuard);
 						SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, piv, constants, trueSuffixValues);
 
 						log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
 						Map<SDTGuard, SDT> merged = new LinkedHashMap<SDTGuard, SDT>();
-						SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
 						merged.put(trueGuard, sdt);
 
 						return new SDT(merged);
@@ -346,8 +348,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						SuffixValuation eqSuffixValues = new SuffixValuation(suffixValues);
 						eqValues.put(pId, d);
 						eqSuffixValues.put(sv, d);
-						SDT eqSdt = oracle.treeQuery(prefix, suffix, eqValues, piv, constants, eqSuffixValues);
 						EqualityGuard eqGuard = new EqualityGuard(currentParam, outExpr);
+						eqSuffixValues.addSuffGuard(eqGuard);
+						SDT eqSdt = oracle.treeQuery(prefix, suffix, eqValues, piv, constants, eqSuffixValues);
 						tempKids.put(eqGuard, eqSdt);
 						//guardDvs.put(eqGuard, d);
 						//Map<SDTGuard, SDT> merged = this.mergeAllGuards(tempKids, guardDvs);
@@ -357,10 +360,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						DataValue<T> deqValue = this.getFreshValue(potential);
 						deqValues.put(pId, deqValue);
 						deqSuffixValues.put(sv, deqValue);
-						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
 						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
+						deqSuffixValues.addSuffGuard(deqGuard);
+						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
+						
 						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-						SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, guardContext);
+						SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
 						
 						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
 						
@@ -389,9 +394,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			// this is the valuation of the suffixvalues in the suffix
 			SuffixValuation elseSuffixValues = new SuffixValuation(suffixValues);
 			elseSuffixValues.put(sv, fresh);
+			SDTGuard trueGuard = new SDTTrueGuard(currentParam);
+			elseSuffixValues.addSuffGuard(trueGuard);
 
 			SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, piv, constants, elseSuffixValues);
-			tempKids.put(new SDTTrueGuard(currentParam), elseOracleSdt);
+			tempKids.put(trueGuard, elseOracleSdt);
 			piv.putAll(keepMem(tempKids));
 			return new SDT(tempKids);
 		} else if (branching == BranchingStrategy.TRUE_PREV) {
@@ -404,9 +411,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			// this is the valuation of the suffixvalues in the suffix
 			SuffixValuation equSuffixValues = new SuffixValuation(suffixValues);
 			equSuffixValues.put(sv, prev);
+			EqualityGuard eqGuard = makeEqualityGuard(prev, prefixValues, currentParam, values, constants);
+			equSuffixValues.addSuffGuard(eqGuard);
 
 			SDT equOracleSdt = oracle.treeQuery(prefix, suffix, equValues, piv, constants, equSuffixValues);
-			EqualityGuard eqGuard = makeEqualityGuard(prev, prefixValues, currentParam, values, constants);
 			//tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
 			//tempKids.put(new SDTTrueGuard(currentParam), equOracleSdt);
 			tempKids.put(eqGuard, equOracleSdt);
@@ -499,7 +507,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		
 		Map<SDTGuard, SDT> merged;
 		Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-		SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, guardContext);
+		SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
 		
 		if (branching == BranchingStrategy.FULL) {
 			merged = mergeAllGuards(tempKids, guardDvs, eqChecker);
@@ -546,10 +554,18 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	public Mapping<SymbolicDataValue, DataValue<?>> buildContext(List<DataValue> prefixValues,
 			WordValuation ifValues, Constants constants) {
 		Mapping<SymbolicDataValue, DataValue<?>> context = new Mapping<SymbolicDataValue, DataValue<?>>();
-		for (DataValue dv : prefixValues) {
-			SymbolicDataValue sdv = this.getSDVForDV(dv, prefixValues, ifValues, constants);
-			context.put(sdv, dv);
+		SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
+		HashSet<DataValue> prSet = new HashSet<DataValue> (prefixValues);
+		for (DataValue dv : prSet) {
+			Register reg = this.getRegisterWithValue(dv, prefixValues);
+			context.put(reg, dv);
 		}
+		
+		for (DataValue dv : ifValues.values()) {
+			SuffixValue suff = this.getSuffixWithValue(dv, ifValues);
+			context.put(suff, dv);
+		}
+		
 		context.putAll(constants.ofType(this.getType()));
 		return context;
 	}
@@ -567,6 +583,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			newWordVals.put(pId, dv);
 			SuffixValuation newSuffixVals = new SuffixValuation(suffixVals);
 			newSuffixVals.put(sv, dv);
+			newSuffixVals.addSuffGuard(sdtGuard);
 			SDTQuery gQuery = new SDTQuery();
 			if (this.concurrent)
 				oracle.submitConcurrentTreeQuery(gQuery, prefix, suffix, newWordVals, piv, constants, newSuffixVals);
@@ -712,19 +729,32 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			return constants.getConstantWithValue(dv);
 		}
 
-		if (prefixValues.contains(dv)) {
-			newDv_i = prefixValues.indexOf(dv) + 1;
-			Register newDv_r = new Register(type, newDv_i);
-			return newDv_r;
-		}
-
+		SymbolicDataValue sdv = getRegisterWithValue(dv, prefixValues);
+		
+		if (sdv == null) // no register found 
+			sdv = getSuffixWithValue(dv, ifValues);
+		
+		return sdv;
+	}
+	
+	private SuffixValue getSuffixWithValue (DataValue<T> dv, WordValuation ifValues) {
 		if (ifValues.containsValue(dv)) {
 			int first = Collections.min(ifValues.getAllKeys(dv));
 			return new SuffixValue(type, first);
 		}
-
 		return null;
 	}
+	
+	private Register getRegisterWithValue(DataValue<T> dv, List<DataValue> prefixValues) {
+		if (prefixValues.contains(dv)) {
+			int newDv_i = prefixValues.indexOf(dv) + 1;
+			Register newDv_r = new Register(type, newDv_i);
+			return newDv_r;
+		}
+		
+		return null;
+	}
+	
 
 	public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
 

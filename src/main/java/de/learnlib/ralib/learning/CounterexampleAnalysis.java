@@ -281,10 +281,6 @@ public class CounterexampleAnalysis {
         return true;
     }
     
-    private SDT trans(SDT sdt) {
-    	return ((MultiTheorySDTLogicOracle)this.sdtOracle).relabelPrefixesWithSuffixes(sdt);
-    }
-    
     private IndexResult linearBackWardsSearch(Word<PSymbolInstance> ce) {
         
         assert ce.length() > 1;
