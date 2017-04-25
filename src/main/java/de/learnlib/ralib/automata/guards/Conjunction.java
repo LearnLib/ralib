@@ -60,7 +60,7 @@ public class Conjunction extends GuardExpression {
 
     @Override
     public String toString() {
-        return StringUtils.join(conjuncts, " && ");
+        return "("+StringUtils.join(conjuncts, " && ") + ")";
     }
 
     @Override

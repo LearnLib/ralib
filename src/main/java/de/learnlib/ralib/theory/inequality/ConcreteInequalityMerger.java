@@ -113,9 +113,6 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	 * @param sdtChecker 
 	 */
 	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard otherGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
-		if (guard instanceof EqualityGuard && otherGuard instanceof EqualityGuard) {
-			return null; 
-		}
 		
 		SDT sdt = guardSdtMap.get(guard);
 		SDT otherSdt = guardSdtMap.get(otherGuard);

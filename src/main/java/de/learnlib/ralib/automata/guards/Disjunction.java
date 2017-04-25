@@ -60,7 +60,7 @@ public class Disjunction extends GuardExpression {
 
     @Override
     public String toString() {
-        return StringUtils.join(disjuncts, " || ");
+        return "("+StringUtils.join(disjuncts, " || ") + ")";
     }
 
     @Override

@@ -17,6 +17,7 @@
 package de.learnlib.ralib.tools;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -25,9 +26,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -106,31 +109,16 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
                 private Category parseCategory(String n) throws ConfigurationException {
                     n = n.toUpperCase();
-                    switch (n) {
-                        case "CONFIG":
-                            return Category.CONFIG;
-                        case "COUNTEREXAMPLE":
-                            return Category.COUNTEREXAMPLE;
-                        case "DATASTRUCTURE":
-                            return Category.DATASTRUCTURE;
-                        case "EVENT":
-                            return Category.EVENT;
-                        case "MODEL":
-                            return Category.MODEL;
-                        case "PHASE":
-                            return Category.PHASE;
-                        case "PROFILING":
-                            return Category.PROFILING;
-                        case "QUERY":
-                            return Category.QUERY;
-                        case "STATISTIC":
-                            return Category.STATISTIC;
-                        case "SYSTEM":
-                            return Category.SYSTEM;
-                    }
-                    throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
+                    Category category = Category.valueOf(n);
+                    if (category == null)      
+                    	throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
+                    return category;
                 }
             };
+    
+    protected static final ConfigurationOption.StringOption OPTION_LOGGING_FILE 
+    	   = new ConfigurationOption.StringOption("logging.file","Logg to a file", null, true);
+    		
             
     protected static final ConfigurationOption.IntegerOption OPTION_SUL_INSTANCES
            = new ConfigurationOption.IntegerOption("sul.instances",
@@ -256,6 +244,17 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         // logging
         Logger root = Logger.getLogger("");
+        String file = OPTION_LOGGING_FILE.parse(config);
+        if (file != null) {
+	        FileHandler fh = null;
+			try {
+				fh = new FileHandler(file);
+			} catch (Exception e) {
+				throw new ConfigurationException(e.getMessage());
+			}
+			fh.setFormatter(new SimpleFormatter());
+	        root.addHandler(fh);
+        }
         Level lvl = OPTION_LOGGING_LEVEL.parse(config);
         root.setLevel(lvl);
         EnumSet<Category> cat = OPTION_LOGGING_CATEGORY.parse(config);
@@ -263,6 +262,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             h.setLevel(lvl);
             h.setFilter(new CategoryFilter(cat));
         }
+        
 
         // random
         Long seed = (new Random()).nextLong();

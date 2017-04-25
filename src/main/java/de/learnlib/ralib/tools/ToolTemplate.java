@@ -154,7 +154,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         DataWordIOOracle ioLearnCacheOracle;
         DataWordIOOracle ioCeAnalysisCacheOracle;
         boolean handleExc = true;
-        if (!isConcurrent) {
+        if (isConcurrent) {
 	        ioLearnCacheOracle = setupDataWordIOOracle(sulLearn, teachers, consts, ioCache, useFresh, handleExc);
 	        ioCeAnalysisCacheOracle = setupDataWordIOOracle(sulCeAnalysis, teachers, consts, ioCache, useFresh, handleExc);
         } else {
@@ -279,6 +279,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     	List<GeneralizedSymbolicSuffix> suffixes = new SuffixParser(suffixStrings, Arrays.asList(this.sulParser.getAlphabet()), teachers).getSuffixes();
     	
     	for (GeneralizedSymbolicSuffix suffix : suffixes) {
+//    		suffix.getPrefixRelations(1).clear();
+//    		suffix.getSuffixRelations(1, 3).clear();
+//    		suffix.getSuffixRelations(2, 3).clear();
+//    		suffix.getPrefixRelations(3).clear();
     		for (Word<PSymbolInstance> prefix : prefixes) {
         		System.out.println(prefix + " " + suffix);
         		TreeQueryResult tree = mto.treeQuery(prefix, suffix);

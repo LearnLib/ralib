@@ -1,7 +1,9 @@
 package de.learnlib.ralib.tools.sulanalyzer;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -50,9 +52,14 @@ public class SULAnalyzerParser extends SULParser {
 		this.sulTarget = (Class<? extends ConcreteSUL>) target;
 		this.types = new LinkedHashMap<String,DataType>();
 		
+		Function<String[], String[]> commentFilter = (msgArray) -> Arrays.stream(msgArray)
+				.filter(msgStr -> !msgStr.trim().startsWith("!"))
+				.toArray(String[]::new); // filters out messages commented by pre-pending the '!' character
 		String[] inpStrings = OPTION_INPUTS.parse(config).split("\\+");
+		inpStrings = commentFilter.apply(inpStrings); 
 		this.inputs = parseSymbols(inpStrings, types, true);
 		String[] outStrings = OPTION_OUTPUTS.parse(config).split("\\+");
+		outStrings = commentFilter.apply(outStrings);
 		this.outputs = parseSymbols(outStrings, types, false);
 		 this.fieldConfig = null;
          String fieldConfigString = OPTION_CONFIG.parse(config);

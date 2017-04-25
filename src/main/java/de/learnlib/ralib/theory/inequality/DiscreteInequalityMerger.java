@@ -206,16 +206,16 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		}
 		return newGuard;
 	}
-	
-	
-	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
-		SDT res = null;
-		if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV() 
-				&& withGuard instanceof EqualityGuard && ((EqualityGuard) withGuard).isEqualityWithSDV()) { 
-			res = null;
-		} else {
-			res = super.checkSDTEquivalence(guard, withGuard, guardSdtMap, sdtChecker);
-		}
-		return res;
-	}
+//	
+//	
+//	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
+//		SDT res = null;
+//		if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV() 
+//				&& withGuard instanceof EqualityGuard && ((EqualityGuard) withGuard).isEqualityWithSDV()) { 
+//			res = null;
+//		} else {
+//			res = super.checkSDTEquivalence(guard, withGuard, guardSdtMap, sdtChecker);
+//		}
+//		return res;
+//	}
 }

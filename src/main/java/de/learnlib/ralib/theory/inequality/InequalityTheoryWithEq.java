@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -365,7 +366,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
 						
 						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-						SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
+						SDTEquivalenceChecker eqChecker = new SyntacticEquivalenceChecker(); 
+								//new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
 						
 						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
 						
@@ -505,24 +507,32 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
 		
-		Map<SDTGuard, SDT> merged;
+		Map<SDTGuard, SDT> merged, merged2;
 		Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-		SDTEquivalenceChecker eqChecker = new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
+		SDTEquivalenceChecker eqChecker =  new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);  
+		SDTEquivalenceChecker eqChecker2 = new SyntacticEquivalenceChecker();
 		
 		if (branching == BranchingStrategy.FULL) {
 			merged = mergeAllGuards(tempKids, guardDvs, eqChecker);
+			merged2 = mergeAllGuards(tempKids, guardDvs, eqChecker2);
 		} else {
-			if (tempKids.size() == 1)
-				merged = tempKids;
+			if (tempKids.size() == 1) 
+				merged = merged2 = tempKids;
 			else { 
 				assert branching == BranchingStrategy.IF_EQU_ELSE;
 				SDTGuard elseGuard = new ArrayList<>(tempKids.keySet()).get(tempKids.size()-1);
 				SDT elseSDT = tempKids.remove(elseGuard);
 				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT, eqChecker);
+				merged2= mergeEquDiseqGuards(tempKids, elseGuard, elseSDT, eqChecker2);
 			}
 		}
 
-		
+		if (merged.size() != merged2.size()) {
+			log.log(Level.SEVERE, 
+					prefix + " " + suffix + " \n " + suffixValues.getSuffGuards() + "\n" + 
+					merged + "\n" + merged2);
+		}
+			
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
 
