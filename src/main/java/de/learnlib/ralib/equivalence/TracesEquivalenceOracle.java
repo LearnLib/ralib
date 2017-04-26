@@ -9,50 +9,35 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.equivalence.HypVerifier.PositiveResult;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.TraceParser;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutomaton, PSymbolInstance, Boolean> {
 
-	private List<List<PSymbolInstance>> testTraces;
+	private List<Word<PSymbolInstance>> testTraces;
 	private IOHypVerifier hypVerifier;
-	private DataWordSUL target;
+	private IOOracle testOracle;
 
-	public TracesEquivalenceOracle(DataWordSUL target, Map<DataType, Theory> teachers, Constants constants,
-			List<List<PSymbolInstance>> tests) {
+	public TracesEquivalenceOracle(IOOracle testOracle, Map<DataType, Theory> teachers, Constants constants,
+			List<Word<PSymbolInstance>> tests) {
 		this.hypVerifier = new IOHypVerifier(teachers, constants);
 		this.testTraces = tests;
-		this.target = target;
-	}
-	
-	public TracesEquivalenceOracle(DataWordSUL target, Map<DataType, Theory> teachers, Constants constants,
-			List<String> tests, List<ParameterizedSymbol> actionSignatures) {
-		this.hypVerifier = new IOHypVerifier(teachers, constants);
-		this.testTraces = new TraceParser(tests, actionSignatures).getInputSequencesForTraces();
-		this.target = target;
+		this.testOracle = testOracle;
 	}
 	
 
 	public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(RegisterAutomaton hypothesis,
 			Collection<? extends PSymbolInstance> inputs) {
 		System.out.println("Executing conformance tests:");
-		for (List<PSymbolInstance> test : testTraces) {
-			target.pre();
-			Word<PSymbolInstance> run = Word.epsilon();
-			for (PSymbolInstance input : test) {
-				run = run.append(input);
-				PSymbolInstance out = target.step(input);
-				run = run.append(out);
-				if (this.hypVerifier.isCEForHyp(run, hypothesis) != null) {
-					//return new DefaultQuery<>(run, true);
-					return null;
-				}
-			}
-			target.post();
+		for (Word<PSymbolInstance> testWord : testTraces) {
+			Word<PSymbolInstance> sulTrace = this.testOracle.trace(testWord);
+			PositiveResult hypResult = this.hypVerifier.isCEForHyp(sulTrace, hypothesis);
+			
+			if (hypResult != null)
+				return new DefaultQuery<>(sulTrace, true);
 		}
 		
 		return null;

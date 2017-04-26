@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.tools.SULParser;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -100,12 +100,6 @@ public class SocketParser extends SULParser{
 	public String getTargetName() {
 		return "Server " + this.systemIP + ":" + this.systemPort;
 	}
-
-	@Override
-	public DataWordSUL newSUL() {
-		return new SocketAnalyzerSUL(this.systemIP, this.systemPort, maxDepth, 
-				Arrays.asList(this.getInputs()), Arrays.asList(this.getOutput()));
-	}
 	
     private DataType getOrCreate(String name, Class<?> base, Map<String, DataType> map) {
         DataType ret = map.get(name);
@@ -137,5 +131,11 @@ public class SocketParser extends SULParser{
 			throw new ConfigurationException(e.getMessage());
 		}
     }
+
+	@Override
+	public SULFactory newSULFactory() {
+		SULFactory sulFactory = new SocketAnalyzerSULFactory(systemIP, systemPort, maxDepth, Arrays.asList(this.inputs), Arrays.asList(this.outputs));
+		return sulFactory;
+	}
 
 }

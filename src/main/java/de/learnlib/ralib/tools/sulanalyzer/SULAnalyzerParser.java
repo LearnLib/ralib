@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.tools.SULParser;
 import de.learnlib.ralib.tools.classanalyzer.FieldConfig;
 import de.learnlib.ralib.tools.config.Configuration;
@@ -116,12 +117,6 @@ public class SULAnalyzerParser extends SULParser {
 		return this.sulTarget.getSimpleName();
 	}
 
-	@Override
-	public DataWordSUL newSUL() {
-		return new ConcreteDataWordWrapper(this.sulTarget, this.getOutput(), fieldConfig);
-	}
-	
-
     private Pair<Class<?>, String> parseParamConfig(String config) throws ConfigurationException {
         System.out.println("param config: " + config);
         String[] parts = config.trim().split(":");
@@ -152,4 +147,10 @@ public class SULAnalyzerParser extends SULParser {
 			throw new ConfigurationException(e.getMessage());
 		}
     }
+
+	@Override
+	public SULFactory newSULFactory() {
+		
+		return null;
+	}
 }

@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
@@ -21,23 +22,16 @@ public class SocketAnalyzerSUL extends DataWordSUL {
 	private SocketWrapper sock;
 	private int depth;
 	private int maxDepth;
-	private LinkedHashSet<ParameterizedSymbol> inputs;
-	private Map<String, ParameterizedSymbol> outputSymbolsMap;
+	private Set<ParameterizedSymbol> inputs;
+	private Map<String, ParameterizedSymbol> outputLookupMap;
 
-	public SocketAnalyzerSUL(int portNumber, int maxDepth, List<ParameterizedSymbol> inputs,
-			List<ParameterizedSymbol> outputs) {
-		this("127.0.0.1", portNumber, maxDepth, inputs, outputs);
-	}
-
-	public SocketAnalyzerSUL(String ipAddress, int portNumber, int maxDepth, List<ParameterizedSymbol> inputs,
-			List<ParameterizedSymbol> outputs) {
-		this.depth = 0;
+	public SocketAnalyzerSUL(SocketWrapper sock, int maxDepth, Set<ParameterizedSymbol> inputs,
+			Map<String, ParameterizedSymbol> outputLookupMap) {
+		this.inputs = inputs;
+		this.sock = sock;
 		this.maxDepth = maxDepth;
-		this.sock = new SocketWrapper(ipAddress, portNumber);
-		this.inputs = new LinkedHashSet<>(inputs);
-		this.outputSymbolsMap = new LinkedHashMap<>();
-		outputs.forEach(out -> this.outputSymbolsMap.put(out.getName(), out));
-
+		this.outputLookupMap = outputLookupMap;
+		this.depth = 0;
 	}
 
 	@Override
@@ -64,7 +58,7 @@ public class SocketAnalyzerSUL extends DataWordSUL {
 		String serializedInput = this.serialize(input);
 		this.sock.writeInput(serializedInput);
 		String serializedOutput = this.sock.readOutput();
-		PSymbolInstance output = this.deserialize(serializedOutput, this.outputSymbolsMap);
+		PSymbolInstance output = this.deserialize(serializedOutput, this.outputLookupMap);
 		return output;
 	}
 

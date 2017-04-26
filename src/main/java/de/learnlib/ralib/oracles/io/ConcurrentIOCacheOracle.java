@@ -18,23 +18,14 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 
 		private final TraceCanonizer traceCanonizer;
 
-		private ConcurrentIOOracle concurrentSulOracle;
+		private IOOracle concurrentSulOracle;
 
 	    private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
 	    
 	    public final static PSymbolInstance CACHE_DUMMY = new PSymbolInstance(new OutputSymbol("__cache_dummy"));
-
 	    
-	    public ConcurrentIOCacheOracle(List<IOOracle> suls) {
-	    	this(suls, new IOCache(), trace -> trace);
-	    }
-	    
-	    public ConcurrentIOCacheOracle(List<IOOracle> suls, TraceCanonizer canonizer) {
-	    	this(suls, new IOCache(), canonizer);
-	    }
-	    
-	    public ConcurrentIOCacheOracle(List<IOOracle> suls,  IOCache ioCache, TraceCanonizer canonizer) {
-	        this.concurrentSulOracle = new ConcurrentIOOracle(suls);
+	    public ConcurrentIOCacheOracle(IOOracle oracle,  IOCache ioCache, TraceCanonizer canonizer) {
+	        this.concurrentSulOracle = oracle;
 	        this.ioCache = ioCache;
 	        this.traceCanonizer = canonizer;
 	    }

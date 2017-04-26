@@ -20,7 +20,7 @@ package de.learnlib.ralib.oracles;
  *
  * @author falk
  */
-public abstract class QueryCounter {
+public class QueryCounter {
  
     private int queryCount = 0;
     

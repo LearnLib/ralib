@@ -36,7 +36,7 @@ import net.automatalib.words.Word;
  * are canonized, and then searched for in the cache. 
  * @author falk
  */
-public class IOCacheOracle extends QueryCounter implements DataWordIOOracle {
+public class IOCacheOracle implements DataWordIOOracle {
 
     private final IOOracle sul;
 
@@ -65,7 +65,6 @@ public class IOCacheOracle extends QueryCounter implements DataWordIOOracle {
 
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
-        countQueries(clctn.size());
         for (Query<PSymbolInstance, Boolean> q : clctn) {
             log.log(Level.FINEST, "MQ: {0}", q.getInput());
             boolean accepted = traceBoolean(q.getInput());

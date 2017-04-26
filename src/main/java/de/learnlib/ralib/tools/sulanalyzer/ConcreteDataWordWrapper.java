@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.api.SUL;
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -22,35 +21,20 @@ public class ConcreteDataWordWrapper extends DataWordSUL {
 
     private FieldConfig fieldConfigurator;
     
-    private int numForks = 0;
 
-    public ConcreteDataWordWrapper(Class<? extends ConcreteSUL> sulClass, ParameterizedSymbol [] outputs) {
-        this(sulClass, outputs, null);
-    }
-    
-    public ConcreteDataWordWrapper(Class<? extends ConcreteSUL> sulClass, ParameterizedSymbol [] outputs, FieldConfig fieldConfiguration) {
+    public ConcreteDataWordWrapper(Class<? extends ConcreteSUL> sulClass,
+			LinkedHashMap<String, ParameterizedSymbol> outputLookup, FieldConfig fieldConfigurator) {
     	this.sulClass = sulClass;
-        this.outputLookup = new LinkedHashMap<>();
-        Arrays.asList(outputs).forEach(out ->  
-        this.outputLookup.put(out.getName(), out));
-        this.fieldConfigurator = fieldConfiguration;
-        
-    }
-    
-    public ConcreteDataWordWrapper(ConcreteDataWordWrapper wrapper) {
-    	this.sulClass = wrapper.sulClass;
-    	this.fieldConfigurator = wrapper.fieldConfigurator;
-    	this.outputLookup = wrapper.outputLookup;
-    }
+    	this.fieldConfigurator = fieldConfigurator;
+    	this.outputLookup = outputLookup;
+	}
 
-    @Override
+	@Override
     public void pre() {
         //System.out.println("----------");
         countResets(1);
         try {
             sul = sulClass.newInstance();
-            for (int i=0; i<numForks; i++)
-            	sul = (ConcreteSUL) sul.fork();
             if (this.fieldConfigurator != null)
             	this.fieldConfigurator.setFields(sul);
             sul.pre();
@@ -63,17 +47,6 @@ public class ConcreteDataWordWrapper extends DataWordSUL {
     public void post() {
     	sul.post();
         sul = null;
-    }
-    
-    public boolean canFork() {
-    	return true;
-    }
-    
-    // screams hack
-    public SUL<PSymbolInstance, PSymbolInstance> fork() {
-    	ConcreteDataWordWrapper sulWrapper = new ConcreteDataWordWrapper(this);
-    	sulWrapper.numForks = this.numForks + 1;
-    	return sulWrapper;
     }
 
     @Override

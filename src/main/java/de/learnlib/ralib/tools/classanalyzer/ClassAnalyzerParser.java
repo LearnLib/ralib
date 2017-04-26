@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.tools.SULParser;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -116,15 +116,17 @@ public class ClassAnalyzerParser extends SULParser{
 	public ParameterizedSymbol[] getOutput() {
 		return this.outputSymbols;
 	}
-
-	@Override
-	public DataWordSUL newSUL() {
-		return new ClasssAnalyzerDataWordSUL(this.target, this.methods, this.md, this.fieldConfig);
-	}
-
+	
 	@Override
 	public Map<String, DataType> getTypes() {
 		return this.types;
+	}
+
+
+	@Override
+	public SULFactory newSULFactory() {
+		ClassAnalyzerSULFactory classSULFactory = new ClassAnalyzerSULFactory(this.target, this.methods, this.md, this.fieldConfig);
+		return classSULFactory;
 	}
 
 }

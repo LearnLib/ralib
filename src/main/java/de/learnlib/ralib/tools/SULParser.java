@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -21,12 +20,14 @@ public abstract class SULParser {
 	public final ParameterizedSymbol [] getAlphabet() {
 		return Stream.concat(Arrays.stream(this.getInputs()), Arrays.stream(this.getOutput())).toArray(ParameterizedSymbol []:: new);
 	} 
+	
 	public abstract Map<String, DataType> getTypes();
 	//public abstract Map<DataType, Theory> getTeachers();
 	/**
-	 * Instantiates a naked SUL.
+	 * Instantiates SUL factory which constructs DataWordSUL instances.
 	 */
-	public abstract DataWordSUL newSUL();
+	public abstract SULFactory newSULFactory();
+	
 	public String targetName() {
 		return "SUL";
 	}

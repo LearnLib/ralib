@@ -32,7 +32,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  *
  * @author falk
  */
-public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
+public class ClassAnalyzerDataWordSUL extends DataWordSUL {
 
     private final Class<?> sulClass;
 
@@ -46,11 +46,11 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     
     private FieldConfig fieldConfigurator;
 
-    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
+    public ClassAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
         this(sulClass, methods, d, null);
     }
     
-    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d, FieldConfig fieldConfiguration) {
+    public ClassAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d, FieldConfig fieldConfiguration) {
     	this.sulClass = sulClass;
         this.methods = methods;
         this.maxDepth = d;
@@ -129,6 +129,6 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     }
 
     public SUL<PSymbolInstance, PSymbolInstance> fork() {
-    	return new ClasssAnalyzerDataWordSUL(sulClass, methods, this.maxDepth, this.fieldConfigurator) ;
+    	return new ClassAnalyzerDataWordSUL(sulClass, methods, this.maxDepth, this.fieldConfigurator) ;
     }
 }

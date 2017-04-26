@@ -35,7 +35,7 @@ public class EquivalenceOracleFactory {
 
     protected static final ConfigurationOption.BooleanOption OPTION_RWALK_RESET
             = new ConfigurationOption.BooleanOption(rw +".reset.count",
-                    "Reset limit counters after each counterexample", null, false);
+                    "Reset limit counters after each counterexample", null, true);
 
     protected static final ConfigurationOption.DoubleOption OPTION_RWALK_RESET_PROB
             = new ConfigurationOption.DoubleOption(rw +".prob.reset",
@@ -60,7 +60,7 @@ public class EquivalenceOracleFactory {
 
 	protected static final ConfigurationOption.BooleanOption OPTION_RWALKFROMSTATE_RESET
 	    = new ConfigurationOption.BooleanOption(rws + ".reset.count",
-	            "Reset counters after each counterexample", null, false);
+	            "Reset counters after each counterexample", null, true);
 	
 	protected static final ConfigurationOption.DoubleOption OPTION_RWALKFROMSTATE_RESET_PROB
 	    = new ConfigurationOption.DoubleOption(rws + ".prob.reset",
@@ -86,9 +86,10 @@ public class EquivalenceOracleFactory {
 	= new ConfigurationOption.IntegerOption(rws + ".max.depth",
 	    "Maximum length of each random walk", null, false);
 	
-	public static IOEquivalenceOracle buildEquivalenceOracle(Configuration config,  IOOracle concurrentTarget, int batchSize, Map<DataType, Theory> teachers, 
+	public static IOEquivalenceOracle buildEquivalenceOracle(Configuration config,  IOOracle concurrentTarget, int sulInstances, Map<DataType, Theory> teachers, 
 			Constants constants, Random random, ParameterizedSymbol...  inputSymbols) throws ConfigurationException {
 		IOEquivalenceOracle eqOracle = buildEquivalenceOracle(config, concurrentTarget, teachers, constants, random, inputSymbols);
+		int batchSize = 5*sulInstances;
 		((BoundedIOEquivalenceOracle) eqOracle).setBatchExecution(batchSize);
 		return eqOracle;
 	}
