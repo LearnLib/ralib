@@ -50,6 +50,7 @@ public class ExceptionHandlerSUL extends DataWordSUL implements ExceptionHandler
 				lastExc = exc;
 			}
 		}
+		this.sul.post();
 		throw lastExc;
 	}
 	

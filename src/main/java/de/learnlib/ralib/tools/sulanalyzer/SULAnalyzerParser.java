@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.tools.SULParser;
 import de.learnlib.ralib.tools.classanalyzer.FieldConfig;
@@ -150,7 +149,7 @@ public class SULAnalyzerParser extends SULParser {
 
 	@Override
 	public SULFactory newSULFactory() {
-		
-		return null;
+		SULFactory sulFactory = new SULAnalyzerFactory(sulTarget, outputs, fieldConfig); 
+		return sulFactory;
 	}
 }

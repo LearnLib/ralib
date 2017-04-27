@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.util.RAToDot;
@@ -157,24 +159,25 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		else
 			this.sulFactory = instantiateCustomFactory(facString, sulParser);
 		boolean canFork = this.sulFactory.isParallelizable();
+		
+        boolean determinize = this.useFresh;
+        boolean handleExceptions = true;
+        Integer sulInstances = OPTION_SUL_INSTANCES.parse(config);
+        boolean isConcurrent = sulInstances > 1 && canFork; 
+        this.counters = new Counters(isConcurrent);
 
         String debugTraces = OPTION_DEBUG_TRACES.parse(config);
         String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
         if (debugTraces != null && debugSuffixes == null) {
         	int repeats = OPTION_DEBUG_REPEATS.parse(config);
-        	runDebugTracesAndExit(debugTraces, repeats, this.sulFactory.newSUL(), this.teachers, consts);
+        	IOOracle ioOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions, sulInstances);
+        	runDebugTracesAndExit(debugTraces, repeats, ioOracle, this.teachers, consts);
         }
         
       //boolean determinize, long timeoutMillis, boolean handleExceptions, int sulInstances 
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
         this.cacheManager = IOCacheManager.getCacheManager(cacheSystem);
         this.ioCache = setupCache(config, sulParser.getAlphabet(), teachers, cacheManager, consts);
-        
-        boolean determinize = this.useFresh;
-        boolean handleExceptions = true;
-        Integer sulInstances = OPTION_SUL_INSTANCES.parse(config);
-        boolean isConcurrent = sulInstances > 1 && canFork; 
-        this.counters = new Counters(isConcurrent);
         
         IOOracle learnIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.learnerInput, determinize, timeoutMillis, handleExceptions, sulInstances);
         this.learnOracle = setupDataWordIOOracle(learnIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
@@ -282,22 +285,13 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		return factory;
 	}
 
-	private void runDebugTracesAndExit(String debug, int numRepeats, DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts) {
+	private void runDebugTracesAndExit(String debug, int numRepeats, IOOracle ioOracle, Map<DataType, Theory> teachers, Constants consts) {
     	List<Word<PSymbolInstance>> canonizedTests = getCanonizedWordsFromString(debug, this.sulParser.getAlphabet(), teachers, consts);
-    	sul = new ExceptionHandlerSUL(sul);
-    	for (int i=0; i<numRepeats; i++) 
-	    	for (Word<PSymbolInstance> canonizedTest : canonizedTests) {
-	    		Word<PSymbolInstance> res = Word.epsilon();
-	    		sul.pre();
-	    		List<PSymbolInstance> inputs = canonizedTest.stream().filter(s -> 
-	    		(s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList());
-	    		for (PSymbolInstance inp : inputs) {
-	    			PSymbolInstance out = sul.step(inp);
-	    			res = res.append(inp).append(out);
-	    		}
-	    		sul.post();
-	    		System.out.println(res);
-	    	}
+    	List<Word<PSymbolInstance>> allTests = new ArrayList<>(canonizedTests.size()*numRepeats);
+    	for (int i=0; i<numRepeats; i++)
+    		allTests.addAll(canonizedTests);
+    	List<Word<PSymbolInstance>> results = ioOracle.traces(allTests);
+    	System.out.println(StringUtils.join(results, "\n"));
     	System.exit(0);
 	}
 	

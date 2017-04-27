@@ -20,10 +20,11 @@ public class SocketWrapper {
 
 	public SocketWrapper(String sutIP, int sutPort) {
 		try {
+			synchronized(socketMap) {
+				System.err.println("open" + sutPort );
 			if(socketMap.containsKey(sutPort)) {
 				sock = socketMap.get(sutPort);
 			} else {
-				//System.err.println("attempt open" + sutPort + " "+ Thread.currentThread().getName());
 				sock = new Socket();
 				sock.setReuseAddress(true);
 				sock.connect(new InetSocketAddress(InetAddress.getByName(sutIP), sutPort));
@@ -39,6 +40,7 @@ public class SocketWrapper {
 			sockout = new PrintWriter(sock.getOutputStream(), true);
 			sockin = new BufferedReader(new InputStreamReader(
 					sock.getInputStream()));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(0);

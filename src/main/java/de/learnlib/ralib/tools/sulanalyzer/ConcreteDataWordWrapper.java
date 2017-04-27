@@ -13,8 +13,8 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class ConcreteDataWordWrapper extends DataWordSUL {
-	private final Class<? extends ConcreteSUL> sulClass;
-
+	private ConcreteSULInstantiator sulInstantiator;
+	
     private final Map<String, ParameterizedSymbol> outputLookup;
 
     private ConcreteSUL sul = null;
@@ -24,7 +24,14 @@ public class ConcreteDataWordWrapper extends DataWordSUL {
 
     public ConcreteDataWordWrapper(Class<? extends ConcreteSUL> sulClass,
 			LinkedHashMap<String, ParameterizedSymbol> outputLookup, FieldConfig fieldConfigurator) {
-    	this.sulClass = sulClass;
+    	this.sulInstantiator = new DefaultSULInstantiator(sulClass);
+    	this.fieldConfigurator = fieldConfigurator;
+    	this.outputLookup = outputLookup;
+	}
+    
+    public ConcreteDataWordWrapper(ConcreteSULInstantiator sulInstantiator,
+			LinkedHashMap<String, ParameterizedSymbol> outputLookup, FieldConfig fieldConfigurator) {
+    	this.sulInstantiator = sulInstantiator;
     	this.fieldConfigurator = fieldConfigurator;
     	this.outputLookup = outputLookup;
 	}
@@ -33,14 +40,10 @@ public class ConcreteDataWordWrapper extends DataWordSUL {
     public void pre() {
         //System.out.println("----------");
         countResets(1);
-        try {
-            sul = sulClass.newInstance();
-            if (this.fieldConfigurator != null)
-            	this.fieldConfigurator.setFields(sul);
-            sul.pre();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            throw new RuntimeException(ex);
-        }
+        sul = sulInstantiator.newSUL();
+        if (this.fieldConfigurator != null)
+          	this.fieldConfigurator.setFields(sul);
+        sul.pre();
     }
 
     @Override
@@ -74,4 +77,5 @@ public class ConcreteDataWordWrapper extends DataWordSUL {
     		dvs[i] = new DataValue(outSym.getPtypes()[i], output.getParameterValues()[i]);
     	return new PSymbolInstance(outSym, dvs);
     }
+    
 }

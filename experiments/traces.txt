@@ -1,0 +1,7 @@
+File for relevant traces or prefix/suffix combos that cause us headaches.
+
+Linux non-det: bundles up packets in retransmission, fooling adapter
+IConnect[] OS[2920000[long], 0[long]] ISA[5840000[long], 2920000[long] + 1[long]] OA[2920000[long] + 1[long], 5840000[long] + 1[long]] CLOSE[] OFA[2920000[long] + 1[long], 5840000[long] + 1[long]] IFA[5840000[long] + 1[long], 8760000[long]] OA[2920000[long] + 1[long] + 1[long], 5840000[long] + 1[long] + 1[long]] IR[11680000[long], 14600000[long]] OTIMEOUT[] IFA[5840000[long] + 1[long] + 1[long], 17520000[long]] OTIMEOUT[]
+
+FreeBSD non-det: due to half-space
+IRA[2920000[long], 5840000[long]] OTIMEOUT[] IConnect[] OS[8760000[long], 0[long]] IS[2920000[long], 8760000[long]] OSA[8760000[long], 2920000[long] + 1[long]] IS[11680000[long], 14600000[long]]
