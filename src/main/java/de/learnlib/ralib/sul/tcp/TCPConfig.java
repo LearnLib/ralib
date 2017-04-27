@@ -13,17 +13,24 @@ public class TCPConfig {
     	simProperties.load(new FileInputStream(PROPERTIES_FILE));
 		Integer senderPortNumber = Integer.valueOf(getProperty(simProperties, "senderPort"));
 		String senderAddress = getProperty(simProperties, "senderAddress");
-		return new TCPConfig(senderAddress, senderPortNumber);
+		boolean resetHalfSpace = Boolean.valueOf((String)simProperties.getOrDefault("resetHalfSpace", "false"));
+		return new TCPConfig(senderAddress, senderPortNumber, resetHalfSpace);
 	}
 	
 	public TCPConfig(String senderAddress, int senderPortNumber) {
-		super();
+		this(senderAddress, senderPortNumber, false);
+	}
+
+	public TCPConfig(String senderAddress, Integer senderPortNumber, boolean resetHalfSpace) {
 		this.senderPortNumber = senderPortNumber;
 		this.senderAddress = senderAddress;
+		this.resetHalfSpace = resetHalfSpace;
 	}
 
 	public final int senderPortNumber;
 	public final String senderAddress;
+	// reset if outside of half space
+	public final boolean resetHalfSpace;
 	
 	private static String getProperty(Properties propFile, String prop) {
 	  	if (propFile.containsKey(prop)) {

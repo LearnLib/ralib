@@ -80,6 +80,8 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 			for (int i=0; i<batchSize; i++) {
 				Word<PSymbolInstance> hypTrace = hypTraces.get(i);
 				Word<PSymbolInstance> sulTrace = sulTraces.get(i);
+				if (hypTrace == null || sulTrace == null)
+					continue;
 				if (!hypTrace.equals(sulTrace)) {
 					int j;
 					for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);

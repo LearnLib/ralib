@@ -21,7 +21,7 @@ public class SocketWrapper {
 	public SocketWrapper(String sutIP, int sutPort) {
 		try {
 			synchronized(socketMap) {
-				System.err.println("open" + sutPort );
+				//System.err.println("open" + sutPort );
 			if(socketMap.containsKey(sutPort)) {
 				sock = socketMap.get(sutPort);
 			} else {

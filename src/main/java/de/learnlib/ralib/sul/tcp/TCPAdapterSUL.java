@@ -20,11 +20,11 @@ import de.learnlib.ralib.tools.sulanalyzer.ConcreteSUL;
 
 public class TCPAdapterSUL extends ConcreteSUL{
 
-	private static String PROPERTIES_FILE = "tcp.properties";
 	private SocketWrapper senderSocket;
 	private Set<Long> sutSeqNums = new HashSet<Long>();
 	private Integer senderPortNumber;
 	private String senderAddress;
+	private boolean resetHalfSpace;
 	// we don't want to be sending needless resets, having a port based reset system
 	// ensures that we also handle concurrent cases
 	private volatile static Map<Integer, Boolean> needsReset = new ConcurrentHashMap<>();
@@ -45,6 +45,7 @@ public class TCPAdapterSUL extends ConcreteSUL{
 	private void init(TCPConfig tcpConfig) {
 		this.senderPortNumber = tcpConfig.senderPortNumber;
 		this.senderAddress = tcpConfig.senderAddress;
+		this.resetHalfSpace =tcpConfig.resetHalfSpace;
 		this.senderSocket = new SocketWrapper(senderAddress, senderPortNumber);
     	needsReset.putIfAbsent(this.senderPortNumber, true);
 	}
@@ -146,7 +147,7 @@ public class TCPAdapterSUL extends ConcreteSUL{
     
     private boolean isSeqCloseToEdge() {
     	boolean closeToEdge = !sutSeqNums.isEmpty() && ( Collections.max(sutSeqNums) > maxNum ||  Collections.min(sutSeqNums) < minNum);
-    	boolean outsideHalfSpace = !sutSeqNums.isEmpty() && (Collections.max(sutSeqNums) > halfSpace);
+    	boolean outsideHalfSpace = this.resetHalfSpace && !sutSeqNums.isEmpty() && (Collections.max(sutSeqNums) > halfSpace);
     	return closeToEdge || outsideHalfSpace;
     }
     
