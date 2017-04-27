@@ -49,7 +49,7 @@ public class ConcurrentIOOracle implements IOOracle{
 				submittedQueries.add(submitted);
 			}
 			try {
-				System.out.println("Submitted " + submittedQueries.size() + " tests for execution");
+				//System.out.println("Submitted " + submittedQueries.size() + " tests for execution");
 				executorService.shutdown();
 				boolean terminated = executorService.awaitTermination(10L * (1 + querries.size()/independentOracles.size()), TimeUnit.SECONDS);
 				if (!terminated) {
