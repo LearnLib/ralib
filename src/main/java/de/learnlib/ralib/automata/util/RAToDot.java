@@ -19,6 +19,8 @@
 
 package de.learnlib.ralib.automata.util;
 
+import java.util.Collection;
+
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
@@ -74,12 +76,16 @@ public class RAToDot {
         
     }
     
-    private void printLocations(RegisterAutomaton ra) {                
+    private void printLocations(RegisterAutomaton ra) { 
+    	Collection<RALocation> inputLocations = ra.getInputStates();
         for (RALocation loc : ra) {
             if (!acceptingOnly || loc.isAccepting()) {
                 printLocation(loc);
                 stringRA.append(" [shape=");
                 stringRA.append( (loc.isAccepting()) ? "doublecircle" : "circle");
+                boolean isInputLocation = inputLocations.contains(loc);
+                stringRA.append(" ,style=");
+                stringRA.append( (isInputLocation) ? "solid" : "dotted");
                 stringRA.append("]");
                 stringRA.append(NEWLINE);
             }
@@ -148,7 +154,10 @@ public class RAToDot {
     }
     
     private String escapeGuard(TransitionGuard g) {
-        return g.toString().replaceAll("&", "&amp;");
+        return g.toString()
+        		.replaceAll("&", "&amp;")
+        		.replaceAll("\\<", "&lt;")
+        		.replaceAll("\\>", "&gt;");
     }
         
 }
