@@ -76,6 +76,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 				hypTraces.add(hypTrace);
 			}
 			List<Word<PSymbolInstance>> sulTraces = this.target.traces(hypTraces);
+			//sulTraces.forEach( tr -> System.out.println(tr));
 			runs = runs+batchSize;
 			for (int i=0; i<batchSize; i++) {
 				Word<PSymbolInstance> hypTrace = hypTraces.get(i);

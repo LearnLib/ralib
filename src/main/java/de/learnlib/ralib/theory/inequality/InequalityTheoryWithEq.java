@@ -57,6 +57,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -123,6 +124,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private boolean suffixOptimization;
 	private boolean concurrent;
 	private de.learnlib.ralib.solver.ConstraintSolver solver;
+	private Set<ParamSignature> exhSuffixParams;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier, de.learnlib.ralib.solver.ConstraintSolver solver) {
@@ -288,7 +290,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// if suffix optimization is enabled, we compute an optimized branching context, 
 		// otherwise we exhaustively check all branches
 		BranchingContext<T> context; 
-		if (this.suffixOptimization) {
+		if (this.suffixOptimization && !this.shouldBeTreatedExhaustively(suffix, pId)) {
 			BranchingLogic<T> logic = new BranchingLogic<T>(this);
 			context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues,
 					suffix);
@@ -584,8 +586,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private Map<SDTGuard, SDT> treeQueriesForInstantiations(Map<SDTGuard, DataValue<T>> guardDvs, GeneralizedSymbolicSuffix suffix, SDTConstructor oracle, Word<PSymbolInstance> prefix, WordValuation wordVals, PIV piv, Constants constants, SuffixValuation suffixVals) {
 		int pId = wordVals.size() +1;
 		SuffixValue sv = suffix.getDataValue(pId);
-		Map<SDTGuard, SDTQuery> answers = new LinkedHashMap<>(); 
+		Map<SDTGuard, SDTQuery> answers = new LinkedHashMap<>();
 		final Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
+		List<SDTQuery> queries = new ArrayList<>(guardDvs.size());
 		
 		for (SDTGuard sdtGuard : guardDvs.keySet()) {
 			DataValue<T> dv = guardDvs.get(sdtGuard);
@@ -594,19 +597,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			SuffixValuation newSuffixVals = new SuffixValuation(suffixVals);
 			newSuffixVals.put(sv, dv);
 			newSuffixVals.addSuffGuard(sdtGuard);
-			SDTQuery gQuery = new SDTQuery();
-			if (this.concurrent)
-				oracle.submitConcurrentTreeQuery(gQuery, prefix, suffix, newWordVals, piv, constants, newSuffixVals);
-			else { 
-				SDT sdt = oracle.treeQuery(prefix, suffix, newWordVals, piv, constants, newSuffixVals);
-				gQuery.setAnswer(sdt);
-			}
-			answers.put(sdtGuard, gQuery);
+			SDTQuery sdtQuery = new SDTQuery(newWordVals, newSuffixVals);
+			queries.add(sdtQuery);
+			answers.put(sdtGuard, sdtQuery);
 		}
 		
-		if (this.concurrent) 
-			oracle.processConcurrentTreeQueries();
-
+		oracle.processTreeQueryBatch(queries, prefix, suffix, piv, constants);
+		
 		answers.forEach((g, ans) -> tempKids.put(g, ans.getAnswer()));
 		return tempKids;
 	}
@@ -805,6 +802,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 * value, but also symbolic information on how it was originated. Otherwise,
 	 * returns null.
 	 * 
+	 * This method had to be adapted in order to also decorate the data values (otherwise you cannot determinize).
+	 * 
 	 * <b>NOTE:</b> The instantiate function uniformly makes use of the
 	 * IntervalDataValue.instantiateNew in order to instantiate intervals. We do
 	 * this instead of using the cs-solver for better control over what is
@@ -909,7 +908,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					List<SDTGuard> eqGuards = allGuards.stream().filter(g -> g instanceof EqualityGuard).distinct()
 							.collect(Collectors.toList());
 					
-					// for multi guards that have equality guards, we 
+					// for multi guards that have equality guards, we pick the falue that's equal.
 					if (!eqGuards.isEmpty()) {
 						// if the end guard contains two equ guards it should not be 
 						if (eqGuards.size() > 1 && guard instanceof SDTAndGuard) {
@@ -940,25 +939,49 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					} else {
 						if (guard instanceof SDTAndGuard) {
 							if (!useSolver) {
-								List<SDTGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard)
+								System.out.println("And inst " + guard);
+								List<IntervalGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard).map(g -> (IntervalGuard) g)
 										.collect(Collectors.toList());
+								
+								// this is required if we are not using the
+								// constraint solver for instantiation
+								final List<DataValue<T>> prohibitedValues = allGuards.stream()
+										.filter(g -> g instanceof DisequalityGuard)
+										.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
+												prefixValues, piv, pval, constants))
+										.collect(Collectors.toList());
+								
 								if (intervalGuards.size() >= 2) {
 									throw new DecoratedRuntimeException(
-											"Cannot reliably instantiate a 2 guard interval with conjunctions")
+											"Cannot reliably instantiate a 2 guard interval with conjunctions, as it would make it impossible to determinize")
 													.addDecoration("intervals", intervalGuards);
 								}
-								Optional<SDTGuard> intGuard = intervalGuards.stream().findAny();
-								if (intGuard.isPresent()) {
-									// this is required if we are not using the
-									// constraint solver for instantiation
-									final List<DataValue<T>> prohibitedValues = allGuards.stream()
-											.filter(g -> g instanceof DisequalityGuard)
-											.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
-													prefixValues, piv, pval, constants))
-											.collect(Collectors.toList());
+								
+								if (!intervalGuards.isEmpty()) {
+									// a bit of a useless thing, there is only one intGuard.
+									List<IntervalGuard> intClosedGuards = intervalGuards.stream().filter(intv -> 
+									Boolean.FALSE.equals(intv.getLeftOpen()) || Boolean.FALSE.equals(intv.getRightOpen())).collect(Collectors.toList());
+									
+									// if any of the intervals are closed, we pick a value equal to the closed end, unless that value is prohibited
+									for (IntervalGuard intGuard : intClosedGuards) {
+										List<SymbolicDataExpression> eqExprs = new ArrayList<>();
+										if (Boolean.FALSE.equals(intGuard.getLeftOpen()))
+											eqExprs.add(intGuard.getLeftExpr());
+										if (Boolean.FALSE.equals(intGuard.getRightOpen()))
+											eqExprs.add(intGuard.getRightExpr());
+										for (SymbolicDataExpression eqExpr : eqExprs) {
+											DataValue<T> dv = instantiateSDExpr(eqExpr, type,
+													prefixValues, piv, pval, constants);
+										//	System.out.println("dv " + dv + " not in " + prohibitedValues);
+											if (!prohibitedValues.contains(dv))
+												return dv;
+										}
+									}
+									
+										
 									oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a))
 											.collect(Collectors.toSet());
-									SDTGuard intv = intGuard.get();
+									SDTGuard intv = intervalGuards.get(0); // I am the one and only
 									DataValue<T> intDv = instantiate(prefix, ps, piv, pval, constants, intv, param, oldDvs,
 											useSolver);
 									return intDv;
@@ -1020,7 +1043,15 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return ret;
 	}
 	
-    public void setUseSuffixOpt(boolean useit) {
+    public void setUseSuffixOpt(boolean useit, ParamSignature ... exhSuffixParams) {
     	this.suffixOptimization = useit;
+    	this.exhSuffixParams = Arrays.stream(exhSuffixParams).collect(Collectors.toSet());
+    }
+    
+    private boolean shouldBeTreatedExhaustively(GeneralizedSymbolicSuffix suffix, int pid) {
+    	ParamSignature param = suffix.getParamSignature(pid);
+    	boolean should = this.exhSuffixParams.contains(param);
+    	return should;
+    	
     }
 }

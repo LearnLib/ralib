@@ -16,8 +16,11 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.data.PIV;
+import java.util.Collection;
+import java.util.List;
+
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
@@ -25,8 +28,6 @@ import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.List;
-
 import net.automatalib.words.Word;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -46,23 +47,13 @@ public interface SDTConstructor {
             List<SDTGuard> guards, SDT ... sdts);    
     
     /**
-     *  Submits a tree query for execution. The tree query will be executed once   
-     *  processConcurrentTreeQueries is called. The result is stored in the SDTQuery object.
+     *  Batch processing for tree queries. Allows us to squeeze in concurrent execution.
      */
-    public default void submitConcurrentTreeQuery(
-    		SDTQuery id,
-            Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix,
-            WordValuation values, PIV piv,
-            Constants constants, SuffixValuation suffixValues) {
-    	throw new NotImplementedException();
+    public default void processTreeQueryBatch(Collection<SDTQuery> sdtQueries,  Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, 
+    		PIV piv, Constants constants) {
+    	for (SDTQuery sdtQuery : sdtQueries) {
+    		SDT sdt = this.treeQuery(prefix, suffix, sdtQuery.getWordValuation(), piv, constants, sdtQuery.getSuffValuation());
+    		sdtQuery.setAnswer(sdt);
+    	}
     }
-    
-    /**
-     * Processes all scheduled queries and blocks until all queries are done or an exception is thrown. 
-     * Clears out the queries from the processing buffer.
-     */
-    public default void processConcurrentTreeQueries() {
-    	throw new NotImplementedException();
-    }
-
 }

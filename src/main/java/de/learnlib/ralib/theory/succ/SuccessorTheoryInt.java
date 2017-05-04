@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
@@ -133,7 +134,7 @@ public class SuccessorTheoryInt implements TypedTheory<Integer>{
     }
 
     @Override
-    public void setUseSuffixOpt(boolean useit) {
+    public void setUseSuffixOpt(boolean useit, ParamSignature ... exhSuffixes) {
         System.err.println("Suffix Optimization currently not implemented for theory " + 
                 this.getClass().getName());
     }

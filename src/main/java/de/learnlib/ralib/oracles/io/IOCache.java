@@ -1,11 +1,15 @@
 package de.learnlib.ralib.oracles.io;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
@@ -45,24 +49,44 @@ public class IOCache {
         	return node; 
         }
         
-        public CacheNode getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
+        public CacheNode getCacheExcluding(Predicate<Word<PSymbolInstance>> exclusionPredicate) {
+        	CacheNode node = this.getCacheExcluding(Word.epsilon(), exclusionPredicate);
+        	return node; 
+        }
+        
+        public List<Word<PSymbolInstance>> getWords(Predicate<Word<PSymbolInstance>> selectionPredicate) {
+        	List<Word<PSymbolInstance>> lst = new ArrayList<>();
+        	collectWords(lst, Word.epsilon(), selectionPredicate);
+        	return lst;
+        }
+         
+        private void collectWords(Collection<Word<PSymbolInstance>> collection, Word<PSymbolInstance> prefix, Predicate<Word<PSymbolInstance>> selectionPredicate) {
+        	for (PSymbolInstance in : this.next.keySet()) {
+            	CacheNode n = next.get(in);
+            	PSymbolInstance out = output.get(in);
+            	Word<PSymbolInstance> newPrefix = prefix.append(in).append(out);
+            	if (selectionPredicate.test(newPrefix))
+            		collection.add(newPrefix);
+            	n.collectWords(collection, newPrefix, selectionPredicate);
+        	}
+        }
+        
+        private CacheNode getCacheExcluding(Word<PSymbolInstance> prefix, Predicate<Word<PSymbolInstance>> exclusionPredicate) {
         	CacheNode node = new CacheNode();
-        	if (exclusionPrefix.size() > 1) {
-        		PSymbolInstance exclInp = exclusionPrefix.firstSymbol();
-        		for (PSymbolInstance in : this.next.keySet()) {
-            		CacheNode n = next.get(in);
-            		PSymbolInstance out = output.get(in);
-            		if (in.equals(exclInp)) {
-            			if (exclusionPrefix.size() >1) {
-	            			node.output.put(in, out);
-	            			node.next.put(in, n.getCacheExcluding(exclusionPrefix.suffix(-2)));
-            			}
-            		} else {
-            			node.output.put(in, out);
-            			node.next.put(in, n);
-            		}
+        	for (PSymbolInstance in : this.next.keySet()) {
+            	CacheNode n = next.get(in);
+            	PSymbolInstance out = output.get(in);
+            	Word<PSymbolInstance> newPrefix = prefix.append(in).append(out);
+            	if (!exclusionPredicate.test(newPrefix)) {
+	            		node.output.put(in, out);
+	            		node.next.put(in, n.getCacheExcluding(newPrefix, exclusionPredicate));
             	}
         	}
+        	return node;
+        }
+        
+        public CacheNode getCacheExcluding(Word<PSymbolInstance> exclusionPrefix) {
+        	CacheNode node = this.getCacheExcluding((w) -> exclusionPrefix.isPrefixOf(w));
         	
         	return node; 
         }
@@ -124,8 +148,6 @@ public class IOCache {
         Iterator<PSymbolInstance> iter = query.iterator();
         PSymbolInstance out = null;
         CacheNode cur = root;
-
-        Map<DataValue, DataValue> replacements = new HashMap<>();
 
         while (iter.hasNext()) {
 
@@ -229,12 +251,16 @@ public class IOCache {
     	return new IOCache(this.root.getCacheExcluding(exclusionPrefix));
     }
     
+    public IOCache getCacheExcluding(Predicate<Word<PSymbolInstance>> exclusionPredicate) {
+    	return new IOCache(this.root.getCacheExcluding(exclusionPredicate));
+    } 
+    
     class ThreadSafeIOCache extends IOCache {
     	public ThreadSafeIOCache(IOCache cache) {
     		super(cache.getRoot());
     	}
     	
-    	public Object lock = new Object();
+    	public Object lock = IOCache.class;
     	public boolean addToCache(Word<PSymbolInstance> query) {
     		synchronized(lock) {
     			Boolean res = this.answerFromCache(query);
@@ -255,6 +281,10 @@ public class IOCache {
     public int getSize() {
     	return this.root.size();
     }
+
+	public List<Word<PSymbolInstance>> getWords(Predicate<Word<PSymbolInstance>> selectionPrefix) {
+		return this.root.getWords(selectionPrefix);
+	}
     
     
 }

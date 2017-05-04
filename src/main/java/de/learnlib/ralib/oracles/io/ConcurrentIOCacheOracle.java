@@ -21,6 +21,8 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 		private IOOracle concurrentSulOracle;
 
 	    private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
+
+		public static boolean noRun = false;
 	    
 	    public final static PSymbolInstance CACHE_DUMMY = new PSymbolInstance(new OutputSymbol("__cache_dummy"));
 	    
@@ -53,8 +55,11 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 	    
 	    public List<Word<PSymbolInstance>> traces(List<Word<PSymbolInstance>> queries) {
 	    	List<Word<PSymbolInstance>> unanswered = queries.stream().filter(q -> this.ioCache.traceFromCache(q) == null).collect(Collectors.toList());
+	    	if (noRun && !unanswered.isEmpty()) {
+	    		System.exit(0);
+	    	}
 	    	List<Word<PSymbolInstance>>  newSulTraces = this.concurrentSulOracle.traces(unanswered);
-	    	newSulTraces.stream().forEach(q -> this.ioCache.addToCache(q));
+	    	newSulTraces.stream().filter(q -> q != null).forEach(q -> this.ioCache.addToCache(q));
 	    	List<Word<PSymbolInstance>> allAnswered = queries.stream().map(q -> this.ioCache.traceFromCache(q)).collect(Collectors.toList());
 	    	return allAnswered;
 	    }

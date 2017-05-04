@@ -1,6 +1,8 @@
 package de.learnlib.ralib.learning;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
@@ -25,6 +27,16 @@ public class ParamSignature {
 		public  Set<DataValue> getDataValuesWithSignature(Word<PSymbolInstance> prefix){
 			return DataWords.valSet(prefix);
 		}
+	}
+	
+	public static ParamSignature fromString(ParameterizedSymbol [] symbols, String str) {
+		assert str.matches(".*\\.p[0-9]+");
+		String[] spl = str.split("\\.");
+		assert spl.length == 2;
+		Optional<ParameterizedSymbol> sym = Arrays.stream(symbols).filter(s -> s.getName().equals(spl[0])).findFirst();
+		assert sym.isPresent();
+		Integer pIndex = Integer.valueOf(spl[1].substring(1, spl[1].length()));
+		return new ParamSignature(sym.get(), pIndex); 
 	}
 	
 	public ParamSignature(ParameterizedSymbol symbol, int index) {
@@ -71,7 +83,7 @@ public class ParamSignature {
 		Set<DataValue> dvs = new LinkedHashSet<>();
 		for (PSymbolInstance psym : prefix) {
 			if (psym.getBaseSymbol().equals(this.symbol))
-				dvs.add(psym.getParameterValues()[this.index]);
+				dvs.add(psym.getParameterValues()[this.index-1]);
 		}
 		return dvs;
 	} 

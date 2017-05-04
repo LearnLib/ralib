@@ -202,50 +202,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		}
 	}
 
-	/**
-	 * Extends the relation sets for the parameters of the first suffix action.
-	 * Relations for these parameters should be such that branching based on
-	 * these relations covers the whole parameter domain. This is required for
-	 * building initial branchings of components. A simple implementation would
-	 * replace existing pref/suff sets by the set {DataRelation.ALL} .
-	 * 
-	 */
-	public GeneralizedSymbolicSuffix getSuffixWithExtendedRelationsOnFirstAction() {
-		 GeneralizedSymbolicSuffix gSuffix = new GeneralizedSymbolicSuffix(this.actions, 
-				 this.prefixRelations,
-				this.suffixRelations,this.prefixSources);
-		 
-		if (this.prefixRelations.length > 0) // && prefixRelations[0].isEmpty())
-		{
-			int symInd = 0;
-			for (symInd = 0; actions.getSymbol(symInd).getArity() == 0; symInd++);
-			int paramsInAction = actions.getSymbol(symInd).getArity();
-
-			for (int i = 0; i < paramsInAction; i++) {
-				extendRelationSet(gSuffix.prefixRelations[i]);
-				for (int sind = 0; sind < i; sind++)
-					extendRelationSet(gSuffix.suffixRelations[i][sind]);
-			}
-		}
-		
-		return gSuffix;
-	}
-
-	private void extendRelationSet(EnumSet<DataRelation> rels) {
-		if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(rels)) {
-			if (rels.contains(DataRelation.EQ))
-				rels.add(DataRelation.DEQ);
-			if (rels.contains(DataRelation.EQ_SUMC1))
-				rels.add(DataRelation.DEQ_SUMC1);
-			if (rels.contains(DataRelation.EQ_SUMC2))
-				rels.add(DataRelation.DEQ_SUMC2);
-		} else {
-			rels.clear();
-			rels.add(DataRelation.ALL);
-		}
-
-	}
-
 	public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix symSuffix,
 			Constants consts, Map<DataType, Theory> theories) {
 
