@@ -1,4 +1,4 @@
-target=de.learnlib.ralib.sul.tcp.TCPAdapterSut
+target=de.learnlib.ralib.sul.tcp.TCPAdapterSUL
 # server alphabet
 #inputs=ACCEPT()+\
 #  LISTEN()+\
@@ -23,6 +23,8 @@ inputs=IConnect()+\
   !IS(java.lang.Long:long,java.lang.Long:long)+\
   IR(java.lang.Long:long,java.lang.Long:long)+\
   IRA(java.lang.Long:long,java.lang.Long:long)+\
+  !IA(java.lang.Long:long,java.lang.Long:long)+\
+  !SEND()+\
   !IFA(java.lang.Long:long,java.lang.Long:long)+\
   CLOSE()
   
@@ -32,34 +34,32 @@ outputs=OTIMEOUT()+\
   OS(java.lang.Long:long,java.lang.Long:long)+\
   OSA(java.lang.Long:long,java.lang.Long:long)+\
   OR(java.lang.Long:long,java.lang.Long:long)+\
+  OPA(java.lang.Long:long,java.lang.Long:long)+\
   ORA(java.lang.Long:long,java.lang.Long:long)
 
 solver=z3
-logging.level=WARNING
+logging.level=SEVERE
+logging.file=learn.log
 max.time.millis=100000000
 use.ceopt=true
 use.suffixopt=true
 use.fresh=true
 use.rwalk=true
-target.port=18001
-cache.load=dump.ser
+export.model=true
 cache.load=tcp-bsd-cache.ser
 cache.dump=tcp-bsd-cache.ser
 cache.tests=true
 sul.instances=1
-export.model=false
+sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
+export.model=true
 eqoracle=rwalkfromstate
 random.seed=1
-#debug.traces=IConnect[] OS[2920000[long], 0[long]] IR[5840000[long], 5840000[long]] OTIMEOUT[] ISA[2920000[long], 4394600[long] ( 2920000[long] + 29200[long]:5840000[long])] 
-#debug.repeats=6
-debug.traces=IConnect[] OS[2920000[long], 0[long]] IS[5840000[long], 8760000[long]] OSA[2920000[long], 5840000[long] + 1[long]] IS[5548000[long] ( :5840000[long]), 11680000[long]] 
-debug.suffixes=ORA[s1, s2] IS[s3, s4] ORA[s5, s6]
 rwalkfromstate.prob.history=0.3
 rwalkfromstate.prob.register=0.4
 rwalkfromstate.prob.related=0.2
 rwalkfromstate.prob.reset=0.1
 rwalkfromstate.max.depth=10
-rwalkfromstate.max.runs=30000
+rwalkfromstate.max.runs=15000
 rwalkfromstate.reset.count=false
 rwalkfromstate.draw.uniform=true
 teachers=long:de.learnlib.ralib.tools.theories.SumCLongInequalityTheory
