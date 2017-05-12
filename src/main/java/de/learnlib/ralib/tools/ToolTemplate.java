@@ -84,6 +84,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             "Number of times a trace is executed."
             + "Non-negative number.", 1, true);
     
+    
+    protected static final ConfigurationOption.BooleanOption OPTION_STATS_CACHE
+    = new ConfigurationOption.BooleanOption("stats.cache",
+            "Also counts cached data in stats .", false, true);
+    
     protected static final ConfigurationOption.StringOption OPTION_DEBUG_SUFFIXES
     = new ConfigurationOption.StringOption("debug.suffixes",
             "For the debug traces given, run the given suffixes exhaustively and exit. No learning is done."
@@ -129,7 +134,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	
 	// TODO remove this field/uses of this field after case study
 	// determines if cache is set at SUL level or at IOOracle level
-	private boolean preCache = true;
+	// the the former, stats also include cached data, makes sense only if a cache is pre-loaded
+	private boolean preCache;
 
 	public ToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
@@ -138,6 +144,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	
 	public void setup(Configuration config) throws ConfigurationException{
 		super.setup(config);
+		this.preCache = OPTION_STATS_CACHE.parse(config);
 		this.sulParser.parseConfig(config);
 		this.targetName = sulParser.targetName();
 		this.types = sulParser.getTypes();

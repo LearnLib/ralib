@@ -257,12 +257,12 @@ class Component {
                         c.getSuffix().getActions());
                 
                 GeneralizedSymbolicSuffix newSuffix = 
-//                        SymbolicSuffixBuilder.suffixFromSlice(
-//                                c.getSuffix().getActions().prepend(
-//                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
-//                                slice);
-                new GeneralizedSymbolicSuffix(r.getPrefix(), c.getSuffix(),
-            			consts, teachers);
+                        SymbolicSuffixBuilder.suffixFromSlice(
+                                c.getSuffix().getActions().prepend(
+                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
+                                slice);
+//                new GeneralizedSymbolicSuffix(r.getPrefix(), c.getSuffix(),
+//            			consts, teachers);
                 
                 System.out.println("Long Prefix:" + r.getPrefix());
                 System.out.println("Original Suffix:" + c.getSuffix().getActions());                

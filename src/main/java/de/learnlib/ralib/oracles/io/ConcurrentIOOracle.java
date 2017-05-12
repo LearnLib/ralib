@@ -41,6 +41,7 @@ public class ConcurrentIOOracle implements IOOracle{
 							tr = oracle.trace(query);
 						} catch(Exception exc) {
 							System.err.println(exc);
+							exc.printStackTrace();
 						}
 						return tr;
 					}

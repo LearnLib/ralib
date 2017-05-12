@@ -15,6 +15,5 @@ public class ProofExhaustive {
 				return true;
 			return false;
 		}
-		
 	}
 }

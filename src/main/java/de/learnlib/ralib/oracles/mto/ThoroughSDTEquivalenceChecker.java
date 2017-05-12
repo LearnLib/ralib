@@ -2,9 +2,6 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.List;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -16,7 +13,7 @@ import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 
 public class ThoroughSDTEquivalenceChecker implements de.learnlib.ralib.theory.SDTEquivalenceChecker{
 	private MultiTheorySDTLogicOracle logic;
-	Mapping<SymbolicDataValue, DataValue<?>> guardContext;
+	private Mapping<SymbolicDataValue, DataValue<?>> guardContext;
 	private List<SDTGuard> suffGuards;
 	private SyntacticEquivalenceChecker syntacticChecker;
 
@@ -38,8 +35,13 @@ public class ThoroughSDTEquivalenceChecker implements de.learnlib.ralib.theory.S
 		
 		boolean syntacticEquiv = this.syntacticChecker.checkSDTEquivalence(guard1, sdt1, guard2, sdt2);
 		boolean semanticEquiv = syntacticEquiv;
-		if (!syntacticEquiv)
+		if (!syntacticEquiv) {
 			semanticEquiv = this.logic.areEquivalent(sdt1, new PIV(), guard1.toExpr(), sdt2, new PIV(), guard2.toExpr(), this.guardContext);
+//			if (semanticEquiv != syntacticEquiv) {
+//				System.err.println(guard1 + " " + sdt1 + "\n" + guard2 + " " + sdt2);
+//				System.exit(0);
+//			}
+		}
 		
 		return semanticEquiv;
 	}

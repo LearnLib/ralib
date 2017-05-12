@@ -58,6 +58,7 @@ public class ConcurrentIOCacheOracle extends QueryCounter implements DataWordIOO
 	    	if (noRun && !unanswered.isEmpty()) {
 	    		System.exit(0);
 	    	}
+	    	System.out.println("Scheduled " + unanswered.size() + " traces");
 	    	List<Word<PSymbolInstance>>  newSulTraces = this.concurrentSulOracle.traces(unanswered);
 	    	newSulTraces.stream().filter(q -> q != null).forEach(q -> this.ioCache.addToCache(q));
 	    	List<Word<PSymbolInstance>> allAnswered = queries.stream().map(q -> this.ioCache.traceFromCache(q)).collect(Collectors.toList());

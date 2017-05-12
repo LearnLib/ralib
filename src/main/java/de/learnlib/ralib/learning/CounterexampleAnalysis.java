@@ -42,6 +42,7 @@ import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -142,6 +143,9 @@ public class CounterexampleAnalysis {
         GeneralizedSymbolicSuffix symSuffix = 
                 SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
         		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
+        long numTests = predictNumber(prefix, suffix);
+        System.out.println("Predicted num of tests: " + numTests);
+//        if (numTests < 10000)
         symSuffix = symSuffix.toExhaustiveSymbolicSuffix();
         
         System.out.println("exhaustive suffix: " + symSuffix);
@@ -242,7 +246,17 @@ public class CounterexampleAnalysis {
     }
     
     
-    private boolean retainsBranching(Word<PSymbolInstance> location, 
+    private long predictNumber(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix) {
+    	int prefSize = DataWords.valSet(prefix).size();
+    	int suffSize = suffix.asList().stream().filter(sym -> sym.getBaseSymbol() instanceof InputSymbol).mapToInt(sym -> sym.getParameterValues().length).sum();
+		long number=1;
+    	for (int i=0; i<suffSize; i++) {
+			number = number * (prefSize+i) * 6;
+		}
+    	return number;
+	}
+
+	private boolean retainsBranching(Word<PSymbolInstance> location, 
             ParameterizedSymbol action, SymbolicDecisionTree oldSdtSUL, PIV oldPiv, SymbolicDecisionTree newSdtSUL, PIV newPiv) {
     	Branching oldBranching = sulOracle.getInitialBranching(location, action, oldPiv, oldSdtSUL);
     	Branching newBranching = sulOracle.getInitialBranching(location, action, newPiv, newSdtSUL);

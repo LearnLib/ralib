@@ -182,6 +182,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			//
 			// prefixRels.addAll(t.recognizedRelations());
 			// }
+			
 			prels.stream().forEach((rels) -> {
 				prefixRels.addAll(rels);
 			});
@@ -195,7 +196,15 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			}
 
 			this.prefixRelations[idx] = prefixRels;
-			this.suffixRelations[idx] = srels.toArray(new EnumSet[] {});
+			this.suffixRelations[idx] = new EnumSet[idx];
+			int typeIndex = 0;
+			for (int i=0; i<idx; i++) {
+				if(this.suffixValues[i].getType().equals(t)) {
+					this.suffixRelations[idx][i] = srels.get(typeIndex);
+					typeIndex++;
+				} else
+					this.suffixRelations[idx][i] = EnumSet.noneOf(DataRelation.class);
+			}
 			this.prefixSources[idx] = prefixSrc;
 			prevSuffixValues.add(v);
 			idx++;
@@ -366,7 +375,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			}
 		}
 		// System.out.println(i + "(" + idx+ ") : " + j);
-		return suffixRelations[j - 1][idx];
+		return suffixRelations[j - 1][i-1];
 	}
 
 	/**
@@ -537,4 +546,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
             }
             return val;
         }
+
+		public boolean isFresh(int i) {
+    		EnumSet<DataRelation> allRel = EnumSet.noneOf(DataRelation.class);
+    		for (int j=0; j<i-1; j++)
+    			allRel.addAll(suffixRelations[i-1][j]);
+    		allRel.addAll(prefixRelations[i-1]);
+    		return DataRelation.DEQ_DEF_RELATIONS.containsAll(allRel);
+    	}
 }

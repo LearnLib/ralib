@@ -290,16 +290,21 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// if suffix optimization is enabled, we compute an optimized branching context, 
 		// otherwise we exhaustively check all branches
 		BranchingContext<T> context; 
-		if (this.suffixOptimization && !this.shouldBeTreatedExhaustively(suffix, pId)) {
+		if (this.suffixOptimization) {
 			BranchingLogic<T> logic = new BranchingLogic<T>(this);
 			context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues,
 					suffix);
-		} else {
+			if (context.getStrategy() != BranchingStrategy.TRUE_FRESH) {
+				 boolean exhBr =  this.shouldBeTreatedExhaustively(suffix, pId);
+				 if (exhBr) 
+					 context = new BranchingContext<>(BranchingStrategy.FULL, potential);
+			}
+			
+		} else 
 			context = new BranchingContext<>(BranchingStrategy.FULL, potential);
-		}
 
 		BranchingStrategy branching = context.getStrategy();
-		
+	
 		// special case: fresh values in outputs
 		if (this.freshValues) {
 
@@ -347,6 +352,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 							throw new DecoratedRuntimeException("Couldn't find " + d + " in prefixValues: " + prefixValues + " values:" + values + " "
 									+ "constants: " + constants + "\n query:" + query + "\n trace:" + trace);
 						}
+						
 						WordValuation eqValues = new WordValuation(values);
 						SuffixValuation eqSuffixValues = new SuffixValuation(suffixValues);
 						eqValues.put(pId, d);
@@ -368,13 +374,36 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						SDT deqSdt = oracle.treeQuery(prefix, suffix, deqValues, piv, constants, deqSuffixValues);
 						
 						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-						SDTEquivalenceChecker eqChecker = new SyntacticEquivalenceChecker(); 
-								//new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
+						SDTEquivalenceChecker eqChecker = //new SyntacticEquivalenceChecker(); 
+								new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
 						
 						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
 						
 						piv.putAll(keepMem(merged));
 						return new SDT(merged);
+						
+//						EqualityGuard eqGuard = new EqualityGuard(currentParam, outExpr);
+//						guardDvs.put(eqGuard, d);
+//						DataValue<T> deqValue = this.getFreshValue(potential);
+//						DisequalityGuard deqGuard = new DisequalityGuard(currentParam, outExpr);
+//						guardDvs.put(deqGuard, deqValue);
+//						tempKids = treeQueriesForInstantiations(guardDvs, suffix, oracle, prefix, values, piv, constants, suffixValues);
+//						
+//						SDT deqSdt = tempKids.remove(deqGuard);
+//						assert deqSdt != null;
+//						
+//						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
+//
+//						SDTEquivalenceChecker eqChecker = //new SyntacticEquivalenceChecker(); 
+//								new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
+//						
+//						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
+//						
+//						merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
+//						
+//						
+//						piv.putAll(keepMem(merged));
+//						return new SDT(merged);
 					}
 				} else {
 					int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
@@ -961,29 +990,31 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 									// a bit of a useless thing, there is only one intGuard.
 									List<IntervalGuard> intClosedGuards = intervalGuards.stream().filter(intv -> 
 									Boolean.FALSE.equals(intv.getLeftOpen()) || Boolean.FALSE.equals(intv.getRightOpen())).collect(Collectors.toList());
-									
-									// if any of the intervals are closed, we pick a value equal to the closed end, unless that value is prohibited
-									for (IntervalGuard intGuard : intClosedGuards) {
-										List<SymbolicDataExpression> eqExprs = new ArrayList<>();
-										if (Boolean.FALSE.equals(intGuard.getLeftOpen()))
-											eqExprs.add(intGuard.getLeftExpr());
-										if (Boolean.FALSE.equals(intGuard.getRightOpen()))
-											eqExprs.add(intGuard.getRightExpr());
-										for (SymbolicDataExpression eqExpr : eqExprs) {
-											DataValue<T> dv = instantiateSDExpr(eqExpr, type,
-													prefixValues, piv, pval, constants);
-										//	System.out.println("dv " + dv + " not in " + prohibitedValues);
-											if (!prohibitedValues.contains(dv))
-												return dv;
-										}
-									}
-									
 										
 									oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a))
 											.collect(Collectors.toSet());
 									SDTGuard intv = intervalGuards.get(0); // I am the one and only
 									DataValue<T> intDv = instantiate(prefix, ps, piv, pval, constants, intv, param, oldDvs,
 											useSolver);
+									
+									if (!oldDvs.contains(intDv)) {
+										// if any of the intervals are closed, we pick a value equal to the closed end, unless that value is prohibited
+										for (IntervalGuard intGuard : intClosedGuards) {
+											List<SymbolicDataExpression> eqExprs = new ArrayList<>();
+											if (Boolean.FALSE.equals(intGuard.getLeftOpen()))
+												eqExprs.add(intGuard.getLeftExpr());
+											if (Boolean.FALSE.equals(intGuard.getRightOpen()))
+												eqExprs.add(intGuard.getRightExpr());
+											for (SymbolicDataExpression eqExpr : eqExprs) {
+												DataValue<T> dv = instantiateSDExpr(eqExpr, type,
+														prefixValues, piv, pval, constants);
+											//	System.out.println("dv " + dv + " not in " + prohibitedValues);
+												if (!prohibitedValues.contains(dv))
+													return dv;
+											}
+										}
+									}
+									
 									return intDv;
 								}
 							}
