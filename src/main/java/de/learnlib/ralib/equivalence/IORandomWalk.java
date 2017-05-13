@@ -46,32 +46,27 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 //        teachers,
 //        sul.getInputSymbols());
 public class IORandomWalk extends BoundedIOEquivalenceOracle implements IOEquivalenceOracle {
-	public IORandomWalk(Random rand, DataWordSUL target, boolean uniform,
-            double stopProbability, double regProb, double hisProb, double relatedProb, long maxRuns, int maxDepth, Constants constants,
-            boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
-		this(rand, new BasicSULOracle(target, SpecialSymbols.ERROR), uniform, stopProbability, regProb, hisProb, relatedProb, maxRuns, maxDepth,
-				constants,resetRuns, teachers, (trace) -> trace, inputs);
-	}
-	
 	
 	/**
      * creates an IO random walk
      * 
      */
-    public IORandomWalk(Random rand, IOOracle target, boolean uniform,
-            double stopProbability, double regProb, double hisProb, double relatedProb, long maxRuns, int maxDepth, Constants constants,
+    public IORandomWalk(Random rand, IOOracle target, 
+            double stopProbability, int maxDepth, InputSelector inpSelector, long maxRuns,  Constants constants,
             boolean resetRuns, Map<DataType, Theory> teachers, TraceCanonizer traceCanonizer, ParameterizedSymbol... inputs) 
     {
     	super(target, traceCanonizer, maxRuns, resetRuns);
-    	
-		TraceGenerator traceGen = new IORandomWalkTraceGenerator(rand, uniform, stopProbability, regProb, hisProb, relatedProb, maxDepth, constants, teachers, inputs);
+		TraceGenerator traceGen = new IORandomWalkTraceGenerator(rand,  
+				stopProbability, maxDepth, inpSelector, constants, teachers, inputs);
 		super.setTraceGenerator(traceGen);
     }
 
 
+    // kept so we don't break any tests
 	public IORandomWalk(Random random, DataWordSUL sul, boolean drawUniformly, double resetProb, double freshProb, long maxRuns, int maxDepth,
 			Constants consts, boolean c, Map<DataType, Theory> teachers, ParameterizedSymbol ... inputSymbols) {
-		this(random, sul, drawUniformly, resetProb, (1-freshProb)/3, (1-freshProb)/3, (1-freshProb)/3, maxRuns, maxDepth, 
-				consts, c, teachers, inputSymbols);
+		this(random, new BasicSULOracle(sul, SpecialSymbols.ERROR), resetProb, maxDepth,
+				new RandomSymbolSelector(random, teachers, consts, drawUniformly, (1-freshProb)/3, (1-freshProb)/3, (1-freshProb)/3, inputSymbols)
+				, maxRuns, consts, c, teachers, (trace) -> trace, inputSymbols);
 	}
 }
