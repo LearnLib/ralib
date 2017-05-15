@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Sets;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -889,38 +891,30 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					rExprVal = instantiateSDExpr(iGuard.getRightExpr(), r.getType(), prefixValues, piv, pval,
 							constants);
 					rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
-
+		
 					val.setValue(toVariable(r), rRegVal.getId());
 				}
-
+		
 				if (!iGuard.isSmallerGuard()) {
 					SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
 					lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), prefixValues, piv, pval, constants);
 					lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);
-
+		
 					val.setValue(toVariable(l), lRegVal.getId());
 				}
-
-//				for (DataValue<T> oldDv : oldDvs) {
-//					if ((lExprVal == null || 
-//							lExprVal.getId().compareTo(oldDv.getId()) < 0)
-//							&& (rExprVal == null || rExprVal.getId().compareTo(oldDv.getId()) > 0))
-//						return oldDv; // new IntervalDataValue<>(oldDv,
-//										// lExprVal, rExprVal);
-//				}
-
-				if (!useSolver) {
-					returnValue = this.pickIntervalDataValue(lExprVal, rExprVal);
-				} else {
+				if (useSolver) {	
 					// we decorate it with interval information
 					returnValue = this.instantiator.instantiateGuard(guard, val, constants, alreadyUsedValues);
 					if (returnValue != null)
 						returnValue = new IntervalDataValue<>(returnValue, lExprVal, rExprVal);
+				} else {
+					returnValue = this.instantiateIntervalGuard(iGuard, piv, prefixValues, constants, pval);
 				}
 			} else if (guard instanceof SDTIfGuard) {
 				SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
 				DataValue<T> regVal = getRegisterValue(r, piv, prefixValues, constants, pval);
 				val.setValue(toVariable(r), regVal.getId());
+				// this section is highly technical, should be revised
 			} else if (guard instanceof SDTMultiGuard) {
 
 				List<SDTGuard> allGuards = ((SDTMultiGuard) guard).getGuards();
@@ -933,101 +927,66 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 							DataWords.<T>valSet(prefix, type), pval.<T>values(type));
 					returnValue = this.getFreshValue(new ArrayList<>(potSet));
 				} else {
-				
-					List<SDTGuard> eqGuards = allGuards.stream().filter(g -> g instanceof EqualityGuard).distinct()
-							.collect(Collectors.toList());
-					
-					// for multi guards that have equality guards, we pick the falue that's equal.
-					if (!eqGuards.isEmpty()) {
-						// if the end guard contains two equ guards it should not be 
-						if (eqGuards.size() > 1 && guard instanceof SDTAndGuard) {
-							assert !instantiateSDExpr(((SDTIfGuard) eqGuards.get(0)).getExpression(), type, prefixValues,
-									piv, pval, constants)
-											.equals(instantiateSDExpr(((SDTIfGuard) eqGuards.get(1)).getExpression(), type,
-													prefixValues, piv, pval, constants));
-							return null;
-						}
-	
-						SDTGuard firstEqGuard = eqGuards.get(0);
-						DataValue<T> equValue = instantiateSDExpr(((SDTIfGuard) firstEqGuard).getExpression(), type,
-								prefixValues, piv, pval, constants);
-						assert equValue != null;
-						// for an OR guard, we pick equality whenever there's an
-						// equality guard contained
-						if (guard instanceof SDTOrGuard)
-							return equValue;
-						// for an AND guard, we set the suffix so that it satisfied
-						// the equality guard and then we check if this relation can
-						// be satisfied
-						else {
-	
-							val.setValue(toVariable(guard.getParameter()), equValue.getId());
-							alreadyUsedValues.remove(equValue);
-						}
-	
-					} else {
-						if (guard instanceof SDTAndGuard) {
-							if (!useSolver) {
-								System.out.println("And inst " + guard);
-								List<IntervalGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard).map(g -> (IntervalGuard) g)
-										.collect(Collectors.toList());
-								
-								// this is required if we are not using the
-								// constraint solver for instantiation
-								final List<DataValue<T>> prohibitedValues = allGuards.stream()
-										.filter(g -> g instanceof DisequalityGuard)
-										.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
-												prefixValues, piv, pval, constants))
-										.collect(Collectors.toList());
-								
-								if (intervalGuards.size() >= 2) {
-									throw new DecoratedRuntimeException(
-											"Cannot reliably instantiate a 2 guard interval with conjunctions, as it would make it impossible to determinize")
-													.addDecoration("intervals", intervalGuards);
-								}
-								
-								if (!intervalGuards.isEmpty()) {
-									// a bit of a useless thing, there is only one intGuard.
-									List<IntervalGuard> intClosedGuards = intervalGuards.stream().filter(intv -> 
-									Boolean.FALSE.equals(intv.getLeftOpen()) || Boolean.FALSE.equals(intv.getRightOpen())).collect(Collectors.toList());
-										
-									oldDvs = oldDvs.stream().filter(a -> !prohibitedValues.contains(a))
+					Set<SymbolicDataValue> regs = ((SDTAndGuard) guard).getAllSDVsFormingGuard();
+					regs.forEach(reg -> {
+						DataValue<T> regVal = getRegisterValue(reg, piv, prefixValues, constants, pval);
+						val.setValue(toVariable(reg), regVal.getId());
+					});
+					if (!useSolver){
+						List<EqualityGuard> eqGuards = allGuards.stream().filter(g -> g instanceof EqualityGuard).map(g -> (EqualityGuard)g)
+								.distinct()
+								.collect(Collectors.toList());
+						if (guard instanceof SDTOrGuard) {
+							assert ((SDTOrGuard) guard).getGuards().stream().allMatch(g -> !(g instanceof IntervalGuard)) : 
+								"not expecting ORGuads over intervals";
+							assert eqGuards.size() == 1 : "expecting at most one eq";
+							returnValue = this.instantiateSDExpr(eqGuards.get(0).getExpression(),type,  prefixValues, piv, pval, constants);
+						} else {
+							DataValue<T> andInst = this.instantiate(prefix, ps, piv, pval, constants, guard, param, oldDvs, true);
+							// if it cannot be instantiated by a CS, give up, otherwise we can assume that it is instantiatable
+							if (andInst == null)
+								return null;
+							else {
+								// if it is equal, just return what it is equal to, and exit
+								if (!eqGuards.isEmpty()) {
+									return andInst; 
+								} else {
+									// otherwise, we should have intervals and inequalities( all other cases should have been covered)
+									Set<DataValue<T>> prohibitedValues = allGuards.stream()
+											.filter(g -> g instanceof DisequalityGuard)
+											.map(g -> instantiateSDExpr(((SDTIfGuard) g).getExpression(), type,
+													prefixValues, piv, pval, constants))
 											.collect(Collectors.toSet());
-									SDTGuard intv = intervalGuards.get(0); // I am the one and only
-									DataValue<T> intDv = instantiate(prefix, ps, piv, pval, constants, intv, param, oldDvs,
-											useSolver);
-									
-									if (!oldDvs.contains(intDv)) {
-										// if any of the intervals are closed, we pick a value equal to the closed end, unless that value is prohibited
-										for (IntervalGuard intGuard : intClosedGuards) {
-											List<SymbolicDataExpression> eqExprs = new ArrayList<>();
-											if (Boolean.FALSE.equals(intGuard.getLeftOpen()))
-												eqExprs.add(intGuard.getLeftExpr());
-											if (Boolean.FALSE.equals(intGuard.getRightOpen()))
-												eqExprs.add(intGuard.getRightExpr());
-											for (SymbolicDataExpression eqExpr : eqExprs) {
-												DataValue<T> dv = instantiateSDExpr(eqExpr, type,
-														prefixValues, piv, pval, constants);
-											//	System.out.println("dv " + dv + " not in " + prohibitedValues);
-												if (!prohibitedValues.contains(dv))
-													return dv;
-											}
-										}
+									oldDvs = Sets.difference(oldDvs, prohibitedValues).immutableCopy();
+									List<IntervalGuard> intervalGuards = allGuards.stream().filter(g -> g instanceof IntervalGuard).map(g -> (IntervalGuard) g)
+											.collect(Collectors.toList());
+									assert intervalGuards.size() == 1: "expected one interval guard. " + (intervalGuards.size()>1? " Cannot reliably instantiate more than one interval guard.":"");
+									IntervalGuard intGuard = intervalGuards.get(0);
+									DataValue<T> intDv = this.instantiateIntervalGuard(intGuard, piv, prefixValues, constants, pval, 
+											prohibitedValues.toArray(new DataValue[]{}));
+									DataValue<T> eqDv = null;
+									SymbolicDataExpression eqExpr = null;
+									if (Boolean.FALSE.equals(intGuard.getLeftOpen()))
+										eqExpr = intGuard.getLeftExpr();
+									if (Boolean.FALSE.equals(intGuard.getRightOpen()))
+										eqExpr = intGuard.getRightExpr();
+									if (eqExpr != null) {
+										eqDv = instantiateSDExpr(eqExpr, type,
+												prefixValues, piv, pval, constants);
 									}
 									
-									return intDv;
+									// we normally prefer to select equality value
+									if (eqDv != null && (!oldDvs.contains(intDv) || oldDvs.contains(eqDv)) && !prohibitedValues.contains(eqDv))
+										return eqDv;
+									else {
+										assert !prohibitedValues.contains(intDv);
+										return intDv;
+									}
 								}
 							}
 						}
 					}
 				}
-
-				Set<SymbolicDataValue> regs = ((SDTAndGuard) guard).getAllSDVsFormingGuard();
-				regs.forEach(reg -> {
-					DataValue<T> regVal = getRegisterValue(reg, piv, prefixValues, constants, pval);
-					val.setValue(toVariable(reg), regVal.getId());
-				});
-
 			} else {
 				throw new IllegalStateException("only =, !=, intervals, AND and OR are allowed");
 			}
@@ -1052,6 +1011,31 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		}
 		return returnValue;
+	}
+	
+	private IntervalDataValue<T> instantiateIntervalGuard(IntervalGuard iGuard, PIV piv, List<DataValue> prefixValues, Constants constants,
+			ParValuation pval, DataValue ...prohibited) {
+		DataValue<T> rExprVal = null, lExprVal = null, rRegVal = null, lRegVal = null;
+		IntervalDataValue<T> intVal = null;
+		if (!iGuard.isBiggerGuard()) {
+			SymbolicDataValue r = (SymbolicDataValue) iGuard.getRightSDV();
+			rExprVal = instantiateSDExpr(iGuard.getRightExpr(), r.getType(), prefixValues, piv, pval,
+					constants);
+			rRegVal = getRegisterValue(r, piv, prefixValues, constants, pval);
+		}
+
+		if (!iGuard.isSmallerGuard()) {
+			SymbolicDataValue l = (SymbolicDataValue) iGuard.getLeftSDV();
+			lExprVal = instantiateSDExpr(iGuard.getLeftExpr(), l.getType(), prefixValues, piv, pval, constants);
+			lRegVal = getRegisterValue(l, piv, prefixValues, constants, pval);
+		}
+
+		HashSet<DataValue> prohibitedSet = Sets.newHashSet(prohibited);
+		do {
+			intVal =  this.pickIntervalDataValue(lExprVal, rExprVal);
+			rExprVal = intVal;
+		} while(prohibitedSet.contains(intVal));
+		return intVal;
 	}
 	
 	public IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right) {
