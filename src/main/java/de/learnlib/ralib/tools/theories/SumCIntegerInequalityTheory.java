@@ -146,9 +146,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
 		Integer nextFresh;
 		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
-		while (nextFresh - fv.getId() < this.smBgStep.getId() * 5) 
-			nextFresh += this.freshStep;
-		
+
 		return new DataValue<Integer>(fv.getType(), nextFresh);
 	}
 	

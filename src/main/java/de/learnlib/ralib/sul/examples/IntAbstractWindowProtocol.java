@@ -15,7 +15,7 @@ public abstract class IntAbstractWindowProtocol {
 	
 
     protected Integer newFresh() {
-    	return gen = gen + 10000000;
+    	return gen = gen + this.win * 1000;
     }
     
 

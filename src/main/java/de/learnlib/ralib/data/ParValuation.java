@@ -30,6 +30,11 @@ public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue
         
     }
     
+    public ParValuation(ParValuation parValuation) {
+    	this();
+    	this.putAll(parValuation);
+    }
+    
     public ParValuation(PSymbolInstance psi) {
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataValue dv : psi.getParameterValues()) {

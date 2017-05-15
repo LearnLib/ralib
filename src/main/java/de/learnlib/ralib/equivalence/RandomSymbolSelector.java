@@ -30,6 +30,7 @@ public class RandomSymbolSelector extends InputSelector{
 	private double drawHistory;
 	private double drawRelated;
 	private boolean uniform;
+	private RegisterAutomaton hyp;
 
 	public RandomSymbolSelector(Random rand, Map<DataType, Theory> teachers, Constants constants,
 			boolean uniform, double regProb, double hisProb, double relatedProb,
@@ -48,10 +49,6 @@ public class RandomSymbolSelector extends InputSelector{
 		RALocation location = this.hyp.getLocation(run);
 		if (location == null)
 			return null;
-		List<Transition> transitions = this.hyp.getInputTransitions().stream()
-				.filter(tr -> tr.getSource().equals(location)).collect(Collectors.toList());
-		Transition trans = transitions.get(rand.nextInt(transitions.size()));
-		trans.getGuard().getCondition();
 		PSymbolInstance psi = nextDataValues(run, ps, rand);
 		return psi;
 	}

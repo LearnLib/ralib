@@ -19,7 +19,6 @@ public abstract class InputSelector {
 	protected Random rand;
 	protected ParameterizedSymbol[] inputs;
 	protected Constants constants;
-	protected RegisterAutomaton hyp;
 
 	public InputSelector(Random rand, Map<DataType, Theory> teachers, Constants constants, ParameterizedSymbol... inputs) {
 		this.teachers = teachers;
