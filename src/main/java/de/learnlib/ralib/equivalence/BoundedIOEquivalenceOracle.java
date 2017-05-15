@@ -88,6 +88,10 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 				if (hypTrace == null || sulTrace == null)
 					continue;
 				if (!hypTrace.equals(sulTrace)) {
+					System.out.println("SUL Trace " + sulTrace.toString());
+					System.out.println("HYP Trace " + hypTrace.toString());
+					Word<PSymbolInstance> newSulTrace = this.target.trace(sulTrace);
+					assert newSulTrace.equals(sulTrace);
 					int j;
 					for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);
 					return new DefaultQuery<>(sulTrace.prefix(j+1));

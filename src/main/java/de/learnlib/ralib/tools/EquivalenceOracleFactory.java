@@ -10,6 +10,9 @@ import de.learnlib.ralib.equivalence.BoundedIOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IORWalkFromState;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.equivalence.InputSelector;
+import de.learnlib.ralib.equivalence.RandomSymbolSelector;
+import de.learnlib.ralib.equivalence.RandomTransitionSelector;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
@@ -82,6 +85,10 @@ public class EquivalenceOracleFactory {
 	    = new ConfigurationOption.LongOption(rws + ".max.runs",
 	            "Maximum number of random walks", null, false);
 	
+	protected static final ConfigurationOption.BooleanOption OPTION_RWALKFROMSTATE_TRANSITION
+    = new ConfigurationOption.BooleanOption(rws+".transition",
+            "Activate transition walk instead of symbol walk", true, true);
+		
 	protected static final ConfigurationOption.IntegerOption OPTION_RWALKFROMSTATE_MAX_DEPTH
 	= new ConfigurationOption.IntegerOption(rws + ".max.depth",
 	    "Maximum length of each random walk", null, false);
@@ -106,18 +113,17 @@ public class EquivalenceOracleFactory {
 			double drawRegister = (1-freshProbability)/3; 
 			double drawHistory = drawRegister;
 			double drawRelated = drawRegister;
+			RandomSymbolSelector inpSelector = new RandomSymbolSelector(random, teachers, constants, drawUniformly, drawRegister, drawHistory, drawRelated, inputSymbols);
 			long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
 			int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
 			boolean resetRuns = OPTION_RWALK_RESET.parse(config);
-			
-			IORandomWalk rwalk = new IORandomWalk(random, target, drawUniformly, 
+
+			IORandomWalk rwalk = new IORandomWalk(random, target,  
 					stopProbabilty, // reset probability
-					drawRegister,
-					drawHistory,
-					drawRelated,
+					maxDepth, // max depth
+					inpSelector,
 					// value
 					maxTestRuns, // 1000 runs
-					maxDepth, // max depth
 					constants, resetRuns, // reset runs
 					teachers, traceCanonizer, inputSymbols);
 			equOracle = rwalk;
@@ -128,24 +134,21 @@ public class EquivalenceOracleFactory {
 			double drawRegister = OPTION_RWALKFROMSTATE_REGISTER_PROB.parse(config);
 			double drawHistory = OPTION_RWALKFROMSTATE_HISTORY_PROB.parse(config);
 			double drawRelated = OPTION_RWALKFROMSTATE_RELATED_PROB.parse(config);
+			Boolean transWalk = OPTION_RWALKFROMSTATE_TRANSITION.parse(config);
 			if (drawRegister + drawHistory + drawRelated > 1.0) 
 				throw new ConfigurationException("The sum of the draw probabilities should be less than 1, "
 						+ "with the difference being the fresh probability");
-			
+			InputSelector inpSelector = !transWalk ? 
+					new RandomSymbolSelector(random, teachers, constants, drawUniformly, drawRegister, drawHistory, drawRelated, inputSymbols) :
+					new RandomTransitionSelector(random, teachers, constants, drawRegister, drawHistory, drawRelated, inputSymbols);
 			int maxDepth = OPTION_RWALKFROMSTATE_MAX_DEPTH.parse(config);
 			boolean resetRuns = OPTION_RWALKFROMSTATE_RESET.parse(config);
-			IORWalkFromState rwalk  = new IORWalkFromState(random, target, drawUniformly, // do
-									// not
-									// draw
-									// symbols
-									// uniformly
+			IORWalkFromState rwalk  = new IORWalkFromState(random, target, 
 					resetProbabilty, // reset probability
-					drawRegister,
-					drawHistory,
-					drawRelated, // prob. of choosing a fresh data
-					// value
 					maxTestRuns, // 1000 runs
 					maxDepth, // max depth
+					inpSelector,
+					// value
 					constants,
 					resetRuns, // reset runs
 					teachers, 

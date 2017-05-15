@@ -17,12 +17,12 @@ import net.automatalib.words.Word;
 public class IORWalkFromStateTraceGenerator extends IORandomWalkTraceGenerator implements TraceGenerator {
 	private AccessSequenceProvider accSeqProvider;
 
-	public IORWalkFromStateTraceGenerator(Random rand, boolean uniform, double stopProbability,
-			double regProb, double hisProb, double relatedProb,  int maxDepth, Constants constants,
+	public IORWalkFromStateTraceGenerator(Random rand, double stopProbability,
+			int maxDepth, InputSelector inpSelector, Constants constants,
 			Map<DataType, Theory> teachers, AccessSequenceProvider accessSequenceProvider,
 			ParameterizedSymbol... inputs) {
 
-		super(rand, uniform, stopProbability, regProb, hisProb, relatedProb, maxDepth, constants, teachers, inputs);
+		super(rand, stopProbability, maxDepth, inpSelector, constants, teachers, inputs);
 		this.accSeqProvider = accessSequenceProvider;
 	}
 

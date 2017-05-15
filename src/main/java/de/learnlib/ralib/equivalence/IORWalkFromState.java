@@ -12,12 +12,11 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class IORWalkFromState extends BoundedIOEquivalenceOracle implements IOEquivalenceOracle{
 
-	public IORWalkFromState(Random rand, IOOracle target, boolean uniform,
-            double stopProbability, double regProb, double hisProb, double relatedProb, 
-            long maxRuns, int maxDepth, Constants constants, boolean resetRuns, Map<DataType, Theory> teachers, 
+	public IORWalkFromState(Random rand, IOOracle target, 
+            double stopProbability, long maxRuns, int maxDepth, InputSelector inpSelector, Constants constants, boolean resetRuns, Map<DataType, Theory> teachers, 
              TraceCanonizer traceCanonizer, AccessSequenceProvider accessSequenceProvider, ParameterizedSymbol... inputs) {
 		super(target, traceCanonizer, maxRuns, resetRuns);
-		TraceGenerator traceGen = new IORWalkFromStateTraceGenerator(rand, uniform, stopProbability, regProb, hisProb, relatedProb, maxDepth, constants, teachers, accessSequenceProvider, inputs);
+		TraceGenerator traceGen = new IORWalkFromStateTraceGenerator(rand, stopProbability, maxDepth, inpSelector, constants, teachers, accessSequenceProvider, inputs);
 		super.setTraceGenerator(traceGen);
 	}
 }
