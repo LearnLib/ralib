@@ -85,6 +85,10 @@ public class EquivalenceOracleFactory {
 	    = new ConfigurationOption.LongOption(rws + ".max.runs",
 	            "Maximum number of random walks", null, false);
 	
+	protected static final ConfigurationOption.BooleanOption OPTION_RWALKFROMSTATE_TRANSITION
+    = new ConfigurationOption.BooleanOption(rws+".transition",
+            "Activate transition walk instead of symbol walk", true, true);
+		
 	protected static final ConfigurationOption.IntegerOption OPTION_RWALKFROMSTATE_MAX_DEPTH
 	= new ConfigurationOption.IntegerOption(rws + ".max.depth",
 	    "Maximum length of each random walk", null, false);
@@ -130,11 +134,13 @@ public class EquivalenceOracleFactory {
 			double drawRegister = OPTION_RWALKFROMSTATE_REGISTER_PROB.parse(config);
 			double drawHistory = OPTION_RWALKFROMSTATE_HISTORY_PROB.parse(config);
 			double drawRelated = OPTION_RWALKFROMSTATE_RELATED_PROB.parse(config);
+			Boolean transWalk = OPTION_RWALKFROMSTATE_TRANSITION.parse(config);
 			if (drawRegister + drawHistory + drawRelated > 1.0) 
 				throw new ConfigurationException("The sum of the draw probabilities should be less than 1, "
 						+ "with the difference being the fresh probability");
-			InputSelector inpSelector = new RandomSymbolSelector(random, teachers, constants, drawUniformly, drawRegister, drawHistory, drawRelated, inputSymbols);
-			//inpSelector = new RandomTransitionSelector(random, teachers, constants, inputSymbols);
+			InputSelector inpSelector = !transWalk ? 
+					new RandomSymbolSelector(random, teachers, constants, drawUniformly, drawRegister, drawHistory, drawRelated, inputSymbols) :
+					new RandomTransitionSelector(random, teachers, constants, drawRegister, drawHistory, drawRelated, inputSymbols);
 			int maxDepth = OPTION_RWALKFROMSTATE_MAX_DEPTH.parse(config);
 			boolean resetRuns = OPTION_RWALKFROMSTATE_RESET.parse(config);
 			IORWalkFromState rwalk  = new IORWalkFromState(random, target, 

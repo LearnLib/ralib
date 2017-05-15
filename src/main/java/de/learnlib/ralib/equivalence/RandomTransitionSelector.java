@@ -33,9 +33,19 @@ import net.automatalib.words.Word;
  */
 public class RandomTransitionSelector extends InputSelector{
 
+	private int regProb;
+	private int hisProb;
+	private int relatedProb;
+	private int freshProb;
+
 	public RandomTransitionSelector(Random rand, Map<DataType, Theory> teachers, Constants constants,
+			double regProb, double hisProb, double relatedProb,
 			ParameterizedSymbol[] inputs) {
 		super(rand, teachers, constants, inputs);
+		this.regProb = (int) (regProb * 100);
+		this.hisProb = (int) (hisProb * 100);
+		this.relatedProb = (int) (relatedProb * 100);
+		this.freshProb = 100 - (this.regProb + this.hisProb + this.relatedProb);
 	}
 
 	protected PSymbolInstance nextInput(Word<PSymbolInstance> run, RegisterAutomaton hyp) {
@@ -86,10 +96,10 @@ public class RandomTransitionSelector extends InputSelector{
 			Parameter param = new SymbolicDataValue.Parameter(paramType, crtParam + 1);
 			boolean triedFresh = false;
 			ProbabilityManager pMgr = new ProbabilityManager();
-			pMgr.addEvent(Event.DRAW_HISTORY, 35);
-			pMgr.addEvent(Event.DRAW_REG, 40);
-			pMgr.addEvent(Event.DRAW_RELATED, 20);
-			pMgr.addEvent(Event.DRAW_FRESH, 5);
+			pMgr.addEvent(Event.DRAW_HISTORY, this.hisProb);
+			pMgr.addEvent(Event.DRAW_REG, this.regProb);
+			pMgr.addEvent(Event.DRAW_RELATED, this.relatedProb);
+			pMgr.addEvent(Event.DRAW_FRESH, this.freshProb);
 			// remove DRAW_FRESH event and uncomment to make the fresh probability constant (doesn't increase)
 			while (true) {
 				DataValue nextVal = null;
