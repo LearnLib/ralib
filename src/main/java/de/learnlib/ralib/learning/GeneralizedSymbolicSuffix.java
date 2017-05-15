@@ -106,7 +106,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	
 	public static GeneralizedSymbolicSuffix fullSuffix(Word<ParameterizedSymbol> suffixActs,  Map<DataType, Theory> theories) {
 
-		int paramNum = DataWords.paramLength(suffixActs);
+		DataType[] types = DataWords.typesOf(suffixActs);
+		int paramNum = types.length;
 		EnumSet<DataRelation>[] prefixRelations = new EnumSet[paramNum];
 		EnumSet<DataRelation>[][] suffixRelations = new EnumSet[paramNum][];
 
@@ -114,8 +115,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			EnumSet<DataRelation> allRelations = EnumSet.of(DataRelation.ALL); // theories.get(vals[i].getType()).recognizedRelations();
 			prefixRelations[i] = EnumSet.copyOf(allRelations);
 			suffixRelations[i] = new EnumSet[i];
-			for (int j = 0; j < i; j++)
-				suffixRelations[i][j] = EnumSet.copyOf(allRelations);
+			for (int j = 0; j < i; j++) {
+				if (types[i].equals(types[j])) 
+					suffixRelations[i][j] = EnumSet.copyOf(allRelations);
+				else
+					suffixRelations[i][j] = EnumSet.noneOf(DataRelation.class);
+			}
 		}
 		Set<ParamSignature>[] prefixSources = new Set[paramNum];
 		Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
