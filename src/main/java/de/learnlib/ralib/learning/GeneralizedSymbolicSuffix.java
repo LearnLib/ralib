@@ -222,15 +222,15 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		// create suffix for prefix
 		this.actions = Word.fromList(symSuffix.actions.asList()).prepend(DataWords.actsOf(prefix).lastSymbol());
 
-		Word<PSymbolInstance> suffix = prefix.suffix(1);
+		Word<PSymbolInstance> lastWord = prefix.suffix(1);
 		prefix = prefix.prefix(-1);
 
-		GeneralizedSymbolicSuffix pSuffix = new GeneralizedSymbolicSuffix(prefix, suffix, consts, theories);
+		GeneralizedSymbolicSuffix pSuffix = new GeneralizedSymbolicSuffix(prefix, lastWord, consts, theories);
 
 		// System.out.println("pSuffix: " + pSuffix);
 		// System.out.println("symSuffix: " + symSuffix);
 
-		int psLength = DataWords.valsOf(suffix).length;
+		int psLength = DataWords.valsOf(lastWord).length;
 		int ssLength = symSuffix.suffixValues.length;
 
 		this.suffixValues = new SuffixValue[psLength + ssLength];
@@ -252,17 +252,13 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 			this.prefixRelations[psLength + i] = symSuffix.prefixRelations[i];
 			this.prefixSources[psLength + i] = symSuffix.prefixSources[i];
-
-			int sameTypePrefix = DataWords.valsOf(suffix, this.suffixValues[psLength + i].getType()).length;
-
-			int sameTypeSuffix = symSuffix.suffixRelations[i].length;
-
-			this.suffixRelations[psLength + i] = new EnumSet[sameTypePrefix + sameTypeSuffix];
-
-			for (int j = 0; j < sameTypePrefix; j++)
-				this.suffixRelations[psLength + i][j] = EnumSet.noneOf(DataRelation.class);
-			for (int j = sameTypePrefix; j < sameTypePrefix + sameTypeSuffix; j++)
-				this.suffixRelations[psLength + i][j] = symSuffix.suffixRelations[i][j - sameTypePrefix];
+			this.suffixRelations[psLength + i] = new EnumSet[psLength + i];
+			
+			for (int j = 0; j < psLength; j++) 
+				this.suffixRelations[psLength + i][j] = EnumSet.noneOf(DataRelation.class); 
+			
+			for (int j = psLength; j < psLength + i; j++) 
+				this.suffixRelations[psLength + i][j] = symSuffix.suffixRelations[i][j - psLength];
 		}
 		
 		//this.extendRelationsOfFirstSuffixAction();
