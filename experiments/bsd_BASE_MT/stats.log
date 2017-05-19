@@ -1,0 +1,13 @@
+Locations: 23
+Transitions: 65
+Input Locations: 6
+Input Transitions: 50
+exporting model to model.xml
+exporting model to model.dot
+Resets Learning: 744
+Inputs Learning: 3540
+Resets Ce Analysis: 189
+Inputs Ce Analysis: 699
+Resets Testing: 11708
+Inputs Testing: 113953
+
