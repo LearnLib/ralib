@@ -3,8 +3,10 @@ package de.learnlib.ralib.equivalence;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -23,6 +25,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 	private TraceGenerator traceGenerator;
 	private IOOracle target;
 	private TraceCanonizer traceCanonizer;
+	private TestPurpose testPurpose = (w) -> true;
 
 	public BoundedIOEquivalenceOracle(IOOracle target,  TraceCanonizer traceCanonizer, long maxRuns, boolean resetRuns) {
 	
@@ -51,6 +54,15 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 	}
 	
 	/**
+	 * Only traces which satisfy the test purpose will be run on the system.
+	 */
+	public void setTestPurpose(TestPurpose testPurpose) {
+		this.testPurpose = testPurpose;
+	}
+	
+	
+	
+	/**
 	 * Sets the hypothesis trace generator. The trace generator should be set during initialization/before 
 	 * the findCE functionality is used.
 	 */
@@ -72,10 +84,10 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 			List<Word<PSymbolInstance>> hypTraces = new ArrayList<Word<PSymbolInstance>>(batchSize); 
 			for (int i=0; i<batchSize; i++) {
 				Word<PSymbolInstance> hypTrace = this.traceGenerator.generateTrace(hyp);
-				if (hypTrace.toString().contains("IConnect") && !hypTrace.getSymbol(0).getBaseSymbol().getName().contains("IConnect")) {
+				if (!this.testPurpose.isSatisfied(hypTrace)) {
 					i--;
 					continue;
-				}
+				} 
 				hypTrace = traceCanonizer.canonizeTrace(hypTrace);
 				hypTraces.add(hypTrace);
 			}
@@ -94,6 +106,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 					assert newSulTrace.equals(sulTrace);
 					int j;
 					for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);
+					System.out.println("HYP Run: " + hypRun(hyp, sulTrace.prefix(j+1)));
 					return new DefaultQuery<>(sulTrace.prefix(j+1));
 				}
 			}
@@ -106,6 +119,16 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 		return null;
 	}
 	
+	private String hypRun(RegisterAutomaton hyp, Word<PSymbolInstance> trace) {
+		StringBuilder builder = new StringBuilder();
+		Word<PSymbolInstance> crtTrace = Word.epsilon();
+		for (PSymbolInstance sym : trace) {
+			builder.append(hyp.getLocation(crtTrace))
+			.append(" ").append(sym).append(" ");
+			crtTrace = crtTrace.append(sym);
+		}
+		return builder.toString();
+	}
 	
 
 }

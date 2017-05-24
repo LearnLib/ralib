@@ -53,6 +53,7 @@ cache.dump=tcp-linux-cache_BASE_ACK_MT.ser
 #cache.exclude=ISA[2920000[slong], 100[clong]] OR[100[clong], 0[slong]] IConnect[] OS[200[clong], 0[slong]] ISA[5840000[slong], 200[clong] + 1[clong]] 
 cache.tests=true
 sul.instances=2
+test.purpose=de.learnlib.ralib.sul.tcp.TCPTestPurpose
 sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
 export.model=true
 eqoracle=rwalkfromstate

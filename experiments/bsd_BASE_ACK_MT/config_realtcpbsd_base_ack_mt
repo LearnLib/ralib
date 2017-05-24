@@ -56,6 +56,7 @@ suffixopt.except=IA.p2;IA.p1
 #debug.traces=IConnect[] OS[100[clong], 0[slong]] ISA[2920000[slong], 100[clong] + 1[clong]] OA[100[clong] + 1[clong], 2920000[slong] + 1[slong]] CLOSE[] OFA[100[clong] + 1[clong], 2920000[slong] + 1[slong]] ISA[5840000[slong], 200[clong]] OA[100[clong] + 1[clong] + 1[clong], 2920000[slong] + 1[slong]] IRA[2934601[slong] ( 2920000[slong] + 1[slong] + 1[slong]:2920000[slong] + 29200[slong]), 100[clong] + 1[clong] + 1[clong]] OA[100[clong] + 1[clong] + 1[clong], 2920000[slong] + 1[slong]] IA[2920000[slong], 100[clong] + 1[clong]] OTIMEOUT[] IA[2934601[slong] ( 2920000[slong] + 1[slong] + 1[slong]:2920000[slong] + 29200[slong]), 100[clong] + 1[clong] + 1[clong]];IConnect[] OS[100[clong], 0[slong]] ISA[2920000[slong], 100[clong] + 1[clong]] OA[100[clong] + 1[clong], 2920000[slong] + 1[slong]] CLOSE[] OFA[100[clong] + 1[clong], 2920000[slong] + 1[slong]] IA[2920000[slong], 100[clong] + 1[clong]] OTIMEOUT[] IA[2934601[slong] ( 2920000[slong] + 1[slong] + 1[slong]:2920000[slong] + 29200[slong]), 100[clong] + 1[clong] + 1[clong]]
 #debug.repeats=1
 sul.instances=3
+test.purpose=de.learnlib.ralib.sul.tcp.TCPTestPurpose
 sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
 export.model=true
 eqoracle=rwalkfromstate

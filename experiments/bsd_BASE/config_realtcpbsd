@@ -50,6 +50,7 @@ cache.load=tcp-bsd-cache.ser
 cache.dump=tcp-bsd-cache.ser
 cache.tests=true
 sul.instances=1
+test.purpose=de.learnlib.ralib.sul.tcp.TCPTestPurpose
 sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
 export.model=true
 eqoracle=rwalkfromstate

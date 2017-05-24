@@ -49,6 +49,7 @@ cache.load=tcp-linux-cache_BASE.ser
 cache.dump=tcp-linux-cache_BASE.ser
 cache.tests=true
 sul.instances=3
+test.purpose=de.learnlib.ralib.sul.tcp.TCPTestPurpose
 sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
 export.model=true
 eqoracle=rwalkfromstate

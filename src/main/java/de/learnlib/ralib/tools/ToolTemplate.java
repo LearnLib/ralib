@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,6 +99,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     = new ConfigurationOption.StringOption("sul.factory",
              "Provides a custom factory for generating SULs instead of the common one. The constructor should take in a SULParser type object", null, true);
     
+	protected static final ConfigurationOption.LongOption OPTION_MAX_INPUTS = new ConfigurationOption.LongOption(
+			"max.inputs", "Maximum number of inputs that can be run", null, true);
+	
 	
 	private DataWordIOOracle learnOracle;
 	private Map<DataType, Theory> teachers;
@@ -137,6 +141,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	// the the former, stats also include cached data, makes sense only if a cache is pre-loaded
 	private boolean preCache;
 
+	private Long maxInputs;
+
 	public ToolTemplate(SULParser parser) throws ConfigurationException {
 		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
 		this.sulParser = parser;
@@ -148,6 +154,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		this.sulParser.parseConfig(config);
 		this.targetName = sulParser.targetName();
 		this.types = sulParser.getTypes();
+		this.maxInputs = OPTION_MAX_INPUTS.parse(config);
 		
 		 final Constants consts = new Constants();
 
@@ -377,6 +384,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     	if (preCache) {
         	sul = new CachingSUL(sul, ioCache);
         }
+    	if (maxInputs != null) {
+    		sul = new InputLimitOracle(sul, this.counters, maxInputs);
+    	}
     	sul = new CountingDataWordSUL(sul, inputCounter);
         if (timeoutMillis > 0L) {
             sul = new TimeOutSUL(sul, timeoutMillis);
@@ -531,20 +541,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             }
         }
 
-        // tests during learning
-        // resets + inputs
-        System.out.println("Resets Learning: " + counters.learnerInput.getResets());
-        System.out.println("Inputs Learning: " + counters.learnerInput.getInputs());
-        
-        // tests during ce analysis
-        // resets + inputs
-        System.out.println("Resets Ce Analysis: " + counters.ceInput.getResets());
-        System.out.println("Inputs Ce Analysis: " + counters.ceInput.getInputs());
-
-        // tests during search
-        // resets + inputs
-        System.out.println("Resets Testing: " + counters.testInput.getResets());
-        System.out.println("Inputs Testing: " + counters.testInput.getInputs());
+        counters.print(System.out);
 
         // + sums
         System.out.println("Resets: " + (resets +  counters.learnerInput.getResets() + counters.ceInput.getResets()));
@@ -560,7 +557,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         }
         return sb.toString();
     }
-
 
 
 	@Override
@@ -587,7 +583,37 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 			}
 			learnerQuery = new QueryCounter();
 			ceQuery = new QueryCounter();
+			Runtime.getRuntime().addShutdownHook(new Thread(
+					new Runnable() {
+						public void run() {
+							Counters.this.print(System.out);
+						}
+					}
+					));
 		}
+		
+		public long getTotalNumInputs() {
+			return this.learnerInput.getInputs() + this.ceInput.getInputs() 
+			+ this.testInput.getInputs();
+		}
+		
+	    public void print(PrintStream out) {
+	    	Counters counters = this;
+	        // tests during learning
+	        // resets + inputs
+	    	out.println("Resets Learning: " + counters.learnerInput.getResets());
+	    	out.println("Inputs Learning: " + counters.learnerInput.getInputs());
+	        
+	        // tests during ce analysis
+	        // resets + inputs
+	    	out.println("Resets Ce Analysis: " + counters.ceInput.getResets());
+	    	out.println("Inputs Ce Analysis: " + counters.ceInput.getInputs());
+
+	        // tests during search
+	        // resets + inputs
+	    	out.println("Resets Testing: " + counters.testInput.getResets());
+	    	out.println("Inputs Testing: " + counters.testInput.getInputs());
+	    }
 	}
 
 }

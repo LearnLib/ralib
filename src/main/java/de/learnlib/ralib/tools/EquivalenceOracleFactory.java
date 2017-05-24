@@ -13,6 +13,7 @@ import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.equivalence.InputSelector;
 import de.learnlib.ralib.equivalence.RandomSymbolSelector;
 import de.learnlib.ralib.equivalence.RandomTransitionSelector;
+import de.learnlib.ralib.equivalence.TestPurpose;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
@@ -25,6 +26,12 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class EquivalenceOracleFactory {
 	private static final String rw = "rwalk";
     private static final String rws ="rwalkfromstate";
+    
+
+    
+	protected static final ConfigurationOption.StringOption OPTION_TEST_PURPOSE = 
+    		new ConfigurationOption.StringOption("test.purpose",
+    				"Select test purpose class",null, true);
     
 	protected static final ConfigurationOption.StringOption OPTION_EQ_ORACLE = 
     		new ConfigurationOption.StringOption("eqoracle",
@@ -87,7 +94,7 @@ public class EquivalenceOracleFactory {
 	
 	protected static final ConfigurationOption.BooleanOption OPTION_RWALKFROMSTATE_TRANSITION
     = new ConfigurationOption.BooleanOption(rws+".transition",
-            "Activate transition walk instead of symbol walk", true, true);
+            "Activate transition walk instead of symbol walk", false, true);
 		
 	protected static final ConfigurationOption.IntegerOption OPTION_RWALKFROMSTATE_MAX_DEPTH
 	= new ConfigurationOption.IntegerOption(rws + ".max.depth",
@@ -105,7 +112,7 @@ public class EquivalenceOracleFactory {
 			Constants constants, Random random, ParameterizedSymbol...  inputSymbols) throws ConfigurationException {
 		String eqOracle = OPTION_EQ_ORACLE.parse(config);
 		TraceCanonizer traceCanonizer = new SymbolicTraceCanonizer(teachers, constants);
-		IOEquivalenceOracle equOracle = null; 
+		BoundedIOEquivalenceOracle equOracle = null; 
 		if (eqOracle.equals(rw)) {
 			boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
 			double stopProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
@@ -154,6 +161,15 @@ public class EquivalenceOracleFactory {
 					teachers, 
 					traceCanonizer, new AccessSequenceProvider.HypAccessSequenceProvider(), inputSymbols);
 			equOracle =rwalk;
+		}
+		String testPurposeCls = OPTION_TEST_PURPOSE.parse(config);
+		if (testPurposeCls != null) {
+			try {
+				TestPurpose testPurpose = (TestPurpose)Class.forName(testPurposeCls).newInstance();
+				equOracle.setTestPurpose(testPurpose);
+			} catch (Exception e) {
+				throw new ConfigurationException(e.getMessage());
+			}
 		}
 		return equOracle;
 	}

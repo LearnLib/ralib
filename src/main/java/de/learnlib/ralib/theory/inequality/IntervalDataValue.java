@@ -68,6 +68,7 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		super(dv.getType(), dv.getId());
 		this.left = left;
 		this.right = right;
+	//	assert left.getId().compareTo(right.getId()) < 0;
 		
 	}
 	

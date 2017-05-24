@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -110,7 +111,13 @@ public class Slice {
     }
  
     public Set<Register> getRegisters() {
-        throw new IllegalStateException("not implemented yet.");
+    	Set<Register> regs = new LinkedHashSet<>();
+    	for (SlicePredicate p : constraints) {
+    		if (p.left.isRegister()) 
+    			regs.add((Register) p.left);
+    	}
+    	return regs;
+        //throw new IllegalStateException("not implemented yet.");
     }
     
     public EnumSet<DataRelation> getPrefixRelationssFor(SuffixValue sv) {

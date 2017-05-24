@@ -190,8 +190,8 @@ class Component {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
-//        System.out.println("OLD BRANCHING: " + b);
-//        System.out.println("NEW BRANCHING: " + newB);
+        System.out.println("OLD BRANCHING: " + b);
+        System.out.println("NEW BRANCHING: " + newB);
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         
@@ -257,12 +257,12 @@ class Component {
                         c.getSuffix().getActions());
                 
                 GeneralizedSymbolicSuffix newSuffix = 
-                        SymbolicSuffixBuilder.suffixFromSlice(
-                                c.getSuffix().getActions().prepend(
-                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
-                                slice);
-//                new GeneralizedSymbolicSuffix(r.getPrefix(), c.getSuffix(),
-//            			consts, teachers);
+//                        SymbolicSuffixBuilder.suffixFromSlice(
+//                                c.getSuffix().getActions().prepend(
+//                                        r.getPrefix().lastSymbol().getBaseSymbol()), 
+//                                slice);
+                new GeneralizedSymbolicSuffix(r.getPrefix(), c.getSuffix(),
+            			consts, teachers);
                 
                 System.out.println("Long Prefix:" + r.getPrefix());
                 System.out.println("Original Suffix:" + c.getSuffix().getActions());                

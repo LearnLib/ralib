@@ -103,7 +103,7 @@ public class JContraintsUtil {
     }
     
     private static Expression<Boolean> toExpression(ConstantGuardExpression expr, Map<SymbolicDataValue, Variable> map) {
-    	Variable cv = getOrCreate(expr.getVariable(), map, BuiltinTypes.DOUBLE);
+    	Variable cv = getOrCreate(expr.getVariable(), map, type);
     	Constant cs = toConstant(expr.getConstant());
     	
     	return toAtomicExpression(cv, Relation.EQUALS, cs);
@@ -113,8 +113,8 @@ public class JContraintsUtil {
     private static Expression<Boolean> toExpression(SumCAtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
-        Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);
-        Variable rv = getOrCreate(expr.getRight(), map, BuiltinTypes.DOUBLE);
+        Variable lv = getOrCreate(expr.getLeft(), map, type);
+        Variable rv = getOrCreate(expr.getRight(), map, type);
         Expression le;
         Expression re;
         if (expr.getLeftConst() != null)
@@ -138,8 +138,8 @@ public class JContraintsUtil {
     private static Expression<Boolean> toExpression(AtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
-        Variable lv = getOrCreate(expr.getLeft(), map, BuiltinTypes.DOUBLE);
-        Variable rv = getOrCreate(expr.getRight(), map, BuiltinTypes.DOUBLE);
+        Variable lv = getOrCreate(expr.getLeft(), map, type);
+        Variable rv = getOrCreate(expr.getRight(), map, type);
 
         
         Expression<Boolean> boolExpr = toAtomicExpression(lv, expr.getRelation(), rv);
@@ -179,11 +179,11 @@ public class JContraintsUtil {
     }
     
     public static Constant toConstant(DataValue v) {
-        return new Constant( BuiltinTypes.DOUBLE, v.getId());
+        return new Constant( type, v.getId());
     }
 
     public static Variable toVariable(DataValue v) {
-        return new Variable(BuiltinTypes.DOUBLE, v.toString());
+        return new Variable( type, v.toString());
     }
     
 
@@ -193,6 +193,12 @@ public class JContraintsUtil {
 		typeMap.put(Long.class, BuiltinTypes.INTEGER);
 		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
 		typeMap.put(Float.class, BuiltinTypes.FLOAT);
+	}
+	
+	private static Type type = BuiltinTypes.INTEGER;
+	
+	public static void setConstraintsType(Class<?> cls) {
+		type = getJCType(cls);
 	}
 
 	@SuppressWarnings("unchecked")

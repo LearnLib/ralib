@@ -1,7 +1,10 @@
 package de.learnlib.ralib.mapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.NotImplementedException;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -12,7 +15,6 @@ import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.theories.NumberInequalityTheory;
 import de.learnlib.ralib.words.DataWords;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * A value mapper which canonizes based on semi-symbolic information found in data values.
@@ -73,7 +75,16 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 			if (!Boolean.logicalXor(newRight == null, intv.getRight() == null) && !Boolean.logicalXor(newLeft == null, intv.getLeft() == null)
 					&& (newRight != null || newLeft != null)) {
 				if ((newRight == null || newLeft == null) || (newRight.getId().compareTo(newLeft.getId()) > 0)) {
+					if (newRight != null && newLeft != null) {
+						// if intervals are not between values within more than fresh space of each other, we are not interested
+						DataValue fv = this.theory.getFreshValue(Collections.singletonList(newLeft));
+						boolean inSameFreshSpace = (newRight.getId().compareTo((T) fv.getId()) <=0);
+						if (!inSameFreshSpace)
+							return null;
+					}
 					IntervalDataValue<T> val = ((NumberInequalityTheory<T>)this.theory).pickIntervalDataValue(newLeft, newRight);
+//					if (thisToOtherMap.containsValue(val))
+//						return null;
 					return val;
 				} else 
 					// since we use this to canonize a trace from which segments where removed, it can happen that fresh values appear disorderly,
@@ -101,6 +112,6 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 
 	public DataValue<T> decanonize(DataValue<T> value,
 			Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		throw new NotImplementedException();
+		throw new NotImplementedException("Symbolic canonizing can only be done one way");
 	}
 }

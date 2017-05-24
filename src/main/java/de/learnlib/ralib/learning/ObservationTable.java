@@ -100,7 +100,7 @@ class ObservationTable {
         }
         
         if (!newPrefixes.isEmpty()) {
-        	System.out.println(newPrefixes.peek());
+        	System.out.println("new prefix: " + newPrefixes.peek());
             processNewPrefix();
             done = "newPrefix";
             return false;

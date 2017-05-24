@@ -5,5 +5,8 @@ package de.learnlib.ralib.exceptions;
  * learning scope. 
  */
 public class SULRestartException extends DecoratedRuntimeException{
+	public SULRestartException(){
+		
+	}
 
 }

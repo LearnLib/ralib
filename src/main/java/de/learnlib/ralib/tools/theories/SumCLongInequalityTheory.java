@@ -122,15 +122,15 @@ public class SumCLongInequalityTheory extends LongInequalityTheory implements Su
 	// this is a hack optimization for TCP
 	private boolean canRemove(DataValue<Long> dv) {
 		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
-		while (dv instanceof SumCDataValue) {
-			SumCDataValue<Long> sum = ((SumCDataValue<Long>) dv);
-			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
-				if (sumCsOtherThanOne.contains(sum.getConstant()))
-					return true;
-				sumCsOtherThanOne.add(sum.getConstant());
-			}
-			dv = sum.getOperand();
-		}
+//		while (dv instanceof SumCDataValue) {
+//			SumCDataValue<Long> sum = ((SumCDataValue<Long>) dv);
+//			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
+//				if (sumCsOtherThanOne.contains(sum.getConstant()))
+//					return true;
+//				sumCsOtherThanOne.add(sum.getConstant());
+//			}
+//			dv = sum.getOperand();
+//		}
 		return false;
 	}
 

@@ -402,7 +402,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 		} else {
 			ioCache = new IOCache();
 		}
-
+		//System.exit(0);
 		final String dump = OPTION_CACHE_DUMP.parse(config);
 		final IOCache finalCache = ioCache;
 		if (dump != null) {
@@ -448,10 +448,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	protected List<Word<PSymbolInstance>> getCanonizedWordsFromString(String debugString,
 			ParameterizedSymbol[] alphabet, Map<DataType, Theory> teachers, Constants consts) {
 		List<Word<PSymbolInstance>> tests = getWordsFromString(debugString, alphabet);
-		SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
-		List<Word<PSymbolInstance>> canonizedTests = tests.stream().map(w -> canonizer.canonizeTrace(w))
-				.collect(Collectors.toList());
-		return canonizedTests;
+//		SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
+//		List<Word<PSymbolInstance>> canonizedTests = tests.stream().map(w -> canonizer.canonizeTrace(w))
+//				.collect(Collectors.toList());
+		return tests;
 	}
 
 	protected List<Word<PSymbolInstance>> getWordsFromString(String debugString, ParameterizedSymbol[] alphabet) {
