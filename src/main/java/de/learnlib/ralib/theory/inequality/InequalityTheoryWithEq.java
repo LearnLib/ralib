@@ -560,11 +560,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			}
 		}
 
-		if (merged.size() != merged2.size()) {
-			log.log(Level.SEVERE, 
-					prefix + " " + suffix + " \n " + suffixValues.getSuffGuards() + "\n" + 
-					merged + "\n" + merged2);
-		}
+//		if (merged.size() != merged2.size()) {
+//			log.log(Level.SEVERE, 
+//					prefix + " " + suffix + " \n " + suffixValues.getSuffGuards() + "\n" + 
+//					merged + "\n" + merged2);
+//		}
 			
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
@@ -1001,7 +1001,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					// newVal);
 					DataValue<T> inst = this.instantiator.instantiateGuard(guard, newVal, constants, alreadyUsedValues);
 					if (inst != null) {
-						return inst;
+						return oldDv;
 					}
 				}
 			}
