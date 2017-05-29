@@ -29,7 +29,6 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  * An sdt constructor by default should only support single threaded operation. 

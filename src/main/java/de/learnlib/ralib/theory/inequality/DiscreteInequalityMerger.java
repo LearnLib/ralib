@@ -1,23 +1,33 @@
 package de.learnlib.ralib.theory.inequality;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.SymbolicDataExpression;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTEquivalenceChecker;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.SDTOrGuard;
+import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
+public class DiscreteInequalityMerger implements InequalityGuardMerger{
+
+	private SDTGuardLogic logic;
 
 	public DiscreteInequalityMerger() {
-		super(new DiscreteInequalityGuardLogic());
+		this.logic = new InequalityGuardLogic();
 	}
 	
 	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker) {
@@ -53,18 +63,24 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		}
 		
 		// compared to the concrete merger, we need these two extra steps (perhaps it should be a function
-		// of the disjunction logic algorithm)
+		// of the disjunction logic though that's narrowing down the scope of the logic, as you have to account concrete values)
 		
 		// we turn or guards to intervals where possible, that is whenever they contain IntervalGuards. 
-		LinkedHashMap<SDTGuard, SDT> compressedResult = changeOrGuardsWithIntervalsToIntervals(mergedResult);
+		LinkedHashMap<SDTGuard, SDT> compressedResult = replaceOrGuardsWithIntervalsByIntervals(mergedResult);
+		
+		// we turn or guards with 3 or more into interval guards. This ensures we can handle a case of an in-between
+		// guard where the upper bound is incrementally increasing. 
+		LinkedHashMap<SDTGuard, SDT> furtherCompressedResult = replaceOrGuardsWithEqualitiesByIntervals(compressedResult);
 		
 		// the other OR guards (which should only contain unmerge-able equality guards), are split
-		LinkedHashMap<SDTGuard, SDT> noOrResult = splitOrGuardsToConstituents(compressedResult);
+		LinkedHashMap<SDTGuard, SDT> noOrResult = splitOrGuardsToConstituents(furtherCompressedResult);
 		
 		// at this point we should have maximal intervals along with equality guards
 		// it could be that some guards could be expressed by expressions in the adjacent guards above them 
-		// for example, suppose guards <=r1 and ==r2, are adjacent, r2=r1+1. <= r1 could be expressed by
-		// <r2, removing the need to keep r1 as a register
+		// for example, suppose guards <=r1 and ==r2 are adjacent (r2=r1+1). <= r1 can be expressed by
+		// <r2, eliminating the need to keep r1 as a register
+		// Another example, suppose == r1 and >= r1+1 are adjacent. We replace >= r1+1 by > r1. This maintains
+		// consistency with the tree oracle implementation.
 		LinkedHashMap<SDTGuard, SDT> regReducedResult = relabelByExpressingLowerExprByUpper(noOrResult);
 		
 		mergedResult = regReducedResult;
@@ -133,7 +149,7 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 					throw new DecoratedRuntimeException("Unexpected guard type").addDecoration("guard", nxtGuard);
 				}
 				// if the expressions are different, the second is a successor, we formulate the first guard in terms of the second expression
-				// and remove the = from <=
+				// and change <= to < 
 				if (!nxtExpr.equals(((IntervalGuard) crtGuard).getRightExpr()))
 					newGuard = new IntervalGuard(crtGuard.getParameter(), ((IntervalGuard) crtGuard).getLeftExpr(), 
 								((IntervalGuard) crtGuard).getLeftOpen(), nxtExpr, Boolean.TRUE);
@@ -161,18 +177,57 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 		return noOrGateResult;
 	}
 	
-	private LinkedHashMap<SDTGuard, SDT> changeOrGuardsWithIntervalsToIntervals(LinkedHashMap<SDTGuard, SDT> mergedResult) {
+	private LinkedHashMap<SDTGuard, SDT> replaceOrGuardsWithIntervalsByIntervals(LinkedHashMap<SDTGuard, SDT> mergedResult) {
 		final LinkedHashMap<SDTGuard, SDT> compressedResult = new LinkedHashMap<>();
 		mergedResult.forEach((g,sdt) 
-				-> compressedResult.put(compress(g), sdt));
+				-> compressedResult.put(compressOrWithInterval(g), sdt));
 		return compressedResult;
 	}
 	
+	private LinkedHashMap<SDTGuard, SDT> replaceOrGuardsWithEqualitiesByIntervals(
+			LinkedHashMap<SDTGuard, SDT> mergedResult) {
+		final LinkedHashMap<SDTGuard, SDT> compressedResult = new LinkedHashMap<>();
+		mergedResult.forEach((g,sdt) 
+				-> { 
+					SDTGuard newGuard = compressOrWithEqualities(g);
+					compressedResult.put(newGuard, sdt);
+				}
+				);
+		return compressedResult;
+	}
+	
+	
 	/**
-	 * Transforms an OR gate over contiguous guards into an interval, provided there is
-	 * at least one Interval Guard. 
+	 * Transforms an OR gate over ordered contiguous guards into an interval, provided the
+	 * or's disjuncts comprise three or more equalities.
+	 * 
+	 *  E.g. s1 == r1 /\ s1 == r2 /\ s1 == r2+1 => r1 <= s1 <= r2+1
 	 */
-	private SDTGuard compress(SDTGuard sdtGuard) {
+	private SDTGuard compressOrWithEqualities(SDTGuard sdtGuard) {
+		if (! (sdtGuard instanceof SDTOrGuard) )
+			return sdtGuard;
+		SDTGuard newGuard = sdtGuard;
+		List<SDTGuard> oldGuards = ((SDTOrGuard) newGuard).getGuards();
+		if (oldGuards.stream().allMatch( guard -> guard instanceof EqualityGuard) && 
+				(oldGuards.size() >= 2
+				// TODO this should work even without the below condition. It doesn't ATM (something to do with eliminating or not the first input of the suffix)
+				 && !((EqualityGuard)oldGuards.get(0)).getRegister().equals(((EqualityGuard)oldGuards.get(oldGuards.size()-1)).getRegister())
+				 )) {
+			
+			SDTGuard first = oldGuards.get(0);
+			SDTGuard last = oldGuards.get(oldGuards.size()-1);
+			SymbolicDataExpression leftExpr = ((EqualityGuard) first).getExpression();
+			SymbolicDataExpression rightExpr = ((EqualityGuard) last).getExpression();
+			newGuard = new IntervalGuard(sdtGuard.getParameter(), leftExpr, Boolean.FALSE, rightExpr, Boolean.FALSE );
+		}
+		return newGuard;
+	}
+	
+	/**
+	 * Transforms an OR gate over ordered contiguous guards into an interval, provided there is
+	 * at least one Interval Guard.
+	 */
+	private SDTGuard compressOrWithInterval(SDTGuard sdtGuard) {
 		if (! (sdtGuard instanceof SDTOrGuard) )
 			return sdtGuard;
 		SDTGuard newGuard = sdtGuard;
@@ -202,20 +257,29 @@ public class DiscreteInequalityMerger extends ConcreteInequalityMerger{
 				throw new RuntimeException("Case not handled");
 			}
 			
-			newGuard = new IntervalGuard(sdtGuard.getParameter(), leftExpr, leftOpen, rightExpr, rightOpen);
+			if (leftExpr == null && rightExpr == null)
+				newGuard = new SDTTrueGuard(sdtGuard.getParameter());
+			else
+				newGuard = new IntervalGuard(sdtGuard.getParameter(), leftExpr, leftOpen, rightExpr, rightOpen);
 		}
 		return newGuard;
 	}
-//	
-//	
-//	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard withGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
-//		SDT res = null;
-//		if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV() 
-//				&& withGuard instanceof EqualityGuard && ((EqualityGuard) withGuard).isEqualityWithSDV()) { 
-//			res = null;
-//		} else {
-//			res = super.checkSDTEquivalence(guard, withGuard, guardSdtMap, sdtChecker);
-//		}
-//		return res;
-//	}
+	
+	/**
+	 * Checks if SDTs for guards are equivalent and if so, returns the preferred SDT.
+	 * @param sdtChecker 
+	 */
+	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard otherGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
+		
+		SDT sdt = guardSdtMap.get(guard);
+		SDT otherSdt = guardSdtMap.get(otherGuard);
+		boolean equiv = sdtChecker.checkSDTEquivalence(guard, sdt, otherGuard, otherSdt);
+		SDT retSdt = null;
+		if (equiv) 
+			if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV())
+				retSdt = otherSdt;
+			else
+				retSdt = sdt;
+		return retSdt;	
+	}
 }

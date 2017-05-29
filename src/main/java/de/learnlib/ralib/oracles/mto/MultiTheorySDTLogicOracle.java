@@ -117,8 +117,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 			return acc2 instanceof FalseGuardExpression;
 		else if (acc2 instanceof FalseGuardExpression)
 			return acc1 instanceof FalseGuardExpression;
-		GuardExpression rej1 = _sdt1.getRejectingPaths();
-		GuardExpression rej2 = _sdt2.getRejectingPaths();
 		
 		GuardExpression[] contextConjuncts = this.buildContextExpressions(contextMapping);
 		GuardExpression common = new Conjunction(contextConjuncts);
@@ -127,15 +125,11 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 	                createRemapping(piv1, piv2);
 		
 		GuardExpression acc2r = acc2.relabel(remap);
-		GuardExpression rej2r = rej2.relabel(remap);
 		GuardExpression guard2r = guard2.relabel(remap);
 		
 		GuardExpression eqTest = new Disjunction(
 				new Conjunction(acc1, new Negation(acc2r)),
-				new Conjunction(new Negation(acc1), acc2r),
-				new Conjunction(rej1, new Negation(rej2r)),
-				new Conjunction(new Negation(rej1), rej2r)
-				);
+				new Conjunction(new Negation(acc1), acc2r));
 		
 		GuardExpression eqTestGuard1 = new Conjunction(common, eqTest, guard1);
 		GuardExpression eqTestGuard2 = new Conjunction(common, eqTest, guard2r);
