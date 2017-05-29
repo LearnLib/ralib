@@ -1,0 +1,8 @@
+In the Linux +ACK model, we notice that once in the FIN_WAIT2 state 
+(after the FIN from CLOSE has been ack.-ed), all resets with seq. num.
+in window reset the connection. RST 
+
+This is a slight deviation from RFC 5961, which specifies that for all synch.
+states only resets with the seq. num. equal to  the expected sequence number, 
+should reset the connection. (this is the case for all other synch. states 
+other than FIN_WAIT2)
