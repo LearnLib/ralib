@@ -29,11 +29,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -55,8 +53,8 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.ParamSignature;
@@ -76,7 +74,6 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.BranchingLogic.BranchingContext;
@@ -86,7 +83,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.words.Word;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -124,7 +120,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final InequalityGuardMerger fullMerger;
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
-	private boolean concurrent;
 	private de.learnlib.ralib.solver.ConstraintSolver solver;
 	private Set<ParamSignature> exhSuffixParams;
 
@@ -132,7 +127,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier, de.learnlib.ralib.solver.ConstraintSolver solver) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
-		this.concurrent = false;
 		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
 		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
@@ -161,10 +155,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return this.type;
 	}
 	
-	public void enableConcurrentProcessing() {
-		this.concurrent = true;
-	}
-
 	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
 			Map<SDTGuard, DataValue<T>> instantiations, SDTEquivalenceChecker sdtChecker) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
@@ -540,32 +530,23 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// System.out.println("TEMPKIDS for " + prefix + " + " + suffix + " = "
 		// + tempKids);
 		
-		Map<SDTGuard, SDT> merged, merged2;
+		Map<SDTGuard, SDT> merged;
 		Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
 		SDTEquivalenceChecker eqChecker =  new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);  
-		SDTEquivalenceChecker eqChecker2 = new SyntacticEquivalenceChecker();
 		
 		if (branching == BranchingStrategy.FULL) {
 			merged = mergeAllGuards(tempKids, guardDvs, eqChecker);
-			merged2 = mergeAllGuards(tempKids, guardDvs, eqChecker2);
 		} else {
 			if (tempKids.size() == 1) 
-				merged = merged2 = tempKids;
+				merged = tempKids;
 			else { 
 				assert branching == BranchingStrategy.IF_EQU_ELSE;
 				SDTGuard elseGuard = new ArrayList<>(tempKids.keySet()).get(tempKids.size()-1);
 				SDT elseSDT = tempKids.remove(elseGuard);
 				merged = mergeEquDiseqGuards(tempKids, elseGuard, elseSDT, eqChecker);
-				merged2= mergeEquDiseqGuards(tempKids, elseGuard, elseSDT, eqChecker2);
 			}
 		}
 
-//		if (merged.size() != merged2.size()) {
-//			log.log(Level.SEVERE, 
-//					prefix + " " + suffix + " \n " + suffixValues.getSuffGuards() + "\n" + 
-//					merged + "\n" + merged2);
-//		}
-			
 		// System.out.println("MERGED = " + merged);
 		assert !merged.keySet().isEmpty();
 

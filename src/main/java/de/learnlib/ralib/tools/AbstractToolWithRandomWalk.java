@@ -17,7 +17,6 @@
 package de.learnlib.ralib.tools;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -56,7 +55,6 @@ import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.config.ConfigurationOption.BooleanOption;
 import de.learnlib.ralib.tools.theories.SumCTheory;
-import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.commons.util.Pair;
@@ -326,11 +324,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 			for (Theory teacher : sumCTheories) {
 				((SumCTheory) teacher).setConstants(consts);
 			}
-		}
-
-		//
-		if (OPTION_SUL_INSTANCES.parse(config) > 1) {
-			teachers.values().forEach(th -> th.enableConcurrentProcessing());
 		}
 	}
 

@@ -144,11 +144,4 @@ public interface Theory<T> {
      * Returns disjunction and conjunction logic for sdt guards.
      */
     public SDTGuardLogic getGuardLogic();
-    
-    /**
-     * Enables the tree queries to assume concurrent processing capability of the SDT constructor.
-     */
-    public default void enableConcurrentProcessing() {
-    	throw new NotImplementedException();
-    }
 }
