@@ -1,0 +1,125 @@
+digraph RA {
+"" [label="", shape=none];
+l0 [shape=ellipse, style=solid, label="INIT"];
+l1 [shape=point, style=solid];
+l4 [shape=point, style=solid];
+l5 [shape=point, style=solid];
+l6 [shape=ellipse, style=solid, label="CONNECT"];
+l7 [shape=point, style=solid];
+l8 [shape=point, style=solid];
+l9 [shape=ellipse, style=solid, label="CLOSED"];
+l10 [shape=point, style=solid];
+l11 [shape=point, style=solid];
+l12 [shape=point, style=solid];
+l13 [shape=ellipse, style=solid, label="CONNECT"];
+l14 [shape=point, style=solid];
+l15 [shape=point, style=solid];
+l16 [shape=ellipse, style=solid, label="ESTABLISHED"];
+l17 [shape=point, style=solid];
+l18 [shape=point, style=solid];
+l19 [shape=ellipse, style=solid, label="FIN_WAIT1"];
+l20 [shape=point, style=solid];
+l21 [shape=point, style=solid];
+l22 [shape=point, style=solid];
+l23 [shape=ellipse, style=solid, label="FIN_WAIT1"];
+l24 [shape=point, style=solid];
+l25 [shape=point, style=solid];
+l26 [shape=point, style=solid];
+l27 [shape=ellipse, style=solid, label="FIN_WAIT2"];
+l28 [shape=point, style=solid];
+"" -> l0;
+l0 -> l1  [label="CONNECT"];
+l0 -> l4  [label="R|TRUE
+RA|TRUE"];
+l0 -> l5  [label="SA|TRUE [r1:=p2,]
+A|TRUE [r1:=p2,]"];
+l0 -> l8  [label="CLOSE"];
+l1 -> l6  [label="S/F:[p1], M:{p2=c2} [r1:=p1,]"];
+l4 -> l0  [label="TIMEOUT"];
+l5 -> l0  [label="R/F:[], M:{p1=r1, p2=c2}"];
+l6 -> l7  [label="SA|r1 + 1!=p2 [r1:=p2,r2:=r1,]
+A|r1 + 1!=p2 [r1:=p2,r2:=r1,]"];
+l6 -> l15  [label="SA|r1 + 1==p2 [r1:=p1,r2:=p2,]"];
+l6 -> l12  [label="A|r1 + 1==p2 [r1:=p2,]"];
+l6 -> l8  [label="CLOSE
+RA|r1 + 1==p2"];
+l6 -> l11  [label="RA|r1 + 1!=p2 [r1:=r1,]
+CONNECT [r1:=r1,]
+R|TRUE [r1:=r1,]"];
+l7 -> l6  [label="R/F:[], M:{p1=r1, p2=c2} [r1:=r2,]"];
+l8 -> l9  [label="TIMEOUT"];
+l9 -> l8  [label="CONNECT
+R|TRUE
+RA|TRUE
+CLOSE"];
+l9 -> l10  [label="SA|TRUE [r1:=p2,]
+A|TRUE [r1:=p2,]"];
+l10 -> l9  [label="R/F:[], M:{p1=r1, p2=c2}"];
+l11 -> l6  [label="TIMEOUT [r1:=r1,]"];
+l12 -> l13  [label="TIMEOUT [r1:=r1,]"];
+l13 -> l8  [label="CLOSE
+RA|r1==p2"];
+l13 -> l12  [label="RA|r1!=p2 [r1:=r1,]
+CONNECT [r1:=r1,]
+R|TRUE [r1:=r1,]
+A|r1==p2 [r1:=r1,]"];
+l13 -> l14  [label="A|r1!=p2 [r1:=p2,r2:=r1,]
+SA|r1!=p2 [r1:=p2,r2:=r1,]"];
+l13 -> l15  [label="SA|r1==p2 [r1:=p1,r2:=r1,]"];
+l14 -> l13  [label="R/F:[], M:{p1=r1, p2=c2} [r1:=r2,]"];
+l15 -> l16  [label="A/F:[], M:{p1=r2, p2=r1 + 1} [r1:=p2,r2:=r2,]"];
+l16 -> l8  [label="RA|r1==p1
+R|r1==p1"];
+l16 -> l17  [label="RA|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+R|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+SA|TRUE [r1:=r1,r2:=r2,]
+A|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]"];
+l16 -> l21  [label="RA|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]
+R|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]
+A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 [r1:=r1,r2:=r2,]
+CONNECT [r1:=r1,r2:=r2,]"];
+l16 -> l18  [label="CLOSE [r1:=r1,r2:=r2,]"];
+l17 -> l16  [label="A/F:[], M:{p1=r2, p2=r1} [r1:=r1,r2:=r2,]"];
+l18 -> l19  [label="FA/F:[], M:{p1=r2, p2=r1} [r1:=r1,r2:=r2,]"];
+l19 -> l8  [label="RA|r1==p1
+R|r1==p1"];
+l19 -> l20  [label="RA|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+R|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+SA|TRUE [r1:=r1,r2:=r2,]
+A|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]"];
+l19 -> l22  [label="RA|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]
+R|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]
+A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 &amp;&amp; r2 + 1!=p2 [r1:=r1,r2:=r2,]
+CONNECT [r1:=r1,r2:=r2,]
+CLOSE [r1:=r1,r2:=r2,]"];
+l19 -> l26  [label="A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 &amp;&amp; r2 + 1==p2 [r1:=r1,r2:=p2,r3:=p1,]"];
+l20 -> l23  [label="A/F:[], M:{p1=r2 + 1, p2=r1} [r1:=r1,r2:=p1,]"];
+l21 -> l16  [label="TIMEOUT [r1:=r1,r2:=r2,]"];
+l22 -> l19  [label="TIMEOUT [r1:=r1,r2:=r2,]"];
+l23 -> l8  [label="R|r1==p1
+RA|r1==p1"];
+l23 -> l24  [label="R|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+RA|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;p1 [r1:=r1,r2:=r2,]
+SA|TRUE [r1:=r1,r2:=r2,]
+A|r1&gt;p1 or r1 + 29200&lt;p1 [r1:=r1,r2:=r2,]"];
+l23 -> l25  [label="R|r1 + 29200&lt;p1 or r1&gt;p1 [r1:=r1,r2:=r2,]
+RA|r1&gt;p1 or r1 + 29200&lt;p1 [r1:=r1,r2:=r2,]
+A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 &amp;&amp; r2!=p2 [r1:=r1,r2:=r2,]
+CONNECT [r1:=r1,r2:=r2,]
+CLOSE [r1:=r1,r2:=r2,]"];
+l23 -> l26  [label="A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 &amp;&amp; r2==p2 [r1:=r1,r2:=r2,r3:=p1,]"];
+l24 -> l23  [label="A/F:[], M:{p1=r2, p2=r1} [r1:=r1,r2:=r2,]"];
+l25 -> l23  [label="TIMEOUT [r1:=r1,r2:=r2,]"];
+l26 -> l27  [label="TIMEOUT [r1:=r1,r2:=r2,r3:=r3,]"];
+l27 -> l8  [label="R|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1
+RA| r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1"];
+l27 -> l28  [label="R|r1&gt;p1 or r1 + 29200&lt;p1 [r1:=r1,r2:=r2,r3:=r3,]
+RA|r1&gt;p1 or r1 + 29200&lt;p1 [r1:=r1,r2:=r2,r3:=r3,]
+SA|r1 + 29200&lt;=p1 or r1&gt;p1 [r1:=r1,r2:=r2,r3:=r3,]
+A|r1&gt;p1 or r1 + 29200&lt;p1 [r1:=r1,r2:=r2,r3:=r3,]"];
+l27 -> l10  [label="SA|r1 + 29200&gt;p1 &amp;&amp; r1&lt;=p1 [r1:=p2,]"];
+l27 -> l26  [label="CONNECT [r1:=r1,r2:=r2,r3:=r3,]
+A|r1 + 29200&gt;=p1 &amp;&amp; r1&lt;=p1 [r1:=r1,r2:=r2,r3:=r3,]
+CLOSE [r1:=r1,r2:=r2,r3:=r3,]"];
+l28 -> l27  [label="A/F:[], M:{p1=r2, p2=r1} [r1:=r1,r2:=r2,r3:=r3,]"];
+}
