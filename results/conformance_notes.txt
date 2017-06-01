@@ -1,0 +1,21 @@
+Some remarks on conformance to specification outside of those in the paper
+on the differing meaning of the in-window relation for different implementations.
+
+Linux (BASE+ACK model)
+We notice that once in the FIN_WAIT2 state 
+(after the FIN from CLOSE has been ack.-ed), all resets with seq. num.
+in window reset the connection. 
+
+This is a slight deviation from RFC 5961, which specifies that for all synch.
+states only resets with the seq. num. equal to  the expected sequence number, 
+should reset the connection. (this is the case for all synch. states 
+other than FIN_WAIT2) 
+
+Another thing we notice is that whilst the sequence number acceptability test is properly
+implemented, with an empty ACK segment being issued whenever the received sequence
+number is unacceptable(not within window), the ack. number acceptability test is not. An unacceptable
+acknowledgement number should also prompt generation of a similar ACK segment. Linux stays silent
+of receipt of a segment with valid seq. num. but unacceptable ack. num., breaking RFC 793 (see page 37).
+This is the same non-conformance as that noted in the first application of automata learning to TCP.
+
+
