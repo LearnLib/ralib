@@ -923,7 +923,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 							assert eqGuards.size() == 1 : "expecting at most one eq";
 							returnValue = this.instantiateSDExpr(eqGuards.get(0).getExpression(),type,  prefixValues, piv, pval, constants);
 						} else {
-							DataValue<T> andInst = this.instantiate(prefix, ps, piv, pval, constants, guard, param, oldDvs, true);
+							DataValue<T> andInst = this.instantiator.instantiateGuard(guard, val, constants, Collections.emptyList()); 
 							// if it cannot be instantiated by a CS, give up, otherwise we can assume that it is instantiatable
 							if (andInst == null)
 								return null;
@@ -1012,11 +1012,29 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 
 		HashSet<DataValue> prohibitedSet = Sets.newHashSet(prohibited);
-		do {
-			intVal =  this.pickIntervalDataValue(lExprVal, rExprVal);
-			rExprVal = intVal;
-		} while(prohibitedSet.contains(intVal));
+		intVal =  this.pickIntervalDataValue(lExprVal, rExprVal, prohibitedSet);
+		if (intVal == null)
+			throw new RuntimeException("could not pick value between " + lExprVal + " and " + rExprVal + " not in " + prohibitedSet);
 		return intVal;
+	}
+	
+	public IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right, Set<DataValue> prohibited) {
+		if (left != null && right != null && left.getId().compareTo(right.getId()) >= 0) 
+			return null;
+		IntervalDataValue<T> dv = pickIntervalDataValue(left, right);
+		if (prohibited.contains(dv)) {
+			if (right != null) {
+				dv = pickIntervalDataValue(left, dv, prohibited);
+				if (dv != null)
+					return dv;
+			}
+			if (left != null) { 
+				dv = pickIntervalDataValue(dv, right, prohibited);
+				if (dv != null)
+					return dv;
+			}
+		}
+		return dv;
 	}
 	
 	public IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right) {
