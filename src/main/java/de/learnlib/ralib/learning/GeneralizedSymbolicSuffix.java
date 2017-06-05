@@ -204,7 +204,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			this.suffixRelations[idx] = new EnumSet[idx];
 			int typeIndex = 0;
 			for (int i=0; i<idx; i++) {
-				if(this.suffixValues[i].getType().equals(t)) {
+				if(this.suffixValues[i].getType().equals(this.suffixValues[idx].getType())) {
 					this.suffixRelations[idx][i] = srels.get(typeIndex);
 					typeIndex++;
 				} else
