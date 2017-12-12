@@ -24,7 +24,13 @@ The branch includes:
 * models learned (results)
 * a folder containing detailed experimental data, such as the input configuration, 
   the statistics, cache, logs and models generated following each experiment (experiments)
-* various input configurations used mostly to learn TCP-like models (inputs) 
+* various input configurations used mostly to learn TCP-like models (inputs)
+
+Connecting to TCP stacks was done using the TCP Adapter and Entity components from 
+the [*tcp-learner*][6] project. 
+
+The remainder of this file comprises content copied from the README.md of a stable version
+of RaLib. 
 
 Installation
 -------------------------
@@ -119,13 +125,10 @@ rwalk.draw.uniform=false
 teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
 ```
 
-Currently, *equality theories* can be used with the (default) integrated
-constraint solver. *Inequality theories* only work in combination with 
-[*jConstraints*][1]. (Configuration option ```solver=z3```
-
 
 [1]: https://bitbucket.org/psycopaths/jConstraints-z3
 [2]: https://z3.codeplex.com
 [3]: http://www.learnlib.de
 [4]: http://www.apache.org/licenses/LICENSE-2.0
 [5]: https://bitbucket.org/psycopaths/jConstraints
+[6]: https://gitlab.science.ru.nl/pfiteraubrostean/tcp-learner/tree/cav-aec
