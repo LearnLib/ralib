@@ -103,6 +103,14 @@ public class SDT implements SymbolicDecisionTree {
     				.sum();
     	}
     }
+    
+    public int getNumberOfBranches() {
+    	if (this instanceof SDTLeaf) {
+    		return 1;
+    	} else {
+    		return this.children.size();
+    	}
+    }
 
     public Set<SymbolicDataValue> getVariables() {
         Set<SymbolicDataValue> variables = new LinkedHashSet<>();

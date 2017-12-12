@@ -64,7 +64,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SDTQuery;
-import de.learnlib.ralib.oracles.mto.ThoroughSDTEquivalenceChecker;
+import de.learnlib.ralib.oracles.mto.SemanticEquivalenceChecker;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
@@ -156,7 +156,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	}
 	
 	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
-			Map<SDTGuard, DataValue<T>> instantiations, SDTEquivalenceChecker sdtChecker) {
+			Map<SDTGuard, DataValue<T>> instantiations, SDTEquivalenceChecker sdtChecker, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
 			return tempGuards;
 		}
@@ -179,7 +179,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}).collect(Collectors.toList());
 		
 		//System.out.println("TEMP: " + tempGuards);
-		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards, sdtChecker);
+		Map<SDTGuard, SDT> merged = this.fullMerger.merge(sortedGuards, tempGuards, sdtChecker, valuation);
 		//System.out.println("RES: " + merged);
 
 		return merged;
@@ -367,7 +367,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						
 						Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
 						SDTEquivalenceChecker eqChecker = //new SyntacticEquivalenceChecker(); 
-								new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
+								new SemanticEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);
 						
 						Map<SDTGuard, SDT> merged = this.mergeEquDiseqGuards(tempKids, deqGuard, deqSdt, eqChecker);
 						
@@ -532,10 +532,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		
 		Map<SDTGuard, SDT> merged;
 		Mapping<SymbolicDataValue, DataValue<?>> guardContext = this.buildContext(prefixValues, values, constants);
-		SDTEquivalenceChecker eqChecker =  new ThoroughSDTEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);  
+		SDTEquivalenceChecker eqChecker =  new SemanticEquivalenceChecker(constants, solver, suffixValues.getSuffGuards(), guardContext);  
 		
 		if (branching == BranchingStrategy.FULL) {
-			merged = mergeAllGuards(tempKids, guardDvs, eqChecker);
+			merged = mergeAllGuards(tempKids, guardDvs, eqChecker, guardContext);
 		} else {
 			if (tempKids.size() == 1) 
 				merged = tempKids;
@@ -578,7 +578,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	public Mapping<SymbolicDataValue, DataValue<?>> buildContext(List<DataValue> prefixValues,
 			WordValuation ifValues, Constants constants) {
 		Mapping<SymbolicDataValue, DataValue<?>> context = new Mapping<SymbolicDataValue, DataValue<?>>();
-		SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
 		HashSet<DataValue> prSet = new HashSet<DataValue> (prefixValues);
 		for (DataValue dv : prSet) {
 			Register reg = this.getRegisterWithValue(dv, prefixValues);

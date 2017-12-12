@@ -153,8 +153,8 @@ public class CounterexampleAnalysis {
         System.out.println("Slice from word: " + slice);
         
         GeneralizedSymbolicSuffix symSuffix = 
-               // SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
-        		new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
+                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
+        		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
         long numTests = predictNumber(prefix, suffix);
         System.out.println("Predicted num of tests: " + numTests);
 //        if (numTests < 10000)

@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
@@ -29,7 +32,7 @@ public class ConcreteInequalityMerger implements InequalityGuardMerger{
 	 * Sorted guards in this case means that any two adjacent guards are connected. Connectivity depends on whether the
 	 * domain is discrete or continuous. (in discrete domains, two equality guards can also be connected)  
 	 */
-	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker) {
+	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker, Mapping<SymbolicDataValue,DataValue<?>> valuation) {
 		final LinkedHashMap<SDTGuard, SDT> mergedResult = new LinkedHashMap<>(); // contains the final merged result
 		LinkedHashMap<SDTGuard, SDT> mergedTemp= new LinkedHashMap<>(sdtMap); // contains initial and all intermediate merging entries.
 		if (sortedInequalityGuards.size() <= 2)  {

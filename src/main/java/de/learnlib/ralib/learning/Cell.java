@@ -80,7 +80,7 @@ final class Cell {
         log.log(Level.FINEST, this.suffix + "    " + other.suffix);
         log.log(Level.FINEST, this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
 
-//        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
+       // System.out.println("EQ: " + this.prefix + " . " + other.prefix+ " : " + check);
         return check;
     }
 

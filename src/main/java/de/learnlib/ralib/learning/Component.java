@@ -190,8 +190,8 @@ class Component {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
         
-        System.out.println("OLD BRANCHING: " + b);
-        System.out.println("NEW BRANCHING: " + newB);
+//        System.out.println("OLD BRANCHING: " + b);
+//        System.out.println("NEW BRANCHING: " + newB);
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
         
@@ -250,11 +250,11 @@ class Component {
 //            	prefixComponent.toString(b);
 //            	System.out.println(b.toString());
                 Cell c = r.getCellForMemorable(p);
-                SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
-                
-                Slice slice = sb.sliceFromTransitionAndSDT(
-                        r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT(),
-                        c.getSuffix().getActions());
+//                SliceBuilder sb = new SliceBuilder(teachers, consts, solver);
+//                
+//                Slice slice = sb.sliceFromTransitionAndSDT(
+//                        r.getPrefix(), prefixGuard, p, pivU, pivUA, c.getSDT(),
+//                        c.getSuffix().getActions());
                 
                 GeneralizedSymbolicSuffix newSuffix = 
 //                        SymbolicSuffixBuilder.suffixFromSlice(
@@ -268,9 +268,10 @@ class Component {
                 System.out.println("Original Suffix:" + c.getSuffix().getActions());                
                 System.out.println(prefixGuard);                
                 System.out.println(pivU);                
-                System.out.println(pivUA);                
-                System.out.println(c.getSDT());                
-                System.out.println(slice);
+                System.out.println(pivUA);
+                System.out.println(c.getPrefix());
+                System.out.println(c.getParsInVars() + " " + c.getSDT());                
+//                System.out.println(slice);
                 System.out.println(newSuffix);
                 
                 //if (true) throw new IllegalStateException("untested");

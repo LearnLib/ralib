@@ -1,18 +1,18 @@
 package de.learnlib.ralib.theory.inequality;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.Replacement;
+import de.learnlib.ralib.data.SumCDataExpression;
 import de.learnlib.ralib.data.SymbolicDataExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTEquivalenceChecker;
@@ -30,7 +30,7 @@ public class DiscreteInequalityMerger implements InequalityGuardMerger{
 		this.logic = new InequalityGuardLogic();
 	}
 	
-	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker) {
+	public LinkedHashMap<SDTGuard, SDT> merge(List<SDTGuard> sortedInequalityGuards, final Map<SDTGuard, SDT> sdtMap, SDTEquivalenceChecker sdtChecker, Mapping<SymbolicDataValue, DataValue<?>>  valuation) {
 		LinkedHashMap<SDTGuard, SDT> mergedResult = new LinkedHashMap<>(); // contains the final merged result
 		LinkedHashMap<SDTGuard, SDT> mergedTemp= new LinkedHashMap<>(sdtMap); // contains initial and all intermediate merging entries.
 		if (sortedInequalityGuards.size() <= 2)  {
@@ -45,7 +45,7 @@ public class DiscreteInequalityMerger implements InequalityGuardMerger{
 		
 		for (int i=1; i<ineqGuards.length; i++) {
 			SDTGuard next = ineqGuards[i];
-			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp, sdtChecker);
+			SDT equivTest = checkSDTEquivalence(head, next, mergedTemp, sdtChecker, valuation);
 			if (equivTest != null) {
 				SDTGuard mergedGuard = this.logic.disjunction(head, next);
 				mergedTemp.put(mergedGuard, equivTest);
@@ -93,7 +93,7 @@ public class DiscreteInequalityMerger implements InequalityGuardMerger{
 			boolean areEquivalent = true;
 			SDT equivSDT = null;
 			for (int i=1; i<intervalGuards.length; i++) {  
-				equivSDT = checkSDTEquivalence(intervalGuards[i-1], intervalGuards[i], mergedResult, sdtChecker);
+				equivSDT = checkSDTEquivalence(intervalGuards[i-1], intervalGuards[i], mergedResult, sdtChecker, valuation);
 				if (equivSDT == null) {
 					areEquivalent = false;
 					break;
@@ -268,18 +268,60 @@ public class DiscreteInequalityMerger implements InequalityGuardMerger{
 	/**
 	 * Checks if SDTs for guards are equivalent and if so, returns the preferred SDT.
 	 * @param sdtChecker 
+	 * @param valuation 
 	 */
-	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard otherGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker) {
+	SDT checkSDTEquivalence(SDTGuard guard, SDTGuard otherGuard, Map<SDTGuard, SDT> guardSdtMap, SDTEquivalenceChecker sdtChecker, Mapping<SymbolicDataValue,DataValue<?>> valuation) {
+		
 		
 		SDT sdt = guardSdtMap.get(guard);
 		SDT otherSdt = guardSdtMap.get(otherGuard);
+		if (guard instanceof EqualityGuard)
+			sdt = this.relabelEqualitySDT(sdt, (EqualityGuard)guard, valuation);
+		if (otherGuard instanceof EqualityGuard)
+			otherSdt = this.relabelEqualitySDT(otherSdt, (EqualityGuard)otherGuard, valuation);
 		boolean equiv = sdtChecker.checkSDTEquivalence(guard, sdt, otherGuard, otherSdt);
 		SDT retSdt = null;
 		if (equiv) 
-			if (guard instanceof EqualityGuard && ((EqualityGuard) guard).isEqualityWithSDV())
+			if (guard instanceof EqualityGuard) //&& ((EqualityGuard) guard).isEqualityWithSDV())
 				retSdt = otherSdt;
 			else
 				retSdt = sdt;
+//		if (!equiv ) {
+//			if (guard instanceof EqualityGuard && otherGuard instanceof EqualityGuard &&
+//					!(sdt instanceof SDTLeaf)) {
+//				SDT relSdt = this.relabelEqualitySDT(sdt, (EqualityGuard) guard, valuation);
+//				SDT relOtherSdt = this.relabelEqualitySDT(otherSdt, (EqualityGuard) otherGuard, valuation);
+//				equiv = sdtChecker.checkSDTEquivalence(guard, relSdt, otherGuard, relOtherSdt);
+//				if (equiv) {
+//					if (relSdt.getNumberOfLeaves() > relOtherSdt.getNumberOfLeaves())
+//						return relSdt;
+//					else 
+//						return relOtherSdt;
+//				}
+//			}
+//		}
 		return retSdt;	
 	}
+	
+	private SDT relabelEqualitySDT(SDT sdt, EqualityGuard equalityGuard, Mapping<SymbolicDataValue,DataValue<?>> valuation) {
+		if (sdt instanceof SDTLeaf)
+			return sdt;
+		SymbolicDataExpression expr = equalityGuard.getExpression();
+		DataValue<?> suffVal = expr.instantiateExprForValuation(valuation);
+		Replacement repl = new Replacement();
+		for (SymbolicDataValue sdv : valuation.keySet()) {
+			//if (sdv.isRegister()) {
+				DataValue regVal = valuation.get(sdv);
+				if (regVal.equals(suffVal)) 
+					repl.put(sdv, equalityGuard.getParameter());
+				else 
+					if (regVal instanceof SumCDataValue) {
+					if (((SumCDataValue)regVal).getOperand().equals(suffVal)) 
+						repl.put(sdv, new SumCDataExpression(equalityGuard.getParameter(), ((SumCDataValue) regVal).getConstant()));
+				}
+			//}
+		}
+		return (SDT) sdt.replace(repl);
+	}
+	
 }

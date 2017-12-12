@@ -11,17 +11,17 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 
-public class ThoroughSDTEquivalenceChecker implements de.learnlib.ralib.theory.SDTEquivalenceChecker{
+public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTEquivalenceChecker{
 	private MultiTheorySDTLogicOracle logic;
 	private Mapping<SymbolicDataValue, DataValue<?>> guardContext;
 	private List<SDTGuard> suffGuards;
 	private SyntacticEquivalenceChecker syntacticChecker;
 
-	public ThoroughSDTEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards) {
+	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards) {
 		this(constants, cSolver, suffixGuards, new Mapping<>());
 	}
 	
-	public ThoroughSDTEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards, Mapping<SymbolicDataValue, DataValue<?>> guardContext) {
+	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards, Mapping<SymbolicDataValue, DataValue<?>> guardContext) {
 		this.logic = new MultiTheorySDTLogicOracle(constants, cSolver);
 		this.guardContext = guardContext;
 		this.suffGuards = suffixGuards;

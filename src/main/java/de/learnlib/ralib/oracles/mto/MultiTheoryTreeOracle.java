@@ -377,7 +377,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 	            	// if merging of guards is done properly, there should be no case where the guard is not instantiable.
 	            	if (dvi == null || dvi.getId().equals(Double.valueOf(0.0))) {
 //	            		continue;
-	            		throw new DecoratedRuntimeException("Unexpected ")
+	            		throw new DecoratedRuntimeException("Unexpected dvi " + dvi)
 	            		.addDecoration("merged guard", guard).addDecoration("from guards", oldGuards).addDecoration("context", guardContext);
 	            	}
 	            	
