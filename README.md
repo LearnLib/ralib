@@ -60,10 +60,10 @@ comment out those you don't need. Start off small. (e.g. with only "ACCEPT", "LI
 and "SYN(V,V,0)"). Don't combine server socket calls with client socket calls!
 
 3. edit 'config.cfg' by setting: 
-   * serverIP, serverPort to the IP/port of _TCP Entity_
-   * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
-   * networkInterface (the interface over which communication with the TCP Entity is done)
-   * waitime to 0.2 or 0.3 (depending on the network)
+      * serverIP, serverPort to the IP/port of _TCP Entity_
+      * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
+      * networkInterface (the interface over which communication with the TCP Entity is done)
+      * waitime to 0.2 or 0.3 (depending on the network)
 
 4. run the network adapter:
 `sudo python Adapter/main.py --configFile config.cfg`
@@ -74,7 +74,7 @@ Now comes the interesting part, instead of running LearnLib, we configure and ru
 5. In the project root, create a new folder (say 'run') in which you copy 'ralib.jar' and the contents of 'inputs/tcp'. 'cd' to that directory.
 
 6. Configure the parameters of 'tcp.properties' (the configuration file for the TCP adapter integrated into RALib) so that it can connect to the network adapter. 
- * localCommunicationPort 'config.cfg' of network adapter should match senderPort in 'tcp.properties'
+      * localCommunicationPort 'config.cfg' of network adapter should match senderPort in 'tcp.properties'
 
 7. Configure the input configuration file config_realtcp according to preference. You can use it as is.
 
