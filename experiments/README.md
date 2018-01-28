@@ -16,3 +16,5 @@ Each experiment folder may contain:
 * '.log' file - a log of learning
 * 'model.dot' - the learned model (if learning was successful)
 * '.ser' file - the cache obtained as a result of the learning experiment
+
+In 'prog' there are files for one experiment that was not finished in time.
