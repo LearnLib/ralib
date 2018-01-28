@@ -60,10 +60,10 @@ comment out those you don't need. Start off small. (e.g. with only "ACCEPT", "LI
 and "SYN(V,V,0)"). Don't combine server socket calls with client socket calls!
 
 3. edit 'config.cfg' by setting: 
- * serverIP, serverPort to the IP/port of _TCP Entity_
- * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
- * networkInterface (the interface over which communication with the TCP Entity is done)
- * waitime to 0.2 or 0.3 (depending on the network)
+   * serverIP, serverPort to the IP/port of _TCP Entity_
+   * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
+   * networkInterface (the interface over which communication with the TCP Entity is done)
+   * waitime to 0.2 or 0.3 (depending on the network)
 
 4. run the network adapter:
 `sudo python Adapter/main.py --configFile config.cfg`
