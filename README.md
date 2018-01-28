@@ -28,7 +28,7 @@ The branch includes the folders:
 * 'experiments - a folder containing detailed experimental data, such as the input configuration, 
   the statistics, cache, logs and models generated following each experiment
 * 'inputs' - contains various input configurations including those for learning TCP-like models 
-* 'inputs/tcp' - contains input files for the actual TCP case study
+  * 'tcp' - contains input files for the actual TCP case study
 
 Connecting to TCP stacks was done using the TCP Adapter and Entity components from 
 the [*tcp-learner*][6] project.
@@ -54,9 +54,11 @@ The Learner side requires more tweaking.
 `sudo iptables -A OUTPUT -p --tcp-flags RST RST -j DROP`
 
 Then copy the files from the Example directory to the tcp-learner dir. 
+
 2. edit sutinfo.yaml with the alphabet used for learner. All possible inputs are included,
 comment out those you don't need. Start off small. (e.g. with only "ACCEPT", "LISTEN" 
 and "SYN(V,V,0)"). Don't combine server socket calls with client socket calls!
+
 3. edit 'config.cfg' by setting: 
  * serverIP, serverPort to the IP/port of _TCP Entity_
  * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
@@ -68,10 +70,14 @@ and "SYN(V,V,0)"). Don't combine server socket calls with client socket calls!
 (the adapter should display all the parameters used and start running)
 
 Now comes the interesting part, instead of running LearnLib, we configure and run the RALib setup. 
+
 5. In the project root, create a new folder (say 'run') in which you copy 'ralib.jar' and the contents of 'inputs/tcp'. 'cd' to that directory.
+
 6. Configure the parameters of 'tcp.properties' (the configuration file for the TCP adapter integrated into RALib) so that it can connect to the network adapter. 
  * localCommunicationPort 'config.cfg' of network adapter should match senderPort in 'tcp.properties'
+
 7. Configure the input configuration file config_realtcp according to preference. You can use it as is.
+
 8. Run the command 
 ` java -cp ralib.jar -jar ralib.jar sul-analyzer -f config_realtcp `
 
