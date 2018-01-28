@@ -16,18 +16,59 @@ Branch Information and Structure
 This is an experimental branch of RaLib used to learn TCP stacks. Consequently, 
 stability should not be expected. This adaptation supports theories of equality, 
 inequality and sums over (one or two) constants. Handling these theories
-allowed us to use RaLib to learn TCP client implementations.
+allowed us to use RaLib to learn TCP client implementations. For a more formal description
+of the extensions, we refer to the publication: Learning-Based Testing the Sliding Window 
+Behavior of TCP Implementations. FMICS 2017: 185-200. 
 
-The branch includes:
+The branch includes the folders:
 
-* the RaLib source code (src)
-* models learned (results)
-* a folder containing detailed experimental data, such as the input configuration, 
-  the statistics, cache, logs and models generated following each experiment (experiments)
-* various input configurations used mostly to learn TCP-like models (inputs)
+* 'src' - the RaLib source code 
+* 'dist' - contains "ralib.jar", an archive generated from this project
+* 'results' - the .dot register automata models learned plus some scripts 
+* 'experiments - a folder containing detailed experimental data, such as the input configuration, 
+  the statistics, cache, logs and models generated following each experiment
+* 'inputs' - including various input configurations used mostly to learn TCP-like models 
 
 Connecting to TCP stacks was done using the TCP Adapter and Entity components from 
-the [*tcp-learner*][6] project. 
+the [*tcp-learner*][6] project.
+
+Quick Run
+-------------------------
+Download the [*tcp-learner*][6] tool in a Linux VM (or your Linux Host). On the machine 
+whose TCP stack you want to learn, set up the SutAdapter of the tcp-learner project. Then
+follow the instructions on the tcp-learner page, other than the one starting the learner.
+We copied them here:
+
+Get the TCP Adapter (SutAdapter/socketAdapter.c) and deploy it on the system you want 
+to learn (for example your host). Compile it (with any Linux/Windows 
+compiler) and use:
+
+`./socketAdapter -a addressOfNetworkAdapter -l portOfNetworkAdapter -p portUsedByTCPEntity`
+
+This should get your TCP Adapter listening for network adapter connections, over which all
+socket strings are sent along with system resets. 
+
+The Learner side requires more tweaking. 
+1. first, don't allow the OS to interfere to the communication with the TCP Entity by running from a terminal:
+`sudo iptables -A OUTPUT -p --tcp-flags RST RST -j DROP`
+
+Then copy the files from the Example directory to the tcp-learner dir. 
+2. edit sutinfo.yaml with the alphabet used for learner. All possible inputs are included,
+comment out those you don't need. Start off small. (e.g. with only "ACCEPT", "LISTEN" 
+and "SYN(V,V,0)"). Don't combine server socket calls with client socket calls!
+3. edit config.cfg by setting: 
+ * serverIP, serverPort to the IP/port of _TCP Entity_
+ * cmdIP, cmdPort to the IP/port of  _TCP Adapter_ 
+ * networkInterface (the interface over which communication with the TCP Entity is done)
+ * waitime to 0.2 or 0.3 (depending on the network)
+
+4. run the network adapter:
+`sudo python Adapter/main.py --configFile config.cfg`
+(the adapter should display all the parameters used and start running)
+
+Now comes the interesting part, instead of running LearnLib, we now run the RALib setup.
+
+
 
 The remainder of this file comprises content copied from the README.md of a stable version
 of RaLib. 
