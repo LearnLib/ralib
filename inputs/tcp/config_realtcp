@@ -1,0 +1,84 @@
+# the alphabets, right now the server input alphabet is fully commented out 
+# as we only attempted learning the client
+
+# server alphabet
+#inputs=ACCEPT()+\
+#  LISTEN()+\
+#  CLOSECONNECTION()+\
+#  NIL()+\
+#  IA(java.lang.Long:long,java.lang.Long:long)+\
+#  IS(java.lang.Long:long,java.lang.Long:long)+\
+#  ISA(java.lang.Long:long,java.lang.Long:long)+\
+#  IFA(java.lang.Long:long,java.lang.Long:long)+\
+#  IR(java.lang.Long:long,java.lang.Long:long)
+#outputs=OTIMEOUT()+\
+#  OA(java.lang.Long:long,java.lang.Long:long)+\
+#  OFA(java.lang.Long:long,java.lang.Long:long)+\
+#  OS(java.lang.Long:long,java.lang.Long:long)+\
+#  OSA(java.lang.Long:long,java.lang.Long:long)+\
+#  OR(java.lang.Long:long,java.lang.Long:long)+\
+#  OAR(java.lang.Long:long,java.lang.Long:long)
+
+#client alphabet (add '!' before inputs you want to exclude)
+inputs=IConnect()+\
+  ISA(java.lang.Long:long,java.lang.Long:long)+\
+  !IS(java.lang.Long:long,java.lang.Long:long)+\
+  IR(java.lang.Long:long,java.lang.Long:long)+\
+  IRA(java.lang.Long:long,java.lang.Long:long)+\
+  !IA(java.lang.Long:long,java.lang.Long:long)+\
+  !SEND()+\
+  !IFA(java.lang.Long:long,java.lang.Long:long)+\
+  CLOSE()
+  
+outputs=OTIMEOUT()+\
+  OA(java.lang.Long:long,java.lang.Long:long)+\
+  OFA(java.lang.Long:long,java.lang.Long:long)+\
+  OS(java.lang.Long:long,java.lang.Long:long)+\
+  OSA(java.lang.Long:long,java.lang.Long:long)+\
+  OR(java.lang.Long:long,java.lang.Long:long)+\
+  OPA(java.lang.Long:long,java.lang.Long:long)+\
+  ORA(java.lang.Long:long,java.lang.Long:long)
+
+# SUL information
+# the SUL we want to learn (which is a custom adapter)
+target=de.learnlib.ralib.sul.tcp.TCPAdapterSUL
+# this is the factory which build the TCP adapter
+sul.factory=de.learnlib.ralib.sul.tcp.TCPSULFactory
+# uncomment this is you want to run multiple instances in parallel (in particular during testing)
+# sul.instances=2
+
+# the solver, currently z3 is the only available option
+solver=z3
+logging.level=SEVERE
+logging.file=learn.log
+max.time.millis=100000000
+
+# use ce reduction, suffix optimization, fresh abstraction, rwalk testing, produce a model upon finishing learning
+use.ceopt=true
+use.suffixopt=true
+use.fresh=true
+use.rwalk=true
+export.model=true
+
+# uncomment these two lines if you want to enable caching 
+# cache.load=tcp-cache.ser
+# cache.dump=tcp-cache.ser
+
+# test parameters
+eqoracle=rwalkfromstate
+random.seed=1
+rwalkfromstate.prob.history=0.3
+rwalkfromstate.prob.register=0.4
+rwalkfromstate.prob.related=0.2
+rwalkfromstate.prob.reset=0.1
+rwalkfromstate.max.depth=10
+rwalkfromstate.max.runs=15000
+rwalkfromstate.reset.count=false
+rwalkfromstate.draw.uniform=true
+
+# the theory used to learn TCP
+teachers=long:de.learnlib.ralib.tools.theories.SumCLongInequalityTheory
+# 0 is the only constant TCP generates
+constants=[{"type":"long","value":"0"}]
+# 1 is for successors, 29200 represents the window, you may have to change it if the window for your OS is different
+constants.sumc=[{"type":"long","value":"1"}, {"type":"long","value":"29200"}]
