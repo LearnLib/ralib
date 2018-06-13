@@ -73,7 +73,7 @@ public class ClassAnalyzerParser extends SULParser{
                     outList.add(mc.getOutput());
                 }
                 hasVoid = hasVoid || mc.isVoid();
-                hasBoolean = hasBoolean || mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE);
+                hasBoolean = hasBoolean || (!mc.isVoid() && mc.getRetType().equals(SpecialSymbols.BOOLEAN_TYPE));
             }
             
             this.fieldConfig = null;
@@ -102,6 +102,7 @@ public class ClassAnalyzerParser extends SULParser{
             	outList.add(SpecialSymbols.DEPTH);
             this.outputSymbols = outList.toArray(new ParameterizedSymbol[]{});
         }catch(Exception e){
+                e.printStackTrace();
         	throw new ConfigurationException(e.getMessage());
         }
 	}

@@ -134,7 +134,7 @@ public interface IOCacheManager {
 			
 			SerializablePSymbolInstance(PSymbolInstance inst, Constants consts) {
 				baseSymbol = new SerializableParameterSymbol(inst.getBaseSymbol());
-				dvs = Arrays.stream(inst.getParameterValues()).map(val -> visit(val, consts)).toArray(SerializableDataValue []::new);
+				dvs = (SerializableDataValue[]) Arrays.stream(inst.getParameterValues()).map(val -> visit(val, consts)).toArray(SerializableDataValue []::new);
 			}
 			
 			public PSymbolInstance toPSymbolInstance(Constants consts) {
