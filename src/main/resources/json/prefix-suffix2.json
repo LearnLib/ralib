@@ -1,0 +1,10 @@
+{
+  "prefix": [
+    {"symbol": "IIn", "concreteParameter": 5},
+    {"symbol": "OOut", "concreteParameter": 5}
+  ],
+  "suffix": [
+  {"symbol": "IIn", "symbolicParameter": 1},
+  {"symbol": "OOut", "symbolicParameter": 2}
+  ]
+}
