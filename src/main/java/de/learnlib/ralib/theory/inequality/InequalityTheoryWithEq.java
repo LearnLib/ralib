@@ -317,26 +317,26 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
         newInAndOut.add(0, newGuardSet);
             newInAndOut.add(1, prohibited);
-//        Set<SDTGuard> temp = new LinkedHashSet<>();
+//        Set<SDTGuard> tmp = new LinkedHashSet<>();
 //        Set<SDTGuard> prohibited = new LinkedHashSet<>();
-//            System.out.println("temp is: " + temp + " and prohibited: " + prohibited);
+//            System.out.println("tmp is: " + tmp + " and prohibited: " + prohibited);
 //        for (SDTGuard m : merged) {
 //            assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
 //            Set<SDTGuard> mWithTarget = target.mergeWith(m);
 //            System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget);
 //            if (!mWithTarget.contains(target)) {
 //                prohibited.add(target);
-//                temp.remove(target);
+//                tmp.remove(target);
 //            }
 //            if (!mWithTarget.contains(m)) {
 //                prohibited.add(m);
-//                temp.remove(target);
+//                tmp.remove(target);
 //            }
-//            addAllSafely(temp, mWithTarget, prohibited);
-//            System.out.println("... but after adding " + mWithTarget + " safely: " + temp + " with " + prohibited);
+//            addAllSafely(tmp, mWithTarget, prohibited);
+//            System.out.println("... but after adding " + mWithTarget + " safely: " + tmp + " with " + prohibited);
 //        }
-//        System.out.println("return: " + temp);
-//        return temp;
+//        System.out.println("return: " + tmp);
+//        return tmp;
 //        System.out.println("removing: " + prohibited);
         removeProhibited(newGuardSet, prohibited);
 //        System.out.println("... and after removing :: " + newGuardSet);
@@ -422,26 +422,26 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                }
 //            }
 //        }
-////        Set<SDTGuard> temp = new LinkedHashSet<>();
+////        Set<SDTGuard> tmp = new LinkedHashSet<>();
 ////        Set<SDTGuard> prohibited = new LinkedHashSet<>();
-////            System.out.println("temp is: " + temp + " and prohibited: " + prohibited);
+////            System.out.println("tmp is: " + tmp + " and prohibited: " + prohibited);
 ////        for (SDTGuard m : merged) {
 ////            assert !(target instanceof SDTOrGuard && m instanceof SDTOrGuard);
 ////            Set<SDTGuard> mWithTarget = target.mergeWith(m);
 ////            System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget);
 ////            if (!mWithTarget.contains(target)) {
 ////                prohibited.add(target);
-////                temp.remove(target);
+////                tmp.remove(target);
 ////            }
 ////            if (!mWithTarget.contains(m)) {
 ////                prohibited.add(m);
-////                temp.remove(target);
+////                tmp.remove(target);
 ////            }
-////            addAllSafely(temp, mWithTarget, prohibited);
-////            System.out.println("... but after adding " + mWithTarget + " safely: " + temp + " with " + prohibited);
+////            addAllSafely(tmp, mWithTarget, prohibited);
+////            System.out.println("... but after adding " + mWithTarget + " safely: " + tmp + " with " + prohibited);
 ////        }
-////        System.out.println("return: " + temp);
-////        return temp;
+////        System.out.println("return: " + tmp);
+////        return tmp;
 //        System.out.println("removing: " + prohibited);
 //        removeProhibited(newGuardSet, prohibited);
 //        System.out.println("... and after removing :: " + newGuardSet);

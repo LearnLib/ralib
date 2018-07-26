@@ -1,0 +1,4 @@
+taintedstr.egg-info/PKG-INFO
+taintedstr.egg-info/SOURCES.txt
+taintedstr.egg-info/dependency_links.txt
+taintedstr.egg-info/top_level.txt

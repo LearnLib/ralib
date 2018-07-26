@@ -23,11 +23,8 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,6 +91,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
         try (FileWriter fw = new FileWriter(qfile)) {
             Gson gson = new Gson();
             gson.toJson(tqjson, fw);
+
             fw.flush();
         } catch (IOException ex) {
             throw new RuntimeException("Could not write query file");
@@ -101,7 +99,25 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     }
 
     private void executeCmd() {
-
+        try {
+            String cmdString = cmd + " " + qfile + " " + sfile;
+            Process p = Runtime.getRuntime().exec(cmdString);
+            p.waitFor();
+            if(p.exitValue() != 0){
+                System.err.println("Error in \n" + cmdString + "\n exit code " + p.exitValue());
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+                    String line = "";
+                    while ((line = br.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+                System.exit(1);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("could not start python oracle");
+        } catch (InterruptedException e) {
+            throw  new RuntimeException("treeOracle interrupted ");
+        }
     }
 
     private SDT readSDT() {

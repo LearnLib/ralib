@@ -5,13 +5,7 @@
  */
 package de.learnlib.ralib.json;
 
-import de.learnlib.ralib.oracles.external.SymbolicSymbolJSON;
-import de.learnlib.ralib.oracles.external.GuardJSON;
-import de.learnlib.ralib.oracles.external.TreeQueryResultJSON;
-import de.learnlib.ralib.oracles.external.ConcreteSymbolJSON;
-import de.learnlib.ralib.oracles.external.TreeQueryJSON;
-import de.learnlib.ralib.oracles.external.GuardedSubTreeJSON;
-import de.learnlib.ralib.oracles.external.SdtJSON;
+import de.learnlib.ralib.oracles.external.*;
 import com.google.gson.Gson;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -19,7 +13,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.external.JSONUtils;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -97,4 +90,6 @@ public class JSONTest {
         System.out.println(gson.toJson(tq));
         
     }
+
+
 }
