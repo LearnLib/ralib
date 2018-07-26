@@ -55,7 +55,22 @@ public class External extends AbstractToolWithRandomWalk {
             = new ConfigurationOption.StringOption("outputs",
                     "output action signatures. format: o2(type,type) + o2() + ...", null, false);
 
+    private static final ConfigurationOption.StringOption OPTION_ORACLE_CMD
+            = new ConfigurationOption.StringOption("cmd",
+                    "oracle command", null, false);
+
+    private static final ConfigurationOption.StringOption OPTION_QUERY_FILE
+            = new ConfigurationOption.StringOption("query",
+                    "file for json queries", null, false);
+
+    private static final ConfigurationOption.StringOption OPTION_SDT_FILE
+            = new ConfigurationOption.StringOption("sdt",
+                    "file for json sdts", null, false);
+            
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
+        OPTION_ORACLE_CMD,
+        OPTION_QUERY_FILE,
+        OPTION_SDT_FILE,
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_INPUTS,
@@ -154,7 +169,11 @@ public class External extends AbstractToolWithRandomWalk {
         //    }
         //}
 
-        MultiTheoryTreeOracle mto = new ExternalTreeOracle(teachers, consts, solver);
+        String cmd = OPTION_ORACLE_CMD.parse(config);
+        String qfile = OPTION_QUERY_FILE.parse(config);
+        String sfile = OPTION_SDT_FILE.parse(config);
+        
+        MultiTheoryTreeOracle mto = new ExternalTreeOracle(teachers, consts, solver, cmd, qfile, sfile);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
