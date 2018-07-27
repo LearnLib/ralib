@@ -147,7 +147,7 @@ public class IORandomWordOracle implements IOEquivalenceOracle {
         
         log.log(Level.FINE, "Candidate CE: {0}", run);
         hypsul.post();
-        return null;
+        return run;
     }
     
     public void setError(ParameterizedSymbol error) {
