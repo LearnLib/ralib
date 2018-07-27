@@ -11,8 +11,12 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
@@ -25,6 +29,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -52,34 +57,28 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     }
 
     @Override
-    public SDT treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, PIV pir,
-            Constants constants,
-            SuffixValuation suffixValues) {
+    public TreeQueryResult treeQuery(
+            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+
 
         System.out.println("prefix = " + prefix);
         System.out.println("suffix = " + suffix);
-        System.out.println("values = " + values);
-        System.out.println("pir = " + pir);
-        System.out.println("constants = " + constants);
-        System.out.println("suffixValues = " + suffixValues);
 
         // special case: empty word
         if (prefix.isEmpty() && suffix.getActions().isEmpty()) {
             System.out.println("Special Case: empty query is accepted by default.");
-            return SDTLeaf.ACCEPTING;
+            return new TreeQueryResult(new PIV(), SDTLeaf.ACCEPTING);
         }
 
         // special case: invalid sequence of inputs / outputs
         if (invalidIO(prefix, suffix)) {
             System.out.println("Special Case: invalid sequence of i/o is rejected by default.");
-            return SDTLeaf.REJECTING;
+            return new TreeQueryResult(new PIV(), SDTLeaf.REJECTING);
         }
 
         writeQuery(prefix, suffix);
         executeCmd();
-        return readSDT();
+        return readSDT(DataWords.actsOf(prefix), suffix.getActions());
     }
 
     private void writeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
@@ -120,19 +119,46 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
         }
     }
 
-    private SDT readSDT() {
+    private TreeQueryResult readSDT(
+            Word<ParameterizedSymbol> prefix, 
+            Word<ParameterizedSymbol> suffix) {
+        
+        Map<Integer, Parameter> pmap = new HashMap<>();
+        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+                new SymbolicDataValueGenerator.ParameterGenerator();
+        int i=1;
+        for (ParameterizedSymbol ps : prefix) {
+            for (DataType t : ps.getPtypes()) {
+                pmap.put(i++, pgen.next(t));
+            }
+        }
 
+        Map<Integer, SuffixValue> smap = new HashMap<>();
+        SymbolicDataValueGenerator.SuffixValueGenerator sgen = 
+                new SymbolicDataValueGenerator.SuffixValueGenerator();
+        i=1;
+        for (ParameterizedSymbol ps : suffix) {
+            for (DataType t : ps.getPtypes()) {
+                smap.put(i++, sgen.next(t));
+            }
+        }
+        
         try (FileReader fr = new FileReader(sfile)) {
             Gson gson = new Gson();
             TreeQueryResultJSON tqr = gson.fromJson(fr, TreeQueryResultJSON.class);
             fr.close();
+            
+            PIV piv = new PIV();            
+            SymbolicDataValueGenerator.RegisterGenerator rgen = 
+                    new SymbolicDataValueGenerator.RegisterGenerator();
+            
+            SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), pmap, smap, 1, piv, rgen);
 
-            return JSONUtils.fromJSON(tqr.getSdt(), null, null);
-
+            return new TreeQueryResult(piv, sdt);
+            
         } catch (IOException ex) {
             throw new RuntimeException("Could not read sdt file");
         }
-
     }
 
     private boolean invalidIO(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {

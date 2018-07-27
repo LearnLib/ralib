@@ -9,7 +9,9 @@ import de.learnlib.ralib.oracles.external.*;
 import com.google.gson.Gson;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -48,8 +50,11 @@ public class JSONTest {
         TreeQueryResultJSON tqrJSON = gson.fromJson(reader, TreeQueryResultJSON.class);
         System.out.println("TQR: " + tqrJSON);
         
-        Map<Integer, SuffixValue> params = new HashMap<>();
-        Map<Integer, SymbolicDataValue> registers = new HashMap<>();
+        Map<Integer, Parameter> params = new HashMap<>();
+        Map<Integer, SuffixValue> svs = new HashMap<>();
+        
+        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+                new SymbolicDataValueGenerator.ParameterGenerator();
         
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = 
                 new SymbolicDataValueGenerator.SuffixValueGenerator();
@@ -59,13 +64,14 @@ public class JSONTest {
         
         DataType tInt = new DataType("int", Integer.class);
         
-        params.put(1, sgen.next(tInt));
-        params.put(2, sgen.next(tInt));
+        params.put(1, pgen.next(tInt));
+        params.put(2, pgen.next(tInt));
         
-        registers.put(1, rgen.next(tInt));
-        registers.put(2, rgen.next(tInt));
+        svs.put(1, sgen.next(tInt));
+        svs.put(2, sgen.next(tInt));
         
-        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), params, registers);
+        PIV piv = new PIV();
+        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), params, svs, 1, piv, rgen);
         System.out.println(sdt);
     }
     
