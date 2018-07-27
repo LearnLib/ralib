@@ -117,7 +117,8 @@ public class IORandomWordOracle implements IOEquivalenceOracle {
         while (runs < maxRuns) {
             Word<PSymbolInstance> candidate = generate();
 
-            TreeQueryResult tqr = oracle.treeQuery(candidate, new SymbolicSuffix(candidate, Word.epsilon()));
+            TreeQueryResult tqr = oracle.treeQuery(candidate, 
+                    new SymbolicSuffix(Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon()));
             boolean sysOut = ((SDTLeaf)tqr.getSdt()).isAccepting();            
             boolean hypOut = hyp.accepts(candidate);
             
