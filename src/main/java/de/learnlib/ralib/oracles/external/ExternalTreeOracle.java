@@ -89,7 +89,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
         ConcreteSymbolJSON[] pj = JSONUtils.toJSON(prefix);
         SymbolicSymbolJSON[] sj = JSONUtils.toJSON(suffix);
         TreeQueryJSON tqjson = new TreeQueryJSON(pj, sj);
-
+        System.out.println("TQ: " +  tqjson);
         try (FileWriter fw = new FileWriter(qfile)) {
             Gson gson = new Gson();
             gson.toJson(tqjson, fw);
@@ -150,7 +150,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
             Gson gson = new Gson();
             TreeQueryResultJSON tqr = gson.fromJson(fr, TreeQueryResultJSON.class);
             fr.close();
-            
+            System.out.println("TQR: " +  tqr);
             PIV piv = new PIV();            
             SymbolicDataValueGenerator.RegisterGenerator rgen = 
                     new SymbolicDataValueGenerator.RegisterGenerator();
