@@ -11,6 +11,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.equivalence.IORandomWordOracle;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -94,7 +95,7 @@ public class External extends AbstractToolWithRandomWalk {
 
     private DataWordSUL sulTest;
 
-    private IORandomWalk randomWalk = null;
+    private IORandomWordOracle randomWalk = null;
 
     private RaStar rastar;
 
@@ -199,8 +200,8 @@ public class External extends AbstractToolWithRandomWalk {
             int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
             boolean resetRuns = OPTION_RWALK_RESET.parse(config);
 
-            this.randomWalk = new IORandomWalk(random,
-                    sulTest,
+            this.randomWalk = new IORandomWordOracle(random,
+                    mto,
                     drawUniformly, // do not draw symbols uniformly 
                     resetProbabilty, // reset probability 
                     freshProbability, // prob. of choosing a fresh data value
