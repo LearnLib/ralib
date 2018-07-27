@@ -78,7 +78,10 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
 
         writeQuery(prefix, suffix);
         executeCmd();
-        return readSDT(DataWords.actsOf(prefix), suffix.getActions());
+        TreeQueryResult tqr = readSDT(DataWords.actsOf(prefix), suffix.getActions());
+        System.out.println("PIV = " + tqr.getPiv());
+        System.out.println("SDT = " + tqr.getSdt());        
+        return tqr;
     }
 
     private void writeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
@@ -153,7 +156,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
                     new SymbolicDataValueGenerator.RegisterGenerator();
             
             SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), pmap, smap, 1, piv, rgen);
-
+            
             return new TreeQueryResult(piv, sdt);
             
         } catch (IOException ex) {
