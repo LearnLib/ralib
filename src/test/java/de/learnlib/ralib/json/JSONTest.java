@@ -81,8 +81,14 @@ public class JSONTest {
                 new PSymbolInstance(out, new DataValue(tInt, 5))
         );
         
+        Word<PSymbolInstance> psuffix = Word.<PSymbolInstance>fromSymbols(
+                new PSymbolInstance(in, new DataValue(tInt, 5)),
+                new PSymbolInstance(out, new DataValue(tInt, 5))
+        );
+        SymbolicSuffix symSuffix = new SymbolicSuffix(pword, psuffix);
+        
         ConcreteSymbolJSON[] prefix = JSONUtils.toJSON(pword);        
-        SymbolicSymbolJSON[] suffix = new SymbolicSymbolJSON[0];
+        SymbolicSymbolJSON[] suffix = JSONUtils.toJSON(symSuffix);
         
         TreeQueryJSON tq = new TreeQueryJSON(prefix, suffix);
         

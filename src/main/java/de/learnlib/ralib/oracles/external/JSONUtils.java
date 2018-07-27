@@ -15,6 +15,7 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.HashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -72,15 +73,19 @@ public class JSONUtils {
             PSymbolInstance psi = pword.getSymbol(i);
             ret[i] = new ConcreteSymbolJSON(
                     psi.getBaseSymbol().getName(), 
-                    // FIXME??
+                    // FIXME: what about symbols without parameters
                     (Integer) psi.getParameterValues()[0].getId());
         }
         return ret;
     }
     
     public static SymbolicSymbolJSON[] toJSON(SymbolicSuffix symSuffix) {
-        
-        symSuffix.getActions();
-        return null;
+        Word<ParameterizedSymbol> actions = symSuffix.getActions();
+        SymbolicSymbolJSON[] ret = new SymbolicSymbolJSON[symSuffix.getActions().length()];
+        for (int i=0; i<actions.length(); i++) {
+            // FIXME: what about symbols without parameters
+            ret[i] = new SymbolicSymbolJSON(actions.getSymbol(i).getName(), i+1);
+        }
+        return ret;
     }    
 }
