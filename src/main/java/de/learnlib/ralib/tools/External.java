@@ -91,18 +91,16 @@ public class External extends AbstractToolWithRandomWalk {
 
     private RegisterAutomaton model;
 
-    private DataWordSUL sulLearn;
-
-    private DataWordSUL sulTest;
-
     private IORandomWordOracle randomWalk = null;
 
     private RaStar rastar;
 
-    private long resets = 0;
-    private long inputs = 0;
+    private long tqLearn = 0;
+    private long tqTest = 0;
 
     private Constants consts;
+    
+    private ExternalTreeOracle mto;
 
     private final Map<String, DataType> types = new LinkedHashMap<>();
     
@@ -174,7 +172,7 @@ public class External extends AbstractToolWithRandomWalk {
         String qfile = OPTION_QUERY_FILE.parse(config);
         String sfile = OPTION_SDT_FILE.parse(config);
         
-        MultiTheoryTreeOracle mto = new ExternalTreeOracle(teachers, consts, solver, cmd, qfile, sfile);
+        mto = new ExternalTreeOracle(teachers, consts, solver, cmd, qfile, sfile);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
@@ -251,10 +249,10 @@ public class External extends AbstractToolWithRandomWalk {
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
             DefaultQuery<PSymbolInstance, Boolean> ce = null;
-            DefaultQuery<PSymbolInstance, Boolean> origCe = null;
 
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
+            mto.setIsLearning(false);
 
             if (findCounterexamples) {
                 ce = null;
@@ -278,8 +276,9 @@ public class External extends AbstractToolWithRandomWalk {
                     break;
                 }
 
-                resets = sulTest.getResets();
-                inputs = sulTest.getInputs();
+
+            tqLearn = mto.getTqLearn();
+            tqTest = mto.getTqTest();
 
                 ce = (ce == null || ce.getInput().length() > ce2.getInput().length())
                         ? ce2 : ce;
@@ -290,6 +289,7 @@ public class External extends AbstractToolWithRandomWalk {
             }
 
             SimpleProfiler.start(__LEARN__);
+            mto.setIsLearning(true);
             //ceLengths.add(ce.getInput().length());
 
             //ceLengthsShortened.add(ce.getInput().length());
@@ -329,17 +329,11 @@ public class External extends AbstractToolWithRandomWalk {
 
         // tests during learning
         // resets + inputs
-        System.out.println("Resets Learning: " + sulLearn.getResets());
-        System.out.println("Inputs Learning: " + sulLearn.getInputs());
+        System.out.println("TQ Learning: " + tqLearn);
 
         // tests during search
         // resets + inputs
-        System.out.println("Resets Testing: " + resets);
-        System.out.println("Inputs Testing: " + inputs);
-
-        // + sums
-        System.out.println("Resets: " + (resets + sulLearn.getResets()));
-        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
+        System.out.println("TQ Testing: " + tqTest);
 
     }
 

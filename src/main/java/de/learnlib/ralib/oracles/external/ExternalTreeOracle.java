@@ -46,6 +46,13 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     private final String qfile;
 
     private final String sfile;
+    
+    private long tqTest = 0;
+    
+    private long tqLearn = 0;
+    
+    private boolean isLearning = true;
+    
 
     public ExternalTreeOracle(Map<DataType, Theory> teachers, Constants constants, ConstraintSolver solver,
             String cmd, String qfile, String sfile) {
@@ -60,6 +67,12 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     public TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
+        if (isLearning) {
+            tqLearn++;
+        } else {
+            tqTest++;
+        }
+            
 
         System.out.println("prefix = " + prefix);
         System.out.println("suffix = " + suffix);
@@ -177,4 +190,18 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
         }
         return false;
     }
+
+    public long getTqLearn() {
+        return tqLearn;
+    }
+
+    public long getTqTest() {
+        return tqTest;
+    }
+
+
+    public void setIsLearning(boolean isLearning) {
+        this.isLearning = isLearning;
+    }
+    
 }
