@@ -11,6 +11,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
@@ -139,23 +140,22 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
             Word<ParameterizedSymbol> prefix, 
             Word<ParameterizedSymbol> suffix) {
         
-        Map<Integer, Parameter> pmap = new HashMap<>();
+        Map<Integer, SymbolicDataValue> vmap = new HashMap<>();
         SymbolicDataValueGenerator.ParameterGenerator pgen = 
                 new SymbolicDataValueGenerator.ParameterGenerator();
         int i=1;
         for (ParameterizedSymbol ps : prefix) {
             for (DataType t : ps.getPtypes()) {
-                pmap.put(i++, pgen.next(t));
+                vmap.put(i++, pgen.next(t));
             }
         }
 
-        Map<Integer, SuffixValue> smap = new HashMap<>();
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = 
                 new SymbolicDataValueGenerator.SuffixValueGenerator();
-        i=1;
+
         for (ParameterizedSymbol ps : suffix) {
             for (DataType t : ps.getPtypes()) {
-                smap.put(i++, sgen.next(t));
+                vmap.put(i++, sgen.next(t));
             }
         }
         
@@ -165,10 +165,12 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
             fr.close();
             System.out.println("TQR: " +  tqr);
             PIV piv = new PIV();            
+            
             SymbolicDataValueGenerator.RegisterGenerator rgen = 
                     new SymbolicDataValueGenerator.RegisterGenerator();
             
-            SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), pmap, smap, 1, piv, rgen);
+            SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), vmap, 
+                    DataWords.paramLength(prefix) +1, piv, rgen);
             
             return new TreeQueryResult(piv, sdt);
             

@@ -43,15 +43,14 @@ public class JSONTest {
     
     @Test
     public void testLoadSDTFromJSON() {
-        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt2.json");
+        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt4.json");
         InputStreamReader reader = new InputStreamReader(is);
         
         Gson gson = new Gson();
         TreeQueryResultJSON tqrJSON = gson.fromJson(reader, TreeQueryResultJSON.class);
         System.out.println("TQR: " + tqrJSON);
         
-        Map<Integer, Parameter> params = new HashMap<>();
-        Map<Integer, SuffixValue> svs = new HashMap<>();
+        Map<Integer, SymbolicDataValue> vmap = new HashMap<>();
         
         SymbolicDataValueGenerator.ParameterGenerator pgen = 
                 new SymbolicDataValueGenerator.ParameterGenerator();
@@ -64,14 +63,14 @@ public class JSONTest {
         
         DataType tInt = new DataType("int", Integer.class);
         
-        params.put(1, pgen.next(tInt));
-        params.put(2, pgen.next(tInt));
+        vmap.put(1, pgen.next(tInt));
+        vmap.put(2, pgen.next(tInt));
         
-        svs.put(1, sgen.next(tInt));
-        svs.put(2, sgen.next(tInt));
+        vmap.put(3, sgen.next(tInt));
+        vmap.put(4, sgen.next(tInt));
         
         PIV piv = new PIV();
-        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), params, svs, 1, piv, rgen);
+        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), vmap, 3, piv, rgen);
         System.out.println(sdt);
     }
     
