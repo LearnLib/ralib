@@ -66,13 +66,8 @@ class IOAutomatonBuilder extends AutomatonBuilder {
     protected Transition createTransition(ParameterizedSymbol action, 
             TransitionGuard guard, RALocation src_loc, RALocation dest_loc, 
             Assignment assign) {
-        
-        // FIXME: I added the "&& (action instanceof OutputSymbol)" case
-        // for models that are not input complete and have input transitions
-        // that lead to the error sink. Otherwise these models have missing
-        // transitions.
-        // FIXME: this may have unintended consequences in algorithms that use these models
-        if (!dest_loc.isAccepting() && (action instanceof OutputSymbol)) {
+
+        if (!dest_loc.isAccepting()) {
             return null;
         }
         
