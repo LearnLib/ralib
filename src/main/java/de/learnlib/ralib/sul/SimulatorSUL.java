@@ -155,7 +155,7 @@ public class SimulatorSUL extends DataWordSUL {
     private OutputTransition getOutputTransition(RALocation loc, VarValuation reg) {
         for (Transition t : loc.getOut()) {
             OutputTransition ot = (OutputTransition) t;
-            if (ot.canBeEnabled(reg, consts)) {
+            if (ot.canBeEnabled(reg, consts) && ot.getDestination().isAccepting()) {
                 return ot;
             }
         }
