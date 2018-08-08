@@ -12,9 +12,9 @@ package de.learnlib.ralib.oracles.external;
 public class SymbolicSymbolJSON {
 
     private final String symbol;
-    private final int symbolicParameter;
+    private final int[] symbolicParameter;
 
-    public SymbolicSymbolJSON(String symbol, int symbolicParameter) {
+    public SymbolicSymbolJSON(String symbol, int ... symbolicParameter) {
         this.symbol = symbol;
         this.symbolicParameter = symbolicParameter;
     }
@@ -23,7 +23,7 @@ public class SymbolicSymbolJSON {
         return symbol;
     }
 
-    public int getSymbolicParameter() {
+    public int[] getSymbolicParameter() {
         return symbolicParameter;
     }
     

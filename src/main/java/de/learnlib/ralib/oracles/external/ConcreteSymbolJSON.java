@@ -12,9 +12,9 @@ package de.learnlib.ralib.oracles.external;
 public class ConcreteSymbolJSON {
     
     private final String symbol;
-    private final int concreteParameter;
+    private final int[] concreteParameter;
 
-    public ConcreteSymbolJSON(String symbol, int concreteParameter) {
+    public ConcreteSymbolJSON(String symbol, int ... concreteParameter) {
         this.symbol = symbol;
         this.concreteParameter = concreteParameter;
     }
@@ -23,7 +23,7 @@ public class ConcreteSymbolJSON {
         return symbol;
     }
 
-    public int getConcreteParameter() {
+    public int[] getConcreteParameter() {
         return concreteParameter;
     }
     

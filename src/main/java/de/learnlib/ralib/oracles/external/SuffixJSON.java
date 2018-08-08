@@ -12,14 +12,14 @@ package de.learnlib.ralib.oracles.external;
 public class SuffixJSON {
   
     private final String action;
-    private final int parameters;
+    private final int[] parameters;
 
-    public SuffixJSON(String action, int parameters) {
+    public SuffixJSON(String action, int ... parameters) {
         this.action = action;
         this.parameters = parameters;
     }
 
-    public int getParameters() {
+    public int[] getParameters() {
         return parameters;
     }
 

@@ -83,6 +83,12 @@ public class JSONUtils {
             return sdtJSON.isAccepting() ? SDTLeaf.ACCEPTING : SDTLeaf.REJECTING;
         }
         
+        if (sdtJSON.getChildren().length == 1 && 
+                sdtJSON.getChildren()[0].getSuffix().getParameters().length == 0) {
+            
+            return fromJSON(sdtJSON.getChildren()[0].getTree(), vmap, pos, piv, rgen);
+        }
+        
         Map<SDTGuard, SDT> children = new HashMap<>();
         for (GuardedSubTreeJSON gtreeJSON : sdtJSON.getChildren()) {
             
@@ -99,10 +105,13 @@ public class JSONUtils {
         ConcreteSymbolJSON[] ret = new ConcreteSymbolJSON[pword.length()];
         for (int i=0; i<pword.length(); i++) {
             PSymbolInstance psi = pword.getSymbol(i);
-            ret[i] = new ConcreteSymbolJSON(
-                    psi.getBaseSymbol().getName(), 
-                    // FIXME: what about symbols without parameters
-                    (Integer) psi.getParameterValues()[0].getId());
+            
+            int[] vals = new int[psi.getBaseSymbol().getArity()];
+            for (int j=0; j<vals.length; j++) {
+                vals[j] = (Integer) psi.getParameterValues()[j].getId();
+            }
+            
+            ret[i] = new ConcreteSymbolJSON(psi.getBaseSymbol().getName(), vals);
         }
         return ret;
     }
@@ -110,9 +119,19 @@ public class JSONUtils {
     public static SymbolicSymbolJSON[] toJSON(SymbolicSuffix symSuffix) {
         Word<ParameterizedSymbol> actions = symSuffix.getActions();
         SymbolicSymbolJSON[] ret = new SymbolicSymbolJSON[symSuffix.getActions().length()];
+        
+        int sc = 1;
+        
         for (int i=0; i<actions.length(); i++) {
+            ParameterizedSymbol ps = actions.getSymbol(i);
+            
+            int[] vals = new int[ps.getArity()];
+            for (int j=0; j<vals.length; j++) {
+                vals[j] = sc++;
+            }
+            
             // FIXME: what about symbols without parameters
-            ret[i] = new SymbolicSymbolJSON(actions.getSymbol(i).getName(), i+1);
+            ret[i] = new SymbolicSymbolJSON(actions.getSymbol(i).getName(), vals);
         }
         return ret;
     }    

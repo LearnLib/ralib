@@ -11,17 +11,9 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -43,7 +35,7 @@ public class JSONTest {
     
     @Test
     public void testLoadSDTFromJSON() {
-        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt4.json");
+        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt5.json");
         InputStreamReader reader = new InputStreamReader(is);
         
         Gson gson = new Gson();

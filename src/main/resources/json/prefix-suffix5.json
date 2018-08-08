@@ -1,0 +1,22 @@
+{
+  "prefix": [{
+    "symbol": "IPut",
+    "concreteParameter": [0]
+  }],
+  "suffix": [{
+    "symbol": "OOK",
+    "symbolicParameter": []
+  }, {
+    "symbol": "IPut",
+    "symbolicParameter": [2]
+  }, {
+    "symbol": "OOK",
+    "symbolicParameter": []
+  }, {
+    "symbol": "IGet",
+    "symbolicParameter": []
+  }, {
+    "symbol": "OGet",
+    "symbolicParameter": [5]
+  }]
+}
