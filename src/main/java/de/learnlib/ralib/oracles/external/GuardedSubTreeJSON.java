@@ -14,12 +14,10 @@ import java.util.Arrays;
 public class GuardedSubTreeJSON {
  
     private final GuardJSON[] guards;
-    private final SuffixJSON suffix;
     private final SdtJSON tree;
 
-    public GuardedSubTreeJSON(GuardJSON[] guards, SuffixJSON suffix, SdtJSON tree) {
+    public GuardedSubTreeJSON(GuardJSON[] guards, SdtJSON tree) {
         this.guards = guards;
-        this.suffix = suffix;
         this.tree = tree;
     }
 
@@ -31,13 +29,6 @@ public class GuardedSubTreeJSON {
     }
 
     /**
-     * @return the suffix
-     */
-    public SuffixJSON getSuffix() {
-        return suffix;
-    }
-
-    /**
      * @return the tree
      */
     public SdtJSON getTree() {
@@ -46,7 +37,7 @@ public class GuardedSubTreeJSON {
 
     @Override
     public String toString() {
-        return "{" + Arrays.toString(guards) + ", " + suffix + ", " + tree + "}";
+        return "{" + Arrays.toString(guards) + ", " + tree + "}";
     }
     
     

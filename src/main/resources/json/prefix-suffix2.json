@@ -1,10 +1,11 @@
 {
   "prefix": [
-    {"symbol": "IIn", "concreteParameter": 5},
-    {"symbol": "OOut", "concreteParameter": 5}
+    { "symbol":"IIn","dataValues":[{"type":"concrete","id":5}]},
+    {"symbol":"OOut","dataValues":[{"type":"concrete","id":5}]}
   ],
-  "suffix": [
-  {"symbol": "IIn", "symbolicParameter": 1},
-  {"symbol": "OOut", "symbolicParameter": 2}
+  "suffix":[
+    {"symbol":"IIn","parameters":[{"type":"symbolic","id":1}]},
+    {"symbol":"OOut","parameters":[{"type":"symbolic","id":2}]}
   ]
 }
+

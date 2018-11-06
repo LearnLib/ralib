@@ -5,34 +5,26 @@
  */
 package de.learnlib.ralib.oracles.external;
 
-import java.util.Arrays;
-
 /**
  *
  * @author falk
  */
 public class SdtJSON {
  
-    private final GuardedSubTreeJSON[] children;
-    private final boolean accepting;
+    public final static String TYPE_INNER = "inner";
+    public final static String TYPE_LEAF = "leaf";
+        
+    private final String type;
 
-    public SdtJSON(GuardedSubTreeJSON[] children, boolean accepting) {
-        this.children = children;
-        this.accepting = accepting;
+    public SdtJSON(String type) {
+        this.type = type;
     }
 
-    public GuardedSubTreeJSON[] getChildren() {
-        return children;
-    }
-
-    public boolean isAccepting() {
-        return accepting;
-    }
-
-    @Override
-    public String toString() {
-        return Arrays.toString(children) + ":" + accepting;
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
     }
    
-
 }

@@ -86,7 +86,8 @@ public class External extends AbstractToolWithRandomWalk {
         OPTION_RWALK_RESET_PROB,
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
-        OPTION_RWALK_RESET
+        OPTION_RWALK_RESET,
+        OPTION_USE_CEOPT        
     };
 
     private RegisterAutomaton model;

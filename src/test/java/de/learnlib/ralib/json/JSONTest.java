@@ -7,6 +7,9 @@ package de.learnlib.ralib.json;
 
 import de.learnlib.ralib.oracles.external.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -30,69 +33,115 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class JSONTest {
-    
 
-    
     @Test
-    public void testLoadSDTFromJSON() {
-        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt5.json");
+    public void testLoadSDTFromJSON1() {
+        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt1.json");
         InputStreamReader reader = new InputStreamReader(is);
-        
-        Gson gson = new Gson();
+
+        RuntimeTypeAdapterFactory<SdtJSON> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(SdtJSON.class, "type")
+                .registerSubtype(SdtInnerNodeJSON.class, SdtJSON.TYPE_INNER)
+                .registerSubtype(SdtLeafJSON.class, SdtJSON.TYPE_LEAF);
+
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+
         TreeQueryResultJSON tqrJSON = gson.fromJson(reader, TreeQueryResultJSON.class);
         System.out.println("TQR: " + tqrJSON);
-        
-        Map<Integer, SymbolicDataValue> vmap = new HashMap<>();
-        
-        SymbolicDataValueGenerator.ParameterGenerator pgen = 
-                new SymbolicDataValueGenerator.ParameterGenerator();
-        
-        SymbolicDataValueGenerator.SuffixValueGenerator sgen = 
-                new SymbolicDataValueGenerator.SuffixValueGenerator();
-        
-        SymbolicDataValueGenerator.RegisterGenerator rgen = 
-                new SymbolicDataValueGenerator.RegisterGenerator();
-        
-        DataType tInt = new DataType("int", Integer.class);
-        
-        vmap.put(1, pgen.next(tInt));
-        vmap.put(2, pgen.next(tInt));
-        
-        vmap.put(3, sgen.next(tInt));
-        vmap.put(4, sgen.next(tInt));
-        
-        PIV piv = new PIV();
-        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), vmap, 3, piv, rgen);
+
+        Word<ParameterizedSymbol> suffix = Word.<ParameterizedSymbol>epsilon();
+
+        VariableRepository repo = new VariableRepository(
+                new HashMap<>(), new HashMap<>(), suffix, new Constants());
+
+        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(),repo);
         System.out.println(sdt);
     }
-    
-    
+
+
     @Test
-    public void testQueryToJSON() {
-        DataType tInt = new DataType("int", Integer.class);        
+    public void testLoadSDTFromJSON2() {
+        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt2.json");
+        InputStreamReader reader = new InputStreamReader(is);
+        
+        RuntimeTypeAdapterFactory<SdtJSON> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(SdtJSON.class, "type")
+                .registerSubtype(SdtInnerNodeJSON.class, SdtJSON.TYPE_INNER)
+                .registerSubtype(SdtLeafJSON.class, SdtJSON.TYPE_LEAF);
+
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+        
+        TreeQueryResultJSON tqrJSON = gson.fromJson(reader, TreeQueryResultJSON.class);
+        System.out.println("TQR: " + tqrJSON);
+
+        DataType tInt = new DataType("int", Integer.class);
         ParameterizedSymbol in = new InputSymbol("IIn", tInt);
         ParameterizedSymbol out = new OutputSymbol("OOut", tInt);
         
         Word<PSymbolInstance> pword = Word.<PSymbolInstance>fromSymbols(
                 new PSymbolInstance(in, new DataValue(tInt, 5)),
+                new PSymbolInstance(out, new DataValue(tInt, 6))
+        );
+
+        Word<PSymbolInstance> psuffix = Word.<PSymbolInstance>fromSymbols(
+                new PSymbolInstance(in, new DataValue(tInt, 5)),
+                new PSymbolInstance(out, new DataValue(tInt, 6))
+        );
+        SymbolicSuffix symSuffix = new SymbolicSuffix(pword, psuffix);        
+        
+        Map<DataValuePrefixJSON,DataValue> vmap = new HashMap<>();
+        Map<SDTVariableJSON, DataValuePrefixJSON> piv = new HashMap<>();
+        Word<ParameterizedSymbol> suffix = symSuffix.getActions();
+        Constants consts = new Constants();
+        
+        vmap.put(
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 1), 
+                new DataValue(tInt, 5));
+        vmap.put(
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2), 
+                new DataValue(tInt, 6));
+        
+        piv.put(
+                new SDTVariableJSON(SDTVariableJSON.TYPE_SDT_REGISTER, 1), 
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2));
+
+        piv.put(
+                new SDTVariableJSON(SDTVariableJSON.TYPE_SDT_REGISTER, 2), 
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2));
+        
+        VariableRepository repo = new VariableRepository(vmap, piv, suffix, consts);
+        
+        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), repo);
+        System.out.println(sdt);
+        System.out.println("PIV: " + repo.computePIV(pword, tqrJSON.getPiv()));
+    }
+
+
+    @Test
+    public void testQueryToJSON() {
+        DataType tInt = new DataType("int", Integer.class);
+        ParameterizedSymbol in = new InputSymbol("IIn", tInt);
+        ParameterizedSymbol out = new OutputSymbol("OOut", tInt);
+
+        Word<PSymbolInstance> pword = Word.<PSymbolInstance>fromSymbols(
+                new PSymbolInstance(in, new DataValue(tInt, 5)),
                 new PSymbolInstance(out, new DataValue(tInt, 5))
         );
-        
+
         Word<PSymbolInstance> psuffix = Word.<PSymbolInstance>fromSymbols(
                 new PSymbolInstance(in, new DataValue(tInt, 5)),
                 new PSymbolInstance(out, new DataValue(tInt, 5))
         );
         SymbolicSuffix symSuffix = new SymbolicSuffix(pword, psuffix);
-        
-        ConcreteSymbolJSON[] prefix = JSONUtils.toJSON(pword);        
+
+        ConcreteSymbolJSON[] prefix = JSONUtils.toJSON(pword, new Constants(), new HashMap<>());
         SymbolicSymbolJSON[] suffix = JSONUtils.toJSON(symSuffix);
-        
+
         TreeQueryJSON tq = new TreeQueryJSON(prefix, suffix);
-        
+
         Gson gson = new Gson();
         System.out.println(gson.toJson(tq));
-        
-    }
 
+    }
 
 }

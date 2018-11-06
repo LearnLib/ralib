@@ -6,15 +6,13 @@
 package de.learnlib.ralib.oracles.external;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
+import com.google.gson.GsonBuilder;
+import com.google.gson.typeadapters.RuntimeTypeAdapterFactory;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -32,8 +30,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.automatalib.words.Word;
 
 /**
@@ -53,7 +49,10 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     private long tqLearn = 0;
     
     private boolean isLearning = true;
+
+    private final Constants constants;
     
+    private final Map<DataValuePrefixJSON,DataValue> vmapPrefix = new HashMap<>();
 
     public ExternalTreeOracle(Map<DataType, Theory> teachers, Constants constants, ConstraintSolver solver,
             String cmd, String qfile, String sfile) {
@@ -62,6 +61,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
         this.cmd = cmd;
         this.qfile = qfile;
         this.sfile = sfile;
+        this.constants = constants;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
 
         writeQuery(prefix, suffix);
         executeCmd();
-        TreeQueryResult tqr = readSDT(DataWords.actsOf(prefix), suffix.getActions());
+        TreeQueryResult tqr = readSDT(prefix, suffix.getActions());
         System.out.println("PIV = " + tqr.getPiv());
         System.out.println("SDT = " + tqr.getSdt());        
         return tqr;
@@ -100,7 +100,8 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
 
     private void writeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
-        ConcreteSymbolJSON[] pj = JSONUtils.toJSON(prefix);
+        vmapPrefix.clear();
+        ConcreteSymbolJSON[] pj = JSONUtils.toJSON(prefix, constants, vmapPrefix);
         SymbolicSymbolJSON[] sj = JSONUtils.toJSON(suffix);
         TreeQueryJSON tqjson = new TreeQueryJSON(pj, sj);
         System.out.println("TQ: " +  tqjson);
@@ -137,41 +138,26 @@ public class ExternalTreeOracle extends MultiTheoryTreeOracle {
     }
 
     private TreeQueryResult readSDT(
-            Word<ParameterizedSymbol> prefix, 
+            Word<PSymbolInstance> prefix, 
             Word<ParameterizedSymbol> suffix) {
         
-        Map<Integer, SymbolicDataValue> vmap = new HashMap<>();
-        SymbolicDataValueGenerator.ParameterGenerator pgen = 
-                new SymbolicDataValueGenerator.ParameterGenerator();
-        int i=1;
-        for (ParameterizedSymbol ps : prefix) {
-            for (DataType t : ps.getPtypes()) {
-                vmap.put(i++, pgen.next(t));
-            }
-        }
-
-        SymbolicDataValueGenerator.SuffixValueGenerator sgen = 
-                new SymbolicDataValueGenerator.SuffixValueGenerator();
-
-        for (ParameterizedSymbol ps : suffix) {
-            for (DataType t : ps.getPtypes()) {
-                vmap.put(i++, sgen.next(t));
-            }
-        }
-        
         try (FileReader fr = new FileReader(sfile)) {
-            Gson gson = new Gson();
+            RuntimeTypeAdapterFactory<SdtJSON> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(SdtJSON.class, "type")
+                .registerSubtype(SdtInnerNodeJSON.class, SdtJSON.TYPE_INNER)
+                .registerSubtype(SdtLeafJSON.class, SdtJSON.TYPE_LEAF);
+
+            Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+
             TreeQueryResultJSON tqr = gson.fromJson(fr, TreeQueryResultJSON.class);
             fr.close();
-            System.out.println("TQR: " +  tqr);
-            PIV piv = new PIV();            
+            System.out.println("TQR: " +  tqr);          
+                        
+            VariableRepository repo = new VariableRepository(
+                    vmapPrefix, tqr.getPivasMap(), suffix, constants);
             
-            SymbolicDataValueGenerator.RegisterGenerator rgen = 
-                    new SymbolicDataValueGenerator.RegisterGenerator();
-            
-            SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), vmap, 
-                    DataWords.paramLength(prefix) +1, piv, rgen);
-            
+            SDT sdt = JSONUtils.fromJSON(tqr.getSdt(), repo);
+            PIV piv = repo.computePIV(prefix, tqr.getPiv());
             return new TreeQueryResult(piv, sdt);
             
         } catch (IOException ex) {

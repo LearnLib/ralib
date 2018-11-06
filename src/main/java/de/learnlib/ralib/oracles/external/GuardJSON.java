@@ -11,40 +11,39 @@ package de.learnlib.ralib.oracles.external;
  */
 public class GuardJSON {
     
-    private final int parameter;
-    private final int register;
-    private final boolean equality;
+    private final SDTVariableJSON parameter;
+    private final SDTVariableJSON other;    
+    private final String comparator;
 
-    public GuardJSON(int parameter, int register, boolean equality) {
+    public GuardJSON(SDTVariableJSON parameter, SDTVariableJSON other, String comparator) {
         this.parameter = parameter;
-        this.register = register;
-        this.equality = equality;
+        this.other = other;
+        this.comparator = comparator;
     }
 
     /**
      * @return the parameter
      */
-    public int getParameter() {
+    public SDTVariableJSON getParameter() {
         return parameter;
     }
 
     /**
-     * @return the register
+     * @return the other
      */
-    public int getRegister() {
-        return register;
+    public SDTVariableJSON getOther() {
+        return other;
     }
 
     /**
-     * @return the equality
+     * @return the comparator
      */
-    public boolean isEquality() {
-        return equality;
+    public String getComparator() {
+        return comparator;
     }
 
     @Override
     public String toString() {
-        return "r" + register + " " + (equality ? "==" : "!=") + " p" + parameter;
+        return "" + other + " " + comparator + " " + parameter;
     }
-    
 }

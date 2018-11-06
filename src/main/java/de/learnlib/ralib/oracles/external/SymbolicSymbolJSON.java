@@ -5,6 +5,8 @@
  */
 package de.learnlib.ralib.oracles.external;
 
+import java.util.Arrays;
+
 /**
  *
  * @author falk
@@ -12,19 +14,23 @@ package de.learnlib.ralib.oracles.external;
 public class SymbolicSymbolJSON {
 
     private final String symbol;
-    private final int[] symbolicParameter;
+    private final DataValueSuffixJSON[] parameters;
 
-    public SymbolicSymbolJSON(String symbol, int ... symbolicParameter) {
+    public SymbolicSymbolJSON(String symbol, DataValueSuffixJSON ... parameters) {
         this.symbol = symbol;
-        this.symbolicParameter = symbolicParameter;
+        this.parameters = parameters;
     }
 
     public String getSymbol() {
         return symbol;
     }
 
-    public int[] getSymbolicParameter() {
-        return symbolicParameter;
+    public DataValueSuffixJSON[] getParameters() {
+        return parameters;
     }
-    
+
+    @Override
+    public String toString() {
+        return "" + symbol + Arrays.toString(parameters);
+    }    
 }

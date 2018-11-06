@@ -1,76 +1,56 @@
 {
   "sdt": {
+    "type": "inner",
     "children": [{
       "guards": [{
-        "parameter": 1,
-        "register": 1,
-        "equality": false
+        "parameter": {"type":"parameter","id":1},
+        "comparator": "!=",
+        "other": {"type":"register","id":1}
       }],
-      "suffix": {
-        "action": "IIn",
-        "parameters": 1
-      },
       "tree": {
+        "type": "inner",
         "children": [{
           "guards": [{
-            "parameter": 2,
-            "register": 2,
-            "equality": false
+            "parameter": {"type":"parameter","id":2},
+            "comparator": "!=",
+            "other": {"type":"register","id":2}
           }],
-          "suffix": {
-            "action": "OOut",
-            "parameters": 2
-          },
           "tree": {
-            "children": [],
+            "type": "leaf",
             "accepting": false
           }
         }, {
           "guards": [{
-            "parameter": 2,
-            "register": 2,
-            "equality": true
+            "parameter": {"type":"parameter","id":2},
+            "comparator": "==",
+            "other": {"type":"register","id":2}
           }],
-          "suffix": {
-            "action": "OOut",
-            "parameters": 2
-          },
           "tree": {
-            "children": [],
+            "type" : "leaf",
             "accepting": true
           }
-        }],
-        "accepting": true
+        }]
       }
     }, {
       "guards": [{
-        "parameter": 1,
-        "register": 1,
-        "equality": true
+        "parameter": {"type":"parameter","id":1},
+        "comparator": "==",
+        "other": {"type":"register","id":1}
       }],
-      "suffix": {
-        "action": "IIn",
-        "parameters": 1
-      },
       "tree": {
+        "type" : "inner",
         "children": [{
           "guards": [],
-          "suffix": {
-            "action": "OOut",
-            "parameters": 2
-          },
           "tree": {
-            "children": [],
+            "type" : "leaf",
             "accepting": false
           }
-        }],
-        "accepting": true
+        }]
       }
-    }],
-    "accepting": true
+    }]
   },
-  "PIV": {
-    "1": 2,
-    "2": 2
-  }
+  "piv": [
+    {"key": {"type":"register","id":1}, "value": {"type":"concrete","id":1}},
+    {"key": {"type":"register","id":2}, "value": {"type":"concrete","id":2}}
+  ]
 }

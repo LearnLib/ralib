@@ -5,6 +5,8 @@
  */
 package de.learnlib.ralib.oracles.external;
 
+import java.util.Arrays;
+
 /**
  *
  * @author falk
@@ -12,19 +14,25 @@ package de.learnlib.ralib.oracles.external;
 public class ConcreteSymbolJSON {
     
     private final String symbol;
-    private final int[] concreteParameter;
+    private final DataValuePrefixJSON[] dataValues;
 
-    public ConcreteSymbolJSON(String symbol, int ... concreteParameter) {
+    public ConcreteSymbolJSON(String symbol, DataValuePrefixJSON ... dataValues) {
         this.symbol = symbol;
-        this.concreteParameter = concreteParameter;
+        this.dataValues = dataValues;
     }
 
     public String getSymbol() {
         return symbol;
     }
 
-    public int[] getConcreteParameter() {
-        return concreteParameter;
+    public DataValuePrefixJSON[] getDataValues() {
+        return dataValues;
     }
-    
+
+    @Override
+    public String toString() {
+        return "" + symbol + Arrays.toString(dataValues);
+    }
+
+
 }

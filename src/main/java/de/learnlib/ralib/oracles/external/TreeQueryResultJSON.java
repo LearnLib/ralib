@@ -5,7 +5,7 @@
  */
 package de.learnlib.ralib.oracles.external;
 
-import com.google.gson.annotations.SerializedName;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -15,9 +15,9 @@ import java.util.Map;
 public class TreeQueryResultJSON {
  
   private final SdtJSON sdt;
-  @SerializedName("PIV") private final Map<String,Integer> piv;
+   private final PIVElementJSON[] piv;
 
-    public TreeQueryResultJSON(SdtJSON sdt, Map<String, Integer> piv) {
+    public TreeQueryResultJSON(SdtJSON sdt, PIVElementJSON ... piv) {
         this.sdt = sdt;
         this.piv = piv;
     }
@@ -26,10 +26,18 @@ public class TreeQueryResultJSON {
         return sdt;
     }
 
-    public Map<String, Integer> getPiv() {
-        return piv;
+    public Map<SDTVariableJSON, DataValuePrefixJSON> getPivasMap() {
+        Map<SDTVariableJSON, DataValuePrefixJSON> pivMap = new HashMap<>();
+        for (PIVElementJSON e : piv) {
+            pivMap.put(e.getKey(), e.getValue());
+        }        
+        return pivMap;
     }
 
+    public PIVElementJSON[] getPiv() {
+        return piv;
+    }
+    
     @Override
     public String toString() {
         return "TQR[" + sdt + ", " + piv + "]";

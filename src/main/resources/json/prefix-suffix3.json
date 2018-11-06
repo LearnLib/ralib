@@ -1,9 +1,0 @@
-{
-  "prefix": [],
-  "suffix": [
-  {"symbol": "IIn", "symbolicParameter": 1},
-  {"symbol": "OOut", "symbolicParameter": 2},
-  {"symbol": "IIn", "symbolicParameter": 3},
-  {"symbol": "OOut", "symbolicParameter": 4}
-  ]
-}
