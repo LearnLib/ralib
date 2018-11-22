@@ -115,8 +115,67 @@ public class JSONTest {
         System.out.println(sdt);
         System.out.println("PIV: " + repo.computePIV(pword, tqrJSON.getPiv()));
     }
+/*
+    @Test
+    public void testLoadSDTFromJSON3() {
+        InputStream is = JSONTest.class.getResourceAsStream("/json/sdt3.json");
+        InputStreamReader reader = new InputStreamReader(is);
+        
+        //{"prefix":[{"symbol":"IGet","dataValues":[]}],"suffix":[{"symbol":"ONOK","parameters":[]}]}
+        
+        RuntimeTypeAdapterFactory<SdtJSON> runtimeTypeAdapterFactory = RuntimeTypeAdapterFactory
+                .of(SdtJSON.class, "type")
+                .registerSubtype(SdtInnerNodeJSON.class, SdtJSON.TYPE_INNER)
+                .registerSubtype(SdtLeafJSON.class, SdtJSON.TYPE_LEAF);
 
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(runtimeTypeAdapterFactory).create();
+        
+        TreeQueryResultJSON tqrJSON = gson.fromJson(reader, TreeQueryResultJSON.class);
+        System.out.println("TQR: " + tqrJSON);
 
+        DataType tInt = new DataType("int", Integer.class);
+        ParameterizedSymbol in = new InputSymbol("IIn", tInt);
+        ParameterizedSymbol out = new OutputSymbol("OOut", tInt);
+        
+        Word<PSymbolInstance> pword = Word.<PSymbolInstance>fromSymbols(
+                new PSymbolInstance(in, new DataValue(tInt, 5)),
+                new PSymbolInstance(out, new DataValue(tInt, 6))
+        );
+
+        Word<PSymbolInstance> psuffix = Word.<PSymbolInstance>fromSymbols(
+                new PSymbolInstance(in, new DataValue(tInt, 5)),
+                new PSymbolInstance(out, new DataValue(tInt, 6))
+        );
+        SymbolicSuffix symSuffix = new SymbolicSuffix(pword, psuffix);        
+        
+        Map<DataValuePrefixJSON,DataValue> vmap = new HashMap<>();
+        Map<SDTVariableJSON, DataValuePrefixJSON> piv = new HashMap<>();
+        Word<ParameterizedSymbol> suffix = symSuffix.getActions();
+        Constants consts = new Constants();
+        
+        vmap.put(
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 1), 
+                new DataValue(tInt, 5));
+        vmap.put(
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2), 
+                new DataValue(tInt, 6));
+        
+        piv.put(
+                new SDTVariableJSON(SDTVariableJSON.TYPE_SDT_REGISTER, 1), 
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2));
+
+        piv.put(
+                new SDTVariableJSON(SDTVariableJSON.TYPE_SDT_REGISTER, 2), 
+                new DataValuePrefixJSON(DataValuePrefixJSON.TYPE_CONCRETE, 2));
+        
+        VariableRepository repo = new VariableRepository(vmap, piv, suffix, consts);
+        
+        SDT sdt = JSONUtils.fromJSON(tqrJSON.getSdt(), repo);
+        System.out.println(sdt);
+        System.out.println("PIV: " + repo.computePIV(pword, tqrJSON.getPiv()));
+    }
+*/
+    
     @Test
     public void testQueryToJSON() {
         DataType tInt = new DataType("int", Integer.class);

@@ -5,6 +5,7 @@
  */
 package de.learnlib.ralib.oracles.external;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,11 +14,11 @@ import java.util.Map;
  * @author falk
  */
 public class TreeQueryResultJSON {
- 
-  private final SdtJSON sdt;
-   private final PIVElementJSON[] piv;
 
-    public TreeQueryResultJSON(SdtJSON sdt, PIVElementJSON ... piv) {
+    private final SdtJSON sdt;
+    private final PIVElementJSON[] piv;
+
+    public TreeQueryResultJSON(SdtJSON sdt, PIVElementJSON... piv) {
         this.sdt = sdt;
         this.piv = piv;
     }
@@ -30,20 +31,17 @@ public class TreeQueryResultJSON {
         Map<SDTVariableJSON, DataValuePrefixJSON> pivMap = new HashMap<>();
         for (PIVElementJSON e : piv) {
             pivMap.put(e.getKey(), e.getValue());
-        }        
+        }
         return pivMap;
     }
 
     public PIVElementJSON[] getPiv() {
-        return piv;
-    }
-    
-    @Override
-    public String toString() {
-        return "TQR[" + sdt + ", " + piv + "]";
+        return (piv != null) ? piv : new PIVElementJSON[] {};
     }
 
-    
-    
-    
+    @Override
+    public String toString() {
+        return "TQR[" + sdt + ", " + Arrays.toString(getPiv()) + "]";
+    }
+
 }

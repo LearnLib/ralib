@@ -1,0 +1,13 @@
+{
+  "sdt": {
+    "type": "inner", 
+    "children": [{
+      "guards": [], 
+      "tree": {
+        "type": "leaf", 
+        "accepting": true
+      }
+    }]
+  }, 
+  "PIV": []
+}
