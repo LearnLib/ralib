@@ -156,7 +156,7 @@ public class JSONUtils {
     
     public static DataValueSuffixJSON toJSON(boolean symbolic, int id) {
         return new DataValueSuffixJSON(
-                symbolic ? DataValueSuffixJSON.TYPE_SYMBOLIC 
+                true ? DataValueSuffixJSON.TYPE_SYMBOLIC 
                     : DataValueSuffixJSON.TYPE_DONTCARE, id);
     }
     

@@ -176,8 +176,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
-            final Constants consts = new Constants();
-
+            final Constants consts = parseConstants(config, types);
+            System.out.println("Constants: " + consts);
+        
             // create teachers
             teachers = new LinkedHashMap<DataType, Theory>();
             // create teachers

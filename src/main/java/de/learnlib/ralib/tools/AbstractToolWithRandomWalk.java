@@ -18,6 +18,11 @@ package de.learnlib.ralib.tools;
 
 import de.learnlib.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -171,6 +176,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE + 
                             ", " + ConstraintSolverFactory.ID_Z3 + ".", 
                             ConstraintSolverFactory.ID_SIMPLE, true);
+
+    protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
+            = new ConfigurationOption.StringOption("constants",
+                    "Constants. Format: type:value + type:value + ...", null, true);
     
     protected Random random = null;
 
@@ -191,7 +200,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected final Map<String, TypedTheory> teacherClasses = new HashMap<>();
     
     protected ConstraintSolver solver; 
-
+    
     @Override
     public void setup(Configuration config) throws ConfigurationException {
 
@@ -232,6 +241,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         this.solver = ConstraintSolverFactory.createSolver(
                 OPTION_SOLVER.parse(config));
+        
     }
 
     private Pair<String, TypedTheory> parseTeacherConfig(String config)
@@ -251,5 +261,47 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
+    }
+    
+    protected Constants parseConstants(Configuration conf, Map<String, DataType> typeMap) 
+            throws ConfigurationException {            
+        
+        Constants consts = new Constants();
+        
+        String config = OPTION_CONSTANTS.parse(conf);
+        if (config == null) {
+            return consts;
+        }
+        
+        SymbolicDataValueGenerator.ConstantGenerator cgen = 
+                new SymbolicDataValueGenerator.ConstantGenerator();
+        
+        String[] defs = config.trim().split("\\+");
+        for (String def : defs) {
+            String[] parts = def.trim().split(":");
+            String value = parts[0].trim();
+            String typename = parts[1].trim();
+            DataType t = typeMap.get(typename);
+            if (t == null) {
+                throw new ConfigurationException("Type of constant not defined: " + typename);
+            }
+            
+            DataValue d;
+            Constant c = cgen.next(t);
+            Class clazz = t.getBase();
+            if (Integer.class.equals(clazz)) {
+                d = new DataValue(t, Integer.parseInt(value));
+            }
+            else if (Double.class.equals(clazz)) {
+                d = new DataValue(t, Double.parseDouble(value));
+            }
+            else {
+                throw new ConfigurationException("Unsupported base class '" + c + 
+                        "'for constant '" + config + "'");
+            }
+            
+            consts.put(c, d);
+        }
+        return consts;
     }
 }

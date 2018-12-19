@@ -150,6 +150,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 new ParameterizedSymbol[]{});
 
         consts = loader.getConstants();
+        if (OPTION_CONSTANTS.parse(config) != null) {
+            System.out.println("Warning: IOSimulator ignores constant definitions. Constants from model are used instead.");
+        }
         
         // create teachers
         for (final DataType t : loader.getDataTypes()) {            

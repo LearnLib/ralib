@@ -154,7 +154,8 @@ public class External extends AbstractToolWithRandomWalk {
         ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[] {});
         System.out.println("Actions: " + Arrays.toString(actions));
         
-        consts = new Constants();
+        consts = parseConstants(config, types);
+        System.out.println("Constants: " + consts);
 
         //final ParameterizedSymbol ERROR
         //        = new OutputSymbol("_io_err", new DataType[]{});
