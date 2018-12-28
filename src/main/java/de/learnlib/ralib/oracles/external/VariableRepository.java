@@ -11,6 +11,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -111,8 +112,9 @@ public class VariableRepository {
         int i=1;
         for (PSymbolInstance ps : prefix) {
             for (DataValue v : ps.getParameterValues()) {
+                Parameter p = pgen.next(v.getType());
                 if (!pmap.containsKey(v)) {
-                    pmap.put(v, pgen.next(v.getType()));
+                    pmap.put(v, p);
                 }                
             }
         }

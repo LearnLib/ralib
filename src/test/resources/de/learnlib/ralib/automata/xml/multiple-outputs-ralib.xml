@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+	<alphabet>
+		<inputs>
+			<symbol name="IPut">
+				<param type="int" name="p1"/>
+				<param type="int" name="p2"/>
+				<param type="int" name="p3"/>
+			</symbol>
+
+		</inputs>
+		<outputs>
+			<symbol name="OOK">
+				<param type="int" name="out1"/>
+				<param type="int" name="out2"/>
+				<param type="int" name="out3"/>
+			</symbol>
+			<symbol name="ONOK">
+				<param type="int" name="out1"/>
+				<param type="int" name="out2"/>
+				<param type="int" name="out3"/>
+			</symbol>
+		</outputs>
+	</alphabet>
+	<constants>
+	</constants>
+	<globals>
+		<variable type="int" name="r1">0</variable>
+		<variable type="int" name="r2">0</variable>
+		<variable type="int" name="r3">0</variable>
+		<variable type="int" name="out1">0</variable>
+		<variable type="int" name="out2">0</variable>
+		<variable type="int" name="out3">0</variable>
+	</globals>
+	<locations>
+		<location name="id0"/>
+		<location name="id1" initial="true"/>
+	</locations>
+	<transitions>
+		<transition from="id0" to="id1" symbol="OOK" params="out1,out2,out3">
+			<assignments>
+				<assign to="out1">r3</assign>
+				<assign to="out2">r2</assign>
+				<assign to="out3">r1</assign>
+			</assignments>
+			<guard>r1==r2&amp;&amp;r2==r3</guard>
+		</transition>
+		<transition from="id0" to="id1" symbol="ONOK" params="out1,out2,out3">
+			<assignments>
+				<assign to="out1">r3</assign>
+				<assign to="out2">r2</assign>
+				<assign to="out3">r3</assign>
+			</assignments>
+			<guard>r1!=r2||r2!=r3</guard>
+		</transition>
+		<transition from="id1" to="id0" symbol="IPut" params="p1,p2,p3">
+			<assignments>
+				<assign to="r1">p1</assign>
+				<assign to="r2">p2</assign>
+				<assign to="r3">p3</assign>
+			</assignments>
+		</transition>
+	</transitions>
+</register-automaton>
