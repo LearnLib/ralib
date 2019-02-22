@@ -219,6 +219,8 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     
     private final boolean checkForEqualParameters;
     
+    private boolean inclusion = false;
+    
     public IOEquivalenceTest(RegisterAutomaton in1,  
             Map<DataType, Theory> teacher, Constants consts,  
             boolean checkForEqualParameters, 
@@ -282,7 +284,11 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                     next.trace = t.trace.append(w.lastSymbol()).append(out.getFirst());
                     
                     // found counterexample
-                    if (out.getSecond() == null || !out.getFirst().equals(out.getSecond())) {
+                    if (out.getSecond() == null || (
+                            (!out.getFirst().equals(out.getSecond()) && !inclusion) || 
+                            (!out.getFirst().equals(out.getSecond()) && inclusion && 
+                            !out.getFirst().getBaseSymbol().getName().equals("ANY")))
+                            ) {
                         //System.out.println("CE: " + out.getFirst() + " : " + out.getSecond());
                         return new DefaultQuery<>(next.trace, true);
                     }     
@@ -550,6 +556,13 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             }
         }    
         return new ArrayList<>(stored);
+    }
+
+    /**
+     * @param inclusion the inclusion to set
+     */
+    public void setInclusion(boolean inclusion) {
+        this.inclusion = inclusion;
     }
     
     

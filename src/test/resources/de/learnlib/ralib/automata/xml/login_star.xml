@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<register-automaton>
+   <alphabet>
+      <inputs>
+         <symbol name="ILogout"/>
+         <symbol name="IRegister"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+         <symbol name="ILogin"> 
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/> 
+         </symbol>
+      </inputs>
+      <outputs>
+         <symbol name="ONOK"/>
+         <symbol name="OOK"/>
+         <symbol name="ANY"/>         
+      </outputs>
+   </alphabet>
+   <constants>
+   </constants>
+   <globals>
+   </globals>
+   <locations>
+      <location name="id1" initial="true"/> 
+      <location name="id2"/>       
+   </locations>
+   <transitions>
+      <transition from="id2" to="id1" symbol="ANY" />
+      <transition from="id1" to="id2" symbol="ILogout" />
+      <transition from="id1" to="id2" symbol="ILogin" params="id1,pw1"/>
+      <transition from="id1" to="id2" symbol="IRegister" params="id0,pw0"/>
+   </transitions>
+</register-automaton>

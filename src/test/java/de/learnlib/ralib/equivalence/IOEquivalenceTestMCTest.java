@@ -85,7 +85,7 @@ public class IOEquivalenceTestMCTest extends RaLibTestSuite {
         Assert.assertNotNull(ce);
     }
     
-    @Test
+    //@Test
     public void testLearningWithMCTest() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
