@@ -58,7 +58,6 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
     @Test
     public void learnLoginExampleIO() {
-
         long seed = -4750580074638681533L;
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
@@ -67,13 +66,13 @@ public class LearnPQIOTest extends RaLibTestSuite {
         DoubleInequalityTheory dit = 
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE);
         
-        dit.setUseSuffixOpt(true);
+        dit.setUseSuffixOpt(false);
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, dit);
                 
         
         final Constants consts = new Constants();
 
-        PriorityQueueSUL sul = new PriorityQueueSUL();
+        PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
 
@@ -95,7 +94,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 sul,
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
-                0.8, // prob. of choosing a fresh data value
+                0.5, // prob. of choosing a fresh data value
                 1000, // 1000 runs 
                 100, // max depth
                 consts,
@@ -106,15 +105,19 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
+        DefaultQuery<PSymbolInstance, Boolean> ce = null;
 
         int check = 0;
         while (true && check < 100) {
             check++;
             rastar.learn();        
             Hypothesis hyp = rastar.getHypothesis();
+            if (ce != null) {
+            	// the last CE should not be a CE for the current hypothesis
+            	Assert.assertNull(hypVerifier.isCEForHyp(ce.getInput(), hyp));
+            }
   
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
+            ce = iowalk.findCounterExample(hyp, null);
          
             //System.out.println("CE: " + ce);
             if (ce == null) {
@@ -124,6 +127,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
+            Assert.assertNotNull(hypVerifier.isCEForHyp(ce.getInput(), hyp));
             rastar.addCounterexample(ce);
         }
 
