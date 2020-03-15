@@ -47,9 +47,29 @@ import java.util.Map;
  * @author falk
  */
 public class JContraintsUtil {
-
-    //TODO The only type in use is DOUBLE. That is not ok for discrete domains.
 	
+	/*
+	 * A mapping from common Java primitive classes to JConstraints types, which appear in SMT expressions.
+	 */
+	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
+	static {
+		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
+		typeMap.put(Long.class, BuiltinTypes.INTEGER);
+		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
+		typeMap.put(Float.class, BuiltinTypes.FLOAT);
+	}
+	
+	public static <T> Type<T> getJCType(DataValue<T> dv) {
+		return getJCType(dv.getType().getBase());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> Type<T> getJCType(Class<T> cls) {
+		if (!typeMap.containsKey(cls))
+			throw new RuntimeException("No JConstraints type defined for " + cls.getSimpleName());
+		return (Type<T>) typeMap.get(cls);
+	}
+
     public static Expression<Boolean> toExpression(
             LogicalOperator op,
             Map<SymbolicDataValue, Variable> map,
@@ -103,7 +123,7 @@ public class JContraintsUtil {
     }
     
     private static Expression<Boolean> toExpression(ConstantGuardExpression expr, Map<SymbolicDataValue, Variable> map) {
-    	Variable cv = getOrCreate(expr.getVariable(), map, type);
+    	Variable cv = getOrCreate(expr.getVariable(), map);
     	Constant cs = toConstant(expr.getConstant());
     	
     	return toAtomicExpression(cv, Relation.EQUALS, cs);
@@ -113,8 +133,8 @@ public class JContraintsUtil {
     private static Expression<Boolean> toExpression(SumCAtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
-        Variable lv = getOrCreate(expr.getLeft(), map, type);
-        Variable rv = getOrCreate(expr.getRight(), map, type);
+        Variable lv = getOrCreate(expr.getLeft(), map);
+        Variable rv = getOrCreate(expr.getRight(), map);
         Expression le;
         Expression re;
         if (expr.getLeftConst() != null)
@@ -138,8 +158,8 @@ public class JContraintsUtil {
     private static Expression<Boolean> toExpression(AtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
 
-        Variable lv = getOrCreate(expr.getLeft(), map, type);
-        Variable rv = getOrCreate(expr.getRight(), map, type);
+        Variable lv = getOrCreate(expr.getLeft(), map);
+        Variable rv = getOrCreate(expr.getRight(), map);
 
         
         Expression<Boolean> boolExpr = toAtomicExpression(lv, expr.getRelation(), rv);
@@ -169,42 +189,20 @@ public class JContraintsUtil {
     }
 
     private static Variable getOrCreate(SymbolicDataValue dv,
-            Map<SymbolicDataValue, Variable> map, Type jcType) {
+            Map<SymbolicDataValue, Variable> map) {
         Variable ret = map.get(dv);
         if (ret == null) {
-            ret = new Variable(jcType, dv.toString());
+            ret = new Variable(getJCType(dv), dv.toString());
             map.put(dv, ret);
         }
         return ret;
     }
     
     public static Constant toConstant(DataValue v) {
-        return new Constant( type, v.getId());
+        return new Constant( getJCType(v), v.getId());
     }
 
-    public static Variable toVariable(DataValue v) {
-        return new Variable( type, v.toString());
+    public static Variable toVariable(SymbolicDataValue dv) {
+        return new Variable( getJCType(dv), dv.toString());
     }
-    
-
-	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
-	static {
-		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
-		typeMap.put(Long.class, BuiltinTypes.INTEGER);
-		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
-		typeMap.put(Float.class, BuiltinTypes.FLOAT);
-	}
-	
-	private static Type type = BuiltinTypes.INTEGER;
-	
-	public static void setConstraintsType(Class<?> cls) {
-		type = getJCType(cls);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> Type<T> getJCType(Class<T> cls) {
-		if (!typeMap.containsKey(cls))
-			throw new RuntimeException("No JConstraints type defined for " + cls);
-		return (Type<T>) typeMap.get(cls);
-	}
 }
