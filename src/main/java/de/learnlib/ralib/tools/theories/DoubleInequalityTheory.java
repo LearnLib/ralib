@@ -18,12 +18,14 @@
  */
 package de.learnlib.ralib.tools.theories;
 
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.List;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.theory.inequality.ConcreteInequalityMerger;
 import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 /**
@@ -31,14 +33,6 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
  * @author falk
  */
 public class DoubleInequalityTheory extends NumberInequalityTheory<Double> implements TypedTheory<Double> {
-
-    protected static final class Cpr implements Comparator<DataValue<Double>> {
-
-        @Override
-        public int compare(DataValue<Double> one, DataValue<Double> other) {
-            return one.getId().compareTo(other.getId());
-        }
-    }
 
     public DoubleInequalityTheory() {
     	super(new ConcreteInequalityMerger(new InequalityGuardLogic()));
@@ -48,4 +42,28 @@ public class DoubleInequalityTheory extends NumberInequalityTheory<Double> imple
     	this();
         super.setType(t);
     }
+    
+    public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+		if (vals.isEmpty()) {
+			return new DataValue<Double>(super.getType(), 1.0);
+		}
+		
+		DataValue<Double> biggestDv = Collections.max(vals, new Cpr());
+		return new DataValue<Double>(biggestDv.getType(), biggestDv.getId() + 1);
+	}
+    
+    public IntervalDataValue<Double> pickIntervalDataValue(DataValue<Double> left, DataValue<Double> right) {
+    	double intVal;
+    	assert(left != null || right != null);
+    	
+    	if (left == null) {
+    		intVal = right.getId()/2;
+    	} else if (right == null ) {
+    		intVal = left.getId() + (Math.ceil(left.getId()) + 1.0 - left.getId())/2;
+    	} else {
+    		intVal = (left.getId() + right.getId()) / 2; 
+    	}
+    	
+    	return new IntervalDataValue<Double>(new DataValue<Double>(super.getType(), intVal), left, right);
+	}
 }
