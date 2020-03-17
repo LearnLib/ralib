@@ -154,9 +154,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(
                     suffix.getActions(), values);
-            if (DataWords.valSet(concSuffix).contains(DataValue.ONE(this.teachers.keySet().iterator().next()))) {
-        			throw new DecoratedRuntimeException("Sum over constant");
-            }
 
             DefaultQuery<PSymbolInstance, Boolean> query
                     = new DefaultQuery<>(prefix, concSuffix);
