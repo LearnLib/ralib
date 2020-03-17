@@ -38,6 +38,11 @@ public final class PriorityQueueOracle implements DataWordOracle {
     public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
 
     private long resets = 0;
+
+	private int size;
+    public PriorityQueueOracle(int size) {
+    	this.size = size;
+    }
     
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
@@ -56,7 +61,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
                     try {
                         PSymbolInstance psi = query.getInput().getSymbol(i);
                         DataValue<Double> d = psi.getParameterValues()[0];
-                        if (psi.getBaseSymbol().equals(OFFER) && queue.size() < 3) {
+                        if (psi.getBaseSymbol().equals(OFFER) && queue.size() < size) {
                             queue.offer(d.getId());
                             answer[i] = true;
                         } else if (psi.getBaseSymbol().equals(POLL)) {

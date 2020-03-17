@@ -61,7 +61,7 @@ public class LearnPQTest extends RaLibTestSuite {
     public void PQExample() {
 
         Constants consts = new Constants();
-        PriorityQueueOracle dwOracle = new PriorityQueueOracle();
+        PriorityQueueOracle dwOracle = new PriorityQueueOracle(3);
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(doubleType);
