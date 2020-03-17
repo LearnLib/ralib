@@ -65,7 +65,7 @@ import net.automatalib.words.Word;
 
 /**
  *
- * @author falk
+ * @author falk and paul
  */
 public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
@@ -84,8 +84,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
             SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2, 
             TransitionGuard guard, Word<PSymbolInstance> rep) {
-        
-        //Collection<SymbolicDataValue> join = piv1.values();
         
         log.finest("Searching for counterexample in SDTs");
         log.log(Level.FINEST, "SDT1: {0}", sdt1);
@@ -118,6 +116,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 		else if (acc2 instanceof FalseGuardExpression)
 			return acc1 instanceof FalseGuardExpression;
 		
+		GuardExpression neg1 = _sdt1.getRejectingPaths();
+		GuardExpression neg2 = _sdt2.getRejectingPaths();
+		
 		GuardExpression[] contextConjuncts = this.buildContextExpressions(contextMapping);
 		GuardExpression common = new Conjunction(contextConjuncts);
 		
@@ -126,18 +127,31 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 		
 		GuardExpression acc2r = acc2.relabel(remap);
 		GuardExpression guard2r = guard2.relabel(remap);
+		GuardExpression neg2r = neg2.relabel(remap);
 		
-		GuardExpression eqTest = new Disjunction(
-				new Conjunction(acc1, new Negation(acc2r)),
-				new Conjunction(new Negation(acc1), acc2r));
+		GuardExpression eqTestGuard1 = new Conjunction(
+				common,
+				guard1,
+				new Disjunction(
+						new Conjunction(neg1, acc2r),
+						new Conjunction(neg2r, acc1)
+						)
+				);
 		
-		GuardExpression eqTestGuard1 = new Conjunction(common, eqTest, guard1);
-		GuardExpression eqTestGuard2 = new Conjunction(common, eqTest, guard2r);
-
+		GuardExpression eqTestGuard2 = new Conjunction(
+				common,
+				guard2r,
+				new Disjunction(
+						new Conjunction(neg1, acc2r),
+						new Conjunction(neg2r, acc1)
+						) 
+				);
+		
 		boolean sat1 = this.solver.isSatisfiable(eqTestGuard1);
 		boolean sat2 = this.solver.isSatisfiable(eqTestGuard2);
 		
-		boolean isEquivalent = !sat1 || !sat2;
+		boolean isEquivalent = !sat1 && !sat2;
+
 		return isEquivalent;
     }
     
