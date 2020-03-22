@@ -87,6 +87,9 @@ public class CounterexampleAnalysis {
             this.slice = slice;
         }
                
+        /**
+         * If the symbolic suffix is not null, it should be used. 
+         */
         public GeneralizedSymbolicSuffix getSuffix() {
         	return this.suffix;
         }
@@ -115,7 +118,6 @@ public class CounterexampleAnalysis {
     }
     
     CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-        //IndexResult result = binarySearch(ce);
         IndexResult result  = linearBackWardsSearch(ce);
         
         Word<PSymbolInstance> prefix = ce.prefix(result.idx);
@@ -127,7 +129,6 @@ public class CounterexampleAnalysis {
         GeneralizedSymbolicSuffix symSuffix = 
                 SymbolicSuffixBuilder.suffixFromSlice(
                         DataWords.actsOf(suffix), result.slice);
-      //  symSuffix = GeneralizedSymbolicSuffix.fullSuffix(DataWords.actsOf(suffix), this.teachers);
 
         assert ce.length() - result.idx == symSuffix.getActions().length();     
         
@@ -152,12 +153,7 @@ public class CounterexampleAnalysis {
         Slice slice = sb.sliceFromWord(prefix, suffix);
         System.out.println("Slice from word: " + slice);
         
-        GeneralizedSymbolicSuffix symSuffix = 
-                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
-        		//new GeneralizedSymbolicSuffix( prefix, suffix, consts, teachers); 
-        long numTests = predictNumber(prefix, suffix);
-        System.out.println("Predicted num of tests: " + numTests);
-//        if (numTests < 10000)
+        GeneralizedSymbolicSuffix symSuffix = SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
         symSuffix = symSuffix.toExhaustiveSymbolicSuffix();
         
         System.out.println("exhaustive suffix: " + symSuffix);
@@ -218,9 +214,7 @@ public class CounterexampleAnalysis {
         Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, contextValuation, DataWords.actsOf(suffix));
         System.out.println("Slice from word: " + sliceSdts);
         
-        GeneralizedSymbolicSuffix gsuffix =
-        	//	this.sdtOracle.suffixForCounterexample(prefix, sdt1, piv1, sdt2, piv2, guard, actions)
-                SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
+        GeneralizedSymbolicSuffix gsuffix = SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
         
         System.out.println("G-Suffix: " + gsuffix);
                 
@@ -234,31 +228,14 @@ public class CounterexampleAnalysis {
         
     	System.out.println("HYP (Opt. Suff): " + newResHyp);
     	System.out.println("SUL (Opt. Suff): " + newResSul);
-    	boolean usedExh = false;
-        if (! newHasCE) {
-        	System.out.println("CE not preserved by optimized suffix");
-//        	gsuffix = this.sdtOracle.suffixForCounterexample(prefix, sdt1, resSul.getPiv(), sdt2, resHyp.getPiv(), g, DataWords.actsOf(suffix));
-//        	gsuffix.getPrefixRelations(1).add(DataRelation.ALL);
-        	gsuffix = symSuffix;
-        	System.out.println("Old style suffix " + gsuffix);
-        	newResHyp = hypOracle.treeQuery(location, gsuffix);
-            newResSul = sulOracle.treeQuery(location, gsuffix);
-            newHasCE = sdtOracle.hasCounterexample(location, 
-                    newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
-                    newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
-                    g, transition);
-            usedExh = true;
-            if (! newHasCE) {
-//	        	GeneralizedSymbolicSuffix exhSuffix = GeneralizedSymbolicSuffix.fullSuffix(suffix, consts, teachers);
-//	        	TreeQueryResult debugSdt = sulOracle.treeQuery(location, exhSuffix);
-//	        	System.out.println(debugSdt);
-	        	throw new RuntimeException("CE not preserved by optimized suffix");
-            }
+
+    	if (! newHasCE) {
+        	throw new RuntimeException("CE not preserved by optimized suffix");
         }
         
         boolean sulBranchingRetained = retainsBranching(location, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
         if (!sulBranchingRetained ) {
-        	System.out.println("Branching not retained, however learning continues");
+        	System.out.println("Branching not retained. Learning continues but minimality cannot be ensured.");
         	System.out.println("OLD SUL :" + resSul);
         	System.out.println("NEW SUL :" + newResSul);
         }
@@ -267,22 +244,11 @@ public class CounterexampleAnalysis {
         IndexResult indx = new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,
                 sliceSdts);
-        if (usedExh) 
-        	indx.setSuffix(gsuffix);
+        
+        indx.setSuffix(gsuffix);
         return indx;
     }
     
-    
-    private long predictNumber(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix) {
-    	int prefSize = DataWords.valSet(prefix).size();
-    	int suffSize = suffix.asList().stream().filter(sym -> sym.getBaseSymbol() instanceof InputSymbol).mapToInt(sym -> sym.getParameterValues().length).sum();
-		long number=1;
-    	for (int i=0; i<suffSize; i++) {
-			number = number * (prefSize+i) * 6;
-		}
-    	return number;
-	}
-
 	private boolean retainsBranching(Word<PSymbolInstance> location, 
             ParameterizedSymbol action, SymbolicDecisionTree oldSdtSUL, PIV oldPiv, SymbolicDecisionTree newSdtSUL, PIV newPiv) {
     	Branching oldBranching = sulOracle.getInitialBranching(location, action, oldPiv, oldSdtSUL);

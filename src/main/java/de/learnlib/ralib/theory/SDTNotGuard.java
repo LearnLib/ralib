@@ -13,25 +13,25 @@ public class SDTNotGuard extends SDTGuard{
 
 	public SDTNotGuard(SDTGuard ifGuard) {
 		super(ifGuard.getParameter());
-		this.ifGuard = ifGuard;
+		ifGuard = ifGuard;
 	}
 
 	public GuardExpression toExpr() {
-		return new Negation(this.ifGuard.toExpr());
+		return new Negation(ifGuard.toExpr());
 	}
 
 	public SDTGuard relabel(VarMapping relabelling) {
-		SDTGuard newIfGuard = this.ifGuard.relabel(relabelling);
+		SDTGuard newIfGuard = ifGuard.relabel(relabelling);
 		return new SDTNotGuard(newIfGuard);
 	}
 
 	public SDTGuard replace(Replacement replacing) {
-		SDTIfGuard newIfGuard = (SDTIfGuard) this.ifGuard.replace(replacing); 
+		SDTIfGuard newIfGuard = (SDTIfGuard) ifGuard.replace(replacing); 
 		return new SDTNotGuard(newIfGuard);
 	}
 
 	public Set<SymbolicDataValue> getAllSDVsFormingGuard() {
-		return this.ifGuard.getAllSDVsFormingGuard();
+		return ifGuard.getAllSDVsFormingGuard();
 	}
 
 }

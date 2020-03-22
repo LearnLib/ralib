@@ -77,23 +77,23 @@ public class IntervalGuard extends SDTGuard {
     }
     
     public Boolean getRightOpen() {
-    	return this.rightOpen;
+    	return rightOpen;
     }
     
     public Boolean getLeftOpen() {
-    	return this.leftOpen;
+    	return leftOpen;
     }
 
     @Override
     public String toString() {
         if (leftEnd == null) {
-            return "(" + this.getParameter().toString() + "<" + equ(this.rightOpen) + this.rightEnd.toString() + ")";
+            return "(" + super.getParameter().toString() + "<" + equ(rightOpen) + rightEnd.toString() + ")";
         }
         if (rightEnd == null) {
-            return "(" + this.getParameter().toString() + ">" + equ(this.leftOpen) + this.leftEnd.toString() + ")";
+            return "(" + super.getParameter().toString() + ">" + equ(leftOpen) + leftEnd.toString() + ")";
         }
-        return "(" + leftEnd.toString() + "<" + equ(this.leftOpen) + this.getParameter().toString() + "<" + 
-        equ(this.rightOpen) + this.rightEnd.toString() + ")";
+        return "(" + leftEnd.toString() + "<" + equ(leftOpen) + getParameter().toString() + "<" + 
+        equ(rightOpen) + rightEnd.toString() + ")";
     }
     
     private String equ(@Nonnull boolean open) {
@@ -181,18 +181,18 @@ public class IntervalGuard extends SDTGuard {
                 l = leftEnd.swapSDV((SymbolicDataValue) relabelling.get(leftEnd.getSDV()));
             }
         }
-        return new IntervalGuard(sv, l, this.leftOpen, r, this.rightOpen);
+        return new IntervalGuard(sv, l, leftOpen, r, rightOpen);
     }
     
     @Override
 	public SDTGuard replace(Replacement replacing) {
-		SymbolicDataExpression rl = replacing.containsKey(this.rightEnd) ? 
-				replacing.get(this.rightEnd) : this.rightEnd;
+		SymbolicDataExpression rl = replacing.containsKey(rightEnd) ? 
+				replacing.get(rightEnd) : rightEnd;
 		SymbolicDataExpression ll = replacing.containsKey(this.leftEnd) ? 
-				replacing.get(this.leftEnd) : this.leftEnd;
+				replacing.get(leftEnd) : leftEnd;
 		
 		
-		return new IntervalGuard(getParameter(), ll, this.leftOpen, rl, this.rightOpen);
+		return new IntervalGuard(getParameter(), ll, leftOpen, rl, rightOpen);
 	}
 
     @Override

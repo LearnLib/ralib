@@ -28,15 +28,15 @@ public abstract class SDTIfGuard extends SDTGuard {
     protected final Relation relation;
 
     public SymbolicDataValue getRegister() {
-        return this.registerExpr.getSDV();
+        return registerExpr.getSDV();
     }
     
     public SymbolicDataExpression getExpression() {
-        return this.registerExpr;
+        return registerExpr;
     }
 
     public Relation getRelation() {
-        return this.relation;
+        return relation;
     }
     
     public SDTIfGuard(SuffixValue param, SymbolicDataExpression regExpr, Relation rel) {

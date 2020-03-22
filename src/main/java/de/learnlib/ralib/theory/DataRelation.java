@@ -42,6 +42,6 @@ public enum DataRelation {
 	public static final EnumSet<DataRelation> EQ_DEQ_DEF_RELATIONS = EnumSet.of(EQ, EQ_SUMC1, EQ_SUMC2, DEQ, DEQ_SUMC1, DEQ_SUMC2, DEFAULT); 
 	
     public boolean isEq() {
-    	return this.name().startsWith("EQ");
+    	return super.name().startsWith("EQ");
     }
 }

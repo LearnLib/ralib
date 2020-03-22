@@ -68,9 +68,9 @@ public abstract class SDTMultiGuard extends SDTGuard {
     public SDTMultiGuard(SuffixValue param, ConDis condis, SDTGuard... ifGuards) {
         super(param);
         this.condis = condis;
-        this.guards = new ArrayList<>();
-        this.guards.addAll(Arrays.asList(ifGuards));
-        this.guardSet = new LinkedHashSet<>(guards);
+        guards = new ArrayList<>();
+        guards.addAll(Arrays.asList(ifGuards));
+        guardSet = new LinkedHashSet<>(guards);
     }
 
     @Override
@@ -78,11 +78,11 @@ public abstract class SDTMultiGuard extends SDTGuard {
 
     @Override
     public String toString() {
-        String p = this.condis.toString() + "COMPOUND: " + parameter.toString();
-        if (this.guards.isEmpty()) {
+        String p = condis.toString() + "COMPOUND: " + parameter.toString();
+        if (guards.isEmpty()) {
             return p + "empty";
         }
-        return p + this.guards.toString();
+        return p + guards.toString();
     }
 
 }

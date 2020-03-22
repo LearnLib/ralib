@@ -30,7 +30,7 @@ public class IfElseGuardMerger implements GuardMerger{
 			boolean equiv = sdtChecker.checkSDTEquivalence(ifGuard, ifSdt, elseGuard, elseSDT);
 			// are equivalent
 			if (equiv) {
-				newElseGuard = this.logic.disjunction(ifGuard, newElseGuard);
+				newElseGuard = logic.disjunction(ifGuard, newElseGuard);
 			} else {
 				merged.put(ifGuard, ifSdt);
 			}

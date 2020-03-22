@@ -30,9 +30,17 @@ public class BranchingLogic<T extends Comparable<T>> {
 
 	public BranchingLogic(TypedTheory<T> theory) {
 		this.theory = theory;
-		this.type = theory.getType();
+		type = theory.getType();
 	}
 
+	/**
+	 * Computes the branching context for the given suffix parameter. 
+	 * The branching context determines the strategy taken in exploring the parameter based on the generalized symbolic suffix associated with it.
+	 * </p>
+	 * For example, assume the parameter has only EQ/DEQ relations to previous suffix/prefix parameters. 
+	 * Then it makes sense to only explore (dis-)equality with the values of these parameters, rather than also explore inequalities 
+	 * (e.g. the suffix parameter taking a value that is in-between two parameters).
+	 */
 	public BranchingContext<T> computeBranchingContext(int pid, List<DataValue<T>> potential,
 			Word<PSymbolInstance> prefix, Constants constants, SuffixValuation suffixValues,
 			GeneralizedSymbolicSuffix suffix) {
@@ -40,15 +48,14 @@ public class BranchingLogic<T extends Comparable<T>> {
 		EnumSet<DataRelation> suffixRel = suffix.getSuffixRelations(pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
 		Set<ParamSignature> prefixSource = suffix.getPrefixSources(pid);
-		List<DataValue<T>> sumC = constants.getSumCs(this.type);
-		List<DataValue<T>> prefVals = Arrays.asList(DataWords.valsOf(prefix, this.type));
+		List<DataValue<T>> sumC = constants.getSumCs(type);
 		
 		
 		Function<DataRelation, DataValue<T>> fromPrevSuffVal = (rel) -> {
 			SuffixValue suffixValue = suffix.findLeftMostRelatedSuffix(pid, rel);
 			DataValue<T> eqSuffix = (DataValue<T>) suffixValues.get(suffixValue);
 			if (eqSuffix == null)
-				eqSuffix = this.theory.getFreshValue(potential);
+				eqSuffix = theory.getFreshValue(potential);
 			else {
 				if (rel == DataRelation.EQ)
 					return eqSuffix;
@@ -60,47 +67,47 @@ public class BranchingLogic<T extends Comparable<T>> {
 			return eqSuffix;
 		};
 
-		BranchingContext<T> action = null;
+		BranchingContext<T> context = null;
 		// if any of the pref/suff relations contains all, we do FULL and skip
 		if (prefixRel.contains(DataRelation.ALL) || suffixRel.contains(DataRelation.ALL))
-			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
+			context = new BranchingContext<>(BranchingStrategy.FULL, potential);
 		else {
 			// branching processing based on relations
 			if (DataRelation.DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
 				if (DataRelation.DEQ_DEF_RELATIONS.containsAll(suffixRel)) 
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
+					context = new BranchingContext<T>(BranchingStrategy.TRUE_FRESH);
 				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ)))
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
+					context = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC1)))
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
+					context = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC1));
 				else if (suffixRel.equals(EnumSet.of(DataRelation.EQ_SUMC2)))
-					action = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
+					context = new BranchingContext<T>(BranchingStrategy.TRUE_PREV, fromPrevSuffVal.apply(DataRelation.EQ_SUMC2));
 			} 
 			
-			if (action == null) {
+			if (context == null) {
 				if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
 					if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(suffixRel)) {
 						List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
 								, suffix);
-						action = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
+						context = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
 					}
 				}
 			}
 		}
 		
-		if (action == null)
-			action = new BranchingContext<>(BranchingStrategy.FULL, potential);
+		if (context == null)
+			context = new BranchingContext<>(BranchingStrategy.FULL, new ArrayList<>(potential));
 		
-		action.branchingValues.removeIf(dv -> dv.getId().compareTo(DataValue.ZERO(type).getId())<=0);
+//		context.branchingValues.removeIf(dv -> dv.getId().compareTo(DataValue.ZERO(type).getId())<=0);
 
-		return action;
+		return context;
 	}
 	
 	private List<DataValue<T>> makeNewPots(int pid, Word<PSymbolInstance> prefix, Set<ParamSignature> prefixSource, EnumSet<DataRelation> prefixRel, Constants constants, SuffixValuation suffixValues
 			, GeneralizedSymbolicSuffix suffix) {
 		List<DataValue<T>> newPotential = new ArrayList<>();
-		List<DataValue<T>> sumC = constants.getSumCs(this.type);
-		List<DataValue<T>> regVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(prefix, this.type)));
+		List<DataValue<T>> sumC = constants.getSumCs(type);
+		List<DataValue<T>> regVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(prefix, type)));
 		Collection<DataValue<T>> sufVals = suffixValues.values(type);//this.getRelatedSuffixValues(suffix, pid, suffixValues);
 		List<DataValue<T>> allVals = new ArrayList<DataValue<T>>(regVals);
 		allVals.addAll(sufVals);
@@ -128,7 +135,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 	private List<DataValue<T>> pots(Collection<DataValue<T>> vals, List<DataValue<T>> sumConstants, EnumSet<DataRelation> equRels) {
 		Set<DataValue<T>> newPots = new LinkedHashSet<>();
 		if (equRels.contains(DataRelation.ALL) || equRels.contains(DataRelation.LT)) 
-			newPots.addAll( this.theory.getPotential(new ArrayList<>(vals)));
+			newPots.addAll( theory.getPotential(new ArrayList<>(vals)));
 		else {
 			if (equRels.contains(DataRelation.EQ) || equRels.contains(DataRelation.DEQ))
 				newPots.addAll(vals);
@@ -165,7 +172,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 
 		public BranchingContext(BranchingStrategy strategy) {
 			this.strategy = strategy;
-			this.branchingValues = Collections.emptyList();
+			branchingValues = Collections.emptyList();
 		}
 
 		public BranchingContext(BranchingStrategy strategy, DataValue<T> potValue) {
@@ -174,31 +181,31 @@ public class BranchingLogic<T extends Comparable<T>> {
 
 		public BranchingContext(BranchingStrategy strategy, List<DataValue<T>> potValues) {
 			this.strategy = strategy;
-			this.branchingValues = potValues;
+			branchingValues = potValues;
 		}
 
 		@SafeVarargs
 		public BranchingContext(BranchingStrategy strategy, List<DataValue<T>>... potValues) {
 			this.strategy = strategy;
-			this.branchingValues = Arrays.stream(potValues).flatMap(potV -> potV.stream()).collect(Collectors.toList());
+			branchingValues = Arrays.stream(potValues).flatMap(potV -> potV.stream()).collect(Collectors.toList());
 		}
 
 		public List<DataValue<T>> getBranchingValues() {
-			return this.branchingValues;
+			return branchingValues;
 		}
 
 		public DataValue<T> getBranchingValue() {
-			if (this.branchingValues != null && !this.branchingValues.isEmpty())
+			if (branchingValues != null && !branchingValues.isEmpty())
 				return branchingValues.get(0);
 			return null;
 		}
 
 		public BranchingStrategy getStrategy() {
-			return this.strategy;
+			return strategy;
 		}
 		
 		public String toString() {
-			return "Strategy: " + this.strategy + (this.branchingValues.isEmpty()? "" : " Branching Values: " +this.branchingValues);
+			return "Strategy: " + strategy + (branchingValues.isEmpty()? "" : " Branching Values: " + branchingValues);
 		}
 	}
 

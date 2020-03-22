@@ -3,7 +3,14 @@ package de.learnlib.ralib.theory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultGuardLogic implements SDTGuardLogic{
+/**
+ * A guard logic that handles conjunction and disjunction in a theory-agnostic way.
+ * For example, conjunction of two atomic guards results in an instance of a {@link SDTAndGuard} containing the guards.
+ * Similarly, disjunction of two such guards produces an instance of a {@link SDTOrGuard} encapsulating them.
+ * Guard logics of specific theories should refine these methods according to the theories.
+ * 
+ */
+public class GeneralGuardLogic implements SDTGuardLogic{
 
 	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
 		assert guard1.getParameter().equals(guard2.getParameter());
@@ -59,7 +66,7 @@ public class DefaultGuardLogic implements SDTGuardLogic{
 
 			List<SDTGuard> conjunctList = new ArrayList<>(andGuard.getGuards());
 			int size = conjunctList.size();
-			conjunctList.removeIf(el -> this.disjunction(el, otherGuard) instanceof SDTTrueGuard);
+			conjunctList.removeIf(el -> disjunction(el, otherGuard) instanceof SDTTrueGuard);
 			if (size != conjunctList.size()) {
 				if (conjunctList.size() == 0) 
 					return new SDTTrueGuard(guard1.getParameter());

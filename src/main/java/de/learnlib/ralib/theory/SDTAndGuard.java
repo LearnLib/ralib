@@ -33,10 +33,10 @@ public class SDTAndGuard extends SDTMultiGuard {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.condis);
-        hash = 59 * hash + Objects.hashCode(this.parameter);
-        hash = 59 * hash + Objects.hashCode(this.guardSet);
-        hash = 59 * hash + Objects.hashCode(this.getClass());
+        hash = 59 * hash + Objects.hashCode(condis);
+        hash = 59 * hash + Objects.hashCode(parameter);
+        hash = 59 * hash + Objects.hashCode(guardSet);
+        hash = 59 * hash + Objects.hashCode(super.getClass());
 
         return hash;
     }
@@ -89,7 +89,7 @@ public class SDTAndGuard extends SDTMultiGuard {
         sv = (sv == null) ? getParameter() : sv;
 
         List<SDTGuard> gg = new ArrayList<>();
-        for (SDTGuard g : this.guards) {
+        for (SDTGuard g : guards) {
             gg.add(g.relabel(relabelling));
         }
         return new SDTAndGuard(sv, gg.toArray(new SDTIfGuard[]{}));
@@ -98,7 +98,7 @@ public class SDTAndGuard extends SDTMultiGuard {
     @Override
     public SDTGuard replace(Replacement replacing) {
         List<SDTGuard> gg = new ArrayList<>();
-        for (SDTGuard g : this.guards) {
+        for (SDTGuard g : guards) {
             gg.add(g.replace(replacing));
         }
         return new SDTAndGuard(getParameter(), gg.toArray(new SDTIfGuard[]{}));

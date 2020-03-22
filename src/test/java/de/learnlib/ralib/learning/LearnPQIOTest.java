@@ -66,7 +66,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         DoubleInequalityTheory dit = 
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE);
         
-        dit.setUseSuffixOpt(false);
+        dit.setUseSuffixOpt(true);
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, dit);
                 
         

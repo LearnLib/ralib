@@ -5,13 +5,13 @@ import java.util.List;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.theory.inequality.DiscreteInequalityMerger;
+import de.learnlib.ralib.theory.inequality.DiscreteDomainInequalityMerger;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 public class IntegerInequalityTheory  extends NumberInequalityTheory<Integer> implements TypedTheory<Integer>{
 
     public IntegerInequalityTheory() {
-    	super(new DiscreteInequalityMerger());
+    	super(new DiscreteDomainInequalityMerger());
     }
 
     public IntegerInequalityTheory(DataType<Integer> t) {

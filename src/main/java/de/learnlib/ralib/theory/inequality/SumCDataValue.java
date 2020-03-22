@@ -15,43 +15,21 @@ public class SumCDataValue<T> extends DataValue<T>{
 	}
 	
 	public DataValue<T> getConstant() {
-		return this.constant;
+		return constant;
 	}
 	
 	public DataValue<T> getOperand() {
-		return this.operand;
+		return operand;
 	}
 	
 	public DataValue<T> toRegular() {
-		return new DataValue<T> (this.type, this.id);
+		return new DataValue<T> (type, id);
 	}
 
 	
     @Override
     public String toString() {
-        return this.getOperand().toString() + " + " + this.constant.toString(); 
+        return getOperand().toString() + " + " + constant.toString(); 
     }
-
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 97 * hash + operand.hashCode();
-//        hash = 97 * hash + constant.hashCode();
-//        return hash;
-//    }
-//    
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == null) {
-//            return false;
-//        }
-//        if (!(obj instanceof SumCDataValue)) {
-//            return false;
-//        }
-//        
-//        SumCDataValue sumC = (SumCDataValue) obj;
-//        
-//        return sumC.constant.equals(this.constant) && super.equals(obj);
-//    }
 
 }

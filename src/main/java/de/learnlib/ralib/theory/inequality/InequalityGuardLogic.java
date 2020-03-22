@@ -17,7 +17,7 @@ public class InequalityGuardLogic implements SDTGuardLogic {
 	private EqualityGuardLogic equalityLogic;
 
 	public InequalityGuardLogic() {
-		this.equalityLogic = new EqualityGuardLogic();
+		equalityLogic = new EqualityGuardLogic();
 	}
 
 	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
@@ -26,9 +26,9 @@ public class InequalityGuardLogic implements SDTGuardLogic {
 			IntervalGuard intv1 = (IntervalGuard) guard1;
 			IntervalGuard intv2 = (IntervalGuard) guard2;
 			
-			SDTGuard intersection = this.tryIntersectEnds(intv1, intv2);
+			SDTGuard intersection = tryIntersectEnds(intv1, intv2);
 			if (intersection == null)
-				intersection = this.tryIntersectEnds(intv2, intv1);
+				intersection = tryIntersectEnds(intv2, intv1);
 			if (intersection != null)
 				return intersection;
 		}
@@ -48,7 +48,7 @@ public class InequalityGuardLogic implements SDTGuardLogic {
 		}
 		
 		
-		SDTGuard equDisjunction = this.equalityLogic.conjunction(guard1, guard2);
+		SDTGuard equDisjunction = equalityLogic.conjunction(guard1, guard2);
 		return equDisjunction;
 	}
 	
@@ -125,7 +125,7 @@ public class InequalityGuardLogic implements SDTGuardLogic {
 				return connectedInt;
 		}
 
-		SDTGuard equDisjunction = this.equalityLogic.disjunction(guard1, guard2);
+		SDTGuard equDisjunction = equalityLogic.disjunction(guard1, guard2);
 		return equDisjunction;
 	}
 

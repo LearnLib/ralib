@@ -22,11 +22,11 @@ import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class DiscreteInequalityMerger implements InequalityGuardMerger{
+public class DiscreteDomainInequalityMerger implements InequalityGuardMerger{
 
 	private SDTGuardLogic logic;
 
-	public DiscreteInequalityMerger() {
+	public DiscreteDomainInequalityMerger() {
 		this.logic = new InequalityGuardLogic();
 	}
 	

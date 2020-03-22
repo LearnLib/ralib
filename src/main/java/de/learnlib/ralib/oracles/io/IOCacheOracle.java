@@ -22,7 +22,6 @@ import java.util.logging.Level;
 import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;

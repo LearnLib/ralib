@@ -9,13 +9,13 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
  * where the any disjoined guards are adjacent. It is NOT valid as a general logic and should not
  * be used as such.
  */
-public class DiscreteInequalityGuardLogic implements SDTGuardLogic {
+public class DiscreteDomainInequalityGuardLogic implements SDTGuardLogic {
 	
 
 	private SDTGuardLogic ineqGuardLogic;
 
 
-	public DiscreteInequalityGuardLogic() {
+	public DiscreteDomainInequalityGuardLogic() {
 		this.ineqGuardLogic = new InequalityGuardLogic();
 	}
 

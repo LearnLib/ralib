@@ -15,12 +15,12 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
-public class ConcreteInequalityMerger implements InequalityGuardMerger{
+public class ContinuousDomainInequalityMerger implements InequalityGuardMerger{
 	
 
 	protected SDTGuardLogic logic;
 
-	public ConcreteInequalityMerger(SDTGuardLogic logic) {
+	public ContinuousDomainInequalityMerger(SDTGuardLogic logic) {
 		this.logic = logic;
 	}
 	

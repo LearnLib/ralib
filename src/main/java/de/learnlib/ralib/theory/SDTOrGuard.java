@@ -33,10 +33,10 @@ public class SDTOrGuard extends SDTMultiGuard {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + Objects.hashCode(this.condis);
-        hash = 59 * hash + Objects.hashCode(this.parameter);
-        hash = 59 * hash + Objects.hashCode(this.guardSet);
-        hash = 59 * hash + Objects.hashCode(this.getClass());
+        hash = 59 * hash + Objects.hashCode(condis);
+        hash = 59 * hash + Objects.hashCode(parameter);
+        hash = 59 * hash + Objects.hashCode(guardSet);
+        hash = 59 * hash + Objects.hashCode(super.getClass());
 
         return hash;
     }
@@ -51,10 +51,10 @@ public class SDTOrGuard extends SDTMultiGuard {
         }
         final SDTOrGuard other = (SDTOrGuard) obj;
 
-        if (!Objects.equals(this.guardSet, other.guardSet)) {
+        if (!Objects.equals(guardSet, other.guardSet)) {
             return false;
         }
-        return Objects.equals(this.parameter, other.parameter);
+        return Objects.equals(parameter, other.parameter);
     }
 
     public SDTOrGuard(SuffixValue param, SDTGuard... ifGuards) {
@@ -63,7 +63,7 @@ public class SDTOrGuard extends SDTMultiGuard {
 
     private List<GuardExpression> toExprList() {
         List<GuardExpression> exprs = new ArrayList<>();
-        for (SDTGuard guard : this.guards) {
+        for (SDTGuard guard : guards) {
             exprs.add(guard.toExpr());
         }
         return exprs;
@@ -71,7 +71,7 @@ public class SDTOrGuard extends SDTMultiGuard {
 
     @Override
     public GuardExpression toExpr() {
-        List<GuardExpression> thisList = this.toExprList();
+        List<GuardExpression> thisList = toExprList();
         if (thisList.isEmpty()) {
             return TrueGuardExpression.TRUE;
         }
@@ -84,11 +84,11 @@ public class SDTOrGuard extends SDTMultiGuard {
 
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
-        sv = (sv == null) ? getParameter() : sv;
+        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(super.getParameter());
+        sv = (sv == null) ? super.getParameter() : sv;
 
         List<SDTGuard> gg = new ArrayList<>();
-        for (SDTGuard g : this.guards) {
+        for (SDTGuard g : guards) {
             gg.add(g.relabel(relabelling));
         }
         return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
@@ -96,9 +96,9 @@ public class SDTOrGuard extends SDTMultiGuard {
     
     public SDTGuard replace(Replacement replacing) {
     	List<SDTGuard> gg = new ArrayList<>();
-        for (SDTGuard g : this.guards) {
+        for (SDTGuard g : guards) {
             gg.add(g.replace(replacing));
         }
-        return new SDTOrGuard(getParameter(), gg.toArray(new SDTGuard[]{}));
+        return new SDTOrGuard(super.getParameter(), gg.toArray(new SDTGuard[]{}));
     }
 }

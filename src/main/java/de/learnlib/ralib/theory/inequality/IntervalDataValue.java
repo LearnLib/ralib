@@ -73,22 +73,22 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	}
 	
 	public String toString() {
-		return super.toString() + " ( " + (this.getLeft() != null ? this.getLeft().toString() : "") + ":" +
-					(this.getRight() != null ? this.getRight().toString() : "") + ")"; 
+		return super.toString() + " ( " + (getLeft() != null ? getLeft().toString() : "") + ":" +
+					(getRight() != null ? getRight().toString() : "") + ")"; 
 	}
 
 	
 	public DataValue<T> getLeft() {
-		return this.left;
+		return left;
 	}
 	
 	
 	public DataValue<T> toRegular() {
-		return new DataValue<T> (this.type, this.id);
+		return new DataValue<T> (type, id);
 	}
 
 
 	public DataValue<T> getRight() {
-		return this.right;
+		return right;
 	}
 }

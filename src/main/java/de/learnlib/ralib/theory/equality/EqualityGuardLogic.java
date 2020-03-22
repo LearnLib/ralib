@@ -1,10 +1,10 @@
 package de.learnlib.ralib.theory.equality;
 
-import de.learnlib.ralib.theory.DefaultGuardLogic;
+import de.learnlib.ralib.theory.GeneralGuardLogic;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 
-public class EqualityGuardLogic extends DefaultGuardLogic{
+public class EqualityGuardLogic extends GeneralGuardLogic{
 	
 	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2) {
 		assert guard1.getParameter().equals(guard2.getParameter());

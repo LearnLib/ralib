@@ -5,9 +5,7 @@ import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -32,19 +30,19 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-public class ConcreteInequalityGuardInstantiator<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
+public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
 
 	private final DataType<T> type;
 	private final Type<T> jcType;
 	private final ConstraintSolver solver;
 
-	public ConcreteInequalityGuardInstantiator(DataType<T> type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
+	public InequalityGuardInstantiatorImpl(DataType<T> type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
 		this.type = type;
 		this.jcType = jcType;
 		this.solver = solver;
 	}
 
-	public ConcreteInequalityGuardInstantiator(DataType<T> type, ConstraintSolver solver) {
+	public InequalityGuardInstantiatorImpl(DataType<T> type, ConstraintSolver solver) {
 		this(type, JContraintsUtil.getJCType(type.getBase()), solver);
 	}
 
