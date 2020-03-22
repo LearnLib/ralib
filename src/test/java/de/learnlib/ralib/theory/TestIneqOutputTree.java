@@ -38,6 +38,7 @@ import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
+import de.learnlib.ralib.utils.SDTBuilder;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import java.util.logging.Level;
@@ -71,6 +72,26 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         
     }
     
+    
+    private static class SmallerSUL extends DataWordSUL {
+        
+        @Override
+        public void pre() {
+        }
+
+        @Override
+        public void post() {
+        }
+
+        @Override
+        public PSymbolInstance step(PSymbolInstance i) throws SULException {
+            return new PSymbolInstance(OUT, new DataValue(TYPE,
+                    ((double)i.getParameterValues()[0].getId()) - 1.0));
+        }
+        
+    }
+    
+    
     @Test
     public void testIneqEqTree() {
 
@@ -100,17 +121,14 @@ public class TestIneqOutputTree extends RaLibTestSuite {
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
-
-        final String expectedTree = "[r1]-+\n" +
-"    []-(s1<r1)\n" +
-"     |    [Leaf-]\n" +
-"     +-(s1=r1)\n" +
-"     |    [Leaf-]\n" +
-"     +-(s1>r1)\n" +
-"          [Leaf+]\n";
         
+        SymbolicDecisionTree expectedSdt = new SDTBuilder(TYPE)
+        		.lsrEq("r1").reject().up()
+        		.grt("r1").accept().up()
+        		.build();
+        		
         String tree = sdt.toString();
-        Assert.assertEquals(tree, expectedTree);
+        Assert.assertEquals(tree, expectedSdt.toString());
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
     }
