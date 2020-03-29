@@ -35,6 +35,8 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
+
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -88,22 +90,64 @@ public class TestIneqOutputTree extends RaLibTestSuite {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
                     ((double)i.getParameterValues()[0].getId()) - 1.0));
         }
-        
     }
     
+    private static class MeanSUL extends DataWordSUL {
+    	private Double x;
+        
+        @Override
+        public void pre() {
+        }
+
+        @Override
+        public void post() {
+        }
+
+        @Override
+        public PSymbolInstance step(PSymbolInstance i) throws SULException {
+        	if (x == null) {
+        		x = (double)i.getParameterValues()[0].getId();
+        		return new PSymbolInstance(OUT, new DataValue(TYPE,x));
+        	} else {
+        		double aux = x;
+        		x = (double)i.getParameterValues()[0].getId();
+        		return new PSymbolInstance(OUT, new DataValue(TYPE, (aux + x) / 2.0));
+        	}
+        }
+    }
     
-    @Test
-    public void testIneqEqTree() {
+    private void genericIneqTest(DataWordSUL sul, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SymbolicDecisionTree expectedSdt) {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
-        BiggerSUL sul = new BiggerSUL();
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 IN);
+        
+        GeneralizedSymbolicSuffix symSuffix = 
+                new GeneralizedSymbolicSuffix(prefix, suffix,
+                        new Constants(), teachers);
+        
+
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+        
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
+        SymbolicDecisionTree sdt = res.getSdt();
+        
+        String tree = sdt.toString();
+        Assert.assertEquals(tree, expectedSdt.toString());
+        logger.log(Level.FINE, "final SDT: \n{0}", tree);
+    }
+    
+    
+    @Test
+    public void testBiggerIneqEqTree() {
+
+    	BiggerSUL sul = new BiggerSUL();
                 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(IN, new DataValue(TYPE, 1.0)));
@@ -111,26 +155,52 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(OUT, new DataValue(TYPE, 1.0)));
 
-        // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)
-        final GeneralizedSymbolicSuffix symSuffix = 
-                new GeneralizedSymbolicSuffix(prefix, suffix,
-                        new Constants(), teachers);
-        logger.log(Level.FINE, "Prefix: {0}", prefix);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
-        
         SymbolicDecisionTree expectedSdt = new SDTBuilder(TYPE)
         		.lsrEq("r1").reject().up()
         		.grt("r1").accept().up()
         		.build();
         		
-        String tree = sdt.toString();
-        Assert.assertEquals(tree, expectedSdt.toString());
-        logger.log(Level.FINE, "final SDT: \n{0}", tree);
-
+        genericIneqTest(sul, prefix, suffix, expectedSdt);
     }
 
+
+    @Test
+    public void testSmallerIneqEqTree() {
+    	SmallerSUL sul = new SmallerSUL();
+        
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(IN, new DataValue(TYPE, 1.0)));
+                
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(OUT, new DataValue(TYPE, 1.0)));
+
+        SymbolicDecisionTree expectedSdt = new SDTBuilder(TYPE)
+        		.lsr("r1").accept().up()
+        		.grtEq("r1").reject().up()
+        		.build();
+        		
+        genericIneqTest(sul, prefix, suffix, expectedSdt);
+    }
+    
+    @Test
+    public void testMeanIneqEqTree() {
+    	MeanSUL sul = new MeanSUL();
+        
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(IN, new DataValue(TYPE, 1.0)),
+                new PSymbolInstance(OUT, new DataValue(TYPE, 1.0))
+        		);
+                
+        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+        		new PSymbolInstance(IN, new DataValue(TYPE, 1.0)),
+                new PSymbolInstance(OUT, new DataValue(TYPE, 1.0)));
+
+        SymbolicDecisionTree expectedSdt = new SDTBuilder(TYPE)
+        		.lsr("r1").accept().up()
+        		.grtEq("r1").reject().up()
+        		.build();
+        		
+        genericIneqTest(sul, prefix, suffix, expectedSdt);
+
+    }
 }

@@ -423,7 +423,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 								SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(dvRight, prefixValues, values,
 										constants);
 								IntervalGuard sGuard = new IntervalGuard(currentParam, null, regOrSuffixExpr);
-								guardDvs.put(sGuard, d);
+								guardDvs.put(sGuard, new IntervalDataValue(d, null, dvRight));
 								IntervalGuard beGuard = new IntervalGuard(currentParam, regOrSuffixExpr, false, null, true);
 								IntervalDataValue<T> bVal = pickIntervalDataValue(d, null); 
 								guardDvs.put(beGuard, bVal);
@@ -437,16 +437,16 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 								IntervalDataValue<T> bVal = pickIntervalDataValue(null, d);
 								guardDvs.put(seGuard, bVal);
 								IntervalGuard bGuard = new IntervalGuard(currentParam, regOrSuffixExpr, null);
-								guardDvs.put(bGuard, d);
+								guardDvs.put(bGuard, new IntervalDataValue(d, bVal, null));
 								
 							} else {
 								
 								// ok, d is somewhere in the middle, we find out where exactly
 								// the guards we create are (-) <=, < > and >= (-)
-								int insertionPoint = Arrays.binarySearch(potential.toArray(), d);
+								int insertionPoint = (-1) * Arrays.binarySearch(potential.stream().map(dv -> dv.getId()).toArray(), d.getId()) - 1;
 								
-								DataValue<T> dvLeft = potential.get(insertionPoint);
-								DataValue<T> dvRight = potential.get(insertionPoint+1);
+								DataValue<T> dvLeft = potential.get(insertionPoint-1);
+								DataValue<T> dvRight = potential.get(insertionPoint);
 								SymbolicDataExpression leftExpr = getSDExprForDV(dvLeft, prefixValues, values,
 										constants);
 								IntervalGuard seGuard = new IntervalGuard(currentParam, null, true, leftExpr, false);
@@ -454,11 +454,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 								guardDvs.put(seGuard, sVal);
 								SymbolicDataExpression rightExpr = getSDExprForDV(dvLeft, prefixValues, values,
 										constants);
-								IntervalGuard midGuard = new IntervalGuard(currentParam, leftExpr, rightExpr);
-								guardDvs.put(midGuard, d);
 								IntervalGuard geGuard = new IntervalGuard(currentParam, rightExpr, false, null, true);
 								IntervalDataValue<T> bVal = pickIntervalDataValue(dvRight, null);
 								guardDvs.put(geGuard, bVal);
+								
+								IntervalGuard midGuard = new IntervalGuard(currentParam, leftExpr, rightExpr);
+								guardDvs.put(midGuard, new IntervalDataValue(d, sVal, bVal));
+								
 							}
 						}
 					}
