@@ -49,7 +49,6 @@ import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.oracles.io.IOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.ConcurrentMultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.sul.BasicSULOracle;
@@ -150,11 +149,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	
 	public void setup(Configuration config) throws ConfigurationException{
 		super.setup(config);
-		this.preCache = OPTION_STATS_CACHE.parse(config);
-		this.sulParser.parseConfig(config);
-		this.targetName = sulParser.targetName();
-		this.types = sulParser.getTypes();
-		this.maxInputs = OPTION_MAX_INPUTS.parse(config);
+		preCache = OPTION_STATS_CACHE.parse(config);
+		sulParser.parseConfig(config);
+		targetName = sulParser.targetName();
+		types = sulParser.getTypes();
+		maxInputs = OPTION_MAX_INPUTS.parse(config);
 		
 		 final Constants consts = new Constants();
 
@@ -164,21 +163,20 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
          	DataValue<?> [] cstArray = super.parseDataValues(cstString, types);
          	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
          }
-         this.constants = consts;
+         constants = consts;
 		
-		this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, sulParser.getInputs(), consts);
+		teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, types, sulParser.getInputs(), consts);
 		String facString = OPTION_SUL_FACTORY.parse(config);
 		if (facString == null)
-			this.sulFactory = sulParser.newSULFactory();
+			sulFactory = sulParser.newSULFactory();
 		else
-			this.sulFactory = instantiateCustomFactory(facString, sulParser);
-		boolean canFork = this.sulFactory.isParallelizable();
+			sulFactory = instantiateCustomFactory(facString, sulParser);
 		
-        boolean determinize = this.useFresh;
+        boolean determinize = useFresh;
         boolean handleExceptions = true;
         Integer sulInstances = OPTION_SUL_INSTANCES.parse(config);
-        boolean isConcurrent = sulInstances > 1 && canFork; 
-        this.counters = new Counters(isConcurrent);
+        boolean isConcurrent = sulInstances > 1 && sulFactory.isParallelizable(); 
+        counters = new Counters(isConcurrent);
 
         String debugTraces = OPTION_DEBUG_TRACES.parse(config);
         String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
@@ -190,23 +188,22 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
       //boolean determinize, long timeoutMillis, boolean handleExceptions, int sulInstances 
         String cacheSystem = OPTION_CACHE_SYSTEM.parse(config);
-        this.cacheManager = IOCacheManager.getCacheManager(cacheSystem);
-        this.ioCache = setupCache(config, sulParser.getAlphabet(), teachers, cacheManager, consts);
+        cacheManager = IOCacheManager.getCacheManager(cacheSystem);
+        ioCache = setupCache(config, sulParser.getAlphabet(), teachers, cacheManager, consts);
         
         IOOracle learnIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.learnerInput, determinize, timeoutMillis, handleExceptions, sulInstances);
-        this.learnOracle = setupDataWordIOOracle(learnIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
+        learnOracle = setupDataWordIOOracle(learnIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
         learnOracle = new CountingDataWordOracle(learnOracle, counters.learnerQuery);
         
         
         
         IOOracle ceAnalysisIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions, sulInstances);
-        this.ceAnalysisOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
+        ceAnalysisOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
         ceAnalysisOracle = new CountingDataWordOracle(ceAnalysisOracle, counters.ceQuery);
         sulReductionTraceOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, true, isConcurrent, handleExceptions);
         
         IOFilter ioOracle = new IOFilter(learnOracle, sulParser.getInputs());
-        TreeOracle mto = !isConcurrent ? new MultiTheoryTreeOracle(ioOracle, learnOracle, teachers, consts, solver) :
-        	new ConcurrentMultiTheoryTreeOracle(ioOracle, learnOracle, teachers, consts, solver);
+        TreeOracle mto = new MultiTheoryTreeOracle(ioOracle, learnOracle, teachers, consts, solver);
         if (debugSuffixes != null) {
         	if (debugTraces == null) {
         		System.err.println("No debug traces given");
@@ -218,14 +215,12 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         
         IOFilter ioCeOracle = new IOFilter(ceAnalysisOracle,  sulParser.getInputs());
-        TreeOracle ceMto =  !isConcurrent ? new MultiTheoryTreeOracle(ioCeOracle, ceAnalysisOracle, teachers, consts, solver) :
-        	new ConcurrentMultiTheoryTreeOracle(ioCeOracle, ceAnalysisOracle, teachers, consts, solver);
-        //ceMto = new TreeOracleStatsLoggerWrapper(ceMto, sulCeAnalysis);
+        TreeOracle ceMto =  new MultiTheoryTreeOracle(ioCeOracle, ceAnalysisOracle, teachers, consts, solver);
         
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        final long timeout = this.timeoutMillis;
-        final Map<DataType, Theory> teach = this.teachers;
+        final long timeout = timeoutMillis;
+        final Map<DataType, Theory> teach = teachers;
         TreeOracleFactory hypFactory = new TreeOracleFactory() {
             @Override
             public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
@@ -236,14 +231,13 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 SimulatorSUL hypDataWordSimulation = new SimulatorSUL(hyp, teachers, consts);
                 IOOracle hypTraceOracle = new CanonizingSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));
                 
-                return !isConcurrent ? new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver):
-                	new ConcurrentMultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
+                return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
             }
         };
         
-        this.hypVerifier = new IOHypVerifier(teach, consts);
+        hypVerifier = new IOHypVerifier(teach, consts);
 
-        this.rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
+        rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
                 true, teachers, hypVerifier, solver, sulParser.getAlphabet());
         
         if (findCounterexamples) { 
@@ -257,7 +251,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	        		testOracle = new IOCacheOracle(testOracle, ioCache, new SymbolicTraceCanonizer(teachers, consts));
 	        	if (handleExceptions)
         			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
-	        	this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+	        	equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
 	            		testOracle, teach, consts, random, sulParser.getInputs());
         	} else {
         		if (cacheTests){
@@ -265,23 +259,23 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	        	} 
         		if (handleExceptions)
         			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
-        		this.equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+        		equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
         				testOracle,  sulInstances, teach, consts, random, sulParser.getInputs());
         	}
             
             String ver = OPTION_TEST_TRACES.parse(config);
             if (ver != null) {
             	List<Word<PSymbolInstance>> tests =  getCanonizedWordsFromString(ver, this.sulParser.getAlphabet(), teachers, consts);
-            	this.traceTester = new TracesEquivalenceOracle(this.testOracle, teachers, consts, tests);
+            	traceTester = new TracesEquivalenceOracle(testOracle, teachers, consts, tests);
             }
         }
         
 
-        this.ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle, this.hypVerifier);
-        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle, this.hypVerifier);
-        this.ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle, this.hypVerifier);
-        this.ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle, this.hypVerifier);
-        this.ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, this.solver, this.sulReductionTraceOracle, this.hypVerifier);
+        ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle, hypVerifier);
+        ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle, hypVerifier);
+        ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle, hypVerifier);
+        ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle, hypVerifier);
+        ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, solver, sulReductionTraceOracle, hypVerifier);
 	}
 	
 	
@@ -447,9 +441,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
             if (findCounterexamples) {
-                ce = this.equOracle.findCounterExample(hyp, null);
+                ce = equOracle.findCounterExample(hyp, null);
                 if (ce == null && traceTester != null) {
-                	ce = this.traceTester.findCounterExample(hyp, null);
+                	ce = traceTester.findCounterExample(hyp, null);
                 }
             }
             SimpleProfiler.stop(__SEARCH__);
@@ -458,8 +452,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 break;
             }
 
-            resets = this.counters.testInput.getResets();
-            inputs = this.counters.testInput.getInputs();
+            resets = counters.testInput.getResets();
+            inputs = counters.testInput.getInputs();
 
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());
@@ -504,8 +498,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
             System.out.println("ce lengths (shortend): "
                     + Arrays.toString(ceLengthsShortened.toArray()));
         }
-        if (this.traceTester != null) {
-        	DefaultQuery<PSymbolInstance, Boolean> ce = this.traceTester.findCounterExample(hyp, null);
+        if (traceTester != null) {
+        	DefaultQuery<PSymbolInstance, Boolean> ce = traceTester.findCounterExample(hyp, null);
         	if (ce != null) {
         		System.out.println("Learned model is incorrect " + ce);
         	}
