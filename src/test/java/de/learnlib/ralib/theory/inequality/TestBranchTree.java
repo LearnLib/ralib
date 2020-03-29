@@ -61,7 +61,7 @@ public class TestBranchTree extends RaLibTestSuite {
 
         BranchSUL sul = new BranchSUL();
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 sul, BranchSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());

@@ -209,7 +209,7 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
 	        
 	        this.sul= new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul);
 	        
-	        this.mto = TestUtil.createMTO(
+	        this.mto = TestUtil.createMTOWithFreshValueSupport(
 	                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), FreshMultiLoginSUL.ERROR, teachers, 
 	                consts, consSolver, 
 	                sul.getInputSymbols());

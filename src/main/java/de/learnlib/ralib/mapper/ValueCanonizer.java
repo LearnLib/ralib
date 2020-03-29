@@ -17,8 +17,8 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * Maps data values (typed values) to values of the same type by maintaining a mapping from chaotic (non-canonized) values
- * to canonized values for each data type. New non-canonized values received are added to the map, paired with an 
+ * Maps data values (typed values) to values of the same type by maintaining a mapping from system (non-canonized) values
+ * to canonized values for each data type. Non-canonized values received are added to the map, paired with an 
  * analogous canonized value.  
  * 
  * The analogy is inferred by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
@@ -88,7 +88,7 @@ public class ValueCanonizer {
 		try {
 		for (i = 0; i < dvs.length; i ++) {
 			resultDvs[i] = 
-					this.valueMappers.containsKey(dvs[i].getType()) ? 
+					valueMappers.containsKey(dvs[i].getType()) ? 
 					reverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
 		}
 		} 
@@ -157,10 +157,10 @@ public class ValueCanonizer {
 	}
 
 	private BiMap<DataValue, DataValue> getOrCreateBucket(DataValue dv) {
-		BiMap<DataValue, DataValue> map = this.buckets.get(dv.getType());
+		BiMap<DataValue, DataValue> map = buckets.get(dv.getType());
         if (map == null) {
             map = HashBiMap.create();
-            this.buckets.put(dv.getType(), map);
+            buckets.put(dv.getType(), map);
         }
         return map;
 	}

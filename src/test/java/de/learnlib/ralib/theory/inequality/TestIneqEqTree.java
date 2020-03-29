@@ -59,7 +59,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 sul, PriorityQueueSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());

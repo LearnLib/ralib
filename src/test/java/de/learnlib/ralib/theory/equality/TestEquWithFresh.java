@@ -45,6 +45,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.utils.SDTBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -161,7 +162,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
            
            
            JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-           MultiTheoryTreeOracle mto = TestUtil.createMTO(
+           MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                    sul, SessionManagerSUL.ERROR, teachers, 
                    new Constants(), jsolv, 
                    sul.getInputSymbols());
@@ -189,28 +190,30 @@ public class TestEquWithFresh extends RaLibTestSuite {
 
            TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
            SymbolicDecisionTree sdt = res.getSdt();
-
-           final String expectedTree = "[r2, r1]-+\n" +
-   "        []-(s1!=r2)\n" +
-   "         |    []-TRUE: s2\n" +
-   "         |          []-TRUE: s3\n" +
-   "         |                [Leaf-]\n" +
-   "         +-(s1=r2)\n" +
-   "              []-(s2=r1)\n" +
-   "               |    []-(s3!=s2)\n" +
-   "               |     |    [Leaf-]\n" +
-   "               |     +-(s3=s2)\n" +
-   "               |          [Leaf+]\n" +
-   "               +-(s2<r1)\n" +
-   "               |    []-(s3!=s2)\n" +
-   "               |     |    [Leaf-]\n" +
-   "               |     +-(s3=s2)\n" +
-   "               |          [Leaf+]\n" +
-   "               +-(s2>r1)\n" +
-   "                    []-(s3!=r1)\n" +
-   "                     |    [Leaf-]\n" +
-   "                     +-(s3=r1)\n" +
-   "                          [Leaf+]\n";
+           
+           /*
+            *   
+			[]-TRUE: s1
+			        []-(s2=s1)
+			         |    []-TRUE: s3
+			         |          []-TRUE: s4
+			         |                [Leaf-]
+			         +-(s2!=s1)
+			              []-(s3=s1)
+			               |    []-(s4=s2)
+			               |     |    [Leaf+]
+			               |     +-(s4!=s2)
+			               |          [Leaf-]
+			               +-(s3!=s1)
+			                    []-TRUE: s4
+			                          [Leaf-]
+            */
+           final String expectedTree = new SDTBuilder(SessionManagerSUL.INT_TYPE)
+        		   .tru().eq("s1").tru().tru().reject().down(1)
+        		   		 .deq("s1").eq("s1").eq("s2") .accept().up()
+        		   							.deq("s2").reject().up(2)
+        		   				   .deq("s1").tru().reject().root().build().toString();
+        		   
            
            String tree = sdt.toString();
            Assert.assertEquals(tree, expectedTree);

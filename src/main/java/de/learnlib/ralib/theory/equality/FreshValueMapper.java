@@ -29,7 +29,7 @@ public class FreshValueMapper<T> implements ValueMapper<T>{
 			return new DataValue<>(dv.getType(), dv.getId());
 		}
 		
-		DataValue<T> fv = this.theory.getFreshValue(new ArrayList<>(thisToOtherMap.values()));
+		DataValue<T> fv = theory.getFreshValue(new ArrayList<>(thisToOtherMap.values()));
 		return new FreshValue<>(fv.getType(), fv.getId());
 	}
 
@@ -40,7 +40,7 @@ public class FreshValueMapper<T> implements ValueMapper<T>{
 			return value;
 
 		List<DataValue<T>> valList = DataWords.joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
-		DataValue<T> fv = this.theory.getFreshValue(valList);
+		DataValue<T> fv = theory.getFreshValue(valList);
 		return fv;
 	}
 }

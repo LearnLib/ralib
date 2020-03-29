@@ -151,7 +151,7 @@ public class TestIntHardTCPTree {
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
@@ -198,7 +198,7 @@ public class TestIntHardTCPTree {
         System.out.println("Concrete run of inputs : " + run);
         
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());

@@ -72,7 +72,7 @@ public class TestUtil {
         return new JConstraintsConstraintSolver(solver);        
     } 
 
-    public static MultiTheoryTreeOracle createMTO(
+    public static MultiTheoryTreeOracle createMTOWithFreshValueSupport(
             DataWordSUL sul, ParameterizedSymbol error,  
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
@@ -83,7 +83,7 @@ public class TestUtil {
     
     
     /**
-     * Createst a MTO which uses basic canonicalization that only works when there are no fresh values.
+     * Creates a MTO without fresh value support.
      */
     public static MultiTheoryTreeOracle createBasicMTO(
             DataWordSUL sul, ParameterizedSymbol error,  

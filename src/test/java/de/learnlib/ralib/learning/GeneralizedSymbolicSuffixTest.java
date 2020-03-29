@@ -169,7 +169,7 @@ public class GeneralizedSymbolicSuffixTest {
         ModerateTCPSUL sul = new ModerateTCPSUL(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 sul, ModerateTCPSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());

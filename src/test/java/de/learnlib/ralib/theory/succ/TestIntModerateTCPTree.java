@@ -211,7 +211,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
@@ -259,7 +259,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());

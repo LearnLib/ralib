@@ -68,7 +68,7 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, ERROR, 
                 teachers, consts, new SimpleConstraintSolver(), inputs);
     
         DataType intType = TestUtil.getType("int", loader.getDataTypes());

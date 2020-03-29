@@ -122,7 +122,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 sul, PriorityQueueSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 IN);

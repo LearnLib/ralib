@@ -45,23 +45,21 @@ public class SessionManagerSUL extends DataWordSUL {
     }
 
 
-    private SessionManager tcpSut;
-    private Supplier<SessionManager> supplier;
+    private SessionManager sessionManager;
 
     public SessionManagerSUL() {
-    	supplier = () -> new SessionManager();
     }
     
 
     @Override
     public void pre() {
         countResets(1);
-        this.tcpSut = supplier.get();
+        sessionManager = new SessionManager();
     }
 
     @Override
     public void post() {
-        this.tcpSut = null;
+        this.sessionManager = null;
     }
     
     private PSymbolInstance createOutputSymbol(Object x) {
@@ -78,16 +76,16 @@ public class SessionManagerSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(ISESSION)) {
-            Object x = tcpSut.ISession(
+            Object x = sessionManager.ISession(
             		(Integer)i.getParameterValues()[0].getId());
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(ILOGIN)) {
-            Object x = tcpSut.ILogin(
+            Object x = sessionManager.ILogin(
             		(Integer)i.getParameterValues()[0].getId(),
             		(Integer)i.getParameterValues()[1].getId());
             return createOutputSymbol(x); 
         } else if (i.getBaseSymbol().equals(ILOGOUT)) {
-            Object x = tcpSut.ILogout(
+            Object x = sessionManager.ILogout(
             		(Integer)i.getParameterValues()[0].getId());
             return createOutputSymbol(x); 
         } else {

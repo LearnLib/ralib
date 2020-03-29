@@ -74,7 +74,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
         DataType uid = TestUtil.getType("uid", loader.getDataTypes());
