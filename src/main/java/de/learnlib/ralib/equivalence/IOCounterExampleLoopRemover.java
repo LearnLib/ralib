@@ -16,19 +16,19 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.equivalence.HypVerifier.PositiveResult;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
@@ -100,9 +100,8 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
-                PositiveResult check = verifier.isCEForHyp(candidate, this.hypothesis);
-                if (check != null) {
-                    return removeLoops(check.getCETrace(), hyp);
+                if (verifier.isCEForHyp(candidate, hypothesis)) {
+                    return removeLoops(candidate, hyp);
                 }
             }
         }

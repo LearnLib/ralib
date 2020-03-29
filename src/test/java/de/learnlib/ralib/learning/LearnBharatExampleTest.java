@@ -37,7 +37,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.equivalence.HypVerifier.PositiveResult;
 import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL;
@@ -194,8 +193,8 @@ public class LearnBharatExampleTest {
 //        Word<PSymbolInstance> badTrace = Word.fromSymbols(inp, new PSymbolInstance(NOK));
 //        GeneralizedSymbolicSuffix gsuffix = GeneralizedSymbolicSuffix.fullSuffix(Word.fromSymbols(PUT, NOK), teachers);
         
-        PositiveResult res = hypVerifier.isCEForHyp(Word.fromSymbols(inp, out), hyp);
-        Assert.assertNull(res);
+        boolean isCE = hypVerifier.isCEForHyp(Word.fromSymbols(inp, out), hyp);
+        Assert.assertFalse(isCE);
 
         System.out.println(
                 "LAST:------------------------------------------------");

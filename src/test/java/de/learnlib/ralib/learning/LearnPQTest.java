@@ -108,6 +108,6 @@ public class LearnPQTest extends RaLibTestSuite {
         
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        Assert.assertNull(hypVerifier.isCEForHyp(ce, hyp));
+        Assert.assertFalse(hypVerifier.isCEForHyp(ce, hyp));
     }
 }

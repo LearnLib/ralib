@@ -114,7 +114,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
             Hypothesis hyp = rastar.getHypothesis();
             if (ce != null) {
             	// the last CE should not be a CE for the current hypothesis
-            	Assert.assertNull(hypVerifier.isCEForHyp(ce.getInput(), hyp));
+            	Assert.assertFalse(hypVerifier.isCEForHyp(ce.getInput(), hyp));
             }
   
             ce = iowalk.findCounterExample(hyp, null);

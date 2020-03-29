@@ -25,10 +25,9 @@ public class IOHypVerifier implements HypVerifier {
 	 * This is more thorough than simply checking whether a hyp accepts a word, since output guards in the hyp may under-approximate
 	 * potential outcomes.
 	 */
-	public PositiveResult isCEForHyp(Word<PSymbolInstance> sulTrace, RegisterAutomaton hyp) {
+	public boolean isCEForHyp(Word<PSymbolInstance> sulTrace, RegisterAutomaton hyp) {
 		SimulatorSUL hypSim = new SimulatorSUL(hyp, teachers, constants);
 		int i=0;
-		PositiveResult ret = null;
 		hypSim.pre();
 		try {
 			for(i=1; i< sulTrace.length(); i = i+2) {
@@ -38,8 +37,7 @@ public class IOHypVerifier implements HypVerifier {
 					System.out.println("After " + sulTrace.prefix(i) + " the outputs are:\n" + 
 							"HYP: " + output + " SUT: " + sulTrace.getSymbol(i));
 					
-					ret = new PositiveResult(sulTrace.prefix(i+1));
-					break;
+					return true;
 				}
 			}
 		}catch(Exception exc) {
@@ -49,6 +47,6 @@ public class IOHypVerifier implements HypVerifier {
 			throw dexc;
 		}
 		hypSim.post();
-		return ret;
+		return false;
 	}
 }

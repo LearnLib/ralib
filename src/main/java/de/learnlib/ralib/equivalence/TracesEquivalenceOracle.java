@@ -9,7 +9,6 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.HypVerifier.PositiveResult;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -33,10 +32,9 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 			Collection<? extends PSymbolInstance> inputs) {
 		System.out.println("Executing conformance tests:");
 		for (Word<PSymbolInstance> testWord : testTraces) {
-			Word<PSymbolInstance> sulTrace = this.testOracle.trace(testWord);
-			PositiveResult hypResult = this.hypVerifier.isCEForHyp(sulTrace, hypothesis);
-			
-			if (hypResult != null)
+			Word<PSymbolInstance> sulTrace = testOracle.trace(testWord);
+
+			if (hypVerifier.isCEForHyp(sulTrace, hypothesis))
 				return new DefaultQuery<>(sulTrace, true);
 		}
 		

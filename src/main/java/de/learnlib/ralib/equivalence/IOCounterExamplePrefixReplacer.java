@@ -61,7 +61,7 @@ public class IOCounterExamplePrefixReplacer implements IOCounterExampleOptimizer
             Word<PSymbolInstance> candidate = sulOracle.trace(prefix.concat(suffix));
 
             //System.out.println(candidate);
-            if (candidate != null && verifier.isCEForHyp(candidate, hypothesis) != null) {
+            if (candidate != null && verifier.isCEForHyp(candidate, hypothesis)) {
                 //System.out.println("Reduced Prefix!!!");
                 ce = candidate;
                 //System.out.println("New CE: " + ce);

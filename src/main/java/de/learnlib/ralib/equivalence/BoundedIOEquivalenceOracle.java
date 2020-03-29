@@ -84,7 +84,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 			List<Word<PSymbolInstance>> hypTraces = new ArrayList<Word<PSymbolInstance>>(batchSize); 
 			for (int i=0; i<batchSize; i++) {
 				Word<PSymbolInstance> hypTrace = this.traceGenerator.generateTrace(hyp);
-				if (!this.testPurpose.isSatisfied(hypTrace)) {
+				if (!testPurpose.isSatisfied(hypTrace)) {
 					i--;
 					continue;
 				} 

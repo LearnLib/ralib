@@ -113,7 +113,7 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
             }
             
            //System.out.println(candidate);
-            if (this.verifier.isCEForHyp(candidate, hypothesis) != null) {
+            if (verifier.isCEForHyp(candidate, hypothesis)) {
                 //System.out.println("Found Prefix CE!!!");
                 return reduceCe(candidate);
             }            
