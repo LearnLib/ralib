@@ -107,12 +107,6 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(
                 prefix, suffix1, new Constants(), teachers);
 
-        Word<PSymbolInstance> test =  Word.fromSymbols(
-                new PSymbolInstance(iin, d2),
-                new PSymbolInstance(ook),
-                new PSymbolInstance(isend),
-                new PSymbolInstance(oframe, d2, c1));
-        
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
  

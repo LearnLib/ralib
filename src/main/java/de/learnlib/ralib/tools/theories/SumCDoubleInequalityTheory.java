@@ -1,6 +1,15 @@
 package de.learnlib.ralib.tools.theories;
 
-import static de.learnlib.ralib.theory.DataRelation.*;
+import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
+import static de.learnlib.ralib.theory.DataRelation.DEQ;
+import static de.learnlib.ralib.theory.DataRelation.DEQ_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.DEQ_SUMC2;
+import static de.learnlib.ralib.theory.DataRelation.EQ;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.EQ_SUMC2;
+import static de.learnlib.ralib.theory.DataRelation.LT;
+import static de.learnlib.ralib.theory.DataRelation.LT_SUMC1;
+import static de.learnlib.ralib.theory.DataRelation.LT_SUMC2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +25,6 @@ import java.util.stream.Stream;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.mapper.ValueMapper;
 import de.learnlib.ralib.theory.DataRelation;
@@ -60,12 +68,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	
 	private void setConstants (List<DataValue<Double>> sumConstants,
 			List<DataValue<Double>> regularConstants) {
-		this.sortedSumConsts = new ArrayList<>(sumConstants);
-		Collections.sort(this.sortedSumConsts, new Cpr());
+		sortedSumConsts = new ArrayList<>(sumConstants);
+		Collections.sort(sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		Double step = this.sortedSumConsts.isEmpty() ? 1.0 : maxSumC().getId();
-		this.freshStep = step * freshFactor;
-		this.smBgStep = new DataValue<Double>(type, step * smBgFactor);
+		Double step = sortedSumConsts.isEmpty() ? 1.0 : maxSumC().getId();
+		freshStep = step * freshFactor;
+		smBgStep = new DataValue<Double>(type, step * smBgFactor);
 	}
 	
 	@Override
@@ -129,11 +137,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
 		List<DataValue<Double>> valsWithConsts = new ArrayList<>(vals);
 		// we add regular constants
-		valsWithConsts.addAll(this.regularConstants);
+		valsWithConsts.addAll(regularConstants);
 
 		DataValue<Double> fv = super.getFreshValue(valsWithConsts);
 		Double nextFresh;
-		for(nextFresh=0.0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
+		for(nextFresh=0.0; nextFresh<fv.getId(); nextFresh+=freshStep);
 		
 		
 		return new DataValue<Double>(fv.getType(), nextFresh);
@@ -170,7 +178,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	}
 	
 	private DataValue<Double> maxSumC () {
-		return this.sortedSumConsts.get(sortedSumConsts.size()-1);
+		return sortedSumConsts.get(sortedSumConsts.size()-1);
 	}
 	
 	private DataRelation getRelation(DataValue<Double> dv, DataValue<Double> right) {
@@ -179,7 +187,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 			rel = DataRelation.EQ;
 		else if (dv.getId().compareTo(right.getId()) > 0)
 			rel = DataRelation.LT;
-		else if ( this.sortedSumConsts.isEmpty() || 
+		else if ( sortedSumConsts.isEmpty() || 
 				Double.valueOf(dv.getId()+ maxSumC().getId()).compareTo(right.getId()) < 0) 
 			rel = DataRelation.DEFAULT;
 		else 
@@ -187,7 +195,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 			Optional<DataValue<Double>> sumcEqual = sortedSumConsts.stream().filter(c -> Double.valueOf(c.getId() + dv.getId())
 					.equals(right.getId())).findFirst();
 			if (sumcEqual.isPresent()) {
-				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
+				int ind = sortedSumConsts.indexOf(sumcEqual.get());
 				if (ind == 0) 
 					rel = DataRelation.EQ_SUMC1; 
 				else if (ind == 1) 
@@ -198,7 +206,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 				Optional<DataValue<Double>> sumcLt = sortedSumConsts.stream().filter(c -> 
 				Double.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findFirst();
 				if (sumcLt.isPresent()) {
-					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
+					int ind = sortedSumConsts.indexOf(sumcLt.get());
 					if (ind == 0) 
 						rel = DataRelation.LT_SUMC1; 
 					else if (ind == 1) 

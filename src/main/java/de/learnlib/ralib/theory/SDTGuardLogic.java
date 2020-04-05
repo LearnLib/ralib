@@ -15,7 +15,7 @@ public interface SDTGuardLogic {
 	public SDTGuard conjunction(SDTGuard guard1, SDTGuard guard2);
 
 	/**
-	 * Makes a disconjunction between two guards. Whenever possible, simplifies the result guard by
+	 * Makes a disjunction between two guards. Whenever possible, simplifies the result guard by
 	 * flattening ORGuards, merging two finer guards into a coarser guard...
 	 */
 	public SDTGuard disjunction(SDTGuard guard1, SDTGuard guard2);

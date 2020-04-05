@@ -111,24 +111,8 @@ public class ValueCanonizer {
 		}
 	    return resultDvs;
 	}
-
-	private String stateString() {
-		StringBuilder b = new StringBuilder();
-		for (DataType type : this.buckets.keySet()) {
-			b.append("\n ").append(type.toString());
-			BiMap<DataValue, DataValue> bucket = this.buckets.get(type);
-			TreeMap<DataValue, DataValue> sortedMap = new TreeMap<DataValue, DataValue> ((dv1,dv2) -> {
-				if (Comparable.class.isAssignableFrom(dv1.getType().getBase())) 
-					return ((Comparable)dv1.getId()).compareTo((Comparable)dv2.getId());
-				else 
-					return dv1.getId().toString().compareTo(dv2.getId().toString());
-			});
-			sortedMap.putAll(bucket);
-			sortedMap.forEach((cdv, ddv) -> b.append("\n 	").append(cdv).append(":").append(ddv));
-		}
-		return b.toString();
-	}
 	
+
 	private DataValue  canonize(DataValue dv) {
 		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
         BiMap<DataValue, DataValue> inverseMap = map.inverse();
@@ -155,6 +139,24 @@ public class ValueCanonizer {
         
         return resultDv;
 	}
+
+	private String stateString() {
+		StringBuilder b = new StringBuilder();
+		for (DataType type : this.buckets.keySet()) {
+			b.append("\n ").append(type.toString());
+			BiMap<DataValue, DataValue> bucket = this.buckets.get(type);
+			TreeMap<DataValue, DataValue> sortedMap = new TreeMap<DataValue, DataValue> ((dv1,dv2) -> {
+				if (Comparable.class.isAssignableFrom(dv1.getType().getBase())) 
+					return ((Comparable)dv1.getId()).compareTo((Comparable)dv2.getId());
+				else 
+					return dv1.getId().toString().compareTo(dv2.getId().toString());
+			});
+			sortedMap.putAll(bucket);
+			sortedMap.forEach((cdv, ddv) -> b.append("\n 	").append(cdv).append(":").append(ddv));
+		}
+		return b.toString();
+	}
+	
 
 	private BiMap<DataValue, DataValue> getOrCreateBucket(DataValue dv) {
 		BiMap<DataValue, DataValue> map = buckets.get(dv.getType());
