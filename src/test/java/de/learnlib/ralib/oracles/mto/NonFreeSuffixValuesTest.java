@@ -149,7 +149,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "                          []-TRUE: s4\n" +
 "                                []-TRUE: s5\n" +
 "                                      []-TRUE: s6\n" +
-"                                            [Leaf-]\n";
+"                                          w  [Leaf-]\n";
         
         Assert.assertEquals(tree, expectedTree);        
     }

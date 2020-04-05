@@ -121,7 +121,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
         logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
      
-        final String expected = "[(r1==p1) && (c1==p2), (r1==p1) && (c1!=p2), (r1!=p1) && TRUE]";
+        final String expected = "[((r1==p1) && (c1==p2)), ((r1==p1) && (c1!=p2)), ((r1!=p1) && TRUE)]";
         
         Branching b = mto.getInitialBranching(prefix, oframe, tqr.getPiv(), tqr.getSdt());
         String bString = Arrays.toString(b.getBranches().values().toArray());

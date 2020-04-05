@@ -149,7 +149,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         String guards = Arrays.toString(b.getBranches().values().toArray());
         logger.log(Level.FINE, "Guards: {0}", guards);
         
-        final String expected = "[(r2==p1), (r2!=p1)]";
+        final String expected = "[((r2==p1)), ((r2!=p1))]";
         Assert.assertEquals(guards, expected);
     }
               
