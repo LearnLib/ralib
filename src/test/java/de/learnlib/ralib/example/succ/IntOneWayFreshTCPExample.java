@@ -1,38 +1,30 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
-public class IntOneWayTCPExample extends IntAbstractTCPExample{
+public class IntOneWayFreshTCPExample extends IntAbstractTCPExample{
 
-	private Integer seq = null;
+	private Integer seq = 0;
 	
-	public IntOneWayTCPExample(Integer win) {
+	public IntOneWayFreshTCPExample(Integer win) {
 		super(win);
 	}
 	
-	public IntOneWayTCPExample() {
+	public IntOneWayFreshTCPExample() {
 		super();
+		//configure();
 	}
 
-    //handling each Input
-
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
-    public boolean IConnect(Integer initSeq) {
-    	boolean ret = false;
+    public Integer IConnect() {
+    	Integer fresh = newFresh();
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.seq = initSeq;
-    		ret = true;
+    		this.seq = fresh;  
     		state = State.SYN_SENT;
     	}
-        return ret;
-    }     
+        return fresh;
+    }
     
     public boolean ISYN(Integer seq) {
     	boolean ret = false;

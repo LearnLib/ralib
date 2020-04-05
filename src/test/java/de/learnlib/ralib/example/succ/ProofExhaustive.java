@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 /**
  * An example which shows why we should use exhaustive suffixes, instead of suffixes with relations from the concrete suff/pref.

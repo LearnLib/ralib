@@ -18,8 +18,8 @@
  */
 package de.learnlib.ralib.theory.succ;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -48,8 +48,8 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.examples.AbstractTCPExample.Option;
-import de.learnlib.ralib.sul.examples.IntAbstractTCPExample;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;

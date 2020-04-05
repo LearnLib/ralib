@@ -16,21 +16,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.priority.PriorityQueueOracle;
-import de.learnlib.ralib.example.succ.ModerateTCPSUL;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.examples.AbstractTCPExample.Option;
-
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
@@ -40,6 +25,27 @@ import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import com.google.common.collect.Sets;
+
+import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.priority.PriorityQueueOracle;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.succ.ModerateTCPSUL;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -49,21 +55,7 @@ import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-
 import net.automatalib.words.Word;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import com.google.common.collect.Sets;
 
 /**
  *

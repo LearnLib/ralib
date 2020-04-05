@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 public class ProofDiscreteEquMerge {
 	private Integer x = null;

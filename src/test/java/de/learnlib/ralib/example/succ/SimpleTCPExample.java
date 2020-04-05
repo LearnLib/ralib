@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.succ;
 
-import de.learnlib.ralib.sul.examples.AbstractWindowProtocol;
-
 public class SimpleTCPExample extends AbstractWindowProtocol {
 
 	private Double seqNum = null;

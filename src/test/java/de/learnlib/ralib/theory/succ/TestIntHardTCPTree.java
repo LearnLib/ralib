@@ -1,7 +1,7 @@
 package de.learnlib.ralib.theory.succ;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -16,6 +16,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
+import de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -28,7 +29,6 @@ import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminedDataWordSUL;
-import de.learnlib.ralib.sul.examples.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;

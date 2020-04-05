@@ -1,20 +1,20 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LongAbstractTCPExample extends LongAbstractWindowProtocol{
+public class IntAbstractTCPExample extends IntAbstractWindowProtocol{
 	protected State state;
 	protected Set<Option> options;
 	
-	public LongAbstractTCPExample(Long win) {
+	public IntAbstractTCPExample(Integer win) {
 		super(win);
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 		state = State.CLOSED;
 	}
 	
-	public LongAbstractTCPExample() {
+	public IntAbstractTCPExample() {
 		super();
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 		state = State.CLOSED;

@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 import java.util.Arrays;
 import java.util.Set;

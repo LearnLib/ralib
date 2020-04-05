@@ -1,20 +1,20 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
-public abstract class LongAbstractWindowProtocol {
-	private static Long DEFAULT_WIN = 1000L;
-	Long win;
-	private Long gen = 0L;
+public abstract class AbstractWindowProtocol {
+	private static Double DEFAULT_WIN = 1000.0;
+	Double win;
+	private Double gen = 0.0;
 
-	public LongAbstractWindowProtocol(Long windowSize) {
+	public AbstractWindowProtocol(Double windowSize) {
 		this.win = windowSize;
 	}
 	
-	public LongAbstractWindowProtocol() {
+	public AbstractWindowProtocol() {
 		this(DEFAULT_WIN);
 	}
 	
 
-    protected Long newFresh() {
+    protected Double newFresh() {
     	return gen = gen + 10000000;
     }
     
@@ -22,7 +22,7 @@ public abstract class LongAbstractWindowProtocol {
     /**
      * Both numbers are not null AND nextSeq is succ of currentSeq.
      */
-	public boolean succ(Long currentSeq, Long nextSeq) {
+	public boolean succ(Double currentSeq, Double nextSeq) {
 		if (currentSeq == null || nextSeq == null)
 			return false;
 		return nextSeq == currentSeq + 1;
@@ -31,7 +31,7 @@ public abstract class LongAbstractWindowProtocol {
 	/**
      * Both numbers are not null AND nextSeq is equal to currentSeq.
      */
-	public boolean equ(Long currentSeq, Long nextSeq) {
+	public boolean equ(Double currentSeq, Double nextSeq) {
 		if (currentSeq == null || nextSeq == null)
 			return false;
 		return nextSeq.equals(currentSeq);
@@ -41,7 +41,7 @@ public abstract class LongAbstractWindowProtocol {
 	/**
      * Both numbers are not null AND nextSeq is in the range (1+currentSeq, win+currentSeq)
      */
-	public boolean inWin(Long currentSeq, Long nextSeq) {
+	public boolean inWin(Double currentSeq, Double nextSeq) {
 		if (currentSeq == null || nextSeq == null)
 			return false;
 		return nextSeq > currentSeq + 1 && nextSeq < currentSeq + win;

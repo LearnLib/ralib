@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.succ;
 
-import de.learnlib.ralib.sul.examples.IntAbstractWindowProtocol;
-
 public class IntWindowProtocolExample extends IntAbstractWindowProtocol{
 
 	private Integer seq = 0;

@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 public abstract class IntAbstractWindowProtocol {
 	private static Integer DEFAULT_WIN = 1000;

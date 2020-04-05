@@ -1,4 +1,4 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
 /*
  * Before learning this, ensure first that the window size in AbstractWindowProtocol coincides

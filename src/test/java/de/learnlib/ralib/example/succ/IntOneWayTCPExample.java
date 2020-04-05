@@ -1,32 +1,40 @@
-package de.learnlib.ralib.sul.examples;
+package de.learnlib.ralib.example.succ;
 
-public class OneWayFreshTCPExample extends AbstractTCPExample{
+public class IntOneWayTCPExample extends IntAbstractTCPExample{
 
-	private Double seq = 0.0;
+	private Integer seq = null;
 	
-	public OneWayFreshTCPExample(Double win) {
+	public IntOneWayTCPExample(Integer win) {
 		super(win);
 	}
 	
-	public OneWayFreshTCPExample() {
+	public IntOneWayTCPExample() {
 		super();
-		//configure();
 	}
 
-    public Double IConnect() {
-    	Double fresh = newFresh();
+    //handling each Input
+
+    /* register an uid
+     * 
+     * notes:
+     *   - you can only register once for a specific uid
+     *   - at max only MAX_REGISTERED_USERS may be registered 
+     */
+    public boolean IConnect(Integer initSeq) {
+    	boolean ret = false;
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.seq = fresh;  
+    		this.seq = initSeq;
+    		ret = true;
     		state = State.SYN_SENT;
     	}
-        return fresh;
-    }
+        return ret;
+    }     
     
-    public boolean ISYN(Double seq) {
+    public boolean ISYN(Integer seq) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
     		if (this.seq.equals(seq)) {
@@ -42,7 +50,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     	return ret;
     }
     
-    public boolean ISYNACK(Double ack) {
+    public boolean ISYNACK(Integer ack) {
     	boolean ret = false;
     	if (state == State.SYN_RECEIVED) {
     		if (succ(this.seq, ack)) {
@@ -59,7 +67,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     	return ret;
     }
     
-    public boolean IACK(Double seq) {
+    public boolean IACK(Integer seq) {
     	boolean ret = false;
     	
     	if (state == State.ESTABLISHED) {
@@ -80,7 +88,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     }
     
     
-    public boolean IFINACK(Double seq) {
+    public boolean IFINACK(Integer seq) {
     	boolean ret = false;
     	
     	if (state == State.ESTABLISHED) {

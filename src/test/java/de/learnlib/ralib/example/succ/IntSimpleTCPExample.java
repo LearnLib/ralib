@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.succ;
 
-import de.learnlib.ralib.sul.examples.IntAbstractWindowProtocol;
-
 public class IntSimpleTCPExample extends IntAbstractWindowProtocol{
 
 	private Integer seqNum = null;
