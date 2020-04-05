@@ -27,7 +27,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -158,8 +158,8 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 
-	public ValueMapper<Integer> getValueMapper() {
-		return new SumCInequalityValueMapper<Integer>(this, this.sortedSumConsts);
+	public Determinizer<Integer> getDeterminizer() {
+		return new SumCInequalityDeterminizer<Integer>(this, this.sortedSumConsts);
 	}
 
 	public Collection<DataValue<Integer>> getAllNextValues(List<DataValue<Integer>> vals) {

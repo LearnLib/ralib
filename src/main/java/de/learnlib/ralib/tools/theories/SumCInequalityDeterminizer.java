@@ -8,25 +8,25 @@ import java.lang.Number;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.words.DataWords;
 
 /**
- * Concrete value mapper for theories of inequality with sumc and fresh data values.
+ * Determinizer for theories of inequality with sumc and fresh data values.
  */
-public class SumCInequalityValueMapper<T extends Number & Comparable<T>> implements ValueMapper<T>{
+public class SumCInequalityDeterminizer<T extends Number & Comparable<T>> implements Determinizer<T>{
 
 	private InequalityTheoryWithEq<T> theory;
 	private List<DataValue<T>> sumConstants;
 
-	public SumCInequalityValueMapper(InequalityTheoryWithEq<T> theory) {
+	public SumCInequalityDeterminizer(InequalityTheoryWithEq<T> theory) {
 		this(theory, Collections.emptyList());
 	}
 	
-	public SumCInequalityValueMapper(InequalityTheoryWithEq<T> theory, List<DataValue<T>> sumConstants) {
+	public SumCInequalityDeterminizer(InequalityTheoryWithEq<T> theory, List<DataValue<T>> sumConstants) {
 		this.theory = theory;
 		this.sumConstants = sumConstants;
 		
@@ -43,7 +43,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 		if (constants.containsValue(decValue))
 			return decValue;
 		
-		for (DataValue<T> constant : this.sumConstants) {
+		for (DataValue<T> constant : sumConstants) {
 			if (decToCanMap.containsKey(DataValue.sub(decValue, constant))) {
 				DataValue<T> operand = decToCanMap.get(DataValue.sub(decValue, constant));
 				SumCDataValue<T> sumc = new SumCDataValue<T>(operand, constant);
@@ -72,7 +72,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 				left = decanonize(interval.getLeft(), canToDecMap, constants);
 			if (interval.getRight() != null) 
 				right = decanonize(interval.getRight(), canToDecMap, constants);
-			return this.theory.pickIntervalDataValue(left, right);
+			return theory.pickIntervalDataValue(left, right);
 			
 		}
 		
@@ -85,7 +85,7 @@ public class SumCInequalityValueMapper<T extends Number & Comparable<T>> impleme
 		}
 		
 		List<DataValue<T>> valList = DataWords.<T>joinValsToList(canToDecMap.values(), constants.values(canValue.getType()));
-		DataValue<T> fv = this.theory.getFreshValue(valList);
+		DataValue<T> fv = theory.getFreshValue(valList);
 		return fv;
 	}
 

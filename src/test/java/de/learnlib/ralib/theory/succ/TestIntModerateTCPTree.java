@@ -38,7 +38,7 @@ import de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.IntModerateFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -209,7 +209,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
+                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         SliceBuilder sb = new SliceBuilder(teachers, consts, jsolv);
@@ -257,7 +257,7 @@ public class TestIntModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
+                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         GeneralizedSymbolicSuffix symSuffix = symSuffProvider.apply(teachers, consts);

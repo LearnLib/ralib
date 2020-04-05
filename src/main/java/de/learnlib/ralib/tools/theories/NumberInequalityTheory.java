@@ -16,7 +16,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
@@ -62,8 +62,8 @@ public class NumberInequalityTheory<N extends Comparable<N>> extends InequalityT
 		return sortedList;
 	}
 
-	public ValueMapper<N> getValueMapper() {
-		return new SumCInequalityValueMapper(this);
+	public Determinizer<N> getDeterminizer() {
+		return new SumCInequalityDeterminizer(this);
 	}
 
 	@Override

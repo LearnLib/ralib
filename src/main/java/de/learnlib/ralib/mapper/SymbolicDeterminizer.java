@@ -16,29 +16,30 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.theories.NumberInequalityTheory;
 import de.learnlib.ralib.words.DataWords;
 
-/**
- * A value mapper which canonizes based on semi-symbolic information found in data values.
- * The symbolic information is the class type, which shows where this value comes from.
- */
-public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper<T> {
+public class SymbolicDeterminizer<T extends Comparable<T>> implements Determinizer<T> {
 	
 	private Theory<T> theory;
 	private DataType<T> type;
 
-	public SymbolicValueMapper(Theory<T> theory, DataType<T> type) {
+	public SymbolicDeterminizer(Theory<T> theory, DataType<T> type) {
 		this.theory = theory;
 		this.type = type;
 	}
 
-	public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		if (thisToOtherMap.containsKey(value)) {
-			DataValue<T> mapping = thisToOtherMap.get(value);
+	/**
+	 * Replaces by fresh values constituent data values with operands/interval ends not included in the keys of the map.
+	 * Doing so, it computes a new value which it returns.
+	 * 
+	 * @param thisValue - the value whose data values may be replaced
+	 * */
+	public DataValue<T> canonize(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
+		if (thisToOtherMap.containsKey(thisValue)) {
+			DataValue<T> mapping = thisToOtherMap.get(thisValue);
 			return mapping;
-					// new DataValue<T>( mapping.getType(), mapping.getId());
 		}
-		if (constants.containsValue(value)) 
-			return value;
-		DataValue<T> mappedValue = resolveValue(value, thisToOtherMap, constants);
+		if (constants.containsValue(thisValue)) 
+			return thisValue;
+		DataValue<T> mappedValue = resolveValue(thisValue, thisToOtherMap, constants);
 		if (mappedValue == null) {
 			mappedValue = getFreshValue(thisToOtherMap, constants);
 		}
@@ -47,20 +48,20 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 	
 	// returns the resolved value or null, if the value cannot be resolved. The value cannot be resolved if:
 	// 	for SumC the operand is missing
-	//  for Interval data guards, at least one of the endpoints are missing or the interval is invalid
-	private DataValue<T> resolveValue(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		if (constants.containsValue(value))
-			return value;
-		if (value instanceof SumCDataValue) {
-			SumCDataValue<T> sumc = (SumCDataValue<T>) value;
+	//  for Interval data guards, at least one of the endpoints are missing or the interval is invalid (
+	private DataValue<T> resolveValue(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
+		if (constants.containsValue(thisValue))
+			return thisValue;
+		if (thisValue instanceof SumCDataValue) {
+			SumCDataValue<T> sumc = (SumCDataValue<T>) thisValue;
 			DataValue<T> operand = resolveValue(sumc.getOperand(), thisToOtherMap, constants);
 			if (operand != null) {
 				return  new SumCDataValue<T>(operand, sumc.getConstant());
 			} else {
 				return null;
 			}
-		} else if (value instanceof IntervalDataValue) {
-			IntervalDataValue<T> intv = (IntervalDataValue<T>) value;
+		} else if (thisValue instanceof IntervalDataValue) {
+			IntervalDataValue<T> intv = (IntervalDataValue<T>) thisValue;
 			DataValue<T> newLeft = null;
 			if (intv.getLeft() != null) {
 				newLeft = resolveValue(intv.getLeft(), thisToOtherMap, constants);
@@ -83,8 +84,6 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 							return null;
 					}
 					IntervalDataValue<T> val = ((NumberInequalityTheory<T>)this.theory).pickIntervalDataValue(newLeft, newRight);
-//					if (thisToOtherMap.containsValue(val))
-//						return null;
 					return val;
 				} else 
 					// since we use this to canonize a trace from which segments where removed, it can happen that fresh values appear disorderly,
@@ -99,7 +98,7 @@ public class SymbolicValueMapper<T extends Comparable<T>> implements ValueMapper
 			}
 			
 		} else {
-			return thisToOtherMap.get(value);
+			return thisToOtherMap.get(thisValue);
 		}
 	}
 	

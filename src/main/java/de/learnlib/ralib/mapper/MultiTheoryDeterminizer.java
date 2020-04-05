@@ -17,13 +17,11 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * Maps data values (typed values) to values of the same type by maintaining a mapping from system (non-canonized) values
- * to canonized values for each data type. Non-canonized values received are added to the map, paired with an 
- * analogous canonized value.  
+ * Maps data values (typed values) to values of the same type by maintaining a mapping from system (non-canonized) values to canonized values for each data type. 
+ * Non-canonized values received are added to the map, paired with an analogous canonized value.  
  * 
  * The analogy is inferred by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
- * thus it will be paired with a fresh value from the other set. For the purpose of matching a value with its analogous, we use
- * ValueMappers. 
+ * thus it will be paired with a fresh value from the other set. For the purpose of matching a value with its analogous, we use Theory-specific Determinizers. 
  *  
  * <br/>
  * Example for equality: <br/>
@@ -36,28 +34,28 @@ import net.automatalib.words.Word;
  * We assume that analogies are not coincidental and never check them. 
  */
 
-public class ValueCanonizer {
+public class MultiTheoryDeterminizer {
 	
 	
 	private final Map<DataType, BiMap<DataValue, DataValue>> buckets = new HashMap<>(); // from decanonized to canonized for each type
 	
-	private final Map<DataType, ValueMapper> valueMappers; // value mappers are used to find pairings for each key supplied 
+	private final Map<DataType, Determinizer> determinizers; // determinizers used to find pairings for each key supplied 
 
 	private Constants constants;
 	
-	public final static ValueCanonizer buildNew(Map<DataType, Theory> theories, Constants constants) {
-		LinkedHashMap<DataType, ValueMapper> valueMappers = new LinkedHashMap<DataType, ValueMapper>();
+	public final static MultiTheoryDeterminizer buildNew(Map<DataType, Theory> theories, Constants constants) {
+		LinkedHashMap<DataType, Determinizer> determinizers = new LinkedHashMap<DataType, Determinizer>();
 		theories.forEach((dt, th) ->  {
-			if ( th.getValueMapper() != null) {
-				valueMappers.put(dt, th.getValueMapper());
+			if ( th.getDeterminizer() != null) {
+				determinizers.put(dt, th.getDeterminizer());
 			}
 		});
 		
-		return new ValueCanonizer(valueMappers, constants);
+		return new MultiTheoryDeterminizer(determinizers, constants);
 	}
 	
-	public ValueCanonizer( Map<DataType, ValueMapper> valueMappers, Constants constants) {
-		this.valueMappers = valueMappers;
+	public MultiTheoryDeterminizer( Map<DataType, Determinizer> determinizers, Constants constants) {
+		this.determinizers = determinizers;
 		this.constants = constants;
 	}
 	
@@ -70,6 +68,8 @@ public class ValueCanonizer {
 
 		return newTrace;
 	}
+	
+	
 	
 	public PSymbolInstance canonize(PSymbolInstance symbol, boolean inverse) {
 		DataValue[] canonized = canonize(symbol.getParameterValues(), inverse);
@@ -86,38 +86,33 @@ public class ValueCanonizer {
 		int i = 0;
 		DataValue [] resultDvs = new DataValue [dvs.length];
 		try {
-		for (i = 0; i < dvs.length; i ++) {
-			resultDvs[i] = 
-					valueMappers.containsKey(dvs[i].getType()) ? 
-					reverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
-		}
+			for (i = 0; i < dvs.length; i ++) {
+				resultDvs[i] = 
+						determinizers.containsKey(dvs[i].getType()) ? 
+						reverse ? decanonize(dvs[i]) : canonize(dvs[i]) : dvs[i]; 
+			}
 		} 
-		catch(DecoratedRuntimeException exc) {
-				exc.addDecoration("method", (reverse?"de":"") + "canonize ").
-					addDecoration("processed value", dvs[i]).
-					addDecoration("state", stateString());
-			
-			throw exc;
-		}
 		catch(Exception exception) {
-			DecoratedRuntimeException exc = 
-					new DecoratedRuntimeException(exception.getMessage()).
-					addDecoration("method", (reverse?"de":"") + "canonize ").
-					addDecoration("processed value", dvs[i]).
-					addDecoration("state", stateString()).
-					addSuppressedExc(exception);
-			
+			DecoratedRuntimeException exc;
+			if (exception instanceof DecoratedRuntimeException) {
+				exc = (DecoratedRuntimeException) exception;
+			} else {
+				exc =  new DecoratedRuntimeException(exception.getMessage()).addSuppressedExc(exception);
+			}
+			exc.addDecoration("method", (reverse?"de":"") + "canonize ").
+			addDecoration("processed value", dvs[i]).
+			addDecoration("state", stateString());
 			throw exc;
 		}
 	    return resultDvs;
 	}
 	
-
+	
 	private DataValue  canonize(DataValue dv) {
 		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
         BiMap<DataValue, DataValue> inverseMap = map.inverse();
         
-        ValueMapper valueMatcher = valueMappers.get(dv.getType());
+        Determinizer valueMatcher = determinizers.get(dv.getType());
         DataValue resultDv = valueMatcher.canonize(dv, inverseMap, constants);
         
         if (!inverseMap.containsKey(dv)) {
@@ -130,7 +125,7 @@ public class ValueCanonizer {
 	private DataValue  decanonize(DataValue dv) {
 		BiMap<DataValue, DataValue> map = getOrCreateBucket(dv);
         
-        ValueMapper valueMatcher = valueMappers.get(dv.getType());
+        Determinizer valueMatcher = determinizers.get(dv.getType());
         DataValue resultDv = valueMatcher.decanonize(dv, map, constants); 
         
         if (!map.containsKey(dv)) {
@@ -166,4 +161,5 @@ public class ValueCanonizer {
         }
         return map;
 	}
+	
 }

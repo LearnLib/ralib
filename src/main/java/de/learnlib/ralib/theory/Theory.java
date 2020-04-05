@@ -30,13 +30,14 @@ import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -102,8 +103,12 @@ public interface Theory<T> {
     	return Collections.emptyList();
     }
     
-    public default ValueMapper<T> getValueMapper() {
-    	return null;
+    /**
+     * Instantiates a determinizer for the given theory which is used for handling fresh values.
+     * @return the determinizer instance (throws exception if method not implemented)
+     */
+    public default Determinizer<T> getDeterminizer() {
+    	throw new NotImplementedException();
     }
     
     /**

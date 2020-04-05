@@ -7,18 +7,18 @@ import java.util.Map;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 
 /**
  * A concrete value mapper for equality theories with fresh values.
  */
-public class FreshValueMapper<T> implements ValueMapper<T>{
+public class EqualityDeterminizer<T> implements Determinizer<T>{
 
 	private Theory<T> theory;
 
-	public FreshValueMapper(Theory<T> theory) {
+	public EqualityDeterminizer(Theory<T> theory) {
 		this.theory = theory;
 	}
 	

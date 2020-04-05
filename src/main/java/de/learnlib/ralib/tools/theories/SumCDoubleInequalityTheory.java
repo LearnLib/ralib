@@ -26,7 +26,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -155,8 +155,8 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 
-	public ValueMapper<Double> getValueMapper() {
-		return new SumCInequalityValueMapper<Double>(this, this.sortedSumConsts);
+	public Determinizer<Double> getDeterminizer() {
+		return new SumCInequalityDeterminizer<Double>(this, this.sortedSumConsts);
 	}
 
 	public Collection<DataValue<Double>> getAllNextValues(List<DataValue<Double>> vals) {

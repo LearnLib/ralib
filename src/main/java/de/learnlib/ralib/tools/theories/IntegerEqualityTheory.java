@@ -24,10 +24,10 @@ import java.util.List;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.ParamSignature;
-import de.learnlib.ralib.mapper.ValueMapper;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.theory.equality.FreshValueMapper;
+import de.learnlib.ralib.theory.equality.EqualityDeterminizer;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 /**
@@ -86,8 +86,8 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         return ret;
     }
 
-	  public ValueMapper<Integer> getValueMapper() {
-	  	return new FreshValueMapper<Integer>(this);
+	  public Determinizer<Integer> getDeterminizer() {
+	  	return new EqualityDeterminizer<Integer>(this);
 	  }
 
 	@Override

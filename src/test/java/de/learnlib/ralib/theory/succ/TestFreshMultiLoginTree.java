@@ -16,7 +16,7 @@ import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.example.login.FreshMultiLoginSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -207,10 +207,10 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
 	        this.consSolver= TestUtil.getZ3Solver();  
 	        this.consts = new Constants(new SumConstants(sumConsts));
 	        
-	        this.sul= new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul);
+	        this.sul= new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul);
 	        
 	        this.mto = TestUtil.createMTOWithFreshValueSupport(
-	                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), FreshMultiLoginSUL.ERROR, teachers, 
+	                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), FreshMultiLoginSUL.ERROR, teachers, 
 	                consts, consSolver, 
 	                sul.getInputSymbols());
     	}

@@ -16,7 +16,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.example.succ.OneWayFreshTCPSUL;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -44,7 +44,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
+        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
         
         canonizer.canonize(new DataValue [] {
         		b.fv(0.0)
@@ -76,10 +76,10 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
+        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
         
         OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(100.0);
-        DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul);
+        DeterminedDataWordSUL dsul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, new Constants()), sul);
         
        Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT,
@@ -138,7 +138,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        ValueCanonizer canonizer = ValueCanonizer.buildNew(teachers, new Constants());
+        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
         SymbolicTraceCanonizer fixer = new SymbolicTraceCanonizer(teachers, new Constants());
         
         final Word<PSymbolInstance> testWord = Word.fromSymbols(
@@ -163,7 +163,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
 
         DataWordSUL sul = new OneWayFreshTCPSUL(win);
-        sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, new Constants()), sul);
+        sul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, new Constants()), sul);
         BasicSULOracle oracle = new BasicSULOracle(sul, OneWayFreshTCPSUL.ERROR);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         

@@ -72,8 +72,8 @@ public class IOCacheOracle implements DataWordIOOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = this.traceCanonizer.canonizeTrace(query); 
-        Boolean ret = this.ioCache.answerFromCache(fixedQuery);
+    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonizeTrace(query); 
+        Boolean ret = ioCache.answerFromCache(fixedQuery);
         if (ret != null) {
             return ret;
         }
@@ -83,15 +83,12 @@ public class IOCacheOracle implements DataWordIOOracle {
         }
         Word<PSymbolInstance> trace  = null;
         boolean added = false;
-	    trace = this.sul.trace(test);
-	    added = this.ioCache.addToCache(trace);
+	    trace = sul.trace(test);
+	    added = ioCache.addToCache(trace);
 	
         //assert added;
-        ret = this.ioCache.answerFromCache(fixedQuery);
+        ret = ioCache.answerFromCache(fixedQuery);
         if (ret == null)  {
-        	for (int i=0; i<5; i++) {
-        		System.out.println(this.sul.trace(test));
-        	}
         	throw new DecoratedRuntimeException("Could not find answer for query, even after "
         			+ "it had been added to cache")
         	.addDecoration("fixedQuery", fixedQuery).addDecoration("original query", query)
@@ -102,17 +99,17 @@ public class IOCacheOracle implements DataWordIOOracle {
 
     
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = this.traceCanonizer.canonizeTrace(query); 
+    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonizeTrace(query); 
         if (fixedQuery.length() % 2 != 0) {
         	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }
 
-        Word<PSymbolInstance> trace = this.ioCache.traceFromCache(fixedQuery, this.traceCanonizer);
+        Word<PSymbolInstance> trace = ioCache.traceFromCache(fixedQuery, traceCanonizer);
         if (trace != null) {
             return trace;
         }
         trace = sul.trace(fixedQuery);
-        boolean added = this.ioCache.addToCache(trace);
+        boolean added = ioCache.addToCache(trace);
 //        assert added;
         return trace;
     }

@@ -20,7 +20,7 @@ import de.learnlib.ralib.example.succ.IntAbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.IntHardFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -152,7 +152,7 @@ public class TestIntHardTCPTree {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         GeneralizedSymbolicSuffix symSuffix = symSuffProvider.apply(teachers, consts);
@@ -188,7 +188,7 @@ public class TestIntHardTCPTree {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         
-        DeterminedDataWordSUL detSul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul);
+        DeterminedDataWordSUL detSul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul);
         detSul.pre();
         Word<PSymbolInstance> run = Word.epsilon();
         for (PSymbolInstance sym : prefix.concat(suffix).stream().filter(s -> (s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList())) {
@@ -199,7 +199,7 @@ public class TestIntHardTCPTree {
         
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         SliceBuilder sb = new SliceBuilder(teachers, consts, jsolv);

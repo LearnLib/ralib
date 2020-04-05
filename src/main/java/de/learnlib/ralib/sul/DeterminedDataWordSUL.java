@@ -3,17 +3,17 @@ package de.learnlib.ralib.sul;
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 public class DeterminedDataWordSUL extends DataWordSUL{
 	
 	private final DataWordSUL sul;
-	private final Supplier<ValueCanonizer> canonizerFactory;
+	private final Supplier<MultiTheoryDeterminizer> canonizerFactory;
 	
-	private ValueCanonizer canonizer;
+	private MultiTheoryDeterminizer canonizer;
 	
-	public DeterminedDataWordSUL(Supplier<ValueCanonizer> canonizedSupplier, DataWordSUL sul) {
+	public DeterminedDataWordSUL(Supplier<MultiTheoryDeterminizer> canonizedSupplier, DataWordSUL sul) {
 		this.canonizerFactory = canonizedSupplier;
 		this.sul = sul;
 	}

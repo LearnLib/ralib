@@ -31,7 +31,7 @@ import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
-import de.learnlib.ralib.mapper.ValueCanonizer;
+import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.CountingDataWordOracle;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
@@ -373,7 +373,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     		InputCounter inputCounter, boolean determinize, long timeoutMillis) {
     	DataWordSUL sul = sulInstance;
     	if (determinize) {
-        	sul = new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers, consts), sul);
+        	sul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul);
         }
     	if (preCache) {
         	sul = new CachingSUL(sul, ioCache);
