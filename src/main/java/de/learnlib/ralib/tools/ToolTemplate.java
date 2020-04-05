@@ -55,7 +55,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.CountingDataWordSUL;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.DeterminedDataWordSUL;
+import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
 import de.learnlib.ralib.sul.InputCounter;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -373,7 +373,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     		InputCounter inputCounter, boolean determinize, long timeoutMillis) {
     	DataWordSUL sul = sulInstance;
     	if (determinize) {
-        	sul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul);
+        	sul = new DeterminzerDataWordSUL(teachers, consts, sul);
         }
     	if (preCache) {
         	sul = new CachingSUL(sul, ioCache);

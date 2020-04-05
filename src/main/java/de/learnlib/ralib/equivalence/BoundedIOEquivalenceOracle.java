@@ -3,10 +3,8 @@ package de.learnlib.ralib.equivalence;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 
 import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -111,10 +109,6 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 				}
 			}
 			
-			if (maxRuns / 100 * tens < runs) {
-				System.out.println(tens + "% percent completed");
-				tens++;
-			}
 		}
 		return null;
 	}

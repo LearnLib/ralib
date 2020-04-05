@@ -28,7 +28,7 @@ import de.learnlib.ralib.oracles.mto.Slice;
 import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.DeterminedDataWordSUL;
+import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
@@ -152,7 +152,7 @@ public class TestIntHardTCPTree {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                new DeterminzerDataWordSUL(teachers, consts, sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         GeneralizedSymbolicSuffix symSuffix = symSuffProvider.apply(teachers, consts);
@@ -188,7 +188,7 @@ public class TestIntHardTCPTree {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         
-        DeterminedDataWordSUL detSul = new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul);
+        DeterminzerDataWordSUL detSul = new DeterminzerDataWordSUL(teachers, consts, sul);
         detSul.pre();
         Word<PSymbolInstance> run = Word.epsilon();
         for (PSymbolInstance sym : prefix.concat(suffix).stream().filter(s -> (s.getBaseSymbol() instanceof InputSymbol)).collect(Collectors.toList())) {
@@ -199,7 +199,7 @@ public class TestIntHardTCPTree {
         
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminedDataWordSUL(() -> MultiTheoryDeterminizer.buildNew(teachers, consts), sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                new DeterminzerDataWordSUL(teachers, consts, sul), IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         SliceBuilder sb = new SliceBuilder(teachers, consts, jsolv);

@@ -1,20 +1,24 @@
 package de.learnlib.ralib.sul;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 
-public class DeterminedDataWordSUL extends DataWordSUL{
+public class DeterminzerDataWordSUL extends DataWordSUL{
 	
 	private final DataWordSUL sul;
 	private final Supplier<MultiTheoryDeterminizer> canonizerFactory;
 	
 	private MultiTheoryDeterminizer canonizer;
 	
-	public DeterminedDataWordSUL(Supplier<MultiTheoryDeterminizer> canonizedSupplier, DataWordSUL sul) {
-		this.canonizerFactory = canonizedSupplier;
+	public DeterminzerDataWordSUL(Map<DataType, Theory> teachers, Constants constants, DataWordSUL sul) {
+		this.canonizerFactory = () -> MultiTheoryDeterminizer.buildNew(teachers, constants);
 		this.sul = sul;
 	}
 
