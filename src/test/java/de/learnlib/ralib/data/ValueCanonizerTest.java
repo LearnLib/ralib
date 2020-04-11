@@ -35,7 +35,7 @@ public class ValueCanonizerTest  extends RaLibTestSuite {
 	public void testCanonizerEqu() {
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_INT, new IntegerEqualityTheory(T_INT));
-        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(theories, new Constants());
+        MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(theories, new Constants());
         DataValue[] rcvd = canonizer.canonize(dv(T_INT, 0,1,2), true);
         test(rcvd, 0,1,2);
         rcvd = canonizer.canonize(dv(T_INT, 50,100,1), false);
@@ -61,7 +61,7 @@ public class ValueCanonizerTest  extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
     	DataValueConstructor<Integer> b = new DataValueConstructor<>(IntHardFreshTCPSUL.INT_TYPE);
-        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, consts);
+        MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(teachers, consts);
         DataValue[] dvs = dv(IntHardFreshTCPSUL.INT_TYPE, 0, 1, 2, 10000, 20000, 30000, 11000); 
         DataValue[] result = canonizer.canonize(dvs, false);
         Assert.assertEquals(Arrays.stream(result).filter(d -> d instanceof FreshValue).count(), 4);
@@ -85,7 +85,7 @@ public class ValueCanonizerTest  extends RaLibTestSuite {
         Constants consts = new Constants(new SumConstants(sumConsts));
     	DataValueConstructor<Integer> b = new DataValueConstructor<>(IntHardFreshTCPSUL.INT_TYPE);
     	SymbolicDeterminizer<Integer> valueMapper = new SymbolicDeterminizer<Integer>(sumCTheory, IntHardFreshTCPSUL.INT_TYPE);
-    	MultiTheoryDeterminizer valueCanonizer = new MultiTheoryDeterminizer(Collections.singletonMap(IntHardFreshTCPSUL.INT_TYPE, valueMapper), consts);
+    	MultiTheoryDeterminizer valueCanonizer = MultiTheoryDeterminizer.newCustom(Collections.singletonMap(IntHardFreshTCPSUL.INT_TYPE, valueMapper), consts);
         DataValue[] dvs = new DataValue[]{
         		b.fv(0), b.sumcv(0, 1), b.sumcv(1, 1), b.fv(10000), b.fv(20000), 
         		b.fv(30000), //b.intv(15000, 10000, 20000),

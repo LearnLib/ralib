@@ -1,7 +1,6 @@
 package de.learnlib.ralib.sul;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.Constants;
@@ -13,20 +12,22 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class DeterminzerDataWordSUL extends DataWordSUL{
 	
 	private final DataWordSUL sul;
-	private final Supplier<MultiTheoryDeterminizer> canonizerFactory;
 	
 	private MultiTheoryDeterminizer canonizer;
+	private Map<DataType, Theory> teachers;
+	private Constants constants;
 	
 	public DeterminzerDataWordSUL(Map<DataType, Theory> teachers, Constants constants, DataWordSUL sul) {
-		this.canonizerFactory = () -> MultiTheoryDeterminizer.buildNew(teachers, constants);
+		this.teachers = teachers;
 		this.sul = sul;
+		this.constants = constants;
 	}
 
 	@Override
 	public void pre() {
 		 countResets(1);
 		 this.sul.pre();
-		 this.canonizer = canonizerFactory.get();
+		 this.canonizer = new MultiTheoryDeterminizer(this.teachers, constants);
 	}
 
 	@Override

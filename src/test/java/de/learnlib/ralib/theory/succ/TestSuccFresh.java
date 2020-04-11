@@ -44,7 +44,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
+        MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(teachers, new Constants());
         
         canonizer.canonize(new DataValue [] {
         		b.fv(0.0)
@@ -136,7 +136,6 @@ public class TestSuccFresh extends RaLibTestSuite{
         		Collections.emptyList());
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
-        MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
         SymbolicTraceCanonizer fixer = new SymbolicTraceCanonizer(teachers, new Constants());
         
         final Word<PSymbolInstance> testWord = Word.fromSymbols(

@@ -31,31 +31,41 @@ import net.automatalib.words.Word;
  * (inp) [0,1, 100] => {0:0, 1:1, 100:20} <br/>
  * (out) [2, 101, 68878] => {0:0, 1:1, 100:20, 101:21, 68878:40} <br/>
  * <p/>
- * We assume that analogies are not coincidental and never check them. 
+ * We assume that analogies are not coincidental. 
  */
 
 public class MultiTheoryDeterminizer {
 	
 	
 	private final Map<DataType, BiMap<DataValue, DataValue>> buckets = new HashMap<>(); // from decanonized to canonized for each type
-	
 	private final Map<DataType, Determinizer> determinizers; // determinizers used to find pairings for each key supplied 
 
 	private Constants constants;
 	
-	public final static MultiTheoryDeterminizer buildNew(Map<DataType, Theory> theories, Constants constants) {
-		LinkedHashMap<DataType, Determinizer> determinizers = new LinkedHashMap<DataType, Determinizer>();
+	/**
+	 * Constructs and MT Determizer using a custom range of determinizers. 
+	 */
+	public static MultiTheoryDeterminizer newCustom(Map<DataType, Determinizer> determinizers, Constants constants) {
+		MultiTheoryDeterminizer mtDeterminizer = new MultiTheoryDeterminizer(constants);
+		mtDeterminizer.determinizers.putAll(determinizers);
+		return mtDeterminizer;
+	}
+	
+	private MultiTheoryDeterminizer(Constants constants) {
+		this.determinizers = new LinkedHashMap<DataType, Determinizer>();
+		this.constants = constants;
+	}
+
+	/**
+	 * C
+	 */
+	public MultiTheoryDeterminizer(Map<DataType, Theory> theories, Constants constants) {
+		this.determinizers = new LinkedHashMap<DataType, Determinizer>();
 		theories.forEach((dt, th) ->  {
 			if ( th.getDeterminizer() != null) {
 				determinizers.put(dt, th.getDeterminizer());
 			}
 		});
-		
-		return new MultiTheoryDeterminizer(determinizers, constants);
-	}
-	
-	public MultiTheoryDeterminizer( Map<DataType, Determinizer> determinizers, Constants constants) {
-		this.determinizers = determinizers;
 		this.constants = constants;
 	}
 	

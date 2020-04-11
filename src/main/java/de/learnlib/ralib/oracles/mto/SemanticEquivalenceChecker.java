@@ -14,7 +14,6 @@ import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTEquivalenceChecker{
 	private MultiTheorySDTLogicOracle logic;
 	private Mapping<SymbolicDataValue, DataValue<?>> guardContext;
-	private List<SDTGuard> suffGuards;
 	private SyntacticEquivalenceChecker syntacticChecker;
 
 	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards) {
@@ -24,7 +23,6 @@ public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTE
 	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards, Mapping<SymbolicDataValue, DataValue<?>> guardContext) {
 		this.logic = new MultiTheorySDTLogicOracle(constants, cSolver);
 		this.guardContext = guardContext;
-		this.suffGuards = suffixGuards;
 		this.syntacticChecker = new SyntacticEquivalenceChecker();
 	}
 	

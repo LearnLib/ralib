@@ -1,14 +1,11 @@
 package de.learnlib.ralib.tools.theories;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
-import de.learnlib.ralib.mapper.SymbolicDeterminizer;
 import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
-import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -19,11 +16,11 @@ import net.automatalib.words.Word;
  */
 public class SymbolicTraceCanonizer implements TraceCanonizer{
 	
-	final Map<DataType, Determinizer> theoryDeterminizers = new LinkedHashMap<>();
-	private Constants constants;
+	private final Constants constants;
+	private final Map<DataType, Theory> theories;
 	
 	public SymbolicTraceCanonizer(Map<DataType, Theory> theories, Constants constants) {
-		theories.forEach( (dt, th) -> theoryDeterminizers.put(dt, new SymbolicDeterminizer(th, dt)));
+		this.theories = theories;
 		this.constants = constants;
 	}
 	
@@ -37,7 +34,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 	 * after: FV 10 FV 20 SUMC 20 1 
 	 */
 	public Word<PSymbolInstance> canonizeTrace(Word<PSymbolInstance> trace) {
-		MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(theoryDeterminizers, constants);
+		MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(theories, constants);
 
 		try {
 			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);  

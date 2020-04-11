@@ -118,7 +118,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
        final DeterminzerDataWordSUL sulDet = new DeterminzerDataWordSUL(teachers, new Constants(), sul);
 		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> actualTrace = Word.epsilon();
-       MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.buildNew(teachers, new Constants());
+       MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(teachers, new Constants());
        sulDet.pre();
        for (PSymbolInstance symbol : testInputWord) {
     	   symbol = canonizer.canonize(symbol, false);
