@@ -49,10 +49,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
@@ -327,8 +325,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         SDT _sdt2r = (SDT) _sdt2.relabel(remap);
         PIV piv = sdt2Piv.relabel(remap);
-        Map<SymbolicDataValue, ParamSignature> prefixMap = this.computePrefixSourceMap(prefix, piv);
-        
 
         //_sdt1 = replaceSuffixesWithPrefixes(_sdt1); 
         //_sdt2r = replaceSuffixesWithPrefixes(_sdt2r);
@@ -367,7 +363,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             	Conjunction e2Conj = SDT.toPathExpression(e2);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1Conj, e2Conj))) {
                     // found counterexample slice
-                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions, prefixMap);
+                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions);
                 }
             }            
         }
@@ -387,7 +383,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             	Conjunction e2Conj = SDT.toPathExpression(e2);
                 if (solver.isSatisfiable(new Conjunction(exprG, e1Conj, e2Conj))) {
                     // found counterexample slice
-                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions, prefixMap);
+                    return counterExampleFromSlice(e1, e2, _sdt1, _sdt2r, actions);
                 }
             }            
         }
@@ -395,24 +391,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         throw new IllegalStateException("Could not find CE slice");
     }
     
-    private Map<SymbolicDataValue, ParamSignature> computePrefixSourceMap(Word<PSymbolInstance> prefix, PIV piv) {
-    	Map<SymbolicDataValue, ParamSignature> regToSig = new LinkedHashMap<SymbolicDataValue, ParamSignature>();
-    	SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-    	for(PSymbolInstance sym : prefix) {
-    		int actIndex = 0;
-    		for (DataValue dv : sym.getParameterValues()) {
-    			Register reg = piv.get(pgen.next(dv.getType()));
-    			if (reg != null)
-    			//assert reg != null;
-    				regToSig.put(reg, new ParamSignature(sym.getBaseSymbol(), actIndex));
-    			actIndex ++;
-    		}
-    	}
-    	return regToSig;
-    }
-    
     private GeneralizedSymbolicSuffix counterExampleFromSlice(
-            List<SDTGuard> e1Guards, List<SDTGuard> e2Guards, SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions, Map<SymbolicDataValue, ParamSignature> prefixMap) {
+            List<SDTGuard> e1Guards, List<SDTGuard> e2Guards, SDT sdt1, SDT sdt2, Word<ParameterizedSymbol> actions) {
         
         System.out.println("-----------------------------------------------");  
         System.out.println("Actions: " + actions);
@@ -421,7 +401,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     
         EnumSet<DataRelation>[] prels = new EnumSet[e1Guards.size()];
         EnumSet<DataRelation>[][] srels = new EnumSet[e1Guards.size()][];
-        Set<ParamSignature>[] psource = new Set[e1Guards.size()];
         
         int idx = 0;
         int base = 0;
@@ -472,11 +451,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 			usedAtoms = getBranchingAtomsAtLevel(i, sdt1, sdt2);
             prels[i] = prefixRelations(usedAtoms);
             suffixRelations(srels[i], usedAtoms);
-            psource[i] = this.prefixSource(usedAtoms, prefixMap);
         }
         
         GeneralizedSymbolicSuffix suffix = 
-                new GeneralizedSymbolicSuffix(actions, prels, srels, psource);
+                new GeneralizedSymbolicSuffix(actions, prels, srels);
         
         System.out.println("New suffix: " + suffix);
         
@@ -524,20 +502,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return ret;
     }
     
-    private Set<ParamSignature> prefixSource(
-            Collection<AtomicGuardExpression> es, Map<SymbolicDataValue, ParamSignature> sourceMap) {
-        Set<ParamSignature> sigs = new LinkedHashSet<>();
-        for (AtomicGuardExpression e : es) {
-        	//TODO Constants count here as registers? 
-        	if (sourceMap.containsKey(e.getLeft()))
-        		sigs.add(sourceMap.get(e.getLeft()));
-        	if (sourceMap.containsKey(e.getRight()))
-        		sigs.add(sourceMap.get(e.getRight()));
-        }
-
-        return sigs;
-    }
-
     private void suffixRelations(EnumSet<DataRelation>[] srels, 
             Collection<AtomicGuardExpression> es) {
         

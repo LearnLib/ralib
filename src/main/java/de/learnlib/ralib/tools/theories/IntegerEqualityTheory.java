@@ -23,7 +23,6 @@ import java.util.List;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
@@ -66,7 +65,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     
 
     @Override
-    public void setUseSuffixOpt(boolean useit, ParamSignature ... exhSuffixes) { 
+    public void setUseSuffixOpt(boolean useit) { 
         this.useNonFreeOptimization = useit;
     }
 

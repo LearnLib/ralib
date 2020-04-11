@@ -23,11 +23,10 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.example.login.FreshMultiLoginSUL;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -35,7 +34,6 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -142,7 +140,7 @@ public class TestGeneralizedSuffix extends RaLibTestSuite{
         
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix =// GeneralizedSymbolicSuffix.fullSuffix(prefix, longsuffix, consts, teachers); 
-        		new GeneralizedSymbolicSuffix(DataWords.actsOf(longSuffix), prefRel, suffRel, null);
+        		new GeneralizedSymbolicSuffix(DataWords.actsOf(longSuffix), prefRel, suffRel);
         		//GeneralizedSymbolicSuffix.fullSuffix(prefix, longSuffix, consts, teachers);
 
         

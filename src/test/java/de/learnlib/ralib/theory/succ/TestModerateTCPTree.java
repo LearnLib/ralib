@@ -18,17 +18,14 @@
  */
 package de.learnlib.ralib.theory.succ;
 
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.Sets;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -36,20 +33,18 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
+import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
 import de.learnlib.ralib.example.succ.IntModerateFreshTCPSUL;
 import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
 import de.learnlib.ralib.example.succ.ModerateTCPSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
-import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
@@ -203,9 +198,6 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
-        Set<ParamSignature>[] sources = symSuffix.getPrefixSources();
-        sources[0] = Sets.newHashSet(new ParamSignature(ModerateFreshTCPSUL.ISYN, 1));
-        symSuffix.setPrefixSources(sources);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
         System.out.println(symSuffix);
@@ -270,9 +262,6 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
-        Set<ParamSignature>[] sources = symSuffix.getPrefixSources();
-        sources[0] = Sets.newHashSet(new ParamSignature(ModerateFreshTCPSUL.ISYN, 1));
-        symSuffix.setPrefixSources(sources);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
         System.out.println(symSuffix);

@@ -17,7 +17,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.DataWords;
@@ -47,7 +46,6 @@ public class BranchingLogic<T extends Comparable<T>> {
 		
 		EnumSet<DataRelation> suffixRel = suffix.getSuffixRelations(pid);
 		EnumSet<DataRelation> prefixRel = suffix.getPrefixRelations(pid);
-		Set<ParamSignature> prefixSource = suffix.getPrefixSources(pid);
 		List<DataValue<T>> sumC = constants.getSumCs(type);
 		
 		
@@ -87,7 +85,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 			if (context == null) {
 				if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(prefixRel)) {
 					if (DataRelation.EQ_DEQ_DEF_RELATIONS.containsAll(suffixRel)) {
-						List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixSource, prefixRel, constants, suffixValues
+						List<DataValue<T>> newPotential = makeNewPots(pid, prefix, prefixRel, constants, suffixValues
 								, suffix);
 						context = new BranchingContext<T>(BranchingStrategy.IF_EQU_ELSE, newPotential);
 					}
@@ -103,7 +101,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 		return context;
 	}
 	
-	private List<DataValue<T>> makeNewPots(int pid, Word<PSymbolInstance> prefix, Set<ParamSignature> prefixSource, EnumSet<DataRelation> prefixRel, Constants constants, SuffixValuation suffixValues
+	private List<DataValue<T>> makeNewPots(int pid, Word<PSymbolInstance> prefix, EnumSet<DataRelation> prefixRel, Constants constants, SuffixValuation suffixValues
 			, GeneralizedSymbolicSuffix suffix) {
 		List<DataValue<T>> newPotential = new ArrayList<>();
 		List<DataValue<T>> sumC = constants.getSumCs(type);

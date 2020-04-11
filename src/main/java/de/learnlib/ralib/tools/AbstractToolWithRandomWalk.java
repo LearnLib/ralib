@@ -43,7 +43,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SumConstantGenerator;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
 import de.learnlib.ralib.solver.ConstraintSolver;
@@ -131,10 +130,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT = new ConfigurationOption.BooleanOption(
 			"use.suffixopt", "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
 	
-	protected static final ConfigurationOption.StringOption OPTION_SUFFIXOPT_EXCEPT = new ConfigurationOption.StringOption(
-			"suffixopt.except", "Do not use suffix optimization for these suffix parameters. Parameters given in form: input1_name.p1;"
-					+ "input2_name.p2, p index from 1 to(incl.) arrity", null, true);
-
 	protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_MODEL = new ConfigurationOption.BooleanOption(
 			"export.model", "Export final model to model.xml", Boolean.FALSE, true);
 
@@ -279,21 +274,11 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
 	protected final void configureTheories(Map<DataType, Theory> teachers, Configuration config,
 			Map<String, DataType> types, ParameterizedSymbol [] inputs, Constants constants) throws ConfigurationException {
-		final ParamSignature [] pSig;
-		if (this.useSuffixOpt) {
-			String except = OPTION_SUFFIXOPT_EXCEPT.parse(config);
-			if (except != null) { 
-				String[] paramSign = except.split(";");
-				pSig = Arrays.stream(paramSign).map(s -> ParamSignature.fromString(inputs, s)).toArray(ParamSignature []::new);
-			} else 
-				pSig = new ParamSignature []{};
-		} else
-			pSig = new ParamSignature []{};
 		 
 		teachers.forEach((type, teach) -> {
 			TypedTheory typedTheory = (TypedTheory) teach;
 			typedTheory.setCheckForFreshOutputs(this.useFresh);
-			typedTheory.setUseSuffixOpt(this.useSuffixOpt, pSig);
+			typedTheory.setUseSuffixOpt(this.useSuffixOpt);
 			typedTheory.setType(type);
 		});
 		applyCustomTeacherSettings(teachers, config, types, constants);

@@ -56,7 +56,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -120,7 +119,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
 	private de.learnlib.ralib.solver.ConstraintSolver solver;
-	private Set<ParamSignature> exhSuffixParams;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
 			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier, de.learnlib.ralib.solver.ConstraintSolver solver) {
@@ -278,11 +276,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			BranchingLogic<T> logic = new BranchingLogic<T>(this);
 			context = logic.computeBranchingContext(pId, potential, prefix, constants, suffixValues,
 					suffix);
-			if (context.getStrategy() != BranchingStrategy.TRUE_FRESH) {
-				 boolean exhBr =  this.shouldBeTreatedExhaustively(suffix, pId);
-				 if (exhBr) 
-					 context = new BranchingContext<>(BranchingStrategy.FULL, potential);
-			}
 			
 		} else 
 			context = new BranchingContext<>(BranchingStrategy.FULL, potential);
@@ -1104,15 +1097,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return ret;
 	}
 	
-    public void setUseSuffixOpt(boolean useit, ParamSignature ... exhSuffixParams) {
+    public void setUseSuffixOpt(boolean useit) {
     	suffixOptimization = useit;
-    	this.exhSuffixParams = Arrays.stream(exhSuffixParams).collect(Collectors.toSet());
     }
     
-    private boolean shouldBeTreatedExhaustively(GeneralizedSymbolicSuffix suffix, int pid) {
-    	ParamSignature param = suffix.getParamSignature(pid);
-    	boolean should = exhSuffixParams.contains(param);
-    	return should;
-    	
-    }
 }

@@ -17,7 +17,6 @@
 package de.learnlib.ralib.tools.classanalyzer;
 
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.learning.ParamSignature;
 import de.learnlib.ralib.theory.Theory;
 
 /**
@@ -32,7 +31,7 @@ public interface TypedTheory<T> extends Theory<T> {
     public DataType<T> getType();
     
     
-    public default void setUseSuffixOpt(boolean useit, ParamSignature ... exhaustiveSuffixes) {
+    public default void setUseSuffixOpt(boolean useit) {
         System.err.println("Suffix Optimization currently not implemented for theory " + 
                 this.getClass().getName());
     }

@@ -194,13 +194,10 @@ public class GeneralizedSymbolicSuffixTest {
         	{EnumSet.of(DataRelation.EQ_SUMC1), EnumSet.noneOf(DataRelation.class), EnumSet.noneOf(DataRelation.class)}
         };
         
-        Set[] prefSources = new Set [] {
-        Sets.newHashSet(new ParamSignature(ModerateTCPSUL.ICONNECT, 0)), Collections.emptySet(),
-        Collections.emptySet(), Collections.emptySet()};
         Word<ParameterizedSymbol> suffWord = DataWords.actsOf(suffix);
         
         GeneralizedSymbolicSuffix symSuffix = new GeneralizedSymbolicSuffix(
-                suffWord, prefRel, suffRel, prefSources);
+                suffWord, prefRel, suffRel);
         
         System.out.println(symSuffix);
         
@@ -216,9 +213,7 @@ public class GeneralizedSymbolicSuffixTest {
         	{}, {EnumSet.noneOf(DataRelation.class)}
         };
         
-        Set[] sPrefSources =  new Set [] {
-              Collections.emptySet(), Sets.newHashSet(new ParamSignature(ModerateTCPSUL.ISYN, 0)) };
-        GeneralizedSymbolicSuffix expectedSymSuffix = new GeneralizedSymbolicSuffix(sSuffWord, sPrefRel, sSuffRel, sPrefSources);
+        GeneralizedSymbolicSuffix expectedSymSuffix = new GeneralizedSymbolicSuffix(sSuffWord, sPrefRel, sSuffRel);
         Assert.assertEquals(sSymSuffix, expectedSymSuffix);
        
     }

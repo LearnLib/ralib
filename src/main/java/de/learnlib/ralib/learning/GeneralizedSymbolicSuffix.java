@@ -58,10 +58,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 	private final EnumSet<DataRelation>[] prefixRelations;
 
-	private Set<ParamSignature>[] prefixSources;
-
 	public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, EnumSet<DataRelation>[] prefixRelations,
-			EnumSet<DataRelation>[][] suffixRelations, Set<ParamSignature>[] prefixSources) {
+			EnumSet<DataRelation>[][] suffixRelations) {
 
 		this.actions = Word.fromList(actions.asList());
 		this.prefixRelations = prefixRelations;
@@ -75,12 +73,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		for (DataType t : types) {
 			this.suffixValues[idx++] = valgen.next(t);
 		}
-		this.prefixSources = prefixSources;
-	}
-
-	public GeneralizedSymbolicSuffix(Word<ParameterizedSymbol> actions, EnumSet<DataRelation>[] prefixRelations,
-			EnumSet<DataRelation>[][] suffixRelations) {
-		this(actions, prefixRelations, suffixRelations, new Set[prefixRelations.length]);
 	}
 
 	public static GeneralizedSymbolicSuffix fullSuffix(Word<PSymbolInstance> suffix,
@@ -98,10 +90,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 				suffixRelations[i][j] = EnumSet.copyOf(allRelations);
 		}
 		Word<ParameterizedSymbol> suffixActs = DataWords.actsOf(suffix);
-		Set<ParamSignature>[] prefixSources = new Set[vals.length];
-		Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
 
-		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
+		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations);
 	}
 	
 	public static GeneralizedSymbolicSuffix fullSuffix(Word<ParameterizedSymbol> suffixActs,  Map<DataType, Theory> theories) {
@@ -122,10 +112,8 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 					suffixRelations[i][j] = EnumSet.noneOf(DataRelation.class);
 			}
 		}
-		Set<ParamSignature>[] prefixSources = new Set[paramNum];
-		Arrays.fill(prefixSources, Sets.newHashSet(ParamSignature.ANY));
 
-		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations, prefixSources);
+		return new GeneralizedSymbolicSuffix(suffixActs, prefixRelations, suffixRelations);
 	}
 
 	public GeneralizedSymbolicSuffix(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts,
@@ -136,7 +124,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		this.suffixValues = new SuffixValue[concSuffixVals.length];
 		this.prefixRelations = new EnumSet[concSuffixVals.length];
 		this.suffixRelations = new EnumSet[concSuffixVals.length][];
-		this.prefixSources = new Set[concSuffixVals.length];
 
 		SymbolicDataValueGenerator.SuffixValueGenerator valgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
 
@@ -148,7 +135,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		for (DataValue v : concSuffixVals) {
 			this.suffixValues[idx] = valgen.next(v.getType());
 			EnumSet<DataRelation> prefixRels = EnumSet.noneOf(DataRelation.class);
-			Set<ParamSignature> prefixSrc = new LinkedHashSet<>();
 
 			while (idx >= base + actions.getSymbol(psIdx).getArity()) {
 				base += actions.getSymbol(psIdx).getArity();
@@ -165,15 +151,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 			List<DataValue> pvals = Arrays.asList(DataWords.valsOf(prefix, v.getType()));
 			List<DataValue> cvals = new ArrayList<>(consts.values(v.getType()));
-			for (PSymbolInstance sym : prefix) {
-				int index = 0;
-				for (DataValue dv : sym.getParameterValues()) {
-					if (dv.getType().equals(v.getType()) && !t.getRelations(Arrays.asList(dv), v).isEmpty()) {
-						prefixSrc.add(new ParamSignature(sym.getBaseSymbol(), index));
-					}
-					index++;
-				}
-			}
 
 			List<EnumSet<DataRelation>> prels = t.getRelations(pvals, v);
 			List<EnumSet<DataRelation>> crels = t.getRelations(cvals, v);
@@ -210,7 +187,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 				} else
 					this.suffixRelations[idx][i] = EnumSet.noneOf(DataRelation.class);
 			}
-			this.prefixSources[idx] = prefixSrc;
 			prevSuffixValues.add(v);
 			idx++;
 		}
@@ -236,7 +212,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		this.suffixValues = new SuffixValue[psLength + ssLength];
 		this.prefixRelations = new EnumSet[psLength + ssLength];
 		this.suffixRelations = new EnumSet[psLength + ssLength][];
-		this.prefixSources = new Set[psLength + ssLength];
 
 		SymbolicDataValueGenerator.SuffixValueGenerator valgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
 
@@ -244,14 +219,12 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			this.suffixValues[i] = valgen.next(pSuffix.suffixValues[i].getType());
 			this.prefixRelations[i] = pSuffix.prefixRelations[i];
 			this.suffixRelations[i] = pSuffix.suffixRelations[i];
-			this.prefixSources[i] = pSuffix.prefixSources[i];
 		}
 
 		for (int i = 0; i < ssLength; i++) {
 			this.suffixValues[psLength + i] = valgen.next(symSuffix.suffixValues[i].getType());
 
 			this.prefixRelations[psLength + i] = symSuffix.prefixRelations[i];
-			this.prefixSources[psLength + i] = symSuffix.prefixSources[i];
 			this.suffixRelations[psLength + i] = new EnumSet[psLength + i];
 			
 			for (int j = 0; j < psLength; j++) 
@@ -280,7 +253,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		this.suffixValues = symSuffix.suffixValues;
 		this.prefixRelations = symSuffix.prefixRelations;
 		this.suffixRelations = symSuffix.suffixRelations;
-		this.prefixSources = symSuffix.prefixSources;
 		for (int i = 0; i < ps.getArity(); i++) {
 			DataType t = ps.getPtypes()[i];
 			this.prefixRelations[i] = theories.get(t).recognizedRelations();
@@ -323,45 +295,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	public EnumSet<DataRelation> getPrefixRelations(int i) {
 		return prefixRelations[i - 1];
 	}
-
-	public void setPrefixSources(Set<ParamSignature>[] prefixSources) {
-		this.prefixSources = prefixSources;
-	}
-
-	/**
-	 * Numbering from 1 to the number of parameters
-	 */
-	public ParamSignature getParamSignature(int pid) {
-		if (this.actions.isEmpty())
-			return null;
-		else {
-			Iterator<ParameterizedSymbol> iter = this.actions.iterator();
-			ParameterizedSymbol act = null;
-			int ind = 0;
-			while (ind < pid & iter.hasNext()) {
-				act = iter.next();
-				ind += act.getArity();
-			}
-			if (ind < pid)
-				return null;
-			else {
-				int indInAct = pid - (ind - act.getArity());
-				return new ParamSignature(act, indInAct);
-			}
-		}
-
-	}
-
-	public Set<ParamSignature>[] getPrefixSources() {
-		return this.prefixSources;
-	}
-
-	public Set<ParamSignature> getPrefixSources(int i) {
-		if (prefixSources != null)
-			return prefixSources[i - 1];
-		return Collections.emptySet();
-	}
-
+	
 	/**
 	 * Returns relation suffix s_j has with previous suffix s_i. j and i are
 	 * from 1 to the number of suffix params.
@@ -458,9 +392,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		if (!Arrays.deepEquals(this.prefixRelations, other.prefixRelations)) {
 			return false;
 		}
-		if (!Arrays.deepEquals(this.prefixSources, other.prefixSources)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -471,7 +402,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		hash = 41 * hash + Arrays.deepHashCode(this.suffixValues);
 		hash = 41 * hash + Arrays.deepHashCode(this.suffixRelations);
 		hash = 41 * hash + Arrays.deepHashCode(this.prefixRelations);
-		hash = 41 * hash + Arrays.deepHashCode(this.prefixSources);
 		return hash;
 	}
 
@@ -483,7 +413,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 
 		EnumSet[] sPrefixRels = deepCopy(prefixRelations, arity);
 		EnumSet[][] sSuffixRels = new EnumSet[suffixRelations.length - arity][];
-		Set[] sPrefixSource = deepCopy(prefixSources, arity);
 
 		for (int i = 0; i < sSuffixRels.length; i++) {
 			sSuffixRels[i] = deepCopy(suffixRelations[i + arity], arity);
@@ -493,20 +422,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			}
 		}
 
-//		ParameterizedSymbol first = actions.firstSymbol();
-//		for (int i = 0; i < sSuffixRels.length; i++) {
-//			for (int j = 0; j < arity; j++) {
-//				EnumSet<DataRelation> sufRel = suffixRelations[i + arity].length > 0 ? suffixRelations[i + arity][j]
-//						: EnumSet.noneOf(DataRelation.class);
-//				if (!sufRel.isEmpty()) {
-//					sPrefixSource[i].add(new ParamSignature(first, j));
-//				}
-//
-//				sPrefixRels[i].addAll(sufRel);
-//			}
-//		}
-
-		return new GeneralizedSymbolicSuffix(sActions, sPrefixRels, sSuffixRels, sPrefixSource);
+		return new GeneralizedSymbolicSuffix(sActions, sPrefixRels, sSuffixRels);
 	}
 
 	private EnumSet<DataRelation>[] deepCopy(EnumSet<DataRelation>[] array, int fromIndex) {
