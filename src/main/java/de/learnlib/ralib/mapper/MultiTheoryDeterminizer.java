@@ -17,11 +17,14 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * Maps data values (typed values) to values of the same type by maintaining a mapping from system (non-canonized) values to canonized values for each data type. 
+ * Maps sequences of typed data values to sequences that are indistinguishable with respect to theories corresponding to the types.
+ * The resulting sequences are canonical, meaning arbitrary indistinguishable sequences should be mapped to the same sequence.  
+ * To that end, the determinizer maintains a mapping from system (non-canonized) values to canonized values for each data type.
  * Non-canonized values received are added to the map, paired with an analogous canonized value.  
  * 
- * The analogy is inferred by the relation a value has with its respective set. If no relation is found, the value is deemed fresh,
- * thus it will be paired with a fresh value from the other set. For the purpose of matching a value with its analogous, we use Theory-specific Determinizers. 
+ * The analogy is inferred by the relation a value has with its respective set. 
+ * If no relation is found, the value is deemed fresh, thus it will be paired with a fresh value from the other set. 
+ * For the purpose of matching a value with its analogous, we use Theory-specific Determinizers. 
  *  
  * <br/>
  * Example for equality: <br/>
@@ -43,7 +46,7 @@ public class MultiTheoryDeterminizer {
 	private Constants constants;
 	
 	/**
-	 * Constructs and MT Determizer using a custom range of determinizers. 
+	 * Constructs a MT Determinizer from the provided determinizer map. 
 	 */
 	public static MultiTheoryDeterminizer newCustom(Map<DataType, Determinizer> determinizers, Constants constants) {
 		MultiTheoryDeterminizer mtDeterminizer = new MultiTheoryDeterminizer(constants);
@@ -57,8 +60,8 @@ public class MultiTheoryDeterminizer {
 	}
 
 	/**
-	 * C
-	 */
+	 * Constructs a MT Determinizer using the default default determinizers provided by each theory.
+	 */	
 	public MultiTheoryDeterminizer(Map<DataType, Theory> theories, Constants constants) {
 		this.determinizers = new LinkedHashMap<DataType, Determinizer>();
 		theories.forEach((dt, th) ->  {

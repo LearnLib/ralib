@@ -58,7 +58,7 @@ public class BasicSULOracle implements IOOracle {
             trace = trace.append(in);
             PSymbolInstance out = sul.step(in);
             if (act.size() > i+1) {
-	            updateReplacements(act.getSymbol(i + 1), out);
+	            updateReplacements(out);
 	
 	            trace = trace.append(out);
 	
@@ -95,8 +95,7 @@ public class BasicSULOracle implements IOOracle {
         return new PSymbolInstance(symbol.getBaseSymbol(), vals);
     }
 
-    private void updateReplacements(
-            PSymbolInstance outTest, PSymbolInstance outSys) {
+    private void updateReplacements( PSymbolInstance outSys) {
 
         for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
             Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);

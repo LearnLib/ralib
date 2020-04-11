@@ -31,7 +31,6 @@ import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
-import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.oracles.CountingDataWordOracle;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
@@ -55,7 +54,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.CountingDataWordSUL;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.sul.InputCounter;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -334,7 +333,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	    	return ioCacheOracle;
     }
     
-    private IOOracle setupIOOracle(SULFactory  sulFactory, Map<DataType, Theory> teachers, Constants consts,  
+    private IOOracle setupIOOracle(SULFactory  sulFactory, Map<DataType, Theory> teachers, 
+    		Constants consts,  
     		InputCounter inputCounter,
     		boolean determinize, long timeoutMillis, boolean handleExceptions, int sulInstances ) {
     	IOOracle ioOracle;
@@ -373,7 +373,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     		InputCounter inputCounter, boolean determinize, long timeoutMillis) {
     	DataWordSUL sul = sulInstance;
     	if (determinize) {
-        	sul = new DeterminzerDataWordSUL(teachers, consts, sul);
+        	sul = new DeterminizerDataWordSUL(teachers, consts, sul);
         }
     	if (preCache) {
         	sul = new CachingSUL(sul, ioCache);

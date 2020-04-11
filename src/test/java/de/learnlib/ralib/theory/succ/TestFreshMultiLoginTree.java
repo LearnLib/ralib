@@ -25,7 +25,7 @@ import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -207,10 +207,10 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
 	        this.consSolver= TestUtil.getZ3Solver();  
 	        this.consts = new Constants(new SumConstants(sumConsts));
 	        
-	        this.sul= new DeterminzerDataWordSUL(teachers, consts, sul);
+	        this.sul= new DeterminizerDataWordSUL(teachers, consts, sul);
 	        
 	        this.mto = TestUtil.createMTOWithFreshValueSupport(
-	                new DeterminzerDataWordSUL(teachers, consts, sul), FreshMultiLoginSUL.ERROR, teachers, 
+	                new DeterminizerDataWordSUL(teachers, consts, sul), FreshMultiLoginSUL.ERROR, teachers, 
 	                consts, consSolver, 
 	                sul.getInputSymbols());
     	}

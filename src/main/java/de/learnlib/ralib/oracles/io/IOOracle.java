@@ -29,12 +29,14 @@ import net.automatalib.words.Word;
 public interface IOOracle {
     
 	/**
-	 * Transforms a query into a trace of the system by preserving the input 
-	 * methods, while relabeling the parameters and changing the outputs according
-	 * to the system behavior for the inputs. 
+	 * Transforms a i/o query into a valid trace of the system by preserving the input symbols, 
+	 * while relabeling their parameters and changing the outputs according to the system's response. 
 	 * </p>
-	 * Used for counterexample reduction operations, whereby a section of a trace is cut out.
-	 * What is left might not belong to the system's traces. This operation "repairs" the trace.
+	 * Used for counterexample reduction operations, wherein a section of a trace is cut out.
+	 * What is left might not belong to the system's traces. 
+	 * This operation "repairs" the trace.
+	 * 
+	 * @param query - an input/output word
 	 *  
 	 */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);

@@ -9,15 +9,15 @@ import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 
-public class DeterminzerDataWordSUL extends DataWordSUL{
+public class DeterminizerDataWordSUL extends DataWordSUL{
 	
 	private final DataWordSUL sul;
 	
-	private MultiTheoryDeterminizer canonizer;
+	private MultiTheoryDeterminizer mtDeterminizer;
 	private Map<DataType, Theory> teachers;
 	private Constants constants;
 	
-	public DeterminzerDataWordSUL(Map<DataType, Theory> teachers, Constants constants, DataWordSUL sul) {
+	public DeterminizerDataWordSUL(Map<DataType, Theory> teachers, Constants constants, DataWordSUL sul) {
 		this.teachers = teachers;
 		this.sul = sul;
 		this.constants = constants;
@@ -27,7 +27,7 @@ public class DeterminzerDataWordSUL extends DataWordSUL{
 	public void pre() {
 		 countResets(1);
 		 this.sul.pre();
-		 this.canonizer = new MultiTheoryDeterminizer(this.teachers, constants);
+		 this.mtDeterminizer = new MultiTheoryDeterminizer(this.teachers, constants);
 	}
 
 	@Override
@@ -39,12 +39,12 @@ public class DeterminzerDataWordSUL extends DataWordSUL{
 	public PSymbolInstance step(PSymbolInstance input) throws SULException {
         countInputs(1);
         // de-canonize input before sending it to the SUL
-        input = this.canonizer.canonize(input, true);
+        input = mtDeterminizer.canonize(input, true);
         
         PSymbolInstance output = this.sul.step(input);
        
         // canonize output 
-        output = this.canonizer.canonize(output, false);
+        output = mtDeterminizer.canonize(output, false);
       
 
         return output;

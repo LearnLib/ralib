@@ -28,11 +28,9 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * The IO-Cache can be used to reduce queries for deterministic IO-Systems,
- * i.e., where even fresh values are chosen deterministically!
- *
- * It maintains a cache in which it stores only canonized traces. All queries
- * are canonized, and then searched for in the cache. 
+ * The IOCacheOracle is caching-enabled DataWordOracle.
+ * It maintains a cache in which it stores only traces which are first canonized via a {@link TraceCanonizer}. 
+ * All queries are canonized, and then searched for in the cache. 
  * @author falk
  */
 public class IOCacheOracle implements DataWordIOOracle {

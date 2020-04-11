@@ -47,7 +47,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
 import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
 import de.learnlib.ralib.theory.Theory;
@@ -163,7 +163,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminzerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
+                new DeterminizerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
@@ -239,7 +239,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminzerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
+                new DeterminizerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
@@ -307,7 +307,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminzerDataWordSUL(teachers, consts, sul), IntModerateFreshTCPSUL.ERROR, teachers, 
+                new DeterminizerDataWordSUL(teachers, consts, sul), IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Integer> b = new DataValueConstructor<>(IntModerateFreshTCPSUL.INT_TYPE);

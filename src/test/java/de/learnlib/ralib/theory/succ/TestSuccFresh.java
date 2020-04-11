@@ -20,7 +20,7 @@ import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
@@ -77,7 +77,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
         
         OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(100.0);
-        DeterminzerDataWordSUL dsul = new DeterminzerDataWordSUL(teachers, new Constants(), sul);
+        DeterminizerDataWordSUL dsul = new DeterminizerDataWordSUL(teachers, new Constants(), sul);
         
        Word<PSymbolInstance> testWord = Word.fromSymbols(
         		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT,
@@ -160,7 +160,7 @@ public class TestSuccFresh extends RaLibTestSuite{
         teachers.put(OneWayFreshTCPSUL.DOUBLE_TYPE, theory);
 
         DataWordSUL sul = new OneWayFreshTCPSUL(win);
-        sul = new DeterminzerDataWordSUL(teachers, new Constants(), sul);
+        sul = new DeterminizerDataWordSUL(teachers, new Constants(), sul);
         BasicSULOracle oracle = new BasicSULOracle(sul, OneWayFreshTCPSUL.ERROR);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         

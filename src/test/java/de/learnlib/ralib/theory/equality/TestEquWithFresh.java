@@ -42,7 +42,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
-import de.learnlib.ralib.sul.DeterminzerDataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.utils.SDTBuilder;
@@ -89,7 +89,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
 				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
        teachers.put(SessionManagerSUL.INT_TYPE, 
     		   theory);
-		BasicSULOracle sulOracle = new BasicSULOracle(new DeterminzerDataWordSUL(teachers, new Constants(), sul), SessionManagerSUL.ERROR);
+		BasicSULOracle sulOracle = new BasicSULOracle(new DeterminizerDataWordSUL(teachers, new Constants(), sul), SessionManagerSUL.ERROR);
 		
 		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> testWord = Word.fromSymbols(
@@ -115,7 +115,7 @@ public class TestEquWithFresh extends RaLibTestSuite {
             		   new DataValue(SessionManagerSUL.INT_TYPE, 1))
                );
        
-       final DeterminzerDataWordSUL sulDet = new DeterminzerDataWordSUL(teachers, new Constants(), sul);
+       final DeterminizerDataWordSUL sulDet = new DeterminizerDataWordSUL(teachers, new Constants(), sul);
 		theory.setCheckForFreshOutputs(true);
        Word<PSymbolInstance> actualTrace = Word.epsilon();
        MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(teachers, new Constants());
