@@ -8,13 +8,4 @@ public interface SULFactory {
 	 */
 	DataWordSUL newSUL();
 	
-	/**
-	 * Returns true if SULs can be run in parallel.  
-	 */
-	boolean isParallelizable();
-	
-	/**
-	 * Constructs a number of SUL instances which can be run in parallel. 
-	 */
-	DataWordSUL [] newIndependentSULs(int numInstances);
 }

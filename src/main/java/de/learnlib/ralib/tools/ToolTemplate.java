@@ -39,8 +39,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.CachingSUL;
-import de.learnlib.ralib.oracles.io.ConcurrentIOCacheOracle;
-import de.learnlib.ralib.oracles.io.ConcurrentIOOracle;
 import de.learnlib.ralib.oracles.io.DataWordIOOracle;
 import de.learnlib.ralib.oracles.io.ExceptionHandlers;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -173,15 +171,13 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		
         boolean determinize = useFresh;
         boolean handleExceptions = true;
-        Integer sulInstances = OPTION_SUL_INSTANCES.parse(config);
-        boolean isConcurrent = sulInstances > 1 && sulFactory.isParallelizable(); 
-        counters = new Counters(isConcurrent);
+        counters = new Counters();
 
         String debugTraces = OPTION_DEBUG_TRACES.parse(config);
         String debugSuffixes = OPTION_DEBUG_SUFFIXES.parse(config);
         if (debugTraces != null && debugSuffixes == null) {
         	int repeats = OPTION_DEBUG_REPEATS.parse(config);
-        	IOOracle ioOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions, sulInstances);
+        	IOOracle ioOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions);
         	runDebugTracesAndExit(debugTraces, repeats, ioOracle, this.teachers, consts);
         }
         
@@ -190,16 +186,16 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         cacheManager = IOCacheManager.getCacheManager(cacheSystem);
         ioCache = setupCache(config, sulParser.getAlphabet(), teachers, cacheManager, consts);
         
-        IOOracle learnIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.learnerInput, determinize, timeoutMillis, handleExceptions, sulInstances);
-        learnOracle = setupDataWordIOOracle(learnIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
+        IOOracle learnIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.learnerInput, determinize, timeoutMillis, handleExceptions);
+        learnOracle = setupDataWordIOOracle(learnIOOracle, consts, ioCache, determinize, handleExceptions);
         learnOracle = new CountingDataWordOracle(learnOracle, counters.learnerQuery);
         
         
         
-        IOOracle ceAnalysisIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions, sulInstances);
-        ceAnalysisOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, determinize, isConcurrent, handleExceptions);
+        IOOracle ceAnalysisIOOracle = setupIOOracle(sulFactory, teachers, consts,  counters.ceInput, determinize, timeoutMillis, handleExceptions);
+        ceAnalysisOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, determinize, handleExceptions);
         ceAnalysisOracle = new CountingDataWordOracle(ceAnalysisOracle, counters.ceQuery);
-        sulReductionTraceOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, true, isConcurrent, handleExceptions);
+        sulReductionTraceOracle = setupDataWordIOOracle(ceAnalysisIOOracle, consts, ioCache, true, handleExceptions);
         
         IOFilter ioOracle = new IOFilter(learnOracle, sulParser.getInputs());
         TreeOracle mto = new MultiTheoryTreeOracle(ioOracle, learnOracle, teachers, consts, solver);
@@ -241,27 +237,17 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         
         if (findCounterexamples) { 
         	this.testOracle = 
-        			setupIOOracle(sulFactory, teachers, constants, counters.testInput, determinize, timeoutMillis, handleExceptions, sulInstances);
+        			setupIOOracle(sulFactory, teachers, constants, counters.testInput, determinize, timeoutMillis, handleExceptions);
         	boolean cacheTests = OPTION_CACHE_TESTS.parse(config);
         	
     		IOCache ioCache = preCache? new IOCache() : this.ioCache ;
-        	if (!isConcurrent) {
-	        	if (cacheTests)
-	        		testOracle = new IOCacheOracle(testOracle, ioCache, new SymbolicTraceCanonizer(teachers, consts));
-	        	if (handleExceptions)
-        			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
-	        	equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
-	            		testOracle, teach, consts, random, sulParser.getInputs());
-        	} else {
-        		if (cacheTests){
-	        		testOracle = new ConcurrentIOCacheOracle(this.testOracle, ioCache, new SymbolicTraceCanonizer(teachers, consts));
-	        	} 
-        		if (handleExceptions)
-        			testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
-        		equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
-        				testOracle,  sulInstances, teach, consts, random, sulParser.getInputs());
-        	}
-            
+		       if (cacheTests)
+		       	testOracle = new IOCacheOracle(testOracle, ioCache);
+		       if (handleExceptions)
+	        	testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
+		       equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
+		        		testOracle, teach, consts, random, sulParser.getInputs());
+	        	
             String ver = OPTION_TEST_TRACES.parse(config);
             if (ver != null) {
             	List<Word<PSymbolInstance>> tests =  getCanonizedWordsFromString(ver, this.sulParser.getAlphabet(), teachers, consts);
@@ -320,13 +306,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	
     
     private DataWordIOOracle setupDataWordIOOracle(IOOracle ioOracle, Constants consts, 
-    		IOCache ioCache, boolean determinize, boolean concurrent, boolean handleExceptions) {
+    		IOCache ioCache, boolean determinize, boolean handleExceptions) {
     	DataWordIOOracle ioCacheOracle;
     	ioCache = preCache? new IOCache() : ioCache;
-    	if (determinize)
-	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, new SymbolicTraceCanonizer(this.teachers,consts));
-	    else 
-	    	ioCacheOracle = new IOCacheOracle(ioOracle, ioCache, trace -> trace);
+	    ioCacheOracle = new IOCacheOracle(ioOracle, ioCache);
 	    if (handleExceptions)
 	    	return ExceptionHandlers.wrapDataWordIOOracle(ioCacheOracle);
 	    else 
@@ -336,24 +319,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     private IOOracle setupIOOracle(SULFactory  sulFactory, Map<DataType, Theory> teachers, 
     		Constants consts,  
     		InputCounter inputCounter,
-    		boolean determinize, long timeoutMillis, boolean handleExceptions, int sulInstances ) {
+    		boolean determinize, long timeoutMillis, boolean handleExceptions) {
     	IOOracle ioOracle;
 
-    	if (sulFactory.isParallelizable() && sulInstances > 1) {
-    		DataWordSUL[] suls = sulFactory.newIndependentSULs(sulInstances);
-    		List<DataWordSUL> wrappedSuls = setupDataWordOracle(suls, teachers, consts, inputCounter, determinize, timeoutMillis);
-    		List<IOOracle> oracles = wrappedSuls.stream().map(sul -> {
-	        	IOOracle oracle;
-	        	if (determinize)
-	        	   	oracle =  new CanonizingSULOracle(sul, SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));
-	        	else 
-	        	  	oracle = new BasicSULOracle(sul, SpecialSymbols.ERROR);
-	        	if (handleExceptions)
-	        		oracle =  ExceptionHandlers.wrapIOOracle(oracle);
-	        	return oracle;
-        	}).collect(Collectors.toList());
-    		ioOracle = new ConcurrentIOOracle(oracles);
-    	} else {
     		DataWordSUL singleSUL = sulFactory.newSUL();
     		DataWordSUL wrappedSUL = setupDataWordOracle(singleSUL, teachers, consts, inputCounter, determinize, timeoutMillis);
     		if (determinize)
@@ -362,7 +330,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         	  	ioOracle = new BasicSULOracle(wrappedSUL, SpecialSymbols.ERROR);
         	if (handleExceptions)
         		ioOracle =  ExceptionHandlers.wrapIOOracle(ioOracle);
-    	}
     	
     	return ioOracle;
     }
@@ -562,19 +529,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 		final InputCounter ceInput;
 		final QueryCounter ceQuery;
 		final InputCounter testInput;
-		public Counters(boolean concurrent) {
-			InputCounter learnerInput = new InputCounter();
-			InputCounter ceInput = new InputCounter();
-			InputCounter testInput = new InputCounter();
-			if (concurrent) {
-				this.learnerInput = learnerInput.asThreadSafe();
-				this.ceInput = ceInput.asThreadSafe();
-				this.testInput = testInput.asThreadSafe();
-			} else {
-				this.learnerInput = learnerInput;
-				this.ceInput = ceInput;
-				this.testInput = testInput;
-			}
+		public Counters() {
+			this.learnerInput = new InputCounter();
+			this.ceInput = new InputCounter();
+			this.testInput = new InputCounter();
 			learnerQuery = new QueryCounter();
 			ceQuery = new QueryCounter();
 			Runtime.getRuntime().addShutdownHook(new Thread(

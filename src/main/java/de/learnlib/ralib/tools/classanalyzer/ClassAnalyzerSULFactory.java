@@ -3,10 +3,10 @@ package de.learnlib.ralib.tools.classanalyzer;
 import java.util.Map;
 
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.tools.ParallelizableSULFactory;
+import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
-public class ClassAnalyzerSULFactory implements ParallelizableSULFactory{
+public class ClassAnalyzerSULFactory implements SULFactory{
 	private Class<?> sulClass;
 	private Map<ParameterizedSymbol, MethodConfig> methods; 
 	private int depth;

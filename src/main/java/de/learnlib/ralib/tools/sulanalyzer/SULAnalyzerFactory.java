@@ -4,12 +4,11 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.tools.ParallelizableSULFactory;
+import de.learnlib.ralib.tools.SULFactory;
 import de.learnlib.ralib.tools.classanalyzer.FieldConfig;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
-public class SULAnalyzerFactory implements ParallelizableSULFactory{
-	
+public class SULAnalyzerFactory implements SULFactory{
 	private Class<? extends ConcreteSUL> sulClass;
 	private LinkedHashMap<String, ParameterizedSymbol> outputLookup;
 	private FieldConfig fieldConfigurator;

@@ -35,10 +35,6 @@ public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTE
 		boolean semanticEquiv = syntacticEquiv;
 		if (!syntacticEquiv) {
 			semanticEquiv = this.logic.areEquivalent(sdt1, new PIV(), guard1.toExpr(), sdt2, new PIV(), guard2.toExpr(), this.guardContext);
-//			if (semanticEquiv != syntacticEquiv) {
-//				System.err.println(guard1 + " " + sdt1 + "\n" + guard2 + " " + sdt2);
-//				System.exit(0);
-//			}
 		}
 		
 		return semanticEquiv;

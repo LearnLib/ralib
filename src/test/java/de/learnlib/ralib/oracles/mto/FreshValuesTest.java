@@ -80,7 +80,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
     
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers, consts));
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

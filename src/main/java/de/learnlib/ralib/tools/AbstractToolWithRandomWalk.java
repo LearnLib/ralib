@@ -135,14 +135,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 			"suffixopt.except", "Do not use suffix optimization for these suffix parameters. Parameters given in form: input1_name.p1;"
 					+ "input2_name.p2, p index from 1 to(incl.) arrity", null, true);
 
-
-	protected static final ConfigurationOption.IntegerOption OPTION_SUL_INSTANCES = new ConfigurationOption.IntegerOption(
-			"sul.instances",
-			"Number of sul instances to be run in parallel by tree queries. If set to more than 1, enables concurrent processing"
-					+ "on all theories. The SUL must be fork-able. Forking is the way by which separate independent SUL instances are"
-					+ "generated. ",
-			1, true);
-
 	protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_MODEL = new ConfigurationOption.BooleanOption(
 			"export.model", "Export final model to model.xml", Boolean.FALSE, true);
 
@@ -441,9 +433,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 	protected List<Word<PSymbolInstance>> getCanonizedWordsFromString(String debugString,
 			ParameterizedSymbol[] alphabet, Map<DataType, Theory> teachers, Constants consts) {
 		List<Word<PSymbolInstance>> tests = getWordsFromString(debugString, alphabet);
-//		SymbolicTraceCanonizer canonizer = new SymbolicTraceCanonizer(teachers, consts);
-//		List<Word<PSymbolInstance>> canonizedTests = tests.stream().map(w -> canonizer.canonizeTrace(w))
-//				.collect(Collectors.toList());
 		return tests;
 	}
 

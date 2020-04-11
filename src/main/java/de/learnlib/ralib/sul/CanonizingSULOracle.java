@@ -24,9 +24,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A canonizing SULOracle performs canonicalization on the trace + input
- * before executing each input.  
- *  
+ * A canonizing SULOracle which uses specific trace canonizer.  
+ * 
+ * TODO This 
  */
 public class CanonizingSULOracle implements IOOracle{
 
@@ -41,6 +41,10 @@ public class CanonizingSULOracle implements IOOracle{
         this.canonizedSul = canonizedSul;
         this.error = error;
         this.traceCanonizer = traceCanonizer;
+    }
+    
+    public TraceCanonizer getTraceCanonizer() {
+    	return traceCanonizer;
     }
 
     /**

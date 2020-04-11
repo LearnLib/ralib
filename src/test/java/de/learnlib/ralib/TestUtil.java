@@ -90,7 +90,7 @@ public class TestUtil {
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
         IOOracle ioOracle = new BasicSULOracle(sul, error);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, (trace) -> trace);
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         return new MultiTheoryTreeOracle(
                 ioFilter, ioCache, teachers, consts, solver);
@@ -110,7 +110,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle, new SymbolicTraceCanonizer(teachers, consts));
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

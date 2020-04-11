@@ -19,6 +19,7 @@ package de.learnlib.ralib.oracles.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -30,7 +31,8 @@ public interface IOOracle {
     
 	/**
 	 * Transforms a i/o query into a valid trace of the system by preserving the input symbols, 
-	 * while relabeling their parameters and changing the outputs according to the system's response. 
+	 * while relabeling their parameter values and changing the outputs according to the system's response.
+	 * This process is also called canonization/canonicalization. 
 	 * </p>
 	 * Used for counterexample reduction operations, wherein a section of a trace is cut out.
 	 * What is left might not belong to the system's traces. 
@@ -40,6 +42,13 @@ public interface IOOracle {
 	 *  
 	 */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
+    
+    /**
+     * Returns the canonizer function used to relabel parameter values.
+     */
+    public default TraceCanonizer getTraceCanonizer() {
+    	return x -> x;
+    }
     
     /**
      * Batch traces. By default, traces are executed sequentially, one at a time.

@@ -31,23 +31,4 @@ public class InputCounter {
         return inputs;
     }
     
-    public InputCounter asThreadSafe() {
-    	ThreadSafeInputCounter ic = new ThreadSafeInputCounter();
-    	ic.countInputs(this.inputs);
-    	ic.countResets(this.resets);
-    	return ic;
-    }
-    
-    
-    static class ThreadSafeInputCounter extends InputCounter {
-		
-    	public synchronized void countResets(int n) {
-    		super.countResets(n);
-    	}
-    	
-    	public synchronized void countInputs(int n) {
-    		super.countInputs(n);
-    	}
-    }
-    
 }

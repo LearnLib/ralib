@@ -649,9 +649,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private Map<SDTGuard, SDT> treeQueriesForInstantiations(Map<SDTGuard, DataValue<T>> guardDvs, GeneralizedSymbolicSuffix suffix, SDTConstructor oracle, Word<PSymbolInstance> prefix, WordValuation wordVals, PIV piv, Constants constants, SuffixValuation suffixVals) {
 		int pId = wordVals.size() +1;
 		SuffixValue sv = suffix.getDataValue(pId);
-		Map<SDTGuard, SDTQuery> answers = new LinkedHashMap<>();
 		final Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
-		List<SDTQuery> queries = new ArrayList<>(guardDvs.size());
 		
 		for (SDTGuard sdtGuard : guardDvs.keySet()) {
 			DataValue<T> dv = guardDvs.get(sdtGuard);
@@ -661,13 +659,10 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			newSuffixVals.put(sv, dv);
 			newSuffixVals.addSuffGuard(sdtGuard);
 			SDTQuery sdtQuery = new SDTQuery(newWordVals, newSuffixVals);
-			queries.add(sdtQuery);
-			answers.put(sdtGuard, sdtQuery);
+			SDT sdt = oracle.treeQuery(prefix, suffix, sdtQuery.getWordValuation(), piv, constants, sdtQuery.getSuffValuation());
+			tempKids.put(sdtGuard, sdt);
 		}
 		
-		oracle.processTreeQueryBatch(queries, prefix, suffix, piv, constants);
-		
-		answers.forEach((g, ans) -> tempKids.put(g, ans.getAnswer()));
 		return tempKids;
 	}
 	

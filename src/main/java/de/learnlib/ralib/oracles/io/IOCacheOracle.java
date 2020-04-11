@@ -29,9 +29,12 @@ import net.automatalib.words.Word;
 
 /**
  * The IOCacheOracle is caching-enabled DataWordOracle.
- * It maintains a cache in which it stores only traces which are first canonized via a {@link TraceCanonizer}. 
- * All queries are canonized, and then searched for in the cache. 
- * @author falk
+ * All queries are canonized via a {@link TraceCanonizer}, and then searched for in the cache.
+ * If the answer is not found, the encapsulated {@link IOOracle} is used.
+ * 
+ * Using a {@link TraceCanonizer} enables support also for storing 
+ *   
+ * @author falk, paul
  */
 public class IOCacheOracle implements DataWordIOOracle {
 
@@ -47,17 +50,13 @@ public class IOCacheOracle implements DataWordIOOracle {
 
     
     public IOCacheOracle(IOOracle sul) {
-    	this(sul, new IOCache(), trace -> trace);
+    	this(sul, new IOCache());
     }
     
-    public IOCacheOracle(IOOracle sul, TraceCanonizer canonizer) {
-    	this(sul, new IOCache(), canonizer);
-    }
-    
-    public IOCacheOracle(IOOracle sul,  IOCache ioCache, TraceCanonizer canonizer) {
+    public IOCacheOracle(IOOracle sul,  IOCache ioCache) {
         this.sul = sul;
         this.ioCache = ioCache;
-        this.traceCanonizer = canonizer;
+        this.traceCanonizer = sul.getTraceCanonizer();
     }
 
     @Override

@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.Collection;
 import java.util.List;
 
 import de.learnlib.ralib.data.Constants;
@@ -44,15 +43,4 @@ public interface SDTConstructor {
     public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval, 
             List<SDTGuard> guards, SDT ... sdts);    
-    
-    /**
-     *  Batch processing for tree queries. Allows us to squeeze in concurrent execution.
-     */
-    public default void processTreeQueryBatch(Collection<SDTQuery> sdtQueries,  Word<PSymbolInstance> prefix, GeneralizedSymbolicSuffix suffix, 
-    		PIV piv, Constants constants) {
-    	for (SDTQuery sdtQuery : sdtQueries) {
-    		SDT sdt = this.treeQuery(prefix, suffix, sdtQuery.getWordValuation(), piv, constants, sdtQuery.getSuffValuation());
-    		sdtQuery.setAnswer(sdt);
-    	}
-    }
 }

@@ -157,7 +157,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 = new OutputSymbol("_io_err", new DataType[]{});
         
        IOOracle back = new BasicSULOracle(sulLearn, ERROR);
-       IOCacheOracle ioCache = new IOCacheOracle(back, new SymbolicTraceCanonizer(teachers, new Constants()));
+       IOCacheOracle ioCache = new IOCacheOracle(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
        

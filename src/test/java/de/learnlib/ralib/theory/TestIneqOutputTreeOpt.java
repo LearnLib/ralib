@@ -85,7 +85,7 @@ public class TestIneqOutputTreeOpt extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle sulOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle sulCache = new IOCacheOracle(sulOracle, trace -> trace);
+        IOCacheOracle sulCache = new IOCacheOracle(sulOracle);
         IOFilter sulFilter = new IOFilter(sulCache, inputs);
 
         DataWordSUL hyp = new SimulatorSUL(hypModel, teachers, consts);
