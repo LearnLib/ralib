@@ -157,8 +157,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
-        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminizerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, ModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
@@ -231,7 +230,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminizerDataWordSUL(teachers, consts, sul), ModerateFreshTCPSUL.ERROR, teachers, 
+                sul, ModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
@@ -296,7 +295,7 @@ public class TestModerateTCPTree extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminizerDataWordSUL(teachers, consts, sul), IntModerateFreshTCPSUL.ERROR, teachers, 
+                sul, IntModerateFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         DataValueConstructor<Integer> b = new DataValueConstructor<>(IntModerateFreshTCPSUL.INT_TYPE);

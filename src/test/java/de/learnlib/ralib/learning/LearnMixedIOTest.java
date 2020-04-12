@@ -105,7 +105,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createMTO(hyp, teachers, consts, jsolv);
+                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, jsolv);
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 

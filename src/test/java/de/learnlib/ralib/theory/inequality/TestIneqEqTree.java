@@ -18,33 +18,32 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import net.automatalib.words.Word;
-import org.testng.annotations.Test;
-
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
-import de.learnlib.ralib.utils.SDTAssert;
-
-import java.util.logging.Level;
-import org.testng.Assert;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
  *

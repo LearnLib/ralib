@@ -34,9 +34,10 @@ public interface IOOracle {
 	 * while relabeling their parameter values and changing the outputs according to the system's response.
 	 * This process is also called canonization/canonicalization. 
 	 * </p>
-	 * Used for counterexample reduction operations, wherein a section of a trace is cut out.
+	 * Used in counterexample reduction operations, wherein a section of a trace is cut out.
 	 * What is left might not belong to the system's traces. 
 	 * This operation "repairs" the trace.
+	 * Also used when performing tree IO tree queries.
 	 * 
 	 * @param query - an input/output word
 	 *  

@@ -8,7 +8,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.theory.inequality.DiscreteDomainInequalityMerger;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
-public class IntegerInequalityTheory  extends NumberInequalityTheory<Integer> implements TypedTheory<Integer>{
+public abstract class IntegerInequalityTheory  extends NumberInequalityTheory<Integer> implements TypedTheory<Integer>{
 
     public IntegerInequalityTheory() {
     	super(new DiscreteDomainInequalityMerger());

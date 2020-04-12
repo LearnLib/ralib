@@ -77,7 +77,7 @@ public class LearnPQTest extends RaLibTestSuite {
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createMTO(hyp,  teachers, new Constants(), jsolv);
+                TestUtil.createBasicSimulatorMTO(hyp,  teachers, new Constants(), jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, 
                 mlo, consts, teachers, hypVerifier, jsolv,

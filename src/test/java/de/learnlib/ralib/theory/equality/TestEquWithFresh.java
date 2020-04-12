@@ -31,8 +31,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.example.fresh.SessionManagerSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -45,7 +43,7 @@ import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.utils.SDTBuilder;
+import de.learnlib.ralib.utils.SDTAssert;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -54,31 +52,6 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public class TestEquWithFresh extends RaLibTestSuite {
-	
-	@Test
-	public void testSULCanonizer() {
-//    	SessionManagerSUL sul = new SessionManagerSUL();
-//    	DataValueConstructor<Integer> b = new DataValueConstructor<>(SessionManagerSUL.INT_TYPE); 
-//
-//    	IntegerEqualityTheory theory = new IntegerEqualityTheory(SessionManagerSUL.INT_TYPE);
-//
-//				final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-//       teachers.put(SessionManagerSUL.INT_TYPE, 
-//    		   theory);
-//       CanonizingSULOracle sulOracle = new CanonizingSULOracle(new DeterminedDataWordSUL(() -> ValueCanonizer.buildNew(teachers), sul), SessionManagerSUL.ERROR,
-//    		   () -> ValueCanonizer.buildNew(teachers));
-//       Word<PSymbolInstance> test = Word.fromSymbols( new PSymbolInstance(SessionManagerSUL.ISESSION,
-//               new DataValue(SessionManagerSUL.INT_TYPE, 0)),
-//    		      new PSymbolInstance(SessionManagerSUL.OSESSION,
-//                          new DataValue(SessionManagerSUL.INT_TYPE, 3)),
-//                  new PSymbolInstance(SessionManagerSUL.ILOGIN,
-//               		   new DataValue(SessionManagerSUL.INT_TYPE, 0),
-//               		   new DataValue(SessionManagerSUL.INT_TYPE, 1))
-//                  , new PSymbolInstance(SessionManagerSUL.OK)
-//    		   );
-//		Word<PSymbolInstance> actual = sulOracle.trace(test);
-//		Assert.assertNotNull(actual);
-	}
 	
     @Test
     public void testDeterminizer() {
@@ -160,7 +133,6 @@ public class TestEquWithFresh extends RaLibTestSuite {
            teachers.put(SessionManagerSUL.INT_TYPE, 
         		   theory);
            
-           
            JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
            MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                    sul, SessionManagerSUL.ERROR, teachers, 
@@ -178,9 +150,6 @@ public class TestEquWithFresh extends RaLibTestSuite {
                    new PSymbolInstance(SessionManagerSUL.OK));
            
            final Word<PSymbolInstance> prefix = Word.epsilon(); 
-//        		   Word.fromSymbols(
-//                   new PSymbolInstance(SessionManagerSUL.ISESSION,
-//                           new DataValue(SessionManagerSUL.INT_TYPE, 1)));
            
            // create a symbolic suffix from the concrete suffix
            // symbolic data values: s1, s2 (userType, passType)
@@ -191,47 +160,29 @@ public class TestEquWithFresh extends RaLibTestSuite {
            TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
            SymbolicDecisionTree sdt = res.getSdt();
            
-           /*
-            *   
-			[]-TRUE: s1
-			        []-(s2=s1)
-			         |    []-TRUE: s3
-			         |          []-TRUE: s4
-			         |                [Leaf-]
-			         +-(s2!=s1)
-			              []-(s3=s1)
-			               |    []-(s4=s2)
-			               |     |    [Leaf+]
-			               |     +-(s4!=s2)
-			               |          [Leaf-]
-			               +-(s3!=s1)
-			                    []-TRUE: s4
-			                          [Leaf-]
-            */
-           final String expectedTree = new SDTBuilder(SessionManagerSUL.INT_TYPE)
-        		   .tru().eq("s1").tru().tru().reject().down(1)
-        		   		 .deq("s1").eq("s1").eq("s2") .accept().up()
-        		   							.deq("s2").reject().up(2)
-        		   				   .deq("s1").tru().reject().root().build().toString();
+           final String expectedTree = "[]-+\n"+
+        		   "  []-TRUE: s1\n"+
+        		   "        []-TRUE: s2\n"+
+        		   "              []-(s3=s1)\n"+
+        		   "               |    []-(s4=s2)\n"+
+        		   "               |     |    [Leaf+]\n"+
+        		   "               |     +-(s4!=s2)\n"+
+        		   "               |          [Leaf-]\n"+
+        		   "               +-(s3!=s1)\n"+
+        		   "                    []-TRUE: s4\n"+
+        		   "                          [Leaf-]\n";
         		   
            
            String tree = sdt.toString();
-           Assert.assertEquals(tree, expectedTree);
+           SDTAssert.assertEquals(tree, expectedTree);
            logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
-           Parameter p1 = new Parameter(SessionManagerSUL.INT_TYPE, 1);
-           Parameter p2 = new Parameter(SessionManagerSUL.INT_TYPE, 2);
-           Parameter p3 = new Parameter(SessionManagerSUL.INT_TYPE, 3);
-
            PIV testPiv = new PIV();
-           testPiv.put(p1, new Register(SessionManagerSUL.INT_TYPE, 1));
-           testPiv.put(p2, new Register(SessionManagerSUL.INT_TYPE, 2));
-           testPiv.put(p3, new Register(SessionManagerSUL.INT_TYPE, 3));
 
            Branching b = mto.getInitialBranching(
                    prefix, SessionManagerSUL.ISESSION, testPiv, sdt);
 
-           Assert.assertEquals(b.getBranches().size(), 2);
+           Assert.assertEquals(b.getBranches().size(), 1);
            logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
    

@@ -37,6 +37,7 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
+import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
@@ -71,18 +72,21 @@ public class TestUtil {
         return new JConstraintsConstraintSolver(solver);        
     } 
 
+    /**
+     * Creates an MTO with support for fresh values.
+     */
     public static MultiTheoryTreeOracle createMTOWithFreshValueSupport(
             DataWordSUL sul, ParameterizedSymbol error,  
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
-        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new SymbolicTraceCanonizer(teachers, consts));
+        IOOracle ioOracle = new CanonizingSULOracle(new DeterminizerDataWordSUL(teachers, consts, sul), error, new SymbolicTraceCanonizer(teachers, consts));
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
     
     
     /**
-     * Creates a MTO without fresh value support.
+     * Creates an MTO without fresh value support.
      */
     public static MultiTheoryTreeOracle createBasicMTO(
             DataWordSUL sul, ParameterizedSymbol error,  
@@ -96,15 +100,6 @@ public class TestUtil {
                 ioFilter, ioCache, teachers, consts, solver);
     }
     
-//    public static MultiTheoryTreeOracle createMTO(
-//            DataWordSUL sul, ParameterizedSymbol error,  
-//            Map<DataType, Theory> teachers, Constants consts, 
-//            ConstraintSolver solver, ParameterizedSymbol ... inputs) {
-//        
-//        IOOracle ioOracle = new CanonizingSULOracle(sul, error, new TraceCanonizer(teachers));
-//        return createMTO(ioOracle, teachers, consts, solver, inputs);
-//    }
-        
     public static MultiTheoryTreeOracle createMTO(
             IOOracle ioOracle, 
             Map<DataType, Theory> teachers, Constants consts, 
@@ -119,9 +114,12 @@ public class TestUtil {
         return mto;
     }
     
-    public static MultiTheoryTreeOracle createMTO(RegisterAutomaton regAutomataon, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
-	    DataWordOracle hypOracle = new SimulatorOracle(regAutomataon);
-	    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(regAutomataon, teachers, consts);
+    /**
+     * Creates an MTO without fresh value support by simulating an RA.
+     */
+    public static MultiTheoryTreeOracle createBasicSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
+	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
+	    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(regAutomaton, teachers, consts);
 	    IOOracle hypTraceOracle = new BasicSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR);  
 	    return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
     }

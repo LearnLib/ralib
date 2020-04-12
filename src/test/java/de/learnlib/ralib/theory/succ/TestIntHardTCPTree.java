@@ -152,7 +152,7 @@ public class TestIntHardTCPTree {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminizerDataWordSUL(teachers, consts, sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                sul, IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         GeneralizedSymbolicSuffix symSuffix = symSuffProvider.apply(teachers, consts);
@@ -199,7 +199,7 @@ public class TestIntHardTCPTree {
         
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                new DeterminizerDataWordSUL(teachers, consts, sul), IntHardFreshTCPSUL.ERROR, teachers, 
+                sul, IntHardFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
         SliceBuilder sb = new SliceBuilder(teachers, consts, jsolv);

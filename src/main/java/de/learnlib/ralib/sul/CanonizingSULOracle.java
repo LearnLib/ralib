@@ -26,7 +26,6 @@ import net.automatalib.words.Word;
 /**
  * A canonizing SULOracle which uses specific trace canonizer.  
  * 
- * TODO This 
  */
 public class CanonizingSULOracle implements IOOracle{
 

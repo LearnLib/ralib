@@ -41,13 +41,17 @@ import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
+import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
@@ -66,7 +70,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         DoubleInequalityTheory dit = 
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE);
         
-        dit.setUseSuffixOpt(true);
+        dit.setUseSuffixOpt(false);
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, dit);
                 
         
@@ -74,16 +78,24 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
-        IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
+        //IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
+        
+        IOOracle ioOracle = new CanonizingSULOracle(sul, PriorityQueueSUL.ERROR, new SymbolicTraceCanonizer(teachers, consts));
+        
+        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, sul.getInputSymbols());
+      
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, ioCache, teachers, consts, jsolv);
 
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
+//        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+//                ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
 
         MultiTheorySDTLogicOracle mlo
                 = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> TestUtil.createMTO(hyp, teachers, consts, jsolv);
+                -> TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, jsolv);
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         
         RaStar rastar = new RaStar(mto, hypFactory, mlo,

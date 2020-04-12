@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * A runtime exception that can be easily variable valuations at the
  * moment of the exception that help debug it.
+ * 
  */
 public class DecoratedRuntimeException extends RuntimeException {
 

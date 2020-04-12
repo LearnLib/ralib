@@ -48,7 +48,7 @@ public class SymbolicDeterminizer<T extends Comparable<T>> implements Determiniz
 	
 	// returns the resolved value or null, if the value cannot be resolved. The value cannot be resolved if:
 	// 	for SumC the operand is missing
-	//  for Interval data guards, at least one of the endpoints are missing or the interval is invalid (
+	//  for Interval data guards, at least one of the endpoints are missing or the interval is invalid 
 	private DataValue<T> resolveValue(DataValue<T> thisValue, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
 		if (constants.containsValue(thisValue))
 			return thisValue;
@@ -76,7 +76,7 @@ public class SymbolicDeterminizer<T extends Comparable<T>> implements Determiniz
 			if (!Boolean.logicalXor(newRight == null, intv.getRight() == null) && !Boolean.logicalXor(newLeft == null, intv.getLeft() == null)
 					&& (newRight != null || newLeft != null)) {
 				if ((newRight == null || newLeft == null) || (newRight.getId().compareTo(newLeft.getId()) > 0)) {
-					if (newRight != null && newLeft != null) {
+					if (newRight != null && newLeft != null ) {
 						// if intervals are not between values within more than fresh space of each other, we are not interested
 						DataValue fv = this.theory.getFreshValue(Collections.singletonList(newLeft));
 						boolean inSameFreshSpace = (newRight.getId().compareTo((T) fv.getId()) <=0);

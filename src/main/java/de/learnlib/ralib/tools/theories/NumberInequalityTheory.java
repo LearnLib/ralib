@@ -27,7 +27,7 @@ import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 /**
  * A general classs for number inequality theories
  */
-public class NumberInequalityTheory<N extends Comparable<N>> extends InequalityTheoryWithEq<N> {
+public abstract class NumberInequalityTheory<N extends Comparable<N>> extends InequalityTheoryWithEq<N> {
 	protected final class Cpr implements Comparator<DataValue<N>> {
 
 		@Override

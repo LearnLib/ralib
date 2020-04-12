@@ -102,7 +102,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
                 new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createMTO(hyp, teachers, consts, solver);
+                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, solver);
         
                 IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
                 

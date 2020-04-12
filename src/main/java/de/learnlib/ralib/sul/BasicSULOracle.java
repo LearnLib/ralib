@@ -18,11 +18,14 @@ package de.learnlib.ralib.sul;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
+import de.learnlib.ralib.oracles.TraceCanonizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -111,6 +114,65 @@ public class BasicSULOracle implements IOOracle {
             replacements.put(key, ret);
         }
         return ret;
+    }
+    
+    
+    public TraceCanonizer getTraceCanonizer() {
+    	return new BasicTraceCanonizer();
+    }
+    
+    
+    // This trace canonizer should be consistent with the above implementation
+    private static class BasicTraceCanonizer implements TraceCanonizer {
+
+    	@Override
+		public Word<PSymbolInstance> canonizeTrace(Word<PSymbolInstance> trace) {
+		    Iterator<PSymbolInstance> iter = trace.iterator();
+		    Word<PSymbolInstance> canonizedTrace = Word.epsilon();
+		    PSymbolInstance out = null;
+
+		    Map<DataValue, DataValue> replacements = new HashMap<>();
+
+		    while (iter.hasNext()) {
+		        PSymbolInstance in = iter.next();
+
+		        DataValue[] dvInRepl = new DataValue[in.getBaseSymbol().getArity()];
+		        for (int i = 0; i < dvInRepl.length; i++) {
+		            DataValue d = in.getParameterValues()[i];
+		            DataValue r = replacements.get(d);
+		            if (r == null) {
+		                replacements.put(d, d);
+		                r = d;
+		            }
+		            dvInRepl[i] = r;
+		        }
+
+		        in = new PSymbolInstance(in.getBaseSymbol(), dvInRepl);
+		        canonizedTrace = canonizedTrace.append(in);
+		        
+		        if (!iter.hasNext()) {
+		        	return canonizedTrace;
+		        }
+
+		        PSymbolInstance ref = iter.next();
+
+		        DataValue[] dvRefRepl = new DataValue[ref.getBaseSymbol().getArity()];
+
+		        // process new replacements
+		        for (int i = 0; i < dvRefRepl.length; i++) {
+		            DataValue d = ref.getParameterValues()[i];
+		            DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;
+		            dvRefRepl[i] = r;
+		        }
+
+		        ref = new PSymbolInstance(ref.getBaseSymbol(), dvRefRepl);
+		        
+		        canonizedTrace = canonizedTrace.append(ref);
+
+		    }
+			return canonizedTrace;
+		}
+    	
     }
 
 }

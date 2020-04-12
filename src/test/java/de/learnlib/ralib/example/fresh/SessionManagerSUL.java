@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.fresh;
 
-import java.util.function.Supplier;
-
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;

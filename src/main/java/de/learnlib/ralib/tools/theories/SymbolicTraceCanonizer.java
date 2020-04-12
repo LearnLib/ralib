@@ -42,8 +42,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 		MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.newCustom(determinizers, constants);
 
 		try {
-			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false);  
-		
+			Word<PSymbolInstance> canonicalTrace = canonizer.canonize(trace, false); 
 			
 			return canonicalTrace;
 		}catch(DecoratedRuntimeException e) {

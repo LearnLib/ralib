@@ -93,7 +93,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createMTO(hyp, teachers, consts, solver);
+                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, solver);
 
         IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
