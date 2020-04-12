@@ -41,6 +41,8 @@ import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
+import de.learnlib.ralib.utils.SDTAssert;
+
 import java.util.logging.Level;
 import org.testng.Assert;
 
@@ -97,30 +99,25 @@ public class TestIneqEqTree extends RaLibTestSuite {
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
 
-        final String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1!=r2)\n" +
-"         |    []-TRUE: s2\n" +
-"         |          []-TRUE: s3\n" +
-"         |                [Leaf-]\n" +
-"         +-(s1=r2)\n" +
-"              []-(s2=r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2<r1)\n" +
-"               |    []-(s3!=s2)\n" +
-"               |     |    [Leaf-]\n" +
-"               |     +-(s3=s2)\n" +
-"               |          [Leaf+]\n" +
-"               +-(s2>r1)\n" +
-"                    []-(s3!=r1)\n" +
-"                     |    [Leaf-]\n" +
-"                     +-(s3=r1)\n" +
-"                          [Leaf+]\n";
+        final String expectedTree = "[r2, r1]-+\n"+
+"        []-(s1=r2)\n"+
+"         |    []-(s2<=r1)\n"+
+"         |     |    []-(s3=s2)\n"+
+"         |     |     |    [Leaf+]\n"+
+"         |     |     +-(s3!=s2)\n"+
+"         |     |          [Leaf-]\n"+
+"         |     +-(s2>r1)\n"+
+"         |          []-(s3=r1)\n"+
+"         |           |    [Leaf+]\n"+
+"         |           +-(s3!=r1)\n"+
+"         |                [Leaf-]\n"+
+"         +-(s1!=r2)\n"+
+"              []-TRUE: s2\n"+
+"                    []-TRUE: s3\n"+
+"                          [Leaf-]\n"; 
         
         String tree = sdt.toString();
-     //   Assert.assertEquals(tree, expectedTree);
+        Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
         Parameter p1 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 1);
