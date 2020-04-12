@@ -164,14 +164,14 @@ public class TestEqualityTheory extends RaLibTestSuite {
         List<DataValue<?>> leftPwd = new ArrayList<>();
         leftPwd.add(pwds[0]);
         
-        List<EnumSet<DataRelation>> retUid = tUid.getRelations(leftUid, uids[1]);
+        List<EnumSet<DataRelation>> retUid = tUid.getRelations(leftUid, uids[0]);
         List<EnumSet<DataRelation>> retPwd = tPwd.getRelations(leftPwd, pwds[1]);
                
         System.out.println("UID: " + Arrays.toString(retUid.toArray()));
         System.out.println("PWD: " + Arrays.toString(retPwd.toArray()));
         
-        assert retUid.get(0).equals(EnumSet.of(DataRelation.EQ));
-        assert retPwd.get(0).equals(EnumSet.of(DataRelation.DEQ));
+        Assert.assertEquals(retUid.get(0), EnumSet.of(DataRelation.EQ));
+        Assert.assertEquals(retPwd.get(0), EnumSet.of(DataRelation.DEFAULT));
     }
     
 }
