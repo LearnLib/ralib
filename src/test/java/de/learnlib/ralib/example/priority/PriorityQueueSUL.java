@@ -17,8 +17,6 @@
 package de.learnlib.ralib.example.priority;
 
 
-import java.util.function.Supplier;
-
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -62,25 +60,21 @@ public class PriorityQueueSUL extends DataWordSUL {
 
 
     private PQWrapper pqueue;
-    private Supplier<PQWrapper> supplier;
-    
-    public PriorityQueueSUL() {
-    	supplier = () -> new PQWrapper();
-    }
+    private int capacity;
     
     public PriorityQueueSUL(int capacity) {
-    	supplier = () -> new PQWrapper(capacity);
+    	this.capacity = capacity;
     }
 
     @Override
     public void pre() {
         countResets(1);
-        this.pqueue = supplier.get();
+        pqueue = new PQWrapper(capacity);
     }
 
     @Override
     public void post() {
-        this.pqueue = null;
+        pqueue = null;
     }
 
     private PSymbolInstance createOutputSymbol(Object x) {

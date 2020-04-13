@@ -36,7 +36,6 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -56,7 +55,6 @@ import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -105,8 +103,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private Map<DataType, Theory> teachers;
 
-	private IOHypVerifier hypVerifier;
-    
     @Override
     public String description() {
         return "uses an IORA model as SUL";
@@ -176,10 +172,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             }
         };
         
-        this.hypVerifier = new IOHypVerifier(teachers, consts);
-
         this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
-                teachers, hypVerifier, solver, actions);
+                teachers, solver, actions);
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
@@ -190,9 +184,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         			testOracle, this.teachers, consts, random, inputSymbols);            
         }
           
-        this.ceOptLoops = new IOCounterExampleLoopRemover(back, this.hypVerifier);
-        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, this.hypVerifier);                        
-        this.ceOptPref = new IOCounterExamplePrefixFinder(back, this.hypVerifier);
+        this.ceOptLoops = new IOCounterExampleLoopRemover(back);
+        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);                        
+        this.ceOptPref = new IOCounterExamplePrefixFinder(back);
     }
     
     @Override

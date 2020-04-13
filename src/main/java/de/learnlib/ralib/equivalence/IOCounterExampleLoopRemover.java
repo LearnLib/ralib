@@ -54,11 +54,9 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
 
     private final IOOracle sulOracle;
     private RegisterAutomaton hypothesis;
-	private HypVerifier verifier;
 
-    public IOCounterExampleLoopRemover(IOOracle sulOracle, HypVerifier verifier) {
+    public IOCounterExampleLoopRemover(IOOracle sulOracle) {
         this.sulOracle = sulOracle;
-        this.verifier = verifier;
     }
 
     @Override
@@ -100,7 +98,8 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
                 System.out.println("shorter:" + shorter);
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
-                if (verifier.isCEForHyp(candidate, hypothesis)) {
+                DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<PSymbolInstance, Boolean>(candidate, Boolean.TRUE);
+                if (HypVerify.isCEForHyp(ceQuery, hypothesis)) {
                     return removeLoops(candidate, hyp);
                 }
             }

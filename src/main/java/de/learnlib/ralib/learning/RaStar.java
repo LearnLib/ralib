@@ -20,7 +20,7 @@ import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.HypVerifier;
+import de.learnlib.ralib.equivalence.HypVerify;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -65,8 +65,6 @@ public class RaStar {
     
     private final boolean ioMode;
 
-	private HypVerifier hypVerifier;
-    
     private final Map<DataType, Theory> teachers;
 
     private final ConstraintSolver solver;
@@ -76,7 +74,6 @@ public class RaStar {
     public RaStar(TreeOracle oracle, TreeOracle ceSulOracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             Map<DataType, Theory> teachers,
-            HypVerifier hypVerifier,
             ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
         
@@ -100,26 +97,25 @@ public class RaStar {
         this.ceSulOracle = ceSulOracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
-        this.hypVerifier = hypVerifier;
     }   
     
     public RaStar(TreeOracle oracle,TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             Map<DataType, Theory> teachers,
-            HypVerifier hypVerifier, ConstraintSolver solver,
+            ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
     	this(oracle, oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, 
-                teachers, hypVerifier, solver, inputs);
+                teachers, solver, inputs);
     	
     }   
     
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts,  Map<DataType, Theory> teachers, 
-            HypVerifier hypVerifier, ConstraintSolver solver,
+            ConstraintSolver solver,
             ParameterizedSymbol ... inputs) {
         
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, 
-                teachers, hypVerifier, solver, inputs);
+                teachers, solver, inputs);
     }
         
     public void learn() {
@@ -169,7 +165,7 @@ public class RaStar {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
         // check if ce still is a counterexample ...
-        if (!hypVerifier.isCEForHyp(ce.getInput(), hyp)) {
+        if (!HypVerify.isCEForHyp(ce, hyp)) {
             log.logEvent("word is not a counterexample: " + ce);           
             counterexamples.poll();
             return false;

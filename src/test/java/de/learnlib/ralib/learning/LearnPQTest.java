@@ -38,8 +38,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.equivalence.AcceptHypVerifier;
-import de.learnlib.ralib.equivalence.HypVerifier;
+import de.learnlib.ralib.equivalence.HypVerify;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -73,14 +72,13 @@ public class LearnPQTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, null, teachers, new Constants(), jsolv);
         
-        HypVerifier hypVerifier = new AcceptHypVerifier();
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 TestUtil.createBasicSimulatorMTO(hyp,  teachers, new Constants(), jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, 
-                mlo, consts, teachers, hypVerifier, jsolv,
+                mlo, consts, teachers, jsolv,
                 OFFER, POLL);
 
         rastar.learn();
@@ -108,6 +106,27 @@ public class LearnPQTest extends RaLibTestSuite {
         
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        Assert.assertFalse(hypVerifier.isCEForHyp(ce, hyp));
+        Assert.assertFalse(HypVerify.isCEForHyp(ceQuery, hyp));
+        
+        
+        ce = Word.fromSymbols(
+                new PSymbolInstance(OFFER,
+                        new FreshValue(doubleType, 1.0)),
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 2.0)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, 2.0)));
+        
+        ceQuery = new DefaultQuery(ce);
+        dwOracle.processQueries(Collections.singleton(ceQuery));
+
+        rastar.addCounterexample(ceQuery);
+
+        rastar.learn();
+        
+        hyp = rastar.getHypothesis();
+        logger.log(Level.FINE, "HYP3: {0}", hyp);
+        Assert.assertFalse(HypVerify.isCEForHyp(ceQuery, hyp));
+        
     }
 }

@@ -33,11 +33,10 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -106,10 +105,9 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, jsolv);
-        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
-                teachers, hypVerifier, jsolv, actions);
+                teachers,  jsolv, actions);
         
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -123,9 +121,9 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 teachers,
                 inputs);
         
-        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);                        
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
+        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
                                                 
         int check = 0;
         while (true && check < 100) {

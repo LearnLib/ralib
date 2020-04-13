@@ -24,9 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -37,7 +34,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
+import de.learnlib.ralib.equivalence.HypVerify;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL.Actions;
@@ -62,6 +59,9 @@ import net.automatalib.words.Word;
  *
  * @author Bharat Garhewal
  */
+/*
+ * The test involves learning a system with few locations but complex guards. 
+ */
 public class LearnBharatExampleTest {
 
     public static final DataType doubleType = new DataType("DOUBLE", Double.class);
@@ -71,15 +71,6 @@ public class LearnBharatExampleTest {
 
     @Test
     public void LearnBharatExampleIO() {
-
-        Logger root = Logger.getLogger("");
-        root.setLevel(Level.INFO);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(Level.INFO);
-//            h.setFilter(new CategoryFilter(EnumSet.of(
-//                   Category.EVENT, Category.PHASE, Category.MODEL, Category.SYSTEM)));
-//                    Category.EVENT, Category.PHASE, Category.MODEL)));
-        }
 
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
@@ -143,9 +134,7 @@ public class LearnBharatExampleTest {
             }
         };
         
-        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
-
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, hypVerifier, TestUtil.getZ3Solver(), actionArray);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, TestUtil.getZ3Solver(), actionArray);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -187,15 +176,38 @@ public class LearnBharatExampleTest {
         }
         
         RegisterAutomaton hyp = rastar.getHypothesis();
-
-        PSymbolInstance inp = new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 2.0));
-        PSymbolInstance out = new PSymbolInstance(NOK);
-//        Word<PSymbolInstance> badTrace = Word.fromSymbols(inp, new PSymbolInstance(NOK));
-//        GeneralizedSymbolicSuffix gsuffix = GeneralizedSymbolicSuffix.fullSuffix(Word.fromSymbols(PUT, NOK), teachers);
         
-        boolean isCE = hypVerifier.isCEForHyp(Word.fromSymbols(inp, out), hyp);
-        Assert.assertFalse(isCE);
+        PSymbolInstance [][] tests = {
+        		{
+        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 2.0)), 
+        			new PSymbolInstance(NOK)
+        		},
+        		{
+        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 3.0), new DataValue(doubleType, 2.0)),
+        			new PSymbolInstance(OK)
+        		},
+        		{
+        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 3.0)),
+        			new PSymbolInstance(OK)
+        		},
+        		{
+        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 3.0)),
+        			new PSymbolInstance(OK)
+        		},
+        		{
+        			new PSymbolInstance(PUT, new DataValue(doubleType, 3.0), new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0)),
+        			new PSymbolInstance(NOK)
+        		}
+        };
 
+        for (PSymbolInstance [] test : tests) {
+        	DefaultQuery<PSymbolInstance, Boolean> ceQuery = 
+            		new DefaultQuery<PSymbolInstance, Boolean>(Word.fromSymbols(test), Boolean.TRUE);
+        	boolean isCE = HypVerify.isCEForHyp(ceQuery, hyp);
+            Assert.assertFalse(isCE);	
+        }
+        
+        
         System.out.println(
                 "LAST:------------------------------------------------");
         System.out.println(hyp);

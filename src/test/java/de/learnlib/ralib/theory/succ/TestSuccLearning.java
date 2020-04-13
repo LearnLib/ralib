@@ -16,49 +16,6 @@
  */
 package de.learnlib.ralib.theory.succ;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.testng.annotations.Test;
-
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.util.RAToDot;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonLoaderTest;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
-import de.learnlib.ralib.equivalence.IORandomWalk;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.RaStar;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.BasicSULOracle;
-import de.learnlib.ralib.sul.SimulatorSUL;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-
 /**
  *
  * @author falk

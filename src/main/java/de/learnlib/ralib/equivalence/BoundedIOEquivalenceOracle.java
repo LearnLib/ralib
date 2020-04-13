@@ -76,12 +76,12 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 		if (resetRuns) {
 			runs = 0;
 		}
-		int tens = 1;
+
 		// find counterexample ...
 		while (runs < maxRuns) {
 			List<Word<PSymbolInstance>> hypTraces = new ArrayList<Word<PSymbolInstance>>(batchSize); 
 			for (int i=0; i<batchSize; i++) {
-				Word<PSymbolInstance> hypTrace = this.traceGenerator.generateTrace(hyp);
+				Word<PSymbolInstance> hypTrace = traceGenerator.generateTrace(hyp);
 				if (!testPurpose.isSatisfied(hypTrace)) {
 					i--;
 					continue;
@@ -89,7 +89,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 				hypTrace = traceCanonizer.canonizeTrace(hypTrace);
 				hypTraces.add(hypTrace);
 			}
-			List<Word<PSymbolInstance>> sulTraces = this.target.traces(hypTraces);
+			List<Word<PSymbolInstance>> sulTraces = target.traces(hypTraces);
 			//sulTraces.forEach( tr -> System.out.println(tr));
 			runs = runs+batchSize;
 			for (int i=0; i<batchSize; i++) {
@@ -100,12 +100,12 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 				if (!hypTrace.equals(sulTrace)) {
 					System.out.println("SUL Trace " + sulTrace.toString());
 					System.out.println("HYP Trace " + hypTrace.toString());
-					Word<PSymbolInstance> newSulTrace = this.target.trace(sulTrace);
+					Word<PSymbolInstance> newSulTrace = target.trace(sulTrace);
 					assert newSulTrace.equals(sulTrace);
 					int j;
 					for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);
 					System.out.println("HYP Run: " + hypRun(hyp, sulTrace.prefix(j+1)));
-					return new DefaultQuery<>(sulTrace.prefix(j+1));
+					return new DefaultQuery<>(sulTrace.prefix(j+1), Boolean.TRUE);
 				}
 			}
 			

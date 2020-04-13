@@ -33,11 +33,11 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.HypVerify;
+import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -47,7 +47,6 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -78,7 +77,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL(3);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
-        //IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
+//        IOOracle ioOracle = new BasicSULOracle(sul, PriorityQueueSUL.ERROR);
         
         IOOracle ioOracle = new CanonizingSULOracle(sul, PriorityQueueSUL.ERROR, new SymbolicTraceCanonizer(teachers, consts));
         
@@ -96,10 +95,9 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
                 -> TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, jsolv);
-        IOHypVerifier hypVerifier = new IOHypVerifier(teachers, consts);
         
         RaStar rastar = new RaStar(mto, hypFactory, mlo,
-                consts, true, teachers, hypVerifier, jsolv,
+                consts, true, teachers, jsolv,
                 sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,
@@ -114,9 +112,9 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 teachers,
                 sul.getInputSymbols());
 
-        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
+        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle);
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
+        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
         DefaultQuery<PSymbolInstance, Boolean> ce = null;
 
         int check = 0;
@@ -126,7 +124,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
             Hypothesis hyp = rastar.getHypothesis();
             if (ce != null) {
             	// the last CE should not be a CE for the current hypothesis
-            	Assert.assertFalse(hypVerifier.isCEForHyp(ce.getInput(), hyp));
+            	Assert.assertFalse(HypVerify.isCEForHyp(ce, hyp));
             }
   
             ce = iowalk.findCounterExample(hyp, null);
@@ -137,9 +135,11 @@ public class LearnPQIOTest extends RaLibTestSuite {
             }
 
             ce = loops.optimizeCE(ce.getInput(), hyp);
+            Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
             ce = asrep.optimizeCE(ce.getInput(), hyp);
+            Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
             ce = pref.optimizeCE(ce.getInput(), hyp);
-            Assert.assertNotNull(hypVerifier.isCEForHyp(ce.getInput(), hyp));
+            Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
             rastar.addCounterexample(ce);
         }
 

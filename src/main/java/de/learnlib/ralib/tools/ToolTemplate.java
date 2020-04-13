@@ -26,7 +26,6 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
 import de.learnlib.ralib.equivalence.IOCounterExampleSingleTransitionRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
-import de.learnlib.ralib.equivalence.IOHypVerifier;
 import de.learnlib.ralib.equivalence.TracesEquivalenceOracle;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -104,7 +103,6 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
 	private DataWordIOOracle ceAnalysisOracle;
 	private IOOracle testOracle;
 	private Counters counters;
-	private IOHypVerifier hypVerifier;
 	private IOOracle sulReductionTraceOracle;
 	private RaStar rastar;
 	private TracesEquivalenceOracle traceTester;
@@ -229,11 +227,9 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
                 return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
             }
         };
-        
-        hypVerifier = new IOHypVerifier(teach, consts);
 
         rastar = new RaStar(mto, ceMto, hypFactory, mlo, consts, 
-                true, teachers, hypVerifier, solver, sulParser.getAlphabet());
+                true, teachers, solver, sulParser.getAlphabet());
         
         if (findCounterexamples) { 
         	this.testOracle = 
@@ -256,11 +252,11 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         }
         
 
-        ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle, hypVerifier);
-        ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle, hypVerifier);
-        ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle, hypVerifier);
-        ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle, hypVerifier);
-        ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, solver, sulReductionTraceOracle, hypVerifier);
+        ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle);
+        ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle);
+        ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle);
+        ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle);
+        ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, solver, sulReductionTraceOracle);
 	}
 	
 	

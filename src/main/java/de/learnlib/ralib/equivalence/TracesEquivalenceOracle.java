@@ -17,12 +17,10 @@ import net.automatalib.words.Word;
 public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutomaton, PSymbolInstance, Boolean> {
 
 	private List<Word<PSymbolInstance>> testTraces;
-	private IOHypVerifier hypVerifier;
 	private IOOracle testOracle;
 
 	public TracesEquivalenceOracle(IOOracle testOracle, Map<DataType, Theory> teachers, Constants constants,
 			List<Word<PSymbolInstance>> tests) {
-		this.hypVerifier = new IOHypVerifier(teachers, constants);
 		this.testTraces = tests;
 		this.testOracle = testOracle;
 	}
@@ -30,11 +28,11 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 
 	public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(RegisterAutomaton hypothesis,
 			Collection<? extends PSymbolInstance> inputs) {
-		System.out.println("Executing conformance tests:");
 		for (Word<PSymbolInstance> testWord : testTraces) {
 			Word<PSymbolInstance> sulTrace = testOracle.trace(testWord);
+			DefaultQuery<PSymbolInstance, Boolean> ce = new DefaultQuery<>(sulTrace, true);
 
-			if (hypVerifier.isCEForHyp(sulTrace, hypothesis))
+			if (HypVerify.isCEForHyp(ce, hypothesis))
 				return new DefaultQuery<>(sulTrace, true);
 		}
 		
