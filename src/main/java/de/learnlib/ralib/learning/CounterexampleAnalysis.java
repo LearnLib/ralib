@@ -16,7 +16,9 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -205,7 +207,8 @@ public class CounterexampleAnalysis {
         SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
         
         Mapping<SymbolicDataValue, DataValue<?>> contextValuation = new Mapping<SymbolicDataValue, DataValue<?>>();
-		DataValue<?> [] values = DataWords.valsOf(prefix);
+        DataValue [] values = DataWords.valsOf(location);
+        
 		resSul.getPiv().forEach((param, reg) 
 				-> contextValuation.put(reg, values[param.getId()-1]));
         
