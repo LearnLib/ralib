@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -401,13 +402,18 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return FalseGuardExpression.FALSE;
         }
-        GuardExpression dis = null;
-        for (List<SDTGuard> list : paths) {
-            Conjunction con = toPathExpression(list);
-            dis = (dis == null) ? con : new Disjunction(dis, con);
+        
+        if (paths.size() == 1) {
+        	Conjunction con = toPathExpression(paths.get(0));
+        	return con;
+        } else {
+        	List<GuardExpression> disjuncts = new LinkedList<>();
+        	for (List<SDTGuard> list : paths) {
+                Conjunction con = toPathExpression(list);
+                disjuncts.add(con);
+            }
+        	return new Disjunction(disjuncts.toArray(new GuardExpression[disjuncts.size()]));
         }
-
-        return dis;
     }
     
     GuardExpression getRejectingPaths() {
@@ -416,13 +422,18 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return FalseGuardExpression.FALSE;
         }
-        GuardExpression dis = null;
-        for (List<SDTGuard> list : paths) {
-            Conjunction con = toPathExpression(list);
-            dis = (dis == null) ? con : new Disjunction(dis, con);
+        
+        if (paths.size() == 1) {
+        	Conjunction con = toPathExpression(paths.get(0));
+        	return con;
+        } else {
+        	List<GuardExpression> disjuncts = new LinkedList<>();
+        	for (List<SDTGuard> list : paths) {
+                Conjunction con = toPathExpression(list);
+                disjuncts.add(con);
+            }
+        	return new Disjunction(disjuncts.toArray(new GuardExpression[disjuncts.size()]));
         }
-
-        return dis;
     }
 
     List<Conjunction> getPathsAsExpressions(boolean accepting) {

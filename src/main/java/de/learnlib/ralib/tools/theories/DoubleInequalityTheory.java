@@ -24,7 +24,6 @@ import java.util.List;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.theory.inequality.ContinuousDomainInequalityMerger;
-import de.learnlib.ralib.theory.inequality.InequalityGuardLogic;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
@@ -35,7 +34,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 public class DoubleInequalityTheory extends NumberInequalityTheory<Double> implements TypedTheory<Double> {
 
     public DoubleInequalityTheory() {
-    	super(new ContinuousDomainInequalityMerger(new InequalityGuardLogic()));
+    	super(new ContinuousDomainInequalityMerger());
     }
 
     public DoubleInequalityTheory(DataType<Double> t) {

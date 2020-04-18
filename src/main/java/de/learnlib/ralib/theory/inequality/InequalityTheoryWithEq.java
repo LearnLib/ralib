@@ -759,7 +759,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	/**
 	 * Instantiates the guard over the symbol {@ps param} for the given values.
 	 * If guard is satisfiable, returns a DataValue containing the concrete
-	 * value, but also symbolic information on how it was originated. Otherwise,
+	 * value, but also symbolic information on how it was constructed. Otherwise,
 	 * returns null.
 	 * 
 	 * This method had to be adapted in order to also decorate the data values

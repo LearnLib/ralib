@@ -34,16 +34,6 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 		this.traceCanonizer = traceCanonizer;
 	}
 	
-	public BoundedIOEquivalenceOracle(DataWordSUL target,  TraceCanonizer traceCanonizer, long maxRuns, boolean resetRuns) {
-		
-		this.maxRuns = maxRuns;
-		this.resetRuns = resetRuns;
-		this.target = new BasicSULOracle(target, SpecialSymbols.ERROR);
-		this.runs = 0;
-		this.traceCanonizer = traceCanonizer;
-		
-	}
-	
 	/**
 	 * Execute in batches instead of one trace at a time. Can harness concurrent implementations of the IO Oracle.
 	 */
