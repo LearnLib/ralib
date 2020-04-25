@@ -18,39 +18,40 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import net.automatalib.words.Word;
-
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.Test;
-
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.utils.SDTBuilder;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.util.logging.Level;
-import org.testng.Assert;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
  *
  * @author falk
  */
-public class TestIneqOutputTree extends RaLibTestSuite {
+/*
+ * TODO Our theories do not support inequalities in output parameters. Decide whether support is planned, if not, remove this test.
+ */
+public class TestInequalityInOutputTree extends RaLibTestSuite {
 
     private final static DataType TYPE = PriorityQueueSUL.DOUBLE_TYPE;    
     private final static InputSymbol IN = new InputSymbol("in", TYPE);
@@ -122,7 +123,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
-        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
+        MultiTheoryTreeOracle mto = TestUtil.createBasicMTO(
                 sul, PriorityQueueSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 IN);
@@ -144,7 +145,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
     }
     
     
-    @Test
+    // @Test
     public void testBiggerIneqEqTree() {
 
     	BiggerSUL sul = new BiggerSUL();
@@ -164,7 +165,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
     }
 
 
-    @Test
+  //  @Test
     public void testSmallerIneqEqTree() {
     	SmallerSUL sul = new SmallerSUL();
         
@@ -182,7 +183,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         genericIneqTest(sul, prefix, suffix, expectedSdt);
     }
     
-    @Test
+ //   @Test
     public void testMeanIneqEqTree() {
     	MeanSUL sul = new MeanSUL();
         
