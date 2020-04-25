@@ -119,7 +119,7 @@ public class TestSuccFresh extends RaLibTestSuite{
                 new PSymbolInstance(OneWayFreshTCPSUL.IACK,
                 		b.intv(12050.5, b.dv(12050.0), b.sumcv(12050.0, 1.0)))
         		);
-        testWord = new SymbolicTraceCanonizer(teachers, new Constants()).canonizeTrace(testWord);
+        testWord = new SymbolicTraceCanonizer(teachers, new Constants()).canonize(testWord);
         result = oracle.trace(testWord);
         Assert.assertTrue(true);
 	}
@@ -143,7 +143,7 @@ public class TestSuccFresh extends RaLibTestSuite{
                 		b.intv(1.5, b.sumcv(1.0, 1.0), b.sumcv(1.0, 100.0))),
                 new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
                 		b.intv(2.0, b.dv(1.5), b.sumcv(1.5, 1.0)), b.sumcv(101.0, 1.0)));
-        Word<PSymbolInstance> fixedTrace = fixer.canonizeTrace(testWord);
+        Word<PSymbolInstance> fixedTrace = fixer.canonize(testWord);
         Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[1].getClass(), FreshValue.class);
         Assert.assertEquals(fixedTrace.lastSymbol().getParameterValues()[0].getClass(), IntervalDataValue.class);
 	}

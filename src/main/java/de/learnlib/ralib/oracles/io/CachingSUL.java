@@ -39,7 +39,7 @@ public class CachingSUL extends DataWordSUL{
 		PSymbolInstance out = null;
 		trace = this.trace.append(in);
 		if (found) {
-			Word<PSymbolInstance> trWithResp = this.cache.traceFromCache(trace.append(IOCacheOracle.CACHE_DUMMY));
+			Word<PSymbolInstance> trWithResp = this.cache.traceFromCache(trace.append(CanonizingIOCacheOracle.CACHE_DUMMY));
 			if (trWithResp != null)
 				out = trWithResp.lastSymbol();
 			else {

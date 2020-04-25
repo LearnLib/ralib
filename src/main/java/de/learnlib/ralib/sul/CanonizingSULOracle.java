@@ -24,8 +24,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A canonizing SULOracle which uses specific trace canonizer.  
- * 
+ * A canonizing SULOracle generates single canonical traces for queries, by repeated application of the 
+ * {@link TraceCanonizer#canonize(Word)} function.   
  */
 public class CanonizingSULOracle implements IOOracle{
 
@@ -56,7 +56,7 @@ public class CanonizingSULOracle implements IOOracle{
        
         for (int i = 0; i < query.length(); i += 2) {
         	fixedQuery = trace.concat(fixedQuery.suffix(fixedQuery.size() - trace.size()));
-        	fixedQuery = traceCanonizer.canonizeTrace(fixedQuery);
+        	fixedQuery = traceCanonizer.canonize(fixedQuery);
             PSymbolInstance in = fixedQuery.getSymbol(i);
             trace = trace.append(in);
             PSymbolInstance out = null;

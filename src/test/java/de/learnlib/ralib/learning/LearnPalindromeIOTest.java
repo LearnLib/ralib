@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+s * Copyright (C) 2014-2015 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +32,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -82,7 +82,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);        
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

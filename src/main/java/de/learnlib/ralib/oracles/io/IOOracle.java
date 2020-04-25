@@ -42,7 +42,8 @@ public interface IOOracle {
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
     
     /**
-     * Returns the canonizer function used to relabel parameter values.
+     * Returns the canonizer function used to relabel parameter values. 
+     * By default returns identity.
      */
     public default TraceCanonizer getTraceCanonizer() {
     	return x -> x;

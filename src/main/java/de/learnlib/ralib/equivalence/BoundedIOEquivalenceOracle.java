@@ -76,7 +76,7 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 					i--;
 					continue;
 				} 
-				hypTrace = traceCanonizer.canonizeTrace(hypTrace);
+				hypTrace = traceCanonizer.canonize(hypTrace);
 				hypTraces.add(hypTrace);
 			}
 			List<Word<PSymbolInstance>> sulTraces = target.traces(hypTraces);

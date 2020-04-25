@@ -36,7 +36,7 @@ public class SymbolicTraceCanonizer implements TraceCanonizer{
 	 * connected to this fresh value)
 	 * after: FV 10 FV 20 SUMC 20 1 
 	 */
-	public Word<PSymbolInstance> canonizeTrace(Word<PSymbolInstance> trace) {
+	public Word<PSymbolInstance> canonize(Word<PSymbolInstance> trace) {
 		Map<DataType, Determinizer> determinizers = new LinkedHashMap<>();
 		theories.forEach( (dt, th) -> determinizers.put(dt, new SymbolicDeterminizer(th, dt)));
 		MultiTheoryDeterminizer canonizer = MultiTheoryDeterminizer.newCustom(determinizers, constants);

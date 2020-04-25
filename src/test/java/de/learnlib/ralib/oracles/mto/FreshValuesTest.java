@@ -33,7 +33,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
@@ -80,7 +80,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
     
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

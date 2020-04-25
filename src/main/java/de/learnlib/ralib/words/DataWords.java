@@ -16,18 +16,17 @@
  */
 package de.learnlib.ralib.words;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import net.automatalib.words.Word;
 
 /**

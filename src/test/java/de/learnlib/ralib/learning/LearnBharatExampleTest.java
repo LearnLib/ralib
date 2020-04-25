@@ -41,7 +41,8 @@ import de.learnlib.ralib.example.ineq.BharatExampleSUL.Actions;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -121,7 +122,7 @@ public class LearnBharatExampleTest {
        DataWordSUL sul = new BharatExampleSUL(teachers, consts, inputs, outputs);
 
         BasicSULOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOFilter ioFilter = new IOFilter(new IOCacheOracle(ioOracle), inputArray);
+        IOFilter ioFilter = new IOFilter(new BasicIOCacheOracle(ioOracle), inputArray);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, ioOracle, teachers, consts, TestUtil.getZ3Solver());
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, TestUtil.getZ3Solver());

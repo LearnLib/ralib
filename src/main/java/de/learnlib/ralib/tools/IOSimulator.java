@@ -42,7 +42,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -153,7 +153,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 = new OutputSymbol("_io_err", new DataType[]{});
         
        IOOracle back = new BasicSULOracle(sulLearn, ERROR);
-       IOCacheOracle ioCache = new IOCacheOracle(back);
+       CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
                 
        

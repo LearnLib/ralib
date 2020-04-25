@@ -42,7 +42,7 @@ import de.learnlib.ralib.oracles.io.DataWordIOOracle;
 import de.learnlib.ralib.oracles.io.ExceptionHandlers;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOCacheManager;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
@@ -238,7 +238,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
         	
     		IOCache ioCache = preCache? new IOCache() : this.ioCache ;
 		       if (cacheTests)
-		       	testOracle = new IOCacheOracle(testOracle, ioCache);
+		       	testOracle = new CanonizingIOCacheOracle(testOracle, ioCache);
 		       if (handleExceptions)
 	        	testOracle = ExceptionHandlers.wrapIOOracle(testOracle);
 		       equOracle = EquivalenceOracleFactory.buildEquivalenceOracle(config,
@@ -305,7 +305,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk{
     		IOCache ioCache, boolean determinize, boolean handleExceptions) {
     	DataWordIOOracle ioCacheOracle;
     	ioCache = preCache? new IOCache() : ioCache;
-	    ioCacheOracle = new IOCacheOracle(ioOracle, ioCache);
+	    ioCacheOracle = new CanonizingIOCacheOracle(ioOracle, ioCache);
 	    if (handleExceptions)
 	    	return ExceptionHandlers.wrapDataWordIOOracle(ioCacheOracle);
 	    else 

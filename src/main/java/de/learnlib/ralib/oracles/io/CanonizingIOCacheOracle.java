@@ -28,7 +28,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * The IOCacheOracle is caching-enabled DataWordOracle.
+ * The {@link CanonizingIOCacheOracle} is caching-enabled DataWordOracle which is used when support for arbitrary fresh values is required.
  * All queries are canonized via a {@link TraceCanonizer}, and then looked up in the cache.
  * If the answer is not found, the encapsulated {@link IOOracle} is used.
  * 
@@ -36,7 +36,7 @@ import net.automatalib.words.Word;
  *   
  * @author falk, paul
  */
-public class IOCacheOracle implements DataWordIOOracle {
+public class CanonizingIOCacheOracle implements DataWordIOOracle {
 
     private final IOOracle sul;
 
@@ -44,16 +44,16 @@ public class IOCacheOracle implements DataWordIOOracle {
 
 	private final TraceCanonizer traceCanonizer;
 
-    private static LearnLogger log = LearnLogger.getLogger(IOCacheOracle.class);
+    private static LearnLogger log = LearnLogger.getLogger(CanonizingIOCacheOracle.class);
     
     public final static PSymbolInstance CACHE_DUMMY = new PSymbolInstance(new OutputSymbol("__cache_dummy"));
 
     
-    public IOCacheOracle(IOOracle sul) {
+    public CanonizingIOCacheOracle(IOOracle sul) {
     	this(sul, new IOCache());
     }
     
-    public IOCacheOracle(IOOracle sul,  IOCache ioCache) {
+    public CanonizingIOCacheOracle(IOOracle sul,  IOCache ioCache) {
         this.sul = sul;
         this.ioCache = ioCache;
         this.traceCanonizer = sul.getTraceCanonizer();
@@ -69,7 +69,7 @@ public class IOCacheOracle implements DataWordIOOracle {
     }
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonizeTrace(query); 
+    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonize(query); 
         Boolean ret = ioCache.answerFromCache(fixedQuery);
         if (ret != null) {
             return ret;
@@ -96,7 +96,7 @@ public class IOCacheOracle implements DataWordIOOracle {
 
     
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
-    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonizeTrace(query); 
+    	Word<PSymbolInstance> fixedQuery = traceCanonizer.canonize(query); 
         if (fixedQuery.length() % 2 != 0) {
         	fixedQuery = fixedQuery.append(new PSymbolInstance(new OutputSymbol("__cache_dummy")));
         }

@@ -28,7 +28,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -81,7 +82,13 @@ public class TestUtil {
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
         IOOracle ioOracle = new CanonizingSULOracle(new DeterminizerDataWordSUL(teachers, consts, sul), error, new SymbolicTraceCanonizer(teachers, consts));
-        return createMTO(ioOracle, teachers, consts, solver, inputs);
+        CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+      
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, ioCache, teachers, consts, solver);
+        
+        return mto;
     }
     
     
@@ -94,7 +101,7 @@ public class TestUtil {
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
         IOOracle ioOracle = new BasicSULOracle(sul, error);
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
         return new MultiTheoryTreeOracle(
                 ioFilter, ioCache, teachers, consts, solver);
@@ -105,7 +112,7 @@ public class TestUtil {
             Map<DataType, Theory> teachers, Constants consts, 
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
-        IOCacheOracle ioCache = new IOCacheOracle(ioOracle);
+        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
       
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(

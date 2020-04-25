@@ -213,7 +213,7 @@ public class IOCache {
 			PSymbolInstance ignoredOut = iter.next();
 
 			trace = trace.append(in);
-			trace = traceCanonizer.canonizeTrace(trace);
+			trace = traceCanonizer.canonize(trace);
 			PSymbolInstance canonizedIn = trace.lastSymbol();
 
 			out = cur.output.get(canonizedIn);

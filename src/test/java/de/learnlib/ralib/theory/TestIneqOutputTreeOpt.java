@@ -32,7 +32,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.io.IOCacheOracle;
+import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -85,12 +85,12 @@ public class TestIneqOutputTreeOpt extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle sulOracle = new BasicSULOracle(sul, ERROR);
-        IOCacheOracle sulCache = new IOCacheOracle(sulOracle);
+        CanonizingIOCacheOracle sulCache = new CanonizingIOCacheOracle(sulOracle);
         IOFilter sulFilter = new IOFilter(sulCache, inputs);
 
         DataWordSUL hyp = new SimulatorSUL(hypModel, teachers, consts);
         IOOracle hypOracle = new BasicSULOracle(hyp, ERROR);
-        IOCacheOracle hypCache = new IOCacheOracle(hypOracle);
+        CanonizingIOCacheOracle hypCache = new CanonizingIOCacheOracle(hypOracle);
         IOFilter hypFilter = new IOFilter(hypCache, inputs);
         
         ConstraintSolver solver = new SimpleConstraintSolver();
