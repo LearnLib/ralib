@@ -20,8 +20,8 @@ public class ContinuousDomainInequalityMerger implements InequalityGuardMerger{
 
 	protected SDTGuardLogic logic;
 
-	public ContinuousDomainInequalityMerger(SDTGuardLogic logic) {
-		this.logic = logic;
+	public ContinuousDomainInequalityMerger() {
+		this.logic = new InequalityGuardLogic();
 	}
 	
 	/**

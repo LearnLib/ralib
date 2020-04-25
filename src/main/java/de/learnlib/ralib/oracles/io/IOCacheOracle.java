@@ -29,10 +29,10 @@ import net.automatalib.words.Word;
 
 /**
  * The IOCacheOracle is caching-enabled DataWordOracle.
- * All queries are canonized via a {@link TraceCanonizer}, and then searched for in the cache.
+ * All queries are canonized via a {@link TraceCanonizer}, and then looked up in the cache.
  * If the answer is not found, the encapsulated {@link IOOracle} is used.
  * 
- * Using a {@link TraceCanonizer} enables support also for storing 
+ * Using a {@link TraceCanonizer} enables support also for storing traces with fresh values.
  *   
  * @author falk, paul
  */

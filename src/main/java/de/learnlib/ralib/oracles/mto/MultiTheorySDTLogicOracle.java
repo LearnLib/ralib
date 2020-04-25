@@ -102,7 +102,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
     
     
-    //TODO the context Mappings should be replaced by ParValuation/Word<PSymbol> prefix (for prefix... ) which are more accurate in terms of defining the context
     public boolean areEquivalent(SymbolicDecisionTree sdt1, PIV piv1, GuardExpression guard1, SymbolicDecisionTree sdt2, PIV piv2, GuardExpression guard2,
     		Mapping<SymbolicDataValue, DataValue<?>> contextMapping) {
         SDT _sdt1 = (SDT) sdt1;
@@ -136,6 +135,11 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 						)
 				);
 		
+		boolean sat1 = this.solver.isSatisfiable(eqTestGuard1);
+		
+		if (sat1) 
+			return false;
+		
 		GuardExpression eqTestGuard2 = new Conjunction(
 				common,
 				guard2r,
@@ -145,12 +149,13 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 						) 
 				);
 		
-		boolean sat1 = this.solver.isSatisfiable(eqTestGuard1);
 		boolean sat2 = this.solver.isSatisfiable(eqTestGuard2);
+		if (sat2)
+			return false;
 		
-		boolean isEquivalent = !sat1 && !sat2;
+//		boolean isEquivalent = !sat1 && !sat2;
 
-		return isEquivalent;
+		return true;
     }
     
     private boolean satisfiable(GuardExpression expr1, PIV piv1, GuardExpression expr2, PIV piv2, GuardExpression exprG) {

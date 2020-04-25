@@ -16,10 +16,6 @@ public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTE
 	private Mapping<SymbolicDataValue, DataValue<?>> guardContext;
 	private SyntacticEquivalenceChecker syntacticChecker;
 
-	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards) {
-		this(constants, cSolver, suffixGuards, new Mapping<>());
-	}
-	
 	public SemanticEquivalenceChecker(Constants constants, ConstraintSolver cSolver, List<SDTGuard> suffixGuards, Mapping<SymbolicDataValue, DataValue<?>> guardContext) {
 		this.logic = new MultiTheorySDTLogicOracle(constants, cSolver);
 		this.guardContext = guardContext;
@@ -31,10 +27,10 @@ public class SemanticEquivalenceChecker implements de.learnlib.ralib.theory.SDTE
 			return sdt1.equals(sdt2);
 		}
 		
-		boolean syntacticEquiv = this.syntacticChecker.checkSDTEquivalence(guard1, sdt1, guard2, sdt2);
+		boolean syntacticEquiv = syntacticChecker.checkSDTEquivalence(guard1, sdt1, guard2, sdt2);
 		boolean semanticEquiv = syntacticEquiv;
 		if (!syntacticEquiv) {
-			semanticEquiv = this.logic.areEquivalent(sdt1, new PIV(), guard1.toExpr(), sdt2, new PIV(), guard2.toExpr(), this.guardContext);
+			semanticEquiv = logic.areEquivalent(sdt1, new PIV(), guard1.toExpr(), sdt2, new PIV(), guard2.toExpr(), guardContext);
 		}
 		
 		return semanticEquiv;

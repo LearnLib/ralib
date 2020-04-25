@@ -73,7 +73,7 @@ public final class DataWords {
         }
         return vals;
     }
-
+    
     /**
      * returns sequence of all data types in a data word.
      * 
@@ -92,15 +92,15 @@ public final class DataWords {
     }
     
     /**
-     * returns set of unique data values of some type in a data word.
+     * returns an insertion-ordered set of unique data values of some type in a data word from first to last.
      * 
      * @param <T>
      * @param word
      * @param t
      * @return 
      */
-    public static <T> Set<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType t) {
-        Set<DataValue<T>> vals = new LinkedHashSet<>();
+    public static <T> LinkedHashSet<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType t) {
+    	LinkedHashSet<DataValue<T>> vals = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
             for (DataValue d : psi.getParameterValues()) {
                 if (d.getType().equals(t)) {
@@ -118,8 +118,8 @@ public final class DataWords {
      * @return 
      */
     @SafeVarargs
-    public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
-        Set<DataValue<T>> vals = new LinkedHashSet<>();    
+    public static <T> LinkedHashSet<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
+    	LinkedHashSet<DataValue<T>> vals = new LinkedHashSet<>();    
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);
         }
@@ -141,13 +141,13 @@ public final class DataWords {
     }
     
     /**
-     * returns set of all unique data values in a data word.
+     * returns an insertion-ordered set of all unique data values in a data word from first to last.
      * 
      * @param word
      * @return 
      */
-    public static Set<DataValue> valSet(Word<PSymbolInstance> word) {
-        Set<DataValue> valset = new LinkedHashSet<>();
+    public static LinkedHashSet<DataValue> valSet(Word<PSymbolInstance> word) {
+    	LinkedHashSet<DataValue> valset = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
             valset.addAll(Arrays.asList(psi.getParameterValues()));
         }

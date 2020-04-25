@@ -23,7 +23,9 @@ import java.util.EnumSet;
  * @author falk
  */
 public enum DataRelation {
-    ALL,
+    ALL, /* This is a special relation meaning that the relation is undetermined, it can be one of any of the relations recognized.
+    TODO We should consider removing this data relation and in its place, use getAllRecognizedRelations. 
+     */
     EQ,
     EQ_SUMC1,
     EQ_SUMC2,

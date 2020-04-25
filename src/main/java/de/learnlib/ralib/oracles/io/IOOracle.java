@@ -25,21 +25,18 @@ import net.automatalib.words.Word;
 
 /**
  *
- * @author falk
+ * @author falk, paul
  */
 public interface IOOracle {
     
 	/**
-	 * Transforms a i/o query into a valid trace of the system by preserving the input symbols, 
+	 * Transforms a i/o query into a unique valid trace of the system by preserving the input symbols, 
 	 * while relabeling their parameter values and changing the outputs according to the system's response.
 	 * This process is also called canonization/canonicalization. 
-	 * </p>
-	 * Used in counterexample reduction operations, wherein a section of a trace is cut out.
-	 * What is left might not belong to the system's traces. 
-	 * This operation "repairs" the trace.
-	 * Also used when performing tree IO tree queries.
 	 * 
-	 * @param query - an input/output word
+	 * It is used in fixing traces during CE reduction plus finding the SUT's output during tree queries.
+	 * 
+	 * @param query - an input/output word of even length (each input is followed the SUT-generated output)
 	 *  
 	 */
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
