@@ -17,6 +17,7 @@
 package de.learnlib.ralib.theory.equality;
 
 import static de.learnlib.ralib.theory.DataRelation.DEQ;
+import static de.learnlib.ralib.theory.DataRelation.ALL;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
 import static de.learnlib.ralib.theory.DataRelation.DEFAULT;
 
@@ -87,7 +88,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     
     public EqualityTheory(boolean useNonFreeOptimization) {
         this.useNonFreeOptimization = useNonFreeOptimization;
-        this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
+        this.ifElseMerger = new IfElseGuardMerger(getGuardLogic());
     }
 
     public void setFreshValues(boolean freshValues) {
@@ -108,7 +109,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             mergeGuards(Map<SDTGuard, SDT> ifGuards,
                     SDTGuard deqGuard, SDT deqSdt) {
     	SDTEquivalenceChecker sdtChecker = new SyntacticEquivalenceChecker();
-        Map<SDTGuard, SDT> retMap = this.ifElseMerger.merge(ifGuards, deqGuard, deqSdt, sdtChecker);
+        Map<SDTGuard, SDT> retMap = ifElseMerger.merge(ifGuards, deqGuard, deqSdt, sdtChecker);
         assert !retMap.isEmpty();
         return retMap;
     }
@@ -159,53 +160,36 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
-        boolean free = suffix.getPrefixRelations(pId).contains(EQ);
+        boolean free = suffix.getPrefixRelations(pId).contains(EQ) || suffix.getSuffixRelations(pId).contains(EQ)
+        		|| suffix.getPrefixRelations(pId).contains(ALL) || suffix.getSuffixRelations(pId).contains(ALL);
         if (!free && useNonFreeOptimization) {
         	   int eqIdx = findLeftMostEqual(suffix, pId);
-               DataValue d = suffixValues.get(suffix.getDataValue(eqIdx));
-               Map<SDTGuard, SDT> merged;
-               if (d == null) {
-                   d = getFreshValue(potential);
-                   WordValuation trueValues = new WordValuation(values);
-                   trueValues.put(pId, d);
-                   SuffixValuation trueSuffixValues = new SuffixValuation(suffixValues);
-                   trueSuffixValues.put(sv, d);
-                   SDT sdt = oracle.treeQuery(
-                           prefix, suffix, trueValues,
-                           pir, constants, trueSuffixValues);
+        	      DataValue d = suffixValues.get(sv);
+                  if (d == null) {
+                      d = getFreshValue(potential);
+                  }
+                  values.put(pId, d);
+                  WordValuation trueValues = new WordValuation();
+                  trueValues.putAll(values);
+                  SuffixValuation trueSuffixValues = new SuffixValuation();
+                  trueSuffixValues.putAll(suffixValues);
+                  trueSuffixValues.put(sv, d);
+                  SDT sdt = oracle.treeQuery(
+                          prefix, suffix, trueValues,
+                          pir, constants, trueSuffixValues);
 
-                   log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+                  log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
 
-                   merged = mergeGuards(tempKids,
-                           new SDTAndGuard(currentParam), sdt);
+                  Map<SDTGuard, SDT> merged = mergeGuards(tempKids,
+                          new SDTAndGuard(currentParam), sdt);
 
-                   log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-                   //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
-                   log.log(Level.FINEST, "merged guards = " + merged.keySet());
-                   log.log(Level.FINEST, "merged pivs = " + pir.toString());
-               } else {
-                   WordValuation equValues = new WordValuation(values);
-                   equValues.put(pId, d);
-                   SuffixValuation equSuffixValues = new SuffixValuation(suffixValues);
-                   equSuffixValues.put(sv, d);
-                   SDT sdt = oracle.treeQuery(
-                           prefix, suffix, equValues,
-                           pir, constants, equSuffixValues);
-                   
-                   log.log(Level.FINEST, " single equ SDT : " + sdt.toString());
-                   EqualityGuard equ = pickupDataValue(d, Arrays.asList(DataWords.valsOf(prefix)), currentParam, values, constants);
-                   merged = mergeGuards(tempKids,
-                           equ, sdt);
+                  log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
+                  //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
+                  log.log(Level.FINEST, "merged guards = " + merged.keySet());
+                  log.log(Level.FINEST, "merged pivs = " + pir.toString());
 
-                   log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-                   //log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
-                   log.log(Level.FINEST, "merged guards = " + merged.keySet());
-                   log.log(Level.FINEST, "merged pivs = " + pir.toString());
-                   
-               }
-              
-               return new SDT(merged);
-        }
+                  return new SDT(merged);
+        	           }
 
         // special case: fresh values in outputs
         if (freshValues) {
