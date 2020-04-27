@@ -416,7 +416,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, values, piv,
 							constants);
 					SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
-					smVal.setValue(toVariable(rsm, getDomainType()), dvRight.getId());
+					smVal.setValue(toVariable(rsm), dvRight.getId());
 					DataValue<T> smcv = pickIntervalDataValue(null, dvRight);
 					guardDvs.put(sguard, smcv);
 				}
@@ -627,7 +627,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						"Cannot update valuation for expression " + expr + " assigned data value " + concValue);
 			}
 		}
-		valuation.setValue(toVariable(sdvForExpr, getDomainType()), sdvValuation.getId());
+		valuation.setValue(toVariable(sdvForExpr), sdvValuation.getId());
 		return sdvValuation;
 	}
 
@@ -767,7 +767,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// set sdvs in the valuation to their corresponding values
 		for (SymbolicDataValue sdv : guard.getAllSDVsFormingGuard()) {
 			DataValue sdvVal = getRegisterValue(sdv, piv, prefixValues, constants, pval);
-			val.setValue(toVariable(sdv, getDomainType()), sdvVal.getId());
+			val.setValue(toVariable(sdv), sdvVal.getId());
 		}
 		
 		Set<DataValue<T>> alreadyUsedValues = DataWords.<T>joinValsToSet(constants.<T>values(type));
@@ -777,7 +777,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			for (DataValue<T> oldDv : oldDvs) {
 				Valuation newVal = new Valuation();
 				newVal.putAll(val);
-				newVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), oldDv.getId());
+				newVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), oldDv.getId());
 				DataValue<T> inst = guardInstantiator.instantiate(guard, newVal, constants, alreadyUsedValues);
 				if (inst != null) {
 					return oldDv;
@@ -793,7 +793,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		DataValue<T> freshValue = getFreshValue(potential);
 		Valuation freshVal = new Valuation();
 		freshVal.putAll(val);
-		freshVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), freshValue.getId());
+		freshVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), freshValue.getId());
 		DataValue<T> freshInst = guardInstantiator.instantiate(guard, freshVal, constants, alreadyUsedValues);
 		if (freshInst != null) {
 			return new FreshValue<T>(freshValue.getType(), freshValue.getId());
@@ -808,7 +808,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			IntervalDataValue<T> intValue = pickIntervalDataValue(range.left, range.right, rawAlreadyUsedValues);
 			Valuation intVal = new Valuation();
 			intVal.putAll(val);
-			intVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), intValue.getId());
+			intVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), intValue.getId());
 			DataValue<T> intInst = guardInstantiator.instantiate(guard, intVal, constants, alreadyUsedValues);
 			if (intInst != null)
 				return intValue;
@@ -818,7 +818,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		for (DataValue<T> potValue : potential) {
 			Valuation potVal = new Valuation();
 			potVal.putAll(val);
-			potVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), potValue.getId());
+			potVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), potValue.getId());
 			DataValue<T> potInst = guardInstantiator.instantiate(guard, potVal, constants, alreadyUsedValues);
 			if (potInst != null) {
 				return potValue;

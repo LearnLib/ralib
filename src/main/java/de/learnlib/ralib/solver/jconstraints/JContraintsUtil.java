@@ -53,6 +53,7 @@ public class JContraintsUtil {
 	 */
 	private static final Map<Class<?>, Type<?>> typeMap = new LinkedHashMap<>();
 	static {
+		typeMap.put(Object.class, BuiltinTypes.DOUBLE);
 		typeMap.put(Integer.class, BuiltinTypes.INTEGER);
 		typeMap.put(Long.class, BuiltinTypes.INTEGER);
 		typeMap.put(Double.class, BuiltinTypes.DOUBLE);
@@ -62,7 +63,7 @@ public class JContraintsUtil {
 	public static <T> Type<T> getJCType(DataValue<T> dv) {
 		return getJCType(dv.getType().getBase());
 	}
-	
+	  
 	@SuppressWarnings("unchecked")
 	public static <T> Type<T> getJCType(Class<T> cls) {
 		if (!typeMap.containsKey(cls))
@@ -202,7 +203,7 @@ public class JContraintsUtil {
         return new Constant( getJCType(v), v.getId());
     }
 
-    public static Variable toVariable(SymbolicDataValue dv, Class<?> realType) {
-        return new Variable( getJCType(realType), dv.toString());
+    public static Variable toVariable(SymbolicDataValue dv) {
+        return new Variable( getJCType(dv), dv.toString());
     }
 }

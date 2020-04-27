@@ -65,11 +65,11 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		List<Expression<Boolean>> eList = new ArrayList<>();
 		// add equalities tying sdv's to concrete values
 		for (SymbolicDataValue sdv : g.getAllSDVsFormingGuard()) {
-			DataValue<Double> sdvVal = new DataValue(getType(), val.getValue(toVariable(sdv, domainType)));
+			DataValue<Double> sdvVal = new DataValue(getType(), val.getValue(toVariable(sdv)));
 			gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), sdvVal.getId());
 			// add the constant equivalence expression to the list
-			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(sdv, domainType)));
+			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(sdv)));
 		}
 			
 		// add the guard
@@ -79,15 +79,15 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		for (DataValue<T> au : alreadyUsedValues) {
 			gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), au.getId());
-			Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp, domainType));
+			Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp));
 			eList.add(auExpr);
 		}
 	
-		if (newVal.containsValueFor(toVariable(sp, domainType))) {
-			DataValue<T> spDouble = new DataValue<T>(getType(), (T) newVal.getValue(toVariable(sp, domainType)));
+		if (newVal.containsValueFor(toVariable(sp))) {
+			DataValue<T> spDouble = new DataValue<T>(getType(), (T) newVal.getValue(toVariable(sp)));
 			gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), spDouble.getId());
-			Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp, domainType));
+			Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
 			eList.add(spExpr);
 		}
 	
@@ -114,7 +114,7 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 			// System.out.println("SAT!!");
 			// System.out.println(newVal.getValue(sp.toVariable()) + " " +
 			// newVal.getValue(sp.toVariable()).getClass());
-			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp, domainType)), domainType));
+			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), domainType));
 			// System.out.println("return d: " + d.toString());
 			return d;
 		} else {
