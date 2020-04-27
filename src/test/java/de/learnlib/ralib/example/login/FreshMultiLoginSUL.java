@@ -13,7 +13,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class FreshMultiLoginSUL extends DataWordSUL  {
-	public static final DataType<Integer> INT_TYPE = new DataType<Integer>("INTEGER", Integer.class);
+	public static final DataType INT_TYPE = new DataType("INTEGER", Integer.class);
 
 	public static final ParameterizedSymbol ILOGIN = new InputSymbol("ILogin", new DataType[] { INT_TYPE, INT_TYPE });
 	public static final ParameterizedSymbol IREGISTER = new InputSymbol("IRegister", new DataType[] { INT_TYPE});

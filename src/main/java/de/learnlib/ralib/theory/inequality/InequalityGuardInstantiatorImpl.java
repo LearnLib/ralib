@@ -28,21 +28,23 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
 
-	private final DataType<T> type;
+	private final DataType type;
 	private final Type<T> jcType;
 	private final ConstraintSolver solver;
+	private Class<T> domainType;
 
-	public InequalityGuardInstantiatorImpl(DataType<T> type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
+	public InequalityGuardInstantiatorImpl(DataType type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
 		this.type = type;
 		this.jcType = jcType;
 		this.solver = solver;
 	}
 
-	public InequalityGuardInstantiatorImpl(DataType<T> type, ConstraintSolver solver) {
-		this(type, JContraintsUtil.getJCType(type.getBase()), solver);
+	public InequalityGuardInstantiatorImpl(DataType type, ConstraintSolver solver, Class<T> domainType) {
+		this(type, JContraintsUtil.getJCType(domainType), solver);
+		this.domainType = domainType;
 	}
 
-	private DataType<T> getType() {
+	private DataType getType() {
 		return type;
 	}
 
@@ -52,7 +54,7 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 
 	
 	@Override
-	public DataValue<T> instantiateGuard(SDTGuard g, Valuation val, Constants c,
+	public DataValue<T> instantiate(SDTGuard g, Valuation val, Constants c,
 			Collection<DataValue<T>> alreadyUsedValues) {
 		// System.out.println("INSTANTIATING: " + g.toString());
 		SymbolicDataValue.SuffixValue sp = g.getParameter();
@@ -63,11 +65,11 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		List<Expression<Boolean>> eList = new ArrayList<>();
 		// add equalities tying sdv's to concrete values
 		for (SymbolicDataValue sdv : g.getAllSDVsFormingGuard()) {
-			DataValue<Double> sdvVal = new DataValue(getType(), val.getValue(toVariable(sdv)));
+			DataValue<Double> sdvVal = new DataValue(getType(), val.getValue(toVariable(sdv, domainType)));
 			gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), sdvVal.getId());
 			// add the constant equivalence expression to the list
-			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(sdv)));
+			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(sdv, domainType)));
 		}
 			
 		// add the guard
@@ -77,15 +79,15 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		for (DataValue<T> au : alreadyUsedValues) {
 			gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), au.getId());
-			Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp));
+			Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp, domainType));
 			eList.add(auExpr);
 		}
 	
-		if (newVal.containsValueFor(toVariable(sp))) {
-			DataValue<T> spDouble = new DataValue<T>(getType(), (T) newVal.getValue(toVariable(sp)));
+		if (newVal.containsValueFor(toVariable(sp, domainType))) {
+			DataValue<T> spDouble = new DataValue<T>(getType(), (T) newVal.getValue(toVariable(sp, domainType)));
 			gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(
 					getJCType(), spDouble.getId());
-			Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
+			Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp, domainType));
 			eList.add(spExpr);
 		}
 	
@@ -112,7 +114,7 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 			// System.out.println("SAT!!");
 			// System.out.println(newVal.getValue(sp.toVariable()) + " " +
 			// newVal.getValue(sp.toVariable()).getClass());
-			DataValue<T> d = new DataValue(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), getType()));
+			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp, domainType)), domainType));
 			// System.out.println("return d: " + d.toString());
 			return d;
 		} else {

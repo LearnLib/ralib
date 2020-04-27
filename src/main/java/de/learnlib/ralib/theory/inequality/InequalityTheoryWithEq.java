@@ -31,7 +31,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -103,38 +102,33 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	/**
 	 * Builds a guard instantiator.
 	 */
-	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType<P> type,
-			String name) {
+	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType type,
+			String solverName,
+			Class<P> domainType) {
 		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
-		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(name);
-		;
-		return new InequalityGuardInstantiatorImpl<P>(type, solver);
+		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(solverName);
+		return new InequalityGuardInstantiatorImpl<P>(type, solver, domainType);
 	}
 
 	private boolean freshValues;
-	protected DataType<T> type;
-	private InequalityGuardInstantiator<T> instantiator;
-	private final Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier;
-
+	protected DataType type;
 	private final InequalityGuardMerger fullMerger;
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
 	private de.learnlib.ralib.solver.ConstraintSolver solver;
+	private InequalityGuardInstantiator<T> guardInstantiator;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
-			Function<DataType<T>, InequalityGuardInstantiator<T>> instantiatorSupplier,
 			de.learnlib.ralib.solver.ConstraintSolver solver) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
-		this.instantiatorSupplier = instantiatorSupplier;
 		this.fullMerger = fullMerger;
 		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
 		this.solver = solver;
 	}
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
-		this(fullMerger, t -> InequalityTheoryWithEq.getInstantiator(t, "z3"), getSolver("z3"));
-
+		this(fullMerger, getSolver("z3"));
 	}
 
 	@Override
@@ -145,12 +139,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	/**
 	 * Sets the type as well as the inequality guard merger and instantiator.
 	 */
-	public void setType(DataType<T> dataType) {
+	public void setType(DataType dataType) {
 		this.type = dataType;
-		instantiator = instantiatorSupplier.apply(dataType);
+		this.guardInstantiator = getInstantiator(dataType, "z3", getDomainType());
 	}
 
-	public DataType<T> getType() {
+	public DataType getType() {
 		return type;
 	}
 
@@ -244,7 +238,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 		int pId = values.size() + 1;
 		SuffixValue sv = suffix.getDataValue(pId);
-		DataType<T> type = (DataType<T>) sv.getType();
+		DataType type = sv.getType();
 
 		List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 		DataValue<T>[] typedPrefixValues = DataWords.valsOf(prefix, type);
@@ -422,7 +416,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 					IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, values, piv,
 							constants);
 					SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
-					smVal.setValue(toVariable(rsm), dvRight.getId());
+					smVal.setValue(toVariable(rsm, getDomainType()), dvRight.getId());
 					DataValue<T> smcv = pickIntervalDataValue(null, dvRight);
 					guardDvs.put(sguard, smcv);
 				}
@@ -633,7 +627,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 						"Cannot update valuation for expression " + expr + " assigned data value " + concValue);
 			}
 		}
-		valuation.setValue(toVariable(sdvForExpr), sdvValuation.getId());
+		valuation.setValue(toVariable(sdvForExpr, getDomainType()), sdvValuation.getId());
 		return sdvValuation;
 	}
 
@@ -773,7 +767,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		// set sdvs in the valuation to their corresponding values
 		for (SymbolicDataValue sdv : guard.getAllSDVsFormingGuard()) {
 			DataValue sdvVal = getRegisterValue(sdv, piv, prefixValues, constants, pval);
-			val.setValue(toVariable(sdv), sdvVal.getId());
+			val.setValue(toVariable(sdv, getDomainType()), sdvVal.getId());
 		}
 		
 		Set<DataValue<T>> alreadyUsedValues = DataWords.<T>joinValsToSet(constants.<T>values(type));
@@ -783,8 +777,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			for (DataValue<T> oldDv : oldDvs) {
 				Valuation newVal = new Valuation();
 				newVal.putAll(val);
-				newVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), oldDv.getId());
-				DataValue<T> inst = instantiator.instantiateGuard(guard, newVal, constants, alreadyUsedValues);
+				newVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), oldDv.getId());
+				DataValue<T> inst = guardInstantiator.instantiate(guard, newVal, constants, alreadyUsedValues);
 				if (inst != null) {
 					return oldDv;
 				}
@@ -799,8 +793,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		DataValue<T> freshValue = getFreshValue(potential);
 		Valuation freshVal = new Valuation();
 		freshVal.putAll(val);
-		freshVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), freshValue.getId());
-		DataValue<T> freshInst = instantiator.instantiateGuard(guard, freshVal, constants, alreadyUsedValues);
+		freshVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), freshValue.getId());
+		DataValue<T> freshInst = guardInstantiator.instantiate(guard, freshVal, constants, alreadyUsedValues);
 		if (freshInst != null) {
 			return new FreshValue<T>(freshValue.getType(), freshValue.getId());
 		}
@@ -814,8 +808,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 			IntervalDataValue<T> intValue = pickIntervalDataValue(range.left, range.right, rawAlreadyUsedValues);
 			Valuation intVal = new Valuation();
 			intVal.putAll(val);
-			intVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), intValue.getId());
-			DataValue<T> intInst = instantiator.instantiateGuard(guard, intVal, constants, alreadyUsedValues);
+			intVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), intValue.getId());
+			DataValue<T> intInst = guardInstantiator.instantiate(guard, intVal, constants, alreadyUsedValues);
 			if (intInst != null)
 				return intValue;
 		}
@@ -824,8 +818,8 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		for (DataValue<T> potValue : potential) {
 			Valuation potVal = new Valuation();
 			potVal.putAll(val);
-			potVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId())), potValue.getId());
-			DataValue<T> potInst = instantiator.instantiateGuard(guard, potVal, constants, alreadyUsedValues);
+			potVal.setValue(toVariable(new SuffixValue(param.getType(), param.getId()), getDomainType()), potValue.getId());
+			DataValue<T> potInst = guardInstantiator.instantiate(guard, potVal, constants, alreadyUsedValues);
 			if (potInst != null) {
 				return potValue;
 			}
@@ -833,7 +827,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		
 		// ok, we have exhausted all possibilities, let's set no restrictions
 		// if we do get a value, something is amiss
-		DataValue<T> testInst = instantiator.instantiateGuard(guard, val, constants, alreadyUsedValues);
+		DataValue<T> testInst = guardInstantiator.instantiate(guard, val, constants, alreadyUsedValues);
 		if (testInst != null) {
 			throw new IllegalStateException("Instantiating a guard is possible, but not within the restrictions of the theory");
 			

@@ -334,13 +334,13 @@ public interface IOCacheManager {
 			private static final long serialVersionUID = 1L;
 			private Class<T> base;
 			private String name;
-			public SerializableDataType(DataType<T> dataType) {
+			public SerializableDataType(DataType dataType) {
 				this.base = dataType.getBase();
 				this.name = dataType.getName();
 			}
 			
-			public DataType<T> toDataType() {
-				return new DataType<T>(name, base);
+			public DataType toDataType() {
+				return new DataType(name, base);
 			}
 		} 
 		

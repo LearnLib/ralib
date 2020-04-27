@@ -28,48 +28,31 @@ import java.util.Objects;
  * Equality for DataValues and all their subclassed instances,  is fully defined by 
  * the type and the concrete value. Consequently, a SumC value 11 (10+1) is equal to
  * a DataValue 11 of the same type.
- * @author falk
  * @param <T>
  */
 public class DataValue<T> {
     
-    protected final DataType<T> type;
+    protected final DataType type;
 
     protected final T id;
     
-    public static <P> DataValue<P> ONE(DataType<P> type) {
-    	return new DataValue<P>(type, cast(1, type));
+    public static <P> DataValue<P> ONE(DataType type, Class<P> domainType) {
+    	return new DataValue<P>(type, cast(1, domainType));
     }
     
-    public static <P> DataValue<P> ZERO(DataType<P> type) {
-    	return new DataValue<P>(type, cast(0, type));
-    }
-    
-    public static <P> DataValue<P> CONST(int val, DataType<P> type) {
-    	return new DataValue<P>(type, cast(val, type));
+    public static <P> DataValue<P> ZERO(DataType type, Class<P> domainType) {
+    	return new DataValue<P>(type, cast(0, domainType));
     }
     
     public static <P> P CONST(int val, Class<P> type) {
     	return cast(val, type);
     }
     
-    public static <P> DataValue<P> valueOf(String strVal, DataType<P> type) {
-    	Class<P> cls = type.getBase();
-		P realValue = null;
-		if (Number.class.isAssignableFrom(cls)) {
-			Object objVal;
-			try {
-				objVal = cls.getMethod("valueOf", String.class).invoke(cls, strVal);
-			
-				realValue = cls.cast(objVal);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			throw new RuntimeException("Cannot deserialize values of the class " + cls);
-		}
-    	
-		return new DataValue<>(type, realValue);
+    /**
+     * FIXME All calls to this method must amended. Currently, the class used to deserialize the string is the base type. 
+     */
+    public static <P> DataValue<P> valueOf(String strVal, DataType type) {
+    	return new DataValue(type, valueOf(strVal, type.getBase()));
     }
     
     public static <P> P valueOf(String strVal, Class<P> cls) {
@@ -102,14 +85,14 @@ public class DataValue<T> {
     	if (rv == null) return lv;
     	if (lv == null) return rv;
     	Object sumValue = add(rv.getType().getBase(), rv.id, lv.getId());
-    	return new DataValue(rv.getType(), cast(sumValue, rv.getType()));
+    	return new DataValue(rv.getType(), cast(sumValue, rv.getIdType()));
     }
     
     public static DataValue<?> sub(DataValue<?> rv, DataValue<?> lv) {
     	if (rv == null) return sub(new DataValue(lv.getType(), 0.0), lv);
     	if (lv == null) return rv;
     	Object subValue = sub(rv.getType().getBase(), rv.id, lv.getId());
-    	return new DataValue(rv.getType(), cast(subValue, rv.getType()) );
+    	return new DataValue(rv.getType(), cast(subValue, rv.getIdType()) );
     }
     
     protected static <NT> NT add(Class<NT> cls, Object a, Object b) {
@@ -142,29 +125,6 @@ public class DataValue<T> {
     	return cls.cast(val);
     }
     
-    // can be made using reflection but this way is probably faster
-    public static <T> T cast(Object numObject, DataType<T> toType) {
-    	Class<T> cls = toType.getBase();
-    	if (toType.getBase() == numObject.getClass()) {
-    		return cls.cast(numObject);
-    	}
-    	if (Number.class.isAssignableFrom(cls) && numObject instanceof Number) {
-    		Number number = (Number)(numObject);
-    		if (cls == Integer.class) {
-    			return cls.cast(new Integer(number.intValue()));
-    		} else {
-    			if (cls == Double.class) {
-    				return cls.cast(new Double(number.doubleValue()));
-    			} else if (cls == Long.class) {
-    				return cls.cast(new Long(number.longValue()));
-    			}
-    		}
-    	} else {
-    		throw new RuntimeException("Cast not supported for " + toType + " on object " + numObject );
-    	}
-    	return null;
-    }
-    
     public static <T> T cast(Object numObject, Class<T> cls) {
     	if (cls == numObject.getClass()) {
     		return cls.cast(numObject);
@@ -186,7 +146,7 @@ public class DataValue<T> {
     	return null;
     }
     
-    public DataValue(DataType<T> type, T id) {
+    public DataValue(DataType type, T id) {
         this.type = type;
         this.id = id;
     }
@@ -227,7 +187,11 @@ public class DataValue<T> {
         return id;
     }
 
-    public DataType<T> getType() {
+    public DataType getType() {
         return type;
+    }
+    
+    public Class<T> getIdType() {
+    	return (Class<T>) id.getClass();
     }
 }

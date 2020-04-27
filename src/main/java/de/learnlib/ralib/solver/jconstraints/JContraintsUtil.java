@@ -202,7 +202,7 @@ public class JContraintsUtil {
         return new Constant( getJCType(v), v.getId());
     }
 
-    public static Variable toVariable(SymbolicDataValue dv) {
-        return new Variable( getJCType(dv), dv.toString());
+    public static Variable toVariable(SymbolicDataValue dv, Class<?> realType) {
+        return new Variable( getJCType(realType), dv.toString());
     }
 }

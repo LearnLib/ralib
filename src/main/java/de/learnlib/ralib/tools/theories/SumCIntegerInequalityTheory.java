@@ -15,10 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,12 +49,12 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		super();
 	}
 
-	public SumCIntegerInequalityTheory(DataType<Integer> dataType) {
+	public SumCIntegerInequalityTheory(DataType dataType) {
 		// the constants have to be introduced manually
 		this(dataType, Collections.emptyList(), Collections.emptyList());
 	}
 	
-	public SumCIntegerInequalityTheory(DataType<Integer> dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
+	public SumCIntegerInequalityTheory(DataType dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
 		super(dataType);
 		setConstants(sumConstants, regularConstants);
 	}
@@ -110,8 +108,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 					sortedSumConsts.stream()
 						.map(sum -> new SumCDataValue<Integer>(val, sum))
 						.filter(sumc -> !dvs.contains(sumc)))
-				).flatMap(s -> s).distinct()
-				.filter(dv -> !canRemove(dv));
+				).flatMap(s -> s).distinct();
 		
 		List<DataValue<Integer>> valAndSumsAndConsts = valAndSums //Stream.concat(valAndSums, regularConstants.stream())
 				.collect(Collectors.toList()); 
@@ -119,22 +116,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		return valAndSumsAndConsts;
 	}
 	
-	// if a value is already a SumCDv, it can only be operand in another SumCDv if its sum constant is ONE.
-	// this is a hack optimization for TCP
-	private boolean canRemove(DataValue<Integer> dv) {
-		Set<Object> sumCsOtherThanOne = new HashSet<Object>();
-		while (dv instanceof SumCDataValue) {
-			SumCDataValue<Integer> sum = ((SumCDataValue<Integer>) dv);
-			if (!DataValue.ONE(this.getType()).equals(sum.getConstant())) {
-				if (sumCsOtherThanOne.contains(sum.getConstant()))
-					return true;
-				sumCsOtherThanOne.add(sum.getConstant());
-			}
-			dv = sum.getOperand();
-		}
-		return false;
-	}
-
+	
 	/**
 	 * The next fresh value
 	 */
@@ -188,7 +170,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	}
 	
 	private DataValue<Integer> maxSumCOrZero () {
-		return this.sortedSumConsts.isEmpty() ? DataValue.ZERO(type):
+		return this.sortedSumConsts.isEmpty() ? DataValue.ZERO(type, getDomainType()):
 				this.sortedSumConsts.get(sortedSumConsts.size()-1);
 	}
 	
@@ -228,5 +210,10 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 			}
 		}
 		return rel;
+	}
+
+	@Override
+	public Class<Integer> getDomainType() {
+		return Integer.class;
 	}
 }

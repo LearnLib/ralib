@@ -13,28 +13,28 @@ public class DataValueSerializer {
 	public static final String PLUS = "\\s*\\+\\*s";
 	public static final String SUMC_DV = "(" + DV + ")|(" + INT_DV +")" + "(" + PLUS + DV + ")+";
 	
-	public static DataValue deserialize(String dvString, DataType type) {
+	public static DataValue deserialize(String dvString, DataType type, Class domainType) {
 		DataValue dv;
 		dvString = dvString.trim();
 		dvString = dvString.replaceAll("\\[" +type.getName() + "\\]", "");
 		if (dvString.matches(SUMC_DV)) {
 			String[] terms = dvString.split("\\+");
-			dv = deserialize(terms[0].trim(), type);
+			dv = deserialize(terms[0].trim(), type, domainType);
 			for (int j=1; j < terms.length; j++) 
-				dv = new SumCDataValue(dv, DataValue.valueOf(terms[j], type));
+				dv = new SumCDataValue(dv, new DataValue(type, DataValue.valueOf(terms[j], domainType)));
 		} else {
 			if (dvString.matches(INT_DV)) {
 				String val = dvString.substring(0, dvString.indexOf('('));
-				dv = deserialize(val, type);
+				dv = deserialize(val, type, domainType);
 				String range = dvString.substring(dvString.indexOf('(')+1, dvString.lastIndexOf(')')-1);
 				String[] ends = range.split(":");
 				String left = ends[0];
 				String right = ends[1];
-				DataValue dvLeft = left.isEmpty()? null : deserialize(left, type);
-				DataValue dvRight = right.isEmpty()? null : deserialize(right, type);
+				DataValue dvLeft = left.isEmpty()? null : deserialize(left, type, domainType);
+				DataValue dvRight = right.isEmpty()? null : deserialize(right, type, domainType);
 			} else {
 				if (dvString.matches(DV)) {
-					dv = DataValue.valueOf(dvString, type);
+					dv = new DataValue(type, DataValue.valueOf(dvString, domainType));
 				}
 				else {
 					throw new NotImplementedException("Unfortunately, deserializing complex structures is not supported");

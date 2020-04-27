@@ -23,7 +23,7 @@ import java.util.Objects;
  * 
  * @author falk
  */
-public final class DataType<T> {
+public final class DataType {
 
     /**
      * name of type (defining member)
@@ -33,13 +33,14 @@ public final class DataType<T> {
     /**
      * base type
      */
-    protected final Class<T> base;
+    protected final Class base;
+    
 
-    public DataType(String name, Class<T> base) {
+    public DataType(String name, Class base) {
         this.name = name;
         this.base = base;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 5;
@@ -66,9 +67,10 @@ public final class DataType<T> {
         return name;
     }
     
-    public Class<T> getBase() {
+    public Class getBase() {
         return base;
     }
+    
        
 }
 

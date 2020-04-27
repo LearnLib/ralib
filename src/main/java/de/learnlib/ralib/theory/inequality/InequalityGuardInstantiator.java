@@ -10,6 +10,6 @@ import gov.nasa.jpf.constraints.api.Valuation;
 public interface InequalityGuardInstantiator<T extends Comparable<T>> {
 
 	//TODO We should replace valuation with a mapping from SDV to DVs. That way we can decouple from the JConstraints API.
-	DataValue<T> instantiateGuard(SDTGuard g, Valuation val, Constants c, Collection<DataValue<T>> alreadyUsedValues);
+	DataValue<T> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<T>> alreadyUsedValues);
 
 }

@@ -31,8 +31,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class IntModerateFreshTCPSUL extends DataWordSUL {
 
-    public static final DataType<Integer> INT_TYPE = 
-            new DataType<Integer>("Integer", Integer.class);    
+    public static final DataType INT_TYPE = 
+            new DataType("Integer", Integer.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
             new InputSymbol("IConnect");

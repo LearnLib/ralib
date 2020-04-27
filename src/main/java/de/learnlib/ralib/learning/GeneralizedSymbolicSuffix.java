@@ -228,8 +228,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			for (int j = psLength; j < psLength + i; j++) 
 				this.suffixRelations[psLength + i][j] = symSuffix.suffixRelations[i][j - psLength];
 		}
-		
-		//this.extendRelationsOfFirstSuffixAction();
 	}
 
 	public GeneralizedSymbolicSuffix(ParameterizedSymbol ps, Map<DataType, Theory> theories) {

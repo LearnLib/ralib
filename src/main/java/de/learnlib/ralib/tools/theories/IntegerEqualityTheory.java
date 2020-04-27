@@ -36,12 +36,12 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
 
 
-    private DataType<Integer> type = null;
+    private DataType type = null;
 
     public IntegerEqualityTheory() {
     }
     
-    public IntegerEqualityTheory(DataType<Integer> t) {
+    public IntegerEqualityTheory(DataType t) {
         this.type = t;
     }
 
@@ -59,7 +59,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         this.type = type;
     }
     
-    public DataType<Integer> getType() {
+    public DataType getType() {
     	return this.type;
     }
     
@@ -102,4 +102,9 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
         
         return ret;
     }
+
+	@Override
+	public Class<Integer> getDomainType() {
+		return Integer.class;
+	}
 }

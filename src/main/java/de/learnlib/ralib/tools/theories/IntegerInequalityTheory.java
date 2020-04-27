@@ -14,7 +14,7 @@ public abstract class IntegerInequalityTheory  extends NumberInequalityTheory<In
     	super(new DiscreteDomainInequalityMerger());
     }
 
-    public IntegerInequalityTheory(DataType<Integer> t) {
+    public IntegerInequalityTheory(DataType t) {
     	this();
     	super.setType(t);
     }

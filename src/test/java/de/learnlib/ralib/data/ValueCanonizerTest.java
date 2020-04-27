@@ -99,7 +99,7 @@ public class ValueCanonizerTest  extends RaLibTestSuite {
 	}
     
 
-	private DataValue [] dv(DataType<Integer> dType, int ... nums) {
+	private DataValue [] dv(DataType dType, int ... nums) {
 		DataValue[] dvs = Arrays.stream(nums).mapToObj(num -> new DataValue<Integer>(dType, new Integer(num))).toArray(DataValue []::new);
 		return dvs;
 	}

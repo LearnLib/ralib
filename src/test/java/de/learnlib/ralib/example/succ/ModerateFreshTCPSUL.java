@@ -31,8 +31,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class ModerateFreshTCPSUL extends DataWordSUL {
 
-    public static final DataType<Double> DOUBLE_TYPE = 
-            new DataType<Double>("DOUBLE", Double.class);    
+    public static final DataType DOUBLE_TYPE = 
+            new DataType("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
             new InputSymbol("IConnect");

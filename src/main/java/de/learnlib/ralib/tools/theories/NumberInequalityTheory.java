@@ -45,7 +45,7 @@ public abstract class NumberInequalityTheory<N extends Comparable<N>> extends In
 		super(merger);
 	}
 
-	public NumberInequalityTheory(InequalityGuardMerger merger, DataType<N> t) {
+	public NumberInequalityTheory(InequalityGuardMerger merger, DataType t) {
 		this(merger);
 		super.setType(t);
 	}
@@ -69,17 +69,17 @@ public abstract class NumberInequalityTheory<N extends Comparable<N>> extends In
 	@Override
 	public DataValue<N> getFreshValue(List<DataValue<N>> vals) {
 		if (vals.isEmpty()) {
-			return DataValue.ONE(type);
-		}
+			return DataValue.ONE(type, getDomainType());
+		} 
 		List<DataValue<N>> potential = getPotential(vals);
 		if (potential.isEmpty()) {
-			return DataValue.ONE(type);
+			return DataValue.ONE(type, getDomainType());
 		}
 
 		// log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in
 		// " + ifValues.toString() + " is " + smallest);
 		DataValue<N> biggestDv = Collections.max(potential, new Cpr());
-		return (DataValue<N>) DataValue.add(biggestDv, DataValue.ONE(type));
+		return (DataValue<N>) DataValue.add(biggestDv, DataValue.ONE(type, getDomainType()));
 	}
 
 	@Override

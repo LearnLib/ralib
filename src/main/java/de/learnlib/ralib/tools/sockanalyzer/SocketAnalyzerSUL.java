@@ -113,7 +113,8 @@ public class SocketAnalyzerSUL extends DataWordSUL {
 		return new PSymbolInstance(outputSignature, parameters);
 	}
 
-	public static <T> T valueOf(String serializedParameter, DataType<T> parameterType) {
+	public static <T> T valueOf(String serializedParameter, DataType parameterType) {
+		// TODO we should use the domain and not the base type here
 		Class<T> cls = parameterType.getBase();
 		if (cls == Integer.class)
 			return cls.cast(Integer.valueOf(serializedParameter));

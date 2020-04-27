@@ -136,6 +136,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         Map<String, DataType> typeMap = loader.getDataTypes()
         		.stream().collect(Collectors.toMap(type -> type.getName(), type -> type));
         
+        
         // create teachers
         this.teachers = super.buildTypeTheoryMapAndConfigureTheories(teacherClasses, config, typeMap, inputSymbols, consts);
 

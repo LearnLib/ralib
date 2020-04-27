@@ -26,10 +26,11 @@ import de.learnlib.ralib.theory.Theory;
  */
 public interface TypedTheory<T> extends Theory<T> {
  
-    public void setType(DataType<T> type);
+    public void setType(DataType type);
     
-    public DataType<T> getType();
+    public DataType getType();
     
+    public Class<T> getDomainType();
     
     public default void setUseSuffixOpt(boolean useit) {
         System.err.println("Suffix Optimization currently not implemented for theory " + 

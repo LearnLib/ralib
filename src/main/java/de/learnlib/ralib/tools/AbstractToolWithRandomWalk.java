@@ -252,6 +252,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
 		return teacherClasses;
 	}
+	
 
 	/**
 	 * Builds a mapping from types to the theories that handle them and sets on
@@ -267,6 +268,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 			DataType t = types.get(tName);
 			TypedTheory theory = teacherClasses.get(t.getName());
 			teachers.put(t, theory);
+			theory.setType(t);
 		}
 		configureTheories(teachers, configuration, types, inputs, constants);
 		return teachers;
@@ -274,12 +276,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
 	protected final void configureTheories(Map<DataType, Theory> teachers, Configuration config,
 			Map<String, DataType> types, ParameterizedSymbol [] inputs, Constants constants) throws ConfigurationException {
-		 
 		teachers.forEach((type, teach) -> {
 			TypedTheory typedTheory = (TypedTheory) teach;
-			typedTheory.setCheckForFreshOutputs(this.useFresh);
-			typedTheory.setUseSuffixOpt(this.useSuffixOpt);
-			typedTheory.setType(type);
+			typedTheory.setCheckForFreshOutputs(useFresh);
+			typedTheory.setUseSuffixOpt(useSuffixOpt);
 		});
 		applyCustomTeacherSettings(teachers, config, types, constants);
 	}
@@ -336,11 +336,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 		public String type;
 		public String value;
 
-		public <T> DataValue<T> toDataValue(DataType<T> type) {
+		public  DataValue toDataValue(DataType type) {
 			if (type.getName().compareTo(this.type) != 0) {
 				throw new RuntimeException("Type name mismatch");
 			}
-			DataValue<T> dv = DataValue.valueOf(value, type);
+			// TODO this will fail if the base class is not the domain class
+			DataValue dv = new DataValue(type, DataValue.valueOf(value, type.getBase()));
 
 			return dv;
 		}

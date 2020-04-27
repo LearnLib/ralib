@@ -33,7 +33,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class IntHardFreshTCPSUL extends DataWordSUL {
 
-	public static final DataType<Integer> INT_TYPE = new DataType<Integer>("INTEGER", Integer.class);
+	public static final DataType INT_TYPE = new DataType("INTEGER", Integer.class);
 
 	public static final ParameterizedSymbol ISYN = new InputSymbol("ISYN", new DataType[] { INT_TYPE, INT_TYPE });
 	public static final ParameterizedSymbol ISYNACK = new InputSymbol("ISYNACK", new DataType[] { INT_TYPE, INT_TYPE });

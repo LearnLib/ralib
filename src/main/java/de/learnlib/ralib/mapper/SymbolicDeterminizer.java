@@ -19,9 +19,9 @@ import de.learnlib.ralib.words.DataWords;
 public class SymbolicDeterminizer<T extends Comparable<T>> implements Determinizer<T> {
 	
 	private Theory<T> theory;
-	private DataType<T> type;
+	private DataType type;
 
-	public SymbolicDeterminizer(Theory<T> theory, DataType<T> type) {
+	public SymbolicDeterminizer(Theory<T> theory, DataType type) {
 		this.theory = theory;
 		this.type = type;
 	}

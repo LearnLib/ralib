@@ -22,7 +22,7 @@ package de.learnlib.ralib.data;
  */
 public class FreshValue<T> extends DataValue<T> {
 
-    public FreshValue(DataType<T> type, T id) {
+    public FreshValue(DataType type, T id) {
         super(type, id);
     }
     

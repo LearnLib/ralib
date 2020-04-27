@@ -40,14 +40,14 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 	}
  
 	@SuppressWarnings("unchecked")
-	public <T>  Collection<DataValue<T>> getValues(DataType<T> type) {
+	public <T>  Collection<DataValue<T>> getValues(DataType type) {
 		Collection<DataValue<T>> collection = (Collection<DataValue<T>>)  
 				this.values().stream().filter(c -> c.type.equals(type)).
 				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
 		return collection;
 	}
 	
-	public <T> Map<SymbolicDataValue.Constant, DataValue<T>> ofType(DataType<T> type) {
+	public <T> Map<SymbolicDataValue.Constant, DataValue<T>> ofType(DataType type) {
 		final LinkedHashMap<SymbolicDataValue.Constant, DataValue<T>> cMap = new LinkedHashMap<>();
 		this.entrySet().stream().filter(e -> e.getValue().type.equals(type))
 		.forEach(e -> cMap.put(e.getKey(), (DataValue<T>) e.getValue()) );
@@ -71,7 +71,7 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 	}
 	
 	
-	public <T> List<DataValue<T>> getSumCs(DataType<T> type) {
+	public <T> List<DataValue<T>> getSumCs(DataType type) {
 		@SuppressWarnings("unchecked")
 		List<DataValue<T>> list = (List<DataValue<T>>)  
 				this.sumConstants.values().stream().filter(c -> c.type.equals(type)).
@@ -79,7 +79,7 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 		return list;
 	}
 	
-	public <T> DataValue<T> getSumC(DataType<T> type, int index) {
+	public <T> DataValue<T> getSumC(DataType type, int index) {
 		List<DataValue<T>> sumConst = getSumCs(type);
 		return sumConst.get(index);
 		

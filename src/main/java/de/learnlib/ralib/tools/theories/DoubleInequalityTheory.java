@@ -37,7 +37,7 @@ public class DoubleInequalityTheory extends NumberInequalityTheory<Double> imple
     	super(new ContinuousDomainInequalityMerger());
     }
 
-    public DoubleInequalityTheory(DataType<Double> t) {
+    public DoubleInequalityTheory(DataType t) {
     	this();
         super.setType(t);
     }
@@ -64,5 +64,10 @@ public class DoubleInequalityTheory extends NumberInequalityTheory<Double> imple
     	}
     	
     	return new IntervalDataValue<Double>(new DataValue<Double>(super.getType(), intVal), left, right);
+	}
+
+	@Override
+	public Class<Double> getDomainType() {
+		return Double.class;
 	}
 }

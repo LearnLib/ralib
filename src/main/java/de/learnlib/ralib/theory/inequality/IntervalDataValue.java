@@ -12,8 +12,8 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 	 * In case where there is no boundary, smBgStep is deducted from/added to the end.
 	 */
 	public static <T extends Comparable<T>>  IntervalDataValue<T>  instantiateNew(DataValue<T> left, DataValue<T> right, DataValue<T> smBgStep) {
-		DataType<T> type = left != null ? left.getType() : right.getType();
-		Class<T> cls = type.getBase();
+		DataType type = left != null ? left.getType() : right.getType();
+		Class<T> cls = left != null ? left.getIdType() : right.getIdType();
 		
 		T intvVal;
 		
@@ -24,7 +24,7 @@ public class IntervalDataValue<T extends Comparable<T>> extends DataValue<T>{
 		} else if (left != null && right == null) {
 			intvVal = cls.cast(DataValue.add(left, smBgStep).getId());
 		} else if (left != null && right != null) {
-			intvVal = pickInBetweenValue(type.getBase(), left.getId(), right.getId());
+			intvVal = pickInBetweenValue(cls, left.getId(), right.getId());
 			if (intvVal == null)
 				throw new DecoratedRuntimeException("Invalid interval, left end bigger or equal to right end \n ")
 				.addDecoration("left", left).addDecoration("right", right);

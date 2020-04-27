@@ -24,7 +24,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public class BranchingLogic<T extends Comparable<T>> {
-	private DataType<T> type;
+	private DataType type;
 	private TypedTheory<T> theory;
 
 	public BranchingLogic(TypedTheory<T> theory) {
@@ -150,7 +150,7 @@ public class BranchingLogic<T extends Comparable<T>> {
 			SuffixValuation suffixValues, DataRelation ... relations) {
 		List<DataValue<T>> relatedValues = new ArrayList<DataValue<T>>();
 		//List<DataRelation> rels = Arrays.asList(relations);
-		DataType<?> t = suffix.getDataValue(pId).getType();
+		DataType t = suffix.getDataValue(pId).getType();
 		for (int i = 1; i < pId; i++) {
 			if (!t.equals(suffix.getDataValue(i).getType())) {
 				continue;

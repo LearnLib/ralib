@@ -23,7 +23,7 @@ public class TestIneqGuardLogic  extends RaLibTestSuite {
 	
 	public TestIneqGuardLogic() {
 		SymbolicDataValueGenerator gen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-		DataType<Integer> type = new DataType<Integer>("test", Integer.class);
+		DataType type = new DataType("test", Integer.class);
 		a = gen.next(type);
 		b = gen.next(type);
 		c = gen.next(type);
