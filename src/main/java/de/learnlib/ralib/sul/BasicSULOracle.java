@@ -62,19 +62,8 @@ public class BasicSULOracle implements IOOracle {
 
             trace = trace.append(in).append(out);
 
-            if (out.getBaseSymbol().equals(error)) {
-                break;
-            }
         }
-        
-        if (trace.length() < query.length()) {
-            
-            // fill with errors
-            for (int i = trace.length(); i < query.length(); i += 2) {
-                trace = trace.append(query.getSymbol(i)).append(new PSymbolInstance(error));
-            }                        
-        }
-        
+                
         sul.post();
         return trace;
     }

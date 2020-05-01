@@ -1,4 +1,4 @@
-package de.learnlib.ralib.theory.inequality;
+package de.learnlib.ralib.solver.jconstraints;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
@@ -11,7 +11,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.solver.jconstraints.JContraintsUtil;
 import de.learnlib.ralib.theory.SDTGuard;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
@@ -20,26 +19,23 @@ import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
-import gov.nasa.jpf.constraints.expressions.NumericCompound;
-import gov.nasa.jpf.constraints.expressions.NumericOperator;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements InequalityGuardInstantiator<T> {
+public class JConstraintsGuardInstantiator<T> {
 
 	private final DataType type;
 	private final Type<T> jcType;
 	private final ConstraintSolver solver;
 	private Class<T> domainType;
 
-	public InequalityGuardInstantiatorImpl(DataType type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
+	public JConstraintsGuardInstantiator(DataType type, gov.nasa.jpf.constraints.types.Type<T> jcType, ConstraintSolver solver) {
 		this.type = type;
 		this.jcType = jcType;
 		this.solver = solver;
 	}
 
-	public InequalityGuardInstantiatorImpl(DataType type, ConstraintSolver solver, Class<T> domainType) {
+	public JConstraintsGuardInstantiator(DataType type, ConstraintSolver solver, Class<T> domainType) {
 		this(type, JContraintsUtil.getJCType(domainType), solver);
 		this.domainType = domainType;
 	}
@@ -53,7 +49,6 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 	}
 
 	
-	@Override
 	public DataValue<T> instantiate(SDTGuard g, Valuation val, Constants c,
 			Collection<DataValue<T>> alreadyUsedValues) {
 		// System.out.println("INSTANTIATING: " + g.toString());
@@ -63,14 +58,6 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		Result res;
 
 		List<Expression<Boolean>> eList = new ArrayList<>();
-		// add equalities tying sdv's to concrete values
-		for (SymbolicDataValue sdv : g.getAllSDVsFormingGuard()) {
-			DataValue<Double> sdvVal = new DataValue(getType(), val.getValue(toVariable(sdv)));
-			gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(
-					getJCType(), sdvVal.getId());
-			// add the constant equivalence expression to the list
-			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(sdv)));
-		}
 			
 		// add the guard
 		eList.add(toExpression(g.toExpr()));
@@ -123,38 +110,4 @@ public class InequalityGuardInstantiatorImpl<T extends Comparable<T>> implements
 		}
 	}
 	
-	
-
-	public static void main(String [] args) {
-		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
-		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver("z3");
-		
-		gov.nasa.jpf.constraints.expressions.Constant<Double> cst = new gov.nasa.jpf.constraints.expressions.Constant<Double>(
-				BuiltinTypes.DOUBLE, 1.0);
-		
-		Variable<Double> a = new Variable<Double>(BuiltinTypes.DOUBLE, "a");
-		NumericBooleanExpression equExpression = new NumericBooleanExpression(cst, NumericComparator.EQ, a);
-		Valuation ctx = new Valuation();
-		
-		Result res = solver.solve(equExpression, ctx);
-		System.out.println("Result: " + res + " Context: "  + ctx);
-		
-		NumericCompound<Double> incOfA = gov.nasa.jpf.constraints.expressions.NumericCompound.create(a, 
-	        		NumericOperator.PLUS, cst);
-		
-		equExpression = new NumericBooleanExpression(cst, NumericComparator.EQ, incOfA);
-		ctx = new Valuation();
-		
-		res = solver.solve(equExpression, ctx);
-		System.out.println("Result: " + res + " Context: "  + ctx);
-		
-		ctx = new Valuation();
-		NumericBooleanExpression impExpression = new NumericBooleanExpression(a, NumericComparator.EQ, incOfA);
-		
-		res = solver.solve(impExpression, ctx);
-		System.out.println("Result: " + res + " Context: "  + ctx);
-		
-		
-	}
-
 }

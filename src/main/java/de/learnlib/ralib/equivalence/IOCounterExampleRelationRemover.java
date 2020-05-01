@@ -17,9 +17,7 @@
 package de.learnlib.ralib.equivalence;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.learnlib.oracles.DefaultQuery;
@@ -27,14 +25,10 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.Slice;
 import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -76,10 +70,10 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
     
         this.hypothesis = hyp;
 
-        return new DefaultQuery<>(reduceCe(ce), true);
+        return new DefaultQuery<>(reduceCe(ce, 1), true);
     }
         
-    private Word<PSymbolInstance> reduceCe(Word<PSymbolInstance> ce) {    
+    private Word<PSymbolInstance> reduceCe(Word<PSymbolInstance> ce, int startIdx) {    
 
         Map<Integer, DataValue> dvals = new HashMap<>();
         int idx = 1;
@@ -87,7 +81,7 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
             dvals.put(idx++, v);
         }
         
-        for (int i=1; i<= dvals.size(); i++) {
+        for (int i=startIdx; i<= dvals.size(); i++) {
             Map<Integer, DataValue> instMap = new HashMap<>(dvals);
             DataType type = dvals.get(i).getType();
             Theory theory = teachers.get(type);            
@@ -114,37 +108,10 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
            //System.out.println(candidate);
             if (HypVerify.isCEForHyp(ceQuery, hypothesis)) {
                 //System.out.println("Found Prefix CE!!!");
-                return reduceCe(candidate);
+                return reduceCe(candidate, startIdx+1);
             }            
         }
                         
         return ce;
     }
-    
-    public Map<Integer, DataValue> instanciateSlice(Slice slice, DataType ... types) {
-        SuffixValueGenerator sgen = new SuffixValueGenerator();
-        List<SuffixValue> svals = new ArrayList<>();
-        Map<Integer, DataValue> retMap = new HashMap<>();        
-        int idx = 1;
-        for (DataType t : types) {
-            Theory theory = teachers.get(t);
-            SuffixValue sv = sgen.next(t);            
-            Map<SuffixValue, EnumSet<DataRelation>> relMap = new HashMap<>();
-            for (SuffixValue psv : svals) {
-                EnumSet<DataRelation> rels = slice.getSuffixRelationsFor(psv, sv);
-                if (rels.isEmpty()) {
-                    rels = EnumSet.of(DataRelation.DEFAULT);
-                }
-                for (DataRelation r : rels) {
-                    System.out.println("   " + psv + " " + r + " " + sv);
-                }
-                relMap.put(psv, rels);
-            }
-            
-            svals.add(sv);
-            idx++;
-        }        
-        return retMap;
-    }
-    
 }

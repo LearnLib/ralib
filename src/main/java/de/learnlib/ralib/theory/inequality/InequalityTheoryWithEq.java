@@ -61,6 +61,7 @@ import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SDTQuery;
 import de.learnlib.ralib.oracles.mto.SemanticEquivalenceChecker;
+import de.learnlib.ralib.solver.jconstraints.JConstraintsGuardInstantiator;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.IfElseGuardMerger;
 import de.learnlib.ralib.theory.SDTAndGuard;
@@ -82,9 +83,8 @@ import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.words.Word;
 
 /**
- * Abstract class for inequality theories with fresh values. Note that if fresh
- * values are enabled in outputs, only (dis-)equality will be considered in
- * analyzing output parameters.
+ * Abstract class for inequality theories with fresh values.
+ * For output parameters only equality and disequality are supported.
  *
  * @param<T>
  */
@@ -101,12 +101,12 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	/**
 	 * Builds a guard instantiator.
 	 */
-	protected static <P extends Comparable<P>> InequalityGuardInstantiator<P> getInstantiator(DataType type,
+	protected static <P extends Comparable<P>> JConstraintsGuardInstantiator<P> getInstantiator(DataType type,
 			String solverName,
 			Class<P> domainType) {
 		gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
 		gov.nasa.jpf.constraints.api.ConstraintSolver solver = fact.createSolver(solverName);
-		return new InequalityGuardInstantiatorImpl<P>(type, solver, domainType);
+		return new JConstraintsGuardInstantiator<P>(type, solver, domainType);
 	}
 
 	private boolean freshValues;
@@ -115,19 +115,21 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	private final IfElseGuardMerger ifElseMerger;
 	private boolean suffixOptimization;
 	private de.learnlib.ralib.solver.ConstraintSolver solver;
-	private InequalityGuardInstantiator<T> guardInstantiator;
+	private final String jSolverName; 
+	private JConstraintsGuardInstantiator<T> guardInstantiator;
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger,
-			de.learnlib.ralib.solver.ConstraintSolver solver) {
+			String jSolverName) {
 		this.freshValues = false;
 		this.suffixOptimization = false;
 		this.fullMerger = fullMerger;
-		this.ifElseMerger = new IfElseGuardMerger(this.getGuardLogic());
-		this.solver = solver;
+		this.jSolverName = jSolverName;
+		this.ifElseMerger = new IfElseGuardMerger(getGuardLogic());
+		this.solver = getSolver(jSolverName);
 	}
 
 	public InequalityTheoryWithEq(InequalityGuardMerger fullMerger) {
-		this(fullMerger, getSolver("z3"));
+		this(fullMerger, "z3");
 	}
 
 	@Override
@@ -140,7 +142,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 */
 	public void setType(DataType dataType) {
 		this.type = dataType;
-		this.guardInstantiator = getInstantiator(dataType, "z3", getDomainType());
+		this.guardInstantiator = getInstantiator(dataType, jSolverName, getDomainType());
 	}
 
 	public DataType getType() {
