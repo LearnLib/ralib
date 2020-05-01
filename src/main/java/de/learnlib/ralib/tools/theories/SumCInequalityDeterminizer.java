@@ -40,8 +40,9 @@ public class SumCInequalityDeterminizer<T extends Number & Comparable<T>> implem
 			DataValue<T> mapping = decToCanMap.get(decValue);
 			return  mapping; 
 		}
-		if (constants.containsValue(decValue))
+		if (constants.containsValue(decValue)) {
 			return decValue;
+		}
 		
 		for (DataValue<T> constant : sumConstants) {
 			if (decToCanMap.containsKey(DataValue.sub(decValue, constant))) {
@@ -52,7 +53,7 @@ public class SumCInequalityDeterminizer<T extends Number & Comparable<T>> implem
 		}
 		
 		List<DataValue<T>> valList = DataWords.<T>joinValsToList(decToCanMap.values(), constants.values(decValue.getType()));
-		DataValue<T> fv = this.theory.getFreshValue(valList);
+		DataValue<T> fv = theory.getFreshValue(valList);
 		return new FreshValue<>(fv.getType(), fv.getId());
 	}
 
@@ -60,10 +61,12 @@ public class SumCInequalityDeterminizer<T extends Number & Comparable<T>> implem
 	 * Decanonizes from SumC, Equal, Fresh Data and also Interval Values, to concrete values. .
 	 */
 	public DataValue<T> decanonize(DataValue<T> canValue, Map<DataValue<T>, DataValue<T>> canToDecMap, Constants constants) {
-		if (canToDecMap.containsKey(canValue)) 
+		if (canToDecMap.containsKey(canValue)) { 
 			return canToDecMap.get(canValue);
-		if (constants.containsValue(canValue))
+		}
+		if (constants.containsValue(canValue)) {
 			return canValue;
+		}
 		if (canValue instanceof IntervalDataValue) {
 			IntervalDataValue<T> interval = (IntervalDataValue<T>) canValue;
 			DataValue<T> left = null;

@@ -24,6 +24,9 @@ public class EqualityDeterminizer<T> implements Determinizer<T>{
 	
 
 	public DataValue<T> canonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
+		if (constants.containsValue(value)) {
+			return value;
+		}
 		if (thisToOtherMap.containsKey(value)) {
 			DataValue<T> dv = thisToOtherMap.get(value);
 			return new DataValue<>(dv.getType(), dv.getId());
@@ -34,10 +37,12 @@ public class EqualityDeterminizer<T> implements Determinizer<T>{
 	}
 
 	public DataValue<T> decanonize(DataValue<T> value, Map<DataValue<T>, DataValue<T>> thisToOtherMap, Constants constants) {
-		if (thisToOtherMap.containsKey(value)) 
+		if (thisToOtherMap.containsKey(value)) { 
 			return thisToOtherMap.get(value);
-		if (constants.containsValue(value))
+		}
+		if (constants.containsValue(value)) {
 			return value;
+		}
 
 		List<DataValue<T>> valList = DataWords.joinValsToList(thisToOtherMap.values(), constants.values(value.getType()));
 		DataValue<T> fv = theory.getFreshValue(valList);
