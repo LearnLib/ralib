@@ -22,8 +22,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
@@ -34,6 +37,7 @@ import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -57,13 +61,11 @@ public interface Theory<T> {
     public DataValue<T> getFreshValue(List<DataValue<T>> vals);
     
     /** 
-     * Implements a tree query for this theory. This tree query
-     * will only work on one parameter and then call the 
-     * TreeOracle for the next parameter.
-     * 
-     * This method should contain (a) creating all values for the
-     * current parameter and (b) merging the corresponding 
-     * sub-trees.
+     * Implements a tree query for this theory. 
+     * <p>
+     * The method chooses possible guards and values for the next suffix parameter to be insantiated.
+     * For each value it recursively calls {@code treeQuery}, for follow-up suffix parameters.
+     * The resulting SDTs are merged under their respective guards into a single SDT. 
      * 
      * @param prefix prefix word. 
      * @param suffix suffix word.
@@ -96,6 +98,7 @@ public interface Theory<T> {
     
     /**
      * returns an ordered list of potential values
+     * 
      * @param vals
      * @return
      */
@@ -105,15 +108,21 @@ public interface Theory<T> {
     
     /**
      * Instantiates a determinizer for the given theory which is used for handling fresh values.
-     * @return the determinizer instance (throws exception if method not implemented)
+     * 
+     * @return the determinizer instance 
+     * @throws exception if fresh values are not supported
      */
     public default Determinizer<T> getDeterminizer() {
     	throw new NotImplementedException();
     }
     
+    
     /**
-     * Finds a model for a guard (data values). Tries to reuse
-     * known (old) data values.
+     * Insantiates the guard by providing a DataValue satisfying the guard, or null, if no such value exists.
+     * <p>
+     * For theories with fresh value support the DataValue subtype should reflect the guard constraints it satisfies.
+     * For example, {@link IntervalDataValue} reflects inequality, {@link FreshValue} reflects new value.
+	 * This information is required by the determinizer and symbolic trace canonizer. 
      * 
      * @param prefix
      * @param ps
@@ -125,7 +134,7 @@ public interface Theory<T> {
      * @param oldDvs
      * @return 
      */
-    public DataValue instantiate(Word<PSymbolInstance> prefix, 
+    public @Nullable DataValue instantiate(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver);

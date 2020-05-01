@@ -41,7 +41,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class BasicIOCacheOracle extends QueryCounter implements IOOracle, DataWordOracle {
+public class BasicIOCacheOracle extends QueryCounter implements DataWordIOOracle {
 
     private final IOOracle sul;
 
@@ -52,6 +52,11 @@ public class BasicIOCacheOracle extends QueryCounter implements IOOracle, DataWo
     public BasicIOCacheOracle(IOOracle sul) {
         this.sul = sul;
         this.cache = new IOCache();
+    }
+    
+    public BasicIOCacheOracle(IOOracle sul, IOCache cache) {
+    	this.sul = sul;
+    	this.cache = cache;
     }
 
     @Override

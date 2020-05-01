@@ -86,7 +86,6 @@ import net.automatalib.words.Word;
  * values are enabled in outputs, only (dis-)equality will be considered in
  * analyzing output parameters.
  *
- * @author Sofia Cassel, Paul
  * @param<T>
  */
 public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements TypedTheory<T> {
@@ -148,7 +147,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return type;
 	}
 
-	protected Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
+	private Map<SDTGuard, SDT> mergeAllGuards(final Map<SDTGuard, SDT> tempGuards,
 			Map<SDTGuard, DataValue<T>> instantiations, SDTEquivalenceChecker sdtChecker,
 			Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 		if (tempGuards.size() == 1) { // for true guard do nothing
@@ -411,23 +410,17 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 				if (branching == BranchingStrategy.FULL || branching == BranchingStrategy.TRUE_SMALLER) {
 					// smallest case
-					Valuation smVal = new Valuation();
 					DataValue<T> dvRight = potential.get(0);
 					IntervalGuard sguard = makeSmallerGuard(dvRight, prefixValues, currentParam, values, piv,
 							constants);
-					SymbolicDataValue rsm = (SymbolicDataValue) sguard.getRightExpr();
-					smVal.setValue(toVariable(rsm), dvRight.getId());
 					DataValue<T> smcv = pickIntervalDataValue(null, dvRight);
 					guardDvs.put(sguard, smcv);
 				}
 
 				if (branching == BranchingStrategy.FULL) {
 					// biggest case
-					Valuation bgVal = new Valuation();
-
 					DataValue<T> dvLeft = potential.get(potSize - 1);
 					IntervalGuard bguard = makeBiggerGuard(dvLeft, prefixValues, currentParam, values, piv, constants);
-					updateValuation(bgVal, bguard.getLeftExpr(), dvLeft);
 
 					DataValue<T> bgcv = pickIntervalDataValue(dvLeft, null);
 					guardDvs.put(bguard, bgcv);
@@ -440,15 +433,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 				List<Range<T>> ranges = generateRangesFromPotential(potential, false);
 
 				for (Range<T> range : ranges) {
-					Valuation val = new Valuation();
 					DataValue<T> dvMRight = range.right;
 					DataValue<T> dvMLeft = range.left;
 
 					IntervalGuard intervalGuard = makeIntervalGuard(dvMLeft, dvMRight, prefixValues, currentParam,
 							values, piv, constants);
-
-					updateValuation(val, intervalGuard.getRightExpr(), dvMRight);
-					updateValuation(val, intervalGuard.getLeftExpr(), dvMLeft);
 
 					DataValue<T> cv = pickIntervalDataValue(dvMLeft, dvMRight);
 					guardDvs.put(intervalGuard, cv);
@@ -523,7 +512,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	}
 
-	public Mapping<SymbolicDataValue, DataValue<?>> buildContext(List<DataValue> prefixValues, WordValuation ifValues,
+	private Mapping<SymbolicDataValue, DataValue<?>> buildContext(List<DataValue> prefixValues, WordValuation ifValues,
 			Constants constants) {
 		Mapping<SymbolicDataValue, DataValue<?>> context = new Mapping<SymbolicDataValue, DataValue<?>>();
 		HashSet<DataValue> prSet = new HashSet<DataValue>(prefixValues);
@@ -564,6 +553,13 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return tempKids;
 	}
 
+	/**
+	 * Produces valid ranges from the sorted potential.  
+	 * 
+	 * @param potential  a sorted list of potential values
+	 * @param includeOpenRanges  include open ranges in the result
+	 * @return
+	 */
 	protected List<Range<T>> generateRangesFromPotential(List<DataValue<T>> potential, boolean includeOpenRanges) {
 		int potSize = potential.size();
 		List<Range<T>> ranges = new ArrayList<Range<T>>(potential.size()+2);
@@ -594,11 +590,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 	}
 
-	/**
-	 * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a
-	 * rejecting Leaf. The edges are True guards over suffix values with index
-	 * from nextSufIndex to (excl.) maxIndex.
-	 * 
+	/*
+	 * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a rejecting Leaf.
+	 * Edges are of type {@link SDTTrueGuard}.
 	 * Used to shortcut output processing.
 	 */
 	private SDT makeRejectingBranch(int nextSufIndex, int maxIndex) {
@@ -614,24 +608,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 	}
 
-	protected DataValue<T> updateValuation(Valuation valuation, SymbolicDataExpression expr, DataValue<T> concValue) {
-		SymbolicDataValue sdvForExpr = expr.getSDV();
-		DataValue<T> sdvValuation;
-		if (expr instanceof SymbolicDataValue) {
-			sdvValuation = concValue;
-		} else {
-			if (expr instanceof SumCDataExpression) {
-				sdvValuation = ((SumCDataValue<T>) concValue).getOperand();
-			} else {
-				throw new RuntimeException(
-						"Cannot update valuation for expression " + expr + " assigned data value " + concValue);
-			}
-		}
-		valuation.setValue(toVariable(sdvForExpr), sdvValuation.getId());
-		return sdvValuation;
-	}
-
-	protected IntervalGuard makeIntervalGuard(DataValue<T> biggerDv, DataValue<T> smallerDv,
+	private IntervalGuard makeIntervalGuard(DataValue<T> biggerDv, DataValue<T> smallerDv,
 			List<DataValue> prefixValues, SuffixValue currentParam, WordValuation ifValues, PIV pir,
 			Constants constants) {
 		IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir, constants);
@@ -639,23 +616,22 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return new IntervalGuard(currentParam, biggerGuard.getLeftExpr(), smallerGuard.getRightExpr());
 	}
 
-	protected IntervalGuard makeBiggerGuard(DataValue<T> biggerDv, List<DataValue> prefixValues,
+	private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv, List<DataValue> prefixValues,
 			SuffixValue currentParam, WordValuation ifValues, PIV pir, Constants constants) {
 		SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(biggerDv, prefixValues, ifValues, constants);
 		IntervalGuard bg = new IntervalGuard(currentParam, regOrSuffixExpr, null);
 		return bg;
 	}
 
-	protected IntervalGuard makeSmallerGuard(DataValue<T> smallerDv, List<DataValue> prefixValues,
+	private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv, List<DataValue> prefixValues,
 			SuffixValue currentParam, WordValuation ifValues, PIV pir, Constants constants) {
 		SymbolicDataExpression regOrSuffixExpr = getSDExprForDV(smallerDv, prefixValues, ifValues, constants);
 		IntervalGuard sg = new IntervalGuard(currentParam, null, regOrSuffixExpr);
 		return sg;
 	}
 
-	protected EqualityGuard makeEqualityGuard(DataValue<T> equDv, List<DataValue> prefixValues,
+	private EqualityGuard makeEqualityGuard(DataValue<T> equDv, List<DataValue> prefixValues,
 			SuffixValue currentParam, WordValuation ifValues, Constants constants) {
-		DataType type = equDv.getType();
 		SymbolicDataExpression sdvExpr = getSDExprForDV(equDv, prefixValues, ifValues, constants);
 		return new EqualityGuard(currentParam, sdvExpr);
 	}
@@ -688,8 +664,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 
 	private SymbolicDataValue getSDVForDV(DataValue<T> dv, @Nullable List<DataValue> prefixValues,
 			WordValuation ifValues, Constants constants) {
-		int newDv_i;
-		DataType type = dv.getType();
 
 		if (constants.containsValue(dv)) {
 			return constants.getConstantWithValue(dv);
@@ -741,19 +715,6 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		}
 	}
 
-	/**
-	 * Instantiates the guard over param for the given prefix/constants...
-	 * If guard is satisfiable, returns a DataValue containing the concrete value. 
-	 * Otherwise returns null.
-	 * 
-	 * The DataValue subtype should reflect the underlying constraint it satisfies.
-	 * {@link IntervalDataValue} reflects inequality, {@link FreshValue} reflects new value.
-	 * This is necessary for the determinizer and symbolic trace canonizer to function.
-	 * 
-	 * We probe different values of the parameter and return the one which satisfies the constraints.
-	 * This is done instead of letting the constraint solver pick a value, as it gives us control over the value chosen.
-	 */
-	// prioritizing interval values over equal values/sumc seems to be necessary if we merge < and = guards to <=
 	@Override
 	public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
 			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver) {
@@ -835,7 +796,7 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return null;
 	}
 	
-	public IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right,
+	private IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right,
 			Set<DataValue> prohibited) {
 		if (left != null && right != null && left.getId().compareTo(right.getId()) >= 0)
 			return null;
@@ -855,7 +816,14 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return dv;
 	}
 
-	public abstract IntervalDataValue<T> pickIntervalDataValue(DataValue<T> left, DataValue<T> right);
+	/**
+	 * Produces an IntervalDataValue that is greater than left if left is not null, and smaller than right, if right is not null. 
+	 * 
+	 * @param left
+	 * @param right
+	 * @return
+	 */
+	public abstract IntervalDataValue<T> pickIntervalDataValue(@Nullable DataValue<T> left, @Nullable DataValue<T> right);
 
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right) {
 
