@@ -136,10 +136,13 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "              []-TRUE: s2\n" +
 "                    []-(s3=r1)\n" +
 "                     |    []-(s4=r2)\n" +
-"                     |     |    []-TRUE: s5\n" +
-"                     |     |          []-(s6=s2)\n" +
-"                     |     |           |    [Leaf+]\n" +
-"                     |     |           +-(s6!=s2)\n" +
+"                     |     |    []-(s5=s1)\n" +
+"                     |     |     |    []-(s6=s2)\n" +
+"                     |     |     |     |    [Leaf+]\n" +
+"                     |     |     |     +-(s6!=s2)\n" +
+"                     |     |     |          [Leaf-]\n" +
+"                     |     |     +-(s5!=s1)\n" +
+"                     |     |          []-TRUE: s6\n" +
 "                     |     |                [Leaf-]\n" +
 "                     |     +-(s4!=r2)\n" +
 "                     |          []-TRUE: s5\n" +
@@ -149,8 +152,8 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "                          []-TRUE: s4\n" +
 "                                []-TRUE: s5\n" +
 "                                      []-TRUE: s6\n" +
-"                                          w  [Leaf-]\n";
-        
+"                                            [Leaf-]\n";
+
         Assert.assertEquals(tree, expectedTree);        
     }
            
