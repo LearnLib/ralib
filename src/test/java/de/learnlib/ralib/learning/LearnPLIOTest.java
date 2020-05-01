@@ -12,14 +12,12 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.HypVerify;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.priority.PrioritizedListSUL;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
@@ -119,14 +117,8 @@ public class LearnPLIOTest extends RaLibTestSuite  {
 	            rastar.addCounterexample(ce);
 	        }
 
+	        Assert.assertNull(ce);
 	        RegisterAutomaton hyp = rastar.getHypothesis();
-	        RegisterAutomatonImporter imp = TestUtil.getLoader(
-	                "/de/learnlib/ralib/automata/xml/pq3.xml");
-
-	        IOEquivalenceTest checker = new IOEquivalenceTest(
-	                imp.getRegisterAutomaton(), teachers, consts, true,
-	                sul.getActionSymbols()
-	        );
 
 	        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
 	        logger.log(Level.FINE, "Resets: " + sul.getResets());        

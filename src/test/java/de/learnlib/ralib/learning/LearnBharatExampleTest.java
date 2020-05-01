@@ -24,11 +24,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
@@ -42,7 +44,6 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
-import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -63,7 +64,7 @@ import net.automatalib.words.Word;
 /*
  * The test involves learning a system with few locations but complex guards. 
  */
-public class LearnBharatExampleTest {
+public class LearnBharatExampleTest  extends RaLibTestSuite {
 
     public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 
@@ -160,9 +161,6 @@ public class LearnBharatExampleTest {
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
-            System.out.println("HYP:------------------------------------------------");
-            System.out.println(hyp);
-            System.out.println("----------------------------------------------------");
 
             DefaultQuery<PSymbolInstance, Boolean> ce
                     = iowalk.findCounterExample(hyp, null);
@@ -209,21 +207,9 @@ public class LearnBharatExampleTest {
         }
         
         
-        System.out.println(
+        
+        logger.log(Level.FINE,
                 "LAST:------------------------------------------------");
-        System.out.println(hyp);
-
-        System.out.println(
-                "----------------------------------------------------");
-
-        System.out.println(
-                "Seed:" + seed);
-        System.out.println(
-                "SUL resets: " + sul.getResets());
-        System.out.println(
-                "SUL inputs: " + sul.getInputs());
-        System.out.println(
-                "Rounds: " + check);
-
+        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
     }
 }

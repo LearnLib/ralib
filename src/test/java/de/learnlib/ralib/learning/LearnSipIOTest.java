@@ -131,7 +131,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-            //ce = rels.optimizeCE(ce.getInput(), hyp);
+            ce = rels.optimizeCE(ce.getInput(), hyp);
             
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));

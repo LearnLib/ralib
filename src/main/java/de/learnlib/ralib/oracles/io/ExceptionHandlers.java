@@ -10,7 +10,7 @@ import net.automatalib.words.Word;
 
 
 /**
- * Wrapper classes for the exceptional cases
+ * Wrapper classes for NonDeterminism handling.
  */
 public class ExceptionHandlers{
 	
