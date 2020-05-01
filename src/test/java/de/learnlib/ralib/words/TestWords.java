@@ -80,7 +80,7 @@ public class TestWords extends RaLibTestSuite {
        logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
        // String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
        String expString = "a[s1] a[s2] a[s3] a[s4]_"
-               + "P[[DEFAULT, EQ], [DEFAULT], [DEFAULT], [DEFAULT, EQ]]_"
+               + "P[[EQ, DEFAULT], [DEFAULT], [DEFAULT], [EQ, DEFAULT]]_"
                + "S[[], [[DEFAULT]], [[DEFAULT], [EQ]], [[EQ], [DEFAULT], [DEFAULT]]]";
         Assert.assertEquals(sym.toString(), expString);
     }
@@ -91,28 +91,26 @@ public class TestWords extends RaLibTestSuite {
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 
                     new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));    
+                    new DataValue(T_PWD, 2)));    
         
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 
                     new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_PWD, 2)),
                 new PSymbolInstance(I_LOGOUT));          
            
-        final Word<PSymbolInstance> suffix = Word.fromSymbols(
+        final Word<PSymbolInstance> suffix1 = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_PWD, 3)));
+        
 
        Map<DataType, Theory> teachers = new HashMap<>();
        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
        teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
        
         final GeneralizedSymbolicSuffix symSuffix1 = 
-                new GeneralizedSymbolicSuffix(prefix1, suffix,
+                new GeneralizedSymbolicSuffix(prefix1, suffix1,
                         new Constants(), teachers);
         final GeneralizedSymbolicSuffix symSuffix2 = 
                 new GeneralizedSymbolicSuffix(prefix2, symSuffix1,
@@ -120,12 +118,12 @@ public class TestWords extends RaLibTestSuite {
         
         logger.log(Level.FINE, "Prefix 1: {0}", prefix1);
         logger.log(Level.FINE, "Prefix 2: {0}", prefix2);
-        logger.log(Level.FINE, "Suffix: {0}", suffix);
+        logger.log(Level.FINE, "Suffix: {0}", suffix1);
         logger.log(Level.FINE, "Sym. Suffix 1: {0}", symSuffix1);
         logger.log(Level.FINE, "Sym. Suffix 2: {0}", symSuffix2);
         
-        String expected1 = "login[s1, s2]_P[[DEFAULT, EQ], [DEFAULT, EQ]]_S[[], []]";
-        String expected2 = "logout[] login[s1, s2]_P[[DEFAULT, EQ], [DEFAULT, EQ]]_S[[], []]";
+        String expected1 = "login[s1, s2]_P[[EQ], [DEFAULT]]_S[[], [[]]]";
+        String expected2 = "logout[] login[s1, s2]_P[[EQ], [DEFAULT]]_S[[], [[]]]";
         
         Assert.assertEquals(symSuffix1.toString(), expected1);
         Assert.assertEquals(symSuffix2.toString(), expected2);

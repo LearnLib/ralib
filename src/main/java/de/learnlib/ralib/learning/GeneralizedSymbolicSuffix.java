@@ -150,15 +150,6 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 			List<EnumSet<DataRelation>> prels = t.getRelations(pvals, v);
 			List<EnumSet<DataRelation>> crels = t.getRelations(cvals, v);
 			List<EnumSet<DataRelation>> srels = t.getRelations(prevSuffixValues, v);
-			// if (prels.size() > 0)
-			// prels.set(0, EnumSet.of(DataRelation.ALL));
-
-			// if (prefix.length() == 0 ||
-			// actions.getSymbol(psIdx) instanceof OutputSymbol ||
-			// psIdx == 0) {
-			//
-			// prefixRels.addAll(t.recognizedRelations());
-			// }
 			
 			prels.stream().forEach((rels) -> {
 				prefixRels.addAll(rels);
