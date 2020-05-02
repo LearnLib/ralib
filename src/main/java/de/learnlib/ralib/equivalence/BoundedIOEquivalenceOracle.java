@@ -1,7 +1,9 @@
 package de.learnlib.ralib.equivalence;
 
 import java.util.Collection;
+import java.util.logging.Level;
 
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.oracles.TraceCanonizer;
@@ -10,7 +12,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle {
-	
+	private static final LearnLogger log = LearnLogger.getLogger(BoundedIOEquivalenceOracle.class);
 	private long maxRuns;
 	private boolean resetRuns;
 	private int runs;
@@ -61,15 +63,17 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 			hypTrace = traceCanonizer.canonize(hypTrace);
 			Word<PSymbolInstance> sulTrace = target.trace(hypTrace);
 			if (!hypTrace.equals(sulTrace)) {
-				System.out.println("SUL Trace " + sulTrace.toString());
+				log.log(Level.INFO, "SUL Trace {}", sulTrace.toString());
+				log.log(Level.INFO, "HYP Trace {}", hypTrace.toString());
 				System.out.println("HYP Trace " + hypTrace.toString());
 				Word<PSymbolInstance> newSulTrace = target.trace(sulTrace);
 				assert newSulTrace.equals(sulTrace);
 				int j;
 				for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);
-				System.out.println("HYP Run: " + hypRun(hyp, sulTrace.prefix(j+1)));
+				log.log(Level.FINE, "HYP Run: {}", hypRun(hyp, sulTrace.prefix(j+1)));
 				return new DefaultQuery<>(sulTrace.prefix(j+1), Boolean.TRUE);
 			}
+			runs ++;
 			
 		}
 		return null;
