@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 
 public class OneWayFreshTCPExample extends AbstractTCPExample{
@@ -21,7 +21,7 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.seq = fresh;  
+    		seq = fresh;  
     		state = State.SYN_SENT;
     	}
         return fresh;
@@ -51,9 +51,9 @@ public class OneWayFreshTCPExample extends AbstractTCPExample{
     			this.seq = ack;
     			state = State.ESTABLISHED;
     		} else {
-//    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
-//    				state = State.CLOSED;
-//    			}
+    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
+    				state = State.CLOSED;
+    			}
     			
     		}
     	}

@@ -1,11 +1,11 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -18,7 +18,7 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
             new DataType("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE});
+            new InputSymbol("IConnect", new DataType[]{});
     public static final ParameterizedSymbol ISYN = 
             new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE});
     public static final ParameterizedSymbol ISYNACK = 
@@ -35,7 +35,7 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
 
     
     public final ParameterizedSymbol[] getInputSymbols() {
-        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK};
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, IFINACK};
     }
         
     public static final ParameterizedSymbol OK = 
@@ -90,9 +90,9 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
     private PSymbolInstance createOutputSymbol(Object x) {
         if (x instanceof Boolean) {
             return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
-        } else 
-        
-        {
+        } else if (x instanceof Double) {
+        	return new PSymbolInstance(OCONNECT, new DataValue<Integer>(DOUBLE_TYPE, (Integer) x));
+        } else {
         	throw new IllegalStateException("Output not supported");
         }
      }

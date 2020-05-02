@@ -14,27 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
-public class ModerateTCPSUL extends DataWordSUL {
+public class TwoWayFreshTCPSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE = 
             new DataType("DOUBLE", Double.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE});
+            new InputSymbol("IConnect");
     public static final ParameterizedSymbol ISYN = 
             new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE, DOUBLE_TYPE});
     public static final ParameterizedSymbol ISYNACK = 
@@ -55,23 +56,27 @@ public class ModerateTCPSUL extends DataWordSUL {
         
     public static final ParameterizedSymbol NOK = 
             new OutputSymbol("_not_ok", new DataType[]{});
+    
+    public static final ParameterizedSymbol OCONNECT = 
+            new OutputSymbol("OCONNECT", new DataType[]{DOUBLE_TYPE});
+    
 
     public final ParameterizedSymbol[] getActionSymbols() {
-        return new ParameterizedSymbol[] { OK, NOK };
+        return new ParameterizedSymbol[] { OK, NOK, OCONNECT };
     }
 
 
-    private ModerateTCPExample tcpSut;
-    private Supplier<ModerateTCPExample> supplier;
+    private TwoWayFreshTCPExample tcpSut;
+    private Supplier<TwoWayFreshTCPExample> supplier;
 
 	private Option[] options ;
     
-    public ModerateTCPSUL() {
-    	supplier = () -> new ModerateTCPExample();
+    public TwoWayFreshTCPSUL() {
+    	supplier = () -> new TwoWayFreshTCPExample();
     }
     
-    public ModerateTCPSUL(Double window) {
-    	supplier = () -> new ModerateTCPExample(window);
+    public TwoWayFreshTCPSUL(Double window) {
+    	supplier = () -> new TwoWayFreshTCPExample(window);
     }
 
     @Override
@@ -96,7 +101,7 @@ public class ModerateTCPSUL extends DataWordSUL {
         if (x instanceof Boolean) {
             return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
         } else {
-        	throw new IllegalStateException("Output not supported");
+        	return new PSymbolInstance(OCONNECT, new DataValue<Double>(DOUBLE_TYPE, (Double) x));
         }
      }
 
@@ -104,8 +109,7 @@ public class ModerateTCPSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(ICONNECT)) {
-            Object x = tcpSut.IConnect(
-            		(Double)i.getParameterValues()[0].getId());
+            Object x = tcpSut.IConnect();
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(ISYN)) {
             Object x = tcpSut.ISYN(

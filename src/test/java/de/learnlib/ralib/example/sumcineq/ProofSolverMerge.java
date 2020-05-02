@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 /**
  * 

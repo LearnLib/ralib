@@ -42,8 +42,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
-import de.learnlib.ralib.example.succ.ModerateTCPSUL;
+import de.learnlib.ralib.example.sumcineq.TwoWayTCPSUL;
+import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;
@@ -151,36 +151,36 @@ public class GeneralizedSymbolicSuffixTest {
     public void testGeneralizedSymbolicSuffix4() {
     	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(ModerateTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(ModerateTCPSUL.DOUBLE_TYPE,
+        teachers.put(TwoWayTCPSUL.DOUBLE_TYPE, 
+                new SumCDoubleInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
                 		Arrays.asList(
-                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-                				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, win)), // for window size
+                				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+                				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, win)), // for window size
                 		Collections.emptyList()));
 
-        ModerateTCPSUL sul = new ModerateTCPSUL(win);
+        TwoWayTCPSUL sul = new TwoWayTCPSUL(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                sul, ModerateTCPSUL.ERROR, teachers, 
+                sul, TwoWayTCPSUL.ERROR, teachers, 
                 new Constants(), jsolv, 
                 sul.getInputSymbols());
-        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateTCPSUL.DOUBLE_TYPE);
+        DataValueConstructor<Double> b = new DataValueConstructor<>(TwoWayTCPSUL.DOUBLE_TYPE);
                 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 100.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(TwoWayTCPSUL.ICONNECT,
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 100.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK));
         
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 100.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 0.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 200.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 101.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(TwoWayTCPSUL.ISYN, 
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 100.0),
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 0.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK),
+                new PSymbolInstance(TwoWayTCPSUL.ISYNACK,
+                        new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 200.0),
+                        new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 101.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK));
         
         
         EnumSet<DataRelation> [] prefRel = new EnumSet [] {

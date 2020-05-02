@@ -1,5 +1,9 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
+/**
+ * An example of a system that cannot be learned with our setup.
+ * TODO Verify claim
+ */
 public class ProofDiscreteEquMerge {
 	private Integer x = null;
 	private Integer y = null; 

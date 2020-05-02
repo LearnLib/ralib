@@ -1,23 +1,27 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
-public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
+/*
+ * Before learning this, ensure first that the window size in AbstractWindowProtocol coincides
+ * with the sumc supplied to prevent canonization issues
+ */
+public class TwoWayFreshTCPExample extends AbstractTCPExample{
 
-	private Integer clSeq = null;
-	private Integer svSeq = null;
+	private Double clSeq = null;
+	private Double svSeq = null;
 	private State state = State.CLOSED;
 	// if true, the looping variable makes it always possible to transition out of the CLOSED state by a Connect. 
 	private boolean looping = true;
 
-    public IntModerateFreshTCPExample(Integer window) {
-		super(window);
+	public TwoWayFreshTCPExample() {
+		super();
 	}
-    
-    public IntModerateFreshTCPExample() {
-    	super();
-    }
+	
+    public TwoWayFreshTCPExample(Double window) {
+    	super(window);
+	}
 
-	public Integer IConnect() {
-    	Integer ret = super.newFresh();
+	public Double IConnect() {
+    	Double ret = super.newFresh();
     	if (state == State.CLOSED && 
     			(looping || this.clSeq == null) 
     			) {
@@ -27,7 +31,7 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
         return ret;
     }     
     
-    public boolean ISYN(Integer seq, Integer ack) {
+    public boolean ISYN(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.CONNECTING) {
     		if (seq.equals(clSeq)) {
@@ -39,7 +43,7 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
     	return ret;
     }
     
-    public boolean ISYNACK(Integer seq, Integer ack) {
+    public boolean ISYNACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
     		if (succ(clSeq, ack)) {
@@ -56,7 +60,7 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
     	return ret;
     }
     
-    public boolean IACK(Integer seq, Integer ack) {
+    public boolean IACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.SYN_RECEIVED) {
     		if (equ(seq, clSeq) && succ(svSeq, ack)) {
@@ -80,7 +84,7 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
     }
     
 
-    public boolean IFINACK(Integer seq, Integer ack) {
+    public boolean IFINACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.ESTABLISHED) {
     		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
@@ -106,4 +110,5 @@ public class IntModerateFreshTCPExample extends IntAbstractTCPExample{
     	}
     	return false;
     }
+    
 }

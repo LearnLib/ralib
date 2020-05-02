@@ -1,32 +1,33 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
-public class IntOneWayFreshTCPExample extends IntAbstractTCPExample{
 
-	private Integer seq = 0;
+public class OneWayTCPExample extends AbstractTCPExample{
+
+	private Double seq = null;
 	
-	public IntOneWayFreshTCPExample(Integer win) {
+	public OneWayTCPExample(Double win) {
 		super(win);
 	}
 	
-	public IntOneWayFreshTCPExample() {
+	public OneWayTCPExample() {
 		super();
-		//configure();
 	}
 
-    public Integer IConnect() {
-    	Integer fresh = newFresh();
+    public boolean IConnect(Double initSeq) {
+    	boolean ret = false;
     	if (state == State.CLOSED 
     			//&& !initSeq.equals(initAck) 
     			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
     			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.seq = fresh;  
+    		this.seq = initSeq;
+    		ret = true;
     		state = State.SYN_SENT;
     	}
-        return fresh;
-    }
+        return ret;
+    }     
     
-    public boolean ISYN(Integer seq) {
+    public boolean ISYN(Double seq) {
     	boolean ret = false;
     	if (state == State.SYN_SENT) {
     		if (this.seq.equals(seq)) {
@@ -42,7 +43,7 @@ public class IntOneWayFreshTCPExample extends IntAbstractTCPExample{
     	return ret;
     }
     
-    public boolean ISYNACK(Integer ack) {
+    public boolean ISYNACK(Double ack) {
     	boolean ret = false;
     	if (state == State.SYN_RECEIVED) {
     		if (succ(this.seq, ack)) {
@@ -50,16 +51,15 @@ public class IntOneWayFreshTCPExample extends IntAbstractTCPExample{
     			this.seq = ack;
     			state = State.ESTABLISHED;
     		} else {
-//    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
-//    				state = State.CLOSED;
-//    			}
-    			
+    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
+    				state = State.CLOSED;
+    			}
     		}
     	}
     	return ret;
     }
     
-    public boolean IACK(Integer seq) {
+    public boolean IACK(Double seq) {
     	boolean ret = false;
     	
     	if (state == State.ESTABLISHED) {
@@ -80,7 +80,7 @@ public class IntOneWayFreshTCPExample extends IntAbstractTCPExample{
     }
     
     
-    public boolean IFINACK(Integer seq) {
+    public boolean IFINACK(Double seq) {
     	boolean ret = false;
     	
     	if (state == State.ESTABLISHED) {

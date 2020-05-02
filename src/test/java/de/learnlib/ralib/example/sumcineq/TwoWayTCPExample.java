@@ -1,31 +1,28 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
-/*
- * Before learning this, ensure first that the window size in AbstractWindowProtocol coincides
- * with the sumc supplied to prevent canonization issues
- */
-public class ModerateFreshTCPExample extends AbstractTCPExample{
+public class TwoWayTCPExample extends AbstractTCPExample{
 
 	private Double clSeq = null;
 	private Double svSeq = null;
 	private State state = State.CLOSED;
-	// if true, the looping variable makes it always possible to transition out of the CLOSED state by a Connect. 
-	private boolean looping = true;
 
-	public ModerateFreshTCPExample() {
-		super();
+	public TwoWayTCPExample() {
+		
 	}
-	
-    public ModerateFreshTCPExample(Double window) {
+
+    public TwoWayTCPExample(Double window) {
     	super(window);
 	}
 
-	public Double IConnect() {
-    	Double ret = super.newFresh();
-    	if (state == State.CLOSED && 
-    			(looping || this.clSeq == null) 
+    public boolean IConnect(Double initSeq) {
+    	boolean ret = false;
+    	if (state == State.CLOSED 
+    			//&& !initSeq.equals(initAck) 
+    			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
+    			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
     			) {
-    		this.clSeq = ret;
+    		this.clSeq = initSeq;
+    		ret = true;
     		state = State.CONNECTING;
     	}
         return ret;
@@ -50,7 +47,7 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     			ret = true;
     			clSeq = ack;
     			svSeq = seq;
-    			state = State.SYN_RECEIVED;
+    			state = State.SYN_SENT;
     		} else {
     			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
     				state = State.CLOSED;
@@ -62,8 +59,8 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     
     public boolean IACK(Double seq, Double ack) {
     	boolean ret = false;
-    	if (state == State.SYN_RECEIVED) {
-    		if (equ(seq, clSeq) && succ(svSeq, ack)) {
+    	if (state == State.SYN_SENT) {
+    		if (seq.equals(clSeq) && succ(svSeq, ack)) {
     			ret = true;
     			svSeq = ack;
     			state = State.ESTABLISHED;
@@ -71,44 +68,40 @@ public class ModerateFreshTCPExample extends AbstractTCPExample{
     	}
     	
     	if (state == State.ESTABLISHED) {
-    		if (equ(seq, clSeq) && succ(svSeq, ack) ||  
-    				equ(seq, clSeq) && equ(svSeq, ack)) {
+    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
+    				seq.equals(clSeq) && ack.equals(svSeq)) {
     			clSeq = seq;
     			svSeq = ack;
     			
     			ret = true;
+    		} else if (
+    				seq.equals(svSeq) && succ(clSeq, ack) ||
+    				seq.equals(svSeq) && ack.equals(clSeq)) {
+    					clSeq = ack;
+    	    			svSeq = seq;
+    	    			ret = true;
     		} 
     	}
     	
     	return ret;
     }
     
-
     public boolean IFINACK(Double seq, Double ack) {
     	boolean ret = false;
     	if (state == State.ESTABLISHED) {
     		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
     				seq.equals(clSeq) && ack.equals(svSeq)) {
-    			state = State.CLOSEWAIT;
+    			state = State.CLOSED;
     			
     			ret = true;
     		} else if (
     				seq.equals(svSeq) && succ(clSeq, ack) ||
     				seq.equals(svSeq) && ack.equals(clSeq)) {
-    				state = State.CLOSEWAIT;
+    				state = State.CLOSED;
     	    		ret = true;
     		} 
     	}
     	
     	return ret;
     }
-    
-    public boolean ICLOSE() {
-    	if (state == State.CLOSEWAIT) {
-    		state = State.CLOSED;
-    		return true;
-    	}
-    	return false;
-    }
-    
 }

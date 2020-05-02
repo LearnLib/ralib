@@ -14,8 +14,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.example.succ.ModerateTCPSUL;
-import de.learnlib.ralib.example.succ.OneWayFreshTCPSUL;
+import de.learnlib.ralib.example.sumcineq.OneWayFreshTCPSUL;
+import de.learnlib.ralib.example.sumcineq.TwoWayTCPSUL;
 import de.learnlib.ralib.mapper.MultiTheoryDeterminizer;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
@@ -179,7 +179,7 @@ public class TestSuccFresh extends RaLibTestSuite{
                 new PSymbolInstance(OneWayFreshTCPSUL.ISYNACK,
                         new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0),
                         new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(TwoWayTCPSUL.OK));
         
         Word<PSymbolInstance> canonizedTrace = oracle.trace(testWord);
         

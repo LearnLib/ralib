@@ -1,4 +1,4 @@
-package de.learnlib.ralib.theory.succ;
+package de.learnlib.ralib.theory.sumcineq;
 
 import java.util.Arrays;
 import java.util.Collections;

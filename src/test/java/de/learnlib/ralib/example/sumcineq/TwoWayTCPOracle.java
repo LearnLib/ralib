@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -29,17 +29,17 @@ import de.learnlib.ralib.words.PSymbolInstance;
  *
  * @author Sofia
  */
-public final class ModerateTCPOracle implements DataWordOracle {
+public final class TwoWayTCPOracle implements DataWordOracle {
 
     public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 
     public static final InputSymbol POLL = new InputSymbol("poll", new DataType[]{doubleType});
     public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
     
-    private Supplier<ModerateTCPSULMultitype> tcpSupplier;
+    private Supplier<TwoWayTCPSULMultitype> tcpSupplier;
     
-    public ModerateTCPOracle() {
-    	tcpSupplier = () -> new ModerateTCPSULMultitype();
+    public TwoWayTCPOracle() {
+    	tcpSupplier = () -> new TwoWayTCPSULMultitype();
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class ModerateTCPOracle implements DataWordOracle {
             if (query.getInput().length() < 1) {
                 query.answer(true);
             } else {
-            	ModerateTCPSULMultitype tcpSul = this.tcpSupplier.get();
+            	TwoWayTCPSULMultitype tcpSul = this.tcpSupplier.get();
             	tcpSul.pre();
                 Boolean[] answer = new Boolean[query.getInput().length()];
 

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.theory.succ;
+package de.learnlib.ralib.theory.sumcineq;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,18 +33,17 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
-import de.learnlib.ralib.example.succ.IntAbstractTCPExample;
-import de.learnlib.ralib.example.succ.IntModerateFreshTCPSUL;
-import de.learnlib.ralib.example.succ.ModerateFreshTCPSUL;
-import de.learnlib.ralib.example.succ.ModerateTCPSUL;
+import de.learnlib.ralib.example.sumcineq.AbstractIntTCPExample;
+import de.learnlib.ralib.example.sumcineq.TwoWayFreshTCPSUL;
+import de.learnlib.ralib.example.sumcineq.TwoWayIntFreshTCPSUL;
+import de.learnlib.ralib.example.sumcineq.TwoWayTCPSUL;
+import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
@@ -53,7 +52,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 
-public class TestModerateTCPTree extends RaLibTestSuite {
+public class TestTwoWayTCPTreeOracle extends RaLibTestSuite {
 
   //  @Test
     public void testModerateTCPTree() {
@@ -61,54 +60,54 @@ public class TestModerateTCPTree extends RaLibTestSuite {
     	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DataValue [] sumConsts = new DataValue [] {
-				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-				new DataValue<Double>(ModerateTCPSUL.DOUBLE_TYPE, win)};
-        teachers.put(ModerateTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(ModerateTCPSUL.DOUBLE_TYPE,
+				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, win)};
+        teachers.put(TwoWayTCPSUL.DOUBLE_TYPE, 
+                new SumCDoubleInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
                 		Arrays.asList(sumConsts), // for window size
                 		Collections.emptyList()));
 
-        ModerateTCPSUL sul = new ModerateTCPSUL(win);
+        TwoWayTCPSUL sul = new TwoWayTCPSUL(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                sul, ModerateTCPSUL.ERROR, teachers, 
+                sul, TwoWayTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
-        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateTCPSUL.DOUBLE_TYPE);
+        DataValueConstructor<Double> b = new DataValueConstructor<>(TwoWayTCPSUL.DOUBLE_TYPE);
                 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(TwoWayTCPSUL.ISYN, 
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 1.0),
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK),
+                new PSymbolInstance(TwoWayTCPSUL.ISYNACK,
+                        new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 3.0),
+                        new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 4.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK));
         
         
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
+                new PSymbolInstance(TwoWayTCPSUL.ICONNECT,
                         b.fv(1.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK));
+                new PSymbolInstance(TwoWayTCPSUL.OK));
         
         final Word<PSymbolInstance> longsuffix2 = Word.fromSymbols(
-        		 new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                         new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 1.0)),
-                 new PSymbolInstance(ModerateTCPSUL.OK), 
-                 new PSymbolInstance(ModerateTCPSUL.ISYN, 
-                 		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 3.0),
-                 		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 4.0)),
-                 new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ISYNACK, 
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 5.0),
-                		new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 6.0)),
-                new PSymbolInstance(ModerateTCPSUL.OK),
-                new PSymbolInstance(ModerateTCPSUL.ICONNECT,
-                        new DataValue(ModerateTCPSUL.DOUBLE_TYPE, 7.0)),
-                new PSymbolInstance(ModerateTCPSUL.NOK));
+        		 new PSymbolInstance(TwoWayTCPSUL.ICONNECT,
+                         new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 1.0)),
+                 new PSymbolInstance(TwoWayTCPSUL.OK), 
+                 new PSymbolInstance(TwoWayTCPSUL.ISYN, 
+                 		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 3.0),
+                 		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 4.0)),
+                 new PSymbolInstance(TwoWayTCPSUL.OK),
+                new PSymbolInstance(TwoWayTCPSUL.ISYNACK, 
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 5.0),
+                		new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 6.0)),
+                new PSymbolInstance(TwoWayTCPSUL.OK),
+                new PSymbolInstance(TwoWayTCPSUL.ICONNECT,
+                        new DataValue(TwoWayTCPSUL.DOUBLE_TYPE, 7.0)),
+                new PSymbolInstance(TwoWayTCPSUL.NOK));
         
         final Word<PSymbolInstance> prefix2 = Word.epsilon();
         
@@ -144,33 +143,33 @@ public class TestModerateTCPTree extends RaLibTestSuite {
     	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DataValue [] sumConsts = new DataValue [] {
-				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, win)};
-        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(ModerateFreshTCPSUL.DOUBLE_TYPE,
+				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, win)};
+        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);
-        teachers.put(ModerateFreshTCPSUL.DOUBLE_TYPE, 
+        teachers.put(TwoWayFreshTCPSUL.DOUBLE_TYPE, 
                sumCTheory);
 
-        ModerateFreshTCPSUL sul = new ModerateFreshTCPSUL(win);
+        TwoWayFreshTCPSUL sul = new TwoWayFreshTCPSUL(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
-        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, ModerateFreshTCPSUL.ERROR, teachers, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, TwoWayFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
-        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
+        DataValueConstructor<Double> b = new DataValueConstructor<>(TwoWayFreshTCPSUL.DOUBLE_TYPE);
                 
         final Word<PSymbolInstance> prefix = //Word.epsilon(); 
         		Word.fromSymbols(
-                new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayFreshTCPSUL.OCONNECT,
                 		b.fv(100001.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.ISYN, 
                 		b.dv(100001.0),
                 		b.fv(201002.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.OK)
+                new PSymbolInstance(TwoWayFreshTCPSUL.OK)
                 );
         
         
@@ -183,17 +182,17 @@ public class TestModerateTCPTree extends RaLibTestSuite {
 //                		b.dv(100001.0),
 //                		b.fv(201002.0)),
 //                new PSymbolInstance(ModerateFreshTCPSUL.OK),
-                new PSymbolInstance(ModerateFreshTCPSUL.ISYNACK, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.ISYNACK, 
                 		b.dv(201002.0),
                 		b.intv(100501.5, 100002.0, 101001.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.NOK),
-                new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayFreshTCPSUL.NOK),
+                new PSymbolInstance(TwoWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayFreshTCPSUL.OCONNECT,
                 		b.fv(302003.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.ISYN, 
                 		b.dv(302003.0),
                 		b.dv(302003.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.NOK));
+                new PSymbolInstance(TwoWayFreshTCPSUL.NOK));
         
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
@@ -216,48 +215,48 @@ public class TestModerateTCPTree extends RaLibTestSuite {
     	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DataValue [] sumConsts = new DataValue [] {
-				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-				new DataValue<Double>(ModerateFreshTCPSUL.DOUBLE_TYPE, win)};
-        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(ModerateFreshTCPSUL.DOUBLE_TYPE,
+				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
+				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, win)};
+        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);
-        teachers.put(ModerateFreshTCPSUL.DOUBLE_TYPE, 
+        teachers.put(TwoWayFreshTCPSUL.DOUBLE_TYPE, 
                sumCTheory);
 
-        ModerateFreshTCPSUL sul = new ModerateFreshTCPSUL(win);
+        TwoWayFreshTCPSUL sul = new TwoWayFreshTCPSUL(win);
         sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                sul, ModerateFreshTCPSUL.ERROR, teachers, 
+                sul, TwoWayFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
-        DataValueConstructor<Double> b = new DataValueConstructor<>(ModerateFreshTCPSUL.DOUBLE_TYPE);
+        DataValueConstructor<Double> b = new DataValueConstructor<>(TwoWayFreshTCPSUL.DOUBLE_TYPE);
                 
         final Word<PSymbolInstance> prefix = //Word.epsilon(); 
         		Word.fromSymbols(
-                new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayFreshTCPSUL.OCONNECT,
                 		b.fv(100001.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.ISYN, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.ISYN, 
                 		b.dv(100001.0),
                 		b.fv(201002.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.OK),
-                new PSymbolInstance(ModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(ModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayFreshTCPSUL.OK),
+                new PSymbolInstance(TwoWayFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayFreshTCPSUL.OCONNECT,
                 		b.fv(302003.0)));
         
         
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(ModerateFreshTCPSUL.ISYNACK, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.ISYNACK, 
                 		b.dv(201002.0),
                 		b.intv(100501.5, 100002.0, 101001.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.OK),
-                new PSymbolInstance(ModerateFreshTCPSUL.IACK, 
+                new PSymbolInstance(TwoWayFreshTCPSUL.OK),
+                new PSymbolInstance(TwoWayFreshTCPSUL.IACK, 
                 		b.dv(302003.0),
                 		b.dv(302003.0)),
-                new PSymbolInstance(ModerateFreshTCPSUL.OK));
+                new PSymbolInstance(TwoWayFreshTCPSUL.OK));
         
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix = GeneralizedSymbolicSuffix.fullSuffix(longsuffix, consts, teachers);
@@ -281,49 +280,49 @@ public class TestModerateTCPTree extends RaLibTestSuite {
     	Integer win = 1000;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DataValue [] sumConsts = new DataValue [] {
-				new DataValue<Integer>(IntModerateFreshTCPSUL.INT_TYPE, 1), // for successor
-				new DataValue<Integer>(IntModerateFreshTCPSUL.INT_TYPE, win)};
-        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(IntModerateFreshTCPSUL.INT_TYPE,
+				new DataValue<Integer>(TwoWayIntFreshTCPSUL.INT_TYPE, 1), // for successor
+				new DataValue<Integer>(TwoWayIntFreshTCPSUL.INT_TYPE, win)};
+        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(TwoWayIntFreshTCPSUL.INT_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);
-        teachers.put(IntModerateFreshTCPSUL.INT_TYPE, 
+        teachers.put(TwoWayIntFreshTCPSUL.INT_TYPE, 
                sumCTheory);
 
-        IntModerateFreshTCPSUL sul = new IntModerateFreshTCPSUL(win);
-        sul.configure(IntAbstractTCPExample.Option.WIN_SYNRECEIVED_TO_CLOSED, IntAbstractTCPExample.Option.WIN_SYNSENT_TO_CLOSED);
+        TwoWayIntFreshTCPSUL sul = new TwoWayIntFreshTCPSUL(win);
+        sul.configure(AbstractIntTCPExample.Option.WIN_SYNRECEIVED_TO_CLOSED, AbstractIntTCPExample.Option.WIN_SYNSENT_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
-                sul, IntModerateFreshTCPSUL.ERROR, teachers, 
+                sul, TwoWayIntFreshTCPSUL.ERROR, teachers, 
                 consts, jsolv, 
                 sul.getInputSymbols());
-        DataValueConstructor<Integer> b = new DataValueConstructor<>(IntModerateFreshTCPSUL.INT_TYPE);
+        DataValueConstructor<Integer> b = new DataValueConstructor<>(TwoWayIntFreshTCPSUL.INT_TYPE);
                 
         final Word<PSymbolInstance> prefix = //Word.epsilon(); 
         		Word.fromSymbols(
-                new PSymbolInstance(IntModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(IntModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.OCONNECT,
                 		b.fv(100001)),
-                new PSymbolInstance(IntModerateFreshTCPSUL.ISYN, 
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.ISYN, 
                 		b.dv(100001),
                 		b.fv(201002)),
-                new PSymbolInstance(IntModerateFreshTCPSUL.OK)
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.OK)
         				);
         
         
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(IntModerateFreshTCPSUL.ISYNACK, 
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.ISYNACK, 
                 		b.dv(100001),
                 		b.intv(100501, 100002, 101001)),
-                new PSymbolInstance(IntModerateFreshTCPSUL.NOK),
-                new PSymbolInstance(IntModerateFreshTCPSUL.ICONNECT),
-                new PSymbolInstance(IntModerateFreshTCPSUL.OCONNECT,
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.NOK),
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.ICONNECT),
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.OCONNECT,
                 		b.fv(302003)),
-                new PSymbolInstance(IntModerateFreshTCPSUL.ISYN, 
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.ISYN, 
                 		b.dv(302003),
                 		b.dv(100001)),
-                new PSymbolInstance(IntModerateFreshTCPSUL.NOK)
+                new PSymbolInstance(TwoWayIntFreshTCPSUL.NOK)
                 );
         
         // create a symbolic suffix from the concrete suffix

@@ -1,20 +1,20 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AbstractTCPExample extends AbstractWindowProtocol{
+public class AbstractIntTCPExample extends AbstractIntWindowProtocol{
 	protected State state;
 	protected Set<Option> options;
 	
-	public AbstractTCPExample(Double win) {
+	public AbstractIntTCPExample(Integer win) {
 		super(win);
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 		state = State.CLOSED;
 	}
 	
-	public AbstractTCPExample() {
+	public AbstractIntTCPExample() {
 		super();
 		configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
 		state = State.CLOSED;
@@ -36,7 +36,7 @@ public class AbstractTCPExample extends AbstractWindowProtocol{
 	}
 	
 	public enum State{
-	//	INIT,
+		//	INIT,
 		// connect...
 		CONNECTING, // special state after a connect call has been received, before issuing of a SYN
 		// s(10,0)
@@ -49,5 +49,13 @@ public class AbstractTCPExample extends AbstractWindowProtocol{
 		TIME_WAIT,		
 		CLOSEWAIT,
 		CLOSED;
+	}
+	
+	public enum FlagConfig {
+		SYNACK,
+		ACK,
+		FINACK,
+		RST,
+		RSTACK
 	}
 }

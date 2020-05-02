@@ -14,46 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
 
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.example.succ.AbstractTCPExample.Option;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.sumcineq.AbstractIntTCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
-public class ModerateTCPSULMultitype extends DataWordSUL {
+public class TwoWayIntFreshTCPSUL extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE = 
-            new DataType("DOUBLE", Double.class);    
-    
-    public static final DataType DOUBLE_TYPE1 = 
-            new DataType("DOUBLE1", Double.class);
-    
-    public static final DataType DOUBLE_TYPE2 = 
-            new DataType("DOUBLE2", Double.class);
+    public static final DataType INT_TYPE = 
+            new DataType("Integer", Integer.class);    
     
     public static final ParameterizedSymbol ICONNECT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE1, DOUBLE_TYPE2});
+            new InputSymbol("IConnect");
     public static final ParameterizedSymbol ISYN = 
-            new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE1, DOUBLE_TYPE2});
+            new InputSymbol("ISYN", new DataType[]{INT_TYPE, INT_TYPE});
     public static final ParameterizedSymbol ISYNACK = 
-            new InputSymbol("ISYNACK", new DataType[]{DOUBLE_TYPE2, DOUBLE_TYPE1});
+            new InputSymbol("ISYNACK", new DataType[]{INT_TYPE, INT_TYPE});
     public static final ParameterizedSymbol IACK = 
-            new InputSymbol("IACK", new DataType[]{DOUBLE_TYPE1, DOUBLE_TYPE2});
+            new InputSymbol("IACK", new DataType[]{INT_TYPE, INT_TYPE});
+    public static final ParameterizedSymbol IFINACK = 
+            new InputSymbol("IFINACK", new DataType[]{INT_TYPE, INT_TYPE});
     
     public static final ParameterizedSymbol ERROR = 
             new OutputSymbol("_io_err", new DataType[]{});
 
     
     public final ParameterizedSymbol[] getInputSymbols() {
-        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK};
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, IFINACK};
     }
         
     public static final ParameterizedSymbol OK = 
@@ -61,23 +58,27 @@ public class ModerateTCPSULMultitype extends DataWordSUL {
         
     public static final ParameterizedSymbol NOK = 
             new OutputSymbol("_not_ok", new DataType[]{});
+    
+    public static final ParameterizedSymbol OCONNECT = 
+            new OutputSymbol("OCONNECT", new DataType[]{INT_TYPE});
+    
 
     public final ParameterizedSymbol[] getActionSymbols() {
-        return new ParameterizedSymbol[] { OK, NOK };
+        return new ParameterizedSymbol[] { OK, NOK, OCONNECT };
     }
 
 
-    private ModerateTCPExample tcpSut;
-    private Supplier<ModerateTCPExample> supplier;
+    private TwoWayIntFreshTCPExample tcpSut;
+    private Supplier<TwoWayIntFreshTCPExample> supplier;
 
 	private Option[] options ;
     
-    public ModerateTCPSULMultitype() {
-    	supplier = () -> new ModerateTCPExample();
+    public TwoWayIntFreshTCPSUL() {
+    	supplier = () -> new TwoWayIntFreshTCPExample();
     }
     
-    public ModerateTCPSULMultitype(Double window) {
-    	supplier = () -> new ModerateTCPExample(window);
+    public TwoWayIntFreshTCPSUL(Integer window) {
+    	supplier = () -> new TwoWayIntFreshTCPExample(window);
     }
 
     @Override
@@ -101,6 +102,8 @@ public class ModerateTCPSULMultitype extends DataWordSUL {
     private PSymbolInstance createOutputSymbol(Object x) {
         if (x instanceof Boolean) {
             return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
+        } else if (x instanceof Integer) {
+        	return new PSymbolInstance(OCONNECT, new DataValue<Integer>(INT_TYPE, (Integer) x));
         } else {
         	throw new IllegalStateException("Output not supported");
         }
@@ -110,27 +113,30 @@ public class ModerateTCPSULMultitype extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(ICONNECT)) {
-            Object x = tcpSut.IConnect(
-            		(Double)i.getParameterValues()[0].getId());
+            Object x = tcpSut.IConnect();
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(ISYN)) {
             Object x = tcpSut.ISYN(
-            		(Double)i.getParameterValues()[0].getId(), 
-            		(Double)i.getParameterValues()[1].getId());
+            		(Integer)i.getParameterValues()[0].getId(), 
+            		(Integer)i.getParameterValues()[1].getId());
             return createOutputSymbol(x); 
         } else if (i.getBaseSymbol().equals(ISYNACK)) {
             Object x = tcpSut.ISYNACK(
-            		(Double)i.getParameterValues()[0].getId(), 
-            		(Double)i.getParameterValues()[1].getId());
+            		(Integer)i.getParameterValues()[0].getId(), 
+            		(Integer)i.getParameterValues()[1].getId());
             return createOutputSymbol(x); 
         } else if (i.getBaseSymbol().equals(IACK)) {
             Object x = tcpSut.IACK(
-            		(Double)i.getParameterValues()[0].getId(), 
-            		(Double)i.getParameterValues()[1].getId());
+            		(Integer)i.getParameterValues()[0].getId(), 
+            		(Integer)i.getParameterValues()[1].getId());
+            return createOutputSymbol(x); 
+        } else if (i.getBaseSymbol().equals(IFINACK)) {
+            Object x = tcpSut.IFINACK(
+            		(Integer)i.getParameterValues()[0].getId(), 
+            		(Integer)i.getParameterValues()[1].getId());
             return createOutputSymbol(x); 
         } else {
-            throw new IllegalStateException("i must be instance of connect or flag config");
+            throw new IllegalStateException("i must be instance of connect or flag config. i: " + i);
         }
     }
-    
 }

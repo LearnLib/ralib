@@ -1,15 +1,15 @@
-package de.learnlib.ralib.example.succ;
+package de.learnlib.ralib.example.sumcineq;
 
-public abstract class IntAbstractWindowProtocol {
+public abstract class AbstractIntWindowProtocol {
 	private static Integer DEFAULT_WIN = 1000;
 	Integer win;
 	private Integer gen = 0;
 
-	public IntAbstractWindowProtocol(Integer windowSize) {
+	public AbstractIntWindowProtocol(Integer windowSize) {
 		this.win = windowSize;
 	}
 	
-	public IntAbstractWindowProtocol() {
+	public AbstractIntWindowProtocol() {
 		this(DEFAULT_WIN);
 	}
 	
