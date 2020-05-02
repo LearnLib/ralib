@@ -72,9 +72,16 @@ public class TestUtil {
 
         return new JConstraintsConstraintSolver(solver);        
     } 
+    
+    /*
+     * In most cases both of the below MTOs should do the job.
+     * The Basic MTO may also work with Sum Constants assuming no arbitrarily chosen fresh values.
+     * However, it hasn't been tested for that.
+     * The Canonizing MTO should work for all cases.
+     */
 
     /**
-     * Creates an MTO with support for fresh values.
+     * Creates an MTO with support for equalities, inequalities over sum constants and arbitrary output values.
      */
     public static MultiTheoryTreeOracle createMTOWithFreshValueSupport(
             DataWordSUL sul, ParameterizedSymbol error,  
@@ -93,7 +100,7 @@ public class TestUtil {
     
     
     /**
-     * Creates an MTO without fresh value support.
+     * Creates an MTO with support for equalities, inequalities and deterministically chosen fresh output values.
      */
     public static MultiTheoryTreeOracle createBasicMTO(
             DataWordSUL sul, ParameterizedSymbol error,  
@@ -101,10 +108,13 @@ public class TestUtil {
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
         
         IOOracle ioOracle = new BasicSULOracle(sul, error);
-        CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(ioOracle);
+        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
-        return new MultiTheoryTreeOracle(
+        
+        MultiTheoryTreeOracle mto =  new MultiTheoryTreeOracle(
                 ioFilter, ioCache, teachers, consts, solver);
+        
+        return mto;
     }
     
     public static MultiTheoryTreeOracle createMTO(

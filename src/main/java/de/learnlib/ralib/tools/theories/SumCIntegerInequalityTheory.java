@@ -33,11 +33,11 @@ import de.learnlib.ralib.theory.inequality.SumCDataValue;
 //TODO instead of 0 reduction, just use output constants (constants that are only found in outputs and should not be used)
 public class SumCIntegerInequalityTheory extends IntegerInequalityTheory implements SumCTheory{
 
-	private static int smBgFactor = 10;  
+	private static int SM_BG_FACTOR = 10;  
 	
 	// maxSumC multiplied this factor results in the fresh step. Fresh values at a fresh step distance, 
 	// in increasing order, starting from 0.
-	private static int freshFactor = 100; 
+	private static int FRESH_FACTOR = 100; 
 
 	
 	private List<DataValue<Integer>> sortedSumConsts;
@@ -73,8 +73,8 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 		Collections.sort(this.sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
 		Integer step = this.sortedSumConsts.isEmpty() ? 1 :this.sortedSumConsts.get(this.sortedSumConsts.size()-1).getId();
-		this.freshStep = step * freshFactor;
-		this.smBgStep = new DataValue<Integer>(type, step * smBgFactor);
+		this.freshStep = step * FRESH_FACTOR;
+		this.smBgStep = new DataValue<Integer>(type, step * SM_BG_FACTOR);
 	}
 	
 	
