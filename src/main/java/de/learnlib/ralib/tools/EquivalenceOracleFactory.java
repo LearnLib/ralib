@@ -100,13 +100,6 @@ public class EquivalenceOracleFactory {
 	= new ConfigurationOption.IntegerOption(rws + ".max.depth",
 	    "Maximum length of each random walk", null, false);
 	
-	public static IOEquivalenceOracle buildEquivalenceOracle(Configuration config,  IOOracle concurrentTarget, int sulInstances, Map<DataType, Theory> teachers, 
-			Constants constants, Random random, ParameterizedSymbol...  inputSymbols) throws ConfigurationException {
-		IOEquivalenceOracle eqOracle = buildEquivalenceOracle(config, concurrentTarget, teachers, constants, random, inputSymbols);
-		int batchSize = 5*sulInstances;
-		((BoundedIOEquivalenceOracle) eqOracle).setBatchExecution(batchSize);
-		return eqOracle;
-	}
 
 	public static IOEquivalenceOracle buildEquivalenceOracle(Configuration config,  IOOracle target, Map<DataType, Theory> teachers, 
 			Constants constants, Random random, ParameterizedSymbol...  inputSymbols) throws ConfigurationException {
