@@ -1,5 +1,6 @@
 package de.learnlib.ralib.example.succ;
 
+
 public class OneWayTCPExample extends AbstractTCPExample{
 
 	private Double seq = null;
@@ -12,14 +13,6 @@ public class OneWayTCPExample extends AbstractTCPExample{
 		super();
 	}
 
-    //handling each Input
-
-    /* register an uid
-     * 
-     * notes:
-     *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
-     */
     public boolean IConnect(Double initSeq) {
     	boolean ret = false;
     	if (state == State.CLOSED 
@@ -58,10 +51,9 @@ public class OneWayTCPExample extends AbstractTCPExample{
     			this.seq = ack;
     			state = State.ESTABLISHED;
     		} else {
-//    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
-//    				state = State.CLOSED;
-//    			}
-    			
+    			if (!inWin(this.seq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
+    				state = State.CLOSED;
+    			}
     		}
     	}
     	return ret;
