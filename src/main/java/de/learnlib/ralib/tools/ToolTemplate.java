@@ -178,7 +178,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 			int repeats = OPTION_DEBUG_REPEATS.parse(config);
 			IOOracle ioOracle = setupIOOracle(sulFactory, teachers, consts, counters.ceInput, determinize,
 					timeoutMillis, handleExceptions);
-			runDebugTracesAndExit(debugTraces, repeats, ioOracle, this.teachers, consts);
+			runDebugTracesAndExit(debugTraces, repeats, ioOracle, teachers, consts);
 		}
 
 		// boolean determinize, long timeoutMillis, boolean handleExceptions,
@@ -253,7 +253,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 
 			String ver = OPTION_TEST_TRACES.parse(config);
 			if (ver != null) {
-				List<Word<PSymbolInstance>> tests = getCanonizedWordsFromString(ver, this.sulParser.getAlphabet(),
+				List<Word<PSymbolInstance>> tests = getCanonizedWordsFromString(ver, sulParser.getAlphabet(),
 						teachers, consts);
 				traceTester = new TracesEquivalenceOracle(testOracle, teachers, consts, tests);
 			}
@@ -283,7 +283,7 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 
 	private void runDebugTracesAndExit(String debug, int numRepeats, IOOracle ioOracle, Map<DataType, Theory> teachers,
 			Constants consts) {
-		List<Word<PSymbolInstance>> canonizedTests = getCanonizedWordsFromString(debug, this.sulParser.getAlphabet(),
+		List<Word<PSymbolInstance>> canonizedTests = getCanonizedWordsFromString(debug, sulParser.getAlphabet(),
 				teachers, consts);
 		List<Word<PSymbolInstance>> allTests = new ArrayList<>(canonizedTests.size() * numRepeats);
 		for (int i = 0; i < numRepeats; i++) {
@@ -297,10 +297,10 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 	private void runDebugSuffixesAndExit(String debugPrefixes, String debugSuffixes, TreeOracle mto,
 			Map<DataType, Theory> teachers, Constants constants) {
 		List<String> suffixStrings = Arrays.stream(debugSuffixes.split(";")).collect(Collectors.toList());
-		List<Word<PSymbolInstance>> prefixes = getCanonizedWordsFromString(debugPrefixes, this.sulParser.getAlphabet(),
+		List<Word<PSymbolInstance>> prefixes = getCanonizedWordsFromString(debugPrefixes, sulParser.getAlphabet(),
 				teachers, constants);
 		List<GeneralizedSymbolicSuffix> suffixes = new SuffixParser(suffixStrings,
-				Arrays.asList(this.sulParser.getAlphabet()), teachers).getSuffixes();
+				Arrays.asList(sulParser.getAlphabet()), teachers).getSuffixes();
 
 		for (GeneralizedSymbolicSuffix suffix : suffixes) {
 			for (Word<PSymbolInstance> prefix : prefixes) {

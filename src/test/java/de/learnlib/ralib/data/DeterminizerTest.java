@@ -22,7 +22,7 @@ import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.InputSymbol;
 
-public class ValueCanonizerTest  extends RaLibTestSuite {
+public class DeterminizerTest  extends RaLibTestSuite {
     public static final DataType T_INT = new DataType("T_uid", Integer.class);
     public static final InputSymbol IN = 
             new InputSymbol("in", new DataType[] {T_INT}); 
