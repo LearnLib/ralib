@@ -55,7 +55,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 
-public class TestTwoWayIntTCPTree extends RaLibTestSuite {
+public class TestTwoWayIntTCPTreeOracle extends RaLibTestSuite {
 
   // @Test
     public void testModerateFreshTCPTree() {
@@ -278,7 +278,7 @@ public class TestTwoWayIntTCPTree extends RaLibTestSuite {
 	}
 	
     public static void main(String args []) {
-    	TestTwoWayIntTCPTree testSuite = new TestTwoWayIntTCPTree();
+    	TestTwoWayIntTCPTreeOracle testSuite = new TestTwoWayIntTCPTreeOracle();
 //    	testSuite.testModerateFreshTCPTree();
 //    	testSuite.testModerateFreshTCPTree2();
 //    	testSuite.testModerateFreshTCPTree3();

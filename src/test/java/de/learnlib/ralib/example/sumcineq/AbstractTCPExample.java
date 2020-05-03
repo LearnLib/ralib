@@ -26,6 +26,10 @@ public class AbstractTCPExample extends AbstractWindowProtocol{
 	
 	public static enum Option {
 		/**
+		 * Activates transition from CONNECTING to CLOSED on an out of window client seq (where applicable).
+		 */
+		WIN_CONNECTING_TO_CLOSED,
+		/**
 		 * Activates transition from SYN_RECEIVED to CLOSED on an out of window client seq
 		 */
 		WIN_SYNRECEIVED_TO_CLOSED,
@@ -37,8 +41,9 @@ public class AbstractTCPExample extends AbstractWindowProtocol{
 	
 	public enum State{
 	//	INIT,
-		// connect...
+		// connect(10)...
 		CONNECTING, // special state after a connect call has been received, before issuing of a SYN
+		// connect call determines the sequence number to use (supplied as input parameter or as a fresh output value)
 		// s(10,0)
 		SYN_SENT, 
 		// sa(20,11)

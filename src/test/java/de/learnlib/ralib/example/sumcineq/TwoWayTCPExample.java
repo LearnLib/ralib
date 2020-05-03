@@ -16,11 +16,7 @@ public class TwoWayTCPExample extends AbstractTCPExample{
 
     public boolean IConnect(Double initSeq) {
     	boolean ret = false;
-    	if (state == State.CLOSED 
-    			//&& !initSeq.equals(initAck) 
-    			//&& !succ(initSeq, initAck) && !succ(initAck, initSeq)
-    			//&& !inWin(initSeq, initAck) && !inWin(initAck, initSeq)
-    			) {
+    	if (state == State.CLOSED) {
     		this.clSeq = initSeq;
     		ret = true;
     		state = State.CONNECTING;
@@ -34,6 +30,10 @@ public class TwoWayTCPExample extends AbstractTCPExample{
     		if (seq.equals(clSeq)) {
     			ret = true;
     			state = State.SYN_SENT;
+    		} else {
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_CONNECTING_TO_CLOSED)) {
+    				state = State.CLOSED;
+    			}
     		}
     	}
     	
@@ -47,11 +47,11 @@ public class TwoWayTCPExample extends AbstractTCPExample{
     			ret = true;
     			clSeq = ack;
     			svSeq = seq;
-    			state = State.SYN_SENT;
+    			state = State.SYN_RECEIVED;
     		} else {
-    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) {
     				state = State.CLOSED;
-    			
+    			}
     		}
     	}
     	return ret;
@@ -59,30 +59,33 @@ public class TwoWayTCPExample extends AbstractTCPExample{
     
     public boolean IACK(Double seq, Double ack) {
     	boolean ret = false;
-    	if (state == State.SYN_SENT) {
+    	if (state == State.SYN_RECEIVED) {
     		if (seq.equals(clSeq) && succ(svSeq, ack)) {
     			ret = true;
     			svSeq = ack;
     			state = State.ESTABLISHED;
-    		} 
+    		} else {
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNRECEIVED_TO_CLOSED)) {
+    				state = State.CLOSED;
+    			}
+    		}
+    	} else {
+	    	if (state == State.ESTABLISHED) {
+	    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
+	    				seq.equals(clSeq) && ack.equals(svSeq)) {
+	    			clSeq = seq;
+	    			svSeq = ack;
+	    			
+	    			ret = true;
+	    		} else if (
+	    				seq.equals(svSeq) && succ(clSeq, ack) ||
+	    				seq.equals(svSeq) && ack.equals(clSeq)) {
+	    					clSeq = ack;
+	    	    			svSeq = seq;
+	    	    			ret = true;
+	    		} 
+	    	}
     	}
-    	
-    	if (state == State.ESTABLISHED) {
-    		if (seq.equals(clSeq) && succ(svSeq, ack) ||  
-    				seq.equals(clSeq) && ack.equals(svSeq)) {
-    			clSeq = seq;
-    			svSeq = ack;
-    			
-    			ret = true;
-    		} else if (
-    				seq.equals(svSeq) && succ(clSeq, ack) ||
-    				seq.equals(svSeq) && ack.equals(clSeq)) {
-    					clSeq = ack;
-    	    			svSeq = seq;
-    	    			ret = true;
-    		} 
-    	}
-    	
     	return ret;
     }
     

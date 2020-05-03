@@ -48,7 +48,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class TestTwoWayTCPMultitypeTree extends RaLibTestSuite {
+public class TestTwoWayTCPMultitypeTreeOracle extends RaLibTestSuite {
 
     @Test
     public void testModerateTCPTree() {

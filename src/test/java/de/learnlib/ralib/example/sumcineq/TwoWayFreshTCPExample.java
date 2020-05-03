@@ -9,8 +9,6 @@ public class TwoWayFreshTCPExample extends AbstractTCPExample{
 	private Double clSeq = null;
 	private Double svSeq = null;
 	private State state = State.CLOSED;
-	// if true, the looping variable makes it always possible to transition out of the CLOSED state by a Connect. 
-	private boolean looping = true;
 
 	public TwoWayFreshTCPExample() {
 		super();
@@ -22,9 +20,7 @@ public class TwoWayFreshTCPExample extends AbstractTCPExample{
 
 	public Double IConnect() {
     	Double ret = super.newFresh();
-    	if (state == State.CLOSED && 
-    			(looping || this.clSeq == null) 
-    			) {
+    	if (state == State.CLOSED) {
     		this.clSeq = ret;
     		state = State.CONNECTING;
     	}
@@ -37,6 +33,10 @@ public class TwoWayFreshTCPExample extends AbstractTCPExample{
     		if (seq.equals(clSeq)) {
     			ret = true;
     			state = State.SYN_SENT;
+    		} else {
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_CONNECTING_TO_CLOSED)) { 
+    				state = State.CLOSED;
+    			}
     		}
     	}
     	
@@ -52,9 +52,9 @@ public class TwoWayFreshTCPExample extends AbstractTCPExample{
     			svSeq = seq;
     			state = State.SYN_RECEIVED;
     		} else {
-    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) 
+    			if(!inWin(this.clSeq, ack) && options.contains(Option.WIN_SYNSENT_TO_CLOSED)) {
     				state = State.CLOSED;
-    			
+    			}
     		}
     	}
     	return ret;
@@ -68,16 +68,16 @@ public class TwoWayFreshTCPExample extends AbstractTCPExample{
     			svSeq = ack;
     			state = State.ESTABLISHED;
     		} 
-    	}
-    	
-    	if (state == State.ESTABLISHED) {
-    		if (equ(seq, clSeq) && succ(svSeq, ack) ||  
-    				equ(seq, clSeq) && equ(svSeq, ack)) {
-    			clSeq = seq;
-    			svSeq = ack;
-    			
-    			ret = true;
-    		} 
+    	} else {
+	    	if (state == State.ESTABLISHED) {
+	    		if (equ(seq, clSeq) && succ(svSeq, ack) ||  
+	    				equ(seq, clSeq) && equ(svSeq, ack)) {
+	    			clSeq = seq;
+	    			svSeq = ack;
+	    			
+	    			ret = true;
+	    		} 
+	    	}
     	}
     	
     	return ret;

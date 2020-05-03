@@ -69,7 +69,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
                 		Collections.emptyList()));
 
         OneWayTCPSUL sul = new OneWayTCPSUL(win);
-        sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+        sul.configure(Option.WIN_SYNSENT_TO_CLOSED, Option.WIN_CONNECTING_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createBasicMTO(
                 sul, OneWayTCPSUL.ERROR, teachers, 
@@ -89,32 +89,11 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
                         new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
                 new PSymbolInstance(OneWayTCPSUL.OK));
 
-        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
-                new PSymbolInstance(OneWayTCPSUL.ICONNECT,
-                        new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 1.0)),
-                new PSymbolInstance(OneWayTCPSUL.OK));
-        
-        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
-                new PSymbolInstance(OneWayTCPSUL.ISYN, 
-                		new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayTCPSUL.NOK)
-                ,
-                new PSymbolInstance(OneWayTCPSUL.ISYN,
-                        new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayTCPSUL.OK)
-                );
-
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(prefix1, suffix, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
         
-        
-        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix2, suffix2, new Constants(), teachers);
-        logger.log(Level.FINE, "Prefix: {0}", prefix2);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
-        
-        Assert.assertEquals("ISYN[s1] _not_ok[] ISYN[s2] _ok[]_P[[EQ_SUMC1], [EQ_SUMC1]]_S[[], [[EQ]]]", symSuffix2.toString());
         
         TreeQueryResult res1 = mto.treeQuery(prefix1, symSuffix1);
         SymbolicDecisionTree sdt1 = res1.getSdt();
@@ -131,7 +110,28 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
         "              []-TRUE: s3\n" +
         "                    [Leaf-]\n";
         
-        Assert.assertEquals(expectedTree1, sdt1.toString());
+        Assert.assertEquals(sdt1.toString(), expectedTree1);
+        
+        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
+                new PSymbolInstance(OneWayTCPSUL.ICONNECT,
+                        new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 1.0)),
+                new PSymbolInstance(OneWayTCPSUL.OK));
+        
+        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
+                new PSymbolInstance(OneWayTCPSUL.ISYN, 
+                		new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(OneWayTCPSUL.NOK)
+                ,
+                new PSymbolInstance(OneWayTCPSUL.ISYN,
+                        new DataValue(OneWayTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(OneWayTCPSUL.OK)
+                );
+        
+        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix2, suffix2, new Constants(), teachers);
+        logger.log(Level.FINE, "Prefix: {0}", prefix2);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
+        
+        Assert.assertEquals("ISYN[s1] _not_ok[] ISYN[s2] _ok[]_P[[EQ_SUMC1], [EQ_SUMC1]]_S[[], [[EQ]]]", symSuffix2.toString());
         
         TreeQueryResult res2 = mto.treeQuery(prefix2, symSuffix2);
         SymbolicDecisionTree sdt2 = res2.getSdt();
@@ -150,7 +150,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
         				"          []-TRUE: s2\n" +
         				"                [Leaf-]\n";
         
-        Assert.assertEquals(expectedTree2, sdt2.toString());
+        Assert.assertEquals(sdt2.toString(), expectedTree2);
 
         Parameter p1 = new Parameter(OneWayTCPSUL.DOUBLE_TYPE, 1);
 
@@ -179,7 +179,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
         sumcTheory.setCheckForFreshOutputs(true);
 
         OneWayFreshTCPSUL sul = new OneWayFreshTCPSUL(win);
-        sul.configure(Option.WIN_SYNRECEIVED_TO_CLOSED, Option.WIN_SYNSENT_TO_CLOSED);
+        sul.configure(Option.WIN_SYNSENT_TO_CLOSED, Option.WIN_CONNECTING_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(
                 sul, OneWayFreshTCPSUL.ERROR, teachers, 
@@ -199,30 +199,10 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
                         new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
                 new PSymbolInstance(OneWayFreshTCPSUL.OK));
 
-        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
-        		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT),
-        		new PSymbolInstance(OneWayFreshTCPSUL.OCONNECT, 
-        				new DataValue<>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0)));
-        
-        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
-                new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
-                		new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayFreshTCPSUL.NOK)
-                ,
-                new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
-                        new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
-                new PSymbolInstance(OneWayFreshTCPSUL.OK)
-                );
-
         // create a symbolic suffix from the concrete suffix
         final GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(prefix1, suffix, new Constants(), teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
-        
-        
-        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix2, suffix2, new Constants(), teachers);
-        logger.log(Level.FINE, "Prefix: {0}", prefix2);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
         
         TreeQueryResult res1 = mto.treeQuery(prefix1, symSuffix1);
         SymbolicDecisionTree sdt1 = res1.getSdt();
@@ -239,8 +219,27 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
         "              []-TRUE: s3\n" +
         "                    [Leaf-]\n";
         
-        Assert.assertEquals(expectedTree1, sdt1.toString());
+        Assert.assertEquals(sdt1.toString(), expectedTree1);
         
+        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
+        		new PSymbolInstance(OneWayFreshTCPSUL.ICONNECT),
+        		new PSymbolInstance(OneWayFreshTCPSUL.OCONNECT, 
+        				new DataValue<>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0)));
+        
+        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
+                new PSymbolInstance(OneWayFreshTCPSUL.ISYN, 
+                		new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(OneWayFreshTCPSUL.NOK)
+                ,
+                new PSymbolInstance(OneWayFreshTCPSUL.ISYN,
+                        new DataValue(OneWayFreshTCPSUL.DOUBLE_TYPE, 2.0)),
+                new PSymbolInstance(OneWayFreshTCPSUL.OK)
+                );
+        
+        final GeneralizedSymbolicSuffix symSuffix2 = new GeneralizedSymbolicSuffix(prefix2, suffix2, new Constants(), teachers);
+        logger.log(Level.FINE, "Prefix: {0}", prefix2);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix2);
+
         TreeQueryResult res2 = mto.treeQuery(prefix2, symSuffix2);
         SymbolicDecisionTree sdt2 = res2.getSdt();
         logger.log(Level.FINE, "Final SDT 2: {0}", sdt2.toString());
@@ -258,7 +257,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
         				"          []-TRUE: s2\n" +
         				"                [Leaf-]\n";
         
-        Assert.assertEquals(expectedTree2, sdt2.toString());
+        Assert.assertEquals(sdt2.toString(), expectedTree2);
 
         Parameter p1 = new Parameter(OneWayFreshTCPSUL.DOUBLE_TYPE, 1);
 

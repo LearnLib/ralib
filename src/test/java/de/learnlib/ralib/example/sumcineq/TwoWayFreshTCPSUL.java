@@ -101,7 +101,11 @@ public class TwoWayFreshTCPSUL extends DataWordSUL {
         if (x instanceof Boolean) {
             return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
         } else {
-        	return new PSymbolInstance(OCONNECT, new DataValue<Double>(DOUBLE_TYPE, (Double) x));
+        	if (x instanceof Double) {
+        		return new PSymbolInstance(OCONNECT, new DataValue<Double>(DOUBLE_TYPE, (Double) x));
+        	} else {
+        		throw new IllegalStateException("Output not supported");
+        	}
         }
      }
 
