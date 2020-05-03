@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.sumcineq;
 
-import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
-import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.State;
 
 public class OneWayFreshTCPExample extends AbstractTCPExample{
 

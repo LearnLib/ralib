@@ -32,8 +32,8 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
 import de.learnlib.ralib.example.sumcineq.TwoWayTCPSULMultitype;
-import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -46,7 +46,6 @@ import net.automatalib.words.Word;
 
 /**
  *
- * @author falk
  */
 public class TestTwoWayTCPMultitypeTreeOracle extends RaLibTestSuite {
 

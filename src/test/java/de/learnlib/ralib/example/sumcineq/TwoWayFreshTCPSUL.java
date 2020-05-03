@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
+import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
