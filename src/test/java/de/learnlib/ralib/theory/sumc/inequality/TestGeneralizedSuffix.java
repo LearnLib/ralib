@@ -1,4 +1,4 @@
-package de.learnlib.ralib.theory.sumcineq;
+package de.learnlib.ralib.theory.sumc.inequality;
 
 import static de.learnlib.ralib.theory.DataRelation.DEQ;
 import static de.learnlib.ralib.theory.DataRelation.EQ;
@@ -23,8 +23,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
-import de.learnlib.ralib.example.sumcineq.TwoWayFreshTCPSUL;
+import de.learnlib.ralib.example.sumc.inequality.TwoWayFreshTCPSUL;
+import de.learnlib.ralib.example.sumc.inequality.TCPExample.Option;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;

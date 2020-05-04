@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 public abstract class AbstractWindowProtocol {
 	private static Double DEFAULT_WIN = 1000.0;

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.theory.sumcineq;
+package de.learnlib.ralib.theory.sumc.inequality;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,8 +32,8 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
-import de.learnlib.ralib.example.sumcineq.TwoWayTCPSULMultitype;
+import de.learnlib.ralib.example.sumc.inequality.TwoWayTCPSULMultitype;
+import de.learnlib.ralib.example.sumc.inequality.TCPExample.Option;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;

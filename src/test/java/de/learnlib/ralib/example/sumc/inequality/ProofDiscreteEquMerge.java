@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 /**
  * An example of a system that cannot be learned with our setup.

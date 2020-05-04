@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 
 import java.util.function.Supplier;
@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
+import de.learnlib.ralib.example.sumc.inequality.TCPExample.Option;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;

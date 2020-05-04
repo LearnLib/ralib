@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 import java.util.Arrays;
 import java.util.Set;

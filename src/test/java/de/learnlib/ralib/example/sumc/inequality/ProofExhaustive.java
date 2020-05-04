@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 /**
  * An example which shows why we should use exhaustive suffixes, instead of suffixes with relations from the concrete suff/pref.

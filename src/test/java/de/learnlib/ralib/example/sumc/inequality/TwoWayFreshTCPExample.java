@@ -1,4 +1,4 @@
-package de.learnlib.ralib.example.sumcineq;
+package de.learnlib.ralib.example.sumc.inequality;
 
 /*
  * Before learning this, ensure first that the window size in AbstractWindowProtocol coincides
