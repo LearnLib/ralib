@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -316,8 +318,7 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 	}
 
 	/**
-	 * Returns the left most suffix that is an the given relation with suffix
-	 * s_pId.
+	 * Returns the left most suffix that is in the given relation with suffix parameter pId.
 	 */
 	public SuffixValue findLeftMostRelatedSuffix(int pId, DataRelation rel) {
 		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
@@ -331,7 +332,24 @@ public class GeneralizedSymbolicSuffix implements SymbolicSuffix {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * Returns the left most suffix that has exactly the specified relations with suffix parameter pId 
+	 */
+	public SuffixValue findLeftMostRelatedSuffixExact(int pId, DataRelation... rel) {
+		// System.out.println("findLeftMostEqual (" + pId + "): " + suffix);
+		DataType t = this.getDataValue(pId).getType();
+		for (int i = 1; i < pId; i++) {
+			if (!t.equals(this.getDataValue(i).getType())) {
+				continue;
+			}
+			if (this.getSuffixRelations(i, pId).equals(Sets.newEnumSet(Arrays.asList(rel), DataRelation.class))) {
+				return this.getDataValue(i);
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String toString() {
 		Map<Integer, DataValue> instValues = new HashMap<>();
