@@ -69,12 +69,12 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	
 	private void setConstants (List<DataValue<Integer>> sumConstants,
 			List<DataValue<Integer>> regularConstants) {
-		this.sortedSumConsts = new ArrayList<>(sumConstants);
-		Collections.sort(this.sortedSumConsts, new Cpr());
+		sortedSumConsts = new ArrayList<>(sumConstants);
+		Collections.sort(sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
-		Integer step = this.sortedSumConsts.isEmpty() ? 1 :this.sortedSumConsts.get(this.sortedSumConsts.size()-1).getId();
-		this.freshStep = step * FRESH_FACTOR;
-		this.smBgStep = new DataValue<Integer>(type, step * SM_BG_FACTOR);
+		Integer step = sortedSumConsts.isEmpty() ? 1 :sortedSumConsts.get(sortedSumConsts.size()-1).getId();
+		freshStep = step * FRESH_FACTOR;
+		smBgStep = new DataValue<Integer>(type, step * SM_BG_FACTOR);
 	}
 	
 	
@@ -123,11 +123,11 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
 		List<DataValue<Integer>> valsWithConsts = new ArrayList<>(vals);
 		// we add regular constants
-		valsWithConsts.addAll(this.regularConstants);
+		valsWithConsts.addAll(regularConstants);
 
 		DataValue<Integer> fv = super.getFreshValue(valsWithConsts);
 		Integer nextFresh;
-		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=this.freshStep);
+		for(nextFresh=0; nextFresh<fv.getId(); nextFresh+=freshStep);
 
 		return new DataValue<Integer>(fv.getType(), nextFresh);
 	}
@@ -141,7 +141,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	}
 
 	public Determinizer<Integer> getDeterminizer() {
-		return new SumCInequalityDeterminizer<Integer>(this, this.sortedSumConsts);
+		return new SumCInequalityDeterminizer<Integer>(this, sortedSumConsts);
 	}
 
 	public Collection<DataValue<Integer>> getAllNextValues(List<DataValue<Integer>> vals) {
@@ -170,8 +170,8 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	}
 	
 	private DataValue<Integer> maxSumCOrZero () {
-		return this.sortedSumConsts.isEmpty() ? DataValue.ZERO(type, getDomainType()):
-				this.sortedSumConsts.get(sortedSumConsts.size()-1);
+		return sortedSumConsts.isEmpty() ? DataValue.ZERO(type, getDomainType()):
+				sortedSumConsts.get(sortedSumConsts.size()-1);
 	}
 	
 	private DataRelation getRelation(DataValue<Integer> dv, DataValue<Integer> right) {
@@ -187,7 +187,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 			Optional<DataValue<Integer>> sumcEqual = sortedSumConsts.stream().filter(c -> Integer.valueOf(c.getId() + dv.getId())
 					.equals(right.getId())).findFirst();
 			if (sumcEqual.isPresent()) {
-				int ind = this.sortedSumConsts.indexOf(sumcEqual.get());
+				int ind = sortedSumConsts.indexOf(sumcEqual.get());
 				if (ind == 0) 
 					rel = DataRelation.EQ_SUMC1; 
 				else if (ind == 1) 
@@ -198,7 +198,7 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 				Optional<DataValue<Integer>> sumcLt = sortedSumConsts.stream().filter(c -> 
 				Integer.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findFirst();
 				if (sumcLt.isPresent()) {
-					int ind = this.sortedSumConsts.indexOf(sumcLt.get());
+					int ind = sortedSumConsts.indexOf(sumcLt.get());
 					if (ind == 0) 
 						rel = DataRelation.LT_SUMC1; 
 					else if (ind == 1) 
