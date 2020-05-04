@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -110,6 +112,19 @@ public class SDT implements SymbolicDecisionTree {
     		return 1;
     	} else {
     		return this.children.size();
+    	}
+    }
+    
+    /**
+     * Returns the height of the SDT.
+     * An {@link SDTLeaf} has height 0.
+     */
+    public int getHeight() {
+    	if (this instanceof SDTLeaf || children.isEmpty()) {
+    		return 0;
+    	} else {
+    		Optional<Integer> maxHeight = children.values().stream().map( (sdt) -> sdt.getHeight()).max(Comparator.naturalOrder());
+    		return maxHeight.get() + 1;
     	}
     }
 

@@ -37,6 +37,7 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
 import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -89,7 +90,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        CanonizingIOCacheOracle ioCache = new CanonizingIOCacheOracle(ioOracle);
+        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         ConstraintSolver solver = new SimpleConstraintSolver();

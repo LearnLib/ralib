@@ -74,7 +74,7 @@ public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>>
 	public <T> List<DataValue<T>> getSumCs(DataType type) {
 		@SuppressWarnings("unchecked")
 		List<DataValue<T>> list = (List<DataValue<T>>)  
-				this.sumConstants.values().stream().filter(c -> c.type.equals(type)).
+				sumConstants.values().stream().filter(c -> c.type.equals(type)).
 				map(dv -> (DataValue<T>) dv).collect(Collectors.toList());
 		return list;
 	}

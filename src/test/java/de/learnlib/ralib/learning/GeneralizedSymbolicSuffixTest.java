@@ -30,20 +30,17 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.Sets;
 
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
+import de.learnlib.ralib.example.sumcineq.TCPExample.Option;
 import de.learnlib.ralib.example.sumcineq.TwoWayTCPSUL;
-import de.learnlib.ralib.example.sumcineq.AbstractTCPExample.Option;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.DataRelation;

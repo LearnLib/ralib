@@ -28,7 +28,6 @@ import de.learnlib.api.Query;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.oracles.io.IOCache.CacheNode;
 import de.learnlib.ralib.words.OutputSymbol;

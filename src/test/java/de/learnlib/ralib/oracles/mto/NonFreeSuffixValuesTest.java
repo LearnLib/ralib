@@ -36,6 +36,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -74,7 +75,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTOWithFreshValueSupport(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createBasicMTO(sul, ERROR, 
                 teachers, consts, new SimpleConstraintSolver(), inputs);
     
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
@@ -136,13 +137,10 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "              []-TRUE: s2\n" +
 "                    []-(s3=r1)\n" +
 "                     |    []-(s4=r2)\n" +
-"                     |     |    []-(s5=s1)\n" +
-"                     |     |     |    []-(s6=s2)\n" +
-"                     |     |     |     |    [Leaf+]\n" +
-"                     |     |     |     +-(s6!=s2)\n" +
-"                     |     |     |          [Leaf-]\n" +
-"                     |     |     +-(s5!=s1)\n" +
-"                     |     |          []-TRUE: s6\n" +
+"                     |     |    []-TRUE: s5\n" +
+"                     |     |          []-(s6=s2)\n" +
+"                     |     |           |    [Leaf+]\n" +
+"                     |     |           +-(s6!=s2)\n" +
 "                     |     |                [Leaf-]\n" +
 "                     |     +-(s4!=r2)\n" +
 "                     |          []-TRUE: s5\n" +
