@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,14 +52,25 @@ import de.learnlib.ralib.theory.SDTGuardLogic;
 import de.learnlib.ralib.theory.SyntacticEquivalenceChecker;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.SumCTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
-abstract public class SumCEqualityTheory<T> implements TypedTheory<T> {
+abstract public class SumCEqualityTheory<T extends Number & Comparable<T>> implements TypedTheory<T>, SumCTheory {
 
+	static public final class Cpr<N extends Comparable<N>> implements Comparator<DataValue<N>> {
+		
+
+		@Override
+		public int compare(DataValue<N> one, DataValue<N> other) {
+			return one.getId().compareTo(other.getId());
+		}
+	}
+	
+	
 	protected boolean useNonFreeOptimization;
 
 	protected boolean freshValues = false;
@@ -69,18 +81,19 @@ abstract public class SumCEqualityTheory<T> implements TypedTheory<T> {
 
 	private static final LearnLogger log = LearnLogger.getLogger(EqualityTheory.class);
 
-	public SumCEqualityTheory(boolean useNonFreeOptimization) {
-		this.useNonFreeOptimization = useNonFreeOptimization;
+	public SumCEqualityTheory() {
 		this.ifElseMerger = new IfElseGuardMerger(getGuardLogic());
 	}
-
-	public void setFreshValues(boolean freshValues) {
-		this.freshValues = freshValues;
+	
+	@Override
+	public void setCheckForFreshOutputs(boolean doit) {
+		freshValues = doit;
+	}
+	
+	public void setUseSuffixOpt(boolean useit) {
+		this.useNonFreeOptimization = useit;
 	}
 
-	public SumCEqualityTheory() {
-		this(false);
-	}
 
 	public abstract EnumSet<DataRelation> recognizedRelations();
 
@@ -303,7 +316,6 @@ abstract public class SumCEqualityTheory<T> implements TypedTheory<T> {
     }
 
 	@Override
-	// instantiate a parameter with a data value
 	public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
 			Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs, boolean useSolver) {
 
@@ -333,9 +345,7 @@ abstract public class SumCEqualityTheory<T> implements TypedTheory<T> {
 			
 			Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<SymbolicDataValue, DataValue<?>>();
 			valuation.putAll(constants);
-			if (value != null) {
-				valuation.put(ereg, value);
-			}
+			valuation.put(ereg, value);
 			return eqGuard.getExpression().instantiateExprForValuation(valuation);
 		}
 

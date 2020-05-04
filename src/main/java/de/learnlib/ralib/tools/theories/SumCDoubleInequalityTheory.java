@@ -64,6 +64,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	
 	private void setConstants (List<DataValue<Double>> sumConstants,
 			List<DataValue<Double>> regularConstants) {
+		if (sumConstants.size() > 2) {
+			throw new IllegalArgumentException(String.format("A maximum of two sum constants per type is supported. "
+					+ "SumCs for type {0}: {1}", type, sumConstants));
+		}
+		
 		sortedSumConsts = new ArrayList<>(sumConstants);
 		Collections.sort(sortedSumConsts, new Cpr());
 		this.regularConstants = regularConstants;
@@ -92,7 +97,6 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	 * Creates a list of values comprising the data values supplied, plus all
 	 * values obtained by adding each of the sum constants to each of the data
 	 * values supplied.
-	 * 
 	 */
 	private List<DataValue<Double>> makeNewPotsWithSumC(List<DataValue<Double>> dvs) {
 		Stream<DataValue<Double>> dvWithoutConsts = 
@@ -176,8 +180,11 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 			rel = DataRelation.DEFAULT;
 		else 
 		{
-			Optional<DataValue<Double>> sumcEqual = sortedSumConsts.stream().filter(c -> Double.valueOf(c.getId() + dv.getId())
-					.equals(right.getId())).findFirst();
+			Optional<DataValue<Double>> sumcEqual = sortedSumConsts
+					.stream()
+					.filter(c -> Double.valueOf(c.getId() + dv.getId())
+					.equals(right.getId()))
+					.findFirst();
 			if (sumcEqual.isPresent()) {
 				int ind = sortedSumConsts.indexOf(sumcEqual.get());
 				if (ind == 0) 
@@ -185,10 +192,12 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 				else if (ind == 1) 
 					rel = DataRelation.EQ_SUMC2;
 				else
-					throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+					assert false;
 			} else {
-				Optional<DataValue<Double>> sumcLt = sortedSumConsts.stream().filter(c -> 
-				Double.valueOf(c.getId() + dv.getId()).compareTo(right.getId()) > 0).findFirst();
+				Optional<DataValue<Double>> sumcLt = sortedSumConsts.stream()
+						.filter(c -> Double.valueOf(c.getId() + dv.getId())
+								.compareTo(right.getId()) > 0)
+						.findFirst();
 				if (sumcLt.isPresent()) {
 					int ind = sortedSumConsts.indexOf(sumcLt.get());
 					if (ind == 0) 
@@ -196,7 +205,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 					else if (ind == 1) 
 						rel = DataRelation.LT_SUMC2;
 					else
-						throw new DecoratedRuntimeException("Over 2 sumcs not supported");
+						assert false;
 				} else 
 					throw new DecoratedRuntimeException("Exhausted all cases");
 			}

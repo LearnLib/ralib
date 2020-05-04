@@ -20,7 +20,6 @@ import java.util.EnumSet;
 
 /**
  *
- * @author falk
  */
 public enum DataRelation {
     ALL, /* This is a special relation meaning that the relation is undetermined, it can be one of any of the relations recognized.

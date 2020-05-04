@@ -35,8 +35,6 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 
 	private static int SM_BG_FACTOR = 10;  
 	
-	// maxSumC multiplied this factor results in the fresh step. Fresh values at a fresh step distance, 
-	// in increasing order, starting from 0.
 	private static int FRESH_FACTOR = 100; 
 
 	

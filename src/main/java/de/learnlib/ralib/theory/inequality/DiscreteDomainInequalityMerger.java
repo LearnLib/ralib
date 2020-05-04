@@ -68,7 +68,7 @@ public class DiscreteDomainInequalityMerger implements InequalityGuardMerger{
 		// we turn or guards to intervals where possible, that is whenever they contain IntervalGuards. 
 		LinkedHashMap<SDTGuard, SDT> compressedResult = replaceOrGuardsWithIntervalsByIntervals(mergedResult);
 		
-		// we turn or guards with 3 or more into interval guards. This ensures we can handle a case of an in-between
+		// we turn or guards with 3 or more equalities into interval guards. This ensures we can handle a case of an in-between
 		// guard where the upper bound is incrementally increasing. 
 		LinkedHashMap<SDTGuard, SDT> furtherCompressedResult = replaceOrGuardsWithEqualitiesByIntervals(compressedResult);
 		
