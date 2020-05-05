@@ -47,7 +47,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -149,7 +149,7 @@ public class GeneralizedSymbolicSuffixTest {
     	Double win = 1000.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(TwoWayTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
+                new DoubleSumCInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
                 		Arrays.asList(
                 				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
                 				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, win)), // for window size

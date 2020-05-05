@@ -29,7 +29,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
-public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implements SumCTheory{
+public class DoubleSumCInequalityTheory extends DoubleInequalityTheory  implements SumCTheory{
 	//maxSumC : the biggest sum constant
 	
 	// maxSumC multiplied this factor results in the smaller/bigger step. 
@@ -49,10 +49,10 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	private DataValue<Double> smBgStep;
 	
 	
-	public SumCDoubleInequalityTheory() {
+	public DoubleSumCInequalityTheory() {
 	}
 	
-	public SumCDoubleInequalityTheory(DataType dataType, List<DataValue<Double>> sumConstants,
+	public DoubleSumCInequalityTheory(DataType dataType, List<DataValue<Double>> sumConstants,
 			List<DataValue<Double>> regularConstants) {
 		super(dataType);
 		setConstants(sumConstants, regularConstants);
@@ -115,7 +115,7 @@ public class SumCDoubleInequalityTheory extends DoubleInequalityTheory  implemen
 	}
 	
 	/**
-	 * The next fresh value, which is the smallest {@link SumCDoubleInequalityTheory#freshStep} multiple greater than the maximum value of the list.
+	 * The next fresh value, which is the smallest {@link DoubleSumCInequalityTheory#freshStep} multiple greater than the maximum value of the list.
 	 */
 	public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
 		List<DataValue<Double>> valsWithConsts = new ArrayList<>(vals);

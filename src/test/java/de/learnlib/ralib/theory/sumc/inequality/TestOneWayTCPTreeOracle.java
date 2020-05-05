@@ -45,7 +45,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -61,7 +61,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
     	Double win = 100.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(OneWayTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(OneWayTCPSUL.DOUBLE_TYPE,
+                new DoubleSumCInequalityTheory(OneWayTCPSUL.DOUBLE_TYPE,
                 		Arrays.asList(
                 				new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
                 				new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, win)), // for window size
@@ -167,7 +167,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
     public void testOneWayFreshTCPTreeOracle() {
     	
     	Double win = 100.0;
-    	SumCDoubleInequalityTheory sumcTheory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+    	DoubleSumCInequalityTheory sumcTheory = new DoubleSumCInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size

@@ -40,7 +40,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -55,14 +55,14 @@ public class TestTwoWayTCPMultitypeTreeOracle extends RaLibTestSuite {
     	Double win = 100.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(TwoWayTCPSULMultitype.DOUBLE_TYPE1, 
-                new SumCDoubleInequalityTheory(TwoWayTCPSULMultitype.DOUBLE_TYPE1,
+                new DoubleSumCInequalityTheory(TwoWayTCPSULMultitype.DOUBLE_TYPE1,
                 		Arrays.asList(
                 				new DataValue<Double>(TwoWayTCPSULMultitype.DOUBLE_TYPE1, 1.0), // for successor
                 				new DataValue<Double>(TwoWayTCPSULMultitype.DOUBLE_TYPE1, win)), // for window size
                 		Collections.emptyList()));
 
         teachers.put(TwoWayTCPSULMultitype.DOUBLE_TYPE2, 
-                new SumCDoubleInequalityTheory(TwoWayTCPSULMultitype.DOUBLE_TYPE2,
+                new DoubleSumCInequalityTheory(TwoWayTCPSULMultitype.DOUBLE_TYPE2,
                 		Arrays.asList(
                 				new DataValue<Double>(TwoWayTCPSULMultitype.DOUBLE_TYPE2, 1.0), // for successor
                 				new DataValue<Double>(TwoWayTCPSULMultitype.DOUBLE_TYPE2, win)), // for window size

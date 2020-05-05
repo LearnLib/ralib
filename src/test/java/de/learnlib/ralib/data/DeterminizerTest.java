@@ -17,7 +17,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
+import de.learnlib.ralib.tools.theories.IntegerSumCInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.InputSymbol;
 
@@ -50,7 +50,7 @@ public class DeterminizerTest  extends RaLibTestSuite {
         DataValue [] sumConsts = new DataValue [] {
 				new DataValue<Integer>(T_INT, 1), // for successor
 				new DataValue<Integer>(T_INT, win)};
-        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(T_INT,
+        IntegerSumCInequalityTheory sumCTheory = new IntegerSumCInequalityTheory(T_INT,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);
@@ -73,7 +73,7 @@ public class DeterminizerTest  extends RaLibTestSuite {
         DataValue [] sumConsts = new DataValue [] {
 				new DataValue<Integer>(T_INT, 1), // for successor
 				new DataValue<Integer>(T_INT, win)};
-        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(T_INT,
+        IntegerSumCInequalityTheory sumCTheory = new IntegerSumCInequalityTheory(T_INT,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);

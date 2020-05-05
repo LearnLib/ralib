@@ -29,7 +29,7 @@ import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
+import de.learnlib.ralib.tools.theories.IntegerSumCInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -196,7 +196,7 @@ public class TestFreshMultiLoginTree extends RaLibTestSuite{
     	public FreshMultiLoginProvider() {
     		this.teachers = new LinkedHashMap<>();
 	        DataValue [] sumConsts = new DataValue [] {};
-	        SumCIntegerInequalityTheory sumCTheory = new SumCIntegerInequalityTheory(FreshMultiLoginSUL.INT_TYPE,
+	        IntegerSumCInequalityTheory sumCTheory = new IntegerSumCInequalityTheory(FreshMultiLoginSUL.INT_TYPE,
 	        		Arrays.asList(sumConsts), // for window size
 	        		Collections.emptyList());
 	        sumCTheory.setCheckForFreshOutputs(true);

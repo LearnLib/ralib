@@ -37,7 +37,7 @@ import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -67,7 +67,7 @@ public class TestGeneralizedSuffix extends RaLibTestSuite{
         DataValue [] sumConsts = new DataValue [] {
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, win)};
-        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory sumCTheory = new DoubleSumCInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);
@@ -162,7 +162,7 @@ public class TestGeneralizedSuffix extends RaLibTestSuite{
         DataValue [] sumConsts = new DataValue [] {
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, win)};
-        SumCDoubleInequalityTheory sumCTheory = new SumCDoubleInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory sumCTheory = new DoubleSumCInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         sumCTheory.setCheckForFreshOutputs(true);

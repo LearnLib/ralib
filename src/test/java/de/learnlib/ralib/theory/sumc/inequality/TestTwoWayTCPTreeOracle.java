@@ -47,8 +47,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
-import de.learnlib.ralib.tools.theories.SumCIntegerInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
+import de.learnlib.ralib.tools.theories.IntegerSumCInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -64,7 +64,7 @@ public class TestTwoWayTCPTreeOracle extends RaLibTestSuite {
 				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
 				new DataValue<Double>(TwoWayTCPSUL.DOUBLE_TYPE, win)};
         teachers.put(TwoWayTCPSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
+                new DoubleSumCInequalityTheory(TwoWayTCPSUL.DOUBLE_TYPE,
                 		Arrays.asList(sumConsts), // for window size
                 		Collections.emptyList()));
 
@@ -192,7 +192,7 @@ public class TestTwoWayTCPTreeOracle extends RaLibTestSuite {
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
 				new DataValue<Double>(TwoWayFreshTCPSUL.DOUBLE_TYPE, win)};
         
-        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory(TwoWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         
@@ -320,7 +320,7 @@ public class TestTwoWayTCPTreeOracle extends RaLibTestSuite {
 				new DataValue<Integer>(TwoWayIntFreshTCPSUL.INT_TYPE, 1), // for successor
 				new DataValue<Integer>(TwoWayIntFreshTCPSUL.INT_TYPE, win)};
         
-        SumCIntegerInequalityTheory theory = new SumCIntegerInequalityTheory(TwoWayIntFreshTCPSUL.INT_TYPE,
+        IntegerSumCInequalityTheory theory = new IntegerSumCInequalityTheory(TwoWayIntFreshTCPSUL.INT_TYPE,
         		Arrays.asList(sumConsts), // for window size
         		Collections.emptyList());
         

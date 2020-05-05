@@ -31,7 +31,7 @@ import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
 
 //TODO instead of 0 reduction, just use output constants (constants that are only found in outputs and should not be used)
-public class SumCIntegerInequalityTheory extends IntegerInequalityTheory implements SumCTheory{
+public class IntegerSumCInequalityTheory extends IntegerInequalityTheory implements SumCTheory{
 
 	private static int SM_BG_FACTOR = 10;  
 	
@@ -43,16 +43,16 @@ public class SumCIntegerInequalityTheory extends IntegerInequalityTheory impleme
 	private int freshStep;
 	private DataValue<Integer> smBgStep;
 
-	public SumCIntegerInequalityTheory() {
+	public IntegerSumCInequalityTheory() {
 		super();
 	}
 
-	public SumCIntegerInequalityTheory(DataType dataType) {
+	public IntegerSumCInequalityTheory(DataType dataType) {
 		// the constants have to be introduced manually
 		this(dataType, Collections.emptyList(), Collections.emptyList());
 	}
 	
-	public SumCIntegerInequalityTheory(DataType dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
+	public IntegerSumCInequalityTheory(DataType dataType, List<DataValue<Integer>> sumConstants, List<DataValue<Integer>> regularConstants) {
 		super(dataType);
 		setConstants(sumConstants, regularConstants);
 	}

@@ -43,7 +43,7 @@ import java.util.Map;
 import net.automatalib.words.Word;
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.utils.SDTAssert;
 
 import java.util.logging.Level;
@@ -60,7 +60,7 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
+                new DoubleSumCInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
                 		Arrays.asList(new DataValue<Double>(PriorityQueueSUL.DOUBLE_TYPE, 100.0)), 
                         		Collections.emptyList()));
 
@@ -147,7 +147,7 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
+                new DoubleSumCInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
                 		Arrays.asList(new DataValue<Double>(PriorityQueueSUL.DOUBLE_TYPE, 100.0)), 
                         		Collections.emptyList()));
 
@@ -216,7 +216,7 @@ public class TestSumCIneqEqTree extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 
-                new SumCDoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
+                new DoubleSumCInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE, 
                 		Arrays.asList(new DataValue<Double>(PriorityQueueSUL.DOUBLE_TYPE, 100.0)), 
                         		Collections.emptyList()));
 

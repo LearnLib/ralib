@@ -24,7 +24,7 @@ import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
-import de.learnlib.ralib.tools.theories.SumCDoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.DoubleSumCInequalityTheory;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.utils.DataValueConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -37,7 +37,7 @@ public class TestSuccFresh extends RaLibTestSuite{
 		Double win = 10.0;
 		DataValueConstructor<Double> b = new DataValueConstructor<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE);
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
@@ -69,7 +69,7 @@ public class TestSuccFresh extends RaLibTestSuite{
 		Double win = 100.0;
 		DataValueConstructor<Double> b = new DataValueConstructor<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE);
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
@@ -129,7 +129,7 @@ public class TestSuccFresh extends RaLibTestSuite{
 		Double win = 100.0;
 		DataValueConstructor<Double> b = new DataValueConstructor<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE);
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
@@ -152,7 +152,7 @@ public class TestSuccFresh extends RaLibTestSuite{
     public void testModerateTCPTree() {
     	Double win = 100.0;
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        SumCDoubleInequalityTheory theory = new SumCDoubleInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
+        DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory(OneWayFreshTCPSUL.DOUBLE_TYPE,
         		Arrays.asList(
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, 1.0), // for successor
         				new DataValue<Double>(OneWayFreshTCPSUL.DOUBLE_TYPE, win)), // for window size
