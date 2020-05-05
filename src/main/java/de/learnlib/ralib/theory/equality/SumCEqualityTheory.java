@@ -260,7 +260,7 @@ abstract public class SumCEqualityTheory<T extends Number & Comparable<T>> imple
 
 			EqualityGuard eqGuard = makeEqualityGuard(newDv, prefixValues, currentParam, values, constants);
 			log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
-			diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
+			diseqList.add(new DisequalityGuard(currentParam, eqGuard.getExpression()));
 			// construct the equality guard
 			// find the data value in the prefix
 			// this is the valuation of the positions in the suffix

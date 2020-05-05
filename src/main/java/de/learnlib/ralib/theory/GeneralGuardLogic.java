@@ -16,6 +16,15 @@ public class GeneralGuardLogic implements SDTGuardLogic{
 		assert guard1.getParameter().equals(guard2.getParameter());
 		if (guard1.equals(guard2))
 			return guard1;
+		
+		if (guard1 instanceof SDTTrueGuard) {
+			return guard2;
+		}
+		
+		if (guard2 instanceof SDTTrueGuard) {
+			return guard1;
+		}
+		
 		if (guard1 instanceof SDTAndGuard && guard2 instanceof SDTAndGuard) {
 			List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTAndGuard) guard1).getGuards());
 			guards.addAll(((SDTAndGuard) guard2).getGuards());
@@ -40,6 +49,14 @@ public class GeneralGuardLogic implements SDTGuardLogic{
 		if (guard1.equals(guard2))
 			return guard1;
 		
+		if (guard1 instanceof SDTTrueGuard) {
+			return guard1;
+		}
+		
+		if (guard2 instanceof SDTTrueGuard) {
+			return guard2;
+		}
+		
 		if (guard1 instanceof SDTOrGuard && guard2 instanceof SDTOrGuard) {
 			List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTOrGuard) guard1).getGuards());
 			guards.addAll(((SDTOrGuard) guard2).getGuards());
@@ -51,7 +68,6 @@ public class GeneralGuardLogic implements SDTGuardLogic{
 					(SDTOrGuard) guard1 : (SDTOrGuard) guard2;
 			SDTGuard otherGuard  = guard2 instanceof SDTOrGuard? 
 					guard1 : guard2;
-
 			SDTGuard[] disjuncts = orGuard.getGuards().toArray(new SDTGuard [orGuard.getGuards().size() + 1]);
 			disjuncts[disjuncts.length - 1] = otherGuard;
 			return new SDTOrGuard(guard1.getParameter(), disjuncts);
