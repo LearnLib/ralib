@@ -8,6 +8,7 @@ import java.util.List;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.SumCEqualityTheory;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
@@ -40,7 +41,7 @@ public class IntegerSumCEqualityTheory extends SumCEqualityTheory<Integer> {
 		} else {
 			DataValue<Integer> maxVal = Collections.max(vals, new Cpr<Integer>());
 			DataValue<Integer> nextFresh = new DataValue<Integer>(getType(), 
-					Math.floorDiv(maxVal.getId(), freshStep) + freshStep);
+					Math.floorDiv(maxVal.getId(), freshStep) * freshStep + freshStep);
 			return nextFresh;
 		}
 	}
@@ -119,5 +120,4 @@ public class IntegerSumCEqualityTheory extends SumCEqualityTheory<Integer> {
 			freshStep = maxSumConst * FRESH_FACTOR;
 		}
 	}
-
 }
