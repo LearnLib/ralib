@@ -1,6 +1,5 @@
 package de.learnlib.ralib.example.login;
 
-import java.util.Arrays;
 import java.util.function.Supplier;
 
 import de.learnlib.api.SULException;
