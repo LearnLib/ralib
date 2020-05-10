@@ -30,9 +30,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class TwoWayTCPSULMultitype extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE = 
-            new DataType("DOUBLE", Double.class);    
-    
     public static final DataType DOUBLE_TYPE1 = 
             new DataType("DOUBLE1", Double.class);
     
@@ -40,7 +37,7 @@ public class TwoWayTCPSULMultitype extends DataWordSUL {
             new DataType("DOUBLE2", Double.class);
     
     public static final ParameterizedSymbol ICONNECT = 
-            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE1, DOUBLE_TYPE2});
+            new InputSymbol("IConnect", new DataType[]{DOUBLE_TYPE1});
     public static final ParameterizedSymbol ISYN = 
             new InputSymbol("ISYN", new DataType[]{DOUBLE_TYPE1, DOUBLE_TYPE2});
     public static final ParameterizedSymbol ISYNACK = 
