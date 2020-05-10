@@ -63,14 +63,14 @@ public abstract class BoundedIOEquivalenceOracle implements IOEquivalenceOracle 
 			hypTrace = traceCanonizer.canonize(hypTrace);
 			Word<PSymbolInstance> sulTrace = target.trace(hypTrace);
 			if (!hypTrace.equals(sulTrace)) {
-				log.log(Level.INFO, "SUL Trace {}", sulTrace.toString());
-				log.log(Level.INFO, "HYP Trace {}", hypTrace.toString());
+				log.log(Level.INFO, "SUL Trace {0}", sulTrace.toString());
+				log.log(Level.INFO, "HYP Trace {0}", hypTrace.toString());
 				System.out.println("HYP Trace " + hypTrace.toString());
 				Word<PSymbolInstance> newSulTrace = target.trace(sulTrace);
 				assert newSulTrace.equals(sulTrace);
 				int j;
 				for(j=0; hypTrace.getSymbol(j).equals(sulTrace.getSymbol(j)); j++);
-				log.log(Level.FINE, "HYP Run: {}", hypRun(hyp, sulTrace.prefix(j+1)));
+				log.log(Level.FINE, "HYP Run: {0}", hypRun(hyp, sulTrace.prefix(j+1)));
 				return new DefaultQuery<>(sulTrace.prefix(j+1), Boolean.TRUE);
 			}
 			runs ++;
