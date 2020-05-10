@@ -35,12 +35,21 @@ public class DeterminizerTest  extends RaLibTestSuite {
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_INT, new IntegerEqualityTheory(T_INT));
         MultiTheoryDeterminizer canonizer = new MultiTheoryDeterminizer(theories, new Constants());
-        DataValue[] rcvd = canonizer.canonize(dv(T_INT, 0,1,2), true);
-        test(rcvd, 0,1,2);
-        rcvd = canonizer.canonize(dv(T_INT, 50,100,1), false);
+        DataValue[] rcvd = canonizer.canonize(dv(T_INT, 0, 1, 2), true);
+        test(rcvd, 0, 1, 2);
+        /*
+         * {(0,0), (1,1), (2,2)}
+         */
+        rcvd = canonizer.canonize(dv(T_INT, 50, 100, 1), false);
         test(rcvd, 3, 4, 1);
+        /*
+         * {(0,0), (1,1), (2,2), (3,50), (4,100)}
+         */
         rcvd = canonizer.canonize(dv(T_INT, 5, 6, 1, 4), true);
-        test(rcvd, 5, 6, 1, 100 );
+        test(rcvd, 101, 102, 1, 100 );
+        /*
+         * {(0,0), (1,1), (2,2), (3,50), (4,100), (5,101), (6,102)}
+         */
 	}
     
     @Test
