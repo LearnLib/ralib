@@ -101,7 +101,7 @@ public class JConstraintsGuardInstantiator<T> {
 			// System.out.println("SAT!!");
 			// System.out.println(newVal.getValue(sp.toVariable()) + " " +
 			// newVal.getValue(sp.toVariable()).getClass());
-			DataValue<T> d = new DataValue<T>(getType(), DataValue.cast(newVal.getValue(toVariable(sp)), domainType));
+			DataValue d = new DataValue(getType(), newVal.getValue(toVariable(sp)));
 			// System.out.println("return d: " + d.toString());
 			return d;
 		} else {
