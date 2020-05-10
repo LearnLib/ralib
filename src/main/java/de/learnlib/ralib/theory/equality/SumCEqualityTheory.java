@@ -40,6 +40,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.GeneralizedSymbolicSuffix;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
@@ -160,7 +161,7 @@ abstract public class SumCEqualityTheory<T extends Number & Comparable<T>> imple
 
 					DataValue d = out.getParameterValues()[idx];
 
-					if (d instanceof FreshValue) {
+					if (d instanceof FreshValue && !potential.contains(d)) {
 						d = getFreshValue(potential);
 						values.put(pId, d);
 						WordValuation trueValues = new WordValuation(values);
@@ -346,7 +347,8 @@ abstract public class SumCEqualityTheory<T extends Number & Comparable<T>> imple
 			Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<SymbolicDataValue, DataValue<?>>();
 			valuation.putAll(constants);
 			valuation.put(ereg, value);
-			return eqGuard.getExpression().instantiateExprForValuation(valuation);
+			DataValue<?> val = eqGuard.getExpression().instantiateExprForValuation(valuation);
+			return val;
 		}
 
 		Collection values = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
@@ -453,5 +455,10 @@ abstract public class SumCEqualityTheory<T extends Number & Comparable<T>> imple
 
 	public SDTGuardLogic getGuardLogic() {
 		return new EqualityGuardLogic();
+	}
+	
+	@Override
+	public Determinizer<T> getDeterminizer() {
+		return new SumCEqualityDeterminizer<T>(this);
 	}
 }

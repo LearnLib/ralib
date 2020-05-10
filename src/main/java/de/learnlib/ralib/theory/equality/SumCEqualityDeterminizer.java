@@ -1,4 +1,4 @@
-package de.learnlib.ralib.tools.theories;
+package de.learnlib.ralib.theory.equality;
 
 import java.util.List;
 import java.util.Map;
