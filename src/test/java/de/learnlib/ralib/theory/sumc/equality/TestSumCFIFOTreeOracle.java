@@ -40,7 +40,7 @@ public class TestSumCFIFOTreeOracle extends RaLibTestSuite{
         teachers.put(SumCFIFOSUL.INT_TYPE, theory);
         theory.setCheckForFreshOutputs(true);
         theory.setType(SumCFIFOSUL.INT_TYPE);
-        SumCFIFOSUL sul = new SumCFIFOSUL(3, sumc);
+        SumCFIFOSUL sul = new SumCFIFOSUL(capacity, sumc);
         
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         Constants consts = new Constants(new SumConstants(sumConsts));
@@ -73,6 +73,10 @@ public class TestSumCFIFOTreeOracle extends RaLibTestSuite{
         		 new PSymbolInstance(SumCFIFOSUL.POLL),
         		 new PSymbolInstance(SumCFIFOSUL.OUTPUT,
         				 new DataValue(SumCFIFOSUL.INT_TYPE, 2)
+        				 ),
+        		 new PSymbolInstance(SumCFIFOSUL.POLL),
+        		 new PSymbolInstance(SumCFIFOSUL.OUTPUT,
+        				 new DataValue(SumCFIFOSUL.INT_TYPE, 2)
         				 )
         		);
         
@@ -83,16 +87,26 @@ public class TestSumCFIFOTreeOracle extends RaLibTestSuite{
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
         
-        String expectedTree = "[r1]-+\n" +
-        		"    []-TRUE: s1\n" +
-        		"          []-(s2=r1 + 1)\n" +
-        		"           |    []-(s3=r1)\n" +
-        		"           |     |    [Leaf+]\n" +
-        		"           |     +-(s3!=r1)\n" +
-        		"           |          [Leaf-]\n" +
-        		"           +-(s2!=r1 + 1)\n" +
-        		"                []-TRUE: s3\n" +
-        		"                      [Leaf-]\n";
+        String expectedTree = "[r2, r1]-+\n" +
+        		"        []-(s1=r2 + 1)\n" +
+        		"         |    []-(s2=s1)\n" +
+        		"         |     |    []-(s3=r2)\n" +
+        		"         |     |     |    []-(s4=r1)\n" +
+        		"         |     |     |     |    [Leaf+]\n" +
+        		"         |     |     |     +-(s4!=r1)\n" +
+        		"         |     |     |          [Leaf-]\n" +
+        		"         |     |     +-(s3!=r2)\n" +
+        		"         |     |          []-TRUE: s4\n" +
+        		"         |     |                [Leaf-]\n" +
+        		"         |     +-(s2!=s1)\n" +
+        		"         |          []-TRUE: s3\n" +
+        		"         |                []-TRUE: s4\n" +
+        		"         |                      [Leaf-]\n" +
+        		"         +-(s1!=r2 + 1)\n" +
+        		"              []-TRUE: s2\n" +
+        		"                    []-TRUE: s3\n" +
+        		"                          []-TRUE: s4\n" +
+        		"                                [Leaf-]\n";
         
         Assert.assertEquals(sdt.toString(), expectedTree);
     }

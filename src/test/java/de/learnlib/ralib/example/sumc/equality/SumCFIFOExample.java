@@ -19,10 +19,15 @@ public class SumCFIFOExample {
 		if (fifo.size() < capacity) {
 			if (fifo.isEmpty()) {
 				fifo.add(value);
+				return true;
 			} else {
-				fifo.add(fifo.get(fifo.size()-1) + sumConst);
+				if (value == fifo.get(fifo.size()-1) + sumConst) {
+					fifo.add(value);
+					return true;
+				} else {
+					return false;
+				}
 			}
-			return true;
 		} else {
 			return false;
 		}
