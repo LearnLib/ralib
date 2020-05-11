@@ -23,36 +23,26 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public class LearnPalindromeIOTest extends RaLibTestSuite {
+public class LearnPalindromeIOTest extends RaLibLearningTestSuite {
 
     @Test
     public void learnLoginExampleIO() {
@@ -80,54 +70,13 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         ConstraintSolver solver = new SimpleConstraintSolver();
         
-        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);        
-        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        
+        super.setHypValidator((hyp) -> {
+        	Assert.assertEquals(hyp.getStates().size(), 5);
+            Assert.assertEquals(hyp.getTransitions().size(), 16);
+        });
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, ioCache, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
-                consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, solver);
-
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
-                teachers, solver, actions);
-
-        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                model, teachers, consts, true, actions);
-             
-        int check = 0;
-        while (true && check < 10) {
-            
-            check++;
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
-            logger.log(Level.FINE, "HYP: {0}", hyp);
-
-              
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    ioEquiv.findCounterExample(hyp, null);
-           
-            logger.log(Level.FINE, "CE: {0}", ce);
-            if (ce == null) {
-                break;
-            }
-            
-            Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));            
-            rastar.addCounterexample(ce);
-        }
-            
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce = 
-            ioEquiv.findCounterExample(hyp, null);
-            
-        Assert.assertNull(ce);
-        Assert.assertEquals(hyp.getStates().size(), 5);
-        Assert.assertEquals(hyp.getTransitions().size(), 16);
+        super.runIOLearningExperiments(sul, teachers, consts, false, solver, actions, ERROR);
     }
 }

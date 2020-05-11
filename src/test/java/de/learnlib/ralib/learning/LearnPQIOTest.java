@@ -25,7 +25,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.RaLibLearningTest;
+import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
@@ -39,7 +39,7 @@ import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 /**
  * TODO It would be nice if we could have an extended test run wherein each learning test is performed several times with different seeds. 
  */
-public class LearnPQIOTest extends RaLibLearningTest {
+public class LearnPQIOTest extends RaLibLearningTestSuite {
 
     @Test
     public void learnLoginExampleIO() {

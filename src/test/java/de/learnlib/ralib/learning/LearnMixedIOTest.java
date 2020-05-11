@@ -20,28 +20,19 @@ package de.learnlib.ralib.learning;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.equivalence.IORandomWalk;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -50,29 +41,21 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public class LearnMixedIOTest extends RaLibTestSuite {
+public class LearnMixedIOTest extends RaLibLearningTestSuite {
 
     @Test
     public void learnLoginExampleIO() {
 
-        long seed = -1386796323025681754L; 
-        logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
-        
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/mixed.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
-
-        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-                new ParameterizedSymbol[]{});
 
         ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
@@ -99,62 +82,15 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
         IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
         
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, inputs);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, jsolv);
-
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
-                teachers,  jsolv, actions);
-        
-        IORandomWalk iowalk = new IORandomWalk(random,
-                sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
-                0.8, // prob. of choosing a fresh data value
-                1000, // 1000 runs 
-                100, // max depth
-                consts,
-                false, // reset runs 
-                teachers,
-                inputs);
-        
-        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-                                                
-        int check = 0;
-        while (true && check < 100) {
-            
-            check++;
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
-
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    iowalk.findCounterExample(hyp, null);
-           
-            if (ce == null) {
-                break;
-            }
-
-            ce = loops.optimizeCE(ce.getInput(), hyp);
-            ce = asrep.optimizeCE(ce.getInput(), hyp);
-            ce = pref.optimizeCE(ce.getInput(), hyp);
-    
-            Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
-            
-            rastar.addCounterexample(ce);
-        }
-
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        IOEquivalenceTest checker = new IOEquivalenceTest(
-                model, teachers, consts, true, actions);
-        
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        logger.log(Level.FINE,"Resets: " + sul.getResets());  
-        Assert.assertNull(checker.findCounterExample(hyp, null));    
+        super.setHypValidator((hyp)
+        		-> {
+        			IOEquivalenceTest checker = new IOEquivalenceTest(
+        	                model, teachers, consts, true, actions);
+        	        
+        	        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
+        	        logger.log(Level.FINE,"Resets: " + sul.getResets());  
+        	        Assert.assertNull(checker.findCounterExample(hyp, null));
+        		});
+        super.runIOLearningExperiments(sul, teachers, consts, false, jsolv, actions, ERROR);  
     }
 }

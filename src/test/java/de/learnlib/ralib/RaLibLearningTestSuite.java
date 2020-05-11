@@ -37,14 +37,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 /*
  * It should be possible to use an experiment builder as an alternative to inheritance/long param calls
  */
-public class RaLibLearningTest extends RaLibTestSuite {
+public class RaLibLearningTestSuite extends RaLibTestSuite {
 	
 	private Consumer<RegisterAutomaton> hypValidator;
 	
-	public RaLibLearningTest() {
+	public RaLibLearningTestSuite() {
 		this.hypValidator = (hyp) -> {};
 	}
-
 	
 	/**
 	 * 
@@ -60,7 +59,7 @@ public class RaLibLearningTest extends RaLibTestSuite {
 
 	/**
 	 * Launches learning experiments for IO, one of each seed in
-	 * {@link RaLibLearningTest#getSeeds()}.
+	 * {@link RaLibLearningTestSuite#getSeeds()}.
 	 * 
 	 * @param sul
 	 *            the system to be tested
@@ -148,6 +147,7 @@ public class RaLibLearningTest extends RaLibTestSuite {
 			RegisterAutomaton hyp = rastar.getHypothesis();
 			hypValidator.accept(hyp);
 
+			logger.log(Level.FINE, "LAST:------------------------------------------------");
 			logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
 			logger.log(Level.FINE, "Resets: {0}", sul.getResets());
 			logger.log(Level.FINE, "Inputs: {0}", sul.getInputs());

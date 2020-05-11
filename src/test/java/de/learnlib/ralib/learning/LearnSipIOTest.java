@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.RaLibLearningTest;
+import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
@@ -39,7 +39,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  *
  * @author falk
  */
-public class LearnSipIOTest extends RaLibLearningTest {
+public class LearnSipIOTest extends RaLibLearningTestSuite {
 
     @Test
     public void learnLoginExampleIO() {

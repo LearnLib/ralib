@@ -24,30 +24,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.equivalence.HypVerify;
-import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL.Actions;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -62,154 +51,81 @@ import net.automatalib.words.Word;
  * @author Bharat Garhewal
  */
 /*
- * The test involves learning a system with few locations but complex guards. 
+ * The test involves learning a system with few locations but complex guards.
  */
-public class LearnBharatExampleTest  extends RaLibTestSuite {
+public class LearnBharatExampleTest extends RaLibLearningTestSuite {
 
-    public static final DataType doubleType = new DataType("DOUBLE", Double.class);
+	public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 
-    public LearnBharatExampleTest() {
-    }
+	public LearnBharatExampleTest() {
+	}
 
-    @Test
-    public void LearnBharatExampleIO() {
+	@Test
+	public void LearnBharatExampleIO() {
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
-        final ParameterizedSymbol OK
-                = new OutputSymbol("_ok", new DataType[]{});
-        final ParameterizedSymbol NOK
-                = new OutputSymbol("_not_ok", new DataType[]{});
+		final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[] {});
+		final ParameterizedSymbol OK = new OutputSymbol("_ok", new DataType[] {});
+		final ParameterizedSymbol NOK = new OutputSymbol("_not_ok", new DataType[] {});
 
-        final ParameterizedSymbol PUT = new InputSymbol("put", new DataType[]{doubleType,doubleType,doubleType});
+		final ParameterizedSymbol PUT = new InputSymbol("put", new DataType[] { doubleType, doubleType, doubleType });
 
-        List<ParameterizedSymbol> inputList = new ArrayList<ParameterizedSymbol>();
-        List<ParameterizedSymbol> outputList = new ArrayList<ParameterizedSymbol>();
+		List<ParameterizedSymbol> inputList = new ArrayList<ParameterizedSymbol>();
+		List<ParameterizedSymbol> outputList = new ArrayList<ParameterizedSymbol>();
 
-        inputList.add(PUT);
-        outputList.add(OK);
-        outputList.add(NOK);
+		inputList.add(PUT);
+		outputList.add(OK);
+		outputList.add(NOK);
 
-        final ParameterizedSymbol[] inputArray = inputList.toArray(new ParameterizedSymbol[inputList.size()]);
+		List<ParameterizedSymbol> actionList = new ArrayList<ParameterizedSymbol>();
+		actionList.addAll(inputList);
+		actionList.addAll(outputList);
+		final ParameterizedSymbol[] actionArray = actionList.toArray(new ParameterizedSymbol[actionList.size()]);
 
-        List<ParameterizedSymbol> actionList = new ArrayList<ParameterizedSymbol>();
-        actionList.addAll(inputList);
-        actionList.addAll(outputList);
-        final ParameterizedSymbol[] actionArray = actionList.toArray(new ParameterizedSymbol[actionList.size()]);
+		Map<BharatExampleSUL.Actions, ParameterizedSymbol> inputs = new LinkedHashMap<BharatExampleSUL.Actions, ParameterizedSymbol>();
+		inputs.put(Actions.PUT, PUT);
 
-        Map<BharatExampleSUL.Actions, ParameterizedSymbol> inputs = new LinkedHashMap<BharatExampleSUL.Actions, ParameterizedSymbol>();
-        inputs.put(Actions.PUT, PUT);
+		Map<BharatExampleSUL.Actions, ParameterizedSymbol> outputs = new LinkedHashMap<BharatExampleSUL.Actions, ParameterizedSymbol>();
+		outputs.put(Actions.OK, OK);
+		outputs.put(Actions.NOK, NOK);
 
-        Map<BharatExampleSUL.Actions, ParameterizedSymbol> outputs = new LinkedHashMap<BharatExampleSUL.Actions, ParameterizedSymbol>();
-        outputs.put(Actions.OK, OK);
-        outputs.put(Actions.NOK, NOK);
+		final Constants consts = new Constants();
 
-        final Constants consts = new Constants();
+		long seed = -4750580074638681533L;
+		// long seed = (new Random()).nextLong();
+		System.out.println("SEED=" + seed);
+		final Random random = new Random(seed);
 
-        long seed = -4750580074638681533L;
-        //long seed = (new Random()).nextLong();
-        System.out.println("SEED=" + seed);
-        final Random random = new Random(seed);
+		final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+		class Cpr implements Comparator<DataValue<Double>> {
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-        class Cpr implements Comparator<DataValue<Double>> {
+			public int compare(DataValue<Double> one, DataValue<Double> other) {
+				return one.getId().compareTo(other.getId());
+			}
+		}
+		teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+		
+		DataWordSUL sul = new BharatExampleSUL(teachers, consts, inputs, outputs);
+		
+		super.setHypValidator((hyp) -> {
+			PSymbolInstance[][] tests = {
+					{ new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0),
+							new DataValue(doubleType, 2.0)), new PSymbolInstance(NOK) },
+					{ new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 3.0),
+							new DataValue(doubleType, 2.0)), new PSymbolInstance(OK) },
+					{ new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0),
+							new DataValue(doubleType, 3.0)), new PSymbolInstance(OK) },
+					{ new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0),
+							new DataValue(doubleType, 3.0)), new PSymbolInstance(OK) },
+					{ new PSymbolInstance(PUT, new DataValue(doubleType, 3.0), new DataValue(doubleType, 1.0),
+							new DataValue(doubleType, 2.0)), new PSymbolInstance(NOK) } };
 
-            public int compare(DataValue<Double> one, DataValue<Double> other) {
-                return one.getId().compareTo(other.getId());
-            }
-        }
-        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
-                
-       DataWordSUL sul = new BharatExampleSUL(teachers, consts, inputs, outputs);
-
-        BasicSULOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        IOFilter ioFilter = new IOFilter(new BasicIOCacheOracle(ioOracle), inputArray);
-
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, ioOracle, teachers, consts, TestUtil.getZ3Solver());
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, TestUtil.getZ3Solver());
-
-        TreeOracleFactory hypFactory = new TreeOracleFactory() {
-
-            @Override
-            public TreeOracle createTreeOracle(RegisterAutomaton hyp) {
-                return new MultiTheoryTreeOracle(new SimulatorOracle(hyp), ioOracle, teachers, consts, TestUtil.getZ3Solver());
-            }
-        };
-        
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, TestUtil.getZ3Solver(), actionArray);
-
-        IORandomWalk iowalk = new IORandomWalk(random,
-                sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
-                0.8, // prob. of choosing a fresh data value
-                1000, // 1000 runs 
-                100, // max depth
-                consts,
-                false, // reset runs 
-                teachers,
-                inputArray);
-
-        // IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        // IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
-        // IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-
-        int check = 0;
-        while (true && check
-                < 10) {
-
-            check++;
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
-
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
-
-            System.out.println("CE: " + ce);
-            if (ce == null) {
-                break;
-            }
-
-            rastar.addCounterexample(ce);
-
-        }
-        
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        
-        PSymbolInstance [][] tests = {
-        		{
-        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 2.0)), 
-        			new PSymbolInstance(NOK)
-        		},
-        		{
-        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 3.0), new DataValue(doubleType, 2.0)),
-        			new PSymbolInstance(OK)
-        		},
-        		{
-        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 3.0)),
-        			new PSymbolInstance(OK)
-        		},
-        		{
-        			new PSymbolInstance(PUT, new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0), new DataValue(doubleType, 3.0)),
-        			new PSymbolInstance(OK)
-        		},
-        		{
-        			new PSymbolInstance(PUT, new DataValue(doubleType, 3.0), new DataValue(doubleType, 1.0), new DataValue(doubleType, 2.0)),
-        			new PSymbolInstance(NOK)
-        		}
-        };
-
-        for (PSymbolInstance [] test : tests) {
-        	DefaultQuery<PSymbolInstance, Boolean> ceQuery = 
-            		new DefaultQuery<PSymbolInstance, Boolean>(Word.fromSymbols(test), Boolean.TRUE);
-        	boolean isCE = HypVerify.isCEForHyp(ceQuery, hyp);
-            Assert.assertFalse(isCE);	
-        }
-        
-        
-        
-        logger.log(Level.FINE,
-                "LAST:------------------------------------------------");
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-    }
+			for (PSymbolInstance[] test : tests) {
+				DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<PSymbolInstance, Boolean>(
+						Word.fromSymbols(test), Boolean.TRUE);
+				boolean isCE = HypVerify.isCEForHyp(ceQuery, hyp);
+				Assert.assertFalse(isCE);
+			}
+		});
+		super.runIOLearningExperiments(sul, teachers, consts, false, TestUtil.getZ3Solver(), actionArray, ERROR);
+	}
 }
