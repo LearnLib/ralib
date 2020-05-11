@@ -18,55 +18,32 @@ package de.learnlib.ralib.learning;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.RaLibLearningTest;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterExampleRelationRemover;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.BasicIOCacheOracle;
-import de.learnlib.ralib.oracles.io.CanonizingIOCacheOracle;
-import de.learnlib.ralib.oracles.io.IOFilter;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public class LearnSipIOTest extends RaLibTestSuite {
+public class LearnSipIOTest extends RaLibLearningTest {
 
     @Test
     public void learnLoginExampleIO() {
 
-        long seed = -1386796323025681754L; 
-        //long seed = (new Random()).nextLong();
-        logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
-      
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
@@ -89,64 +66,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        IOOracle ioOracle = new BasicSULOracle(sul, ERROR);
-        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, ioCache, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = 
-                new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                TestUtil.createBasicSimulatorMTO(hyp, teachers, consts, solver);
-                
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, 
-                teachers, solver, actions);
-
-            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                    model, teachers, consts, true, actions);
-        
-        IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
-        IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-        IOCounterExampleRelationRemover rels = new IOCounterExampleRelationRemover(
-                teachers, consts, solver, ioOracle);
-        
-        int check = 0;
-        while (true && check < 100) {
-            
-            check++;
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
-              
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    ioEquiv.findCounterExample(hyp, null);
-
-            if (ce == null) {
-                break;
-            }
-
-            ce = loops.optimizeCE(ce.getInput(), hyp);
-            ce = asrep.optimizeCE(ce.getInput(), hyp);
-            ce = pref.optimizeCE(ce.getInput(), hyp);
-            ce = rels.optimizeCE(ce.getInput(), hyp);
-            
-            Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
-            
-            rastar.addCounterexample(ce);
-        }
-
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        logger.log(Level.FINE,"Resets: " + sul.getResets());
-
-        DefaultQuery<PSymbolInstance, Boolean> ce = 
-            ioEquiv.findCounterExample(hyp, null);
-                    
-        Assert.assertNull(ce);        
+        super.runIOLearningExperiments(sul, teachers, consts, false, solver, actions, ERROR);
     }
 }
