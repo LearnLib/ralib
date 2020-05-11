@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.sumc.inequality;
 
-import java.util.function.Supplier;
-
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.example.sumc.inequality.TCPExample.Option;
@@ -40,27 +38,22 @@ public class OneWayTCPSUL  extends DataWordSUL {
             new OutputSymbol("_not_ok", new DataType[]{});
 
     public final ParameterizedSymbol[] getActionSymbols() {
-        return new ParameterizedSymbol[] { OK, NOK };
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, OK, NOK, ERROR };
     }
 
 
     private OneWayTCPExample tcpSut;
-    private Supplier<OneWayTCPExample> supplier;
-
 	private Option[] options ;
-    
-    public OneWayTCPSUL() {
-    	supplier = () -> new OneWayTCPExample();
-    }
+	private Double window;
     
     public OneWayTCPSUL(Double window) {
-    	supplier = () -> new OneWayTCPExample(window);
+    	this.window = window;
     }
 
     @Override
     public void pre() {
         countResets(1);
-        this.tcpSut = supplier.get();
+        this.tcpSut = new OneWayTCPExample(window);
         if (options != null) {
         	this.tcpSut.configure(options);
         }

@@ -1,7 +1,5 @@
 package de.learnlib.ralib.example.sumc.inequality;
 
-import java.util.function.Supplier;
-
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -35,44 +33,39 @@ public class OneWayFreshTCPSUL  extends DataWordSUL {
 
     
     public final ParameterizedSymbol[] getInputSymbols() {
-        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, IFINACK};
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK};
     }
         
-    public static final ParameterizedSymbol OK = 
-            new OutputSymbol("_ok", new DataType[]{});
-    
     public static final ParameterizedSymbol OCONNECT = 
             new OutputSymbol("OConnect", new DataType[]{
             		DOUBLE_TYPE
             });
-        
+    
+    public static final ParameterizedSymbol OK = 
+            new OutputSymbol("_ok", new DataType[]{});
+    
     public static final ParameterizedSymbol NOK = 
             new OutputSymbol("_not_ok", new DataType[]{});
 
     public final ParameterizedSymbol[] getActionSymbols() {
-        return new ParameterizedSymbol[] { OK, NOK 
-        		
-        };
+        return new ParameterizedSymbol[] { ICONNECT, ISYN, ISYNACK, IACK, OCONNECT, OK, NOK, ERROR};
     }
 
 
     private OneWayFreshTCPExample tcpSut;
-    private Supplier<OneWayFreshTCPExample> supplier;
 
 	private Option[] options ;
-    
-    public OneWayFreshTCPSUL() {
-    	supplier = () -> new OneWayFreshTCPExample();
-    }
+
+	private Double window;
     
     public OneWayFreshTCPSUL(Double window) {
-    	supplier = () -> new OneWayFreshTCPExample(window);
+    	this.window = window;
     }
 
     @Override
     public void pre() {
         countResets(1);
-        this.tcpSut = supplier.get();
+        this.tcpSut = new OneWayFreshTCPExample(window);
         if (options != null) {
         	this.tcpSut.configure(options);
         }

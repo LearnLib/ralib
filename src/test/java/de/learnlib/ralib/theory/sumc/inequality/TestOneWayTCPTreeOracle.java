@@ -33,6 +33,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SumConstants;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.example.sumc.inequality.OneWayFreshTCPSUL;
@@ -59,20 +60,21 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
     public void testOneWayTCPTreeOracle() {
     	
     	Double win = 100.0;
+    	Constants consts = new Constants();
+    	consts.setSumC(new SumConstants(new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, 1.0), 
+    			new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, win)));
+    	DoubleSumCInequalityTheory theory = new DoubleSumCInequalityTheory();
+       	theory.setType(OneWayTCPSUL.DOUBLE_TYPE);
+    	theory.setConstants(consts);
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(OneWayTCPSUL.DOUBLE_TYPE, 
-                new DoubleSumCInequalityTheory(OneWayTCPSUL.DOUBLE_TYPE,
-                		Arrays.asList(
-                				new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, 1.0), // for successor
-                				new DataValue<Double>(OneWayTCPSUL.DOUBLE_TYPE, win)), // for window size
-                		Collections.emptyList()));
+        teachers.put(OneWayTCPSUL.DOUBLE_TYPE, theory);
 
         OneWayTCPSUL sul = new OneWayTCPSUL(win);
         sul.configure(Option.WIN_SYNSENT_TO_CLOSED, Option.WIN_CONNECTING_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
         MultiTheoryTreeOracle mto = TestUtil.createBasicMTO(
                 sul, OneWayTCPSUL.ERROR, teachers, 
-                new Constants(), jsolv, 
+                consts, jsolv, 
                 sul.getInputSymbols());
                 
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols();
@@ -89,7 +91,7 @@ public class TestOneWayTCPTreeOracle extends RaLibTestSuite {
                 new PSymbolInstance(OneWayTCPSUL.OK));
 
         // create a symbolic suffix from the concrete suffix
-        final GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(prefix1, suffix, new Constants(), teachers);
+        final GeneralizedSymbolicSuffix symSuffix1 = new GeneralizedSymbolicSuffix(prefix1, suffix, consts, teachers);
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
         
