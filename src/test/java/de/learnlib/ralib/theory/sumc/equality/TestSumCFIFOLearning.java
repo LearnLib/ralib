@@ -2,40 +2,20 @@ package de.learnlib.ralib.theory.sumc.equality;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SumConstants;
-import de.learnlib.ralib.equivalence.HypVerify;
-import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.example.sumc.equality.SumCFIFOSUL;
 import de.learnlib.ralib.example.sumc.equality.SumCFreshFIFOSUL;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.RaStar;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.sul.CanonizingSULOracle;
-import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerSumCEqualityTheory;
-import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
-import de.learnlib.ralib.words.PSymbolInstance;
 
 public class TestSumCFIFOLearning extends RaLibLearningTestSuite {
 	@Test
