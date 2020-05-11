@@ -64,9 +64,9 @@ public class IORandomWalk extends BoundedIOEquivalenceOracle implements IOEquiva
 
     // kept so we don't break any tests
 	public IORandomWalk(Random random, DataWordSUL sul, boolean drawUniformly, double resetProb, double freshProb, long maxRuns, int maxDepth,
-			Constants consts, boolean c, Map<DataType, Theory> teachers, ParameterizedSymbol ... inputSymbols) {
+			Constants consts, boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol ... inputSymbols) {
 		this(random, new BasicSULOracle(sul, SpecialSymbols.ERROR), resetProb, maxDepth,
 				new RandomSymbolSelector(random, teachers, consts, drawUniformly, (1-freshProb)/3, (1-freshProb)/3, (1-freshProb)/3, inputSymbols)
-				, maxRuns, consts, c, teachers, (trace) -> trace, inputSymbols);
+				, maxRuns, consts, resetRuns, teachers, (trace) -> trace, inputSymbols);
 	}
 }
