@@ -130,16 +130,7 @@ public class DoubleSumCInequalityTheory extends DoubleInequalityTheory  implemen
 		return new DataValue<Double>(fv.getType(), nextFresh);
 	}
 	
-	
 	public IntervalDataValue<Double> pickIntervalDataValue(DataValue<Double> left, DataValue<Double> right) {
-		if (right != null && left!=null) 
-			if (right.getId() - left.getId() > this.freshStep 
-					//&& right.getId() - left.getId() < this.freshStep * 10
-					) 
-				throw new DecoratedRuntimeException("Right end cannot be more than a fresh step greater than left end ")
-				.addDecoration("left", left)
-				.addDecoration("right", right)
-				.addDecoration("freshStep", this.freshStep);
 		return IntervalDataValue.instantiateNew(left, right, smBgStep);
 	}
 

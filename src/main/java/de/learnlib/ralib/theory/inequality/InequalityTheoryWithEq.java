@@ -825,6 +825,9 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 	 * @param right
 	 * @return
 	 */
+	/*
+	 * Note: If fresh values are enabled, it is possible that left and right are more than a fresh step apart.
+	 */
 	public abstract IntervalDataValue<T> pickIntervalDataValue(@Nullable DataValue<T> left, @Nullable DataValue<T> right);
 
 	public List<EnumSet<DataRelation>> getRelations(List<DataValue<T>> left, DataValue<T> right) {
@@ -843,8 +846,11 @@ public abstract class InequalityTheoryWithEq<T extends Comparable<T>> implements
 		return ret;
 	}
 
+	/*
+	 *	Suffix optimization should be made robust before it is enabled for this theory 
+	 */
 	public void setUseSuffixOpt(boolean useit) {
-		suffixOptimization = useit;
+		//suffixOptimization = useit;
 	}
 
 }
