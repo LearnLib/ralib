@@ -50,18 +50,22 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
     private final IOOracle sulOracle;
     
     private RegisterAutomaton hypothesis;
+
+	private HypVerifier hypVerifier;
     
         
     public IOCounterExampleRelationRemover(
             Map<DataType, Theory> teachers,
             Constants constants, 
             ConstraintSolver solver,
-            IOOracle sulOracle) {
+            IOOracle sulOracle, 
+            HypVerifier hypVerifier) {
         
         this.teachers = teachers;
         this.solver = solver;
         this.sulOracle = sulOracle;
         this.builder = new SliceBuilder(teachers, constants, solver);
+        this.hypVerifier = hypVerifier;
     }
     
     @Override
@@ -106,7 +110,7 @@ public class IOCounterExampleRelationRemover implements IOCounterExampleOptimize
             DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<PSymbolInstance, Boolean>(candidate, Boolean.TRUE);
             
            //System.out.println(candidate);
-            if (HypVerify.isCEForHyp(ceQuery, hypothesis)) {
+            if (hypVerifier.isCEForHyp(ceQuery, hypothesis)) {
                 //System.out.println("Found Prefix CE!!!");
                 return reduceCe(candidate, startIdx+1);
             }            

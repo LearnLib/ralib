@@ -34,7 +34,7 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.equivalence.HypVerify;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL;
 import de.learnlib.ralib.example.ineq.BharatExampleSUL.Actions;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -96,6 +96,7 @@ public class LearnBharatExampleTest extends RaLibLearningTestSuite {
 		final Random random = new Random(seed);
 
 		final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+		HypVerifier hypVerifier = HypVerifier.getVerifier(true, teachers, consts);
 		class Cpr implements Comparator<DataValue<Double>> {
 
 			public int compare(DataValue<Double> one, DataValue<Double> other) {
@@ -122,7 +123,7 @@ public class LearnBharatExampleTest extends RaLibLearningTestSuite {
 			for (PSymbolInstance[] test : tests) {
 				DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<PSymbolInstance, Boolean>(
 						Word.fromSymbols(test), Boolean.TRUE);
-				boolean isCE = HypVerify.isCEForHyp(ceQuery, hyp);
+				boolean isCE = hypVerifier.isCEForHyp(ceQuery, hyp);
 				Assert.assertFalse(isCE);
 			}
 		});

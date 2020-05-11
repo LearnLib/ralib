@@ -7,6 +7,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -50,8 +51,8 @@ public class IOEquivalenceOracleBuilder {
 		return this;
 	}
 
-	IOEquivalenceOracle build(Random random, DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts, ParameterizedSymbol [] inputSymbols) {
-		IORandomWalk randWalk = new IORandomWalk(random, sul, false, // do not
+	IOEquivalenceOracle build(Random random, IOOracle target, Map<DataType, Theory> teachers, Constants consts, ParameterizedSymbol [] inputSymbols) {
+		IORandomWalk randWalk = new IORandomWalk(random, target, false, // do not
 		// draw
 		// symbols
 		// uniformly

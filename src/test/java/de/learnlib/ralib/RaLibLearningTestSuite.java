@@ -12,7 +12,7 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.HypVerify;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
@@ -46,7 +46,8 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 	}
 	
 	/**
-	 * 
+	 * (Random) Seeds used by each learning experiment.
+	 *  The number of seeds determines the number of learning experiments.  
 	 * @return
 	 */
 	protected long[] getSeeds() {
@@ -58,7 +59,7 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 	}
 
 	/**
-	 * Launches learning experiments for IO, one of each seed in
+	 * Launches learning experiments for IO, one for each seed in
 	 * {@link RaLibLearningTestSuite#getSeeds()}.
 	 * 
 	 * @param sul
@@ -111,11 +112,13 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 
 			RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, teachers, solver, actionSymbols);
 			
-			IOEquivalenceOracle equOracle = equOracleBuilder.build(random, sul, teachers, consts, inputSymbols);
+			IOEquivalenceOracle equOracle = equOracleBuilder.build(random, ioOracle, teachers, consts, inputSymbols);
+			
+			HypVerifier hypVerifier = HypVerifier.getVerifier(true, teachers, consts);
 
-			IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle);
-			IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
-			IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
+			IOCounterExampleLoopRemover loops = new IOCounterExampleLoopRemover(ioOracle, hypVerifier);
+			IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle, hypVerifier);
+			IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle, hypVerifier);
 			DefaultQuery<PSymbolInstance, Boolean> ce = null;
 
 			int check = 0;
@@ -125,7 +128,7 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 				Hypothesis hyp = rastar.getHypothesis();
 				if (ce != null) {
 					// the last CE should not be a CE for the current hypothesis
-					Assert.assertFalse(HypVerify.isCEForHyp(ce, hyp));
+					Assert.assertFalse(hypVerifier.isCEForHyp(ce, hyp));
 				}
 
 				ce = equOracle.findCounterExample(hyp, null);
@@ -135,11 +138,11 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 				}
 
 				ce = loops.optimizeCE(ce.getInput(), hyp);
-				Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
+				Assert.assertTrue(hypVerifier.isCEForHyp(ce, hyp));
 				ce = asrep.optimizeCE(ce.getInput(), hyp);
-				Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
+				Assert.assertTrue(hypVerifier.isCEForHyp(ce, hyp));
 				ce = pref.optimizeCE(ce.getInput(), hyp);
-				Assert.assertTrue(HypVerify.isCEForHyp(ce, hyp));
+				Assert.assertTrue(hypVerifier.isCEForHyp(ce, hyp));
 				rastar.addCounterexample(ce);
 			}
 

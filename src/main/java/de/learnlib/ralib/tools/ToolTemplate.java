@@ -20,6 +20,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
@@ -258,12 +259,14 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 				traceTester = new TracesEquivalenceOracle(testOracle, teachers, consts, tests);
 			}
 		}
+		
+		HypVerifier hypVerifier = HypVerifier.getVerifier(true, teachers, consts);
 
-		ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle);
-		ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle);
-		ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle);
-		ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle);
-		ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, solver, sulReductionTraceOracle);
+		ceOptLoops = new IOCounterExampleLoopRemover(sulReductionTraceOracle, hypVerifier);
+		ceOptAsrep = new IOCounterExamplePrefixReplacer(sulReductionTraceOracle, hypVerifier);
+		ceOptPref = new IOCounterExamplePrefixFinder(sulReductionTraceOracle, hypVerifier);
+		ceOptSTR = new IOCounterExampleSingleTransitionRemover(sulReductionTraceOracle, hypVerifier);
+		ceOptRelation = new IOCounterExampleRelationRemover(teachers, consts, solver, sulReductionTraceOracle, hypVerifier);
 	}
 
 	private SULFactory instantiateCustomFactory(String facString, SULParser parser) throws ConfigurationException {

@@ -18,11 +18,13 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 
 	private List<Word<PSymbolInstance>> testTraces;
 	private IOOracle testOracle;
+	private HypVerifier hypVerifier;
 
 	public TracesEquivalenceOracle(IOOracle testOracle, Map<DataType, Theory> teachers, Constants constants,
 			List<Word<PSymbolInstance>> tests) {
 		this.testTraces = tests;
 		this.testOracle = testOracle;
+		this.hypVerifier = HypVerifier.getVerifier(true, teachers, constants);
 	}
 	
 
@@ -32,7 +34,7 @@ public class TracesEquivalenceOracle implements EquivalenceOracle<RegisterAutoma
 			Word<PSymbolInstance> sulTrace = testOracle.trace(testWord);
 			DefaultQuery<PSymbolInstance, Boolean> ce = new DefaultQuery<>(sulTrace, true);
 
-			if (HypVerify.isCEForHyp(ce, hypothesis))
+			if (hypVerifier.isCEForHyp(ce, hypothesis))
 				return new DefaultQuery<>(sulTrace, true);
 		}
 		

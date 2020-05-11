@@ -31,6 +31,7 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.equivalence.IOCounterExampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
@@ -184,10 +185,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         	this.randomWalk = EquivalenceOracleFactory.buildEquivalenceOracle(config,
         			testOracle, this.teachers, consts, random, inputSymbols);            
         }
-          
-        this.ceOptLoops = new IOCounterExampleLoopRemover(back);
-        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);                        
-        this.ceOptPref = new IOCounterExamplePrefixFinder(back);
+        
+        HypVerifier hypVerifier = HypVerifier.getVerifier(true, teachers, consts);
+        
+        this.ceOptLoops = new IOCounterExampleLoopRemover(back, hypVerifier);
+        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back, hypVerifier);                        
+        this.ceOptPref = new IOCounterExamplePrefixFinder(back, hypVerifier);
     }
     
     @Override

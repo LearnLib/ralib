@@ -36,9 +36,6 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 
-/**
- * TODO It would be nice if we could have an extended test run wherein each learning test is performed several times with different seeds. 
- */
 public class LearnPQIOTest extends RaLibLearningTestSuite {
 
     @Test

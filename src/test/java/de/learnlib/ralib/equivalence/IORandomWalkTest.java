@@ -28,9 +28,11 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.sul.BasicSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import org.testng.Assert;
@@ -61,7 +63,7 @@ public class IORandomWalkTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         IORandomWalk iowalk = new IORandomWalk(new Random(0),
-                sul,
+        		new BasicSULOracle(sul, SpecialSymbols.ERROR),
                 false, // do not draw symbols uniformly 
                 0.1, // reset probability 
                 0.5, // prob. of choosing a fresh data value

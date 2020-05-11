@@ -38,7 +38,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
-import de.learnlib.ralib.equivalence.HypVerify;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.example.priority.PriorityQueueOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -105,8 +105,9 @@ public class LearnPQTest extends RaLibTestSuite {
         rastar.learn();
         
         hyp = rastar.getHypothesis();
+        HypVerifier hypVerifier = HypVerifier.getVerifier(false, teachers, consts);
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        Assert.assertFalse(HypVerify.isCEForHyp(ceQuery, hyp));
+        Assert.assertFalse(hypVerifier.isCEForHyp(ceQuery, hyp));
         
         
         ce = Word.fromSymbols(
@@ -126,7 +127,7 @@ public class LearnPQTest extends RaLibTestSuite {
         
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP3: {0}", hyp);
-        Assert.assertFalse(HypVerify.isCEForHyp(ceQuery, hyp));
+        Assert.assertFalse(hypVerifier.isCEForHyp(ceQuery, hyp));
         
     }
 }

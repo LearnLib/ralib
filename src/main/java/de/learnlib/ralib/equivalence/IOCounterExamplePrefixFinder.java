@@ -29,9 +29,11 @@ import net.automatalib.words.Word;
 public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
 
     private final IOOracle sulOracle;
+	private HypVerifier hypVerifier;
 
-    public IOCounterExamplePrefixFinder(IOOracle sulOracle) {
+    public IOCounterExamplePrefixFinder(IOOracle sulOracle, HypVerifier hypVerifier) {
         this.sulOracle = sulOracle;
+        this.hypVerifier = hypVerifier;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
             DefaultQuery<PSymbolInstance, Boolean> ceQuery = 
             		new DefaultQuery<PSymbolInstance, Boolean>(candidate, Boolean.TRUE);
 
-            if (HypVerify.isCEForHyp(ceQuery, hypothesis)) {
+            if (hypVerifier.isCEForHyp(ceQuery, hypothesis)) {
                 return candidate;
             }
             prefixLength += 2;

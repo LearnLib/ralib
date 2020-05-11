@@ -54,9 +54,11 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
 
     private final IOOracle sulOracle;
     private RegisterAutomaton hypothesis;
+	private HypVerifier hypVerifier;
 
-    public IOCounterExampleLoopRemover(IOOracle sulOracle) {
+    public IOCounterExampleLoopRemover(IOOracle sulOracle, HypVerifier hypVerifier) {
         this.sulOracle = sulOracle;
+        this.hypVerifier = hypVerifier;
     }
 
     @Override
@@ -99,8 +101,9 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
                 Word<PSymbolInstance> candidate = sulOracle.trace(shorter);
                 System.out.println("candidate:" + candidate);
                 DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<PSymbolInstance, Boolean>(candidate, Boolean.TRUE);
-                if (HypVerify.isCEForHyp(ceQuery, hypothesis)) {
-                    return removeLoops(candidate, hyp);
+                if (hypVerifier.isCEForHyp(ceQuery, hypothesis)) {
+                	Word<PSymbolInstance> optimized = optimize(candidate);
+                    return removeLoops(optimized, hyp);
                 }
             }
         }
@@ -112,6 +115,20 @@ public class IOCounterExampleLoopRemover implements IOCounterExampleOptimizer {
         Word<PSymbolInstance> prefix = ce.prefix(loop.min * 2);
         Word<PSymbolInstance> suffix = ce.subWord(loop.max * 2, ce.length());
         return prefix.concat(suffix);
+    }
+    
+    /*
+     * This is necessary to avoid null output locations when executing the counterexample.
+     */
+    private Word<PSymbolInstance> optimize(Word<PSymbolInstance> ce) {
+    	int i;
+    	for (i=0; i < ce.length(); i += 2) {
+    		Word<PSymbolInstance> prefix = ce.prefix(i);
+    		RALocation location = hypothesis.getLocation(prefix);
+    		if (location == null)  
+    			break;
+    	}
+    	return ce.prefix(i-1);
     }
 
     private RALocation[] execute(Word<PSymbolInstance> ce) {

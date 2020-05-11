@@ -16,11 +16,15 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Map;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.HypVerify;
+import de.learnlib.ralib.equivalence.HypVerifier;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -29,9 +33,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**
@@ -68,6 +69,8 @@ public class RaStar {
     private final Map<DataType, Theory> teachers;
 
     private final ConstraintSolver solver;
+
+	private HypVerifier hypVerifier;
     
     private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
 
@@ -97,6 +100,7 @@ public class RaStar {
         this.ceSulOracle = ceSulOracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
+        this.hypVerifier = HypVerifier.getVerifier(ioMode, teachers, consts);
     }   
     
     public RaStar(TreeOracle oracle,TreeOracleFactory hypOracleFactory, 
@@ -165,7 +169,7 @@ public class RaStar {
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
         
         // check if ce still is a counterexample ...
-        if (!HypVerify.isCEForHyp(ce, hyp)) {
+        if (!hypVerifier.isCEForHyp(ce, hyp)) {
             log.logEvent("word is not a counterexample: " + ce);           
             counterexamples.poll();
             return false;
