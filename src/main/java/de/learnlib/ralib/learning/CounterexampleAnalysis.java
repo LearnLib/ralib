@@ -18,24 +18,17 @@ package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.Slice;
 import de.learnlib.ralib.oracles.mto.SliceBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixBuilder;
@@ -152,24 +145,26 @@ public class CounterexampleAnalysis {
         System.out.println("Slice from word: " + slice);
         
         GeneralizedSymbolicSuffix symSuffix = SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), slice);
-        symSuffix = symSuffix.toExhaustiveSymbolicSuffix();
         
         System.out.println("exhaustive suffix: " + symSuffix);
         System.out.println("location: " + location);
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
+        
+        System.out.println("HYP (initial suffix): " + resHyp);
+        System.out.println("SUL (initial suffix): " + resSul);
                 
-        log.log(Level.FINEST,"------------------------------------------------------");
-        log.log(Level.FINEST,"Computing index: " + idx);
-        log.log(Level.FINEST,"Prefix: " + prefix);
-        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
-        log.log(Level.FINEST,"Location: " + location);
-        log.log(Level.FINEST,"Transition: " + transition);
-        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
-        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
-        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
-        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());        
-        log.log(Level.FINEST,"------------------------------------------------------");
+        log.log(Level.FINE,"------------------------------------------------------");
+        log.log(Level.FINE,"Computing index: " + idx);
+        log.log(Level.FINE,"Prefix: " + prefix);
+        log.log(Level.FINE,"SymSuffix: " + symSuffix);
+        log.log(Level.FINE,"Location: " + location);
+        log.log(Level.FINE,"Transition: " + transition);
+        log.log(Level.FINE,"PIV HYP: " + resHyp.getPiv());
+        log.log(Level.FINE,"SDT HYP: " + resHyp.getSdt());
+        log.log(Level.FINE,"PIV SYS: " + resSul.getPiv());
+        log.log(Level.FINE,"SDT SYS: " + resSul.getSdt());        
+        log.log(Level.FINE,"------------------------------------------------------");
         
         Component c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
@@ -184,77 +179,18 @@ public class CounterexampleAnalysis {
             return new IndexResult(idx, IndexStatus.NO_CE, null);
         }
         
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);
-        System.out.println("HYP (exh. suffix): " + resHyp);
-        System.out.println("SUL (exh. suffix): " + resSul);
-
         PIV pivSul = resSul.getPiv();
         PIV pivHyp = c.getPrimeRow().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());         
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
         
-        System.out.println("retain branching: " + !hypRefinesTransition);
-        
-        // remapping between sdts
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = 
-                MultiTheorySDTLogicOracle.createRemapping(resHyp.getPiv(), resSul.getPiv());
-        
-        SDT sdt1 = (SDT) resSul.getSdt();
-        SDT sdt2 = (SDT) resHyp.getSdt().relabel(remap);
-        
-        Mapping<SymbolicDataValue, DataValue<?>> contextValuation = new Mapping<SymbolicDataValue, DataValue<?>>();
-        DataValue [] values = DataWords.valsOf(location);
-        
-		resSul.getPiv().forEach((param, reg) 
-				-> contextValuation.put(reg, values[param.getId()-1]));
-        
-        Slice sliceSdts = sb.sliceFromSDTs(sdt1, sdt2, contextValuation, DataWords.actsOf(suffix));
-        System.out.println("Slice from word: " + sliceSdts);
-        
-        GeneralizedSymbolicSuffix gsuffix = SymbolicSuffixBuilder.suffixFromSlice(DataWords.actsOf(suffix), sliceSdts);
-        
-        System.out.println("G-Suffix: " + gsuffix);
-                
-        // perform check, no extra inputs should be run, as all should be found in cache
-        TreeQueryResult newResHyp = hypOracle.treeQuery(location, gsuffix);
-        TreeQueryResult newResSul = sulOracle.treeQuery(location, gsuffix);
-        boolean newHasCE = sdtOracle.hasCounterexample(location, 
-                newResHyp.getSdt(), newResHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()), 
-                newResSul.getSdt(), newResSul.getPiv(), //new PIV(location, resSul.getParsInVars()), 
-                g, transition);
-        
-    	System.out.println("HYP (Opt. Suff): " + newResHyp);
-    	System.out.println("SUL (Opt. Suff): " + newResSul);
-
-    	if (! newHasCE) {
-        	throw new RuntimeException("CE not preserved by optimized suffix");
-        }
-        
-        boolean sulBranchingRetained = retainsBranching(location, act, resSul.getSdt(), resSul.getPiv(), newResSul.getSdt(), newResSul.getPiv());
-        if (!sulBranchingRetained ) {
-        	System.out.println("Branching not retained. Learning continues but minimality cannot be ensured.");
-        	System.out.println("OLD SUL :" + resSul);
-        	System.out.println("NEW SUL :" + newResSul);
-        }
-        
 
         IndexResult indx = new IndexResult(idx, (sulHasMoreRegs || !hypRefinesTransition) ? 
                 IndexStatus.HAS_CE_AND_REFINES : IndexStatus.HAS_CE_NO_REFINE,
-                sliceSdts);
-        
-        indx.setSuffix(gsuffix);
+                slice);
+        indx.setSuffix(symSuffix);
         return indx;
-    }
-    
-	private boolean retainsBranching(Word<PSymbolInstance> location, 
-            ParameterizedSymbol action, SymbolicDecisionTree oldSdtSUL, PIV oldPiv, SymbolicDecisionTree newSdtSUL, PIV newPiv) {
-    	Branching oldBranching = sulOracle.getInitialBranching(location, action, oldPiv, oldSdtSUL);
-    	Branching newBranching = sulOracle.getInitialBranching(location, action, newPiv, newSdtSUL);
-    	Set<Word<PSymbolInstance>> oldBranches = oldBranching.getBranches().keySet();
-    	Set<Word<PSymbolInstance>> newBranches = newBranching.getBranches().keySet();
-    	return oldBranches.equals(newBranches);
     }
     
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix, 

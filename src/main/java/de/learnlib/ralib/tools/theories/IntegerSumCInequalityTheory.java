@@ -29,8 +29,13 @@ import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.inequality.IntervalDataValue;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;
+import de.learnlib.ralib.theory.sumc.inequality.TestTwoWayTCPTreeOracle;
 
 //TODO instead of 0 reduction, just use output constants (constants that are only found in outputs and should not be used)
+/**
+ * This theory implementation has a failing test case (see {@link TestTwoWayTCPTreeOracle}). 
+ * Integers are messy to work with. 
+ */
 public class IntegerSumCInequalityTheory extends IntegerInequalityTheory implements SumCTheory{
 
 	private static int SM_BG_FACTOR = 10;  
