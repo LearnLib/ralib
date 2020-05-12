@@ -23,6 +23,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.IOEquivalenceOracleBuilder;
 import de.learnlib.ralib.RaLibLearningTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -77,6 +78,6 @@ public class LearnPalindromeIOTest extends RaLibLearningTestSuite {
             Assert.assertEquals(hyp.getTransitions().size(), 16);
         });
 
-        super.runIOLearningExperiments(sul, teachers, consts, false, solver, actions, ERROR);
+        super.runIOLearningExperiments(sul, teachers, consts, false, solver, actions, ERROR, new IOEquivalenceOracleBuilder().setMaxRuns(10000));
     }
 }
