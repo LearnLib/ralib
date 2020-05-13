@@ -38,10 +38,10 @@ public class TestOneWayTCPLearning extends RaLibLearningTestSuite{
         sul.configure(Option.WIN_CONNECTING_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();     
         
-        IOEquivalenceOracleBuilder builder = new IOEquivalenceOracleBuilder();
-        builder.setMaxRuns(10000);
+        super.getEquOracleBuilder()
+        .setMaxRuns(10000);
         
-        super.runIOLearningExperiments(sul, teachers, consts, false, jsolv, sul.getActionSymbols(), OneWayTCPSUL.ERROR, builder);
+        super.runIOLearningExperiments(sul, teachers, consts, false, jsolv, sul.getActionSymbols(), OneWayTCPSUL.ERROR);
 	}
 	
 	@Test
@@ -62,10 +62,11 @@ public class TestOneWayTCPLearning extends RaLibLearningTestSuite{
         sul.configure(Option.WIN_CONNECTING_TO_CLOSED);
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();    
         
-        IOEquivalenceOracleBuilder builder = new IOEquivalenceOracleBuilder().setMaxRuns(10000)
+        super.getEquOracleBuilder()
+        .setMaxRuns(10000)
         .setMaxDepth(20)
         .setFreshProbability(0.1);
         
-        super.runIOLearningExperiments(sul, teachers, consts, true, jsolv, sul.getActionSymbols(), OneWayFreshTCPSUL.ERROR, builder);
+        super.runIOLearningExperiments(sul, teachers, consts, true, jsolv, sul.getActionSymbols(), OneWayFreshTCPSUL.ERROR);
 	}
 }

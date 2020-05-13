@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -29,6 +30,7 @@ import de.learnlib.ralib.sul.CanonizingSULOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.DeterminizerDataWordSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.tools.theories.SymbolicTraceCanonizer;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -39,24 +41,34 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  */
 public class RaLibLearningTestSuite extends RaLibTestSuite {
 	
+	protected static ConfigurationOption.StringOption SEEDS_OPTION = new ConfigurationOption
+    		.StringOption("seeds", "Coma seperated seeds used during learning experiments", "0", true);
+	
 	private Consumer<RegisterAutomaton> hypValidator;
+	private IOEquivalenceOracleBuilder equOracleBuilder;
 	
 	public RaLibLearningTestSuite() {
-		this.hypValidator = (hyp) -> {};
 	}
 	
-	/**
-	 * (Random) Seeds used by each learning experiment.
-	 *  The number of seeds determines the number of learning experiments.  
-	 * @return
-	 */
-	protected long[] getSeeds() {
-		return new long[] { 0 };
+	
+	@BeforeMethod
+	public void init() {
+		this.hypValidator = (hyp) -> {};
+		this.equOracleBuilder = new IOEquivalenceOracleBuilder();
 	}
 	
 	protected void setHypValidator(Consumer<RegisterAutomaton> hypValidator) {
 		this.hypValidator = hypValidator;
 	}
+	
+	protected void setEquOracleBuilder(IOEquivalenceOracleBuilder builder) {
+		this.equOracleBuilder = builder;
+	}
+	
+	protected IOEquivalenceOracleBuilder getEquOracleBuilder() {
+		return this.equOracleBuilder;
+	}
+ 	
 
 	/**
 	 * Launches learning experiments for IO, one for each seed in
@@ -81,12 +93,11 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 	protected void runIOLearningExperiments(DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts,
 			boolean freshSupport,
 			// boolean canonizationSupport,
-			ConstraintSolver solver, ParameterizedSymbol[] actionSymbols, ParameterizedSymbol errorSymbol, 
-			IOEquivalenceOracleBuilder equOracleBuilder) {
+			ConstraintSolver solver, ParameterizedSymbol[] actionSymbols, ParameterizedSymbol errorSymbol) {
 		ParameterizedSymbol[] inputSymbols = Arrays.stream(actionSymbols).filter(s -> (s instanceof InputSymbol))
 				.toArray(ParameterizedSymbol[]::new);
 
-		for (long seed : getSeeds()) {
+		for (long seed : super.getTestConfig().getSeeds()) {
 			logger.log(Level.FINE, "SEED={0}", seed);
 			Random random = new Random(seed);
 			MultiTheoryTreeOracle mto = null;
@@ -156,14 +167,4 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 			logger.log(Level.FINE, "Inputs: {0}", sul.getInputs());
 		}
 	}
-	
-	
-	protected void runIOLearningExperiments(DataWordSUL sul, Map<DataType, Theory> teachers, Constants consts,
-			boolean freshSupport,
-			// boolean canonizationSupport,
-			ConstraintSolver solver, ParameterizedSymbol[] actionSymbols, ParameterizedSymbol errorSymbol) {
-		runIOLearningExperiments(sul, teachers, consts, freshSupport, solver, 
-				actionSymbols, errorSymbol, new IOEquivalenceOracleBuilder());
-	}
-	
 }

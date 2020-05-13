@@ -19,6 +19,7 @@ package de.learnlib.ralib.tools.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Properties;
 
@@ -34,6 +35,10 @@ public class Configuration extends Properties {
 
     public Configuration(String args) throws IOException {
         super.load(new StringReader(args));
+    }
+    
+    public Configuration(InputStream is) throws IOException {
+    	super.load(is);
     }
     
 }

@@ -44,10 +44,6 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
-/**
- *
- * @author falk
- */
 /*
  * TODO Our theories do not support inequalities in output parameters. Decide whether support is planned, if not, remove this test.
  */

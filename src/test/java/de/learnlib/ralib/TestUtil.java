@@ -141,13 +141,6 @@ public class TestUtil {
 	    return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
     }
     
-    public static MultiTheoryTreeOracle createSimulatorMTOWithFreshValueSupport(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
-    	DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
- 	    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(regAutomaton, teachers, consts);
- 	    IOOracle hypTraceOracle = new CanonizingSULOracle(new DeterminizerDataWordSUL(teachers, consts, hypDataWordSimulation), SpecialSymbols.ERROR, new SymbolicTraceCanonizer(teachers, consts));
- 	    return new MultiTheoryTreeOracle(hypOracle, hypTraceOracle,  teachers, consts, solver);
-    }
-    
     public static RegisterAutomatonImporter getLoader(String resName) {
         return new RegisterAutomatonImporter(
                 TestUtil.class.getResourceAsStream(resName));

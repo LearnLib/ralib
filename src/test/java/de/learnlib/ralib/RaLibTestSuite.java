@@ -16,12 +16,16 @@
  */
 package de.learnlib.ralib;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.testng.annotations.BeforeSuite;
+
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.tools.config.ConfigurationException;
+import de.learnlib.ralib.words.OutputSymbol;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
@@ -33,10 +37,16 @@ public abstract class RaLibTestSuite {
             new OutputSymbol("_io_err", new DataType[]{});    
         
     protected static final Logger logger = Logger.getLogger("UnitTest");
+    protected static TestConfig TEST_CONFIG;
     
     @BeforeSuite
-    public void beforeSuite() {
-        TestUtil.configureLogging(Level.WARNING);
+    public void beforeSuite() throws IOException, ConfigurationException{
+    	TEST_CONFIG = TestConfig.parseTestConfig();
+        TestUtil.configureLogging(Level.FINE);
+    }
+    
+    public TestConfig getTestConfig() {
+    	return TEST_CONFIG;
     }
     
 }
