@@ -109,7 +109,7 @@ public class RaLibLearningTestSuite extends RaLibTestSuite {
 
 			MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-			TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createBasicSimulatorMTO(hyp, teachers,
+			TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createSimulatorMTO(hyp, teachers,
 					consts, solver);
 			
 			// the oracle used for CE optimization

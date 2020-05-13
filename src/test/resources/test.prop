@@ -1,2 +1,4 @@
-# Configure the seeds for all learning experiments
+# Seeds for all learning experiments given as coma sep. list (e.g. 20,24,10 )
 seeds=0
+# The level of details at which tests are logged.
+logging.level=FINE

@@ -2,6 +2,7 @@ package de.learnlib.ralib;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -11,7 +12,9 @@ public class TestConfig {
 	
     protected static ConfigurationOption.StringOption SEEDS_OPTION = new ConfigurationOption
     		.StringOption("seeds", "Coma seperated seeds used during learning experiments", "0", true);
-	
+    protected static ConfigurationOption.StringOption LOGGER_LEVEL_OPTION = new ConfigurationOption
+    		.StringOption("logger.level", "Coma seperated seeds used during learning experiments", "FINE", true);
+    
 	static TestConfig parseTestConfig() throws IOException, ConfigurationException {
 		Configuration config;
 		if (System.getProperty("config") != null) {
@@ -25,13 +28,20 @@ public class TestConfig {
 	
 	private TestConfig(Configuration config) throws ConfigurationException {
 		this.seeds = readSeeds(config);
+		this.loggingLevel = readLevel(config);
 	}
 
 	/*
 	 * Test config parameters.
 	 */
 	
-	private long [] seeds;
+	// learning seeds
+	private long [] seeds; 
+	
+	// logging level
+	private Level loggingLevel;
+	
+	
 	
 	/**
 	 * (Random) Seeds used by each learning experiment.
@@ -42,8 +52,17 @@ public class TestConfig {
 		return seeds;
 	}
 	
+	/**
+	 * Logging level for unit tests.
+	 */
+	Level getLoggingLevel() {
+		return loggingLevel;
+	}
 	
 	
+	/*
+	 * Parsing functions
+	 */
 	private static long [] readSeeds(Configuration config) throws ConfigurationException {
 		String seedsString = SEEDS_OPTION.parse(config);
 		String[] seedSplit = seedsString.split("\\,");
@@ -58,4 +77,10 @@ public class TestConfig {
 		}
 		return seeds;
 	}	
+	
+	private Level readLevel(Configuration config) throws ConfigurationException {
+		String levelString = LOGGER_LEVEL_OPTION.parse(config);
+		Level level = Level.parse(levelString);
+		return level;
+	}
 }

@@ -72,13 +72,6 @@ public class TestUtil {
 
         return new JConstraintsConstraintSolver(solver);        
     } 
-    
-    /*
-     * In most cases both of the below MTOs should do the job.
-     * The Basic MTO may also work with Sum Constants assuming no arbitrarily chosen fresh values.
-     * However, it hasn't been tested for that.
-     * The Canonizing MTO should work for all cases.
-     */
 
     /**
      * Creates an MTO with support for equalities, inequalities over sum constants and arbitrary output values.
@@ -100,7 +93,7 @@ public class TestUtil {
     
     
     /**
-     * Creates an MTO with support for equalities, inequalities and deterministically chosen fresh output values.
+     * Creates an MTO with support for equalities, incl. over sum constants, inequalities and deterministically chosen fresh output values.
      */
     public static MultiTheoryTreeOracle createBasicMTO(
             DataWordSUL sul, ParameterizedSymbol error,  
@@ -117,24 +110,10 @@ public class TestUtil {
         return mto;
     }
     
-    public static MultiTheoryTreeOracle createMTO(
-            IOOracle ioOracle, 
-            Map<DataType, Theory> teachers, Constants consts, 
-            ConstraintSolver solver, ParameterizedSymbol ... inputs) {
-
-        BasicIOCacheOracle ioCache = new BasicIOCacheOracle(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
-      
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, ioCache, teachers, consts, solver);
-        
-        return mto;
-    }
-    
     /**
-     * Creates an MTO without fresh value support by simulating an RA.
+     * Creates an MTO from an RA by simulating it.
      */
-    public static MultiTheoryTreeOracle createBasicSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
+    public static MultiTheoryTreeOracle createSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
 	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
 	    SimulatorSUL hypDataWordSimulation = new SimulatorSUL(regAutomaton, teachers, consts);
 	    IOOracle hypTraceOracle = new BasicSULOracle(hypDataWordSimulation, SpecialSymbols.ERROR);  

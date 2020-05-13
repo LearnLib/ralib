@@ -68,10 +68,10 @@ public class LearnLoginTest extends RaLibTestSuite {
 
 		ConstraintSolver solver = new SimpleConstraintSolver();
 
-		MultiTheoryTreeOracle mto = TestUtil.createBasicSimulatorMTO(sul, teachers, new Constants(), solver);
+		MultiTheoryTreeOracle mto = TestUtil.createSimulatorMTO(sul, teachers, new Constants(), solver);
 		SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createBasicSimulatorMTO(hyp, teachers,
+		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> TestUtil.createSimulatorMTO(hyp, teachers,
 				new Constants(), solver);
 
 		RaStar rastar = new RaStar(mto, hypFactory, slo, consts, teachers, solver, I_LOGIN, I_LOGOUT, I_REGISTER);

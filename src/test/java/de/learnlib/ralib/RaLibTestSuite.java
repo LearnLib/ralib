@@ -17,7 +17,6 @@
 package de.learnlib.ralib;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.testng.annotations.BeforeSuite;
@@ -42,7 +41,7 @@ public abstract class RaLibTestSuite {
     @BeforeSuite
     public void beforeSuite() throws IOException, ConfigurationException{
     	TEST_CONFIG = TestConfig.parseTestConfig();
-        TestUtil.configureLogging(Level.FINE);
+        TestUtil.configureLogging(TEST_CONFIG.getLoggingLevel());
     }
     
     public TestConfig getTestConfig() {
