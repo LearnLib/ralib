@@ -116,7 +116,7 @@ Some examples require adding test sources to the classpath, which can be done as
 
 ```
 #!bash
-$ java -ea -cp target/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar;target/ralib-0.1-SNAPSHOT-tests.jar \
+$ java -ea -cp target\ralib-0.1-SNAPSHOT-jar-with-dependencies.jar;target\ralib-0.1-SNAPSHOT-tests.jar \
 de.learnlib.ralib.Main sul-analyzer -f examples\sul-analyzer\priority_queue
 
 ```
