@@ -6,15 +6,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.exceptions.DecoratedRuntimeException;
 import de.learnlib.ralib.exceptions.NonDeterminismException;
 import de.learnlib.ralib.oracles.TraceCanonizer;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
