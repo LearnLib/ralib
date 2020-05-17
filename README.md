@@ -14,6 +14,7 @@ Branch Information and Structure
 -------------------------
 
 This is an experimental yet stable branch of RALib supporting the following theories:
+
 * theories with equalities over (max 2) sum constants, with support for fresh values and free value suffix optimization
 * theories with inequalities over (max 2) sum constants, with support for special fresh values, which always increase, aing to TCP's sequence numbers
 
