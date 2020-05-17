@@ -138,7 +138,8 @@ public abstract class ToolTemplate extends AbstractToolWithRandomWalk {
 	private Long maxInputs;
 
 	public ToolTemplate(SULParser parser) throws ConfigurationException {
-		OPTIONS = getOptions(parser.getClass(), this.getClass(), EquivalenceOracleFactory.class);
+		OPTIONS = getOptions(parser.getClass(), AbstractToolWithRandomWalk.class, 
+				this.getClass(), EquivalenceOracleFactory.class);
 		this.sulParser = parser;
 	}
 
