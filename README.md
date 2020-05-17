@@ -122,23 +122,27 @@ de.learnlib.ralib.Main sul-analyzer -f examples\sul-analyzer\priority_queue
 ```
 
 
-Branch Information and Structure
+Branch Information
 -------------------------
 
 This is an experimental yet stable branch of RALib supporting the following theories:
 
 * theories with equalities over (max 2) sum constants, with support for fresh values and free value suffix optimization
-* theories with inequalities over (max 2) sum constants, with support for special fresh values, which always increase, aing to TCP's sequence numbers
+* theories with inequalities over (max 2) sum constants, with support for special fresh values, which always increase, akin to TCP's sequence numbers
 
 Implementations of these theories are available for Integer and Double domains. 
 Note that inequality theories over Integer domains are not well supported, due to complications arising from using discrete domains.
-Also note that suffix optimization is deactivated for theories with inequalities since they are untested.     
+Also note that suffix optimization is deactivated for theories with inequalities since they are unreliable and untested. 
 
 The branch includes the folders:
 
 * 'src' - the RALib source code 
 * 'examples' - example configurations for RaLib's tools, some require that you include test sources in the class path
 
+The branch also enhances testing so that its learning test cases (i.e. test cases which involve learning a specific system using specific theories) are run for multiple seeds instead of a single seed.
+This makes the testing more exhaustive.
+The seeds can be altered by tweaking the test configuration file 'src/test/resources/test.prop'.
+This file is read prior to test suite execution.
 
 
 [1]: https://bitbucket.org/psycopaths/jConstraints-z3
