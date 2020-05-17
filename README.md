@@ -102,14 +102,14 @@ teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
 Learning more advanced systems, or even more complex Java classes, may require *adapters*, which mediate communication between the system and RALib.
 To that end, RALib provides two additional tools.
 
-*sul-analyzer* is similar to *class-analyzer* but applied on a Java adaptor class implementing the abstract class de.learnlib.ralib.tools.sulanalyzer.ConcreteSUL. 
+*sul-analyzer* is similar to *class-analyzer* but applied on a Java adapter class implementing the abstract class de.learnlib.ralib.tools.sulanalyzer.ConcreteSUL. 
 This class is expected to translate RaLib concrete inputs into actual system calls, and generate concrete outputs from the results of these calls.
 
 
 *socket-analyzer* assumes there is a TCP server adapter mediating communication to the system. 
-It serializes RaLib's concrete inputs and sends them over TCP socket connection to a specified target address and port.
+It serializes RALib's concrete inputs and sends them over TCP socket connection to a specified target address and port.
 Data received is deserialized into concrete outputs.
-The manner of serialization/de-serialization is inspired from Tomte[3].
+The manner of serialization/de-serialization is inspired from [*Tomte*][3].
 
 Examples for using the tools are provided in the 'examples' directory.
 Some examples require adding test sources to the classpath, which can be done as in the example below: 
