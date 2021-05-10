@@ -9,6 +9,41 @@ RALib is developed as an extension to [*LearnLib*][3]. It implements
 the SL* algorithm presented in 	Sofia Cassel, Falk Howar, Bengt Jonsson, 
 Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
 
+Installation
+------------------------
+
+RaLib uses the [*jConstraints-z3*][1] library as an abstraction layer for  interfacing the z3 constraint solver.
+This branch depends on both [*jConstraints*][5] and  *jConstraints-z3*.
+These libraries can be installed  by following the instructions given in the libraries's respective README.md files.
+Once both libraries are installed, from inside RALib's directory run:
+
+```
+mvn install 
+```
+
+You can skip test execution by running
+
+```
+mvn install -DskipTests
+```
+
+
+Note that the older version of z3 required by *jConstraints-z3 (and thus required by RALib) can only be built using C++ 03 standard.
+By default, newer compilers use a later standard which will result in error.
+Making a compiler use the C++ 03 standard is done by supplying the corresponding CFLAGS/CXXFLAGS when generating the Makefile to build z3.
+For example:
+
+```
+CC=gcc-7 CFLAGS=-std=c++03 CXXFLAGS=-std=c++03 python scripts/mk_make.py -j
+```
+
+Once z3 and its Java bindings are built, care must be taken that the resulting z3 libraries are available to the loader when installing/running jConstraints-z3 and RALib.
+On Linux, this can be done by simply making LD_LIBRARY_PATH point to z3's build directory.
+Using this approach, the command to install RALib would become
+
+```
+LD_LIBRARY_PATH=$z3_dir mvn install
+```
 
 Using RALib
 -------------------------
