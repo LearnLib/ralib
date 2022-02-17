@@ -266,6 +266,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 		Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		for (String tName : teacherClasses.keySet()) {
 			DataType t = types.get(tName);
+			// FIXME the SUL parser was unable to construct a DataType for a specified theory name, we then construct a mock type
+			// some re-design is in order to handle this properly
+			if (t == null) {
+				t = new DataType(tName, teacherClasses.get(tName).getDomainType());
+				types.put(tName, t);
+			}
 			TypedTheory theory = teacherClasses.get(t.getName());
 			teachers.put(t, theory);
 			theory.setType(t);

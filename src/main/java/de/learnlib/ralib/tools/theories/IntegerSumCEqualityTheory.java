@@ -8,7 +8,6 @@ import java.util.List;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.mapper.Determinizer;
 import de.learnlib.ralib.theory.DataRelation;
 import de.learnlib.ralib.theory.equality.SumCEqualityTheory;
 import de.learnlib.ralib.theory.inequality.SumCDataValue;

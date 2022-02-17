@@ -13,7 +13,7 @@ public class TestConfig {
     protected static ConfigurationOption.StringOption SEEDS_OPTION = new ConfigurationOption
     		.StringOption("seeds", "Coma seperated seeds used during learning experiments", "0", true);
     protected static ConfigurationOption.StringOption LOGGER_LEVEL_OPTION = new ConfigurationOption
-    		.StringOption("logger.level", "Coma seperated seeds used during learning experiments", "FINE", true);
+    		.StringOption("logger.level", "Logging level for tests", "FINE", true);
     
 	static TestConfig parseTestConfig() throws IOException, ConfigurationException {
 		Configuration config;
