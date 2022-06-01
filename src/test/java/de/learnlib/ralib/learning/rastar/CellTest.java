@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.learning.rastar;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
@@ -31,8 +32,9 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.rastar.Cell;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.logging.Level;
 
@@ -40,55 +42,42 @@ import java.util.logging.Level;
  *
  * @author falk
  */
-public class RowTest extends RaLibTestSuite {
+public class CellTest extends RaLibTestSuite {
     
     @Test
-    public void testRowEquivalence() {
-    
-        final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
-                new PSymbolInstance(I_LOGIN, 
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_REGISTER, 
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));
-        
-        final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
+    public void testCellCreation() {
+           
+        final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER, 
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));          
-    
-        final Word<PSymbolInstance> suffix1 = Word.epsilon();        
-        final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
+                    new DataValue(T_PWD, 2)));           
+        
+        final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN, 
                     new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_PWD, 1)),
+                new PSymbolInstance(I_LOGOUT));
         
-        final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1);
-        final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
         
-        SymbolicSuffix[] suffixes = new SymbolicSuffix[] {symSuffix1, symSuffix2};
-        logger.log(Level.FINE, "Suffixes: {0}", Arrays.toString(suffixes));
+        // create a symbolic suffix from the concrete suffix
+        // symbolic data values: s1, s2 (userType, passType)
+        
+        final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
         
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
         
-        Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes), false);
-        Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes), false);
+        Cell c = Cell.computeCell(oracle, prefix, symSuffix);
         
-        VarMapping renaming = null;
-        for (VarMapping map : new PIVRemappingIterator(r1.getParsInVars(), r2.getParsInVars())) {
-            if (r1.isEquivalentTo(r2, map)) {
-                renaming = map;
-                break;
-            }
-        }
-
-        Assert.assertNotNull(renaming);
-        Assert.assertTrue(r1.couldBeEquivalentTo(r2));
-        Assert.assertTrue(r1.isEquivalentTo(r2, renaming));
+        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));        
+        logger.log(Level.FINE, "Cell: {0}", c.toString());
+        
+        Assert.assertTrue(c.couldBeEquivalentTo(c));
+        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
         
     }
     

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.learning.rastar;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
@@ -25,6 +25,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
