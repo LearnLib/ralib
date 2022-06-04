@@ -9,36 +9,53 @@ import net.automatalib.words.Word;
 
 public class DTLeaf extends DTNode {
 	
-	private Set<ShortPrefix> shortPrefixes;
+	private Set<MappedPrefix> shortPrefixes;
 	
-	private Set<Word<PSymbolInstance>> otherPrefixes;
+	private Set<MappedPrefix> otherPrefixes;
 	
 	public DTLeaf() {
-		shortPrefixes = new HashSet<ShortPrefix>();
-		otherPrefixes = new HashSet<Word<PSymbolInstance>>();
+		super();
+		shortPrefixes = new HashSet<MappedPrefix>();
+		otherPrefixes = new HashSet<MappedPrefix>();
 	}
 	
-	public DTLeaf(ShortPrefix as) {
-		shortPrefixes = new HashSet<ShortPrefix>();
-		otherPrefixes = new HashSet<Word<PSymbolInstance>>();
+	public DTLeaf(Word<PSymbolInstance> p) {
+		super();
+		shortPrefixes = new HashSet<MappedPrefix>();
+		otherPrefixes = new HashSet<MappedPrefix>();
+		shortPrefixes.add(new MappedPrefix(p, new PIV()));
+	}
+	
+	public DTLeaf(MappedPrefix as) {
+		super();
+		shortPrefixes = new HashSet<MappedPrefix>();
+		otherPrefixes = new HashSet<MappedPrefix>();
 		shortPrefixes.add(as);
 	}
 	
 	public void addPrefix(Word<PSymbolInstance> p) {
+		otherPrefixes.add(new MappedPrefix(p));
+	}
+	
+	public void addPrefix(MappedPrefix p) {
 		otherPrefixes.add(p);
 	}
 	
 	public void addShortPrefix(Word<PSymbolInstance> prefix, PIV registers) {
-		if (otherPrefixes.contains(prefix))
-			otherPrefixes.remove(prefix);
-		shortPrefixes.add(new ShortPrefix(prefix, registers));
+		addShortPrefix(new MappedPrefix(prefix, registers));
 	}
 	
-	public Set<ShortPrefix> getShortPrefixes() {
+	public void addShortPrefix(MappedPrefix prefix) {
+		if (otherPrefixes.contains(prefix))
+			otherPrefixes.remove(prefix);
+		shortPrefixes.add(prefix);
+	}
+	
+	public Set<MappedPrefix> getShortPrefixes() {
 		return shortPrefixes;
 	}
 	
-	public Set<Word<PSymbolInstance>> getPrefixes() {
+	public Set<MappedPrefix> getPrefixes() {
 		return otherPrefixes;
 	}
 	

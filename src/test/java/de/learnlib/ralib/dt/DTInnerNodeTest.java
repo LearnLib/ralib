@@ -69,8 +69,8 @@ public class DTInnerNodeTest {
       SymbolicSuffix symbSuffix = new SymbolicSuffix(epsilon, suffix);
 
       DTInnerNode node = new DTInnerNode(symbSuffix);
-      DTLeaf child1 = new DTLeaf(new ShortPrefix(epsilon, new PIV()));
-      DTLeaf child2 = new DTLeaf(new ShortPrefix(push, new PIV()));
+      DTLeaf child1 = new DTLeaf(new MappedPrefix(epsilon, new PIV()));
+      DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()));
       
       TreeQueryResult tqr1 = mto.treeQuery(epsilon, symbSuffix);
       TreeQueryResult tqr2 = mto.treeQuery(push, symbSuffix);
@@ -78,8 +78,8 @@ public class DTInnerNodeTest {
       node.addBranch(new DTBranch(tqr1.getSdt(), child1));
       node.addBranch(new DTBranch(tqr2.getSdt(), child2));
       
-      DTNode test1 = node.sift(p1, mto);
-      DTNode test2 = node.sift(p2, mto);
+      DTNode test1 = node.sift(p1, mto).getKey();
+      DTNode test2 = node.sift(p2, mto).getKey();
       
       Assert.assertEquals(test1, child1);
       Assert.assertEquals(test2, child2);

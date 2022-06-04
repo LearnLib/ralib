@@ -3,6 +3,10 @@ package de.learnlib.ralib.dt;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -17,22 +21,24 @@ public class DTInnerNode extends DTNode {
 	private Set<DTBranch> branches;
 	
 	public DTInnerNode(SymbolicSuffix suffix) {
+		super();
 		this.suffix = suffix;
 		branches = new HashSet<DTBranch>();
 	}
 	
 	public DTInnerNode(SymbolicSuffix suffix, Set<DTBranch> branches) {
+		super();
 		this.suffix = suffix;
 		this.branches = branches;
 	}
 	
-	public DTNode sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
+	public Pair<DTNode, TreeQueryResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
 		
 		TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
 		
 		for (DTBranch b : branches) {
 			if (b.matches(tqr))
-				return b.getChild();
+				return new ImmutablePair<DTNode, TreeQueryResult>(b.getChild(), tqr);
 		}
 		
 		return null;
