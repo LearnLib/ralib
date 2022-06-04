@@ -13,6 +13,7 @@ public class DTBranch {
 		public DTBranch(SymbolicDecisionTree sdt, DTNode child) {
 			this.sdt = sdt;
 			this.child = child;
+			child.setParentBranch(this);
 		}
 		
 		public DTNode getChild() {
