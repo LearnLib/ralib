@@ -53,4 +53,8 @@ public class PrefixSet {
 		}
 		return false;
 	}
+	
+	public String toString() {
+		return prefixes.toString();
+	}
 }

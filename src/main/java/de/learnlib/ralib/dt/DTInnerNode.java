@@ -32,7 +32,7 @@ public class DTInnerNode extends DTNode {
 		this.branches = branches;
 	}
 	
-	public Pair<DTNode, TreeQueryResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
+	protected Pair<DTNode, TreeQueryResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
 		
 		TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
 		

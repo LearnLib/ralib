@@ -25,4 +25,8 @@ public class MappedPrefix {
 	public PIV getRegisters() {
 		return this.registers;
 	}
+	
+	public String toString() {
+		return "{" + prefix.toString() + ", " + registers.toString() + "}";
+	}
 }

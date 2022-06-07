@@ -84,6 +84,58 @@ public class DTTest {
 		return new DT(nodeEps);
 	}
 	
+	private DT buildFullTreeWithoutEpsilon(TreeOracle oracle) {
+		Word<PSymbolInstance> prePop = Word.fromSymbols(
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+		Word<PSymbolInstance> prePush = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+		Word<PSymbolInstance> prePushPush = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+		Word<PSymbolInstance> epsilon = Word.epsilon();
+		
+		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
+		SymbolicSuffix suffPop = new SymbolicSuffix(epsilon, prePop);
+		SymbolicSuffix suffPush = new SymbolicSuffix(epsilon, prePush);
+		
+		TreeQueryResult tqrPop = oracle.treeQuery(prePop, suffEps);
+		//TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
+		TreeQueryResult tqrPush = oracle.treeQuery(prePush, suffPush);
+		TreeQueryResult tqrPushPush = oracle.treeQuery(prePushPush, suffPush);
+		TreeQueryResult tqrInnerPop = oracle.treeQuery(epsilon, suffEps);
+		TreeQueryResult tqrInnerPush = oracle.treeQuery(prePush, suffPop);
+
+		DTInnerNode nodeEps = new DTInnerNode(suffEps);
+		DTInnerNode nodePop = new DTInnerNode(suffPop);
+		DTInnerNode nodePush = new DTInnerNode(suffPush);
+		
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()));
+		//DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()));
+		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()));
+		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()));
+		leafPop.setParent(nodeEps);
+		//leafEps.setParent(nodePop);
+		leafPush.setParent(nodePush);
+		leafPushPush.setParent(nodePush);
+		
+		DTBranch brPop = new DTBranch(tqrPop.getSdt(), leafPop);
+		//DTBranch brEps = new DTBranch(tqrEps.getSdt(), leafEps);
+		DTBranch brPush = new DTBranch(tqrPush.getSdt(), leafPush);
+		DTBranch brPushPush = new DTBranch(tqrPushPush.getSdt(), leafPushPush);
+		DTBranch brInnerPush = new DTBranch(tqrInnerPush.getSdt(), nodePush);
+		DTBranch brInnerPop = new DTBranch(tqrInnerPop.getSdt(), nodePop);
+		
+		nodeEps.addBranch(brPop);
+		nodeEps.addBranch(brInnerPop);
+		//nodePop.addBranch(brEps);
+		nodePop.addBranch(brInnerPush);
+		nodePush.addBranch(brPush);
+		nodePush.addBranch(brPushPush);
+		
+		return new DT(nodeEps);
+
+	}
+	
 	private DT buildIncompleteTree(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
 				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
@@ -197,16 +249,26 @@ public class DTTest {
 	      Word<PSymbolInstance> access3 = Word.fromSymbols(
 	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
 	      
-	      DTLeaf leaf1 = dt.sift(p1, mto, false);
-	      DTLeaf leaf2 = dt.sift(p2, mto, false);
-	      DTLeaf leaf3 = dt.sift(p3, mto, false);
+	      DTLeaf leaf1 = dt.sift(p1, mto, true);
+	      DTLeaf leaf2 = dt.sift(p2, mto, true);
+	      DTLeaf leaf3 = dt.sift(p3, mto, true);
 	      int len = leaf1.getShortPrefixes().iterator().next().getPrefix().length();
 	      PSymbolInstance asPush1Pop2 = leaf2.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
 	      PSymbolInstance asPush1Push2Pop2 = leaf3.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
 	      
 	      Assert.assertEquals(len, access1.length());
+	      Assert.assertTrue(leaf1.getPrefixes().contains(p1));
 	      Assert.assertEquals(asPush1Pop2, access2.getSymbol(0));
+	      Assert.assertTrue(leaf2.getPrefixes().contains(p2));
 	      Assert.assertEquals(asPush1Push2Pop2, access3.getSymbol(0));
+	      Assert.assertTrue(leaf3.getPrefixes().contains(p3));
+	      
+	      // test en passant discovery
+	      dt = buildFullTreeWithoutEpsilon(mto);
+	      Word<PSymbolInstance> epsilon = Word.epsilon();
+	      DTLeaf leafEps = dt.sift(epsilon, mto, true);
+	      
+	      Assert.assertEquals(leafEps.getShortPrefixes().iterator().next().getPrefix().length(), epsilon.length());
 	}
 	
 	@Test
