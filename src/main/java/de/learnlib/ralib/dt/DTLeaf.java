@@ -9,24 +9,18 @@ import net.automatalib.words.Word;
 
 public class DTLeaf extends DTNode {
 	
-	//private Set<MappedPrefix> shortPrefixes;
 	private PrefixSet shortPrefixes;
 	
-	//private Set<MappedPrefix> otherPrefixes;
 	private PrefixSet otherPrefixes;
 	
 	public DTLeaf() {
 		super();
-	//	shortPrefixes = new HashSet<MappedPrefix>();
-	//	otherPrefixes = new HashSet<MappedPrefix>();
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
 	}
 	
 	public DTLeaf(Word<PSymbolInstance> p) {
 		super();
-	//	shortPrefixes = new HashSet<MappedPrefix>();
-	//	otherPrefixes = new HashSet<MappedPrefix>();
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
 		shortPrefixes.add(new MappedPrefix(p, new PIV()));
@@ -34,8 +28,6 @@ public class DTLeaf extends DTNode {
 	
 	public DTLeaf(MappedPrefix as) {
 		super();
-	//	shortPrefixes = new HashSet<MappedPrefix>();
-	//	otherPrefixes = new HashSet<MappedPrefix>();
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
 		shortPrefixes.add(as);
@@ -72,12 +64,10 @@ public class DTLeaf extends DTNode {
 		otherPrefixes = new PrefixSet();
 	}
 	
-	//public Set<MappedPrefix> getShortPrefixes() {
 	public PrefixSet getShortPrefixes() {
 		return shortPrefixes;
 	}
 	
-	//public Set<MappedPrefix> getPrefixes() {
 	public PrefixSet getPrefixes() {
 		return otherPrefixes;
 	}
