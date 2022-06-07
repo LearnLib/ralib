@@ -16,6 +16,11 @@ public class DTBranch {
 			child.setParentBranch(this);
 		}
 		
+		public void setChild(DTNode child) {
+			this.child = child;
+			child.setParentBranch(this);
+		}
+		
 		public DTNode getChild() {
 			return child;
 		}

@@ -48,6 +48,10 @@ public class DTInnerNode extends DTNode {
 		branches.add(b);
 	}
 	
+	public Set<DTBranch> getBranches() {
+		return branches;
+	}
+	
 	public void addBranch(SymbolicDecisionTree sdt, DTNode child) {
 		branches.add(new DTBranch(sdt, child));
 	}

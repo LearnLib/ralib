@@ -9,27 +9,35 @@ import net.automatalib.words.Word;
 
 public class DTLeaf extends DTNode {
 	
-	private Set<MappedPrefix> shortPrefixes;
+	//private Set<MappedPrefix> shortPrefixes;
+	private PrefixSet shortPrefixes;
 	
-	private Set<MappedPrefix> otherPrefixes;
+	//private Set<MappedPrefix> otherPrefixes;
+	private PrefixSet otherPrefixes;
 	
 	public DTLeaf() {
 		super();
-		shortPrefixes = new HashSet<MappedPrefix>();
-		otherPrefixes = new HashSet<MappedPrefix>();
+	//	shortPrefixes = new HashSet<MappedPrefix>();
+	//	otherPrefixes = new HashSet<MappedPrefix>();
+		shortPrefixes = new PrefixSet();
+		otherPrefixes = new PrefixSet();
 	}
 	
 	public DTLeaf(Word<PSymbolInstance> p) {
 		super();
-		shortPrefixes = new HashSet<MappedPrefix>();
-		otherPrefixes = new HashSet<MappedPrefix>();
+	//	shortPrefixes = new HashSet<MappedPrefix>();
+	//	otherPrefixes = new HashSet<MappedPrefix>();
+		shortPrefixes = new PrefixSet();
+		otherPrefixes = new PrefixSet();
 		shortPrefixes.add(new MappedPrefix(p, new PIV()));
 	}
 	
 	public DTLeaf(MappedPrefix as) {
 		super();
-		shortPrefixes = new HashSet<MappedPrefix>();
-		otherPrefixes = new HashSet<MappedPrefix>();
+	//	shortPrefixes = new HashSet<MappedPrefix>();
+	//	otherPrefixes = new HashSet<MappedPrefix>();
+		shortPrefixes = new PrefixSet();
+		otherPrefixes = new PrefixSet();
 		shortPrefixes.add(as);
 	}
 	
@@ -51,11 +59,26 @@ public class DTLeaf extends DTNode {
 		shortPrefixes.add(prefix);
 	}
 	
-	public Set<MappedPrefix> getShortPrefixes() {
+	public boolean removeShortPrefix(MappedPrefix p) {
+		return shortPrefixes.remove(p);
+	}
+	
+	public boolean removeShortPrefix(Word<PSymbolInstance> p) {
+		return shortPrefixes.remove(p);
+	}
+	
+	public void clear() {
+		shortPrefixes = new PrefixSet();
+		otherPrefixes = new PrefixSet();
+	}
+	
+	//public Set<MappedPrefix> getShortPrefixes() {
+	public PrefixSet getShortPrefixes() {
 		return shortPrefixes;
 	}
 	
-	public Set<MappedPrefix> getPrefixes() {
+	//public Set<MappedPrefix> getPrefixes() {
+	public PrefixSet getPrefixes() {
 		return otherPrefixes;
 	}
 	
