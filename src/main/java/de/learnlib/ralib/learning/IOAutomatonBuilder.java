@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.rastar;
+package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
@@ -34,6 +34,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -48,11 +49,11 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-class IOAutomatonBuilder extends AutomatonBuilder {
+public class IOAutomatonBuilder extends AutomatonBuilder {
 
     private final Map<Object, Constant> reverseConsts;
     
-    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, Component> components, 
+    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, 
             Constants consts) {
         super(components, consts);
         

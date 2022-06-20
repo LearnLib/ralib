@@ -35,6 +35,14 @@ public class PrefixSet {
 		return prefixes;
 	}
 	
+	public MappedPrefix get(Word<PSymbolInstance> p) {
+		for (MappedPrefix mp : prefixes) {
+			if (mp.getPrefix().equals(p))
+				return mp;
+		}
+		return null;
+	}
+	
 	public Iterator<MappedPrefix> iterator() {
 		return prefixes.iterator();
 	}
@@ -52,6 +60,10 @@ public class PrefixSet {
 				return true;
 		}
 		return false;
+	}
+	
+	public int length() {
+		return prefixes.size();
 	}
 	
 	public String toString() {

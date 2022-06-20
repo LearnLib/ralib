@@ -357,8 +357,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             // get the children of the next sdt (this may be empty)
             Map<SDTGuard, SDT> nxtChildren = collectKids(nxt);
             Map<SDTGuard, SDT> allChildren = new LinkedHashMap<>();
+            if (currChildren != null) {
             allChildren.putAll(currChildren);
             allChildren.putAll(nxtChildren);
+            }
             // initialize set of finest guards; initialize list of coarser guards
             Set<SDTGuard> finest = new LinkedHashSet<>();
 
@@ -406,7 +408,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 // initialize set of sdts
                 // try to find the sdt that this guard maps to
                 Set<SDT> nextLevelSdts = new LinkedHashSet<>();
-                SDT cSdt = currChildren.get(guard);
+                SDT cSdt = null;
+                if (currChildren != null)
+                	cSdt = currChildren.get(guard);
                 // if we can find it in the 'current' sdt, then add it
                 if (cSdt != null) {
                     nextLevelSdts.add(cSdt);

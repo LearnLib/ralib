@@ -32,4 +32,8 @@ public class DTBranch {
 		public boolean matches(TreeQueryResult tqr) {
 			return sdt.isEquivalent(tqr.getSdt(), tqr.getPiv());
 		}
+		
+		SymbolicDecisionTree getSDT() {
+			return sdt;
+		}
 }
