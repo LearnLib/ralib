@@ -23,6 +23,8 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.learning.LocationComponent;
+import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -47,7 +50,7 @@ import net.automatalib.words.Word;
  * 
  * @author falk
  */
-class Component {
+public class Component implements LocationComponent {
 
     private final Row primeRow;
 
@@ -230,19 +233,19 @@ class Component {
         return true;
     }
     
-    Word<PSymbolInstance> getAccessSequence() {
+    public Word<PSymbolInstance> getAccessSequence() {
         return primeRow.getPrefix();
     }
 
-    boolean isAccepting() {
+    public boolean isAccepting() {
         return this.primeRow.isAccepting();
     }
     
-    Branching getBranching(ParameterizedSymbol act) {
+    public Branching getBranching(ParameterizedSymbol act) {
         return branching.get(act);
     }
     
-    VarMapping getRemapping(Row r) {
+    public VarMapping getRemapping(PrefixContainer r) {
         return this.otherRows.get(r);
     }
     
@@ -252,6 +255,17 @@ class Component {
     
     Collection<Row> getOtherRows() {
         return this.otherRows.keySet();
+    }
+    
+    public PrefixContainer getPrimePrefix() {
+    	return getPrimeRow();
+    }
+    
+    public Collection<PrefixContainer> getOtherPrefixes() {
+    	Collection<PrefixContainer> ret = new LinkedHashSet<PrefixContainer>();
+    	for (Row r : getOtherRows())
+    		ret.add(r);
+    	return ret;
     }
 
     @Override

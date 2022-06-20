@@ -18,6 +18,9 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.learning.AutomatonBuilder;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -29,11 +32,12 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.automata.TransitionGuard;
 import net.automatalib.words.Word;
 
 public class DTTest {
 
-	private DT buildFullTree(TreeOracle oracle) {
+	private DT buildFullTreePrimesOnly(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
 				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
 		Word<PSymbolInstance> prePush = Word.fromSymbols(
@@ -81,7 +85,7 @@ public class DTTest {
 		nodePush.addBranch(brPush);
 		nodePush.addBranch(brPushPush);
 		
-		return new DT(nodeEps);
+		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
 	}
 	
 	private DT buildFullTreeWithoutEpsilon(TreeOracle oracle) {
@@ -132,39 +136,39 @@ public class DTTest {
 		nodePush.addBranch(brPush);
 		nodePush.addBranch(brPushPush);
 		
-		return new DT(nodeEps);
+		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
 
 	}
 	
-	private DT buildIncompleteTree(TreeOracle oracle) {
+	private DT buildIncompleteTree(TreeOracle oracle, boolean extraPrefs) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
 		Word<PSymbolInstance> prePush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
 		Word<PSymbolInstance> prePopPush = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
 		Word<PSymbolInstance> prePopPop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 2)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
 		Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
 		Word<PSymbolInstance> prePushPopEq = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+		Word<PSymbolInstance> prePushPopNeq = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+		Word<PSymbolInstance> prePushPushPop = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
 				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
 				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
-		Word<PSymbolInstance> prePushPopNeq = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 2)));
-		Word<PSymbolInstance> prePushPushPop = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)),
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 2)));
 		Word<PSymbolInstance> prePushPushPopPush = Word.fromSymbols(
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
 				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)),
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 2)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 3)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 		
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -173,6 +177,7 @@ public class DTTest {
 		TreeQueryResult tqrPop = oracle.treeQuery(prePop, suffEps);
 		TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
 		TreeQueryResult tqrPush = oracle.treeQuery(prePush, suffPop);
+		TreeQueryResult tqrPushPush = oracle.treeQuery(prePushPush, suffPop);
 		TreeQueryResult tqrInnerPop = oracle.treeQuery(epsilon, suffEps);
 
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
@@ -184,10 +189,16 @@ public class DTTest {
 		leafPop.addPrefix(new MappedPrefix(prePopPush, tqrPop.getPiv()));
 		leafPop.addPrefix(new MappedPrefix(prePopPop, tqrPop.getPiv()));
 		leafPop.addPrefix(new MappedPrefix(prePushPopNeq, tqrPop.getPiv()));
+		leafPop.addTQRs(tqrPop.getPiv(), suffEps, oracle, true);
 		leafEps.addPrefix(new MappedPrefix(prePushPopEq, tqrEps.getPiv()));
-		leafPush.addShortPrefix(new MappedPrefix(prePushPush, tqrPush.getPiv()));
+		leafEps.addTQRs(tqrEps.getPiv(), suffEps, oracle, true);
+		leafEps.addTQRs(tqrEps.getPiv(), suffPop, oracle, true);
+		leafPush.addShortPrefix(new MappedPrefix(prePushPush, tqrPushPush.getPiv()));
 		leafPush.addPrefix(prePushPushPop);
-		leafPush.addPrefix(prePushPushPopPush);
+		if (extraPrefs)
+			leafPush.addPrefix(prePushPushPopPush);
+		leafPush.addTQRs(tqrPush.getPiv(), suffEps, oracle, true);
+		leafPush.addTQRs(tqrPush.getPiv(), suffPop, oracle, true);
 		
 		leafPop.setParent(nodeEps);
 		leafEps.setParent(nodePop);
@@ -203,7 +214,7 @@ public class DTTest {
 		nodePop.addBranch(brEps);
 		nodePop.addBranch(brPush);
 		
-		return new DT(nodeEps);
+		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
 	}
 	
 	@Test
@@ -221,7 +232,7 @@ public class DTTest {
 	      MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
 
-	      DT dt = buildFullTree(mto);
+	      DT dt = buildFullTreePrimesOnly(mto);
 	      
 	      Word<PSymbolInstance> p1 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH, 
@@ -249,12 +260,15 @@ public class DTTest {
 	      Word<PSymbolInstance> access3 = Word.fromSymbols(
 	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
 	      
-	      DTLeaf leaf1 = dt.sift(p1, mto, true);
-	      DTLeaf leaf2 = dt.sift(p2, mto, true);
-	      DTLeaf leaf3 = dt.sift(p3, mto, true);
-	      int len = leaf1.getShortPrefixes().iterator().next().getPrefix().length();
-	      PSymbolInstance asPush1Pop2 = leaf2.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
-	      PSymbolInstance asPush1Push2Pop2 = leaf3.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
+	      DTLeaf leaf1 = dt.sift(p1, true);
+	      DTLeaf leaf2 = dt.sift(p2, true);
+	      DTLeaf leaf3 = dt.sift(p3, true);
+	      //int len = leaf1.getShortPrefixes().iterator().next().getPrefix().length();
+	      //PSymbolInstance asPush1Pop2 = leaf2.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
+	      //PSymbolInstance asPush1Push2Pop2 = leaf3.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
+	      int len = leaf1.getPrimePrefix().getPrefix().length();
+	      PSymbolInstance asPush1Pop2 = leaf2.getPrimePrefix().getPrefix().getSymbol(0);
+	      PSymbolInstance asPush1Push2Pop2 = leaf3.getPrimePrefix().getPrefix().getSymbol(0);
 	      
 	      Assert.assertEquals(len, access1.length());
 	      Assert.assertTrue(leaf1.getPrefixes().contains(p1));
@@ -266,9 +280,10 @@ public class DTTest {
 	      // test en passant discovery
 	      dt = buildFullTreeWithoutEpsilon(mto);
 	      Word<PSymbolInstance> epsilon = Word.epsilon();
-	      DTLeaf leafEps = dt.sift(epsilon, mto, true);
+	      DTLeaf leafEps = dt.sift(epsilon, true);
 	      
-	      Assert.assertEquals(leafEps.getShortPrefixes().iterator().next().getPrefix().length(), epsilon.length());
+	      //Assert.assertEquals(leafEps.getShortPrefixes().iterator().next().getPrefix().length(), epsilon.length());
+	      Assert.assertEquals(leafEps.getPrimePrefix().getPrefix().length(), epsilon.length());
 	}
 	
 	@Test
@@ -286,67 +301,116 @@ public class DTTest {
 	      MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
 
-	      DT dt = buildIncompleteTree(mto);
+	      DT dt = buildIncompleteTree(mto, true);
+	      for (DTLeaf l : dt.getLeaves()) {
+	    	  l.start(mto, false, I_PUSH, I_POP);
+	    	  l.updateBranching(mto, dt);
+	      }
 	      
 		  Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-				  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
-		  Word<PSymbolInstance> suffPush = Word.fromSymbols(
+				  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
 				  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+		  Word<PSymbolInstance> suffPush = Word.fromSymbols(
+				  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
 		  Word<PSymbolInstance> epsilon = Word.epsilon();
 		  SymbolicSuffix suffix = new SymbolicSuffix(epsilon, suffPush);
 		  
-		  dt.split(prePushPush, suffix, dt.getLeaf(prePushPush), mto);
+		  dt.split(prePushPush, suffix, dt.getLeaf(prePushPush));
 
 	      Word<PSymbolInstance> p1 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH, 
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue(T_INT, 0)),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 1)));
+	                      new DataValue(T_INT, 0)));
 	      
 	      Word<PSymbolInstance> p2 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH, 
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue(T_INT, 0)),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 2)));
+	                      new DataValue(T_INT, 1)));
 	      
 	      Word<PSymbolInstance> p3 = Word.fromSymbols(
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 1)),
+	    				  new DataValue(T_INT, 0)),
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 2)),
+	    				  new DataValue(T_INT, 1)),
 	    		  new PSymbolInstance(I_POP,
-	    				  new DataValue(T_INT, 2)));
+	    				  new DataValue(T_INT, 1)));
 
 	      Word<PSymbolInstance> p4 = Word.fromSymbols(
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
 	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)),
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 2)),
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 3)));
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
 
 	      Word<PSymbolInstance> access1 = Word.epsilon();
 	      Word<PSymbolInstance> access2 = Word.fromSymbols(
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT,0)));
 	      Word<PSymbolInstance> access3 = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,0)));
 	      Word<PSymbolInstance> access4 = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)),
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,2)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,0)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
 
-	      DTLeaf leaf1 = dt.sift(p1, mto, false);
-	      DTLeaf leaf2 = dt.sift(p2, mto, false);
-	      DTLeaf leaf3 = dt.sift(p3, mto, false);
-	      DTLeaf leaf4 = dt.sift(p4, mto, false);
-	      int len = leaf1.getShortPrefixes().iterator().next().getPrefix().length();
-	      PSymbolInstance asPush1Pop2 = leaf2.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
-	      PSymbolInstance asPush1Push2Pop2 = leaf3.getShortPrefixes().iterator().next().getPrefix().getSymbol(0);
-	      Word<PSymbolInstance> word4 = leaf4.getShortPrefixes().iterator().next().getPrefix();
+	      // test sifting after split
+	      DTLeaf leaf1 = dt.sift(p1, false);
+	      DTLeaf leaf2 = dt.sift(p2, false);
+	      DTLeaf leaf3 = dt.sift(p3, false);
+	      DTLeaf leaf4 = dt.sift(p4, false);
+	      int len = leaf1.getPrimePrefix().getPrefix().length();
+	      PSymbolInstance asPush1Pop2 = leaf2.getPrimePrefix().getPrefix().getSymbol(0);
+	      PSymbolInstance asPush1Push2Pop2 = leaf3.getPrimePrefix().getPrefix().getSymbol(0);
+	      Word<PSymbolInstance> word4 = leaf4.getPrimePrefix().getPrefix();
 
 	      Assert.assertEquals(len, access1.length());
 	      Assert.assertEquals(asPush1Pop2, access2.getSymbol(0));
 	      Assert.assertEquals(asPush1Push2Pop2, access3.getSymbol(0));
 	      Assert.assertEquals(word4.getSymbol(0), access4.getSymbol(0));
 	      Assert.assertEquals(word4.getSymbol(1), access4.getSymbol(1));
-
+	      
+	      // test variable consistency after split 
+	      boolean variableCorrectness = leaf3.checkVariableConsistency(dt, mto, new Constants());
+	      Assert.assertFalse(variableCorrectness);
+	      
+	      Word<PSymbolInstance> prePopPop = Word.fromSymbols(
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+	      SymbolicSuffix suffPopPop = new SymbolicSuffix(epsilon, prePopPop);
+	      DTInnerNode leaf4parent = (DTInnerNode)leaf4.getParent();
+	      Assert.assertTrue(suffPopPop.equals(leaf4parent.getSuffix()));
+	      
+	      // correct number of parameter assignments of push push leaf
+	      Assert.assertEquals(leaf4.getPrimePrefix().getParsInVars().size(), 2);
+	      // correct number of branches for the pop transition of push push leaf
+	      Assert.assertEquals(leaf4.getBranching(I_POP).getBranches().size(), 2);
+	      
+	      Word<PSymbolInstance> prePush = Word.fromSymbols(
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+	      
+	      Word<PSymbolInstance> prePushPushPopNeq = Word.fromSymbols(
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 2)));
+	      Word<PSymbolInstance> prePushPushPush = Word.fromSymbols(
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+	      
+	      // test hypothesis construction from DT
+	      dt = buildIncompleteTree(mto, false);
+	      for (DTLeaf l : dt.getLeaves()) {
+	    	  l.start(mto, false, I_PUSH, I_POP);
+	    	  l.updateBranching(mto, dt);
+	      }
+	      dt.split(prePushPush, suffix, dt.getLeaf(prePushPush));
+	      dt.getLeaf(prePush).checkVariableConsistency(dt, mto, consts);
+	      dt.sift(prePushPushPopNeq, true);
+	      dt.sift(prePushPushPush, true);
+	      AutomatonBuilder ab = new AutomatonBuilder(dt.collectComponents(), consts);
+	      Hypothesis hyp = ab.toRegisterAutomaton();
+//	      System.out.println(hyp.toString());
+	      
+	      Assert.assertEquals(hyp.getStates().size(), 4);
+	      Assert.assertEquals(hyp.getTransitions().size(), 10);
 	}
 }

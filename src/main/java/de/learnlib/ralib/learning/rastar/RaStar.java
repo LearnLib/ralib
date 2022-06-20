@@ -19,7 +19,10 @@ package de.learnlib.ralib.learning.rastar;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.IOAutomatonBuilder;
+import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -28,7 +31,10 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.Deque;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
+
 import net.automatalib.words.Word;
 
 /**
@@ -105,7 +111,9 @@ public class RaStar {
 
             //System.out.println(obs.toString());
             
-            AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);            
+            Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+            components.putAll(obs.getComponents());
+            AutomatonBuilder ab = new AutomatonBuilder(components, consts);            
             hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
@@ -153,9 +161,11 @@ public class RaStar {
             
     
     public Hypothesis getHypothesis() {
-        AutomatonBuilder ab = new AutomatonBuilder(obs.getComponents(), consts);
+    	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+    	components.putAll(obs.getComponents());
+        AutomatonBuilder ab = new AutomatonBuilder(components, consts);
         if (ioMode) {
-            ab = new IOAutomatonBuilder(obs.getComponents(), consts);
+            ab = new IOAutomatonBuilder(components, consts);
         }
         return ab.toRegisterAutomaton();   
     }

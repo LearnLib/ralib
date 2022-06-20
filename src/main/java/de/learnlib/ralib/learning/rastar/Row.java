@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -42,7 +43,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-class Row {
+class Row implements PrefixContainer {
 
     private final Word<PSymbolInstance> prefix;
 
@@ -133,11 +134,11 @@ class Row {
         return sdts.toArray(new SymbolicDecisionTree[]{});
     }
 
-    PIV getParsInVars() {
+    public PIV getParsInVars() {
         return this.memorable;
     }
 
-    Word<PSymbolInstance> getPrefix() {
+    public Word<PSymbolInstance> getPrefix() {
         return this.prefix;
     }
 

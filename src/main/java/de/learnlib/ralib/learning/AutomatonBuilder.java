@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.rastar;
+package de.learnlib.ralib.learning;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
@@ -25,7 +25,9 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.rastar.Component;
+import de.learnlib.ralib.learning.rastar.RaStar;
+//import de.learnlib.ralib.learning.rastar.Row;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
@@ -42,9 +44,9 @@ import net.automatalib.words.Word;
  * 
  * @author falk
  */
-class AutomatonBuilder {
+public class AutomatonBuilder {
     
-    private final Map<Word<PSymbolInstance>, Component> components;
+    private final Map<Word<PSymbolInstance>, LocationComponent> components;
 
     private final Map<Word<PSymbolInstance>, RALocation> locations = new LinkedHashMap<>();
     
@@ -54,13 +56,13 @@ class AutomatonBuilder {
     
     private static LearnLogger log = LearnLogger.getLogger(AutomatonBuilder.class);
     
-    AutomatonBuilder(Map<Word<PSymbolInstance>, Component> components, Constants consts) {
+    public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
         this.consts = consts;
         this.components = components;
         this.automaton = new Hypothesis(consts);
     }
 
-    Hypothesis toRegisterAutomaton() {
+    public Hypothesis toRegisterAutomaton() {
         log.fine("computing hypothesis");
         computeLocations();
         computeTransitions();
@@ -68,13 +70,13 @@ class AutomatonBuilder {
     }
     
     private void computeLocations() {
-        Component c = components.get(RaStar.EMPTY_PREFIX);      
+    	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);      
         log.log(Level.FINER, "{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
         this.locations.put(RaStar.EMPTY_PREFIX, loc);
         this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
                 
-        for (Entry<Word<PSymbolInstance>, Component> e : this.components.entrySet()) {
+        for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
                 log.log(Level.FINER, "{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
@@ -85,16 +87,16 @@ class AutomatonBuilder {
     }
     
     private void computeTransitions() {
-        for (Component c : components.values()) {
-            computeTransition(c, c.getPrimeRow());
-            for (Row r : c.getOtherRows()) {
+        for (LocationComponent c : components.values()) {
+            computeTransition(c, c.getPrimePrefix());
+            for (PrefixContainer r : c.getOtherPrefixes()) {
                 computeTransition(c, r);
             }
         }
     }
 
     
-    private void computeTransition(Component dest_c, Row r) {        
+    private void computeTransition(LocationComponent dest_c, PrefixContainer r) {        
         if (r.getPrefix().length() < 1) {
             return;
         }
@@ -103,7 +105,7 @@ class AutomatonBuilder {
 
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);        
-        Component src_c = this.components.get(src_id);
+        LocationComponent src_c = this.components.get(src_id);
         
         // locations
         RALocation src_loc = this.locations.get(src_id);
@@ -114,16 +116,19 @@ class AutomatonBuilder {
         
         // guard
         Branching b = src_c.getBranching(action);
-        //System.out.println("b.getBranches is  " + b.getBranches().toString());
-        //System.out.println("getting guard for  " + r.getPrefix().toString());
+//        System.out.println("b.getBranches is  " + b.getBranches().toString());
+//        System.out.println("getting guard for  " + r.getPrefix().toString());
         TransitionGuard guard = b.getBranches().get(r.getPrefix());
         
+        if (guard == null) {
+        	assert true;
+        }
         assert guard!=null;
         
         // assignment
         VarMapping assignments = new VarMapping();
         int max = DataWords.paramLength(DataWords.actsOf(src_id));
-        PIV parsInVars_Src = src_c.getPrimeRow().getParsInVars();
+        PIV parsInVars_Src = src_c.getPrimePrefix().getParsInVars();
         PIV parsInVars_Row = r.getParsInVars();        
         VarMapping remapping = dest_c.getRemapping(r);
         

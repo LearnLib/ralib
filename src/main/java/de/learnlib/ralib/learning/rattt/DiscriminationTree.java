@@ -21,7 +21,7 @@ public interface DiscriminationTree {
 	 * @param add
 	 * @return the leaf corresponding to prefix
 	 */
-	public DTLeaf sift(Word<PSymbolInstance> prefix, TreeOracle oracle, boolean add);
+	public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add);
 
 	/**
 	 * Split a prefix from a leaf node into a new leaf. Adds a new inner node using the suffix as a discriminator.
@@ -31,5 +31,5 @@ public interface DiscriminationTree {
 	 * @param leaf
 	 * @param oracle
 	 */
-	public void split(Word<PSymbolInstance> prefx, SymbolicSuffix suffix, DTLeaf leaf, TreeOracle oracle);
+	public void split(Word<PSymbolInstance> prefx, SymbolicSuffix suffix, DTLeaf leaf);
 }
