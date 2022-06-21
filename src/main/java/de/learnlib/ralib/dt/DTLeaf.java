@@ -171,6 +171,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return parent;
 	}
 	
+	public MappedPrefix getPrefix(Word<PSymbolInstance> p) {
+		return otherPrefixes.get(p);
+	}
+	
 	void addTQRs(PIV primePIV, SymbolicSuffix s, TreeOracle oracle) {
 		TreeQueryResult tqr;
 		//TreeQueryResult tqr = oracle.treeQuery(getAccessSequence(), s);
@@ -203,7 +207,52 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return otherPrefixes.get().stream().collect(Collectors.toList());
 	}
 	
-	void start(TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
+//	public boolean expandPrefix(Word<PSymbolInstance> p, DT dt) {
+//		MappedPrefix mp = this.getPrefix(p);
+//		if (mp == null) {
+//			dt.sift(p, true);
+//			return true;
+//		}
+//		this.addShortPrefix(mp);
+//		
+//		boolean refinement = startPrefix(dt, mp, dt.getOracle());
+//		return refinement;
+//	}
+	
+	private boolean startPrefix(DT dt, MappedPrefix mp, TreeOracle oracle) {
+		boolean refinement = false;
+		boolean input = isInputComponent();
+		for (ParameterizedSymbol ps : dt.getInputs()) {
+			if (dt.getIoMode() && (input ^ isInput(ps)))
+				continue;
+			
+			SymbolicDecisionTree[] sdtsP = this.getSDTsForInitialSymbol(mp, ps);
+			Branching prefixBranching = oracle.getInitialBranching(mp.getPrefix(), ps, mp.getParsInVars(), sdtsP);
+			
+			SymbolicDecisionTree[] sdtsAS = this.getSDTsForInitialSymbol(this.getPrimePrefix(), ps);
+			Branching accessBranching = oracle.getInitialBranching(getAccessSequence(), ps, this.access.getParsInVars(), sdtsAS);
+			
+			assert prefixBranching.getBranches().size() == accessBranching.getBranches().size();
+			
+			Iterator<Word<PSymbolInstance>> itB = prefixBranching.getBranches().keySet().iterator();
+			Iterator<Word<PSymbolInstance>> itA = accessBranching.getBranches().keySet().iterator();
+			
+			while (itB.hasNext()) {
+				assert itA.hasNext();
+				Word<PSymbolInstance> p = itB.next();
+				Word<PSymbolInstance> a = itA.next();
+				DTLeaf leaf = dt.sift(p, true);
+				if (!dt.getLeaf(a).equals(leaf))
+					refinement = true;
+			}
+//			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
+//				dt.sift(prefix, true);
+//			}
+		}
+		return refinement;
+	}
+	
+	void start(DT dt, TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : inputs) {
 			if (ioMode && (input ^ isInput(ps))) {
@@ -213,26 +262,12 @@ public class DTLeaf extends DTNode implements LocationComponent {
 			SymbolicDecisionTree[] sdts = this.getSDTsForInitialSymbol(ps);
 			Branching b = oracle.getInitialBranching(getAccessSequence(), ps, access.getParsInVars(), sdts);
 			branching.put(ps, b);
-				
+			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
+				dt.sift(prefix, true);
+			}
 		}
 	}
 
-//    boolean input = isInputComponent();        
-//    for (ParameterizedSymbol ps : inputs) {
-//        
-//        if (ioMode && (input ^ isInput(ps))) {
-//            continue;
-//        }
-//        
-//        SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
-//        Branching b = oracle.getInitialBranching(
-//                getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
-//
-//        branching.put(ps, b);
-//        for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
-//            obs.addPrefix(prefix);
-//        }
-//    }
 	boolean updateBranching(TreeOracle oracle, DiscriminationTree dt) {
 		boolean ret = true;
 		for (ParameterizedSymbol p : branching.keySet()) {
@@ -260,23 +295,25 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	}
 	
 	private SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol p) {
+		return getSDTsForInitialSymbol(this.getPrimePrefix(), p);
+//		List<SymbolicDecisionTree> sdts = new ArrayList<>();
+//		for (Entry<SymbolicSuffix, TreeQueryResult> e : this.access.getTQRs().entrySet()) {
+//			Word<ParameterizedSymbol> acts = e.getKey().getActions();
+//			if (acts.length() > 0 && acts.firstSymbol().equals(p)) {
+//				sdts.add(makeConsistent(e.getValue().getSdt(), e.getValue().getPiv(), this.getPrimePrefix().getParsInVars()));
+//			}
+//		}
+//		return sdts.toArray(new SymbolicDecisionTree[]{});
+	}
+	
+	private SymbolicDecisionTree[] getSDTsForInitialSymbol(MappedPrefix mp, ParameterizedSymbol p) {
 		List<SymbolicDecisionTree> sdts = new ArrayList<>();
-		for (Entry<SymbolicSuffix, TreeQueryResult> e : this.access.getTQRs().entrySet()) {
+		for (Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
 			Word<ParameterizedSymbol> acts = e.getKey().getActions();
 			if (acts.length() > 0 && acts.firstSymbol().equals(p)) {
-//				sdts.add(e.getValue().getSdt().relabel(access.getParsInVars()));
-				sdts.add(makeConsistent(e.getValue().getSdt(), e.getValue().getPiv(), this.getPrimePrefix().getParsInVars()));
+				sdts.add(makeConsistent(e.getValue().getSdt(), e.getValue().getPiv(), mp.getParsInVars()));
 			}
 		}
-//		DTInnerNode parent = this.parent;
-//		DTBranch b = getParentBranch();
-//		do {
-//			Word<ParameterizedSymbol> acts = parent.getSuffix().getActions();
-//			if (acts.length() > 0 && acts.firstSymbol().equals(p))
-//				sdts.add(b.getSDT().relabel(this.getPrimePrefix().getParsInVars()));
-//			b = parent.getParentBranch();
-//			parent = (DTInnerNode)parent.getParent();
-//		} while (parent != null);
 		return sdts.toArray(new SymbolicDecisionTree[]{});
 	}
 	

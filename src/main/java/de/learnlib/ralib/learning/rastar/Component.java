@@ -249,7 +249,7 @@ public class Component implements LocationComponent {
         return this.otherRows.get(r);
     }
     
-    Row getPrimeRow() {
+    public Row getPrimeRow() {
         return this.primeRow;
     }
     
