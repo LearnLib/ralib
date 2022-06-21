@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.learning.rastar;
+package de.learnlib.ralib.learning;
 
 import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
+import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -52,7 +51,7 @@ public class CounterexampleAnalysis {
 
     private final SDTLogicOracle sdtOracle;
 
-    private final Map<Word<PSymbolInstance>, Component> components;
+    private final Map<Word<PSymbolInstance>, LocationComponent> components;
     
     private final Constants consts;
     
@@ -60,9 +59,9 @@ public class CounterexampleAnalysis {
 
     private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
     
-    CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
+    public CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle, 
             Hypothesis hypothesis, SDTLogicOracle sdtOracle, 
-            Map<Word<PSymbolInstance>, Component> components, Constants consts) {
+            Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
         
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
@@ -72,7 +71,7 @@ public class CounterexampleAnalysis {
         this.consts = consts;
     }
     
-    CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
+    public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
         
         int idx = binarySearch(ce);
         //int idx = linearBackWardsSearch(ce);
@@ -122,7 +121,7 @@ public class CounterexampleAnalysis {
 //        System.out.println("SDT SYS: " + resSul.getSdt());        
 //        System.out.println("------------------------------------------------------");
         
-        Component c = components.get(location);
+        LocationComponent c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
         TransitionGuard g = c.getBranching(act).getBranches().get(transition);
         
@@ -137,7 +136,7 @@ public class CounterexampleAnalysis {
         
         // PIV pivSul = new PIV(location, resSul.getParsInVars());
         PIV pivSul = resSul.getPiv();
-        PIV pivHyp = c.getPrimeRow().getParsInVars();
+        PIV pivHyp = c.getPrimePrefix().getParsInVars();
         boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());                
         boolean hypRefinesTransition = 
                 hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
@@ -153,7 +152,7 @@ public class CounterexampleAnalysis {
             ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL) {
         
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
-        Component c = components.get(prefix);
+        LocationComponent c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
         
 //        System.out.println("Branching Hyp:");
@@ -168,7 +167,7 @@ public class CounterexampleAnalysis {
         for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
             for (TransitionGuard guardSul : branchSul.getBranches().values()) {
-                if (sdtOracle.doesRefine(guardHyp, c.getPrimeRow().getParsInVars(), 
+                if (sdtOracle.doesRefine(guardHyp, c.getPrimePrefix().getParsInVars(), 
                         guardSul, pivSUL)) {
                     refines = true;
                     break;

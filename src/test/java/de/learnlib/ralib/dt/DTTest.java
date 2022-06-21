@@ -303,7 +303,7 @@ public class DTTest {
 
 	      DT dt = buildIncompleteTree(mto, true);
 	      for (DTLeaf l : dt.getLeaves()) {
-	    	  l.start(mto, false, I_PUSH, I_POP);
+	    	  l.start(dt, mto, false, I_PUSH, I_POP);
 	    	  l.updateBranching(mto, dt);
 	      }
 	      
@@ -399,14 +399,14 @@ public class DTTest {
 	      // test hypothesis construction from DT
 	      dt = buildIncompleteTree(mto, false);
 	      for (DTLeaf l : dt.getLeaves()) {
-	    	  l.start(mto, false, I_PUSH, I_POP);
+	    	  l.start(dt, mto, false, I_PUSH, I_POP);
 	    	  l.updateBranching(mto, dt);
 	      }
 	      dt.split(prePushPush, suffix, dt.getLeaf(prePushPush));
 	      dt.getLeaf(prePush).checkVariableConsistency(dt, mto, consts);
 	      dt.sift(prePushPushPopNeq, true);
 	      dt.sift(prePushPushPush, true);
-	      AutomatonBuilder ab = new AutomatonBuilder(dt.collectComponents(), consts);
+	      AutomatonBuilder ab = new AutomatonBuilder(dt.getComponents(), consts);
 	      Hypothesis hyp = ab.toRegisterAutomaton();
 //	      System.out.println(hyp.toString());
 	      

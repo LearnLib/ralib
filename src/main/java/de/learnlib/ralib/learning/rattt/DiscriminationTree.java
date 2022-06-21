@@ -1,6 +1,9 @@
 package de.learnlib.ralib.learning.rattt;
 
+import java.util.Map;
+
 import de.learnlib.ralib.dt.DTLeaf;
+import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -32,4 +35,6 @@ public interface DiscriminationTree {
 	 * @param oracle
 	 */
 	public void split(Word<PSymbolInstance> prefx, SymbolicSuffix suffix, DTLeaf leaf);
+	
+	public Map<Word<PSymbolInstance>, LocationComponent> getComponents();
 }

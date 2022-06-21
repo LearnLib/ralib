@@ -43,7 +43,7 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-class Row implements PrefixContainer {
+public class Row implements PrefixContainer {
 
     private final Word<PSymbolInstance> prefix;
 
