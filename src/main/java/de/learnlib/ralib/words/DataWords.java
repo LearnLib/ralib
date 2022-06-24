@@ -164,6 +164,34 @@ public final class DataWords {
     }
 
     /**
+     * instantiates a data word from a sequence of actions and
+     * a valuation.
+     *
+     * @param actions
+     * @param dataValues
+     * @return
+     */
+    public static Word<PSymbolInstance> instantiate(
+            Word<ParameterizedSymbol> actions, DataValue[] dataValues) {
+
+        PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
+        int idx = 0;
+        int pid = 1;
+        for (ParameterizedSymbol ps : actions) {
+            DataValue[] pvalues = new DataValue[ps.getArity()];
+            for (int i = 0; i < ps.getArity(); i++) {
+                pvalues[i] = dataValues[pid++ -1];
+                //log.log(Level.FINEST,pvalues[i].toString());
+            }
+            symbols[idx++] = new PSymbolInstance(ps, pvalues);
+        }
+        for (PSymbolInstance p : symbols) {
+            //log.log(Level.FINEST,p.toString());
+        }
+        return Word.fromSymbols(symbols);
+    }
+
+    /**
      * returns the number of data values in a sequence of actions.
      * 
      * @param word
