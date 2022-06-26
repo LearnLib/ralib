@@ -62,6 +62,8 @@ public class Essentializer<T> {
             // or can we break up the rest?
             if (indices.peekLast() > index) {
                 Integer[] sublist = subListFrom(indices, index);
+                // TODO: special case implementation for equalities
+                // TODO: use theory / sdt construction instead
                 for (int c=0; c<(1<<sublist.length)-1; c++) {
                     for (int i=0; i<sublist.length; i++) {
                         vals[sublist[i]] = (c & (1<<i)) == 0 ? fresh : v;
