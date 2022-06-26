@@ -130,7 +130,7 @@ public class RaStar {
         log.logEvent("adding counterexample: " + ce);
         counterexamples.add(ce);
     }
-    
+
     private boolean analyzeCounterExample() {
         log.logPhase("Analyzing Counterexample");        
         if (counterexamples.isEmpty()) {
@@ -172,5 +172,11 @@ public class RaStar {
         }
         return ab.toRegisterAutomaton();   
     }
-    
+
+    // TODO: this should not be a public method permanently!
+    public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
+        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+        components.putAll(obs.getComponents());
+        return components;
+    }
 }
