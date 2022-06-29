@@ -1,7 +1,7 @@
 package de.learnlib.ralib.dt;
 
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.learnlib.ralib.data.PIV;
@@ -12,7 +12,7 @@ public class PrefixSet {
 	private Set<MappedPrefix> prefixes;
 	
 	public PrefixSet() {
-		prefixes = new HashSet<MappedPrefix>();
+		prefixes = new LinkedHashSet<MappedPrefix>();
 	}
 	
 	public void add(MappedPrefix p) {
