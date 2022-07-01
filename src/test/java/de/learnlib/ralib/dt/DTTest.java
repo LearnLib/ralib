@@ -85,7 +85,7 @@ public class DTTest {
 		nodePush.addBranch(brPush);
 		nodePush.addBranch(brPushPush);
 		
-		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
+		return new DT(nodeEps, oracle, false, new Constants(), I_PUSH, I_POP);
 	}
 	
 	private DT buildFullTreeWithoutEpsilon(TreeOracle oracle) {
@@ -136,7 +136,7 @@ public class DTTest {
 		nodePush.addBranch(brPush);
 		nodePush.addBranch(brPushPush);
 		
-		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
+		return new DT(nodeEps, oracle, false, new Constants(), I_PUSH, I_POP);
 
 	}
 	
@@ -214,7 +214,7 @@ public class DTTest {
 		nodePop.addBranch(brEps);
 		nodePop.addBranch(brPush);
 		
-		return new DT(nodeEps, oracle, false, I_PUSH, I_POP);
+		return new DT(nodeEps, oracle, false, new Constants(), I_PUSH, I_POP);
 	}
 	
 	@Test
