@@ -33,15 +33,18 @@ public class Essentializer<T> {
 
     private final EqualityTheory<T> theory;
 
-    private final DataWordOracle oracle;
+    private final DataWordOracle sulOracle;
+    private final DataWordOracle hypOracle;
 
-    public Essentializer(EqualityTheory<T> theory, DataWordOracle oracle) {
+    public Essentializer(EqualityTheory<T> theory, DataWordOracle sulOracle, DataWordOracle hypOracle) {
         this.theory = theory;
-        this.oracle = oracle;
+        this.sulOracle = sulOracle;
+        this.hypOracle = hypOracle;
     }
 
     public Word<PSymbolInstance> essentialEq(Word<PSymbolInstance> in) {
-        final boolean refOut = oracle.answerQuery(in);
+        final boolean refOutSul = sulOracle.answerQuery(in);
+        final boolean refOutHyp = hypOracle.answerQuery(in);
         final Word<ParameterizedSymbol> acts = DataWords.actsOf(in);
         DataValue[] vals = DataWords.valsOf(in);
 
@@ -55,7 +58,9 @@ public class Essentializer<T> {
             // can we make index unique
             DataValue<T> fresh = theory.getFreshValue(Arrays.asList(vals));
             vals[index] = fresh;
-            if(refOut == oracle.answerQuery(DataWords.instantiate(acts, vals))) {
+            Word<PSymbolInstance> instantiated = DataWords.instantiate(acts, vals);
+            if(refOutSul == sulOracle.answerQuery(instantiated) &&
+               refOutHyp == hypOracle.answerQuery(instantiated)) {
                 continue;
             }
             // is it the last of its kind?
@@ -68,7 +73,9 @@ public class Essentializer<T> {
                     for (int i=0; i<sublist.length; i++) {
                         vals[sublist[i]] = (c & (1<<i)) == 0 ? fresh : v;
                     }
-                    if (refOut == oracle.answerQuery(DataWords.instantiate(acts, vals))) {
+                    instantiated = DataWords.instantiate(acts, vals);
+                    if (refOutSul == sulOracle.answerQuery(instantiated) &&
+                    	refOutHyp == hypOracle.answerQuery(instantiated)) {
                         continue IDX;
                     }
                 }
