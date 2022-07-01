@@ -10,7 +10,6 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTLeaf;
-import de.learnlib.ralib.dt.MappedPrefix;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -18,6 +17,7 @@ import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -56,7 +56,7 @@ public class RaTTT {
             ParameterizedSymbol ... inputs) {
     	
     	this.ioMode = ioMode;
-    	this.dt = new DT(oracle, ioMode, inputs);
+    	this.dt = new DT(oracle, ioMode, consts, inputs);
     	this.consts = consts;
     	this.sulOracle = oracle;
     	this.sdtLogicOracle = sdtLogicOracle;
@@ -89,7 +89,8 @@ public class RaTTT {
 
             //System.out.println(obs.toString());
             
-        	dt.checkVariableConsistency(consts);
+        	dt.checkVariableConsistency();
+        	
             Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             components.putAll(dt.getComponents());
             AutomatonBuilder ab = new AutomatonBuilder(components, consts);            
@@ -136,11 +137,27 @@ public class RaTTT {
         if (leaf == null) {
         	leaf = dt.sift(prefix, true);
         }
-        leaf.addShortPrefix(leaf.getPrefix(prefix));
-        dt.split(prefix, res.getSuffix(), leaf);
+        Word<PSymbolInstance> word = ce.getInput();
+        if (isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length()))) {
+        	dt.addSuffix(res.getSuffix(), leaf);
+        }
+        else {
+        	leaf.addShortPrefix(leaf.getPrefix(prefix));
+        	dt.split(prefix, res.getSuffix(), leaf);
+        }
         return true;
     }
 
+    private boolean isGuardRefinement(DTLeaf leaf, Word<PSymbolInstance> prefix, Word<PSymbolInstance> extendedPrefix) {
+    	ParameterizedSymbol ps = extendedPrefix.getSymbol(extendedPrefix.length()-1).getBaseSymbol();
+    	Branching b = leaf.getBranching(ps);
+    	for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+    		if (p.equals(extendedPrefix))
+    			return false;
+    	}
+    	return true;
+    }
+    
     public Hypothesis getHypothesis() {
     	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
     	components.putAll(dt.getComponents());
@@ -151,3 +168,4 @@ public class RaTTT {
         return ab.toRegisterAutomaton();   
     }
 }
+

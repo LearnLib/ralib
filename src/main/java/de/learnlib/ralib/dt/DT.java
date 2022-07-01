@@ -30,6 +30,7 @@ public class DT implements DiscriminationTree {
 	private final ParameterizedSymbol[] inputs;
 	private TreeOracle oracle;
 	private boolean ioMode;
+	private final Constants consts;
 	
 //	public DT(ParameterizedSymbol ... inputs) {
 //		Word<PSymbolInstance> epsilon = Word.epsilon();
@@ -38,10 +39,11 @@ public class DT implements DiscriminationTree {
 //		this.inputs = inputs;
 //	}
 	
-	public DT(TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
+	public DT(TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol ... inputs) {
 		this.oracle = oracle;
 		this.ioMode = ioMode;
 		this.inputs = inputs;
+		this.consts = consts;
 		
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -56,11 +58,12 @@ public class DT implements DiscriminationTree {
 //		leaf.start(this, oracle, ioMode, inputs);
 	}
 	
-	public DT(DTInnerNode root, TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
+	public DT(DTInnerNode root, TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol ... inputs) {
 		this.root = root;
 		this.oracle = oracle;
 		this.ioMode = ioMode;
 		this.inputs = inputs;
+		this.consts = consts;
 	}
 	
 	@Override
@@ -158,7 +161,7 @@ public class DT implements DiscriminationTree {
 		node.addBranch(b);
 		
 		// resift all transitions targeting this location
-		resift(leaf, oracle);
+		resift(leaf);
 
 		newLeaf.start(this, oracle, ioMode, inputs);
 		newLeaf.updateBranching(oracle, this);
@@ -167,7 +170,7 @@ public class DT implements DiscriminationTree {
 			leaf.updateBranching(oracle, this);
 	}
 	
-	public void addSuffix(SymbolicSuffix suffix, DTLeaf leaf, TreeOracle oracle) {
+	public void addSuffix(SymbolicSuffix suffix, DTLeaf leaf) {
 		
 		DTBranch branch = leaf.getParentBranch();
 		DTInnerNode node = new DTInnerNode(suffix);
@@ -190,7 +193,7 @@ public class DT implements DiscriminationTree {
 	 * @param leaf
 	 * @param oracle
 	 */
-	protected void resift(DTLeaf leaf, TreeOracle oracle) {
+	private void resift(DTLeaf leaf) {
 		// Potential optimization:
 		// can keep TQRs up to the parent, as they should still be the same
 		
@@ -206,19 +209,19 @@ public class DT implements DiscriminationTree {
 		}
 	}
 	
-	public boolean checkVariableConsistency(Constants consts) {
-		return checkConsistency(root, consts);
+	public boolean checkVariableConsistency() {
+		return checkConsistency(this.root);
 	}
 	
-	private boolean checkConsistency(DTNode node, Constants consts) {
+	private boolean checkConsistency(DTNode node) {
 		if (node.isLeaf()) {
 			DTLeaf leaf = (DTLeaf)node;
-			return leaf.checkVariableConsistency(this, oracle, consts);
+			return leaf.checkVariableConsistency(this, this.oracle, this.consts);
 		}
 		boolean ret = true;
 		DTInnerNode inner = (DTInnerNode)node;
 		for (DTBranch b : inner.getBranches()) {
-			ret = ret && checkConsistency(b.getChild(), consts);
+			ret = ret && checkConsistency(b.getChild());
 		}
 		return ret;
 	}

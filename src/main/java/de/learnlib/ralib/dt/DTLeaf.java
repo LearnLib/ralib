@@ -357,7 +357,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 				SymbolicSuffix newSuffix = new SymbolicSuffix(
 						mp.getPrefix(), suffix, consts);
 				
-				dt.addSuffix(newSuffix, dt.getLeaf(prefixMapped.getPrefix()), oracle);
+				dt.addSuffix(newSuffix, dt.getLeaf(prefixMapped.getPrefix()));
 				return false;
 			}
 		}
