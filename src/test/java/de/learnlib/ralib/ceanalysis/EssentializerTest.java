@@ -49,7 +49,7 @@ public class EssentializerTest {
             }
         };
 
-        Essentializer e = new Essentializer(theory, oracle);
+        Essentializer e = new Essentializer(theory, oracle, oracle);
 
         DataValue dv1 = new DataValue<Integer>(_t, 1);
         DataValue dv2 = new DataValue<Integer>(_t, 2);
