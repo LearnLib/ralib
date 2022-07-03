@@ -161,11 +161,19 @@ public class RaTTT {
     public Hypothesis getHypothesis() {
     	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
     	components.putAll(dt.getComponents());
-        AutomatonBuilder ab = new AutomatonBuilder(components, consts);
+        AutomatonBuilder ab = new AutomatonBuilder(components, consts, this.dt);
         if (ioMode) {
             ab = new IOAutomatonBuilder(components, consts);
         }
         return ab.toRegisterAutomaton();   
+    }
+    
+    public DT getDT() {
+    	return this.dt;
+    }
+    
+    public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
+    	return dt.getComponents();
     }
 }
 

@@ -24,8 +24,11 @@ import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import net.automatalib.words.Word;
 
 /**
@@ -56,6 +59,12 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         RALocation loc = getLocation(word);
         return accessSequences.get(loc);
     }
+    
+    public Set<Word<PSymbolInstance>> possibleAccessSequences(Word<PSymbolInstance> word) {
+    	Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
+    	ret.add(transformAccessSequence(word));
+    	return ret;
+    }
 
     @Override
     public boolean isAccessSequence(Word<PSymbolInstance> word) {
@@ -69,5 +78,10 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);        
     }
-    
+
+//    public Set<Word<PSymbolInstance>> possibleTransitionSequences(Word<PSymbolInstance> word) {
+//    	Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
+//    	ret.add(transformTransitionSequence(word));
+//    	return ret;
+//    }
 }

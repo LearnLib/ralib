@@ -22,8 +22,10 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rattt.RaTTT;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -44,13 +46,16 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 
 /**
  *
  * @author falk
  */
 public class PrefixFinderTest extends RaLibTestSuite {
-    
+	
     @Test
     public void prefixFinderTest() {
         
@@ -97,4 +102,54 @@ public class PrefixFinderTest extends RaLibTestSuite {
         Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce);
         System.out.println(prefix);
     }
+    
+	@Test
+	public void prefixFinderMultipleAccessSequencesTest() {
+		Constants consts = new Constants();
+		RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
+		DataWordOracle dwOracle = new SimulatorOracle(sul);
+		
+		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
+		
+        ConstraintSolver solver = new SimpleConstraintSolver();
+        
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                dwOracle, teachers, new Constants(), solver);
+        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+                        new Constants(), solver);
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo,
+        		consts, I_PUSH, I_POP);
+        
+        rattt.learn();
+        final Hypothesis hyp = rattt.getHypothesis();
+        logger.log(Level.FINE, "HYP1: {0}", hyp);
+        System.out.println(hyp);
+        
+        Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+        DTLeaf leaf = rattt.getDT().getLeaf(shortPrefix);
+        leaf.addShortPrefix(leaf.getPrefix(shortPrefix));
+        
+        Word<PSymbolInstance> ce = Word.fromSymbols(
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+
+        PrefixFinder pf = new PrefixFinder(
+                mto,
+                hypFactory.createTreeOracle(hyp), hyp,
+                slo,
+                rattt.getComponents(),
+                consts
+        );
+
+        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce);
+        System.out.println(prefix);
+
+	}
+
 }

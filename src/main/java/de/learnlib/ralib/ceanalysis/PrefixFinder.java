@@ -14,7 +14,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class PrefixFinder {
@@ -60,65 +62,71 @@ public class PrefixFinder {
         System.out.println(idx + "  " + prefix);
 
         //TODO: this can be multiple!
-        Word<PSymbolInstance> location = hypothesis.transformAccessSequence(prefix);
-        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-                ce.prefix(idx+1));
+        Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(prefix);
+        Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
 
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
 
-        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
-        TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
-
-        log.log(Level.FINEST,"------------------------------------------------------");
-        log.log(Level.FINEST,"Computing index: " + idx);
-        log.log(Level.FINEST,"Prefix: " + prefix);
-        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
-        log.log(Level.FINEST,"Location: " + location);
-        log.log(Level.FINEST,"Transition: " + transition);
-        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
-        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
-        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
-        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
-        log.log(Level.FINEST,"------------------------------------------------------");
-
-        System.out.println("------------------------------------------------------");
-        System.out.println("Computing index: " + idx);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("SymSuffix: " + symSuffix);
-        System.out.println("Location: " + location);
-        System.out.println("Transition: " + transition);
-        System.out.println("PIV HYP: " + resHyp.getPiv());
-        System.out.println("SDT HYP: " + resHyp.getSdt());
-        System.out.println("PIV SYS: " + resSul.getPiv());
-        System.out.println("SDT SYS: " + resSul.getSdt());
-        System.out.println("------------------------------------------------------");
-
-        LocationComponent c = components.get(location);
-        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
-
-        boolean hasCE = sdtOracle.hasCounterexample(location,
-                resHyp.getSdt(), resHyp.getPiv(),
-                resSul.getSdt(), resSul.getPiv(),
-                new TransitionGuard(), transition);
-
-        System.out.println("CE: " + hasCE);
-
-        if (hasCE) {
-            candidates[idx] = candidate(location, act, resSul.getSdt(), resSul.getPiv(), transition);
-            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
+        for(Word<PSymbolInstance> location : locations) {
+	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
+	                ce.prefix(idx+1));
+	
+	        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
+	        TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
+	
+	        log.log(Level.FINEST,"------------------------------------------------------");
+	        log.log(Level.FINEST,"Computing index: " + idx);
+	        log.log(Level.FINEST,"Prefix: " + prefix);
+	        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
+	        log.log(Level.FINEST,"Location: " + location);
+	        log.log(Level.FINEST,"Transition: " + transition);
+	        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
+	        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
+	        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
+	        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
+	        log.log(Level.FINEST,"------------------------------------------------------");
+	
+	        System.out.println("------------------------------------------------------");
+	        System.out.println("Computing index: " + idx);
+	        System.out.println("Prefix: " + prefix);
+	        System.out.println("SymSuffix: " + symSuffix);
+	        System.out.println("Location: " + location);
+	        System.out.println("Transition: " + transition);
+	        System.out.println("PIV HYP: " + resHyp.getPiv());
+	        System.out.println("SDT HYP: " + resHyp.getSdt());
+	        System.out.println("PIV SYS: " + resSul.getPiv());
+	        System.out.println("SDT SYS: " + resSul.getSdt());
+	        System.out.println("------------------------------------------------------");
+	
+	        LocationComponent c = components.get(primeLocation);
+	        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
+	        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+	
+	        boolean hasCE = sdtOracle.hasCounterexample(location,
+	                resHyp.getSdt(), resHyp.getPiv(),
+	                resSul.getSdt(), resSul.getPiv(),
+	                new TransitionGuard(), transition);
+	
+	        System.out.println("CE: " + hasCE);
+	
+	        if (hasCE) {
+	            candidates[idx] = candidate(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
+	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
+	            return true;
+	        }
+	
+//	        return hasCE;
         }
-
-        return hasCE;
+        return false;
     }
 
     private Word<PSymbolInstance> candidate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL,
-            Word<PSymbolInstance> transition) {
+            Word<PSymbolInstance> transition, LocationComponent c) {
 
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
-        LocationComponent c = components.get(prefix);
+//        LocationComponent c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
 
         Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
