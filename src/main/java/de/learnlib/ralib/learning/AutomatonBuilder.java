@@ -29,6 +29,8 @@ import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.learning.rastar.RaStar;
 //import de.learnlib.ralib.learning.rastar.Row;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.dt.DT;
+import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -60,6 +62,12 @@ public class AutomatonBuilder {
         this.consts = consts;
         this.components = components;
         this.automaton = new Hypothesis(consts);
+    }
+    
+    public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts, DT dt) {
+    	this.consts = consts;
+    	this.components = components;
+    	this.automaton = new DTHyp(dt, consts);
     }
 
     public Hypothesis toRegisterAutomaton() {
