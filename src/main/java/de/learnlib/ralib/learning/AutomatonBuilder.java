@@ -67,7 +67,7 @@ public class AutomatonBuilder {
     public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts, DT dt) {
     	this.consts = consts;
     	this.components = components;
-    	this.automaton = new DTHyp(dt, consts);
+    	this.automaton = new DTHyp(consts, dt);
     }
 
     public Hypothesis toRegisterAutomaton() {
