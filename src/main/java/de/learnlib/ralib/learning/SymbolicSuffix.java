@@ -16,6 +16,12 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -24,11 +30,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
 import net.automatalib.words.Word;
 
 /**
@@ -188,7 +189,14 @@ public class SymbolicSuffix {
     }
     
     
-    public SuffixValue getDataValue(int i) {
+    SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
+			Set<SuffixValue> freeValues) {
+    	this.actions = actions;
+    	this.dataValues = dataValues;
+    	this.freeValues = freeValues;
+	}
+
+	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
     
@@ -198,6 +206,24 @@ public class SymbolicSuffix {
 
     public Word<ParameterizedSymbol> getActions() {
         return actions;
+    }
+    
+    public SymbolicSuffix concat(SymbolicSuffix other) {
+    	Word<ParameterizedSymbol> actions = this.getActions().concat(other.actions);
+    	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>(this.dataValues);
+    	Set<SuffixValue> freeValues = new LinkedHashSet<>(this.getFreeValues());
+    	int offset = this.dataValues.size();
+    	
+    	for (Map.Entry<Integer, SuffixValue> entry : other.dataValues.entrySet()) {
+    		SuffixValue sv = new SuffixValue(entry.getValue().getType(), entry.getValue().getId() + offset);
+    		dataValues.put(entry.getKey() + offset, sv);
+    		if (other.getFreeValues().contains(entry.getValue())) {
+    			freeValues.add(sv);
+    		}
+    	}
+    	
+    	SymbolicSuffix concatenatedSuffix = new SymbolicSuffix(actions, dataValues, freeValues);
+    	return concatenatedSuffix;
     }
     
     @Override
