@@ -131,17 +131,13 @@ public class RaTTT {
         //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
         
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
-//        obs.addSuffix(res.getSuffix());
         Word<PSymbolInstance> prefix = res.getPrefix();
         DTLeaf leaf = dt.getLeaf(prefix);
-        if (leaf == null) {
-        	leaf = dt.sift(prefix, true);
-        }
-        Word<PSymbolInstance> word = ce.getInput();
-        if (isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length()))) {
+        if (leaf != null && isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length())))
         	dt.addSuffix(res.getSuffix(), leaf);
-        }
         else {
+        	if (leaf == null)
+        		leaf = dt.sift(prefix, true);
         	leaf.addShortPrefix(leaf.getPrefix(prefix));
         	dt.split(prefix, res.getSuffix(), leaf);
         }
