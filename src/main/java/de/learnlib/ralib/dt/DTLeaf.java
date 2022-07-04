@@ -219,6 +219,15 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //		return refinement;
 //	}
 	
+	public boolean elevatePrefix(DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
+		MappedPrefix mp = otherPrefixes.get(prefix);
+		assert mp!=null;
+		boolean removed = otherPrefixes.remove(mp);
+		addShortPrefix(mp);
+		
+		return startPrefix(dt, mp, oracle);
+	}
+	
 	private boolean startPrefix(DT dt, MappedPrefix mp, TreeOracle oracle) {
 		boolean refinement = false;
 		boolean input = isInputComponent();

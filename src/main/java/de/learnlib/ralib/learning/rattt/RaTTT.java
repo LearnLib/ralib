@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning.rattt;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -50,6 +52,10 @@ public class RaTTT {
     private final boolean ioMode;
     
     private static final LearnLogger log = LearnLogger.getLogger(RaTTT.class);
+    
+    private final boolean useOldAnalyzer;
+    
+    private final Deque<Word<PSymbolInstance>> shortPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
 
     public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
@@ -61,6 +67,22 @@ public class RaTTT {
     	this.sulOracle = oracle;
     	this.sdtLogicOracle = sdtLogicOracle;
     	this.hypOracleFactory = hypOracleFactory;
+    	this.useOldAnalyzer = false;
+    	
+    	this.dt.initialize();
+    }
+    
+    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
+            SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode, boolean useOldAnalyzer,
+            ParameterizedSymbol ... inputs) {
+    	
+    	this.ioMode = ioMode;
+    	this.dt = new DT(oracle, ioMode, consts, inputs);
+    	this.consts = consts;
+    	this.sulOracle = oracle;
+    	this.sdtLogicOracle = sdtLogicOracle;
+    	this.hypOracleFactory = hypOracleFactory;
+    	this.useOldAnalyzer = useOldAnalyzer;
     	
     	this.dt.initialize();
     }
@@ -68,7 +90,7 @@ public class RaTTT {
     public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
             SDTLogicOracle sdtLogicOracle, Constants consts,
             ParameterizedSymbol ... inputs) {
-    	this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
+    	this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
     }
     
     public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
@@ -105,6 +127,59 @@ public class RaTTT {
     }
 
     private boolean analyzeCounterExample() {
+    	if (useOldAnalyzer)
+    		return analyzeCounterExampleOld();
+        log.logPhase("Analyzing Counterexample");        
+        if (counterexamples.isEmpty()) {
+            return false;
+        }
+        
+        TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
+        
+        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+        components.putAll(dt.getComponents());
+        PrefixFinder pf = new PrefixFinder(
+                sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+        
+        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();    
+        
+        // check if ce still is a counterexample ...
+        boolean hypce = hyp.accepts(ce.getInput());
+        boolean sulce = ce.getOutput();
+        if (hypce == sulce) {
+            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);           
+            counterexamples.poll();
+            return false;
+        }
+        
+        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce.getInput());
+        DTLeaf leaf = dt.getLeaf(prefix);
+        
+        // guard refinement
+        if (leaf == null) {
+        	if (prefix.length() > 0) {
+        		Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
+        		DTLeaf subLeaf = dt.getLeaf(sub);
+        		assert subLeaf != null;
+        		
+        		if (!shortPrefixes.isEmpty()) {
+        			// if we have guard refinement, and stack is not empty, subword of prefix must be latest elevated prefix
+        			assert shortPrefixes.peek().equals(sub);
+        			shortPrefixes.pop();
+        			
+        			assert subLeaf.getShortPrefixes().contains(sub);	// sub should be a short prefix
+        			
+        			// sub is a short prefix, thus a new location
+        			// TODO: concatenate symbolic suffix of subtree root and suffix of sub, add as suffix to sub leaf
+        		}
+        	}
+        }
+        // TODO: new location case
+        
+    	return true;
+    }
+    
+    private boolean analyzeCounterExampleOld() {
         log.logPhase("Analyzing Counterexample");        
         if (counterexamples.isEmpty()) {
             return false;
@@ -130,7 +205,7 @@ public class RaTTT {
         
         //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
         
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());        
+        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
         Word<PSymbolInstance> prefix = res.getPrefix();
         DTLeaf leaf = dt.getLeaf(prefix);
         if (leaf != null && isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length())))
