@@ -1,7 +1,9 @@
 package de.learnlib.ralib.dt;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -317,6 +319,31 @@ public class DT implements DiscriminationTree {
 				collectComponents(comp, b.getChild());
 			}
 		}
+	}
+	
+	public DTInnerNode findLCA(DTLeaf l1, DTLeaf l2) {
+		Deque<DTInnerNode> path1 = new ArrayDeque<DTInnerNode>();
+		Deque<DTInnerNode> path2 = new ArrayDeque<DTInnerNode>();
+		
+		DTInnerNode parent = l1.getParent();
+		while(parent != null) {
+			path1.add(parent);
+			parent = parent.getParent();
+		}
+		parent = l2.getParent();
+		while(parent != null) {
+			path1.add(parent);
+			parent = parent.getParent();
+		}
+		
+		DTInnerNode node = path1.pop();
+		path2.pop();
+		while(!path1.isEmpty() && !path2.isEmpty() && 
+			  path1.peek() == path2.peek()) {
+			node = path1.pop();
+			path2.pop();
+		}
+		return node;
 	}
 	
 }

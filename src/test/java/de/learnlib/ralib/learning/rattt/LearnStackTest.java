@@ -54,7 +54,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
                         new Constants(), solver);
         
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, I_PUSH, I_POP);
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, true, I_PUSH, I_POP);
         
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -107,7 +107,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
                         new Constants(), solver);
         
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, I_PUSH, I_POP);
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, true, I_PUSH, I_POP);
         
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();

@@ -56,7 +56,7 @@ public class DTInnerNode extends DTNode {
 		branches.add(new DTBranch(sdt, child));
 	}
 	
-	SymbolicSuffix getSuffix() {
+	public SymbolicSuffix getSuffix() {
 		return suffix;
 	}
 	

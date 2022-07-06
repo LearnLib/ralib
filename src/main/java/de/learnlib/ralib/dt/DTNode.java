@@ -17,7 +17,7 @@ public abstract class DTNode {
 		parentBranch = b;
 	}
 	
-	public DTNode getParent() {
+	public DTInnerNode getParent() {
 		return parent;
 	}
 	

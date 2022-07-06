@@ -161,7 +161,11 @@ public class RaTTT {
         		Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
         		DTLeaf subLeaf = dt.getLeaf(sub);
         		assert subLeaf != null;
-        		
+
+    			SymbolicSuffix suff1 = new SymbolicSuffix(sub, prefix.suffix(1));
+    			SymbolicSuffix suff2 = dt.findLCA(leaf, subLeaf).getSuffix();
+    			SymbolicSuffix suffix = suff1.concat(suff2);
+    			
         		if (!shortPrefixes.isEmpty()) {
         			// if we have guard refinement, and stack is not empty, subword of prefix must be latest elevated prefix
         			assert shortPrefixes.peek().equals(sub);
@@ -169,14 +173,57 @@ public class RaTTT {
         			
         			assert subLeaf.getShortPrefixes().contains(sub);	// sub should be a short prefix
         			
-        			// sub is a short prefix, thus a new location
-        			// TODO: concatenate symbolic suffix of subtree root and suffix of sub, add as suffix to sub leaf
+        			// sub is a short prefix, so it must be a new location
+        			dt.split(sub, suffix, subLeaf);
         		}
+        		else {
+        			dt.addSuffix(suffix, subLeaf); 
+        		}
+        		processShortPrefixes(sub, suffix);
         	}
         }
-        // TODO: new location case
+        // new location
+        else {
+        	Word<PSymbolInstance> refinedTarget = leaf.elevatePrefix(getDT(), prefix, sulOracle);
+        	if (refinedTarget == null) {
+        		shortPrefixes.push(prefix);	// no refinement of dt
+        	}
+        	else {
+        		// elevating and expanding prefix lead to refinement of dt
+        		DTLeaf targetLeaf = dt.getLeaf(refinedTarget);
+        		SymbolicSuffix suff1 = dt.findLCA(leaf, targetLeaf).getSuffix();
+        		SymbolicSuffix suff2 = new SymbolicSuffix(
+        				refinedTarget.prefix(refinedTarget.length()-1),
+        				refinedTarget.suffix(1));
+        		SymbolicSuffix suffix = suff1.concat(suff2);
+        		
+        		dt.split(prefix, suffix, leaf);
+        		
+        		processShortPrefixes(prefix, suffix);
+        	}
+        }
         
     	return true;
+    }
+    
+    private void processShortPrefixes(Word<PSymbolInstance> prevPrefix, SymbolicSuffix prevSuffix) {
+    	while(!shortPrefixes.isEmpty()) {
+    		Word<PSymbolInstance> prefix = shortPrefixes.poll();
+    		
+    		DTLeaf leaf = dt.getLeaf(prefix);
+    		assert leaf != null;
+    		assert leaf.getShortPrefixes().contains(prefix);
+
+    		Word<PSymbolInstance> discriminator = prevPrefix.suffix(1);
+    		assert prevPrefix.equals(prefix.append(discriminator.firstSymbol()));
+    		
+    		SymbolicSuffix suff1 = new SymbolicSuffix(prefix, discriminator);
+    		SymbolicSuffix suffix = suff1.concat(prevSuffix);
+    		
+    		dt.split(prefix, suffix, leaf);
+    		prevPrefix = prefix;
+    		prevSuffix = suffix;
+    	}
     }
     
     private boolean analyzeCounterExampleOld() {
