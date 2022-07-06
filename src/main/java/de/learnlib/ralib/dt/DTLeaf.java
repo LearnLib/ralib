@@ -219,7 +219,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //		return refinement;
 //	}
 	
-	public boolean elevatePrefix(DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
+	public Word<PSymbolInstance> elevatePrefix(DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
 		MappedPrefix mp = otherPrefixes.get(prefix);
 		assert mp!=null;
 		boolean removed = otherPrefixes.remove(mp);
@@ -228,8 +228,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return startPrefix(dt, mp, oracle);
 	}
 	
-	private boolean startPrefix(DT dt, MappedPrefix mp, TreeOracle oracle) {
-		boolean refinement = false;
+	private Word<PSymbolInstance> startPrefix(DT dt, MappedPrefix mp, TreeOracle oracle) {
+		Word<PSymbolInstance> refinedTarget = null;
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : dt.getInputs()) {
 			if (dt.getIoMode() && (input ^ isInput(ps)))
@@ -251,14 +251,15 @@ public class DTLeaf extends DTNode implements LocationComponent {
 				Word<PSymbolInstance> p = itB.next();
 				Word<PSymbolInstance> a = itA.next();
 				DTLeaf leaf = dt.sift(p, true);
-				if (!dt.getLeaf(a).equals(leaf))
-					refinement = true;
+				if (!dt.getLeaf(a).equals(leaf)) {
+					refinedTarget = p;
+				}
 			}
 //			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
 //				dt.sift(prefix, true);
 //			}
 		}
-		return refinement;
+		return refinedTarget;
 	}
 	
 	void start(DT dt, TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
