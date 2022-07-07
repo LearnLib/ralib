@@ -22,12 +22,10 @@ public class MappedPrefix implements PrefixContainer {
 	
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
 		this.prefix = prefix;
-		//memorable = new PIV();
 	}
 	
 	public MappedPrefix(Word<PSymbolInstance> prefix, PIV piv) {
 		this.prefix = prefix;
-		//this.memorable = memorable;
 		updateMemorable(piv);
 	}
 	

@@ -55,7 +55,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		access = new MappedPrefix(p, new PIV());
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
-		//shortPrefixes.add(new MappedPrefix(p, new PIV()));
 	}
 	
 	public DTLeaf(MappedPrefix as) {
@@ -63,7 +62,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		access = as;
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
-		//shortPrefixes.add(as);
 	}
 	
 	public void addPrefix(Word<PSymbolInstance> p) {
@@ -149,12 +147,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	@Override
 	public VarMapping getRemapping(PrefixContainer r) {
 		if (r.getPrefix().equals(this.getAccessSequence()))
-//			return this.access.getParsInVars();
 			return null;
 		PIVRemappingIterator it = new PIVRemappingIterator(
 				otherPrefixes.get(r.getPrefix()).getParsInVars(),
 				this.access.getParsInVars());
-//		return otherPrefixes.get(r.getPrefix()).getParsInVars();
 		return it.next();
 	}
 
@@ -191,8 +187,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	
 	void addTQRs(PIV primePIV, SymbolicSuffix s, TreeOracle oracle) {
 		TreeQueryResult tqr;
-		//TreeQueryResult tqr = oracle.treeQuery(getAccessSequence(), s);
-		//access.addTQR(s, tqr);
 		access.updateMemorable(primePIV);
 		Iterator<MappedPrefix> it = shortPrefixes.iterator();
 		while (it.hasNext()) {
@@ -221,18 +215,18 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return otherPrefixes.get().stream().collect(Collectors.toList());
 	}
 	
-//	public boolean expandPrefix(Word<PSymbolInstance> p, DT dt) {
-//		MappedPrefix mp = this.getPrefix(p);
-//		if (mp == null) {
-//			dt.sift(p, true);
-//			return true;
-//		}
-//		this.addShortPrefix(mp);
-//		
-//		boolean refinement = startPrefix(dt, mp, dt.getOracle());
-//		return refinement;
-//	}
-	
+	/**
+	 * Elevate a prefix from the set of other prefixes to the set of short prefix,
+	 * and checks whether this leads to a refinement.
+	 * The branches of prefix are sifted into the tree, and added to their respective leaves.
+	 * If a branch of prefix leads to another location than the same branch of the access sequence,
+	 * returns the diverging words as a Pair, otherwise returns null.
+	 * 
+	 * @param dt
+	 * @param prefix
+	 * @param oracle
+	 * @return Pair of diverging words, if such a pair of words exists. Otherwise null.
+	 */
 	public Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> elevatePrefix(
 			DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
 		MappedPrefix mp = otherPrefixes.get(prefix);
@@ -274,9 +268,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
 				}
 			}
-//			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
-//				dt.sift(prefix, true);
-//			}
 		}
 		return divergance;
 	}
@@ -343,14 +334,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	
 	private SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol p) {
 		return getSDTsForInitialSymbol(this.getPrimePrefix(), p);
-//		List<SymbolicDecisionTree> sdts = new ArrayList<>();
-//		for (Entry<SymbolicSuffix, TreeQueryResult> e : this.access.getTQRs().entrySet()) {
-//			Word<ParameterizedSymbol> acts = e.getKey().getActions();
-//			if (acts.length() > 0 && acts.firstSymbol().equals(p)) {
-//				sdts.add(makeConsistent(e.getValue().getSdt(), e.getValue().getPiv(), this.getPrimePrefix().getParsInVars()));
-//			}
-//		}
-//		return sdts.toArray(new SymbolicDecisionTree[]{});
 	}
 	
 	private SymbolicDecisionTree[] getSDTsForInitialSymbol(MappedPrefix mp, ParameterizedSymbol p) {
