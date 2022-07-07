@@ -213,7 +213,9 @@ public class DT implements DiscriminationTree {
 	}
 	
 	/**
-	 * check whether sifting a word into the dt leads to a refinement of the dt
+	 * check whether sifting a word into the dt leads to a refinement of the dt,
+	 * i.e whether the location corresponding to word is already in the branching of the source location of word
+	 * 
 	 * @param word
 	 * @return true if sifting word into dt leads to refinement
 	 */
