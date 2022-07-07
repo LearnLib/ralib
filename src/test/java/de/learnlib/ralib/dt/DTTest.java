@@ -193,7 +193,7 @@ public class DTTest {
 		leafEps.addPrefix(new MappedPrefix(prePushPopEq, tqrEps.getPiv()));
 		leafEps.addTQRs(tqrEps.getPiv(), suffEps, oracle, true);
 		leafEps.addTQRs(tqrEps.getPiv(), suffPop, oracle, true);
-		leafPush.addShortPrefix(new MappedPrefix(prePushPush, tqrPushPush.getPiv()));
+		leafPush.addShortPrefix(new ShortPrefix(prePushPush, tqrPushPush.getPiv()));
 		leafPush.addPrefix(prePushPushPop);
 		if (extraPrefs)
 			leafPush.addPrefix(prePushPushPopPush);

@@ -30,6 +30,12 @@ public class MappedPrefix implements PrefixContainer {
 		//this.memorable = memorable;
 		updateMemorable(piv);
 	}
+	
+	MappedPrefix(MappedPrefix mp) {
+		this.prefix = mp.getPrefix();
+		updateMemorable(mp.getParsInVars());
+		tqrs.putAll(mp.getTQRs());
+	}
 
 	void updateMemorable(PIV piv) {
 		for (Entry<Parameter, Register> e : piv.entrySet()) {

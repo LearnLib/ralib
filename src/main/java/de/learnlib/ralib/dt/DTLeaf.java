@@ -69,24 +69,33 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		otherPrefixes.add(p);
 	}
 	
+	void setAccessSequence(MappedPrefix mp) {
+		access = mp;
+	}
+	
 	public void addShortPrefix(Word<PSymbolInstance> prefix, PIV registers) {
 		if (access == null) 
 			access = new MappedPrefix(prefix, registers);
 		else
-			addShortPrefix(new MappedPrefix(prefix, registers));
+			addShortPrefix(new ShortPrefix(prefix, registers));
 	}
-	
+
 	public void addShortPrefix(MappedPrefix prefix) {
 		if (otherPrefixes.contains(prefix))
 			otherPrefixes.remove(prefix);
-		if (access == null)
-			access = prefix;
-		else
-			shortPrefixes.add(prefix);
+		assert access != null;
+		shortPrefixes.add(new ShortPrefix(prefix));
+	}
+	
+	public void addShortPrefix(ShortPrefix prefix) {
+		if (otherPrefixes.contains(prefix.getPrefix()))
+			otherPrefixes.remove(prefix.getPrefix());
+		assert access != null;
+		shortPrefixes.add(prefix);
 	}
 	
 	public boolean removeShortPrefix(MappedPrefix p) {
-		return shortPrefixes.remove(p);
+		return shortPrefixes.removeIf((e) -> {return e.getPrefix().equals(p.getPrefix());});
 	}
 	
 	public boolean removeShortPrefix(Word<PSymbolInstance> p) {
@@ -223,12 +232,14 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		MappedPrefix mp = otherPrefixes.get(prefix);
 		assert mp!=null;
 		boolean removed = otherPrefixes.remove(mp);
-		addShortPrefix(mp);
 		
-		return startPrefix(dt, mp, oracle);
+		ShortPrefix sp = new ShortPrefix(mp);
+		addShortPrefix(sp);
+		
+		return startPrefix(dt, sp, oracle);
 	}
 	
-	private Word<PSymbolInstance> startPrefix(DT dt, MappedPrefix mp, TreeOracle oracle) {
+	private Word<PSymbolInstance> startPrefix(DT dt, ShortPrefix mp, TreeOracle oracle) {
 		Word<PSymbolInstance> refinedTarget = null;
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : dt.getInputs()) {
@@ -237,6 +248,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 			
 			SymbolicDecisionTree[] sdtsP = this.getSDTsForInitialSymbol(mp, ps);
 			Branching prefixBranching = oracle.getInitialBranching(mp.getPrefix(), ps, mp.getParsInVars(), sdtsP);
+			mp.putBranching(ps, prefixBranching);
 			
 			SymbolicDecisionTree[] sdtsAS = this.getSDTsForInitialSymbol(this.getPrimePrefix(), ps);
 			Branching accessBranching = oracle.getInitialBranching(getAccessSequence(), ps, this.access.getParsInVars(), sdtsAS);

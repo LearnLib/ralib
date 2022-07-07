@@ -34,6 +34,8 @@ public class PrefixFinder {
     private final Constants consts;
 
     private Word<PSymbolInstance>[] candidates;
+    
+    private int low = 0;
 
     private static final LearnLogger log = LearnLogger.getLogger(PrefixFinder.class);
 
@@ -70,7 +72,7 @@ public class PrefixFinder {
 
         for(Word<PSymbolInstance> location : locations) {
 	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-	                ce.prefix(idx+1));
+	                ce.prefix(idx+1), location);
 	
 	        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
 	        TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
@@ -167,7 +169,7 @@ public class PrefixFinder {
         //results[0] = IndexResult.HAS_CE_NO_REFINE;
         //results[ce.length()-1] = IndexResult.NO_CE;
 
-        int min = 0;
+        int min = low;
         int max = ce.length() - 1;
         int mid = -1;
 
@@ -203,4 +205,7 @@ public class PrefixFinder {
         return idx;
     }
 
+    public void reset() {
+    	low = 0;
+    }
 }

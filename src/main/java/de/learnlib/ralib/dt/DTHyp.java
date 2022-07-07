@@ -1,11 +1,16 @@
 package de.learnlib.ralib.dt;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
+import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class DTHyp extends Hypothesis {
@@ -30,4 +35,37 @@ public class DTHyp extends Hypothesis {
 		return ret;
 	}
 
+	@Override
+	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word,
+			Word<PSymbolInstance> location) {
+//		Word<PSymbolInstance> location = transformAccessSequence(word);
+//		Word<PSymbolInstance> prefix = word.prefix(word.length()-1);
+		Word<PSymbolInstance> suffix = word.suffix(1);
+		
+		DTLeaf leaf = dt.getLeaf(location);
+		assert leaf != null;
+		
+		if (leaf.getAccessSequence().equals(location) ||
+				!leaf.getShortPrefixes().contains(location))
+			return super.transformTransitionSequence(word);
+		
+		ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
+		
+		List<Transition> tseq = getTransitions(word);
+        Transition last = tseq.get(tseq.size() -1);
+		TransitionGuard transitionGuard = last.getGuard();
+		
+		ShortPrefix sp = (ShortPrefix)leaf.getShortPrefixes().get(location);
+		Branching b = sp.getBranching(ps);
+		for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
+				tseq = getTransitions(p);
+				last = tseq.get(tseq.size()-1);
+				if (last.getGuard() == transitionGuard)
+					return p;
+			}
+		}
+		
+		throw new IllegalStateException("cannot be reached!");
+	}
 }
