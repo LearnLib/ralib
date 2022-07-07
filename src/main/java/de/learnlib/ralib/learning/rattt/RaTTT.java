@@ -219,10 +219,10 @@ public class RaTTT {
         	Word<PSymbolInstance> target = divergance.getValue();
         	DTLeaf targetLeaf = dt.getLeaf(refinedTarget);
         	
-        	SymbolicSuffix suff1 = dt.findLCA(dt.getLeaf(target), targetLeaf).getSuffix();
-        	SymbolicSuffix suff2 = new SymbolicSuffix(
+        	SymbolicSuffix suff1 = new SymbolicSuffix(
         			refinedTarget.prefix(refinedTarget.length()-1),
         			refinedTarget.suffix(1));
+        	SymbolicSuffix suff2 = dt.findLCA(dt.getLeaf(target), targetLeaf).getSuffix();
         	SymbolicSuffix suffix = suff1.concat(suff2);
         		
         	dt.split(prefix, suffix, leaf);
