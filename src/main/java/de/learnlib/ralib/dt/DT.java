@@ -34,13 +34,6 @@ public class DT implements DiscriminationTree {
 	private boolean ioMode;
 	private final Constants consts;
 	
-//	public DT(ParameterizedSymbol ... inputs) {
-//		Word<PSymbolInstance> epsilon = Word.epsilon();
-//		
-//		root = new DTInnerNode(new SymbolicSuffix(epsilon, epsilon));
-//		this.inputs = inputs;
-//	}
-	
 	public DT(TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol ... inputs) {
 		this.oracle = oracle;
 		this.ioMode = ioMode;
@@ -51,13 +44,6 @@ public class DT implements DiscriminationTree {
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
 		
 		root = new DTInnerNode(suffEps);
-//		
-//		TreeQueryResult tqr = oracle.treeQuery(epsilon, suffEps);
-//		DTLeaf leaf = new DTLeaf(epsilon);
-//		leaf.getPrimePrefix().addTQR(suffEps, tqr);
-//		root.addBranch(tqr.getSdt(), leaf);
-//		
-//		leaf.start(this, oracle, ioMode, inputs);
 	}
 	
 	public DT(DTInnerNode root, TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol ... inputs) {
@@ -124,10 +110,8 @@ public class DT implements DiscriminationTree {
 		leaf = (DTLeaf)node;
 		if (add && !leaf.getAccessSequence().equals(prefix)) {
 			if (shortPrefix != null)
-				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.addShortPrefix(shortPrefix);
 			else
-				//leaf.addPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.addPrefix(mp);
 		}
 		return leaf;
@@ -146,7 +130,6 @@ public class DT implements DiscriminationTree {
 		TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
 		MappedPrefix mp = leaf.get(prefix);
 		mp.addTQR(suffix, tqr);
-		//DTLeaf newLeaf = new DTLeaf(new MappedPrefix(prefix, tqr.getPiv()));
 		DTLeaf newLeaf = new DTLeaf(mp);
 		newLeaf.setParent(node);
 		DTBranch newBranch = new DTBranch(tqr.getSdt(), newLeaf);
@@ -166,7 +149,6 @@ public class DT implements DiscriminationTree {
 		// resift all transitions targeting this location
 		resift(leaf);
 
-//		newLeaf.start(this, oracle, ioMode, inputs);
 		newLeaf.start(this, sp.getBranching());
 		newLeaf.updateBranching(oracle, this);
 
@@ -230,6 +212,11 @@ public class DT implements DiscriminationTree {
 		return ret;
 	}
 	
+	/**
+	 * check whether sifting a word into the dt leads to a refinement of the dt
+	 * @param word
+	 * @return true if sifting word into dt leads to refinement
+	 */
 	public boolean isRefinement(Word<PSymbolInstance> word) {
 		Word<PSymbolInstance> prefix = word.prefix(word.length()-1);
 		DTLeaf prefixLeaf = getLeaf(prefix);
@@ -331,6 +318,13 @@ public class DT implements DiscriminationTree {
 		}
 	}
 	
+	/**
+	 * find the lowest common ancestor of two leaves
+	 * 
+	 * @param l1
+	 * @param l2
+	 * @return the lowest common ancestor of l1 and l2
+	 */
 	public DTInnerNode findLCA(DTLeaf l1, DTLeaf l2) {
 		Deque<DTInnerNode> path1 = new ArrayDeque<DTInnerNode>();
 		Deque<DTInnerNode> path2 = new ArrayDeque<DTInnerNode>();

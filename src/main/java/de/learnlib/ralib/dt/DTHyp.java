@@ -38,8 +38,6 @@ public class DTHyp extends Hypothesis {
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word,
 			Word<PSymbolInstance> location) {
-//		Word<PSymbolInstance> location = transformAccessSequence(word);
-//		Word<PSymbolInstance> prefix = word.prefix(word.length()-1);
 		Word<PSymbolInstance> suffix = word.suffix(1);
 		
 		DTLeaf leaf = dt.getLeaf(location);

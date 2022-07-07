@@ -83,9 +83,4 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     	return transformTransitionSequence(word);
     }
 
-//    public Set<Word<PSymbolInstance>> possibleTransitionSequences(Word<PSymbolInstance> word) {
-//    	Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
-//    	ret.add(transformTransitionSequence(word));
-//    	return ret;
-//    }
 }

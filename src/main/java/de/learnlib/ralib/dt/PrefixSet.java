@@ -60,17 +60,6 @@ public class PrefixSet {
 		return prefixes.stream().anyMatch(mp -> mp.getPrefix().equals(word));
 	}
 	
-//	public boolean contains(Word<PSymbolInstance> p) {
-//		Iterator<MappedPrefix> it = prefixes.iterator();
-//		
-//		while (it.hasNext()) {
-//			MappedPrefix mp = it.next();
-//			if (mp.getPrefix().equals(p))
-//				return true;
-//		}
-//		return false;
-//	}
-	
 	public int length() {
 		return prefixes.size();
 	}
