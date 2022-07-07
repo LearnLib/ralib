@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
@@ -228,7 +233,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //		return refinement;
 //	}
 	
-	public Word<PSymbolInstance> elevatePrefix(DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
+	public Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> elevatePrefix(
+			DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
 		MappedPrefix mp = otherPrefixes.get(prefix);
 		assert mp!=null;
 		boolean removed = otherPrefixes.remove(mp);
@@ -239,8 +245,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return startPrefix(dt, sp, oracle);
 	}
 	
-	private Word<PSymbolInstance> startPrefix(DT dt, ShortPrefix mp, TreeOracle oracle) {
-		Word<PSymbolInstance> refinedTarget = null;
+	private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(
+			DT dt, ShortPrefix mp, TreeOracle oracle) {
+		Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = null;
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : dt.getInputs()) {
 			if (dt.getIoMode() && (input ^ isInput(ps)))
@@ -264,14 +271,28 @@ public class DTLeaf extends DTNode implements LocationComponent {
 				Word<PSymbolInstance> a = itA.next();
 				DTLeaf leaf = dt.sift(p, true);
 				if (!dt.getLeaf(a).equals(leaf)) {
-					refinedTarget = p;
+					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
 				}
 			}
 //			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
 //				dt.sift(prefix, true);
 //			}
 		}
-		return refinedTarget;
+		return divergance;
+	}
+	
+	public boolean isRefinemement(DT dt, Word<PSymbolInstance> word) {
+		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
+		DTLeaf target = dt.getLeaf(word);
+		
+		Branching b = getBranching(ps);
+		boolean refinement = true;
+		for (Word<PSymbolInstance> w : b.getBranches().keySet()) {
+			if (dt.getLeaf(w) == target)
+				refinement = false;
+		}
+		
+		return refinement;
 	}
 	
 	void start(DT dt, TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
@@ -288,6 +309,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 				dt.sift(prefix, true);
 			}
 		}
+	}
+	
+	void start(DT dt, Map<ParameterizedSymbol, Branching> branching) {
+		this.branching.putAll(branching);
 	}
 
 	boolean updateBranching(TreeOracle oracle, DiscriminationTree dt) {

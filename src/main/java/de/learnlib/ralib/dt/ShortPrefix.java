@@ -25,6 +25,10 @@ public class ShortPrefix extends MappedPrefix {
 		super(mp);
 	}
 	
+	public Map<ParameterizedSymbol, Branching> getBranching() {
+		return branching;
+	}
+	
 	public Branching getBranching(ParameterizedSymbol ps) {
 		return branching.get(ps);
 	}
