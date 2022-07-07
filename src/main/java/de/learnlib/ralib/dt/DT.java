@@ -105,7 +105,7 @@ public class DT implements DiscriminationTree {
 					mp.addTQR(suffix, tqr);
 				}
 				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
-				leaf.addShortPrefix(mp);
+				leaf.setAccessSequence(mp);
 				DTBranch branch = new DTBranch(tqr.getSdt(), leaf);
 				inner.addBranch(branch);
 				leaf.setParent(inner);
@@ -125,7 +125,7 @@ public class DT implements DiscriminationTree {
 		if (add) {
 			if (isShort)
 				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
-				leaf.addShortPrefix(mp);
+				leaf.addShortPrefix(new ShortPrefix(mp));
 			else
 				//leaf.addPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.addPrefix(mp);

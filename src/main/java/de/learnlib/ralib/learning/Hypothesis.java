@@ -78,6 +78,10 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);        
     }
+    
+    public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word, Word<PSymbolInstance> loc) {
+    	return transformTransitionSequence(word);
+    }
 
 //    public Set<Word<PSymbolInstance>> possibleTransitionSequences(Word<PSymbolInstance> word) {
 //    	Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();

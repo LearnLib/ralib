@@ -3,6 +3,7 @@ package de.learnlib.ralib.dt;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -25,6 +26,10 @@ public class PrefixSet {
 	
 	public boolean remove(MappedPrefix p) {
 		return prefixes.remove(p);
+	}
+	
+	public boolean removeIf(Predicate<? super MappedPrefix> filter) {
+		return prefixes.removeIf(filter);
 	}
 	
 	public boolean remove(Word<PSymbolInstance> p) {
@@ -51,16 +56,20 @@ public class PrefixSet {
 		return prefixes.contains(p);
 	}
 	
-	public boolean contains(Word<PSymbolInstance> p) {
-		Iterator<MappedPrefix> it = prefixes.iterator();
-		
-		while (it.hasNext()) {
-			MappedPrefix mp = it.next();
-			if (mp.getPrefix().equals(p))
-				return true;
-		}
-		return false;
+	public boolean contains(Word<PSymbolInstance> word) {
+		return prefixes.stream().anyMatch(mp -> mp.getPrefix().equals(word));
 	}
+	
+//	public boolean contains(Word<PSymbolInstance> p) {
+//		Iterator<MappedPrefix> it = prefixes.iterator();
+//		
+//		while (it.hasNext()) {
+//			MappedPrefix mp = it.next();
+//			if (mp.getPrefix().equals(p))
+//				return true;
+//		}
+//		return false;
+//	}
 	
 	public int length() {
 		return prefixes.size();
