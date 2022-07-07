@@ -122,7 +122,7 @@ public class DT implements DiscriminationTree {
 		assert(node.isLeaf());
 		
 		leaf = (DTLeaf)node;
-		if (add) {
+		if (add && !leaf.getAccessSequence().equals(prefix)) {
 			if (shortPrefix != null)
 				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.addShortPrefix(shortPrefix);
