@@ -70,7 +70,7 @@ public class DT implements DiscriminationTree {
 	
 	@Override
 	public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add) {
-		return sift(prefix, add, false);
+		return sift(prefix, add, null);
 	}
 	
 	public void initialize() {
@@ -84,7 +84,7 @@ public class DT implements DiscriminationTree {
 		leaf.start(this, oracle, ioMode, inputs);
 	}
 	
-	private DTLeaf sift(Word<PSymbolInstance> prefix, boolean add, boolean isShort) {
+	private DTLeaf sift(Word<PSymbolInstance> prefix, boolean add, ShortPrefix shortPrefix) {
 		DTNode node  = root;
 		DTLeaf leaf = null;
 		TreeQueryResult tqr = null;
@@ -123,9 +123,9 @@ public class DT implements DiscriminationTree {
 		
 		leaf = (DTLeaf)node;
 		if (add) {
-			if (isShort)
+			if (shortPrefix != null)
 				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
-				leaf.addShortPrefix(new ShortPrefix(mp));
+				leaf.addShortPrefix(shortPrefix);
 			else
 				//leaf.addPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.addPrefix(mp);
@@ -151,6 +151,7 @@ public class DT implements DiscriminationTree {
 		newLeaf.setParent(node);
 		DTBranch newBranch = new DTBranch(tqr.getSdt(), newLeaf);
 		node.addBranch(newBranch);
+		ShortPrefix sp = (ShortPrefix)leaf.getShortPrefixes().get(prefix);
 		
 		// update old leaf
 		boolean removed = leaf.removeShortPrefix(prefix);
@@ -165,7 +166,8 @@ public class DT implements DiscriminationTree {
 		// resift all transitions targeting this location
 		resift(leaf);
 
-		newLeaf.start(this, oracle, ioMode, inputs);
+//		newLeaf.start(this, oracle, ioMode, inputs);
+		newLeaf.start(this, sp.getBranching());
 		newLeaf.updateBranching(oracle, this);
 
 		if (removed)
@@ -204,7 +206,7 @@ public class DT implements DiscriminationTree {
 		
 		leaf.clear();
 		for (MappedPrefix s : shortPrefixes.get()) {
-			sift(s.getPrefix(), true, true);
+			sift(s.getPrefix(), true, (ShortPrefix)s);
 		}
 		for (MappedPrefix p : prefixes.get()) {
 			sift(p.getPrefix(), true);
@@ -226,6 +228,14 @@ public class DT implements DiscriminationTree {
 			ret = ret && checkConsistency(b.getChild());
 		}
 		return ret;
+	}
+	
+	public boolean isRefinement(Word<PSymbolInstance> word) {
+		Word<PSymbolInstance> prefix = word.prefix(word.length()-1);
+		DTLeaf prefixLeaf = getLeaf(prefix);
+		assert prefixLeaf != null;
+		
+		return prefixLeaf.isRefinemement(this, word);
 	}
 
 	/**
@@ -325,6 +335,9 @@ public class DT implements DiscriminationTree {
 		Deque<DTInnerNode> path1 = new ArrayDeque<DTInnerNode>();
 		Deque<DTInnerNode> path2 = new ArrayDeque<DTInnerNode>();
 		
+		if (l1.getParent() == l2.getParent())
+			return l1.getParent();
+		
 		DTInnerNode parent = l1.getParent();
 		while(parent != null) {
 			path1.add(parent);
@@ -332,7 +345,7 @@ public class DT implements DiscriminationTree {
 		}
 		parent = l2.getParent();
 		while(parent != null) {
-			path1.add(parent);
+			path2.add(parent);
 			parent = parent.getParent();
 		}
 		

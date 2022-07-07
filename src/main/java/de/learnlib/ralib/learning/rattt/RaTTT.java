@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
@@ -115,7 +117,11 @@ public class RaTTT {
         	
             Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             components.putAll(dt.getComponents());
-            AutomatonBuilder ab = new AutomatonBuilder(components, consts);            
+            AutomatonBuilder ab;
+            if (useOldAnalyzer)
+            	ab = new AutomatonBuilder(components, consts);
+            else
+            	ab = new AutomatonBuilder(components, consts, dt);
             hyp = ab.toRegisterAutomaton();        
             
             //FIXME: the default logging appender cannot log models and data structures
@@ -152,56 +158,74 @@ public class RaTTT {
             return false;
         }
         
-        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce.getInput());
-        DTLeaf leaf = dt.getLeaf(prefix);
-        
-        // guard refinement
-        if (leaf == null) {
-        	if (prefix.length() > 0) {
-        		Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
-        		DTLeaf subLeaf = dt.getLeaf(sub);
-        		assert subLeaf != null;
-
-    			SymbolicSuffix suff1 = new SymbolicSuffix(sub, prefix.suffix(1));
-    			SymbolicSuffix suff2 = dt.findLCA(leaf, subLeaf).getSuffix();
-    			SymbolicSuffix suffix = suff1.concat(suff2);
-    			
-        		if (!shortPrefixes.isEmpty()) {
-        			// if we have guard refinement, and stack is not empty, subword of prefix must be latest elevated prefix
-        			assert shortPrefixes.peek().equals(sub);
-        			shortPrefixes.pop();
-        			
-        			assert subLeaf.getShortPrefixes().contains(sub);	// sub should be a short prefix
-        			
-        			// sub is a short prefix, so it must be a new location
-        			dt.split(sub, suffix, subLeaf);
-        		}
-        		else {
-        			dt.addSuffix(suffix, subLeaf); 
-        		}
-        		processShortPrefixes(sub, suffix);
-        	}
-        }
-        // new location
-        else {
-        	Word<PSymbolInstance> refinedTarget = leaf.elevatePrefix(getDT(), prefix, sulOracle);
-        	if (refinedTarget == null) {
-        		shortPrefixes.push(prefix);	// no refinement of dt
-        	}
-        	else {
-        		// elevating and expanding prefix lead to refinement of dt
-        		DTLeaf targetLeaf = dt.getLeaf(refinedTarget);
-        		SymbolicSuffix suff1 = dt.findLCA(leaf, targetLeaf).getSuffix();
-        		SymbolicSuffix suff2 = new SymbolicSuffix(
-        				refinedTarget.prefix(refinedTarget.length()-1),
-        				refinedTarget.suffix(1));
-        		SymbolicSuffix suffix = suff1.concat(suff2);
-        		
-        		dt.split(prefix, suffix, leaf);
-        		
-        		processShortPrefixes(prefix, suffix);
-        	}
-        }
+        boolean refinement = false;
+        do {
+	        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce.getInput());
+	        DTLeaf leaf = dt.getLeaf(prefix);
+	        
+	        boolean isGuardRefinement = false;
+	        if (leaf == null) {
+	        	leaf = dt.sift(prefix, false);
+//	        	leaf = dt.getLeaf(prefix.prefix(prefix.length()-1));
+	        	if (dt.isRefinement(prefix)) {
+		        	isGuardRefinement = true;
+//		        	leaf.getShortPrefixes().remove(prefix);
+		        	assert prefix.length() > 0;
+		        	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
+		        	DTLeaf subLeaf = dt.getLeaf(sub);
+		        	assert subLeaf != null;
+		
+		    		SymbolicSuffix suff1 = new SymbolicSuffix(sub, prefix.suffix(1));
+		    		SymbolicSuffix suff2 = dt.findLCA(leaf, subLeaf).getSuffix();
+		    		SymbolicSuffix suffix = suff1.concat(suff2);
+	    			
+		        	if (!shortPrefixes.isEmpty()) {
+		        		// if we have guard refinement, and stack is not empty, 
+		        		// subword of prefix must be latest elevated prefix
+		        		assert shortPrefixes.peek().equals(sub);
+		        		shortPrefixes.pop();
+		        		
+		        		assert subLeaf.getShortPrefixes().contains(sub);	// sub should be a short prefix
+		        		
+		        		// sub is a short prefix, so it must be a new location
+		        		dt.split(sub, suffix, subLeaf);
+		        	}
+		        	else {
+		        		dt.addSuffix(suffix, subLeaf); 
+		        	}
+		        	processShortPrefixes(sub, suffix);
+		        	refinement = true;
+	        	}
+	        	else {
+	        		// no refinement, so must be a new location
+	        		shortPrefixes.push(prefix);
+	        	}
+	        }
+	        
+	        else {
+	        	Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = 
+	        			leaf.elevatePrefix(getDT(), prefix, sulOracle);
+		        if (divergance == null) {
+		        	shortPrefixes.push(prefix);	// no refinement of dt
+		        }
+		        else {
+		        	// elevating and expanding prefix lead to refinement of dt
+		        	Word<PSymbolInstance> refinedTarget = divergance.getKey();
+		        	Word<PSymbolInstance> target = divergance.getValue();
+		        	DTLeaf targetLeaf = dt.getLeaf(refinedTarget);
+		        	SymbolicSuffix suff1 = dt.findLCA(dt.getLeaf(target), targetLeaf).getSuffix();
+		        	SymbolicSuffix suff2 = new SymbolicSuffix(
+		        			refinedTarget.prefix(refinedTarget.length()-1),
+		        			refinedTarget.suffix(1));
+		        	SymbolicSuffix suffix = suff1.concat(suff2);
+		        		
+		        	dt.split(prefix, suffix, leaf);
+		        		
+		        	processShortPrefixes(prefix, suffix);
+		        	refinement = true;
+		        }
+	        }
+        } while(!refinement);
         
     	return true;
     }

@@ -6,7 +6,9 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 import org.testng.Assert;
@@ -54,7 +56,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
                         new Constants(), solver);
         
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, true, I_PUSH, I_POP);
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
         
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -107,7 +109,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
                         new Constants(), solver);
         
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, true, I_PUSH, I_POP);
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
         
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
