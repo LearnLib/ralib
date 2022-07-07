@@ -169,39 +169,39 @@ public class RaTTT {
     
     private boolean addGuardRefinement(Word<PSymbolInstance> word) {
 
-    	DTLeaf leaf = dt.sift(word, false);
+    	DTLeaf dest_c = dt.sift(word, false);
+    	Word<PSymbolInstance> src = word.prefix(word.length()-1);
+    	DTLeaf src_c = dt.getLeaf(src);
     	
     	// does this guard lead to a dt refinement?
     	if (dt.isRefinement(word)) {
         	assert word.length() > 0;
-        	Word<PSymbolInstance> sub = word.prefix(word.length()-1);
-        	DTLeaf subLeaf = dt.getLeaf(sub);
-        	assert subLeaf != null;
+        	assert src_c != null;
 
-    		SymbolicSuffix suff1 = new SymbolicSuffix(sub, word.suffix(1));
-    		SymbolicSuffix suff2 = dt.findLCA(leaf, subLeaf).getSuffix();
+    		SymbolicSuffix suff1 = new SymbolicSuffix(src, word.suffix(1));
+    		SymbolicSuffix suff2 = dt.findLCA(dest_c, src_c).getSuffix();
     		SymbolicSuffix suffix = suff1.concat(suff2);
 			
         	if (!shortPrefixes.isEmpty()) {
         		// if we have guard refinement, and stack is not empty, 
         		// subword of prefix must be latest elevated prefix
-        		assert shortPrefixes.peek().equals(sub);
+        		assert shortPrefixes.peek().equals(src);
         		shortPrefixes.pop();
         		
-        		assert subLeaf.getShortPrefixes().contains(sub);	// sub should be a short prefix
+        		assert src_c.getShortPrefixes().contains(src);	// sub should be a short prefix
         		
         		// sub is a short prefix, so it must be a new location
-        		dt.split(sub, suffix, subLeaf);
+        		dt.split(src, suffix, src_c);
         	}
         	else {
-        		dt.addSuffix(suffix, subLeaf); 
+        		dt.addSuffix(suffix, src_c);
         	}
-        	processShortPrefixes(sub, suffix);
+        	processShortPrefixes(src, suffix);
         	return true;
     	}
     	
     	// no refinement, so must be a new location
-    	shortPrefixes.push(word);
+    	addNewLocation(word, src_c);
     	return false;
 
     }
