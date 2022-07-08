@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -281,6 +282,21 @@ public class DT implements DiscriminationTree {
 			for (DTBranch b : inner.getBranches())
 				getLeaves(b.getChild(), leaves);
 		}
+	}
+
+	private void getSuffixes(DTNode node,  Collection<SymbolicSuffix> suffixes) {
+		if (!node.isLeaf()) {
+			DTInnerNode inner = (DTInnerNode)node;
+			suffixes.add(inner.getSuffix());
+			for (DTBranch b : inner.getBranches())
+				getSuffixes(b.getChild(), suffixes);
+		}
+	}
+
+	public Collection<SymbolicSuffix> getSuffixes() {
+		Collection<SymbolicSuffix> suffixes = new LinkedHashSet<>();
+		getSuffixes(root, suffixes);
+		return suffixes;
 	}
 
 	private Collection<Word<PSymbolInstance>> getAllPrefixes() {
