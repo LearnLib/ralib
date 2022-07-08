@@ -5,14 +5,17 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableSet;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
@@ -20,7 +23,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -32,6 +35,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class LearnStackTest extends RaLibTestSuite {
@@ -146,11 +150,20 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
 
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
-        
         rattt.learn();
         hyp = rattt.getHypothesis();
         
+        Collection<SymbolicSuffix> suffixes = rattt.getDT().getSuffixes();
+        Set<Word<ParameterizedSymbol>> suffixActions = suffixes.stream().map(s -> s.getActions()).collect(Collectors.toSet());
+        Set<Word<ParameterizedSymbol>> expectedSuffixActions = ImmutableSet.of(
+            Word.fromSymbols(),
+            Word.fromSymbols(I_PUSH),
+            Word.fromSymbols(I_PUSH, I_PUSH),
+            Word.fromSymbols(I_POP),
+            Word.fromSymbols(I_POP, I_POP));
+
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
+        Assert.assertEquals(suffixActions, expectedSuffixActions);
 	}
 }
