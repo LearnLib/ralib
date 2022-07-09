@@ -42,26 +42,30 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	private PrefixSet otherPrefixes;
 	
 	private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<ParameterizedSymbol, Branching>();
+	private final TreeOracle oracle;
 	
-	public DTLeaf() {
+	public DTLeaf(TreeOracle oracle) {
 		super();
 		access = null;
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
+		this.oracle = oracle;
 	}
 	
-	public DTLeaf(Word<PSymbolInstance> p) {
+	public DTLeaf(Word<PSymbolInstance> p, TreeOracle oracle) {
 		super();
 		access = new MappedPrefix(p, new PIV());
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
+		this.oracle = oracle;
 	}
 	
-	public DTLeaf(MappedPrefix as) {
+	public DTLeaf(MappedPrefix as, TreeOracle oracle) {
 		super();
 		access = as;
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
+		this.oracle = oracle;
 	}
 	
 	public void addPrefix(Word<PSymbolInstance> p) {
@@ -185,7 +189,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return otherPrefixes.get(p);
 	}
 	
-	void addTQRs(PIV primePIV, SymbolicSuffix s, TreeOracle oracle) {
+	void addTQRs(PIV primePIV, SymbolicSuffix s) {
 		TreeQueryResult tqr;
 		access.updateMemorable(primePIV);
 		Iterator<MappedPrefix> it = shortPrefixes.iterator();
@@ -202,12 +206,12 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		}
 	}
 	
-	void addTQRs(PIV primePIV, SymbolicSuffix s, TreeOracle oracle, boolean addToAccess) {
+	void addTQRs(PIV primePIV, SymbolicSuffix s, boolean addToAccess) {
 		if (addToAccess) {
 			TreeQueryResult tqr = oracle.treeQuery(access.getPrefix(), s);
 			this.access.addTQR(s, tqr);
 		}
-		addTQRs(primePIV, s, oracle);
+		addTQRs(primePIV, s);
 	}
 	
 	@Override
@@ -228,7 +232,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	 * @return Pair of diverging words, if such a pair of words exists. Otherwise null.
 	 */
 	public Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> elevatePrefix(
-			DT dt, Word<PSymbolInstance> prefix, TreeOracle oracle) {
+			DT dt, Word<PSymbolInstance> prefix, DTHyp hyp) {
 		MappedPrefix mp = otherPrefixes.get(prefix);
 		assert mp!=null;
 		boolean removed = otherPrefixes.remove(mp);
@@ -236,11 +240,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		ShortPrefix sp = new ShortPrefix(mp);
 		addShortPrefix(sp);
 		
-		return startPrefix(dt, sp, oracle);
+		return startPrefix(dt, sp, hyp);
 	}
 	
 	private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(
-			DT dt, ShortPrefix mp, TreeOracle oracle) {
+			DT dt, ShortPrefix mp, DTHyp hyp) {
 		Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = null;
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : dt.getInputs()) {
@@ -256,18 +260,28 @@ public class DTLeaf extends DTNode implements LocationComponent {
 			
 			assert prefixBranching.getBranches().size() == accessBranching.getBranches().size();
 			
-			Iterator<Word<PSymbolInstance>> itB = prefixBranching.getBranches().keySet().iterator();
-			Iterator<Word<PSymbolInstance>> itA = accessBranching.getBranches().keySet().iterator();
-			
-			while (itB.hasNext()) {
-				assert itA.hasNext();
-				Word<PSymbolInstance> p = itB.next();
-				Word<PSymbolInstance> a = itA.next();
+			for (Word<PSymbolInstance> p : prefixBranching.getBranches().keySet()) {
+				Word<PSymbolInstance> a = hyp.branchWithSameGuard(p, accessBranching);
 				DTLeaf leaf = dt.sift(p, true);
+				
 				if (!dt.getLeaf(a).equals(leaf)) {
 					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
 				}
 			}
+			
+//			Iterator<Word<PSymbolInstance>> itB = prefixBranching.getBranches().keySet().iterator();
+//			Iterator<Word<PSymbolInstance>> itA = accessBranching.getBranches().keySet().iterator();
+//			
+//			while (itB.hasNext()) {
+//				assert itA.hasNext();
+//				// doesn't work in general, guards may be in a different order
+//				Word<PSymbolInstance> p = itB.next();
+//				Word<PSymbolInstance> a = itA.next();
+//				DTLeaf leaf = dt.sift(p, true);
+//				if (!dt.getLeaf(a).equals(leaf)) {
+//					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
+//				}
+//			}
 		}
 		return divergance;
 	}
@@ -286,7 +300,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return refinement;
 	}
 	
-	void start(DT dt, TreeOracle oracle, boolean ioMode, ParameterizedSymbol ... inputs) {
+	void start(DT dt, boolean ioMode, ParameterizedSymbol ... inputs) {
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : inputs) {
 			if (ioMode && (input ^ isInput(ps))) {
@@ -306,16 +320,16 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		this.branching.putAll(branching);
 	}
 
-	boolean updateBranching(TreeOracle oracle, DiscriminationTree dt) {
+	boolean updateBranching(DT dt) {
 		boolean ret = true;
 		for (ParameterizedSymbol p : branching.keySet()) {
-			boolean ub = updateBranching(p, oracle, dt);
+			boolean ub = updateBranching(p, dt);
 			ret = ret && ub;
 		}
 		return ret;
 	}
 	
-	private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle, DiscriminationTree dt) {
+	private boolean updateBranching(ParameterizedSymbol ps, DiscriminationTree dt) {
 		Branching b = branching.get(ps);
 		SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(ps);
 		Branching newB = oracle.updateBranching(access.getPrefix(), ps, b, access.getParsInVars(), sdts);
@@ -356,20 +370,20 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return sdt.relabel(relabeling);
 	}
 	
-	public boolean checkVariableConsistency(DT dt, TreeOracle oracle, Constants consts) {
-		if (!checkVariableConsistency(access, dt, oracle, consts)) {
+	public boolean checkVariableConsistency(DT dt, Constants consts) {
+		if (!checkVariableConsistency(access, dt, consts)) {
 			return false;
 		}
 		assert(shortPrefixes.length() == 0);
 		Iterator<MappedPrefix> it = otherPrefixes.iterator();
 		while (it.hasNext()) {
-			if (!checkVariableConsistency(it.next(), dt, oracle, consts))
+			if (!checkVariableConsistency(it.next(), dt, consts))
 				return false;
 		}
 		return true;
 	}
 
-	private boolean checkVariableConsistency(MappedPrefix mp, DT dt, TreeOracle oracle, Constants consts) {
+	private boolean checkVariableConsistency(MappedPrefix mp, DT dt, Constants consts) {
 		if (mp.getPrefix().length() < 2)
 			return true;
 		

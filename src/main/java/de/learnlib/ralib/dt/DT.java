@@ -64,11 +64,11 @@ public class DT implements DiscriminationTree {
 		MappedPrefix mp = new MappedPrefix(RaTTT.EMPTY_PREFIX, new PIV());
 		TreeQueryResult tqr = oracle.treeQuery(mp.getPrefix(), root.getSuffix());
 		mp.addTQR(root.getSuffix(), tqr);
-		DTLeaf leaf = new DTLeaf(mp);
+		DTLeaf leaf = new DTLeaf(mp, oracle);
 		DTBranch b = new DTBranch(tqr.getSdt(), leaf);
 		root.addBranch(b);
 		leaf.setParent(root);
-		leaf.start(this, oracle, ioMode, inputs);
+		leaf.start(this, ioMode, inputs);
 	}
 	
 	private DTLeaf sift(Word<PSymbolInstance> prefix, boolean add, ShortPrefix shortPrefix) {
@@ -86,7 +86,7 @@ public class DT implements DiscriminationTree {
 
 			if (siftRes == null) {
 				// discovered new location en passant
-				leaf = new DTLeaf();
+				leaf = new DTLeaf(oracle);
 				if (tqr == null) {
 					tqr = oracle.treeQuery(prefix, suffix);
 					mp.addTQR(suffix, tqr);
@@ -96,8 +96,8 @@ public class DT implements DiscriminationTree {
 				DTBranch branch = new DTBranch(tqr.getSdt(), leaf);
 				inner.addBranch(branch);
 				leaf.setParent(inner);
-				leaf.start(this, oracle, ioMode, inputs);
-				leaf.updateBranching(oracle, this);
+				leaf.start(this, ioMode, inputs);
+				leaf.updateBranching(this);
 				return leaf;
 			}
 			
@@ -131,7 +131,7 @@ public class DT implements DiscriminationTree {
 		TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
 		MappedPrefix mp = leaf.get(prefix);
 		mp.addTQR(suffix, tqr);
-		DTLeaf newLeaf = new DTLeaf(mp);
+		DTLeaf newLeaf = new DTLeaf(mp, oracle);
 		newLeaf.setParent(node);
 		DTBranch newBranch = new DTBranch(tqr.getSdt(), newLeaf);
 		node.addBranch(newBranch);
@@ -151,10 +151,10 @@ public class DT implements DiscriminationTree {
 		resift(leaf);
 
 		newLeaf.start(this, sp.getBranching());
-		newLeaf.updateBranching(oracle, this);
+		newLeaf.updateBranching(this);
 
 		if (removed)
-			leaf.updateBranching(oracle, this);
+			leaf.updateBranching(this);
 	}
 	
 	public void addSuffix(SymbolicSuffix suffix, DTLeaf leaf) {
@@ -170,8 +170,8 @@ public class DT implements DiscriminationTree {
 		node.addBranch(newBranch);
 		
 		leaf.getPrimePrefix().addTQR(suffix, tqr);
-		leaf.addTQRs(tqr.getPiv(), suffix, oracle);
-		leaf.updateBranching(oracle, this);
+		leaf.addTQRs(tqr.getPiv(), suffix);
+		leaf.updateBranching(this);
 	}
 	
 	/**
@@ -203,7 +203,7 @@ public class DT implements DiscriminationTree {
 	private boolean checkConsistency(DTNode node) {
 		if (node.isLeaf()) {
 			DTLeaf leaf = (DTLeaf)node;
-			return leaf.checkVariableConsistency(this, this.oracle, this.consts);
+			return leaf.checkVariableConsistency(this, this.consts);
 		}
 		boolean ret = true;
 		DTInnerNode inner = (DTInnerNode)node;
@@ -256,7 +256,7 @@ public class DT implements DiscriminationTree {
 		return null;
 	}
 	
-	ParameterizedSymbol[] getInputs() {
+	public ParameterizedSymbol[] getInputs() {
 		return inputs;
 	}
 	

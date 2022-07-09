@@ -49,13 +49,36 @@ public class DTHyp extends Hypothesis {
 		
 		ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
 		
+//		List<Transition> tseq = getTransitions(word);
+//        Transition last = tseq.get(tseq.size() -1);
+//		TransitionGuard transitionGuard = last.getGuard();
+		
+		ShortPrefix sp = (ShortPrefix)leaf.getShortPrefixes().get(location);
+		Word<PSymbolInstance> ret = branchWithSameGuard(word, sp.getBranching(ps));
+		assert ret != null;
+		return ret;
+//		Branching b = sp.getBranching(ps);
+//		for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+//			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
+//				tseq = getTransitions(p);
+//				last = tseq.get(tseq.size()-1);
+//				if (last.getGuard() == transitionGuard)
+//					return p;
+//			}
+//		}
+//		
+//		throw new IllegalStateException("cannot be reached!");
+	}
+	
+	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
+		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
+
+		// get guard of last transition
 		List<Transition> tseq = getTransitions(word);
         Transition last = tseq.get(tseq.size() -1);
 		TransitionGuard transitionGuard = last.getGuard();
 		
-		ShortPrefix sp = (ShortPrefix)leaf.getShortPrefixes().get(location);
-		Branching b = sp.getBranching(ps);
-		for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+		for (Word<PSymbolInstance> p : branching.getBranches().keySet()) {
 			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
 				tseq = getTransitions(p);
 				last = tseq.get(tseq.size()-1);
@@ -63,7 +86,6 @@ public class DTHyp extends Hypothesis {
 					return p;
 			}
 		}
-		
-		throw new IllegalStateException("cannot be reached!");
+		return null;
 	}
 }

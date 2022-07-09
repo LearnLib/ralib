@@ -13,7 +13,9 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
+import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
+import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -164,6 +166,7 @@ public class RaTTT {
 	        	refinement = addNewLocation(prefix, leaf);
         } while(!refinement);
         
+        processShortPrefixes();
     	return true;
     }
     
@@ -179,7 +182,7 @@ public class RaTTT {
         	assert src_c != null;
 
     		SymbolicSuffix suff1 = new SymbolicSuffix(src, word.suffix(1));
-    		SymbolicSuffix suff2 = dt.findLCA(dest_c, src_c).getSuffix();
+    		SymbolicSuffix suff2 = smallestDiscriminator(word, dest_c, src_c);
     		SymbolicSuffix suffix = suff1.concat(suff2);
 			
         	if (!shortPrefixes.isEmpty()) {
@@ -196,7 +199,6 @@ public class RaTTT {
         	else {
         		dt.addSuffix(suffix, src_c);
         	}
-        	processShortPrefixes(src, suffix);
         	return true;
     	}
     	
@@ -206,10 +208,10 @@ public class RaTTT {
 
     }
     
-    private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf leaf) {
+    private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {
 
     	Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = 
-    			leaf.elevatePrefix(getDT(), prefix, sulOracle);
+    			src_c.elevatePrefix(getDT(), prefix, (DTHyp)hyp);
         if (divergance == null) {
         	shortPrefixes.push(prefix);	// no refinement of dt
         }
@@ -217,40 +219,66 @@ public class RaTTT {
         	// elevating and expanding prefix lead to refinement of dt
         	Word<PSymbolInstance> refinedTarget = divergance.getKey();
         	Word<PSymbolInstance> target = divergance.getValue();
-        	DTLeaf targetLeaf = dt.getLeaf(refinedTarget);
         	
-        	SymbolicSuffix suff1 = new SymbolicSuffix(
-        			refinedTarget.prefix(refinedTarget.length()-1),
-        			refinedTarget.suffix(1));
-        	SymbolicSuffix suff2 = dt.findLCA(dt.getLeaf(target), targetLeaf).getSuffix();
-        	SymbolicSuffix suffix = suff1.concat(suff2);
-        		
-        	dt.split(prefix, suffix, leaf);
-        		
-        	processShortPrefixes(prefix, suffix);
+        	addLocation(refinedTarget, src_c, dt.getLeaf(target), dt.getLeaf(refinedTarget));
         	return true;
         }
         return false;
     }
-    
-    private void processShortPrefixes(Word<PSymbolInstance> prevPrefix, SymbolicSuffix prevSuffix) {
-    	while(!shortPrefixes.isEmpty()) {
+
+    private void processShortPrefixes() {
+    	SP: while(!shortPrefixes.isEmpty()) {
     		Word<PSymbolInstance> prefix = shortPrefixes.poll();
     		
-    		DTLeaf leaf = dt.getLeaf(prefix);
-    		assert leaf != null;
-    		assert leaf.getShortPrefixes().contains(prefix);
-
-    		Word<PSymbolInstance> discriminator = prevPrefix.suffix(1);
-    		assert prevPrefix.equals(prefix.append(discriminator.firstSymbol()));
+    		DTLeaf src_c = dt.getLeaf(prefix);
+    		ShortPrefix sp = (ShortPrefix)src_c.getShortPrefixes().get(prefix);
     		
-    		SymbolicSuffix suff1 = new SymbolicSuffix(prefix, discriminator);
-    		SymbolicSuffix suffix = suff1.concat(prevSuffix);
+    		for (ParameterizedSymbol ps : dt.getInputs()) {
+    			Branching b = sp.getBranching(ps);
+    			for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+    				DTHyp dthyp = (DTHyp)hyp;
+    				Word<PSymbolInstance> dest = dthyp.branchWithSameGuard(p, src_c.getBranching(ps));
+    				
+    				DTLeaf dest_c = dt.getLeaf(dest);
+    				DTLeaf short_c = dt.getLeaf(p);
+    				if (dest_c != short_c) {
+    					addLocation(p, src_c, dest_c, short_c);
+    					continue SP;
+    				}
+    			}
+    		}
     		
-    		dt.split(prefix, suffix, leaf);
-    		prevPrefix = prefix;
-    		prevSuffix = suffix;
+    		// TODO: handle dangling short prefix
+    		throw new UnsupportedOperationException("dangling short prefix resolution not yet implemented!!");
     	}
+    }
+    
+    private void addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
+
+    	Word<PSymbolInstance> prefix = target.prefix(target.length()-1);
+    	SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
+    	SymbolicSuffix suff2 = dt.findLCA(dest_c, target_c).getSuffix();
+    	SymbolicSuffix suffix = suff1.concat(suff2);
+
+    	dt.split(prefix, suffix, src_c);
+    }
+    
+    private SymbolicSuffix smallestDiscriminator(Word<PSymbolInstance> word, DTLeaf word_c, DTLeaf src_c) {
+    	
+    	ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
+    	int min = Integer.MAX_VALUE;
+    	SymbolicSuffix suffix = null;
+    	
+    	for (Word<PSymbolInstance> p : src_c.getBranching(ps).getBranches().keySet()) {
+    		DTLeaf dest_c = dt.getLeaf(p);
+    		SymbolicSuffix disc = dt.findLCA(dest_c, word_c).getSuffix();
+    		int len = disc.getActions().length();
+    		if (len < min) {
+    			suffix = disc;
+    			min = len;
+    		}
+    	}
+    	return suffix;
     }
     
     private boolean analyzeCounterExampleOld() {
@@ -287,7 +315,7 @@ public class RaTTT {
         else {
         	if (leaf == null)
         		leaf = dt.sift(prefix, true);
-        	leaf.elevatePrefix(dt, prefix, sulOracle);
+        	leaf.elevatePrefix(dt, prefix, (DTHyp)hyp);
         	dt.split(prefix, res.getSuffix(), leaf);
         }
         return true;
