@@ -69,8 +69,8 @@ public class DTInnerNodeTest {
       SymbolicSuffix symbSuffix = new SymbolicSuffix(epsilon, suffix);
 
       DTInnerNode node = new DTInnerNode(symbSuffix);
-      DTLeaf child1 = new DTLeaf(new MappedPrefix(epsilon, new PIV()));
-      DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()));
+      DTLeaf child1 = new DTLeaf(new MappedPrefix(epsilon, new PIV()), mto);
+      DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()), mto);
       
       TreeQueryResult tqr1 = mto.treeQuery(epsilon, symbSuffix);
       TreeQueryResult tqr2 = mto.treeQuery(push, symbSuffix);

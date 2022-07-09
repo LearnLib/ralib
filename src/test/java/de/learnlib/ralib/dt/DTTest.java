@@ -62,10 +62,10 @@ public class DTTest {
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 		DTInnerNode nodePush = new DTInnerNode(suffPush);
 		
-		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()));
-		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()));
-		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()));
-		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()));
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
+		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);
+		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()), oracle);
+		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()), oracle);
 		leafPop.setParent(nodeEps);
 		leafEps.setParent(nodePop);
 		leafPush.setParent(nodePush);
@@ -113,10 +113,10 @@ public class DTTest {
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 		DTInnerNode nodePush = new DTInnerNode(suffPush);
 		
-		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()));
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
 		//DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()));
-		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()));
-		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()));
+		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()), oracle);
+		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()), oracle);
 		leafPop.setParent(nodeEps);
 		//leafEps.setParent(nodePop);
 		leafPush.setParent(nodePush);
@@ -183,22 +183,22 @@ public class DTTest {
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 		
-		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()));
-		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()));
-		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()));
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
+		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);
+		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()), oracle);
 		leafPop.addPrefix(new MappedPrefix(prePopPush, tqrPop.getPiv()));
 		leafPop.addPrefix(new MappedPrefix(prePopPop, tqrPop.getPiv()));
 		leafPop.addPrefix(new MappedPrefix(prePushPopNeq, tqrPop.getPiv()));
-		leafPop.addTQRs(tqrPop.getPiv(), suffEps, oracle, true);
+		leafPop.addTQRs(tqrPop.getPiv(), suffEps, true);
 		leafEps.addPrefix(new MappedPrefix(prePushPopEq, tqrEps.getPiv()));
-		leafEps.addTQRs(tqrEps.getPiv(), suffEps, oracle, true);
-		leafEps.addTQRs(tqrEps.getPiv(), suffPop, oracle, true);
+		leafEps.addTQRs(tqrEps.getPiv(), suffEps, true);
+		leafEps.addTQRs(tqrEps.getPiv(), suffPop, true);
 		leafPush.addShortPrefix(new ShortPrefix(prePushPush, tqrPushPush.getPiv()));
 		leafPush.addPrefix(prePushPushPop);
 		if (extraPrefs)
 			leafPush.addPrefix(prePushPushPopPush);
-		leafPush.addTQRs(tqrPush.getPiv(), suffEps, oracle, true);
-		leafPush.addTQRs(tqrPush.getPiv(), suffPop, oracle, true);
+		leafPush.addTQRs(tqrPush.getPiv(), suffEps, true);
+		leafPush.addTQRs(tqrPush.getPiv(), suffPop, true);
 		
 		leafPop.setParent(nodeEps);
 		leafEps.setParent(nodePop);
@@ -303,8 +303,8 @@ public class DTTest {
 
 	      DT dt = buildIncompleteTree(mto, true);
 	      for (DTLeaf l : dt.getLeaves()) {
-	    	  l.start(dt, mto, false, I_PUSH, I_POP);
-	    	  l.updateBranching(mto, dt);
+	    	  l.start(dt, false, I_PUSH, I_POP);
+	    	  l.updateBranching(dt);
 	      }
 	      
 		  Word<PSymbolInstance> prePushPush = Word.fromSymbols(
@@ -369,7 +369,7 @@ public class DTTest {
 	      Assert.assertEquals(word4.getSymbol(1), access4.getSymbol(1));
 	      
 	      // test variable consistency after split 
-	      boolean variableCorrectness = leaf3.checkVariableConsistency(dt, mto, new Constants());
+	      boolean variableCorrectness = leaf3.checkVariableConsistency(dt, new Constants());
 	      Assert.assertFalse(variableCorrectness);
 	      
 	      Word<PSymbolInstance> prePopPop = Word.fromSymbols(
@@ -399,11 +399,11 @@ public class DTTest {
 	      // test hypothesis construction from DT
 	      dt = buildIncompleteTree(mto, false);
 	      for (DTLeaf l : dt.getLeaves()) {
-	    	  l.start(dt, mto, false, I_PUSH, I_POP);
-	    	  l.updateBranching(mto, dt);
+	    	  l.start(dt, false, I_PUSH, I_POP);
+	    	  l.updateBranching(dt);
 	      }
 	      dt.split(prePushPush, suffix, dt.getLeaf(prePushPush));
-	      dt.getLeaf(prePush).checkVariableConsistency(dt, mto, consts);
+	      dt.getLeaf(prePush).checkVariableConsistency(dt, consts);
 	      dt.sift(prePushPushPopNeq, true);
 	      dt.sift(prePushPushPush, true);
 	      AutomatonBuilder ab = new AutomatonBuilder(dt.getComponents(), consts);
