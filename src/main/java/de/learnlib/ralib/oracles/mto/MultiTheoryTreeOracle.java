@@ -46,7 +46,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -441,6 +443,77 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return valuation;
     }
 
+    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    	
+    	assert (sdt instanceof SDT);
+    	Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
+    	instantiate(words,
+    			prefix, suffix, (SDT)sdt, piv,
+    			new ParValuation(), 0,
+    			new SuffixValueGenerator(),
+    			new ParameterGenerator());
+    	return words;
+    }
+    
+    private void instantiate(Map<Word<PSymbolInstance>, Boolean> words,
+    		Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SDT sdt, PIV piv,
+    		ParValuation pval,
+    		int index,
+    		SuffixValueGenerator sgen, ParameterGenerator pgen) {
+    	
+    	if (sdt instanceof SDTLeaf) {
+    		assert (index == suffix.length());
+    		
+    		SDTLeaf sdtLeaf = (SDTLeaf)sdt;
+    		words.put(prefix, sdtLeaf.isAccepting());
+    	}
+    	else {
+        	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
+            	SuffixValueGenerator sgenClone = new SuffixValueGenerator();
+            	ParameterGenerator pgenClone = new ParameterGenerator();
+            	ParValuation pvalClone = new ParValuation();
+            	sgenClone.set(sgen);
+            	pgenClone.set(pgen);
+            	pvalClone.putAll(pval);
+        		
+        		instantiate(words, prefix, suffix,
+        				e.getValue(),
+        				piv, pvalClone,
+        				e.getKey(),
+        				index, sgenClone, pgenClone);
+        	}
+    	}
+    }
+    
+    private void instantiate(Map<Word<PSymbolInstance>, Boolean> words,
+    		Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SDT sdt, PIV piv,
+    		ParValuation pval,
+    		SDTGuard guard,
+    		int index,
+    		SuffixValueGenerator sgen,
+    		ParameterGenerator pgen) {
+    	
+    	ParameterizedSymbol ps = suffix.getActions().getSymbol(index);
+    	DataValue[] dvis = new DataValue[ps.getArity()];
+    	for (int i = 0; i < ps.getArity(); i++) {
+    		DataType type = ps.getPtypes()[i];
+    		Theory teach = teachers.get(type);
+    		
+    		SuffixValue s = sgen.next(type);
+    		Parameter p = new Parameter(type, s.getId());
+    		
+    		DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
+    		dvis[i] = dvi;
+    		
+    		pval.put(p, dvi);
+    	}
+    	
+    	Word<PSymbolInstance> newPrefix = prefix.append(new PSymbolInstance(ps, dvis));
+    	// pass on prefix and sdt
+    	instantiate(words, newPrefix, suffix, sdt, piv, pval, index+1, sgen, pgen);
+    }
+    
     /**
      * This method computes the initial branching for an SDT. It re-uses existing
      * valuations where possible.
