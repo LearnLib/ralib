@@ -23,6 +23,17 @@ public class DTHyp extends Hypothesis {
 	}
 	
 	@Override
+	public boolean isAccessSequence(Word<PSymbolInstance> word) {
+		if (super.isAccessSequence(word))
+			return true;
+		DTLeaf leaf = dt.getLeaf(word);
+		if (leaf == null)
+			return false;
+		return leaf.getAccessSequence().equals(word) ||
+				leaf.getShortPrefixes().contains(word);
+	}
+	
+	@Override
 	public Set<Word<PSymbolInstance>> possibleAccessSequences(Word<PSymbolInstance> word) {
 		Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
 		Word<PSymbolInstance> as = super.transformAccessSequence(word);
@@ -70,22 +81,4 @@ public class DTHyp extends Hypothesis {
 //		throw new IllegalStateException("cannot be reached!");
 	}
 	
-	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
-		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
-
-		// get guard of last transition
-		List<Transition> tseq = getTransitions(word);
-        Transition last = tseq.get(tseq.size() -1);
-		TransitionGuard transitionGuard = last.getGuard();
-		
-		for (Word<PSymbolInstance> p : branching.getBranches().keySet()) {
-			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
-				tseq = getTransitions(p);
-				last = tseq.get(tseq.size()-1);
-				if (last.getGuard() == transitionGuard)
-					return p;
-			}
-		}
-		return null;
-	}
 }

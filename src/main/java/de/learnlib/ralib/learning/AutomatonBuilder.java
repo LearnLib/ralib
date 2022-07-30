@@ -115,6 +115,9 @@ public class AutomatonBuilder {
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);        
         LocationComponent src_c = this.components.get(src_id);
         
+//        if (src_c == null && automaton instanceof DTHyp)
+//        	return;
+        
         // locations
         RALocation src_loc = this.locations.get(src_id);
         RALocation dest_loc = this.locations.get(dest_id);
@@ -127,6 +130,11 @@ public class AutomatonBuilder {
 //        System.out.println("b.getBranches is  " + b.getBranches().toString());
 //        System.out.println("getting guard for  " + r.getPrefix().toString());
         TransitionGuard guard = b.getBranches().get(r.getPrefix());
+        
+        // TODO: better solution
+        // guard is null because r is transition from a short prefix
+        if (automaton instanceof DTHyp && guard == null)
+        	return;
         
         if (guard == null) {
         	assert true;

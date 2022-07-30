@@ -20,9 +20,13 @@ import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -82,5 +86,23 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word, Word<PSymbolInstance> loc) {
     	return transformTransitionSequence(word);
     }
+    
+	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
+		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
+		// get guard of last transition
+		List<Transition> tseq = getTransitions(word);
+        Transition last = tseq.get(tseq.size() -1);
+		TransitionGuard transitionGuard = last.getGuard();
+		
+		for (Word<PSymbolInstance> p : branching.getBranches().keySet()) {
+			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
+				tseq = getTransitions(p);
+				last = tseq.get(tseq.size()-1);
+				if (last.getGuard() == transitionGuard)
+					return p;
+			}
+		}
+		return null;
+	}
 }
