@@ -52,6 +52,12 @@ public abstract class SDTIfGuard extends SDTGuard {
         this.relation = rel;
         this.register = reg;
     }
+    
+    public SDTIfGuard(SDTIfGuard other) {
+    	super(other);
+    	register = other.register.copy();
+    	relation = other.relation;
+    }
 
     public abstract SDTIfGuard toDeqGuard();
 

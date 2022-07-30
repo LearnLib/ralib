@@ -54,7 +54,7 @@ public class SDT implements SymbolicDecisionTree {
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
-
+    
 //    public Set<SDTGuard> getGuards() {
 //        if (this instanceof SDTLeaf) {
 //            return new LinkedHashSet<>();
@@ -382,5 +382,16 @@ public class SDT implements SymbolicDecisionTree {
             }
         }
     }
+
+	@Override
+	public SDT copy() {
+		Map<SDTGuard, SDT> cc = new LinkedHashMap<>();
+		if (children != null) {
+			for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+				cc.put(e.getKey().copy(), e.getValue().copy());
+			}
+		}
+		return new SDT(cc);
+	}
 
 }

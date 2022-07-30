@@ -60,6 +60,10 @@ public class SDTOrGuard extends SDTMultiGuard {
     public SDTOrGuard(SuffixValue param, SDTGuard... ifGuards) {
         super(param, ConDis.OR, ifGuards);
     }
+    
+    public SDTOrGuard(SDTOrGuard other) {
+    	super(other);
+    }
 
     private List<GuardExpression> toExprList() {
         List<GuardExpression> exprs = new ArrayList<>();
@@ -97,6 +101,11 @@ public class SDTOrGuard extends SDTMultiGuard {
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         return other.mergeWith(this, regPotential);
+    }
+    
+    @Override
+    public SDTOrGuard copy() {
+    	return new SDTOrGuard(this);
     }
 
     //@Override

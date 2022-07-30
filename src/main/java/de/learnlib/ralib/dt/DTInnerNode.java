@@ -1,6 +1,7 @@
 package de.learnlib.ralib.dt;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -23,13 +24,23 @@ public class DTInnerNode extends DTNode {
 	public DTInnerNode(SymbolicSuffix suffix) {
 		super();
 		this.suffix = suffix;
-		branches = new HashSet<DTBranch>();
+		branches = new LinkedHashSet<DTBranch>();
 	}
 	
 	public DTInnerNode(SymbolicSuffix suffix, Set<DTBranch> branches) {
 		super();
 		this.suffix = suffix;
 		this.branches = branches;
+	}
+	
+	public DTInnerNode(DTInnerNode n) {
+		suffix = n.suffix;
+		branches = new LinkedHashSet<DTBranch>();
+		for (DTBranch b : n.branches) {
+			DTBranch nb = new DTBranch(b);
+			b.getChild().setParent(this);
+			branches.add(nb);
+		}
 	}
 	
 	protected Pair<DTNode, TreeQueryResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
@@ -62,5 +73,10 @@ public class DTInnerNode extends DTNode {
 	
 	public boolean isLeaf() {
 		return false;
+	}
+	
+	@Override
+	public DTInnerNode copy() {
+		return new DTInnerNode(this);
 	}
 }

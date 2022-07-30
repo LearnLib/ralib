@@ -90,6 +90,17 @@ public abstract class SDTMultiGuard extends SDTGuard {
         this.guards.addAll(Arrays.asList(ifGuards));
         this.guardSet = new LinkedHashSet<>(guards);
     }
+    
+    public SDTMultiGuard(SDTMultiGuard other) {
+    	super(other);
+    	this.condis = other.condis;
+    	this.guards = new ArrayList<>();
+    	for (SDTGuard g : other.guards)
+    		guards.add(g.copy());
+    	this.guardSet = new LinkedHashSet<>(guards);
+    	for (SDTGuard g : other.guards)
+    		guardSet.add(g.copy());
+    }
 
     @Override
     public abstract GuardExpression toExpr();

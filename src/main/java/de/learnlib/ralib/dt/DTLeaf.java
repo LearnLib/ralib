@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -66,6 +67,14 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		shortPrefixes = new PrefixSet();
 		otherPrefixes = new PrefixSet();
 		this.oracle = oracle;
+	}
+	
+	public DTLeaf(DTLeaf l) {
+		access = new MappedPrefix(l.access);
+		shortPrefixes = new PrefixSet(l.shortPrefixes);
+		otherPrefixes = new PrefixSet(l.otherPrefixes);
+		branching.putAll(l.branching);
+		oracle = l.oracle;
 	}
 	
 	public void addPrefix(Word<PSymbolInstance> p) {
@@ -152,8 +161,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	public VarMapping getRemapping(PrefixContainer r) {
 		if (r.getPrefix().equals(this.getAccessSequence()))
 			return null;
+		MappedPrefix mp = otherPrefixes.get(r.getPrefix());
+		if (mp == null)
+			mp = shortPrefixes.get(r.getPrefix());
 		PIVRemappingIterator it = new PIVRemappingIterator(
-				otherPrefixes.get(r.getPrefix()).getParsInVars(),
+				mp.getParsInVars(),
 				this.access.getParsInVars());
 		return it.next();
 	}
@@ -216,7 +228,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	
 	@Override
 	public Collection<PrefixContainer> getOtherPrefixes() {
-		return otherPrefixes.get().stream().collect(Collectors.toList());
+		return Stream.concat(
+				otherPrefixes.get().stream(),
+				shortPrefixes.get().stream())
+				.collect(Collectors.toList());
 	}
 	
 	/**
@@ -268,20 +283,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
 				}
 			}
-			
-//			Iterator<Word<PSymbolInstance>> itB = prefixBranching.getBranches().keySet().iterator();
-//			Iterator<Word<PSymbolInstance>> itA = accessBranching.getBranches().keySet().iterator();
-//			
-//			while (itB.hasNext()) {
-//				assert itA.hasNext();
-//				// doesn't work in general, guards may be in a different order
-//				Word<PSymbolInstance> p = itB.next();
-//				Word<PSymbolInstance> a = itA.next();
-//				DTLeaf leaf = dt.sift(p, true);
-//				if (!dt.getLeaf(a).equals(leaf)) {
-//					divergance = new ImmutablePair<Word<PSymbolInstance>, Word<PSymbolInstance>>(p, a);
-//				}
-//			}
 		}
 		return divergance;
 	}
@@ -374,8 +375,13 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		if (!checkVariableConsistency(access, dt, consts)) {
 			return false;
 		}
-		assert(shortPrefixes.length() == 0);
+
 		Iterator<MappedPrefix> it = otherPrefixes.iterator();
+		while (it.hasNext()) {
+			if (!checkVariableConsistency(it.next(), dt, consts))
+				return false;
+		}
+		it = shortPrefixes.iterator();
 		while (it.hasNext()) {
 			if (!checkVariableConsistency(it.next(), dt, consts))
 				return false;
@@ -418,5 +424,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private boolean isInput(ParameterizedSymbol ps) {
         return (ps instanceof InputSymbol);
+    }
+    
+    @Override
+    public DTLeaf copy() {
+    	return new DTLeaf(this);
     }
 }

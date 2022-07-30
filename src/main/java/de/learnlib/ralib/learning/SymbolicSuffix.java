@@ -60,6 +60,17 @@ public class SymbolicSuffix {
         this(prefix, suffix, new Constants());
     }    
     
+    public SymbolicSuffix(SymbolicSuffix s) {
+    	freeValues = new LinkedHashSet<>();
+    	dataValues = new LinkedHashMap<>();
+    	actions = Word.fromWords(s.actions);
+    	
+    	for (SuffixValue sv : s.freeValues)
+    		freeValues.add(sv.copy());
+    	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
+    		dataValues.put(new Integer(dv.getKey()), dv.getValue().copy());
+    }
+    
     /**
      * creates a symbolic suffix from a prefix and a suffix
      * data word.
@@ -224,6 +235,10 @@ public class SymbolicSuffix {
     	
     	SymbolicSuffix concatenatedSuffix = new SymbolicSuffix(actions, dataValues, freeValues);
     	return concatenatedSuffix;
+    }
+    
+    public int length() {
+    	return actions.length();
     }
     
     @Override

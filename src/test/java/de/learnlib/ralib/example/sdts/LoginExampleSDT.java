@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.example.sdts;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -42,6 +43,14 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
         this.suffix = suffix;
         this.registers = registers;
     }
+    
+    public LoginExampleSDT(LoginExampleSDT other) {
+    	clazz = other.clazz;
+    	suffix = new SymbolicSuffix(other.suffix);
+    	registers = new LinkedHashSet<>();
+    	for (Register r : other.registers)
+    		registers.add(r.copy());
+    }
 
     @Override
     public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
@@ -58,7 +67,12 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     @Override
     public LoginExampleSDT relabel(VarMapping relabelling) {
         return this;
-    }    
+    }
+    
+    @Override
+    public LoginExampleSDT copy() {
+    	return new LoginExampleSDT(this);
+    }
 
     @Override
     public String toString() {

@@ -30,7 +30,11 @@ public abstract class SymbolicDataValueGenerator {
     
     private SymbolicDataValueGenerator() {
     }
-        
+    
+    public void set(SymbolicDataValueGenerator g) {
+    	id = g.id;
+    }
+    
     public abstract SymbolicDataValue next(DataType type);
     
     public static final class ParameterGenerator extends SymbolicDataValueGenerator {

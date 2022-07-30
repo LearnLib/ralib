@@ -63,7 +63,11 @@ public class SDTAndGuard extends SDTMultiGuard {
         super(param, ConDis.AND, ifGuards);
     }
 
-    private List<GuardExpression> toExprList() {
+    public SDTAndGuard(SDTAndGuard other) {
+    	super(other);
+	}
+
+	private List<GuardExpression> toExprList() {
         List<GuardExpression> exprs = new ArrayList<>();
         for (SDTGuard guard : this.guards) {
             exprs.add(guard.toExpr());
@@ -102,7 +106,9 @@ public class SDTAndGuard extends SDTMultiGuard {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    
-    
+    @Override
+    public SDTAndGuard copy() {
+    	return new SDTAndGuard(this);
+    }
     
 }

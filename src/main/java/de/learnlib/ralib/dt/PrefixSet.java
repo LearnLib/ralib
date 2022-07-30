@@ -1,5 +1,6 @@
 package de.learnlib.ralib.dt;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -14,6 +15,10 @@ public class PrefixSet {
 	
 	public PrefixSet() {
 		prefixes = new LinkedHashSet<MappedPrefix>();
+	}
+	
+	public PrefixSet(PrefixSet ps) {
+		prefixes = new LinkedHashSet<MappedPrefix>(ps.get());
 	}
 	
 	public void add(MappedPrefix p) {
@@ -58,6 +63,13 @@ public class PrefixSet {
 	
 	public boolean contains(Word<PSymbolInstance> word) {
 		return prefixes.stream().anyMatch(mp -> mp.getPrefix().equals(word));
+	}
+	
+	public Collection<Word<PSymbolInstance>> getWords() {
+		Collection<Word<PSymbolInstance>> words = new LinkedHashSet<Word<PSymbolInstance>>();
+		for (MappedPrefix p : prefixes)
+			words.add(p.getPrefix());
+		return words;
 	}
 	
 	public int length() {
