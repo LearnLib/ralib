@@ -26,4 +26,6 @@ public abstract class DTNode {
 	}
 	
 	public abstract boolean isLeaf();
+	
+	public abstract DTNode copy();
 }

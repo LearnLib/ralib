@@ -59,4 +59,6 @@ public interface SymbolicDecisionTree {
      * @return 
      */
     public boolean isAccepting();
+    
+    public SymbolicDecisionTree copy();
 }

@@ -55,6 +55,15 @@ public class DT implements DiscriminationTree {
 		this.consts = consts;
 	}
 	
+	public DT(DT dt) {
+		this.inputs = dt.inputs;
+		this.oracle = dt.oracle;
+		this.ioMode = dt.ioMode;
+		this.consts = dt.consts;
+		
+		root = new DTInnerNode(dt.root);
+	}
+	
 	@Override
 	public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add) {
 		return sift(prefix, add, null);

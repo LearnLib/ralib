@@ -39,8 +39,12 @@ public class DisequalityGuard extends SDTIfGuard {
             SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.NOT_EQUALS);
     }
+    
+    public DisequalityGuard(DisequalityGuard other) {
+    	super(other);
+	}
 
-    @Override
+	@Override
     public EqualityGuard toDeqGuard() {
         return new EqualityGuard(parameter, register);
     }
@@ -123,6 +127,11 @@ public class DisequalityGuard extends SDTIfGuard {
         }
         return guards;
     }
+
+	@Override
+	public SDTGuard copy() {
+		return new DisequalityGuard(this);
+	}
     
     
 }

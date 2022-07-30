@@ -16,6 +16,12 @@ public class DTBranch {
 			child.setParentBranch(this);
 		}
 		
+		public DTBranch(DTBranch b) {
+			sdt = b.sdt.copy();
+			child = b.child.copy();
+			child.setParentBranch(this);
+		}
+		
 		public void setChild(DTNode child) {
 			this.child = child;
 			child.setParentBranch(this);

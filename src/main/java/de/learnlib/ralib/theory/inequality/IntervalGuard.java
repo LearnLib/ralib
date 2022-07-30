@@ -50,6 +50,12 @@ public class IntervalGuard extends SDTGuard {
         rightLimit = rl;
     }
     
+    public IntervalGuard(IntervalGuard other) {
+    	super(other);
+    	leftLimit = other.leftLimit.copy();
+    	rightLimit = other.rightLimit.copy();
+    }
+    
     public EqualityGuard toEqGuard() {
         assert !isIntervalGuard();
         SymbolicDataValue r = null;
@@ -349,6 +355,11 @@ public class IntervalGuard extends SDTGuard {
     @Override
     public List<SDTGuard> unwrap() {
         return Collections.singletonList((SDTGuard) this);
+    }
+    
+    @Override
+    public IntervalGuard copy() {
+    	return new IntervalGuard(this);
     }
 
 }

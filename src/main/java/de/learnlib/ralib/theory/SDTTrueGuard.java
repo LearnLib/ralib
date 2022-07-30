@@ -36,6 +36,10 @@ public class SDTTrueGuard extends SDTGuard {
     public SDTTrueGuard(SymbolicDataValue.SuffixValue param) {
         super(param);
     }
+    
+    public SDTTrueGuard(SDTTrueGuard other) {
+    	super(other);
+    }
 
     @Override
     public String toString() {
@@ -81,6 +85,11 @@ public class SDTTrueGuard extends SDTGuard {
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         throw new IllegalStateException("trying to merge true guard");
+    }
+    
+    @Override
+    public SDTTrueGuard copy() {
+    	return new SDTTrueGuard(this);
     }
 
     
