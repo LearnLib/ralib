@@ -471,9 +471,15 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		SuffixValueGenerator sgen, ParameterGenerator pgen) {
     	
     	if (sdt instanceof SDTLeaf) {
-    		assert (index == suffix.length());
-    		
     		SDTLeaf sdtLeaf = (SDTLeaf)sdt;
+    		
+    		int len = suffix.length();
+    		if (index < len) {
+    			Word<ParameterizedSymbol> acts = suffix.getActions().suffix(len - index);
+    			Word<PSymbolInstance> suff = DataWords.instantiate(acts, new DataValue[0]);
+    			prefix = prefix.concat(suff);
+    		}
+    		
     		words.put(prefix, sdtLeaf.isAccepting());
     	}
     	else {

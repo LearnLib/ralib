@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.oracles;
 
+import java.util.Map;
+
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -69,5 +71,8 @@ public interface TreeOracle {
     public Branching updateBranching(Word<PSymbolInstance> prefix, 
             ParameterizedSymbol ps, Branching current, 
             PIV piv, SymbolicDecisionTree ... sdts);
+    
+    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
      
 }

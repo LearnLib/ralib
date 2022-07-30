@@ -213,5 +213,11 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         return getInitialBranching(prefix, ps, piv, sdts);
     }
+    
+    @Override
+    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    	throw new UnsupportedOperationException("Not implemented");
+    }
 
 }

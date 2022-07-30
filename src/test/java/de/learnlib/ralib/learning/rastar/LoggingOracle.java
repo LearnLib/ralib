@@ -17,6 +17,9 @@
 package de.learnlib.ralib.learning.rastar;
 
 import net.automatalib.words.Word;
+
+import java.util.Map;
+
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -64,6 +67,10 @@ public class LoggingOracle implements TreeOracle {
         return b;
     }
 
-
+    @Override
+    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    	return treeoracle.instantiate(prefix, suffix, sdt, piv);
+    }
 
 }
