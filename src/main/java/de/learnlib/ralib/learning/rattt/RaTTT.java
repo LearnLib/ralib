@@ -224,13 +224,14 @@ public class RaTTT {
 	        while(processShortPrefixes());
 	        // if dangling short prefixes present, examine candidate counterexample
 	        if (!shortPrefixes.isEmpty()) {
+
+	        	updatePrefixFinder();
 	        	ceWord = prefixFinder.getCounterExample().getInput();
+	        	
 	        	clearIndices();
 	        	
 	        	// if there's still a dangling prefix but no more CEs, we have a problem
 	        	assert ceWord != null;
-	        	
-	        	updatePrefixFinder();
 	        }
 	        else
 	        	return true;
