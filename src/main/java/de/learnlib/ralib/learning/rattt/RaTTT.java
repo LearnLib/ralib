@@ -26,6 +26,8 @@ import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
+import de.learnlib.ralib.learning.RaLearningAlgorithm;
+import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
@@ -36,7 +38,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
-public class RaTTT {
+public class RaTTT implements RaLearningAlgorithm {
 
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
     
@@ -431,5 +433,10 @@ public class RaTTT {
     private void clearIndices() {
     	setIndicesToSearch();
     }
+
+	@Override
+	public RaLearningAlgorithmName getName() {
+		return RaLearningAlgorithmName.RATTT;
+	}
 }
 

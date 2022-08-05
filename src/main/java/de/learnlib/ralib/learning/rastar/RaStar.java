@@ -24,6 +24,8 @@ import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
+import de.learnlib.ralib.learning.RaLearningAlgorithm;
+import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -43,7 +45,7 @@ import net.automatalib.words.Word;
  * 
  * @author falk
  */
-public class RaStar {
+public class RaStar implements RaLearningAlgorithm {
     
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
     
@@ -179,4 +181,9 @@ public class RaStar {
         components.putAll(obs.getComponents());
         return components;
     }
+
+	@Override
+	public RaLearningAlgorithmName getName() {
+		return RaLearningAlgorithmName.RASTAR;
+	}
 }
