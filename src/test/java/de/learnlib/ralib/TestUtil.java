@@ -16,9 +16,12 @@
  */
 package de.learnlib.ralib;
 
+import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.oracles.DataWordOracle;
+import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -27,7 +30,9 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.SpecialSymbols;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import java.util.Collection;
@@ -84,6 +89,15 @@ public class TestUtil {
                 ioFilter, teachers, consts, solver);
         
         return mto;
+    }
+    
+    
+    /**
+     * Creates an MTO from an RA by simulating it.
+     */
+    public static MultiTheoryTreeOracle createSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
+	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
+	    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
     }
     
     public static RegisterAutomatonImporter getLoader(String resName) {
