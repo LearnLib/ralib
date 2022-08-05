@@ -15,11 +15,14 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -31,6 +34,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class LearnLoginTest extends RaLibTestSuite {
@@ -64,9 +68,9 @@ public class LearnLoginTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                         new DataValue(T_UID, 0), new DataValue(T_PWD, 0)),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, 0), new DataValue(T_PWD, 0)));
     
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
@@ -77,6 +81,31 @@ public class LearnLoginTest extends RaLibTestSuite {
         
         Assert.assertEquals(hyp.getStates().size(), 3);
         Assert.assertEquals(hyp.getTransitions().size(), 11);        
-
     }
+    
+
+    @Test
+    public void learnLoginExampleRandom() {
+        
+        Constants consts = new Constants();        
+        RegisterAutomaton sul = AUTOMATON;
+        DataWordOracle dwOracle = new SimulatorOracle(sul);
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
+        teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
+        
+        RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
+        runner.setMaxDepth(6);
+        for (long seed=0; seed<10; seed++) {
+        	runner.setSeed(seed);
+	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	        
+	        Assert.assertEquals(hyp.getStates().size(), 4);
+	        Assert.assertEquals(hyp.getTransitions().size(), 14);
+	        logger.log(Level.FINE, "HYP: {0}", hyp);
+        }
+    }
+    
 }
