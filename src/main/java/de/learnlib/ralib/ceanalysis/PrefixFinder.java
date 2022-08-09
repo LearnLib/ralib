@@ -285,7 +285,17 @@ public class PrefixFinder {
 	        assert mid >= 0;
 	
 	        idx = mid;
-	        
+	        	        
+	        System.out.println(Arrays.toString(results));
+	        System.out.println(idx + " : " + results[idx]);
+
+	        // if in the last step there was no counterexample,
+	        // we have to move one step to the left
+	        if (!results[idx]) {
+	        	assert idx > 0;
+	        	idx--;
+	        }
+
 	        if (!isCE[idx]) {
 	        	max = idx - 1;
 	        	min = 0;
@@ -293,17 +303,6 @@ public class PrefixFinder {
 	        else
 	        	break;
         }
-
-        System.out.println(Arrays.toString(results));
-        System.out.println(idx + " : " + results[idx]);
-
-        // if in the last step there was no counterexample,
-        // we have to move one step to the left
-        if (!results[idx]) {
-            assert idx > 0;
-            idx--;
-        }
-
         return idx;
     }
 
