@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
@@ -195,13 +196,27 @@ public class DT implements DiscriminationTree {
 		
 		PrefixSet shortPrefixes = leaf.getShortPrefixes();
 		PrefixSet prefixes = leaf.getPrefixes();
-		
+
 		leaf.clear();
+		DTInnerNode parent = leaf.getParent();
 		for (MappedPrefix s : shortPrefixes.get()) {
-			sift(s.getPrefix(), true, (ShortPrefix)s);
+//			sift(s.getPrefix(), true, (ShortPrefix)s);
+			Pair<DTNode,TreeQueryResult> res = parent.sift(s.getPrefix(), getOracle());
+			assert res != null;
+			
+			ShortPrefix sp = (ShortPrefix)s;
+			sp.addTQR(parent.getSuffix(), res.getRight());
+			DTLeaf l = (DTLeaf)res.getLeft();
+			l.addShortPrefix(sp);
 		}
 		for (MappedPrefix p : prefixes.get()) {
-			sift(p.getPrefix(), true);
+//			sift(p.getPrefix(), true);
+			Pair<DTNode,TreeQueryResult> res = parent.sift(p.getPrefix(), getOracle());
+			assert res != null;
+			
+			p.addTQR(parent.getSuffix(), res.getRight());
+			DTLeaf l = (DTLeaf)res.getLeft();
+			l.addPrefix(p);
 		}
 	}
 	

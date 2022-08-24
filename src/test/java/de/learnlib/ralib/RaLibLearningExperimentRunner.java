@@ -14,6 +14,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -49,13 +50,17 @@ public class RaLibLearningExperimentRunner {
 	private double freshProbability = 0.5; // prob. of choosing a fresh data value
 	private int maxDepth = 20; // max depth
 	
+	private MeasuringOracle.Measurements measures = null;
 
 	public RaLibLearningExperimentRunner(Logger logger) {
 		seed = 0;
 		this.logger = logger;
 	}
 	
-
+	public MeasuringOracle.Measurements getMeasurements() {
+		return measures;
+	}
+	
 	public void setMaxRuns(long maxRuns) {
 		this.maxRuns = maxRuns;
 	}
@@ -75,6 +80,10 @@ public class RaLibLearningExperimentRunner {
 	public void setSeed(long seed) {
 		this.seed = seed;
 	}
+	
+	public void setUseOldAnalyzer(boolean useOldAnalyzer) {
+		this.useOldAnalyzer = useOldAnalyzer;
+	}
 
 	/**
 	 * Launches a learning experiments for acceptor RAs.
@@ -88,7 +97,7 @@ public class RaLibLearningExperimentRunner {
 			logger.log(Level.INFO, "SEED={0}", seed);
 			Random random = new Random(seed);
 			CacheDataWordOracle ioCache = new CacheDataWordOracle(dataOracle);
-			MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioCache, teachers, consts, solver);
+			MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, solver));
 
 			MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -129,6 +138,8 @@ public class RaLibLearningExperimentRunner {
 				learner.addCounterexample(ce);
 			}
 
+			measures = mto.getMeasurements();
+			
 			Assert.assertNull(ce);
 			Hypothesis hyp = learner.getHypothesis();
 

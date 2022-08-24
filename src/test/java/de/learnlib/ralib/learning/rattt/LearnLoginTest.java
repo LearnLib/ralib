@@ -7,6 +7,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -22,6 +23,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -86,6 +88,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
     public void learnLoginExampleRandom() {
+        final int SEEDS = 10;
         
         Constants consts = new Constants();        
         RegisterAutomaton sul = AUTOMATON;
@@ -96,16 +99,25 @@ public class LearnLoginTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
         
+        MeasuringOracle.Measurements[] measuresTTT = new MeasuringOracle.Measurements[SEEDS];
+        MeasuringOracle.Measurements[] measuresStar = new MeasuringOracle.Measurements[SEEDS];
+        
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
-        for (long seed=0; seed<10; seed++) {
+        for (int seed=0; seed<SEEDS; seed++) {
         	runner.setSeed(seed);
 	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	        measuresTTT[seed] = runner.getMeasurements();
 	        
 	        Assert.assertEquals(hyp.getStates().size(), 4);
 	        Assert.assertEquals(hyp.getTransitions().size(), 14);
 	        logger.log(Level.FINE, "HYP: {0}", hyp);
+	        
+	        hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	        measuresStar[seed] = runner.getMeasurements();
         }
+        System.out.println("Queries (TTT): " + Arrays.toString(measuresTTT));
+        System.out.println("Queries (Star): " + Arrays.toString(measuresStar));
     }
     
 }
