@@ -126,11 +126,12 @@ public class RaTTT implements RaLearningAlgorithm {
             components.putAll(dt.getComponents());
             
             AutomatonBuilder ab;
-            if (useOldAnalyzer)
-            	ab = new AutomatonBuilder(components, consts);
-            else
+//            if (useOldAnalyzer)
+//            	ab = new AutomatonBuilder(components, consts);
+//            else
             	ab = new AutomatonBuilder(components, consts, dt);
-            hyp = ab.toRegisterAutomaton();        
+            hyp = ab.toRegisterAutomaton();
+            prefixFinder = null;
             
             //FIXME: the default logging appender cannot log models and data structures
             //System.out.println(hyp.toString());
@@ -386,6 +387,7 @@ public class RaTTT implements RaLearningAlgorithm {
         
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
         Word<PSymbolInstance> prefix = res.getPrefix();
+//        Word<PSymbolInstance> prefix = hyp.transformTransitionSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(prefix);
         if (leaf != null && isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length())))
         	dt.addSuffix(res.getSuffix(), leaf);
@@ -394,6 +396,14 @@ public class RaTTT implements RaLearningAlgorithm {
         		leaf = dt.sift(prefix, true);
         	leaf.elevatePrefix(dt, prefix, (DTHyp)hyp);
         	dt.split(prefix, res.getSuffix(), leaf);
+        	
+//        	Word<PSymbolInstance> prior = prefix.prefix(prefix.length()-1);
+//        	while (prior.length() > 0) {
+//        		DTLeaf priorLeaf = dt.getLeaf(prior);
+//        		if (priorLeaf == null)
+//        			priorLeaf = dt.sift(prior, true);
+//        		prior = prior.prefix(prior.length()-1);
+//        	}
         }
         return true;
     }
@@ -437,6 +447,10 @@ public class RaTTT implements RaLearningAlgorithm {
 	@Override
 	public RaLearningAlgorithmName getName() {
 		return RaLearningAlgorithmName.RATTT;
+	}
+	
+	public void doThoroughCESearch(boolean thoroughSearch) {
+		this.thoroughSearch = thoroughSearch;
 	}
 }
 
