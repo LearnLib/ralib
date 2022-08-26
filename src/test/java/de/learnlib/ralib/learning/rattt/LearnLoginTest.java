@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -99,8 +100,8 @@ public class LearnLoginTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
         
-        MeasuringOracle.Measurements[] measuresTTT = new MeasuringOracle.Measurements[SEEDS];
-        MeasuringOracle.Measurements[] measuresStar = new MeasuringOracle.Measurements[SEEDS];
+        Measurements[] measuresTTT = new Measurements[SEEDS];
+        Measurements[] measuresStar = new Measurements[SEEDS];
         
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
@@ -108,6 +109,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         	runner.setSeed(seed);
 	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	        measuresTTT[seed] = runner.getMeasurements();
+	        runner.resetMeasurements();
 	        
 	        Assert.assertEquals(hyp.getStates().size(), 4);
 	        Assert.assertEquals(hyp.getTransitions().size(), 14);
@@ -115,6 +117,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 	        
 	        hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	        measuresStar[seed] = runner.getMeasurements();
+	        runner.resetMeasurements();
         }
         System.out.println("Queries (TTT): " + Arrays.toString(measuresTTT));
         System.out.println("Queries (Star): " + Arrays.toString(measuresStar));

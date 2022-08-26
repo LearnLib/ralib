@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -56,8 +57,11 @@ public class LearnStackTest extends RaLibTestSuite {
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
 
-	    MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-	              dwOracle, teachers, new Constants(), solver);
+	    Measurements mes = new Measurements();
+	    
+	    MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
+	              dwOracle, teachers, new Constants(), solver),
+	    		mes);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -187,8 +191,8 @@ public class LearnStackTest extends RaLibTestSuite {
         theory.setUseSuffixOpt(false);
         teachers.put(T_INT, theory);
 
-        MeasuringOracle.Measurements[] measuresTTT = new MeasuringOracle.Measurements[SEEDS];
-        MeasuringOracle.Measurements[] measuresStar = new MeasuringOracle.Measurements[SEEDS];
+        Measurements[] measuresTTT = new Measurements[SEEDS];
+        Measurements[] measuresStar = new Measurements[SEEDS];
         
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
@@ -196,12 +200,14 @@ public class LearnStackTest extends RaLibTestSuite {
         	runner.setSeed(seed);
         	Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
         	measuresTTT[seed] = runner.getMeasurements();
+        	runner.resetMeasurements();
         	
         	Assert.assertEquals(hypTTT.getStates().size(), 4);
         	Assert.assertEquals(hypTTT.getTransitions().size(), 10);
         	
         	Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
         	measuresStar[seed] = runner.getMeasurements();
+        	runner.resetMeasurements();
         }
         
         System.out.println("Queries (RaTTT): " + Arrays.toString(measuresTTT));

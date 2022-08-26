@@ -11,29 +11,24 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class MeasuringOracle implements TreeOracle {
-
-	public class Measurements {
-		public int queries = 0;
-		
-		@Override
-		public String toString() {
-			return "{" + queries + "}";
-		}
-	}
 	
 	private final TreeOracle oracle;
 	
-	private Measurements result;
+	private final Measurements result;
 	
-	public MeasuringOracle(TreeOracle oracle) {
+	public MeasuringOracle(TreeOracle oracle, Measurements m) {
 		this.oracle = oracle;
-		result = new Measurements();
-		resetMeasurements();
+		this.result = m;
 	}
 	
 	@Override
 	public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-		result.queries++;
+		result.treeQueries++;
+		SymbolicWord key = new SymbolicWord(prefix, suffix);
+		if (result.treeQueryWords.containsKey(key))
+			result.treeQueryWords.put(key, result.treeQueryWords.get(key) + 1);
+		else
+			result.treeQueryWords.put(key, 1);
 		return oracle.treeQuery(prefix, suffix);
 	}
 
@@ -53,13 +48,5 @@ public class MeasuringOracle implements TreeOracle {
 	public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
 			SymbolicDecisionTree sdt, PIV piv) {
 		return oracle.instantiate(prefix, suffix, sdt, piv);
-	}
-
-	public Measurements getMeasurements() {
-		return result;
-	}
-	
-	public void resetMeasurements() {
-		result.queries = 0;
 	}
 }
