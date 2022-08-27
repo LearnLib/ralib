@@ -150,7 +150,7 @@ public class PrefixFinder {
 	        		isCE[idx] = true;
 	        	}
 	        	candidates[idx] = candidate(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
-	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
+//	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
 	            return true;
 	        }
         }
@@ -219,18 +219,18 @@ public class PrefixFinder {
 
         Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
 
-        System.out.println("Branching Hyp:");
-        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
-        System.out.println("Branching Sys:");
-        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
-        System.out.println("Branching Updated:");
-        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : updated.getBranches().entrySet()) {
-            System.out.println(e.getKey() + " -> " + e.getValue());
-        }
+//        System.out.println("Branching Hyp:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Sys:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Updated:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : updated.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
 
         if (updated.getBranches().size() == branchHyp.getBranches().size()) {
             return transition;
@@ -286,8 +286,8 @@ public class PrefixFinder {
 	
 	        idx = mid;
 	        	        
-	        System.out.println(Arrays.toString(results));
-	        System.out.println(idx + " : " + results[idx]);
+//	        System.out.println(Arrays.toString(results));
+//	        System.out.println(idx + " : " + results[idx]);
 
 	        // if in the last step there was no counterexample,
 	        // we have to move one step to the left
