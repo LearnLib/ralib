@@ -80,5 +80,4 @@ public class DTHyp extends Hypothesis {
 //		
 //		throw new IllegalStateException("cannot be reached!");
 	}
-	
 }

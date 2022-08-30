@@ -124,15 +124,16 @@ public class RaTTT implements RaLearningAlgorithm {
         	
             Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             components.putAll(dt.getComponents());
-            
+
             AutomatonBuilder ab;
-//            if (useOldAnalyzer)
-//            	ab = new AutomatonBuilder(components, consts);
-//            else
+            if (ioMode)
+            	ab = new IOAutomatonBuilder(components, consts, dt);
+            else
             	ab = new AutomatonBuilder(components, consts, dt);
             hyp = ab.toRegisterAutomaton();
-            prefixFinder = null;
             
+            prefixFinder = null;
+
             //FIXME: the default logging appender cannot log models and data structures
             //System.out.println(hyp.toString());
             log.logModel(hyp);
@@ -277,7 +278,6 @@ public class RaTTT implements RaLearningAlgorithm {
     	// no refinement, so must be a new location
     	addNewLocation(word, src_c);
     	return false;
-
     }
     
     private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {
@@ -421,10 +421,14 @@ public class RaTTT implements RaLearningAlgorithm {
     public Hypothesis getHypothesis() {
     	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
     	components.putAll(dt.getComponents());
-        AutomatonBuilder ab = new AutomatonBuilder(components, consts, this.dt);
-        if (ioMode) {
-            ab = new IOAutomatonBuilder(components, consts);
-        }
+        AutomatonBuilder ab;
+        if (ioMode)
+        	ab = new IOAutomatonBuilder(components, consts, dt);
+        else
+        	ab = new AutomatonBuilder(components, consts, this.dt);
+//        if (ioMode) {
+//            ab = new IOAutomatonBuilder(components, consts);
+//        }
         return ab.toRegisterAutomaton();   
     }
     
