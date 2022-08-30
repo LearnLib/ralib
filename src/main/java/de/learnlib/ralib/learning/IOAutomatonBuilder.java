@@ -34,6 +34,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -57,6 +58,16 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
             Constants consts) {
         super(components, consts);
         
+        this.reverseConsts = new LinkedHashMap<>();
+        for (Entry<Constant, DataValue<?>> c : consts) {
+            reverseConsts.put(c.getValue().getId(), c.getKey());
+        }
+    }
+
+    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, 
+            Constants consts, DT dt) {
+    	super(components, consts, dt);
+
         this.reverseConsts = new LinkedHashMap<>();
         for (Entry<Constant, DataValue<?>> c : consts) {
             reverseConsts.put(c.getValue().getId(), c.getKey());
