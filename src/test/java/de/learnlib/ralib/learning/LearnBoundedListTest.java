@@ -29,6 +29,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -70,7 +71,7 @@ public class LearnBoundedListTest {
 		IntegerEqualityTheory dit = new IntegerEqualityTheory(intType);
 		teachers.put(intType, dit);
 
-		ConstraintSolver solver = new SimpleConstraintSolver();
+		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
 		SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
