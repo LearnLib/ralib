@@ -67,4 +67,10 @@ public interface SDTLogicOracle {
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining,
             TransitionGuard refined, PIV pivRefined);
     
+    /**
+     * Returns true if two guards are mutually exclusive (they cannot be both true)
+     */
+    public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
+			PIV piv2);
+    
 }
