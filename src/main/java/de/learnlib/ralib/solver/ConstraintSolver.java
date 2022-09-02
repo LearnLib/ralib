@@ -17,6 +17,9 @@
 package de.learnlib.ralib.solver;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
  *
@@ -24,6 +27,6 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
  */
 public interface ConstraintSolver {
         
-    public boolean isSatisfiable(GuardExpression expr);
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val);
     
 }

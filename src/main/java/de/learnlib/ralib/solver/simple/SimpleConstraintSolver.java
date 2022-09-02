@@ -17,6 +17,9 @@
 package de.learnlib.ralib.solver.simple;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.solver.ConstraintSolver;
 
 
@@ -33,7 +36,7 @@ public class SimpleConstraintSolver implements ConstraintSolver {
     }
     
     @Override
-    public boolean isSatisfiable(GuardExpression expr) {
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
     	return solver.isSatisfiable(expr);
     }
 
