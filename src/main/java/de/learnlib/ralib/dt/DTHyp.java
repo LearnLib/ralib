@@ -45,6 +45,14 @@ public class DTHyp extends Hypothesis {
 			ret.add(mp.getPrefix());
 		return ret;
 	}
+	
+	@Override
+	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
+		Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+		if (tseq == null)
+			return dt.getLeaf(word).getAccessSequence();
+		return tseq;
+	}
 
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word,
@@ -55,8 +63,18 @@ public class DTHyp extends Hypothesis {
 		assert leaf != null;
 		
 		if (leaf.getAccessSequence().equals(location) ||
-				!leaf.getShortPrefixes().contains(location))
-			return super.transformTransitionSequence(word);
+				!leaf.getShortPrefixes().contains(location)) {
+			Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+			if (tseq == null) {
+				ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
+				for (Word<PSymbolInstance> p : leaf.getBranching(ps).getBranches().keySet()) {
+					DTLeaf l = dt.getLeaf(p);
+					if (l != null && l == dt.getSink())
+						return p;
+				}
+			}
+			return tseq;
+		}
 		
 		ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
 		

@@ -52,7 +52,7 @@ public class RaTTT implements RaLearningAlgorithm {
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples = 
             new LinkedList<>();
         
-    private Hypothesis hyp = null;
+    private DTHyp hyp = null;
     
     private final TreeOracle sulOracle;
     
@@ -76,7 +76,7 @@ public class RaTTT implements RaLearningAlgorithm {
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
             ParameterizedSymbol ... inputs) {
     	
-    	this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, true, inputs);
+    	this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, false, inputs);
     }
     
     public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, 
@@ -121,6 +121,8 @@ public class RaTTT implements RaLearningAlgorithm {
         do {
             
         	dt.checkVariableConsistency();
+        	if (ioMode)
+        		while(!dt.checkIOConsistency(hyp));
         	
             Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             components.putAll(dt.getComponents());
@@ -130,7 +132,7 @@ public class RaTTT implements RaLearningAlgorithm {
             	ab = new IOAutomatonBuilder(components, consts, dt);
             else
             	ab = new AutomatonBuilder(components, consts, dt);
-            hyp = ab.toRegisterAutomaton();
+            hyp = (DTHyp)ab.toRegisterAutomaton();
             
             prefixFinder = null;
 
@@ -292,7 +294,7 @@ public class RaTTT implements RaLearningAlgorithm {
         	Word<PSymbolInstance> refinedTarget = divergance.getKey();
         	Word<PSymbolInstance> target = divergance.getValue();
         	
-        	addLocation(refinedTarget, src_c, dt.getLeaf(target), dt.getLeaf(refinedTarget));
+        	dt.addLocation(refinedTarget, src_c, dt.getLeaf(target), dt.getLeaf(refinedTarget));
         	return true;
         }
         return false;
@@ -317,7 +319,7 @@ public class RaTTT implements RaLearningAlgorithm {
     				DTLeaf dest_c = dt.getLeaf(dest);
     				DTLeaf short_c = dt.getLeaf(p);
     				if (dest_c != short_c) {
-    					addLocation(p, src_c, dest_c, short_c);
+    					dt.addLocation(p, src_c, dest_c, short_c);
     					refinement = true;
     					continue SP;
     				}
@@ -331,15 +333,15 @@ public class RaTTT implements RaLearningAlgorithm {
     	return refinement;
     }
     
-    private void addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
-    	
-    	Word<PSymbolInstance> prefix = target.prefix(target.length()-1);
-    	SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
-    	SymbolicSuffix suff2 = dt.findLCA(dest_c, target_c).getSuffix();
-    	SymbolicSuffix suffix = suff1.concat(suff2);
-
-    	dt.split(prefix, suffix, src_c);
-    }
+//    private void addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
+//    	
+//    	Word<PSymbolInstance> prefix = target.prefix(target.length()-1);
+//    	SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
+//    	SymbolicSuffix suff2 = dt.findLCA(dest_c, target_c).getSuffix();
+//    	SymbolicSuffix suffix = suff1.concat(suff2);
+//
+//    	dt.split(prefix, suffix, src_c);
+//    }
     
     private SymbolicSuffix smallestDiscriminator(Word<PSymbolInstance> word, DTLeaf word_c, DTLeaf src_c) {
     	
