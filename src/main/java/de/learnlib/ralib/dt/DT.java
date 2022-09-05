@@ -8,12 +8,14 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
+import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
@@ -35,6 +37,7 @@ public class DT implements DiscriminationTree {
 	private TreeOracle oracle;
 	private boolean ioMode;
 	private final Constants consts;
+	private DTLeaf sink = null;
 	
 	public DT(TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol ... inputs) {
 		this.oracle = oracle;
@@ -79,6 +82,13 @@ public class DT implements DiscriminationTree {
 		root.addBranch(b);
 		leaf.setParent(root);
 		leaf.start(this, ioMode, inputs);
+		
+		if (ioMode) {
+			for (DTBranch branch : root.getBranches()) {
+				if (!branch.getSDT().isAccepting())
+					sink = (DTLeaf)branch.getChild();
+			}
+		}
 	}
 	
 	private DTLeaf sift(Word<PSymbolInstance> prefix, boolean add, ShortPrefix shortPrefix) {
@@ -97,10 +107,10 @@ public class DT implements DiscriminationTree {
 			if (siftRes == null) {
 				// discovered new location en passant
 				leaf = new DTLeaf(oracle);
-				if (tqr == null) {
+//				if (tqr == null) {
 					tqr = oracle.treeQuery(prefix, suffix);
 					mp.addTQR(suffix, tqr);
-				}
+//				}
 				//leaf.addShortPrefix(new MappedPrefix(prefix, tqr.getPiv()));
 				leaf.setAccessSequence(mp);
 				DTBranch branch = new DTBranch(tqr.getSdt(), leaf);
@@ -183,6 +193,17 @@ public class DT implements DiscriminationTree {
 		leaf.addTQRs(tqr.getPiv(), suffix);
 		leaf.updateBranching(this);
 	}
+
+    public void addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
+    	
+    	Word<PSymbolInstance> prefix = target.prefix(target.length()-1);
+    	SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
+    	SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
+    	SymbolicSuffix suffix = suff1.concat(suff2);
+
+    	split(prefix, suffix, src_c);
+    }
+
 	
 	/**
 	 * resift all prefixes of a leaf, in order to add them to the correct leaf
@@ -235,6 +256,42 @@ public class DT implements DiscriminationTree {
 			ret = ret && checkConsistency(b.getChild());
 		}
 		return ret;
+	}
+	
+	public boolean checkIOConsistency(DTHyp hyp) {
+		return checkIOConsistency(root, hyp);
+	}
+	
+	private boolean checkIOConsistency(DTNode node, DTHyp hyp) {
+		if (node.isLeaf()) {
+			DTLeaf l = (DTLeaf)node;
+			if (l == sink)
+				return true;
+			Word<PSymbolInstance> p = l.checkIOConsistency();
+			if (p == null)
+				return true;
+			makeIOConsistent(l, p, hyp);
+			return false;
+		}
+		else {
+			DTInnerNode n = (DTInnerNode)node;
+			for (DTBranch b : n.getBranches()) {
+				if (!checkIOConsistency(b.getChild(), hyp))
+					return false;
+			}
+		}
+		return true;
+	}
+	
+	private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp) {
+		Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp);
+		
+		assert div != null;
+		
+		Word<PSymbolInstance> refinedTarget = div.getKey();
+    	Word<PSymbolInstance> target = div.getValue();
+    	
+    	addLocation(refinedTarget, src_c, getLeaf(target), getLeaf(refinedTarget));
 	}
 	
 	/**
@@ -394,5 +451,8 @@ public class DT implements DiscriminationTree {
 		}
 		return node;
 	}
-	
+
+	public DTLeaf getSink() {
+		return sink;
+	}
 }

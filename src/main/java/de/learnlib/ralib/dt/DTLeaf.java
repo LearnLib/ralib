@@ -21,6 +21,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -261,10 +262,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(
 			DT dt, ShortPrefix mp, DTHyp hyp) {
 		Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = null;
-		boolean input = isInputComponent();
+		boolean input = this.isInput(mp.getPrefix().lastSymbol().getBaseSymbol());
 		for (ParameterizedSymbol ps : dt.getInputs()) {
-			if (dt.getIoMode() && (input ^ isInput(ps)))
-				continue;
+//			if (dt.getIoMode() && (input ^ isInput(ps)))
+//				continue;
 			
 			SymbolicDecisionTree[] sdtsP = this.getSDTsForInitialSymbol(mp, ps);
 			Branching prefixBranching = oracle.getInitialBranching(mp.getPrefix(), ps, mp.getParsInVars(), sdtsP);
@@ -276,7 +277,25 @@ public class DTLeaf extends DTNode implements LocationComponent {
 			assert prefixBranching.getBranches().size() == accessBranching.getBranches().size();
 			
 			for (Word<PSymbolInstance> p : prefixBranching.getBranches().keySet()) {
-				Word<PSymbolInstance> a = hyp.branchWithSameGuard(p, accessBranching);
+				if (dt.getIoMode() && (input ^ !isInput(ps))) {
+					dt.getSink().addPrefix(p);
+		            continue;
+		        }
+				
+				Word<PSymbolInstance> a = null;
+				if (hyp == null) {
+					// no hypothesis yet, assume all true guards
+					for (Word<PSymbolInstance> w : accessBranching.getBranches().keySet()) {
+						if (w.lastSymbol().getBaseSymbol().equals(p.lastSymbol().getBaseSymbol())) {
+							a = w;
+							break;
+						}
+					}
+					assert a != null;
+				}
+				else
+					a = hyp.branchWithSameGuard(p, accessBranching);
+				
 				DTLeaf leaf = dt.sift(p, true);
 				
 				if (!dt.getLeaf(a).equals(leaf)) {
@@ -304,15 +323,18 @@ public class DTLeaf extends DTNode implements LocationComponent {
 	void start(DT dt, boolean ioMode, ParameterizedSymbol ... inputs) {
 		boolean input = isInputComponent();
 		for (ParameterizedSymbol ps : inputs) {
-			if (ioMode && (input ^ isInput(ps))) {
-	            continue;
-	        }
+//			if (ioMode && (input ^ isInput(ps))) {
+//	            continue;
+//	        }
 			
 			SymbolicDecisionTree[] sdts = this.getSDTsForInitialSymbol(ps);
 			Branching b = oracle.getInitialBranching(getAccessSequence(), ps, access.getParsInVars(), sdts);
 			branching.put(ps, b);
 			for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
-				dt.sift(prefix, true);
+				if (ioMode && (dt.getSink() != null) && (input ^ isInput(ps)))
+					dt.getSink().addPrefix(prefix);
+				else
+					dt.sift(prefix, true);
 			}
 		}
 	}
@@ -414,7 +436,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 		return true;
 	}
 
-    private boolean isInputComponent() {
+    public boolean isInputComponent() {
         if (this.getAccessSequence().length() == 0)
             return true;
         
@@ -424,6 +446,15 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private boolean isInput(ParameterizedSymbol ps) {
         return (ps instanceof InputSymbol);
+    }
+    
+    public Word<PSymbolInstance> checkIOConsistency() {
+    	boolean input = isInputComponent();
+    	for (MappedPrefix mp : otherPrefixes.get()) {
+    		if (!(input ^ isInput(mp.getPrefix().lastSymbol().getBaseSymbol())))
+    			return mp.getPrefix();
+    	}
+    	return null;
     }
     
     @Override

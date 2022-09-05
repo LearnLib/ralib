@@ -79,6 +79,8 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Transition> tseq = getTransitions(word);
         //System.out.println("TSEQ: " + tseq);
+        if (tseq == null)
+        	return null;
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);        
     }
