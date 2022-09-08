@@ -19,6 +19,7 @@ import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -161,6 +162,7 @@ public class DT implements DiscriminationTree {
 		boolean removed = leaf.removeShortPrefix(prefix);
 		assert(removed == true);	// must not split a prefix that isn't there
 		
+		leaf.getPrimePrefix().getPrefix();
 		DTBranch b = new DTBranch(
 				oracle.treeQuery(leaf.getPrimePrefix().getPrefix(), suffix).getSdt(),
 				leaf);
@@ -286,12 +288,52 @@ public class DT implements DiscriminationTree {
 	private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp) {
 		Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp);
 		
-		assert div != null;
+		if (div != null) {
 		
-		Word<PSymbolInstance> refinedTarget = div.getKey();
-    	Word<PSymbolInstance> target = div.getValue();
+			Word<PSymbolInstance> refinedTarget = div.getKey();
+			Word<PSymbolInstance> target = div.getValue();
     	
-    	addLocation(refinedTarget, src_c, getLeaf(target), getLeaf(refinedTarget));
+			addLocation(refinedTarget, src_c, getLeaf(target), getLeaf(refinedTarget));
+		}
+		else {
+			boolean input = src_c.isInputComponent();
+			Collection<ParameterizedSymbol> used = new LinkedHashSet<ParameterizedSymbol>();
+			DTInnerNode parent = src_c.getParent();
+			do {
+				SymbolicSuffix s = parent.getSuffix();
+				if (s.length() == 1 && 
+						DTLeaf.isInput(s.getActions().firstSymbol()) ^ input)
+					used.add(s.getActions().firstSymbol());
+				parent = parent.getParent();
+			} while (parent != null);
+			
+			ShortPrefix sp = (ShortPrefix)src_c.getShortPrefixes().get(prefix);
+			for (ParameterizedSymbol i : inputs) {
+				if (!(DTLeaf.isInput(i) ^ input) || used.contains(i))
+					continue;
+				TreeQueryResult tqr = oracle.treeQuery(prefix, new SymbolicSuffix(i));
+				Branching newBranch = oracle.getInitialBranching(prefix, i, tqr.getPiv(), tqr.getSdt());
+				Branching oldBranch = sp.getBranching(i);
+				
+				if (newBranch.getBranches().size() == oldBranch.getBranches().size())
+					continue;
+				
+				Branching asBranch = src_c.getBranching(i);
+				for (Word<PSymbolInstance> p : newBranch.getBranches().keySet()) {
+					if (!oldBranch.getBranches().keySet().contains(p)) {
+						DTLeaf target_c = this.sift(p, false);
+						
+						for (Word<PSymbolInstance> w : asBranch.getBranches().keySet()) {
+							DTLeaf dest_c = getLeaf(w);
+							if (target_c != dest_c) {
+								addLocation(p, src_c, dest_c, target_c);
+								return;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**
