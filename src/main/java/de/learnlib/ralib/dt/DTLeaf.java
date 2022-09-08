@@ -444,7 +444,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return !isInput(ps);
     }
 
-    private boolean isInput(ParameterizedSymbol ps) {
+    public static boolean isInput(ParameterizedSymbol ps) {
         return (ps instanceof InputSymbol);
     }
     
