@@ -461,4 +461,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public DTLeaf copy() {
     	return new DTLeaf(this);
     }
+    
+    public String toString() {
+    	return getAllPrefixes().toString();
+    }
 }

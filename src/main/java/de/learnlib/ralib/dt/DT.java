@@ -4,18 +4,16 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
-import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
@@ -496,5 +494,32 @@ public class DT implements DiscriminationTree {
 
 	public DTLeaf getSink() {
 		return sink;
+	}
+	
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("DT: {");
+		buildTreeString(builder, root, "", "   ",  " -- ");
+		builder.append("}");
+		return builder.toString();
+	}
+	
+	private void buildTreeString(StringBuilder builder, DTNode node, String currentIndentation, String indentation, String sep) {
+		if (node.isLeaf()) {
+			builder.append(node.toString());
+		} else {
+			DTInnerNode inner = (DTInnerNode) node;
+			if (!inner.getBranches().isEmpty()) {
+				Iterator<DTBranch> iter = inner.getBranches().iterator();
+				while (iter.hasNext()) {
+					builder.append("\n").append(currentIndentation);
+					DTBranch branch = iter.next();
+					builder.append("(").append(inner.getSuffix()).append(", ").append(branch.getSDT().toString().replaceAll("\\s+", " ")).append(")").append(sep);
+					buildTreeString(builder, branch.getChild(), indentation + currentIndentation, indentation, sep);
+				}
+			} else {
+				builder.append("(").append(inner.getSuffix()).append(",").append("∅").append(")");
+			}
+		}
 	}
 }
