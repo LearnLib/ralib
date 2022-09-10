@@ -79,4 +79,8 @@ public class DTInnerNode extends DTNode {
 	public DTInnerNode copy() {
 		return new DTInnerNode(this);
 	}
+	
+	public String toString() {
+		return "(" +  suffix.toString() + ")";
+	}
 }
