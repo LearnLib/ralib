@@ -1,6 +1,9 @@
 package de.learnlib.ralib.learning.rattt;
 
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.*;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.ID;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.IN;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.NOK;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.OK;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -25,19 +28,13 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
-import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
-import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
@@ -144,7 +141,6 @@ public class IOHandlingTest extends RaLibTestSuite {
 		
 		Constants consts = new Constants();        
         RegisterAutomaton model = BasicIORAExample.buildAutomaton();
-        System.out.println(model.toString());
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(ID, new IntegerEqualityTheory(ID));
