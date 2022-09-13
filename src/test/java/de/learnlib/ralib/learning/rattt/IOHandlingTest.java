@@ -1,9 +1,10 @@
 package de.learnlib.ralib.learning.rattt;
 
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.ID;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.IN;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.NOK;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.BasicIORAExample.OK;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.ID;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.IN;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.NOK;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.OK;
+import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.OUT;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -55,138 +56,287 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public class IOHandlingTest extends RaLibTestSuite {
-	static class BasicIORAExample {
+	static class IORAExamples {
 
 		static final DataType ID = new DataType("id", Integer.class);
 
-		static final OutputSymbol NOK = new OutputSymbol("NOK", new DataType[] {}); 
-		    
+		static final OutputSymbol NOK = new OutputSymbol("NOK", new DataType[] {});
+
 		static final OutputSymbol OK = new OutputSymbol("OK", new DataType[] {});
-		    
-		static final InputSymbol IN = new InputSymbol("in", new DataType[] {ID});
-		
+
+		static final InputSymbol IN = new InputSymbol("in", new DataType[] { ID });
+
 		static final OutputSymbol ERROR = new OutputSymbol("ERROR", new DataType[] {});
-		
-	    
-	    public static final RegisterAutomaton AUTOMATON = buildAutomaton();
-	    
-	    private BasicIORAExample() {      
-	    }
-	    
-	    private static RegisterAutomaton buildAutomaton() {
-	        MutableRegisterAutomaton ra = new MutableRegisterAutomaton();        
-	        
-	        // locations
-	        RALocation l0 = ra.addInitialState(true);
-	        RALocation l1 = ra.addState(true);
-	        RALocation l2 = ra.addState(true);
-	        RALocation l3 = ra.addState(true);
+
+		static final OutputSymbol OUT = new OutputSymbol("OUT", new DataType[] { ID });
+
+		private IORAExamples() {
+		}
+
+		private static RegisterAutomaton buildAutomatonWithNoOutputParams() {
+			MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
+
+			// locations
+			RALocation l0 = ra.addInitialState(true);
+			RALocation l1 = ra.addState(true);
+			RALocation l2 = ra.addState(true);
+			RALocation l3 = ra.addState(true);
 //	        RALocation ls = ra.addState(false);
-	        
-	        // registers and parameters
-	        RegisterGenerator rgen = new RegisterGenerator();
-	        Register rVal = rgen.next(ID);
-	        ParameterGenerator pgen = new ParameterGenerator();
-	        Parameter pVal = pgen.next(ID);
-	        
-	        // guards
-	        TransitionGuard okGuard    = new TransitionGuard(new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
-	        TransitionGuard nokGuard = new TransitionGuard(new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
-	        TransitionGuard trueGuard   = new TransitionGuard();
-	        
-	        // assignments
-	        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
-	        copyMapping.put(rVal, rVal);
-	        
-	        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
-	        storeMapping.put(rVal, pVal);
-	        
-	        Assignment copyAssign   = new Assignment(copyMapping);
-	        Assignment storeAssign = new Assignment(storeMapping);
-	        OutputMapping outMapping = new OutputMapping();
-	        
-	        // initial location
-	        ra.addTransition(l0, IN, new InputTransition(trueGuard, IN, l0, l1, storeAssign));
+
+			// registers and parameters
+			RegisterGenerator rgen = new RegisterGenerator();
+			Register rVal = rgen.next(ID);
+			ParameterGenerator pgen = new ParameterGenerator();
+			Parameter pVal = pgen.next(ID);
+
+			// guards
+			TransitionGuard okGuard = new TransitionGuard(
+					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
+			TransitionGuard nokGuard = new TransitionGuard(
+					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
+			TransitionGuard trueGuard = new TransitionGuard();
+
+			// assignments
+			VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+			copyMapping.put(rVal, rVal);
+
+			VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
+			storeMapping.put(rVal, pVal);
+
+			Assignment copyAssign = new Assignment(copyMapping);
+			Assignment storeAssign = new Assignment(storeMapping);
+			OutputMapping outMapping = new OutputMapping();
+
+			// initial location
+			ra.addTransition(l0, IN, new InputTransition(trueGuard, IN, l0, l1, storeAssign));
 //	        ra.addTransition(l0, OK, new OutputTransition(outMapping, OK, l0, ls, noAssign));
 //	        ra.addTransition(l0, NOK, new OutputTransition(outMapping, NOK, l0, ls, noAssign));
-	        
-	        // IN 0 location
+
+			// IN 0 location
 //	        ra.addTransition(l1, IN, new InputTransition(trueGuard, IN, l1, ls, noAssign));
-	        ra.addTransition(l1, OK, new OutputTransition(outMapping, OK, l1, l2, copyAssign));        
+			ra.addTransition(l1, OK, new OutputTransition(outMapping, OK, l1, l2, copyAssign));
 //	        ra.addTransition(l1, NOK, new OutputTransition(outMapping, NOK, l1, ls, noAssign));
-	        
-	        // IN 0 OK location
-	        ra.addTransition(l2, IN, new InputTransition(okGuard, IN, l2, l1, copyAssign));
-	        ra.addTransition(l2, IN, new InputTransition(nokGuard, IN, l2, l3, copyAssign));
+
+			// IN 0 OK location
+			ra.addTransition(l2, IN, new InputTransition(okGuard, IN, l2, l1, copyAssign));
+			ra.addTransition(l2, IN, new InputTransition(nokGuard, IN, l2, l3, copyAssign));
 //	        ra.addTransition(l2, OK, new OutputTransition(outMapping, OK, l2, ls, noAssign));
 //	        ra.addTransition(l2, NOK, new OutputTransition(outMapping, NOK, l2, ls, noAssign));
-	        
-	        // IN 0 OK in 1  location
+
+			// IN 0 OK in 1 location
 //	        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
 //	        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));        
-	        ra.addTransition(l3, NOK, new OutputTransition(outMapping, NOK, l3, l2, copyAssign));
-	        
-	        // sink location
+			ra.addTransition(l3, NOK, new OutputTransition(outMapping, NOK, l3, l2, copyAssign));
+
+			// sink location
 //	        ra.addTransition(ls, IN, new InputTransition(trueGuard, IN, ls, ls, noAssign));
 //	        ra.addTransition(ls, OK, new OutputTransition(outMapping, OK, ls, ls, noAssign));        
 //	        ra.addTransition(ls, NOK, new OutputTransition(outMapping, NOK, ls, ls, copyAssign));
-	        
-	        return ra;
-	    }
+
+			return ra;
+		}
+
+		private static RegisterAutomaton buildAutomatonOutputParam(boolean fresh) {
+			MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
+
+			// locations
+			RALocation l0 = ra.addInitialState(true);
+			RALocation l1 = ra.addState(true);
+			RALocation l2 = ra.addState(true);
+			RALocation l3 = ra.addState(true);
+
+			// registers and parameters
+			RegisterGenerator rgen = new RegisterGenerator();
+			Register rVal = rgen.next(ID);
+			ParameterGenerator pgen = new ParameterGenerator();
+			Parameter pVal = pgen.next(ID);
+
+			// guards
+			TransitionGuard okGuard = new TransitionGuard(
+					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
+			TransitionGuard nokGuard = new TransitionGuard(
+					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
+			TransitionGuard trueGuard = new TransitionGuard();
+
+			// assignments
+			VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+			copyMapping.put(rVal, rVal);
+
+			VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
+			storeMapping.put(rVal, pVal);
+
+			Assignment copyAssign = new Assignment(copyMapping);
+			Assignment storeAssign = new Assignment(storeMapping);
+			OutputMapping nokOutputMapping = new OutputMapping();
+			OutputMapping outOutputMapping = null;
+			if (fresh) {
+				outOutputMapping = new OutputMapping(pVal);
+			} else {
+				outOutputMapping = new OutputMapping(pVal, rVal);
+			}
+
+			// initial location
+			ra.addTransition(l0, IN, new InputTransition(trueGuard, IN, l0, l1, storeAssign));
+
+			// IN 0 location
+			ra.addTransition(l1, OUT, new OutputTransition(outOutputMapping, OUT, l1, l2, copyAssign));
+
+			// IN 0 OUT fresh/0 location
+			ra.addTransition(l2, IN, new InputTransition(okGuard, IN, l2, l1, copyAssign));
+			ra.addTransition(l2, IN, new InputTransition(nokGuard, IN, l2, l3, copyAssign));
+
+			// IN 0 OUT fresh/0 in 1 location
+//		        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
+//		        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));        
+			ra.addTransition(l3, NOK, new OutputTransition(nokOutputMapping, NOK, l3, l2, copyAssign));
+
+			return ra;
+		}
 	}
 
-	
 	@Test
-	public void testLearnBasicIORA() {
-		
-		Constants consts = new Constants();        
-        RegisterAutomaton model = BasicIORAExample.buildAutomaton();
+	public void testLearnIORAWithNoOutputParams() {
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(ID, new IntegerEqualityTheory(ID));
-        
+		Constants consts = new Constants();
+		RegisterAutomaton model = IORAExamples.buildAutomatonWithNoOutputParams();
 
-        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        IOOracle ioOracle = new SULOracle(sul, BasicIORAExample.ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache,  IN);
+		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		teachers.put(ID, new IntegerEqualityTheory(ID));
 
-        teachers.values().stream().forEach((t) -> {
-            ((EqualityTheory)t).setFreshValues(true, ioCache);
-        });
-        
-        ConstraintSolver solver = new SimpleConstraintSolver();
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = 
-                new MultiTheorySDTLogicOracle(consts, solver);
-        
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+		IOOracle ioOracle = new SULOracle(sul, IORAExamples.ERROR);
+		IOCache ioCache = new IOCache(ioOracle);
+		IOFilter ioFilter = new IOFilter(ioCache, IN);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		teachers.values().stream().forEach((t) -> {
+			((EqualityTheory) t).setFreshValues(true, ioCache);
+		});
 
-        rattt.learn(); 
-        
-        RegisterAutomaton hyp = rattt.getHypothesis();        
-        logger.log(Level.FINE, "HYP1: {0}", hyp);
+		ConstraintSolver solver = new SimpleConstraintSolver();
 
-        Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(IN, new DataValue(ID, 0)),
-                new PSymbolInstance(OK),
-                new PSymbolInstance(IN, new DataValue(ID, 1)),
-                new PSymbolInstance(NOK));
-    
+		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
+		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
-    
-        rattt.learn();        
-        hyp = rattt.getHypothesis();        
-        logger.log(Level.FINE, "HYP2: {0}", hyp);
-        Assert.assertTrue(hyp.accepts(ce));
-        IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, OK, NOK);
-        DefaultQuery<PSymbolInstance, Boolean> ceQuery = test.findCounterExample(hyp, null);
-        Assert.assertNull(ceQuery);
+		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
+				teachers, consts, solver);
+
+		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, OK, NOK); 
+
+		rattt.learn();
+
+		RegisterAutomaton hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP1: {0}", hyp);
+
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
+				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, 1)), new PSymbolInstance(NOK));
+
+		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+
+		rattt.learn();
+		hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP2: {0}", hyp);
+		Assert.assertTrue(hyp.accepts(ce));
+		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, OK, NOK);
+		DefaultQuery<PSymbolInstance, Boolean> ceQuery = test.findCounterExample(hyp, null);
+		Assert.assertNull(ceQuery);
+	}
+
+	@Test
+	public void testLearnIORAWithEqualOutputParam() {
+
+		Constants consts = new Constants();
+		RegisterAutomaton model = IORAExamples.buildAutomatonOutputParam(false);
+
+		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		teachers.put(ID, new IntegerEqualityTheory(ID));
+
+		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+		IOOracle ioOracle = new SULOracle(sul, IORAExamples.ERROR);
+		IOCache ioCache = new IOCache(ioOracle);
+		IOFilter ioFilter = new IOFilter(ioCache, IN);
+
+		teachers.values().stream().forEach((t) -> {
+			((EqualityTheory) t).setFreshValues(true, ioCache);
+		});
+
+		ConstraintSolver solver = new SimpleConstraintSolver();
+
+		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
+		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
+
+		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
+				teachers, consts, solver);
+
+		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT); 
+
+		rattt.learn();
+
+		RegisterAutomaton hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP1: {0}", hyp);
+
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+				new PSymbolInstance(NOK));
+
+		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+
+		rattt.learn();
+		hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP2: {0}", hyp);
+		Assert.assertTrue(hyp.accepts(ce));
+		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);
+		DefaultQuery<PSymbolInstance, Boolean> ceQuery = test.findCounterExample(hyp, null);
+		Assert.assertNull(ceQuery);
+	}
+
+	@Test
+	public void testLearnIORAWithFreshOutputParam() {
+
+		Constants consts = new Constants();
+		RegisterAutomaton model = IORAExamples.buildAutomatonOutputParam(true);
+
+		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		teachers.put(ID, new IntegerEqualityTheory(ID));
+
+		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+		IOOracle ioOracle = new SULOracle(sul, IORAExamples.ERROR);
+		IOCache ioCache = new IOCache(ioOracle);
+		IOFilter ioFilter = new IOFilter(ioCache, IN);
+
+		teachers.values().stream().forEach((t) -> {
+			((EqualityTheory) t).setFreshValues(true, ioCache);
+		});
+
+		ConstraintSolver solver = new SimpleConstraintSolver();
+
+		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
+		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
+
+		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
+				teachers, consts, solver);
+
+		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT); 
+
+		rattt.learn();
+
+		RegisterAutomaton hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP1: {0}", hyp);
+
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 2)),
+				new PSymbolInstance(NOK));
+
+		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+
+		rattt.learn();
+		hyp = rattt.getHypothesis();
+		logger.log(Level.FINE, "HYP2: {0}", hyp);
+		Assert.assertTrue(hyp.accepts(ce));
+		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);
+		DefaultQuery<PSymbolInstance, Boolean> ceQuery = test.findCounterExample(hyp, null);
+		Assert.assertNull(ceQuery);
 	}
 }
