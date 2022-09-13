@@ -276,9 +276,12 @@ public class IOHandlingTest extends RaLibTestSuite {
 		RegisterAutomaton hyp = rattt.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
+//		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
+//				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+//				new PSymbolInstance(NOK));
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
-				new PSymbolInstance(NOK));
+				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue(ID, 0)));
 
 		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
@@ -326,8 +329,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 2)),
-				new PSymbolInstance(NOK));
+				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue(ID, 2)));
 
 		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
