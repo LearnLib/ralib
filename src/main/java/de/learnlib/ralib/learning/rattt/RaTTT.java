@@ -120,7 +120,7 @@ public class RaTTT implements RaLearningAlgorithm {
         
         do {
             
-        	dt.checkVariableConsistency();
+        	while(!dt.checkVariableConsistency());
         	if (ioMode)
         		while(!dt.checkIOConsistency(hyp));
         	
