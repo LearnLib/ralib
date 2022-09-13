@@ -231,13 +231,18 @@ public class DT implements DiscriminationTree {
 			l.addShortPrefix(sp);
 		}
 		for (MappedPrefix p : prefixes.get()) {
-//			sift(p.getPrefix(), true);
-			Pair<DTNode,TreeQueryResult> res = parent.sift(p.getPrefix(), getOracle());
-			assert res != null;
-			
-			p.addTQR(parent.getSuffix(), res.getRight());
-			DTLeaf l = (DTLeaf)res.getLeft();
-			l.addPrefix(p);
+			sift(p.getPrefix(), true);
+//			Pair<DTNode,TreeQueryResult> res = parent.sift(p.getPrefix(), getOracle());
+//			if (res == null && ioMode && 
+//					!(leaf.isInputComponent() ^ DTLeaf.isInput(p.getPrefix().lastSymbol().getBaseSymbol())))
+//				leaf.addPrefix(p);
+//			else {
+//				assert res != null;
+//			
+//				p.addTQR(parent.getSuffix(), res.getRight());
+//				DTLeaf l = (DTLeaf)res.getLeft();
+//				l.addPrefix(p);
+//			}
 		}
 	}
 	
