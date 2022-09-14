@@ -22,7 +22,6 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -44,7 +43,7 @@ import net.automatalib.words.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {
 	@Test
-	public void f() {
+	public void learnSipTest() {
 
         long seed = -1386796323025681754L; 
         //long seed = (new Random()).nextLong();
