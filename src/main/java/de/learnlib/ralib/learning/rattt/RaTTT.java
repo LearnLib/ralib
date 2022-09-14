@@ -1,10 +1,8 @@
 package de.learnlib.ralib.learning.rattt;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -121,8 +119,8 @@ public class RaTTT implements RaLearningAlgorithm {
         do {
             
         	while(!dt.checkVariableConsistency());
-        	if (ioMode)
-        		while(!dt.checkIOConsistency(hyp));
+//        	if (ioMode)
+//        		while(!dt.checkIOConsistency(hyp));
         	
             Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             components.putAll(dt.getComponents());
