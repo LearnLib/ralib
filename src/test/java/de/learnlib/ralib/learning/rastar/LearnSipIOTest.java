@@ -28,7 +28,6 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -60,7 +59,7 @@ import org.testng.annotations.Test;
 public class LearnSipIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExampleIO() {
+    public void learnSIPExampleIO() {
 
         long seed = -1386796323025681754L; 
         //long seed = (new Random()).nextLong();
