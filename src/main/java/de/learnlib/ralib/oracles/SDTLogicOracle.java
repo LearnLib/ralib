@@ -17,7 +17,10 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -65,6 +68,12 @@ public interface SDTLogicOracle {
      * @return 
      */
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining,
-            TransitionGuard refined, PIV pivRefined);
+            TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    
+    /**
+     * Returns true if two guards are mutually exclusive (they cannot be both true)
+     */
+    public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
+			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
     
 }

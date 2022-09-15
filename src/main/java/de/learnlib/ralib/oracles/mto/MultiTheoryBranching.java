@@ -30,8 +30,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
@@ -62,9 +60,7 @@ public class MultiTheoryBranching implements Branching {
             this.isLeaf = true;
         }
 
-        public Node(Parameter parameter,
-                Map<DataValue, Node> next,
-                Map<DataValue, SDTGuard> guards) {
+        public Node(Parameter parameter, Map<DataValue, Node> next, Map<DataValue, SDTGuard> guards) {
             this.parameter = parameter;
             this.next.putAll(next);
             this.guards.putAll(guards);
@@ -79,33 +75,53 @@ public class MultiTheoryBranching implements Branching {
         }
 
         void toString(StringBuilder sb, String indentation) {
-            sb.append(indentation).append("[").
-                    append(parameter).append("]").append("\n");
+            sb.append(indentation).append("[").append(parameter).append("]").append("\n");
             indentation += "  ";
             for (Map.Entry<DataValue, Node> e : next.entrySet()) {
                 DataValue d = e.getKey();
                 SDTGuard g = guards.get(d);
 
-                sb.append(indentation).append("+ ").append(g.toString()).
-                        append(" with ").append(d.toString()).append("\n");
+                sb.append(indentation).append("+ ").append(g.toString()).append(" with ").append(d.toString())
+                        .append("\n");
 
                 String nextIndent = indentation + "    ";
                 e.getValue().toString(sb, nextIndent);
             }
         }
-        
-        
-        protected Map<Parameter, Set<DataValue>> collectDVs() {
-        Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
-        if (!(this.next.keySet()).isEmpty()) {
-            dvs.put(this.parameter, this.next.keySet());
-            for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
-                dvs.putAll(e.getValue().collectDVs());
-            }
-        }
-        return dvs;
-    }
 
+        protected Map<Parameter, Set<DataValue>> collectDVs() {
+            Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
+            if (!(this.next.keySet()).isEmpty()) {
+                dvs.put(this.parameter, this.next.keySet());
+                for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+                    dvs.putAll(e.getValue().collectDVs());
+                }
+            }
+            return dvs;
+        }
+
+        protected Map<Parameter, Set<SDTGuard>> collectGuards() {
+            Map<Parameter, Set<SDTGuard>> guards = new LinkedHashMap();
+            if (!(this.next.keySet()).isEmpty()) {
+                guards.put(this.parameter, new LinkedHashSet<SDTGuard>(this.guards.values()));
+                for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+                    guards.putAll(e.getValue().collectGuards());
+                }
+            }
+            return guards;
+        }
+
+        protected SDT buildFakeSDT() {
+            if (!(this.next.keySet()).isEmpty()) {
+                Map<SDTGuard, SDT> map = new LinkedHashMap();
+                for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
+                    SDTGuard guard = guards.get(e.getKey());
+                    map.put(guard, e.getValue().buildFakeSDT());
+                }
+                return new SDT(map);
+            }
+            return SDTLeaf.REJECTING;
+        }
     };
 
     private final Word<PSymbolInstance> prefix;
@@ -120,11 +136,9 @@ public class MultiTheoryBranching implements Branching {
 
     private ParValuation pval;
 
-    private static final LearnLogger log
-            = LearnLogger.getLogger(MultiTheoryBranching.class);
+    private static final LearnLogger log = LearnLogger.getLogger(MultiTheoryBranching.class);
 
-    public MultiTheoryBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol action, Node node, PIV piv,
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
             ParValuation pval, Constants constants, SDT... sdts) {
         log.log(Level.FINEST, "ps = " + action.toString());
         this.prefix = prefix;
@@ -141,10 +155,18 @@ public class MultiTheoryBranching implements Branching {
     public Word<PSymbolInstance> getPrefix() {
         return prefix;
     }
-    
+
     public Map<Parameter, Set<DataValue>> getDVs() {
-    return this.node.collectDVs();
-}
+        return this.node.collectDVs();
+    }
+
+    public Map<Parameter, Set<SDTGuard>> getParamGuards() {
+        return node.collectGuards();
+    }
+
+    public SDT buildFakeSDT() {
+        return node.buildFakeSDT();
+    }
 
     public ParValuation getPval() {
         return pval;
@@ -169,8 +191,7 @@ public class MultiTheoryBranching implements Branching {
         return guards;
     }
 
-    private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(
-            Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
+    private Map<DataValue[], List<SDTGuard>> collectDataValuesAndGuards(Node n, Map<DataValue[], List<SDTGuard>> dvgMap,
             DataValue[] dvs, List<SDTGuard> guards, List<Node> visited) {
         // if we are not at a leaf
         visited.add(n);
@@ -178,7 +199,7 @@ public class MultiTheoryBranching implements Branching {
             // go through each of the 'next' nodes
             for (DataValue d : n.next.keySet()) {
                 Node nextNode = n.next.get(d);
-                // if the node hasn't been visited previously 
+                // if the node hasn't been visited previously
                 if (!visited.contains(nextNode)) {
                     SDTGuard nextGuard = n.guards.get(d);
                     // add the node's data value to the array
@@ -191,15 +212,13 @@ public class MultiTheoryBranching implements Branching {
                     newGuards.addAll(guards);
                     newGuards.add(nextGuard);
                     // proceed down in the tree to the next node
-                    collectDataValuesAndGuards(nextNode, dvgMap, newDvs,
-                            newGuards, visited);
+                    collectDataValuesAndGuards(nextNode, dvgMap, newDvs, newGuards, visited);
 
                 }
             }
 
         }
-        if (this.action.getArity() > 0
-                && dvs.length == this.action.getArity()) {
+        if (this.action.getArity() > 0 && dvs.length == this.action.getArity()) {
             dvgMap.put(dvs, guards);
         }
         return dvgMap;
@@ -208,24 +227,19 @@ public class MultiTheoryBranching implements Branching {
     @Override
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
 
-        Map<Word<PSymbolInstance>, TransitionGuard> branches
-                = new LinkedHashMap<>();
+        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
 
         if (this.action.getArity() == 0) {
-            //System.out.println("arity 0");
+            // System.out.println("arity 0");
             TransitionGuard tg = new TransitionGuard();
             PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
             branches.put(prefix.append(psi), tg);
             return branches;
         }
 
-        Map<DataValue[], List<SDTGuard>> tempMap
-                = collectDataValuesAndGuards(
-                        this.node,
-                        new LinkedHashMap<DataValue[], List<SDTGuard>>(),
-                        new DataValue[0],
-                        new ArrayList<SDTGuard>(),
-                        new ArrayList<Node>());
+        Map<DataValue[], List<SDTGuard>> tempMap = collectDataValuesAndGuards(this.node,
+                new LinkedHashMap<DataValue[], List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(),
+                new ArrayList<Node>());
 
         for (DataValue[] dvs : tempMap.keySet()) {
             List<GuardExpression> gExpr = new ArrayList<>();
@@ -233,13 +247,10 @@ public class MultiTheoryBranching implements Branching {
             for (SDTGuard g : gList) {
                 gExpr.add(renameSuffixValues(g.toExpr()));
             }
-            TransitionGuard tg = new TransitionGuard(
-                    new Conjunction(gExpr.toArray(
-                                    new GuardExpression[]{})));
+            TransitionGuard tg = new TransitionGuard(new Conjunction(gExpr.toArray(new GuardExpression[] {})));
             assert tg != null;
 
-            Word<PSymbolInstance> branch = prefix.append(
-                    new PSymbolInstance(action, dvs));
+            Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, dvs));
             branches.put(branch, tg);
         }
 
@@ -261,9 +272,7 @@ public class MultiTheoryBranching implements Branching {
 
     @Override
     public String toString() {
-        return "---- Branching for " + action.toString()
-                + " after " + prefix.toString() + " ----\n"
-                + node.toString()
+        return "---- Branching for " + action.toString() + " after " + prefix.toString() + " ----\n" + node.toString()
                 + "\n-------------------------------------------------------------------------------------";
     }
 
