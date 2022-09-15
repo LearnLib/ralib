@@ -16,6 +16,18 @@
  */
 package de.learnlib.ralib.theory.equality;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -44,16 +56,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**
@@ -344,22 +346,30 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
         DataType type = param.getType();
+        Deque<SDTGuard> guards = new LinkedList<>();
+        guards.add(guard);
 
-        if (guard instanceof EqualityGuard) {
-            log.log(Level.FINEST, "equality guard " + guard.toString());
-            EqualityGuard eqGuard = (EqualityGuard) guard;
-            SymbolicDataValue ereg = eqGuard.getRegister();
-            if (ereg.isRegister()) {
-                log.log(Level.FINEST, "piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
-                Parameter p = piv.getOneKey((Register) ereg);
-                log.log(Level.FINEST, "p: " + p.toString());
-                int idx = p.getId();
-                return prefixValues.get(idx - 1);
-            } else if (ereg.isSuffixValue()) {
-                Parameter p = new Parameter(type, ereg.getId());
-                return pval.get(p);
-            } else if (ereg.isConstant()) {
-                return constants.get((Constant) ereg);
+        while(!guards.isEmpty()) {
+            SDTGuard current = guards.remove();
+            if (current instanceof EqualityGuard) {
+                log.log(Level.FINEST, "equality guard " + current.toString());
+                EqualityGuard eqGuard = (EqualityGuard) current;
+                SymbolicDataValue ereg = eqGuard.getRegister();
+                if (ereg.isRegister()) {
+                    log.log(Level.FINEST, "piv: " + piv.toString()
+                            + " " + ereg.toString() + " " + param.toString());
+                    Parameter p = piv.getOneKey((Register) ereg);
+                    log.log(Level.FINEST, "p: " + p.toString());
+                    int idx = p.getId();
+                    return prefixValues.get(idx - 1);
+                } else if (ereg.isSuffixValue()) {
+                    Parameter p = new Parameter(type, ereg.getId());
+                    return pval.get(p);
+                } else if (ereg.isConstant()) {
+                    return constants.get((Constant) ereg);
+                }
+            } else if (current instanceof SDTAndGuard) {
+                guards.addAll(((SDTAndGuard) current).getGuards());
             }
         }
 

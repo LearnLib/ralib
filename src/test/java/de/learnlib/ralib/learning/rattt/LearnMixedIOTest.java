@@ -1,20 +1,22 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
- * This file is part of LearnLib, http://www.learnlib.de/.
+ * Copyright (C) 2015 falk.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301  USA
  */
-package de.learnlib.ralib.learning.rastar;
+package de.learnlib.ralib.learning.rattt;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
@@ -23,25 +25,25 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -56,18 +58,17 @@ import org.testng.annotations.Test;
  *
  * @author falk
  */
-public class LearnSipIOTest extends RaLibTestSuite {
+public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnSIPExampleIO() {
+    public void learnLoginExampleIO() {
 
         long seed = -1386796323025681754L; 
-        //long seed = (new Random()).nextLong();
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
-      
+        
         RegisterAutomatonImporter loader = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/sip.xml");
+                "/de/learnlib/ralib/automata/xml/mixed.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
 
@@ -82,34 +83,43 @@ public class LearnSipIOTest extends RaLibTestSuite {
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
-            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
-            theory.setUseSuffixOpt(true);
-            teachers.put(t, theory);
+            TypedTheory th;
+            if (t.getName().equals("int")) {
+                th = new IntegerEqualityTheory();
+            }
+            else {
+                th = new DoubleInequalityTheory();
+            }
+            th.setType(t);
+            th.setUseSuffixOpt(true);
+            teachers.put(t, th);
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        IOOracle ioOracle = new SULOracle(sul, ERROR);
-        IOCache ioCache = new IOCache(ioOracle);
-        IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        teachers.values().stream().forEach((t) -> {
-            ((EqualityTheory)t).setFreshValues(true, ioCache);
-        });
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
         
-        ConstraintSolver solver = new SimpleConstraintSolver();
-        
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = 
-                new MultiTheorySDTLogicOracle(consts, solver);
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(
+                ioOracle, teachers, consts, jsolv, inputs);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
-        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-
-            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                    model, teachers, consts, true, actions);
+        RaTTT rastar = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        
+        IORandomWalk iowalk = new IORandomWalk(random,
+                sul,
+                false, // do not draw symbols uniformly 
+                0.1, // reset probability 
+                0.8, // prob. of choosing a fresh data value
+                10000, // 1000 runs 
+                100, // max depth
+                consts,
+                false, // reset runs 
+                teachers,
+                inputs);
         
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
@@ -121,10 +131,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
-              
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
-                    ioEquiv.findCounterExample(hyp, null);
 
+            DefaultQuery<PSymbolInstance, Boolean> ce = 
+                    iowalk.findCounterExample(hyp, null);
+           
             if (ce == null) {
                 break;
             }
@@ -132,7 +142,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-
+    
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
             
@@ -140,10 +150,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce = 
-            ioEquiv.findCounterExample(hyp, null);
-            
-        Assert.assertNull(ce);        
+        IOEquivalenceTest checker = new IOEquivalenceTest(
+                model, teachers, consts, true, actions);
+        
+        Assert.assertNull(checker.findCounterExample(hyp, null));
+        
     }
 }

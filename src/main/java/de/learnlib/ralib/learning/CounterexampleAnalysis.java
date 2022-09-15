@@ -20,6 +20,7 @@ import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.learning.rastar.Component;
@@ -168,7 +169,7 @@ public class CounterexampleAnalysis {
             boolean refines = false;
             for (TransitionGuard guardSul : branchSul.getBranches().values()) {
                 if (sdtOracle.doesRefine(guardHyp, c.getPrimePrefix().getParsInVars(), 
-                        guardSul, pivSUL)) {
+                        guardSul, pivSUL, new Mapping<>())) {
                     refines = true;
                     break;
                 }

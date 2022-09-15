@@ -59,7 +59,7 @@ public class SDTAndGuard extends SDTMultiGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    public SDTAndGuard(SuffixValue param, SDTIfGuard... ifGuards) {
+    public SDTAndGuard(SuffixValue param, SDTGuard... ifGuards) {
         super(param, ConDis.AND, ifGuards);
     }
 

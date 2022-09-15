@@ -18,14 +18,10 @@ package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.List;
 import net.automatalib.words.Word;
 
 /**
@@ -38,9 +34,4 @@ public interface SDTConstructor {
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, PIV piv,
             Constants constants, SuffixValuation suffixValues);
-    
-    public MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, PIV piv, ParValuation pval, 
-            List<SDTGuard> guards, SDT ... sdts);    
-
 }

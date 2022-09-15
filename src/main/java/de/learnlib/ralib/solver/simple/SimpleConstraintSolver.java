@@ -16,26 +16,50 @@
  */
 package de.learnlib.ralib.solver.simple;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.solver.ConstraintSolver;
+import java.util.ArrayList;
+import java.util.List;
 
+import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjunction;
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.solver.ConstraintSolver;
 
 /**
  *
  * @author falk
  */
 public class SimpleConstraintSolver implements ConstraintSolver {
-    
+
     private final SimpleSolver solver;
-    
+
     public SimpleConstraintSolver() {
-    	this.solver = new SimpleSolver();
-    }
-    
-    @Override
-    public boolean isSatisfiable(GuardExpression expr) {
-    	return solver.isSatisfiable(expr);
+        this.solver = new SimpleSolver();
     }
 
-    
+    @Override
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
+        List<GuardExpression> conjuncts = new ArrayList<GuardExpression>();
+        conjuncts.add(expr);
+        SymbolicDataValue[] sdvs = val.keySet().toArray(new SymbolicDataValue[val.size()]);
+
+        for (int i = 0; i < sdvs.length; i++) {
+            for (int j = i + 1; j < sdvs.length; j++) {
+                if (val.get(sdvs[i]).equals(val.get(sdvs[j]))) {
+                    conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
+                            de.learnlib.ralib.automata.guards.Relation.EQUALS, sdvs[j]));
+                } else {
+                    conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
+                            de.learnlib.ralib.automata.guards.Relation.NOT_EQUALS, sdvs[j]));
+                }
+            }
+        }
+
+        Conjunction exprWithVal = new Conjunction(conjuncts.toArray(new GuardExpression[conjuncts.size()]));
+
+        return solver.isSatisfiable(exprWithVal);
+    }
+
 }
