@@ -93,8 +93,8 @@ constraint solver. *Inequality theories* only work in combination with
 [*jConstraints*][1]. (Configuration option ```solver=z3```
 
 
-[1]: https://bitbucket.org/psycopaths/jConstraints-z3
-[2]: https://z3.codeplex.com
+[1]: https://github.com/psycopaths/jconstraints-z3
+[2]: https://github.com/Z3Prover/z3
 [3]: http://www.learnlib.de
 [4]: http://www.apache.org/licenses/LICENSE-2.0
-[5]: https://bitbucket.org/psycopaths/jConstraints
+[5]: https://github.com/psycopaths/jconstraints
