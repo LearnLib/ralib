@@ -43,7 +43,7 @@ import net.automatalib.words.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {
 	@Test
-	public void learnSipTest() {
+	public void learnSipIO() {
 
         long seed = -1386796323025681754L; 
         //long seed = (new Random()).nextLong();
