@@ -1,6 +1,5 @@
 package de.learnlib.ralib.dt;
 
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 
@@ -29,10 +28,6 @@ public class DTBranch {
 		
 		public DTNode getChild() {
 			return child;
-		}
-		
-		public boolean matches(SymbolicDecisionTree other, PIV renaming) {
-			return sdt.isEquivalent(other, renaming);
 		}
 		
 		public boolean matches(TreeQueryResult tqr) {
