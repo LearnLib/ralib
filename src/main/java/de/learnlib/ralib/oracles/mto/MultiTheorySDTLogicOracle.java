@@ -84,7 +84,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         exprG = exprG.relabel(gremap);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(piv2, piv1);
+        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         GuardExpression expr2r = expr2.relabel(remap);
 
@@ -115,7 +115,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
         log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(pivRefined, pivRefining);
+        VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
         GuardExpression exprRefining = refining.getCondition();
         GuardExpression exprRefined = refined.getCondition().relabel(remap);
@@ -137,7 +137,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST, "piv1: {0}", piv1);
         log.log(Level.FINEST, "piv2: {0}", piv2);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(piv2, piv1);
+        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         GuardExpression exprGuard1 = guard1.getCondition();
         GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
@@ -149,29 +149,5 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
-    }
-
-
-    private VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(PIV from, PIV to) {
-
-        // there should not be any register with id > n
-        for (Register r : to.values()) {
-            if (r.getId() > to.size()) {
-                throw new IllegalStateException("there should not be any register with id > n: " + to);
-            }
-        }
-
-        VarMapping<SymbolicDataValue, SymbolicDataValue> map = new VarMapping<>();
-
-        int id = to.size() + 1;
-        for (Entry<Parameter, Register> e : from) {
-            Register rep = to.get(e.getKey());
-            if (rep == null) {
-                rep = new Register(e.getValue().getType(), id++);
-            }
-            map.put(e.getValue(), rep);
-        }
-
-        return map;
     }
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A mapping from parameters to registers. 
@@ -86,4 +87,28 @@ public class PIV extends VarMapping<Parameter, Register> {
         return retKey;
     }
     
+    /**
+     * Creates a remapping from registers from this PIV to the supplied PIV.
+     */
+    public VarMapping<Register, Register> createRemapping(PIV to) {
+        // there should not be any register with id > n
+        for (Register r : to.values()) {
+            if (r.getId() > to.size()) {
+                throw new IllegalStateException("there should not be any register with id > n: " + to);
+            }
+        }
+
+        VarMapping<Register, Register> map = new VarMapping<>();
+
+        int id = to.size() + 1;
+        for (Entry<Parameter, Register> e : this) {
+            Register rep = to.get(e.getKey());
+            if (rep == null) {
+                rep = new Register(e.getValue().getType(), id++);
+            }
+            map.put(e.getValue(), rep);
+        }
+
+        return map;
+    }
 }
