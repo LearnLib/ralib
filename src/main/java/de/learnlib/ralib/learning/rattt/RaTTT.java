@@ -1,6 +1,7 @@
 package de.learnlib.ralib.learning.rattt;
 
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -16,6 +17,7 @@ import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
+import de.learnlib.ralib.dt.DTInnerNode;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.dt.MappedPrefix;
 import de.learnlib.ralib.dt.ShortPrefix;
@@ -243,9 +245,12 @@ public class RaTTT implements RaLearningAlgorithm {
         DTLeaf dest_c = dt.sift(word, false);
         Word<PSymbolInstance> src_id = word.prefix(word.length() - 1);
         DTLeaf src_c = dt.getLeaf(src_id);
+        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
+        DTLeaf branchLeaf = dt.getLeaf(branch);
+        boolean isDTRefinement = (branchLeaf != dest_c);
 
         // does this guard lead to a dt refinement?
-        if (dt.isRefinement(word)) {
+        if (isDTRefinement) {
             assert word.length() > 0;
             assert src_c != null;
 
@@ -269,18 +274,12 @@ public class RaTTT implements RaLearningAlgorithm {
             }
             return true;
         }
-
+        
+         dt.sift(word, true);
+        
         // no refinement, so must be a new location
         addNewLocation(word, src_c);
         return false;
-    }
-    
-    private boolean isDTRefinement(DTLeaf src_c, DTLeaf dest_c, Word<PSymbolInstance> word) {
-        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
-        DTLeaf branchLeaf = dt.getLeaf(branch);
-        assert branchLeaf != null;
-        boolean isRefinement = (branchLeaf != dest_c);
-        return isRefinement;
     }
 
     private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {
@@ -302,31 +301,49 @@ public class RaTTT implements RaLearningAlgorithm {
 
     private boolean processShortPrefixes() {
         Deque<Word<PSymbolInstance>> dangling = new ArrayDeque<Word<PSymbolInstance>>();
+        DTHyp dthyp = (DTHyp) hyp;
 
         boolean refinement = false;
         SP: while (!shortPrefixes.isEmpty()) {
             Word<PSymbolInstance> prefix = shortPrefixes.poll();
 
             DTLeaf src_c = dt.getLeaf(prefix);
-            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(prefix);
-
-            for (ParameterizedSymbol ps : dt.getInputs()) {
-                Branching b = sp.getBranching(ps);
-                for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
-                    if (hyp.getLocation(p) != null) {
-                        DTHyp dthyp = (DTHyp) hyp;
-                        Word<PSymbolInstance> dest = dthyp.branchWithSameGuard(p, src_c.getBranching(ps));
-
-                        DTLeaf dest_c = dt.getLeaf(dest);
-                        DTLeaf short_c = dt.getLeaf(p);
-                        if (dest_c != short_c) {
-                            dt.addLocation(p, src_c, dest_c, short_c);
-                            refinement = true;
-                            continue SP;
-                        }
-                    }
+//            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(prefix);
+            
+            Collection<Word<PSymbolInstance>> extendedPrefixes = dt.getOneSymbolExtensions(prefix);
+            
+            for (Word<PSymbolInstance> extendedPrefix : extendedPrefixes) {
+                ParameterizedSymbol ps = extendedPrefix.lastSymbol().getBaseSymbol();
+                Word<PSymbolInstance> dest = dthyp.branchWithSameGuard(extendedPrefix, src_c.getBranching(ps));
+                DTLeaf dest_c = dt.getLeaf(dest);
+                DTLeaf ext_c = dt.getLeaf(extendedPrefix);
+                if (ext_c != dest_c) {
+                    DTInnerNode lca = dt.findLCA(dest_c, ext_c);
+                    SymbolicSuffix suffix = new SymbolicSuffix(ps).concat(lca.getSuffix());
+                    dt.addSuffix(suffix, src_c);
+                    refinement = true;
+                    continue SP;
                 }
             }
+            
+
+//            for (ParameterizedSymbol ps : dt.getInputs()) {
+//                Branching b = sp.getBranching(ps);
+//                for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
+//                    if (hyp.getLocation(p) != null) {
+//                        DTHyp dthyp = (DTHyp) hyp;
+//                        Word<PSymbolInstance> dest = dthyp.branchWithSameGuard(p, src_c.getBranching(ps));
+//
+//                        DTLeaf dest_c = dt.getLeaf(dest);
+//                        DTLeaf short_c = dt.getLeaf(p);
+//                        if (dest_c != short_c) {
+//                            dt.addLocation(p, src_c, dest_c, short_c);
+//                            refinement = true;
+//                            continue SP;
+//                        }
+//                    }
+//                }
+//            }
             dangling.push(prefix);
         }
 

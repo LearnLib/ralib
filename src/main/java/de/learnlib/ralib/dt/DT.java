@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -268,6 +269,20 @@ public class DT implements DiscriminationTree {
             ret = ret && checkConsistency(b.getChild());
         }
         return ret;
+    }
+    
+    
+    public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix) {
+        List<Word<PSymbolInstance>> extensions = new ArrayList<>();
+        Collection<DTLeaf> leaves = getLeaves();
+        for (DTLeaf leaf : leaves) {
+            for (Word<PSymbolInstance> leafPrefix : leaf.getAllPrefixes()) {
+                if (leafPrefix.size() > 0 && leafPrefix.prefix(-1).equals(prefix)) {
+                    extensions.add(leafPrefix);
+                }
+            }
+        }
+        return extensions;
     }
 
     public boolean checkIOConsistency(DTHyp hyp) {
