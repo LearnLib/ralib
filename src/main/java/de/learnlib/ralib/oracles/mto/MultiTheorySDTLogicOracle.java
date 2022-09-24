@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -34,10 +35,17 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
@@ -149,5 +157,56 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
+    }
+
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {
+        assert prefix.isPrefixOf(word) : "invalid prefix";
+        SDT _sdt =  (SDT) sdt;
+        assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
+            "The height of the tree is not consistent with the number of parameters in the word";
+        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
+        valuation.putAll(consts);
+        DataValue[] vals = DataWords.valsOf(prefix);
+        for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
+             DataValue parVal = vals[entry.getKey().getId()-1];
+             valuation.put(entry.getValue(), parVal);
+        }
+
+        boolean accepts = accepts(word, prefix, prefix.length(), _sdt, valuation);
+        return accepts;
+    }
+
+    private boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, int symIndex, SDT sdt,
+            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+        boolean accepts;
+        if (symIndex == word.length()) {
+            accepts =  sdt.isAccepting();
+        } else {
+            PSymbolInstance sym = word.getSymbol(symIndex);
+            if (sym.getBaseSymbol().getArity() == 0) {
+                accepts = accepts(word, prefix, symIndex + 1, sdt, valuation);
+            } else {
+                SDT nextSdt = sdt;
+                Mapping<SymbolicDataValue, DataValue<?>> newValuation = new Mapping<>();
+                newValuation.putAll(valuation);
+                for (int i = 0; i < sym.getBaseSymbol().getArity(); i++) {
+                    DataValue value = sym.getParameterValues()[i];
+                    SuffixValue suffixValue = nextSdt.getChildren().keySet().iterator().next().getParameter();
+                    newValuation.put(suffixValue, value);
+                    boolean found = false;
+                    for (Map.Entry<SDTGuard, SDT> entry : nextSdt.getChildren().entrySet()) {
+                        TransitionGuard guardExpr = entry.getKey().toTG();
+                        if (solver.isSatisfiable(guardExpr.getCondition(), newValuation)) {
+                            nextSdt = entry.getValue();
+                            found = true;
+                            break;
+                        }
+                    }
+                    assert found : "Could not find a satisfiable guard";
+                }
+                accepts = accepts(word, prefix, symIndex+1, nextSdt, newValuation);
+            }
+        }
+        return accepts;
     }
 }
