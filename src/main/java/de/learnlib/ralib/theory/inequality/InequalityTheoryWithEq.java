@@ -1199,7 +1199,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else if (ereg.isConstant()) {
                 returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
             }
-        } else if (guard instanceof SDTTrueGuard) {
+        } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),
