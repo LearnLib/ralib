@@ -55,8 +55,8 @@ public interface SDTLogicOracle {
      * @return 
      */
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
-            SymbolicDecisionTree sdt1, PIV piv1, 
-            SymbolicDecisionTree sdt2, PIV piv2, 
+            SymbolicDecisionTree sdt1, PIV piv1,
+            SymbolicDecisionTree sdt2, PIV piv2,
             TransitionGuard guard, Word<PSymbolInstance> rep);
             
     /**
@@ -76,4 +76,9 @@ public interface SDTLogicOracle {
      */
     boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
 			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+
+    /**
+     * Returns true if the word leads to an accepting leaf on the SDT.
+     */
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
 }
