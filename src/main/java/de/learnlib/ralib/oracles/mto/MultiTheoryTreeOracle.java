@@ -451,63 +451,41 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-        instantiate(words, prefix, suffix, (SDT) sdt, piv, new ParValuation(), 0, new SuffixValueGenerator(),
-                new ParameterGenerator());
+        instantiate(words, prefix, suffix, (SDT) sdt, piv, 0, 0, new ParValuation(), new ParameterGenerator(), new ParValuation(), new ParameterGenerator());
         return words;
     }
 
     private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, SDT sdt, PIV piv, ParValuation pval, int index, SuffixValueGenerator sgen,
-            ParameterGenerator pgen) {
-
-        if (sdt instanceof SDTLeaf) {
-            SDTLeaf sdtLeaf = (SDTLeaf) sdt;
-
-            int len = suffix.length();
-            if (index < len) {
-                Word<ParameterizedSymbol> acts = suffix.getActions().suffix(len - index);
-                Word<PSymbolInstance> suff = DataWords.instantiate(acts, new DataValue[0]);
-                prefix = prefix.concat(suff);
-            }
-
-            words.put(prefix, sdtLeaf.isAccepting());
+            SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx, ParValuation pval, ParameterGenerator pgen, ParValuation gpval, ParameterGenerator gpgen) {
+        if (aidx == suffix.getActions().length()) {
+            words.put(prefix, sdt.isAccepting());
         } else {
-            for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
-                SuffixValueGenerator sgenClone = new SuffixValueGenerator();
-                ParameterGenerator pgenClone = new ParameterGenerator();
-                ParValuation pvalClone = new ParValuation();
-                sgenClone.set(sgen);
-                pgenClone.set(pgen);
-                pvalClone.putAll(pval);
-
-                instantiate(words, prefix, suffix, e.getValue(), piv, pvalClone, e.getKey(), index, sgenClone,
-                        pgenClone);
+            ParameterizedSymbol ps = suffix.getActions().getSymbol(aidx);
+            if (ps.getArity() == pidx) {
+                DataValue[] vals = pval.values().toArray(new DataValue [] {});
+                PSymbolInstance psi = new PSymbolInstance(ps, vals);
+                Word<PSymbolInstance> newPrefix = prefix.append(psi);
+                instantiate(words, newPrefix, suffix, sdt, piv, aidx+1, 0, new ParValuation(), new ParameterGenerator(), gpval, gpgen);
+            } else {
+                Parameter p = pgen.next(ps.getPtypes()[pidx]);
+                Parameter gp = gpgen.next(ps.getPtypes()[pidx]);
+                Theory t = teachers.get(ps.getPtypes()[pidx]);
+                for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
+                    DataValue val = t.instantiate(prefix, ps, piv, gpval, constants, entry.getKey(), p, Collections.emptySet());
+                    ParValuation newPval = new ParValuation();
+                    newPval.putAll(pval);
+                    newPval.put(p, val);
+                    ParValuation newGpval = new ParValuation();
+                    newGpval.putAll(gpval);
+                    newGpval.put(gp, val);
+                    ParameterGenerator newPgen = new ParameterGenerator();
+                    newPgen.set(pgen);
+                    ParameterGenerator newGpgen = new ParameterGenerator();
+                    newGpgen.set(gpgen);
+                    instantiate(words, prefix, suffix, entry.getValue(), piv, aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
+                }
             }
         }
-    }
-
-    private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, SDT sdt, PIV piv, ParValuation pval, SDTGuard guard, int index,
-            SuffixValueGenerator sgen, ParameterGenerator pgen) {
-
-        ParameterizedSymbol ps = suffix.getActions().getSymbol(index);
-        DataValue[] dvis = new DataValue[ps.getArity()];
-        for (int i = 0; i < ps.getArity(); i++) {
-            DataType type = ps.getPtypes()[i];
-            Theory teach = teachers.get(type);
-
-            SuffixValue s = sgen.next(type);
-            Parameter p = new Parameter(type, s.getId());
-
-            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
-            dvis[i] = dvi;
-
-            pval.put(p, dvi);
-        }
-
-        Word<PSymbolInstance> newPrefix = prefix.append(new PSymbolInstance(ps, dvis));
-        // pass on prefix and sdt
-        instantiate(words, newPrefix, suffix, sdt, piv, pval, index + 1, sgen, pgen);
     }
 
     /**
