@@ -168,6 +168,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Hypothesis h = ab.toRegisterAutomaton();
         prefixFinder.setHypothesis(h);
         prefixFinder.setComponents(components);
+        prefixFinder.setHypothesisTreeOracle(hypOracleFactory.createTreeOracle(h));
     }
 
     private boolean analyzeCounterExample() {
@@ -218,8 +219,9 @@ public class RaTTT implements RaLearningAlgorithm {
 
                     if (leaf == null)
                         refinement = refinement | addGuardRefinement(p);
-                    else
+                    else {
                         refinement = refinement | addNewLocation(p, leaf);
+                    }
                 }
             } while (!refinement && !prefixes.isEmpty());
 
@@ -275,10 +277,10 @@ public class RaTTT implements RaLearningAlgorithm {
             return true;
         }
         
-         dt.sift(word, true);
+        dt.sift(word, true);
         
         // no refinement, so must be a new location
-        addNewLocation(word, src_c);
+//        addNewLocation(word, src_c);
         return false;
     }
 
@@ -325,25 +327,6 @@ public class RaTTT implements RaLearningAlgorithm {
                     continue SP;
                 }
             }
-            
-
-//            for (ParameterizedSymbol ps : dt.getInputs()) {
-//                Branching b = sp.getBranching(ps);
-//                for (Word<PSymbolInstance> p : b.getBranches().keySet()) {
-//                    if (hyp.getLocation(p) != null) {
-//                        DTHyp dthyp = (DTHyp) hyp;
-//                        Word<PSymbolInstance> dest = dthyp.branchWithSameGuard(p, src_c.getBranching(ps));
-//
-//                        DTLeaf dest_c = dt.getLeaf(dest);
-//                        DTLeaf short_c = dt.getLeaf(p);
-//                        if (dest_c != short_c) {
-//                            dt.addLocation(p, src_c, dest_c, short_c);
-//                            refinement = true;
-//                            continue SP;
-//                        }
-//                    }
-//                }
-//            }
             dangling.push(prefix);
         }
 

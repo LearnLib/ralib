@@ -48,7 +48,6 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -451,12 +450,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-        instantiate(words, prefix, suffix, (SDT) sdt, piv, 0, 0, new ParValuation(), new ParameterGenerator(), new ParValuation(), new ParameterGenerator());
+        instantiate(words, prefix, suffix, (SDT) sdt, piv, 0, 0,
+                new ParValuation(), new ParameterGenerator(), new ParValuation(), new ParameterGenerator());
         return words;
     }
 
     private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx, ParValuation pval, ParameterGenerator pgen, ParValuation gpval, ParameterGenerator gpgen) {
+            SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx,
+            ParValuation pval, ParameterGenerator pgen, ParValuation gpval, ParameterGenerator gpgen) {
         if (aidx == suffix.getActions().length()) {
             words.put(prefix, sdt.isAccepting());
         } else {

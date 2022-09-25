@@ -83,7 +83,6 @@ public class LearnPadlock extends RaLibTestSuite {
         Assignment copyAssign = new Assignment(copyMapping);
         Assignment storeAssign = new Assignment(storeMapping);
         Assignment noAssign = new Assignment(new VarMapping<>());
-        OutputMapping outMapping = new OutputMapping();
 
         // initial location
         ra.addTransition(l0, IN, new InputTransition(trueGuard, IN, l0, l1, storeAssign));
