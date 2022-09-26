@@ -37,7 +37,6 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -73,6 +72,7 @@ public class LearnPQTest extends RaLibTestSuite {
 
         RaTTT rastar = new RaTTT(mto, hypFactory, mlo, consts, OFFER, POLL);
         rastar.learn();
+        rastar.doThoroughCESearch(true);
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
@@ -83,8 +83,6 @@ public class LearnPQTest extends RaLibTestSuite {
                         new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, 1.0)),
-                //                new PSymbolInstance(OFFER,
-                //                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, 1.0)));
 

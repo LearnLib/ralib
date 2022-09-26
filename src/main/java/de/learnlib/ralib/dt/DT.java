@@ -81,6 +81,10 @@ public class DT implements DiscriminationTree {
 
     @Override
     public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add) {
+        DTLeaf leaf = getLeaf(prefix);
+        if (leaf != null) {
+            return leaf;
+        }
         MappedPrefix mp = new MappedPrefix(prefix, new PIV());
         DTLeaf result = sift(mp, root, add);
         return result;
@@ -217,8 +221,8 @@ public class DT implements DiscriminationTree {
         
         Set<MappedPrefix> prefixes = new LinkedHashSet<MappedPrefix>();
         leaf.getMappedExtendedPrefixes(prefixes);
-        leaf.clear();
         for (MappedPrefix prefix : prefixes) {
+            leaf.removePrefix(prefix.getPrefix());
             sift(prefix, node, true);
         }
         
@@ -247,9 +251,9 @@ public class DT implements DiscriminationTree {
 
         Set<MappedPrefix> prefixes = new LinkedHashSet<MappedPrefix>();
         leaf.getMappedExtendedPrefixes(prefixes);
-        leaf.clear();
         DTInnerNode parent = leaf.getParent();
         for (MappedPrefix prefix : prefixes) {
+            leaf.removePrefix(prefix.getPrefix());
             sift(prefix, parent, true);
         }
     }

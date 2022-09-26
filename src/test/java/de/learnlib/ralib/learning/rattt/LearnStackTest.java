@@ -48,7 +48,7 @@ public class LearnStackTest extends RaLibTestSuite {
 	@Test
 	public void learnStackExample() {
 
-		Constants consts = new Constants();        
+		Constants consts = new Constants();
 	    RegisterAutomaton sul = AUTOMATON;
 	    DataWordOracle dwOracle = new SimulatorOracle(sul);
 
@@ -68,10 +68,10 @@ public class LearnStackTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
                         new Constants(), solver);
-        
+
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
         rattt.doThoroughCESearch(true);
-        
+
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
@@ -79,19 +79,17 @@ public class LearnStackTest extends RaLibTestSuite {
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
-        
 
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
     
         rattt.learn();
         hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
-        
+
         ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
-        
 
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
     
@@ -109,7 +107,7 @@ public class LearnStackTest extends RaLibTestSuite {
 	    RegisterAutomaton sul = AUTOMATON;
 	    DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
+	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
@@ -178,6 +176,52 @@ public class LearnStackTest extends RaLibTestSuite {
         Assert.assertEquals(suffixActions, expectedSuffixActions);
 	}
 	
+	@Test
+    public void learnStackExampleLongCE() {
+        Constants consts = new Constants();
+        RegisterAutomaton sul = AUTOMATON;
+        DataWordOracle dwOracle = new SimulatorOracle(sul);
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
+
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                  dwOracle, teachers, new Constants(), solver);
+
+        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+                        new Constants(), solver);
+
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        rattt.doThoroughCESearch(true);
+
+        rattt.learn();
+        RegisterAutomaton hyp = rattt.getHypothesis();
+        logger.log(Level.FINE, "HYP0: {0}", hyp);
+        hyp = rattt.getHypothesis();
+        logger.log(Level.FINE, "HYP1: {0}", hyp);
+
+        Word<PSymbolInstance> ce = Word.fromSymbols(
+                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
+                new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
+                new PSymbolInstance(I_POP, new DataValue(T_INT, 0))
+                );
+
+
+        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+
+        rattt.learn();
+        hyp = rattt.getHypothesis();
+        logger.log(Level.FINE, "HYP2: {0}", hyp);
+
+        Assert.assertTrue(hyp.accepts(ce));
+    }
+
 	@Test
 	public void learnStackExampleRandom() {
 		final int SEEDS = 10;

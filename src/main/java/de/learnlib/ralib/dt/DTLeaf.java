@@ -106,6 +106,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return shortPrefixes.remove(p);
     }
 
+    public boolean removePrefix(Word<PSymbolInstance> p) {
+        return shortPrefixes.removeIf((e) -> e.getPrefix().equals(p)) || otherPrefixes.removeIf((e) -> e.getPrefix().equals(p));
+    }
+
     /**
      * Clears the short and other prefix sets.
      * The only prefix remaining will be the leaf's access sequence. 
