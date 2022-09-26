@@ -310,8 +310,9 @@ public class RaTTT implements RaLearningAlgorithm {
             Word<PSymbolInstance> prefix = shortPrefixes.poll();
 
             DTLeaf src_c = dt.getLeaf(prefix);
-//            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(prefix);
+
             
+//          TODO Unsure this always work, we should have a global method to check for inconsistency. 
             Collection<Word<PSymbolInstance>> extendedPrefixes = dt.getOneSymbolExtensions(prefix);
             
             for (Word<PSymbolInstance> extendedPrefix : extendedPrefixes) {

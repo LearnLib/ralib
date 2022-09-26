@@ -281,7 +281,7 @@ public class DT implements DiscriminationTree {
         Collection<DTLeaf> leaves = getLeaves();
         for (DTLeaf leaf : leaves) {
             for (Word<PSymbolInstance> leafPrefix : leaf.getAllPrefixes()) {
-                if (leafPrefix.size() > 0 && leafPrefix.prefix(-1).equals(prefix)) {
+                if (prefix.isPrefixOf(leafPrefix) && leafPrefix.length() == prefix.length() + 1) {
                     extensions.add(leafPrefix);
                 }
             }
