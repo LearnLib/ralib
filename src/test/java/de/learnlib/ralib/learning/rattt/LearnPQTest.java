@@ -19,12 +19,15 @@
 package de.learnlib.ralib.learning.rattt;
 
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.*;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -33,10 +36,13 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -55,7 +61,7 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Constants consts = new Constants();
         DataWordOracle dwOracle = 
-                new de.learnlib.ralib.example.priority.PriorityQueueOracle();
+                new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
         
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
@@ -95,6 +101,53 @@ public class LearnPQTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
         
         Assert.assertTrue(hyp.accepts(ceQuery.getInput()));
-//        Assert.assertEquals(hyp.getTransitions().size(), 27);
+        
+        Word<PSymbolInstance> ce2 = Word.fromSymbols(
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 2.0)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, 2.0)));
+        DefaultQuery<PSymbolInstance, Boolean> ce2Query = new DefaultQuery<>(ce2, true);
+        rastar.addCounterexample(ce2Query);
+        rastar.learn();
+        hyp = rastar.getHypothesis();
+        logger.log(Level.FINE, "HYP3: {0}", hyp);
+        
+        Assert.assertTrue(hyp.accepts(ce2Query.getInput()));
+    }
+    
+    @Test
+    public void learnPQRandom() {
+        int SEEDS = 10;
+        Constants consts = new Constants();
+        DataWordOracle dwOracle = 
+                new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
+        
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
+
+        
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                dwOracle, teachers, new Constants(), jsolv);
+        
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
+        RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
+        runner.setSeed(7);
+        runner.setMaxDepth(4);
+        runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+        
+//        for (int i=0; i<SEEDS; i++) {
+//            runner.setSeed(i);
+//            runner.setMaxDepth(4);
+//            runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+//        }
     }
 }
