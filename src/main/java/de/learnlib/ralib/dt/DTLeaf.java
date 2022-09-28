@@ -360,8 +360,28 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 ret = false;
             }
         }
-
+        
+        for (MappedPrefix sp : shortPrefixes.get()) {
+            ret = ret & updateBranching(ps, (ShortPrefix) sp, dt);
+        }
+        
         branching.put(ps, newB);
+        return ret;
+    }
+    
+    private boolean updateBranching(ParameterizedSymbol ps, ShortPrefix sp, DiscriminationTree dt) {
+        Branching b = branching.get(ps);
+        SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(sp, ps);
+        Branching newB = oracle.updateBranching(sp.getPrefix(), ps, b, sp.getParsInVars(), sdts);
+        boolean ret = true;
+        
+        for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
+            if (!b.getBranches().containsKey(prefix)) {
+                dt.sift(prefix, true);
+                ret = false;
+            }
+        }
+        sp.putBranching(ps, newB);;
         return ret;
     }
 

@@ -3,6 +3,7 @@ package de.learnlib.ralib.dt;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -17,10 +18,8 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.LocationComponent;
-import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
@@ -269,19 +268,19 @@ public class DT implements DiscriminationTree {
         }
         boolean ret = true;
         DTInnerNode inner = (DTInnerNode) node;
-        for (DTBranch b : inner.getBranches()) {
+        for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
             ret = ret && checkConsistency(b.getChild());
         }
         return ret;
     }
     
     
-    public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix) {
+    public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
         List<Word<PSymbolInstance>> extensions = new ArrayList<>();
         Collection<DTLeaf> leaves = getLeaves();
         for (DTLeaf leaf : leaves) {
             for (Word<PSymbolInstance> leafPrefix : leaf.getAllPrefixes()) {
-                if (prefix.isPrefixOf(leafPrefix) && leafPrefix.length() == prefix.length() + 1) {
+                if (!leafPrefix.isEmpty() && leafPrefix.lastSymbol().getBaseSymbol().equals(ps) && prefix.isPrefixOf(leafPrefix) && leafPrefix.length() == prefix.length() + 1) {
                     extensions.add(leafPrefix);
                 }
             }
