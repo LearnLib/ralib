@@ -31,12 +31,23 @@ import de.learnlib.ralib.words.PSymbolInstance;
  * @author Sofia
  */
 public final class PriorityQueueOracle implements DataWordOracle {
-
+    public static final Integer CAPACITY = 3;
+    
     public static final DataType doubleType = new DataType("DOUBLE", Double.class);
 
     public static final InputSymbol POLL = new InputSymbol("poll", new DataType[]{doubleType});
     public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
 
+    private int capacity;
+    
+    public PriorityQueueOracle(int capacity) {
+        this.capacity = capacity;
+    }
+    
+    public PriorityQueueOracle() {
+        this.capacity = CAPACITY;
+    }
+    
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
 
@@ -54,7 +65,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
                     try {
                         PSymbolInstance psi = query.getInput().getSymbol(i);
                         DataValue<Double> d = psi.getParameterValues()[0];
-                        if (psi.getBaseSymbol().equals(OFFER) && queue.size() < 3) {
+                        if (psi.getBaseSymbol().equals(OFFER) && queue.size() < capacity) {
                             queue.offer(d.getId());
                             answer[i] = true;
                         } else if (psi.getBaseSymbol().equals(POLL)) {
