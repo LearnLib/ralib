@@ -217,7 +217,6 @@ public class RaTTT implements RaLearningAlgorithm {
                 for (Word<PSymbolInstance> p : prefixes) {
                     
                     DTLeaf leaf = dt.getLeaf(p);
-//                    refinement = refinement | addGuardRefinement(p);
                     
                     if (leaf == null )
                         refinement = refinement | addGuardRefinement(p);
@@ -241,6 +240,10 @@ public class RaTTT implements RaLearningAlgorithm {
             } else
                 return true;
         }
+    }
+
+    public void setUseOldAnalyzer(boolean useOldAnalyzer) {
+        this.useOldAnalyzer = useOldAnalyzer;
     }
 
     private boolean addGuardRefinement(Word<PSymbolInstance> word) {
@@ -380,20 +383,12 @@ public class RaTTT implements RaLearningAlgorithm {
         // System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
 
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
-        Word<PSymbolInstance> prefix = res.getPrefix();
-//        Word<PSymbolInstance> prefix = hyp.transformTransitionSequence(res.getPrefix());
-        DTLeaf leaf = dt.getLeaf(prefix);
-        if (leaf != null && isGuardRefinement(leaf, prefix, ce.getInput().prefix(prefix.length())))
-            dt.addSuffix(res.getSuffix(), leaf);
-        else {
-            if (leaf == null)
-                leaf = dt.sift(prefix, true);
-            leaf.elevatePrefix(dt, prefix, (DTHyp) hyp);
-            dt.split(prefix, res.getSuffix(), leaf);
-        }
+        Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
+        DTLeaf leaf = dt.getLeaf(accSeq);
+        dt.addSuffix(res.getSuffix(), leaf);
         return true;
     }
-
+    
     private boolean isGuardRefinement(DTLeaf leaf, Word<PSymbolInstance> prefix, Word<PSymbolInstance> extendedPrefix) {
         ParameterizedSymbol ps = extendedPrefix.getSymbol(extendedPrefix.length() - 1).getBaseSymbol();
         Branching b = leaf.getBranching(ps);
@@ -412,9 +407,6 @@ public class RaTTT implements RaLearningAlgorithm {
             ab = new IOAutomatonBuilder(components, consts, dt);
         else
             ab = new AutomatonBuilder(components, consts, this.dt);
-//        if (ioMode) {
-//            ab = new IOAutomatonBuilder(components, consts);
-//        }
         return ab.toRegisterAutomaton();
     }
 
