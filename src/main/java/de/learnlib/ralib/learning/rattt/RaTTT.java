@@ -204,6 +204,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Word<PSymbolInstance> ceWord = ce.getInput();
         Set<Word<PSymbolInstance>> prefixes;
         while (true) {
+            System.out.println(dt);
             boolean refinement = false;
             do {
                 Word<PSymbolInstance> prefix = prefixFinder.analyzeCounterexample(ceWord, indices);
@@ -215,14 +216,7 @@ public class RaTTT implements RaLearningAlgorithm {
                 }
 
                 for (Word<PSymbolInstance> p : prefixes) {
-                    
-                    DTLeaf leaf = dt.getLeaf(p);
-                    
-                    if (leaf == null )
-                        refinement = refinement | addGuardRefinement(p);
-                    else {
-                        refinement = refinement | addNewLocation(p, leaf);
-                    }
+                    refinement = refinement | addPrefix(p);
                 }
             } while (!refinement && !prefixes.isEmpty());
 
@@ -246,8 +240,7 @@ public class RaTTT implements RaLearningAlgorithm {
         this.useOldAnalyzer = useOldAnalyzer;
     }
 
-    private boolean addGuardRefinement(Word<PSymbolInstance> word) {
-
+    private boolean addPrefix(Word<PSymbolInstance> word) {
         DTLeaf dest_c = dt.sift(word, true);
         Word<PSymbolInstance> src_id = word.prefix(word.length() - 1);
         DTLeaf src_c = dt.getLeaf(src_id);
@@ -280,6 +273,10 @@ public class RaTTT implements RaLearningAlgorithm {
             }
             return true;
         }
+        if (!dt.checkVariableConsistency()) {
+            while(!dt.checkVariableConsistency());
+            return true;
+        }
 
         // no refinement, so must be a new location
         boolean refinement = addNewLocation(word, dest_c);
@@ -287,7 +284,6 @@ public class RaTTT implements RaLearningAlgorithm {
     }
     
     private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {
-
         Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = src_c.elevatePrefix(getDT(), prefix,
                 (DTHyp) hyp);
         if (divergance == null) {
@@ -306,12 +302,15 @@ public class RaTTT implements RaLearningAlgorithm {
     private void processShortPrefixes() {
         boolean progress = true;
         
+        dt.getLeaves().forEach(l -> shortPrefixes.remove(l.getAccessSequence()));
+        
         while (!shortPrefixes.isEmpty() && progress) {
             progress = false;
             for (Word<PSymbolInstance> sp : Collections.unmodifiableCollection(shortPrefixes)) {
                 boolean spProgress = checkAddNewLocation(sp);
                 if (spProgress) {
                     shortPrefixes.remove(sp);
+                    dt.getLeaves().forEach(l -> shortPrefixes.remove(l.getAccessSequence()));
                 }
                 progress |= spProgress;
             }
