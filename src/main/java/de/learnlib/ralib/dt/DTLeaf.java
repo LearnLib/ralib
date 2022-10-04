@@ -237,7 +237,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> elevatePrefix(DT dt, Word<PSymbolInstance> prefix,
             DTHyp hyp) {
         MappedPrefix mp = otherPrefixes.get(prefix);
-        assert mp != null;
+        assert mp != null : "Cannot elevate prefix that is not contained in leaf " + this + " === " + prefix;
         boolean removed = otherPrefixes.remove(mp);
 
         ShortPrefix sp = new ShortPrefix(mp);

@@ -153,7 +153,8 @@ public class PrefixFinder {
 	        		storeCandidateCEs(ce, idx);
 	        		isCE[idx] = true;
 	        	}
-                candidates[idx] = candidate(location, act, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv());
+//	        	candidates[idx] = candidate2(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
+                candidates[idx] = candidate(location, act, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c);
 //	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
 	            return true;
 	        }
@@ -213,10 +214,53 @@ public class PrefixFinder {
     		candidateCEs.put(symWord, tqr);
     	}
     }
+    
+
+
+    private Word<PSymbolInstance> findRefiningPrefix(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL, LocationComponent c) {
+
+        Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
+        Branching branchHyp = c.getBranching(action);
+
+        Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
+
+//        System.out.println("Branching Hyp:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Sys:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+//        System.out.println("Branching Updated:");
+//        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : updated.getBranches().entrySet()) {
+//            System.out.println(e.getKey() + " -> " + e.getValue());
+//        }
+
+//        if (updated.getBranches().size() == branchHyp.getBranches().size()) {
+//            return transition;
+//        }
+
+        for (Word<PSymbolInstance> cand : updated.getBranches().keySet()) {
+            if (!branchHyp.getBranches().containsKey(cand)) {
+                return cand;
+            }
+        }
+        
+        return null;
+
+//        throw new IllegalStateException("cannot be reached!");
+    }
 
     private Word<PSymbolInstance> candidate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol action, SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
-            SymbolicDecisionTree sdtHyp, PIV pivHyp) {
+            SymbolicDecisionTree sdtHyp, PIV pivHyp, LocationComponent c) {
+        Word<PSymbolInstance> candidate = findRefiningPrefix(prefix, action, sdtSul, pivSul, c);
+        if (candidate != null) {
+            return candidate;   
+        }
+        
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
         Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
         Set<Word<PSymbolInstance>> allPaths = new LinkedHashSet<>();
@@ -233,7 +277,7 @@ public class PrefixFinder {
         }
 
         assert cePath != null : "There should be a CE path";
-        Word<PSymbolInstance> candidate = cePath.prefix(prefix.length() + 1);
+        candidate = cePath.prefix(prefix.length() + 1);
 
         return candidate;
     }
