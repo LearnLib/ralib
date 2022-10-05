@@ -80,31 +80,31 @@ public class LearnPQTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
         RaTTT rastar = new RaTTT(mto, hypFactory, mlo, consts, OFFER, POLL);
-        rastar.setUseOldAnalyzer(true);
+//        rastar.setUseOldAnalyzer(true);
         rastar.learn();
         rastar.doThoroughCESearch(true);
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-//        Word<PSymbolInstance> ce = Word.fromSymbols(
-//                new PSymbolInstance(OFFER,
-//                        new DataValue(doubleType, 1.0)),
-//                new PSymbolInstance(OFFER,
-//                        new DataValue(doubleType, 1.0)),
-//                new PSymbolInstance(POLL,
-//                        new DataValue(doubleType, 1.0)),
-//                new PSymbolInstance(POLL,
-//                        new DataValue(doubleType, 1.0)));
-//
-//        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce, true);
-//
-//        rastar.addCounterexample(ceQuery);
-//
-//        rastar.learn();
-//        hyp = rastar.getHypothesis();
-//        logger.log(Level.FINE, "HYP2: {0}", hyp);
-//        
-//        Assert.assertTrue(hyp.accepts(ceQuery.getInput()));
+        Word<PSymbolInstance> ce = Word.fromSymbols(
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, 1.0)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, 1.0)));
+
+        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce, true);
+
+        rastar.addCounterexample(ceQuery);
+
+        rastar.learn();
+        hyp = rastar.getHypothesis();
+        logger.log(Level.FINE, "HYP2: {0}", hyp);
+        
+        Assert.assertTrue(hyp.accepts(ceQuery.getInput()));
         
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
@@ -137,7 +137,7 @@ public class LearnPQTest extends RaLibTestSuite {
         
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
-        runner.setMaxDepth(6);
+        runner.setMaxDepth(4);
 //        runner.setUseOldAnalyzer(true);
         
         Measurements[] ratttCount = new Measurements [SEEDS];
@@ -148,12 +148,12 @@ public class LearnPQTest extends RaLibTestSuite {
             runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
             ratttCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
-            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
-            rastarCount[i] = runner.getMeasurements();
-            runner.resetMeasurements();
+//            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+//            rastarCount[i] = runner.getMeasurements();
+//            runner.resetMeasurements();
         }
         
         System.out.println("Queries (TTT): " + Arrays.toString(ratttCount));
-        System.out.println("Queries (Star): " + Arrays.toString(rastarCount));
+//        System.out.println("Queries (Star): " + Arrays.toString(rastarCount));
     }
 }
