@@ -21,6 +21,7 @@ import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTInnerNode;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.dt.MappedPrefix;
+import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -244,7 +245,15 @@ public class RaTTT implements RaLearningAlgorithm {
         DTLeaf dest_c = dt.sift(word, true);
         Word<PSymbolInstance> src_id = word.prefix(word.length() - 1);
         DTLeaf src_c = dt.getLeaf(src_id);
-        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
+        Branching hypBranching = null;
+        if (src_c.getAccessSequence().equals(src_id)) {
+            hypBranching = src_c.getBranching(word.lastSymbol().getBaseSymbol());
+        } else {
+            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(src_id);
+            hypBranching = sp.getBranching(word.lastSymbol().getBaseSymbol());
+        }
+        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, hypBranching); 
+                //hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
         DTLeaf branchLeaf = dt.getLeaf(branch);
         boolean isDTRefinement = (branchLeaf != dest_c);
 

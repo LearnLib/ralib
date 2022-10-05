@@ -221,8 +221,16 @@ public class PrefixFinder {
             ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL, LocationComponent c) {
 
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
-        Branching branchHyp = c.getBranching(action);
-
+        Branching branchHyp = null;
+        
+        if (c.getAccessSequence().equals(prefix)) {
+            branchHyp = c.getBranching(action);
+        } else {
+            ShortPrefix sp = (ShortPrefix) ((DTLeaf) c).getShortPrefixes().get(prefix);
+            assert sp != null : "Short prefix should exist";
+            branchHyp = sp.getBranching(action);
+        }
+        
         Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
 
 //        System.out.println("Branching Hyp:");
