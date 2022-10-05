@@ -33,6 +33,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.SDTOrGuard;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -1241,8 +1242,15 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
 
                 returnThis = instantiate(iGuard, val, constants, alreadyUsedValues);
+            } else if (guard instanceof SDTAndGuard) {
+                assert ((SDTAndGuard) guard).getGuards().stream().allMatch(g -> g instanceof DisequalityGuard);
+                SDTGuard aGuard = ((SDTAndGuard) guard).getGuards().get(0);
+                
+                
+
+                returnThis = instantiate(aGuard, val, constants, alreadyUsedValues);
             } else {
-                throw new IllegalStateException("only =, != or interval allowed");
+                throw new IllegalStateException("only =, != or interval allowed. Got " + guard);
             }
 
 //                        }
