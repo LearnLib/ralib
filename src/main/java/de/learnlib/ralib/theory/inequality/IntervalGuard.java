@@ -52,8 +52,8 @@ public class IntervalGuard extends SDTGuard {
     
     public IntervalGuard(IntervalGuard other) {
     	super(other);
-    	leftLimit = other.leftLimit.copy();
-    	rightLimit = other.rightLimit.copy();
+    	leftLimit = other.leftLimit;//.copy();
+    	rightLimit = other.rightLimit;//.copy();
     }
     
     public EqualityGuard toEqGuard() {

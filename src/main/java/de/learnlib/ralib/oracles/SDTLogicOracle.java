@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles;
 
+
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -27,7 +28,7 @@ import net.automatalib.words.Word;
 
 /**
  * The SDTLogicOracle offers functions that are needed for 
- * processing counterexamples.
+ * processing counterexamples and constructing branching.
  * 
  * @author falk
  */
@@ -53,9 +54,9 @@ public interface SDTLogicOracle {
      * @param rep
      * @return 
      */
-    public boolean hasCounterexample(Word<PSymbolInstance> prefix, 
-            SymbolicDecisionTree sdt1, PIV piv1, 
-            SymbolicDecisionTree sdt2, PIV piv2, 
+    boolean hasCounterexample(Word<PSymbolInstance> prefix,
+            SymbolicDecisionTree sdt1, PIV piv1,
+            SymbolicDecisionTree sdt2, PIV piv2,
             TransitionGuard guard, Word<PSymbolInstance> rep);
             
     /**
@@ -67,13 +68,17 @@ public interface SDTLogicOracle {
      * @param pivRefined
      * @return 
      */
-    public boolean doesRefine(TransitionGuard refining, PIV pivRefining,
+    boolean doesRefine(TransitionGuard refining, PIV pivRefining,
             TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
     
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
-    public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
+    boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
 			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
-    
+
+    /**
+     * Returns true if the word leads to an accepting leaf on the SDT.
+     */
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
 }

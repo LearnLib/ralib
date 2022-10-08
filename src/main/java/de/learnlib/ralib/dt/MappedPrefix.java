@@ -6,10 +6,10 @@ import java.util.Map.Entry;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -45,7 +45,18 @@ public class MappedPrefix implements PrefixContainer {
 		}
 	}
 	
+	/*
+	 * Performs a tree query for the (new) suffix and stores it in its internal map. 
+	 * Returns the result.
+	 */
+	TreeQueryResult computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
+        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
+	    addTQR(suffix, tqr);
+	    return tqr;
+	}
+	
 	void addTQR(SymbolicSuffix s, TreeQueryResult tqr) {
+	    assert(!tqrs.containsKey(s));
 		tqrs.put(s, tqr);
 		updateMemorable(tqr.getPiv());
 	}

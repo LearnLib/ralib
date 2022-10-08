@@ -5,10 +5,8 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -17,8 +15,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -32,7 +28,6 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.automata.TransitionGuard;
 import net.automatalib.words.Word;
 
 public class DTTest {

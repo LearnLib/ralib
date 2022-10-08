@@ -61,7 +61,7 @@ import org.testng.annotations.Test;
 public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExampleIO() {
+    public void learnMixedIO() {
 
         long seed = -1386796323025681754L; 
         logger.log(Level.FINE, "SEED={0}", seed);

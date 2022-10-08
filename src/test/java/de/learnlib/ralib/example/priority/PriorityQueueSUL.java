@@ -60,15 +60,20 @@ public class PriorityQueueSUL extends DataWordSUL {
 
 
     private PQWrapper pqueue;
-    
+    private int capacity;
     
     public PriorityQueueSUL() {
+        capacity = PQWrapper.CAPACITY;
+    }
+    
+    public PriorityQueueSUL(int capacity) {
+        this.capacity = capacity;
     }
 
     @Override
     public void pre() {
         countResets(1);
-        this.pqueue = new PQWrapper();
+        this.pqueue = new PQWrapper(capacity);
     }
 
     @Override

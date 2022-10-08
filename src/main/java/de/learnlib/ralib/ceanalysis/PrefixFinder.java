@@ -5,6 +5,8 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.dt.DTLeaf;
+import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.*;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -24,11 +26,13 @@ import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import com.google.common.collect.Iterators;
+
 public class PrefixFinder {
 
     private final TreeOracle sulOracle;
 
-    private final TreeOracle hypOracle;
+    private TreeOracle hypOracle;
 
     private Hypothesis hypothesis;
 
@@ -149,14 +153,15 @@ public class PrefixFinder {
 	        		storeCandidateCEs(ce, idx);
 	        		isCE[idx] = true;
 	        	}
-	        	candidates[idx] = candidate(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
+//	        	candidates[idx] = candidate2(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
+                candidates[idx] = candidate(location, act, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c);
 //	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
 	            return true;
 	        }
         }
         return false;
     }
-    
+
     private boolean transitionHasCE(Word<PSymbolInstance> ce, int idx) {
     	if (idx+1 >= ce.length())
     		return false;
@@ -190,7 +195,7 @@ public class PrefixFinder {
     	}
     	return false;
     }
-    
+
     private void storeCandidateCEs(Word<PSymbolInstance> ce, int idx) {
     	if (idx+1 >= ce.length())
     		return;
@@ -209,14 +214,23 @@ public class PrefixFinder {
     		candidateCEs.put(symWord, tqr);
     	}
     }
+    
 
-    private Word<PSymbolInstance> candidate(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL,
-            Word<PSymbolInstance> transition, LocationComponent c) {
+
+    private Word<PSymbolInstance> findRefiningPrefix(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL, LocationComponent c) {
 
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
-        Branching branchHyp = c.getBranching(action);
-
+        Branching branchHyp = null;
+        
+        if (c.getAccessSequence().equals(prefix)) {
+            branchHyp = c.getBranching(action);
+        } else {
+            ShortPrefix sp = (ShortPrefix) ((DTLeaf) c).getShortPrefixes().get(prefix);
+            assert sp != null : "Short prefix should exist";
+            branchHyp = sp.getBranching(action);
+        }
+        
         Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
 
 //        System.out.println("Branching Hyp:");
@@ -232,19 +246,49 @@ public class PrefixFinder {
 //            System.out.println(e.getKey() + " -> " + e.getValue());
 //        }
 
-        if (updated.getBranches().size() == branchHyp.getBranches().size()) {
-            return transition;
-        }
+//        if (updated.getBranches().size() == branchHyp.getBranches().size()) {
+//            return transition;
+//        }
 
         for (Word<PSymbolInstance> cand : updated.getBranches().keySet()) {
             if (!branchHyp.getBranches().containsKey(cand)) {
                 return cand;
             }
         }
+        
+        return null;
 
-        throw new IllegalStateException("cannot be reached!");
+//        throw new IllegalStateException("cannot be reached!");
     }
 
+    private Word<PSymbolInstance> candidate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol action, SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
+            SymbolicDecisionTree sdtHyp, PIV pivHyp, LocationComponent c) {
+        Word<PSymbolInstance> candidate = findRefiningPrefix(prefix, action, sdtSul, pivSul, c);
+        if (candidate != null) {
+            return candidate;   
+        }
+        
+        Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
+        Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
+        Set<Word<PSymbolInstance>> allPaths = new LinkedHashSet<>();
+        Word<PSymbolInstance> cePath = null;
+        allPaths.addAll(sulPaths.keySet());
+        allPaths.addAll(hypPaths.keySet());
+        for (Word<PSymbolInstance> path : allPaths) {
+            boolean hypAcc = sdtOracle.accepts(path, prefix, sdtHyp, pivHyp);
+            boolean sulAcc = sdtOracle.accepts(path, prefix, sdtSul, pivSul);
+            if (hypAcc != sulAcc) {
+                cePath = path;
+                break;
+            }
+        }
+
+        assert cePath != null : "There should be a CE path";
+        candidate = cePath.prefix(prefix.length() + 1);
+
+        return candidate;
+    }
 
     private int binarySearch(Word<PSymbolInstance> ce, int ... indices) {
 
@@ -309,7 +353,7 @@ public class PrefixFinder {
     public void reset() {
     	low = 0;
     }
-    
+
     public DefaultQuery<PSymbolInstance, Boolean> getCounterExample() {
     	Map<SymbolicWord, TreeQueryResult> cces = new LinkedHashMap<SymbolicWord, TreeQueryResult>(candidateCEs);
     	for (Map.Entry<SymbolicWord, TreeQueryResult> e : cces.entrySet()) {
@@ -335,6 +379,10 @@ public class PrefixFinder {
     	if (usedCEs.isEmpty())
     		return null;
     	return getCounterExample();
+    }
+    
+    public void setHypothesisTreeOracle(TreeOracle hypOracle) {
+        this.hypOracle = hypOracle;
     }
     
     public void setHypothesis(Hypothesis hyp) {

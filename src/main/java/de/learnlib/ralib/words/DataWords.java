@@ -70,7 +70,7 @@ public final class DataWords {
         }
         return vals;
     }
- 
+
     /**
      * returns set of unique data values of some type in a data word.
      * 
@@ -204,8 +204,21 @@ public final class DataWords {
         }
         return length;
     }
-    
-        
+
+    /**
+     * Returns the number of data values in a sequence of symbols
+     *
+     * @param word
+     * @return
+     */
+    public static int paramValLength(Word<PSymbolInstance> word) {
+        int length = 0;
+        for (PSymbolInstance psi : word) {
+            length += psi.getParameterValues().length;
+        }
+        return length;
+    }
+
     private DataWords() {        
     }    
 }

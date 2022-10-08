@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
@@ -34,10 +35,17 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
+import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
@@ -84,7 +92,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         exprG = exprG.relabel(gremap);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(piv2, piv1);
+        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         GuardExpression expr2r = expr2.relabel(remap);
 
@@ -115,7 +123,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
         log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(pivRefined, pivRefining);
+        VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
         GuardExpression exprRefining = refining.getCondition();
         GuardExpression exprRefined = refined.getCondition().relabel(remap);
@@ -137,7 +145,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         log.log(Level.FINEST, "piv1: {0}", piv1);
         log.log(Level.FINEST, "piv2: {0}", piv2);
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> remap = createRemapping(piv2, piv1);
+        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         GuardExpression exprGuard1 = guard1.getCondition();
         GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
@@ -151,27 +159,54 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return !r;
     }
 
-
-    private VarMapping<SymbolicDataValue, SymbolicDataValue> createRemapping(PIV from, PIV to) {
-
-        // there should not be any register with id > n
-        for (Register r : to.values()) {
-            if (r.getId() > to.size()) {
-                throw new IllegalStateException("there should not be any register with id > n: " + to);
-            }
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {
+        assert prefix.isPrefixOf(word) : "invalid prefix";
+        SDT _sdt =  (SDT) sdt;
+        assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
+            "The height of the tree is not consistent with the number of parameters in the word";
+        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
+        valuation.putAll(consts);
+        DataValue[] vals = DataWords.valsOf(prefix);
+        for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
+             DataValue parVal = vals[entry.getKey().getId()-1];
+             valuation.put(entry.getValue(), parVal);
         }
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> map = new VarMapping<>();
+        boolean accepts = accepts(word, prefix, prefix.length(), _sdt, valuation);
+        return accepts;
+    }
 
-        int id = to.size() + 1;
-        for (Entry<Parameter, Register> e : from) {
-            Register rep = to.get(e.getKey());
-            if (rep == null) {
-                rep = new Register(e.getValue().getType(), id++);
+    private boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, int symIndex, SDT sdt,
+            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+        boolean accepts;
+        if (symIndex == word.length()) {
+            accepts =  sdt.isAccepting();
+        } else {
+            PSymbolInstance sym = word.getSymbol(symIndex);
+            if (sym.getBaseSymbol().getArity() == 0) {
+                accepts = accepts(word, prefix, symIndex + 1, sdt, valuation);
+            } else {
+                SDT nextSdt = sdt;
+                Mapping<SymbolicDataValue, DataValue<?>> newValuation = new Mapping<>();
+                newValuation.putAll(valuation);
+                for (int i = 0; i < sym.getBaseSymbol().getArity(); i++) {
+                    DataValue value = sym.getParameterValues()[i];
+                    SuffixValue suffixValue = nextSdt.getChildren().keySet().iterator().next().getParameter();
+                    newValuation.put(suffixValue, value);
+                    boolean found = false;
+                    for (Map.Entry<SDTGuard, SDT> entry : nextSdt.getChildren().entrySet()) {
+                        TransitionGuard guardExpr = entry.getKey().toTG();
+                        if (solver.isSatisfiable(guardExpr.getCondition(), newValuation)) {
+                            nextSdt = entry.getValue();
+                            found = true;
+                            break;
+                        }
+                    }
+                    assert found : "Could not find a satisfiable guard";
+                }
+                accepts = accepts(word, prefix, symIndex+1, nextSdt, newValuation);
             }
-            map.put(e.getValue(), rep);
         }
-
-        return map;
+        return accepts;
     }
 }

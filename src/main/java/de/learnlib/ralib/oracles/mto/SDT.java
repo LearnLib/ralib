@@ -35,6 +35,7 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,6 +81,14 @@ public class SDT implements SymbolicDecisionTree {
             registers.add((Register) x);
         });
         return registers;
+    }
+
+    public int getHeight() {
+        if (this instanceof SDTLeaf || children.size() == 0) {
+            return 0;
+        } else {
+            return children.values().stream().map(c -> c.getHeight()).max( (i1, i2) -> i1.compareTo(i2)).get() + 1;
+        }
     }
 
     public Set<SymbolicDataValue> getVariables() {
