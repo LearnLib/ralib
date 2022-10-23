@@ -199,7 +199,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public MappedPrefix getPrefix(Word<PSymbolInstance> prefix) {
         return otherPrefixes.get(prefix);
     }
-
+    
     void addTQRs(PIV primePIV, SymbolicSuffix suffix) {
         access.updateMemorable(primePIV);
         Iterator<MappedPrefix> it = Iterators.concat(shortPrefixes.iterator(), otherPrefixes.iterator());
@@ -432,19 +432,21 @@ public class DTLeaf extends DTNode implements LocationComponent {
             return true;
 
         Word<PSymbolInstance> prefix = mp.getPrefix().prefix(mp.getPrefix().length() - 1);
-        MappedPrefix prefixMapped = dt.getLeaf(prefix).getPrimePrefix();
+//        MappedPrefix prefixMapped = dt.getLeaf(prefix).getPrimePrefix();
+        DTLeaf prefixLeaf = dt.getLeaf(prefix);
+        MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
 
         PIV memPrefix = prefixMapped.getParsInVars();
         PIV memMP = mp.getParsInVars();
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
-
+        
         for (Parameter p : memMP.keySet()) {
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
                 SymbolicSuffix suffix = mp.getSuffixForMemorable(p);
                 SymbolicSuffix newSuffix = new SymbolicSuffix(mp.getPrefix(), suffix, consts);
 
-                dt.addSuffix(newSuffix, dt.getLeaf(prefixMapped.getPrefix()));
+                dt.addSuffix(newSuffix, prefixLeaf);
                 return false;
             }
         }
