@@ -125,9 +125,9 @@ public class RaTTT implements RaLearningAlgorithm {
             components.putAll(dt.getComponents());
 
             AutomatonBuilder ab;
-            if (ioMode)
-                ab = new IOAutomatonBuilder(components, consts, dt);
-            else
+//            if (ioMode)
+//                ab = new IOAutomatonBuilder(components, consts, dt);
+//            else
                 ab = new AutomatonBuilder(components, consts, dt);
             hyp = (DTHyp) ab.toRegisterAutomaton();
 
