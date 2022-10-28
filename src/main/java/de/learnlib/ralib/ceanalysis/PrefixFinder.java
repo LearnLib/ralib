@@ -17,6 +17,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -260,14 +261,34 @@ public class PrefixFinder {
 
 //        throw new IllegalStateException("cannot be reached!");
     }
+    
+    private boolean isRefiningPrefix(Word<PSymbolInstance> candidate, Word<PSymbolInstance> prefix,
+            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL, LocationComponent c) {
+
+//        Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
+        Branching branchHyp = null;
+        
+        if (c.getAccessSequence().equals(prefix)) {
+            branchHyp = c.getBranching(action);
+        } else {
+            ShortPrefix sp = (ShortPrefix) ((DTLeaf) c).getShortPrefixes().get(prefix);
+            assert sp != null : "Short prefix should exist";
+            branchHyp = sp.getBranching(action);
+        }
+        
+//        Branching updated = sulOracle.updateBranching(prefix, action, branchHyp, pivSUL, sdtSUL);
+
+    	return !branchHyp.getBranches().containsKey(candidate);
+    }
 
     private Word<PSymbolInstance> candidate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol action, SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
             SymbolicDecisionTree sdtHyp, PIV pivHyp, LocationComponent c) {
-        Word<PSymbolInstance> candidate = findRefiningPrefix(prefix, action, sdtSul, pivSul, c);
-        if (candidate != null) {
-            return candidate;   
-        }
+    	Word<PSymbolInstance> candidate = null;
+//        Word<PSymbolInstance> candidate = findRefiningPrefix(prefix, action, sdtSul, pivSul, c);
+//        if (candidate != null) {
+//            return candidate;   
+//        }
         
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
         Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
@@ -280,7 +301,8 @@ public class PrefixFinder {
             boolean sulAcc = sdtOracle.accepts(path, prefix, sdtSul, pivSul);
             if (hypAcc != sulAcc) {
                 cePath = path;
-                break;
+                if (isRefiningPrefix(path, prefix, action, sdtSul, pivSul, c))
+                	break;
             }
         }
 
