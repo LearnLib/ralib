@@ -274,6 +274,22 @@ public class DT implements DiscriminationTree {
         return ret;
     }
     
+    public boolean checkDeterminism() {
+    	return checkDeterminism(root);
+    }
+    
+    private boolean checkDeterminism(DTNode node) {
+    	if (node.isLeaf()) {
+    		DTLeaf leaf = (DTLeaf) node;
+    		return leaf.checkDeterminism(this, getAllPrefixes(), consts);
+    	}
+        boolean ret = true;
+        DTInnerNode inner = (DTInnerNode) node;
+        for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
+            ret = ret && checkDeterminism(b.getChild());
+        }
+        return ret;
+    }
     
     public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
         List<Word<PSymbolInstance>> extensions = new ArrayList<>();

@@ -220,6 +220,8 @@ public class RaTTT implements RaLearningAlgorithm {
                     refinement = refinement | addPrefix(p);
                 }
             } while (!refinement && !prefixes.isEmpty());
+            
+            while(!dt.checkDeterminism());
 
             processShortPrefixes();
             // if dangling short prefixes present, examine candidate counterexample

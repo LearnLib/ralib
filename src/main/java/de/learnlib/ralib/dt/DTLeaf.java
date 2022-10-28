@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -451,6 +452,44 @@ public class DTLeaf extends DTNode implements LocationComponent {
             }
         }
         return true;
+    }
+    
+    public boolean checkDeterminism(DT dt, Collection<Word<PSymbolInstance>> allPrefs, Constants consts) {
+    	if (!checkDeterminism(getAccessSequence(), branching, dt, allPrefs, consts))
+    		return false;
+    	Iterator<MappedPrefix> it = shortPrefixes.iterator();
+    	while (it.hasNext()) {
+    		ShortPrefix sp = (ShortPrefix)it.next();
+    		if (!checkDeterminism(sp.getPrefix(), sp.getBranching(), dt, allPrefs, consts))
+    			return false;
+    	}
+    	return true;
+    }
+    
+    private boolean checkDeterminism(Word<PSymbolInstance> word,
+    		                         Map<ParameterizedSymbol, Branching> branching,
+    		                         DT dt,
+    		                         Collection<Word<PSymbolInstance>> allPrefs,
+    		                         Constants consts) {
+    	Optional<Word<PSymbolInstance>> nonDetPref = allPrefs.stream()
+    			                                             .filter(i -> (i.size() > 1 &&
+    			                                            		       i.prefix(i.size()-1).equals(word) &&
+    	                                                                   !branching.get(i.lastSymbol()
+    	                                                    		                       .getBaseSymbol())
+    	                                                    		                       .getBranches()
+    	                                                    		                 .containsKey(i)))
+    	                                                     .findAny();
+    	
+    	if (nonDetPref.isPresent()) {
+    		Word<PSymbolInstance> dest_id = nonDetPref.get();
+    		DTLeaf dest_c = dt.getLeaf(dest_id);
+    		SymbolicSuffix suff1 = new SymbolicSuffix(word, dest_id.suffix(1));
+    		SymbolicSuffix suff2 = dt.findLCA(this, dest_c).getSuffix();
+    		SymbolicSuffix suffix = suff1.concat(suff2);
+    		dt.addSuffix(suffix, this);
+    		return false;
+    	}
+    	return true;
     }
 
     public boolean isInputComponent() {
