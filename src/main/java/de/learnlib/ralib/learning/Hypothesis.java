@@ -17,12 +17,16 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.api.AccessSequenceTransformer;
+import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -82,7 +86,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         if (tseq == null)
         	return null;
         Transition last = tseq.get(tseq.size() -1);
-        return transitionSequences.get(last);        
+        return transitionSequences.get(last);
     }
     
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word, Word<PSymbolInstance> loc) {
@@ -106,5 +110,10 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 			}
 		}
 		return null;
+	}
+	
+	public VarMapping<Register, ? extends SymbolicDataValue> getLastTransitionAssignment(Word<PSymbolInstance> word) {
+		List<Transition> tseq = getTransitions(word);
+		return tseq.get(tseq.size() - 1).getAssignment().getAssignment();
 	}
 }

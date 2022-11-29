@@ -16,12 +16,15 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Iterators;
 
+import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -169,6 +172,15 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public Branching getBranching(ParameterizedSymbol action) {
         return branching.get(action);
     }
+    
+    public Branching getBranching(ParameterizedSymbol action, Word<PSymbolInstance> src) {
+    	if (src.equals(getAccessSequence()))
+    		return getBranching(action);
+    	ShortPrefix sp = (ShortPrefix)shortPrefixes.get(src);
+    	if (sp == null)
+    		return null;
+    	return sp.getBranching(action);
+    }
 
     @Override
     public MappedPrefix getPrimePrefix() {
@@ -248,6 +260,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(DT dt, ShortPrefix mp, DTHyp hyp) {
+    	
+//    	while(!dt.checkDeterminism(hyp));
+    	
         Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = null;
         boolean input = this.isInput(mp.getPrefix().lastSymbol().getBaseSymbol());
         for (ParameterizedSymbol ps : dt.getInputs()) {
@@ -454,13 +469,39 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return true;
     }
     
-    public boolean checkDeterminism(DT dt, Collection<Word<PSymbolInstance>> allPrefs, Constants consts) {
-    	if (!checkDeterminism(getAccessSequence(), branching, dt, allPrefs, consts))
+    public boolean checkParameterAssignment(Word<PSymbolInstance> word, DT dt, Hypothesis hyp, Constants consts) {
+    	if (word.length() < 2) 
+    		return true;
+    	
+    	MappedPrefix mp = getMappedPrefix(word);
+    	Word<PSymbolInstance> prefix = word.prefix(word.length() - 1);
+    	DTLeaf prefixLeaf = dt.getLeaf(prefix);
+    	MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
+    	
+    	PIV memPrefix = prefixMapped.getParsInVars();
+    	PIV memMP = mp.getParsInVars();
+    	
+    	VarMapping<Register, ? extends SymbolicDataValue> transitionMap = hyp.getLastTransitionAssignment(word);
+    	
+    	for (Parameter p : memMP.keySet()) {
+    		if (!memPrefix.containsKey(p) && !hyp.getLastTransitionAssignment(word).containsValue(p)) {
+    			SymbolicSuffix suffix = mp.getSuffixForMemorable(p);
+    			SymbolicSuffix newSuffix = new SymbolicSuffix(word, suffix, consts);
+    			
+    			dt.addSuffix(newSuffix, prefixLeaf);
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+    
+    public boolean checkDeterminism(DT dt, Hypothesis hyp, Collection<Word<PSymbolInstance>> allPrefs, Constants consts) {
+    	if (!checkDeterminism(getAccessSequence(), branching, dt, hyp, allPrefs, consts))
     		return false;
     	Iterator<MappedPrefix> it = shortPrefixes.iterator();
     	while (it.hasNext()) {
     		ShortPrefix sp = (ShortPrefix)it.next();
-    		if (!checkDeterminism(sp.getPrefix(), sp.getBranching(), dt, allPrefs, consts))
+    		if (!checkDeterminism(sp.getPrefix(), sp.getBranching(), dt, hyp, allPrefs, consts))
     			return false;
     	}
     	return true;
@@ -468,27 +509,53 @@ public class DTLeaf extends DTNode implements LocationComponent {
     
     private boolean checkDeterminism(Word<PSymbolInstance> word,
     		                         Map<ParameterizedSymbol, Branching> branching,
-    		                         DT dt,
+    		                         DT dt, Hypothesis hyp,
     		                         Collection<Word<PSymbolInstance>> allPrefs,
     		                         Constants consts) {
-    	Optional<Word<PSymbolInstance>> nonDetPref = allPrefs.stream()
-    			                                             .filter(i -> (i.size() > 1 &&
-    			                                            		       i.prefix(i.size()-1).equals(word) &&
-    	                                                                   !branching.get(i.lastSymbol()
-    	                                                    		                       .getBaseSymbol())
-    	                                                    		                       .getBranches()
-    	                                                    		                 .containsKey(i)))
-    	                                                     .findAny();
+//    	Optional<Word<PSymbolInstance>> nonDetPref = allPrefs.stream()
+//    			                                             .filter(i -> (i.size() > 1 &&
+//    			                                            		       i.prefix(i.size()-1).equals(word) &&
+//    	                                                                   !branching.get(i.lastSymbol()
+//    	                                                    		                       .getBaseSymbol())
+//    	                                                    		                       .getBranches()
+//    	                                                    		                 .containsKey(i)))
+//    	                                                     .findAny();
+//    	
+//    	if (nonDetPref.isPresent()) {
+//    		Word<PSymbolInstance> dest_id = nonDetPref.get();
+//    		DTLeaf dest_c = dt.getLeaf(dest_id);
+//    		SymbolicSuffix suff1 = new SymbolicSuffix(word, dest_id.suffix(1));
+//    		SymbolicSuffix suff2 = dt.findLCA(this, dest_c).getSuffix();
+//    		SymbolicSuffix suffix = suff1.concat(suff2);
+//    		dt.addSuffix(suffix, this);
+//    		return false;
+//    	}
     	
-    	if (nonDetPref.isPresent()) {
-    		Word<PSymbolInstance> dest_id = nonDetPref.get();
-    		DTLeaf dest_c = dt.getLeaf(dest_id);
-    		SymbolicSuffix suff1 = new SymbolicSuffix(word, dest_id.suffix(1));
+    	Word<PSymbolInstance> prefixNonDet = null;
+    	for (Word<PSymbolInstance> w : allPrefs) {
+    		if (w.size() > 1 &&
+    				w.prefix(w.size()-1).equals(word)) {
+    			Branching b = branching.get(w.lastSymbol().getBaseSymbol());
+    			if (!b.getBranches().containsKey(w)) {
+    				Word<PSymbolInstance> prefixSameGuard = hyp.branchWithSameGuard(w, b);
+    				if (dt.getLeaf(prefixSameGuard) != dt.getLeaf(w)) {
+    					prefixNonDet = w;
+    					break;
+    				}
+    			}
+//    				!branching.get(w.lastSymbol().getBaseSymbol()).getBranches().containsKey(w));
+    		}
+    	}
+    	
+    	if (prefixNonDet != null) {
+    		DTLeaf dest_c = dt.getLeaf(prefixNonDet);
+    		SymbolicSuffix suff1 = new SymbolicSuffix(word, prefixNonDet.suffix(1));
     		SymbolicSuffix suff2 = dt.findLCA(this, dest_c).getSuffix();
     		SymbolicSuffix suffix = suff1.concat(suff2);
     		dt.addSuffix(suffix, this);
     		return false;
     	}
+    	
     	return true;
     }
 

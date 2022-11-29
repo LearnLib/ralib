@@ -19,6 +19,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
@@ -98,6 +99,7 @@ public class DT implements DiscriminationTree {
                     DTInnerNode outputNode = new DTInnerNode(new SymbolicSuffix(symbol));
                     DTBranch branch = new DTBranch(parentBranchSDT, outputNode);
                     parent.addBranch(branch);
+                    outputNode.setParent(parent);
                     parent = outputNode;
                     parentBranchSDT = makeRejectingSDT((OutputSymbol) symbol, new SuffixValueGenerator(), 0);
                 }
@@ -228,14 +230,37 @@ public class DT implements DiscriminationTree {
         leaf.updateBranching(this);
     }
 
-    public void addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
+    public boolean addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
 
         Word<PSymbolInstance> prefix = target.prefix(target.length() - 1);
         SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
+        
+//        boolean suffixPresent = false;
+//        DTInnerNode parent = src_c.getParent();
+//        while (parent != null && !suffixPresent) {
+//        	if (parent.getSuffix().equals(suffix))
+//        		suffixPresent = true;
+//        	parent = parent.getParent();
+//        }
+//        
+//        if (suffixPresent) {
+//        	Word<PSymbolInstance> src_id = src_c.getAccessSequence();
+//        	Word<PSymbolInstance> src_pre = src_id.prefix(src_id.length()-1);
+//        	SymbolicSuffix suff_diff = new SymbolicSuffix(target.prefix(src_pre.length()), target.suffix(target.length() - src_pre.length()));
+//        	suffix = suff1.concat(suff_diff);
+//        }
+        
+        DTInnerNode parent = src_c.getParent();
+        while (parent != null) {
+        	if (parent.getSuffix().equals(suffix))
+        		return false;
+        	parent = parent.getParent();
+        }
 
         split(prefix, suffix, src_c);
+        return true;
     }
 
     /**
@@ -274,19 +299,19 @@ public class DT implements DiscriminationTree {
         return ret;
     }
     
-    public boolean checkDeterminism() {
-    	return checkDeterminism(root);
+    public boolean checkDeterminism(Hypothesis hyp) {
+    	return checkDeterminism(root, hyp);
     }
     
-    private boolean checkDeterminism(DTNode node) {
+    private boolean checkDeterminism(DTNode node, Hypothesis hyp) {
     	if (node.isLeaf()) {
     		DTLeaf leaf = (DTLeaf) node;
-    		return leaf.checkDeterminism(this, getAllPrefixes(), consts);
+    		return leaf.checkDeterminism(this, hyp, getAllPrefixes(), consts);
     	}
         boolean ret = true;
         DTInnerNode inner = (DTInnerNode) node;
         for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
-            ret = ret && checkDeterminism(b.getChild());
+            ret = ret && checkDeterminism(b.getChild(), hyp);
         }
         return ret;
     }
@@ -524,13 +549,23 @@ public class DT implements DiscriminationTree {
             parent = parent.getParent();
         }
 
-        DTInnerNode node = path1.pop();
-        path2.pop();
-        while (!path1.isEmpty() && !path2.isEmpty() && path1.peek() == path2.peek()) {
-            node = path1.pop();
-            path2.pop();
+//        DTInnerNode node = path1.pop();
+//        path2.pop();
+//        while (!path1.isEmpty() && !path2.isEmpty() && path1.peek() == path2.peek()) {
+//            node = path1.pop();
+//            path2.pop();
+//        }
+        
+//        DTInnerNode first = path1.peek();
+//        path2.pop();
+        
+        while (!path1.isEmpty()) {
+        	DTInnerNode node = path1.poll();
+        	if (path2.contains(node))
+        		return node;
         }
-        return node;
+//        return first;
+        return null;
     }
 
     public DTLeaf getSink() {

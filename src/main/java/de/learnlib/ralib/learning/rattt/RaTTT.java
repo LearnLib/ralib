@@ -171,6 +171,28 @@ public class RaTTT implements RaLearningAlgorithm {
         prefixFinder.setComponents(components);
         prefixFinder.setHypothesisTreeOracle(hypOracleFactory.createTreeOracle(h));
     }
+    
+    private Hypothesis getTemporaryHyp() {
+        DT dt = new DT(this.dt);
+        dt.checkVariableConsistency();
+
+        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+        Map<Word<PSymbolInstance>, LocationComponent> shortComponents = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+        components.putAll(dt.getComponents());
+        for (Map.Entry<Word<PSymbolInstance>, LocationComponent> e : components.entrySet()) {
+            DTLeaf l = (DTLeaf) e.getValue();
+            for (MappedPrefix mp : l.getShortPrefixes().get())
+                shortComponents.put(mp.getPrefix(), e.getValue());
+        }
+        components.putAll(shortComponents);
+
+        AutomatonBuilder ab;
+        if (useOldAnalyzer)
+            ab = new AutomatonBuilder(components, consts);
+        else
+            ab = new AutomatonBuilder(components, consts, dt);
+        return ab.toRegisterAutomaton();
+     }
 
     private boolean analyzeCounterExample() {
         if (useOldAnalyzer)
@@ -221,7 +243,7 @@ public class RaTTT implements RaLearningAlgorithm {
                 }
             } while (!refinement && !prefixes.isEmpty());
             
-            while(!dt.checkDeterminism());
+            while(!dt.checkDeterminism(hyp));
 
             processShortPrefixes();
             // if dangling short prefixes present, examine candidate counterexample
@@ -254,7 +276,13 @@ public class RaTTT implements RaLearningAlgorithm {
             ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(src_id);
             hypBranching = sp.getBranching(word.lastSymbol().getBaseSymbol());
         }
-        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, hypBranching); 
+        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, hypBranching);
+        if (branch == null) {
+        	Hypothesis tempHyp = getTemporaryHyp();
+        	branch = tempHyp.branchWithSameGuard(word, hypBranching);
+        	if (branch == null && dt.getLeaf(word) != null)
+        		branch = word;
+        }
                 //hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
         DTLeaf branchLeaf = dt.getLeaf(branch);
         boolean isDTRefinement = (branchLeaf != dest_c);
@@ -284,10 +312,16 @@ public class RaTTT implements RaLearningAlgorithm {
             }
             return true;
         }
+        if (!dt.checkDeterminism(hyp)) {
+            while(!dt.checkDeterminism(hyp));
+            return true;
+        }
         if (!dt.checkVariableConsistency()) {
             while(!dt.checkVariableConsistency());
             return true;
         }
+        if (!dest_c.checkParameterAssignment(word, dt, hyp, consts))
+        	return true;
 
         // no refinement, so must be a new location
         boolean refinement = addNewLocation(word, dest_c);
@@ -304,8 +338,8 @@ public class RaTTT implements RaLearningAlgorithm {
             Word<PSymbolInstance> refinedTarget = divergance.getKey();
             Word<PSymbolInstance> target = divergance.getValue();
 
-            dt.addLocation(refinedTarget, src_c, dt.getLeaf(target), dt.getLeaf(refinedTarget));
-            return true;
+            return dt.addLocation(refinedTarget, src_c, dt.getLeaf(target), dt.getLeaf(refinedTarget));
+//            return true;
         }
         return false;
     }
