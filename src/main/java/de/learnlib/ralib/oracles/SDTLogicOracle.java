@@ -76,7 +76,9 @@ public interface SDTLogicOracle {
      */
     boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
 			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
-
+    
+    boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
+            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */

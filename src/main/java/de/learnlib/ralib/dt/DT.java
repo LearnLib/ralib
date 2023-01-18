@@ -25,6 +25,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -329,11 +330,11 @@ public class DT implements DiscriminationTree {
         return extensions;
     }
 
-    public boolean checkIOConsistency(DTHyp hyp) {
-        return checkIOConsistency(root, hyp);
+    public boolean checkIOConsistency(DTHyp hyp, SDTLogicOracle logicOracle) {
+        return checkIOConsistency(root, hyp, logicOracle);
     }
 
-    private boolean checkIOConsistency(DTNode node, DTHyp hyp) {
+    private boolean checkIOConsistency(DTNode node, DTHyp hyp, SDTLogicOracle logicOracle) {
         if (node.isLeaf()) {
             DTLeaf l = (DTLeaf) node;
             if (l == sink)
@@ -341,20 +342,20 @@ public class DT implements DiscriminationTree {
             Word<PSymbolInstance> p = l.checkIOConsistency();
             if (p == null)
                 return true;
-            makeIOConsistent(l, p, hyp);
+            makeIOConsistent(l, p, hyp, logicOracle);
             return false;
         } else {
             DTInnerNode n = (DTInnerNode) node;
             for (DTBranch b : n.getBranches()) {
-                if (!checkIOConsistency(b.getChild(), hyp))
+                if (!checkIOConsistency(b.getChild(), hyp, logicOracle))
                     return false;
             }
         }
         return true;
     }
 
-    private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp) {
-        Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp);
+    private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp, SDTLogicOracle logicOracle) {
+        Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp, logicOracle);
 
         if (div != null) {
 

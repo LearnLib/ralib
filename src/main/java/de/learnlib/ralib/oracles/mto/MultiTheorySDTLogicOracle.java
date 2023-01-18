@@ -158,6 +158,28 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
     }
+    
+    public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
+            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+        log.log(Level.FINEST, "guard1: {0}", guard1);
+        log.log(Level.FINEST, "guard2: {0}", guard2);
+        log.log(Level.FINEST, "piv1: {0}", piv1);
+        log.log(Level.FINEST, "piv2: {0}", piv2);
+
+        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+
+        GuardExpression exprGuard1 = guard1.getCondition();
+        GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
+        GuardExpression test = new Disjunction(new Conjunction(exprGuard1, new Negation(exprGuard2)),
+        		                               new Conjunction(new Negation(exprGuard1), exprGuard2));
+
+        log.log(Level.FINEST, "MAP: " + remap);
+        log.log(Level.FINEST, "TEST:" + test);
+
+        boolean r = solver.isSatisfiable(test, valuation);
+        return !r;
+        
+    }
 
     public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {
         assert prefix.isPrefixOf(word) : "invalid prefix";

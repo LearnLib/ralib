@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,7 +18,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.Iterators;
 
 import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -32,6 +36,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.DataWords;
@@ -248,7 +253,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
      *         null.
      */
     public Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> elevatePrefix(DT dt, Word<PSymbolInstance> prefix,
-            DTHyp hyp) {
+            DTHyp hyp, SDTLogicOracle logicOracle) {
         MappedPrefix mp = otherPrefixes.get(prefix);
         assert mp != null : "Cannot elevate prefix that is not contained in leaf " + this + " === " + prefix;
         boolean removed = otherPrefixes.remove(mp);
@@ -256,10 +261,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
         ShortPrefix sp = new ShortPrefix(mp);
         addShortPrefix(sp);
 
-        return startPrefix(dt, sp, hyp);
+        return startPrefix(dt, sp, hyp, logicOracle);
     }
 
-    private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(DT dt, ShortPrefix mp, DTHyp hyp) {
+    private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(DT dt, ShortPrefix mp, DTHyp hyp, SDTLogicOracle logicOracle) {
     	
 //    	while(!dt.checkDeterminism(hyp));
     	
@@ -295,8 +300,10 @@ public class DTLeaf extends DTNode implements LocationComponent {
                         }
                     }
                     assert a != null;
-                } else
-                    a = hyp.branchWithSameGuard(p, accessBranching);
+                } else {
+                	a = branchWithSameGuard(p, prefixBranching, mp.getParsInVars(), accessBranching, access.getParsInVars(), logicOracle);
+//                    a = hyp.branchWithSameGuard(p, accessBranching);
+                }
 
                 DTLeaf leaf = dt.sift(p, true);
 
@@ -306,6 +313,27 @@ public class DTLeaf extends DTNode implements LocationComponent {
             }
         }
         return divergance;
+    }
+    
+    static public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching wordBranching, PIV wordPIV, Branching accBranching, PIV accPIV, SDTLogicOracle oracle) {
+    	Word<PSymbolInstance> a = null;
+    	TransitionGuard g = null;
+    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : wordBranching.getBranches().entrySet()) {
+    		if (e.getKey().equals(word)) {
+    			g = e.getValue();
+    			break;
+    		}
+    	}
+    	
+    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : accBranching.getBranches().entrySet()) {
+    		TransitionGuard ag = e.getValue();
+    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue<?>>());
+    		if (eq) {
+    			a = e.getKey();
+    			break;
+    		}
+    	}
+    	return a;
     }
 
     public boolean isRefinemement(DT dt, Word<PSymbolInstance> word) {

@@ -312,16 +312,16 @@ public class RaTTT implements RaLearningAlgorithm {
             }
             return true;
         }
-        if (!dt.checkDeterminism(hyp)) {
-            while(!dt.checkDeterminism(hyp));
-            return true;
-        }
+//        if (!dt.checkDeterminism(hyp)) {
+//            while(!dt.checkDeterminism(hyp));
+//            return true;
+//        }
         if (!dt.checkVariableConsistency()) {
             while(!dt.checkVariableConsistency());
             return true;
         }
-        if (!dest_c.checkParameterAssignment(word, dt, hyp, consts))
-        	return true;
+//        if (!dest_c.checkParameterAssignment(word, dt, hyp, consts))
+//        	return true;
 
         // no refinement, so must be a new location
         boolean refinement = addNewLocation(word, dest_c);
@@ -330,7 +330,7 @@ public class RaTTT implements RaLearningAlgorithm {
     
     private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {
         Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = src_c.elevatePrefix(getDT(), prefix,
-                (DTHyp) hyp);
+                (DTHyp) hyp, sdtLogicOracle);
         if (divergance == null) {
             shortPrefixes.push(prefix); // no refinement of dt
         } else {
