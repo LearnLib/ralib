@@ -18,6 +18,7 @@ import net.automatalib.words.Word;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -290,12 +291,24 @@ public class PrefixFinder {
 //            return candidate;   
 //        }
         
+    	Collection<Word<PSymbolInstance>> branches = c.getBranching(action).getBranches().keySet();
+    	
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
         Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
         Set<Word<PSymbolInstance>> allPaths = new LinkedHashSet<>();
         Word<PSymbolInstance> cePath = null;
         allPaths.addAll(sulPaths.keySet());
         allPaths.addAll(hypPaths.keySet());
+        
+        Iterator<Word<PSymbolInstance>> it = allPaths.stream().filter(w -> branches.contains(w.prefix(prefix.length()+1))).iterator();
+        while(it.hasNext()) {
+        	cePath = it.next();
+        	boolean hypAcc = sdtOracle.accepts(cePath, prefix, sdtHyp, pivHyp);
+        	boolean sulAcc = sdtOracle.accepts(cePath, prefix, sdtHyp, pivHyp);
+        	if (hypAcc != sulAcc)
+        		return cePath;
+        }
+        
         for (Word<PSymbolInstance> path : allPaths) {
             boolean hypAcc = sdtOracle.accepts(path, prefix, sdtHyp, pivHyp);
             boolean sulAcc = sdtOracle.accepts(path, prefix, sdtSul, pivSul);
