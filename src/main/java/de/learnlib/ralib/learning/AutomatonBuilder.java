@@ -22,13 +22,16 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.learning.rastar.RaStar;
 //import de.learnlib.ralib.learning.rastar.Row;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.oracles.Branching;
@@ -130,6 +133,9 @@ public class AutomatonBuilder {
 //        System.out.println("b.getBranches is  " + b.getBranches().toString());
 //        System.out.println("getting guard for  " + r.getPrefix().toString());
         TransitionGuard guard = b.getBranches().get(r.getPrefix());
+        if (guard == null) {
+        	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getParsInVars(), b.getBranches(), consts);
+        }
         
         // TODO: better solution
         // guard is null because r is transition from a short prefix
@@ -182,5 +188,25 @@ public class AutomatonBuilder {
         return new Transition(action, guard, src_loc, dest_loc, assign);
     }
     
+    public static VarValuation computeVarValuation(ParValuation pars, PIV piv) {
+    	VarValuation vars = new VarValuation();
+    	for (Entry<Parameter, DataValue<?>> e : pars.entrySet()) {
+    		Register r = piv.get(e.getKey());
+    		if (r != null)
+    			vars.put(r, e.getValue());
+    	}
+    	return vars;
+    }
+    
+    public static TransitionGuard findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, TransitionGuard> branches, Constants consts) {
+    	ParValuation pars = new ParValuation(dw);
+    	VarValuation vars = computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
+    	for (TransitionGuard g : branches.values()) {
+    		if (g.isSatisfied(vars, pars, consts)) {
+    			return g;
+    		}
+    	}
+    	return null;
+    }
     
 }

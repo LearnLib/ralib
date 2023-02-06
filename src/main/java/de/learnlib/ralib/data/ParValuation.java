@@ -16,8 +16,11 @@
  */
 package de.learnlib.ralib.data;
 
+import java.util.Iterator;
+
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 /**
  * A valuation of parameters.
@@ -37,4 +40,14 @@ public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue
         }    
     }
     
+    public ParValuation(Word<PSymbolInstance> dw) {
+    	ParameterGenerator pgen = new ParameterGenerator();
+    	Iterator<PSymbolInstance> it = dw.iterator();
+    	while (it.hasNext()) {
+    		PSymbolInstance psi = it.next();
+    		for (DataValue dv : psi.getParameterValues()) {
+    			put(pgen.next(dv.getType()), dv);
+    		}
+    	}
+    }
 }
