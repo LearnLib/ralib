@@ -8,12 +8,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
@@ -246,6 +248,10 @@ public class RaTTT implements RaLearningAlgorithm {
             while(!dt.checkDeterminism(hyp));
 
             processShortPrefixes();
+            
+            long numberOfShortPrefixes = dt.getComponents().values().stream().filter(c -> (c instanceof ShortPrefix)).count();
+            assert numberOfShortPrefixes == shortPrefixes.size();
+            
             // if dangling short prefixes present, examine candidate counterexample
             if (!shortPrefixes.isEmpty()) {
 
@@ -276,13 +282,17 @@ public class RaTTT implements RaLearningAlgorithm {
             ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(src_id);
             hypBranching = sp.getBranching(word.lastSymbol().getBaseSymbol());
         }
-        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, hypBranching);
-        if (branch == null) {
-        	Hypothesis tempHyp = getTemporaryHyp();
-        	branch = tempHyp.branchWithSameGuard(word, hypBranching);
-        	if (branch == null && dt.getLeaf(word) != null)
-        		branch = word;
-        }
+        
+        MappedPrefix src_mp = src_c.getPrefix(src_id);
+        Word<PSymbolInstance> branch = branchWithSameGuard(dest_c.getPrefix(word), src_c.getPrefix(src_id), hypBranching);
+        
+//        Word<PSymbolInstance> branch = hyp.branchWithSameGuard(word, hypBranching);
+//        if (branch == null) {
+//        	Hypothesis tempHyp = getTemporaryHyp();
+//        	branch = tempHyp.branchWithSameGuard(word, hypBranching);
+//        	if (branch == null && dt.getLeaf(word) != null)
+//        		branch = word;
+//        }
                 //hyp.branchWithSameGuard(word, src_c.getBranching(word.lastSymbol().getBaseSymbol()));
         DTLeaf branchLeaf = dt.getLeaf(branch);
         boolean isDTRefinement = (branchLeaf != dest_c);
@@ -326,6 +336,21 @@ public class RaTTT implements RaLearningAlgorithm {
         // no refinement, so must be a new location
         boolean refinement = addNewLocation(word, dest_c);
         return refinement;
+    }
+    
+    private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, MappedPrefix src_id, Branching branching) {
+    	Word<PSymbolInstance> dw = mp.getPrefix();
+//    	ParameterizedSymbol ps = dw.lastSymbol().getBaseSymbol();
+//    	Map<Word<PSymbolInstance>, TransitionGuard> branches = src_c.getBranching(ps).getBranches();
+    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
+    	
+    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(dw, src_id.getParsInVars(), branches, consts);
+    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+    		if (e.getValue().equals(guard)) {
+    			return e.getKey();
+    		}
+    	}
+    	return null;
     }
     
     private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {

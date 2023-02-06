@@ -179,12 +179,18 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
     
     public Branching getBranching(ParameterizedSymbol action, Word<PSymbolInstance> src) {
-    	if (src.equals(getAccessSequence()))
-    		return getBranching(action);
+    	Branching b = null;
     	ShortPrefix sp = (ShortPrefix)shortPrefixes.get(src);
-    	if (sp == null)
-    		return null;
-    	return sp.getBranching(action);
+    	if (sp != null)
+    		b = sp.getBranching(action);
+    	if (b == null)
+    		return getBranching(action);
+    	return b;
+//    	if (src.equals(getAccessSequence()))
+//    		return getBranching(action);
+//    	if (sp == null)
+//    		return null;
+//    	return sp.getBranching(action);
     }
 
     @Override
@@ -215,7 +221,13 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     public MappedPrefix getPrefix(Word<PSymbolInstance> prefix) {
-        return otherPrefixes.get(prefix);
+    	MappedPrefix mp = null;
+    	if (getAccessSequence().equals(prefix))
+    		return getPrimePrefix();
+    	mp = shortPrefixes.get(prefix);
+    	if (mp == null)
+    		mp = otherPrefixes.get(prefix);
+    	return mp;
     }
     
     void addTQRs(PIV primePIV, SymbolicSuffix suffix) {
