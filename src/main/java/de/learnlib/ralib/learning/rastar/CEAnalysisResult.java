@@ -17,6 +17,7 @@
 package de.learnlib.ralib.learning.rastar;
 
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
@@ -30,10 +31,19 @@ public class CEAnalysisResult {
     private final Word<PSymbolInstance> prefix;
     
     private final SymbolicSuffix suffix;
+    
+    private final TreeQueryResult tqr;
 
     public CEAnalysisResult(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         this.prefix = prefix;
         this.suffix = suffix;
+        this.tqr = null;
+    }
+    
+    public CEAnalysisResult(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, TreeQueryResult tqr) {
+    	this.prefix = prefix;
+    	this.suffix = suffix;
+    	this.tqr = tqr;
     }
     
     public CEAnalysisResult(Word<PSymbolInstance> prefix) {
@@ -56,6 +66,11 @@ public class CEAnalysisResult {
      */
     public SymbolicSuffix getSuffix() {
         return suffix;
+    }
+    
+    
+    public TreeQueryResult getTreeQueryResult() {
+    	return tqr;
     }
         
 }

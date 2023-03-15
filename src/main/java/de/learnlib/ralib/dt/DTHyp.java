@@ -1,12 +1,20 @@
 package de.learnlib.ralib.dt;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -32,12 +40,27 @@ public class DTHyp extends Hypothesis {
 		return leaf.getAccessSequence().equals(word) ||
 				leaf.getShortPrefixes().contains(word);
 	}
-	
+
+    @Override
+    public Word<PSymbolInstance> transformAccessSequence(Word<PSymbolInstance> word) {
+    	List<Word<PSymbolInstance>> tseq = getDTTransitions(word);
+        if (tseq == null) {
+            return null;
+        }
+        if (tseq.isEmpty()) {
+            return Word.epsilon();
+        } else {
+        	return dt.getLeaf(tseq.get(tseq.size() - 1)).getAccessSequence();
+        }
+    }
+    
 	@Override
 	public Set<Word<PSymbolInstance>> possibleAccessSequences(Word<PSymbolInstance> word) {
 		Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
-		Word<PSymbolInstance> as = super.transformAccessSequence(word);
-		ret.add(super.transformAccessSequence(as));
+		//Word<PSymbolInstance> as = super.transformAccessSequence(word);
+		//ret.add(super.transformAccessSequence(as));
+		Word<PSymbolInstance> as = transformAccessSequence(word);
+		ret.add(as);
 		
 		DTLeaf leaf = dt.getLeaf(as);
 		assert leaf!=null;
@@ -45,13 +68,63 @@ public class DTHyp extends Hypothesis {
 			ret.add(mp.getPrefix());
 		return ret;
 	}
-	
+
+    protected List<Word<PSymbolInstance>> getDTTransitions(Word<PSymbolInstance> dw) {
+        VarValuation vars = new VarValuation(getInitialRegisters());
+        DTLeaf current = dt.getLeaf(Word.epsilon());
+        //RALocation current = initial;
+        List<Word<PSymbolInstance>> tseq = new ArrayList<>();
+        //List<Transition> tseq = new ArrayList<>();
+        for (PSymbolInstance psi : dw) {
+            
+            ParValuation pars = new ParValuation(psi);
+            
+            Map<Word<PSymbolInstance>, TransitionGuard> candidates =
+            		current.getBranching(psi.getBaseSymbol()).getBranches();
+            //Collection<Transition> candidates = 
+            //        current.getOut(psi.getBaseSymbol());
+                        
+            if (candidates == null) {
+                return null;
+            }
+            
+            boolean found = false;
+            for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : candidates.entrySet()) {
+            //for (Transition t : candidates) {
+            	TransitionGuard g = e.getValue();
+            	if (g.isSatisfied(vars, pars, this.constants)) {
+                //if (t.isEnabled(vars, pars, this.constants)) {
+            		Word<PSymbolInstance> w = e.getKey();
+            		vars = current.getAssignment(dt.getLeaf(w)).compute(vars, pars, this.constants);
+                    //vars = t.execute(vars, pars, this.constants);
+            		current = dt.getLeaf(w);
+                    //current = t.getDestination();
+            		tseq.add(w);
+                    //tseq.add(t);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                return null;
+            }
+        }
+        return tseq;        
+    }
+    
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
-		Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+		//Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+		
+        List<Word<PSymbolInstance>> tseq = getDTTransitions(word);
 		if (tseq == null)
 			return dt.getLeaf(word).getAccessSequence();
-		return tseq;
+		return tseq.get(tseq.size() - 1);
+        
+		//if (tseq == null)
+		//	return dt.getLeaf(word).getAccessSequence();
+		//return tseq;
 	}
 
 	@Override
@@ -64,7 +137,8 @@ public class DTHyp extends Hypothesis {
 		
 		if (leaf.getAccessSequence().equals(location) ||
 				!leaf.getShortPrefixes().contains(location)) {
-			Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+//			Word<PSymbolInstance> tseq = super.transformTransitionSequence(word);
+			Word<PSymbolInstance> tseq = transformTransitionSequence(word);
 			if (tseq == null) {
 				ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
 				for (Word<PSymbolInstance> p : leaf.getBranching(ps).getBranches().keySet()) {
@@ -97,5 +171,18 @@ public class DTHyp extends Hypothesis {
 //		}
 //		
 //		throw new IllegalStateException("cannot be reached!");
+	}
+	
+	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, MappedPrefix src_id, Branching branching) {
+    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
+    	
+    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(word, src_id.getParsInVars(), branches, this.constants);
+    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+    		if (e.getValue().equals(guard)) {
+    			return e.getKey();
+    		}
+    	}
+    	return null;
+
 	}
 }

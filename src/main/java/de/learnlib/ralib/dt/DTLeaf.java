@@ -17,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Iterators;
 
+import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -618,6 +619,38 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 return mp.getPrefix();
         }
         return null;
+    }
+    
+    public Assignment getAssignment(DTLeaf dest_c) {
+
+    	MappedPrefix r = dest_c.getPrimePrefix();
+        // assignment
+        VarMapping assignments = new VarMapping();
+        int max = DataWords.paramLength(DataWords.actsOf(getAccessSequence()));
+        PIV parsInVars_Src = getPrimePrefix().getParsInVars();
+        PIV parsInVars_Row = r.getParsInVars();        
+        VarMapping remapping = dest_c.getRemapping(r);
+        
+//        log.log(Level.FINEST,"PIV ROW:" + parsInVars_Row);
+//        log.log(Level.FINEST,"PIV SRC:" + parsInVars_Src);
+//        log.log(Level.FINEST,"REMAP: " + remapping);
+        
+        for (Entry<Parameter, Register> e : parsInVars_Row) {
+            // param or register
+            Parameter p = e.getKey();
+            // remapping is null for prime rows ...
+            Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
+            if (p.getId() > max) {                
+                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                assignments.put(rNew, pNew);
+            } else {
+                Register rOld = parsInVars_Src.get(p);
+                assert rOld != null;
+                assignments.put(rNew, rOld);
+            }
+        }
+        return new Assignment(assignments);
+                
     }
 
     @Override

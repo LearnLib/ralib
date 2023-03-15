@@ -38,7 +38,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class MutableRegisterAutomaton extends RegisterAutomaton
         implements MutableDeterministic<RALocation, ParameterizedSymbol, Transition, Boolean, Void> {
     
-    private final Constants constants;
+    protected final Constants constants;
     
     private int ids = 0;
     

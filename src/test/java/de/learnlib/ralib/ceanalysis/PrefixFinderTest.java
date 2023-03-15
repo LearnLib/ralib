@@ -100,7 +100,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 consts
         );
 
-        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce);
+        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         System.out.println(prefix);
     }
     
@@ -148,7 +148,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 consts
         );
 
-        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce);
+        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         System.out.println(prefix);
 
 	}
