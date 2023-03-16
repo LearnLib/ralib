@@ -31,6 +31,15 @@ public class DTHyp extends Hypothesis {
 	}
 	
 	@Override
+	public boolean accepts(Word<PSymbolInstance> word) {
+		Word<PSymbolInstance> as = transformAccessSequence(word);
+		DTLeaf l = dt.getLeaf(as);
+		assert l != null;
+		
+		return l.isAccepting();
+	}
+	
+	@Override
 	public boolean isAccessSequence(Word<PSymbolInstance> word) {
 		if (super.isAccessSequence(word))
 			return true;

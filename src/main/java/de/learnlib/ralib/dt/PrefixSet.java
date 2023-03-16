@@ -76,6 +76,10 @@ public class PrefixSet {
 		return prefixes.size();
 	}
 	
+	public boolean isEmpty() {
+		return prefixes.isEmpty();
+	}
+	
 	public String toString() {
 		return prefixes.toString();
 	}

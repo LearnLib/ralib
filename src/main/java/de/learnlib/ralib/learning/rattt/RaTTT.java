@@ -19,6 +19,7 @@ import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTInnerNode;
@@ -118,37 +119,51 @@ public class RaTTT implements RaLearningAlgorithm {
     }
 
     public void learn() {
-        if (hyp != null) {
-            analyzeCounterExample();
-        }
+//        if (hyp != null) {
+//            analyzeCounterExample();
+//        }
+    	
+    	if (hyp == null)
+    		buildNewHypothesis();
+        
+        while (analyzeCounterExample());
 
-        do {
+//        do {
+//
+//            while (!dt.checkVariableConsistency())
+//                ;
+////            if (ioMode)
+////                while(!dt.checkIOConsistency(hyp));
+//
+//            // TODO: if there are still short prefixes, we need to construct a temporary hypothesis
+//            
+//            Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+//            components.putAll(dt.getComponents());
+//
+//            AutomatonBuilder ab;
+////            if (ioMode)
+////                ab = new IOAutomatonBuilder(components, consts, dt);
+////            else
+//                ab = new AutomatonBuilder(components, consts, dt);
+//            hyp = (DTHyp) ab.toRegisterAutomaton();
+//
+//            prefixFinder = null;
+//
+//            // FIXME: the default logging appender cannot log models and data structures
+//            // System.out.println(hyp.toString());
+//            log.logModel(hyp);
+//
+//        } while (analyzeCounterExample());
 
-            while (!dt.checkVariableConsistency())
-                ;
-//            if (ioMode)
-//                while(!dt.checkIOConsistency(hyp));
+    }
+    
+    private void buildNewHypothesis() {
 
-            // TODO: if there are still short prefixes, we need to construct a temporary hypothesis
-            
-            Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-            components.putAll(dt.getComponents());
+        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+        components.putAll(dt.getComponents());
 
-            AutomatonBuilder ab;
-//            if (ioMode)
-//                ab = new IOAutomatonBuilder(components, consts, dt);
-//            else
-                ab = new AutomatonBuilder(components, consts, dt);
-            hyp = (DTHyp) ab.toRegisterAutomaton();
-
-            prefixFinder = null;
-
-            // FIXME: the default logging appender cannot log models and data structures
-            // System.out.println(hyp.toString());
-            log.logModel(hyp);
-
-        } while (analyzeCounterExample());
-
+        AutomatonBuilder ab = new AutomatonBuilder(components, consts, dt);
+        hyp = (DTHyp) ab.toRegisterAutomaton();
     }
 
     /*
@@ -209,20 +224,21 @@ public class RaTTT implements RaLearningAlgorithm {
             return analyzeCounterExampleOld();
         log.logPhase("Analyzing Counterexample");
 
-//        if (candidateCEs.isEmpty()) {
-//        	prefixFinder = null;
-//        	if (counterexamples.isEmpty())
-//        		return false;
-//        	else {
-//    			DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.poll();
-//    			candidateCEs.push(ce);
-//    		}
-//        }
-
-        if (counterexamples.isEmpty()) {
-            prefixFinder = null;
-            return false;
+        if (candidateCEs.isEmpty()) {
+        	prefixFinder = null;
+//        	buildNewHypothesis();
+        	if (counterexamples.isEmpty())
+        		return false;
+        	else {
+    			DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.poll();
+    			candidateCEs.push(ce);
+    		}
         }
+
+//        if (counterexamples.isEmpty()) {
+//            prefixFinder = null;
+//            return false;
+//        }
 
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
 
@@ -232,126 +248,192 @@ public class RaTTT implements RaLearningAlgorithm {
             prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
         }
         
-        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
-
-        // check if ce still is a counterexample ...
-        boolean hypce = hyp.accepts(ce.getInput());
-        boolean sulce = ce.getOutput();
-        if (hypce == sulce) {
-        	// TEMPORARY FIX
-        	//if (checkNonDeterministicBranching())
-        	//	return true;
-        	
-            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
-            counterexamples.poll();
-            //prefixFinder = null;
-            return true;
+//        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
+//
+//        // check if ce still is a counterexample ...
+//        boolean hypce = hyp.accepts(ce.getInput());
+//        boolean sulce = ce.getOutput();
+//        if (hypce == sulce) {
+//        	// TEMPORARY FIX
+//        	//if (checkNonDeterministicBranching())
+//        	//	return true;
+//        	
+//            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
+//            counterexamples.poll();
+//            //prefixFinder = null;
+//            return true;
+//        }
+        
+        boolean foundce = false;
+        DefaultQuery<PSymbolInstance, Boolean> ce = null;
+        Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new ArrayDeque<DefaultQuery<PSymbolInstance, Boolean>>();
+        ces.addAll(candidateCEs);
+        while(!foundce && !ces.isEmpty()) {
+        	ce = ces.poll();
+        	boolean hypce = hyp.accepts(ce.getInput());
+        	boolean sulce = ce.getOutput();
+        	foundce = hypce != sulce;
         }
         
-//        boolean foundce = false;
-//        DefaultQuery<PSymbolInstance, Boolean> ce = null;
-//        while(!foundce && !candidateCEs.isEmpty()) {
-//        	ce = candidateCEs.peek();
-//        	boolean hypce = hyp.accepts(ce.getInput());
-//        	boolean sulce = ce.getOutput();
-//        	foundce = hypce != sulce;
-//        }
-//        
-//        if (!foundce) {
-//        	candidateCEs.clear();
-//        	return true;
-//        }
-//        
-//        Word<PSymbolInstance> ceWord = ce.getInput();
-//        CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
-//        Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
-//        Word<PSymbolInstance> prefix = transition.prefix(transition.length() - 1);	// u
-//        
-//        for (DefaultQuery<PSymbolInstance, Boolean> q : prefixFinder.getCounterExamples()) {
-//        	if (!candidateCEs.contains(q))
-//        		candidateCEs.push(q);
-//        }
-//        
-//        if (isGuardRefinement(transition))
-//        	addPrefix(transition);
-//        else
-//        	expand(transition);
-//        
-//        boolean consistent = false;
-//        boolean refinedHyp = false;
-//        while (!consistent) {
-//        	consistent = true;
-//        	
-//        	if (!checkLocationConsistency()) {
-//        		consistent = false;
-//        		while(!checkLocationConsistency());
-//        	}
-//        	
-//        	if (!checkRegisterConsistency()) {
-//        		consistent = false;
-//        		while(!checkRegisterConsistency());
-//        	}
-//        	
-//        	if (!checkGuardConsistency()) {
-//        		consistent = false;
-//        		while(!checkGuardConsistency());
-//        	}
-//        }
-//        
-//        return true;
-
-        // find short prefixes until getting dt refinement
-        Word<PSymbolInstance> ceWord = ce.getInput();
-        Set<Word<PSymbolInstance>> prefixes;
-        while (true) {
-            System.out.println(dt);
-            boolean refinement = false;
-            do {
-            	CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord, indices);
-            	Word<PSymbolInstance> prefix = result.getPrefix();
-            	
-            	refinement = refinement | addPrefix(result);
-            } while (!refinement);
-            // TODO: dangling short prefixes
-//                Word<PSymbolInstance> prefix = prefixFinder.analyzeCounterexample(ceWord, indices);
-//                if (this.thoroughSearch)
-//                    prefixes = prefixFinder.getCandidatePrefixes();
-//                else {
-//                    prefixes = new HashSet<Word<PSymbolInstance>>();
-//                    prefixes.add(prefix);
-//                }
-
-//                for (Word<PSymbolInstance> p : prefixes) {
-//                    refinement = refinement | addPrefix(p);
-//                }
-//            } while (!refinement && !prefixes.isEmpty());
-            
-            while(!dt.checkDeterminism(hyp));
-
-            processShortPrefixes();
-            
-            long numberOfShortPrefixes = dt.getComponents().values().stream().filter(c -> (c instanceof ShortPrefix)).count();
-            assert numberOfShortPrefixes == shortPrefixes.size();
-            
-            // if dangling short prefixes present, examine candidate counterexample
-            if (!shortPrefixes.isEmpty()) {
-
-                updatePrefixFinder();
-                ceWord = prefixFinder.getCounterExample().getInput();
-
-                clearIndices();
-
-                // if there's still a dangling prefix but no more CEs, we have a problem
-                assert ceWord != null;
-            } else
-                return true;
+        if (!foundce) {
+        	candidateCEs.clear();
+        	return true;
         }
+        
+        Word<PSymbolInstance> ceWord = ce.getInput();
+        CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
+        Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
+        Word<PSymbolInstance> prefix = transition.prefix(transition.length() - 1);	// u
+        
+        for (DefaultQuery<PSymbolInstance, Boolean> q : prefixFinder.getCounterExamples()) {
+        	if (!candidateCEs.contains(q))
+        		candidateCEs.addLast(q);
+        }
+        
+        if (isGuardRefinement(transition))
+        	addPrefix(transition);
+        else
+        	expand(transition);
+        
+        boolean consistent = false;
+        boolean refinedHyp = false;
+        while (!consistent) {
+        	consistent = true;
+        	
+        	if (!checkLocationConsistency()) {
+        		consistent = false;
+//        		while(!checkLocationConsistency());
+        	}
+        	
+        	if (!checkRegisterConsistency()) {
+        		consistent = false;
+//        		while(!checkRegisterConsistency());
+        	}
+        	
+        	if (!checkGuardConsistency()) {
+        		consistent = false;
+//        		while(!checkGuardConsistency());
+        	}
+        }
+        
+        if (noShortPrefixes())
+        	buildNewHypothesis();
+        
+        return true;
+
+//        // find short prefixes until getting dt refinement
+//        Word<PSymbolInstance> ceWord = ce.getInput();
+//        Set<Word<PSymbolInstance>> prefixes;
+//        while (true) {
+//            System.out.println(dt);
+//            boolean refinement = false;
+//            do {
+//            	CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord, indices);
+//            	Word<PSymbolInstance> prefix = result.getPrefix();
+//            	
+//            	refinement = refinement | addPrefix(result);
+//            } while (!refinement);
+//            // TODO: dangling short prefixes
+////                Word<PSymbolInstance> prefix = prefixFinder.analyzeCounterexample(ceWord, indices);
+////                if (this.thoroughSearch)
+////                    prefixes = prefixFinder.getCandidatePrefixes();
+////                else {
+////                    prefixes = new HashSet<Word<PSymbolInstance>>();
+////                    prefixes.add(prefix);
+////                }
+//
+////                for (Word<PSymbolInstance> p : prefixes) {
+////                    refinement = refinement | addPrefix(p);
+////                }
+////            } while (!refinement && !prefixes.isEmpty());
+//            
+//            while(!dt.checkDeterminism(hyp));
+//
+//            processShortPrefixes();
+//            
+//            long numberOfShortPrefixes = dt.getComponents().values().stream().filter(c -> (c instanceof ShortPrefix)).count();
+//            assert numberOfShortPrefixes == shortPrefixes.size();
+//            
+//            // if dangling short prefixes present, examine candidate counterexample
+//            if (!shortPrefixes.isEmpty()) {
+//
+//                updatePrefixFinder();
+//                ceWord = prefixFinder.getCounterExample().getInput();
+//
+//                clearIndices();
+//
+//                // if there's still a dangling prefix but no more CEs, we have a problem
+//                assert ceWord != null;
+//            } else
+//                return true;
+//        }
+    }
+    
+    private boolean isGuardRefinement(Word<PSymbolInstance> u) {
+    	return false;
+    }
+
+    private void addPrefix(Word<PSymbolInstance> u) {
+    	dt.sift(u, true);
+    }
+    
+    private void expand(Word<PSymbolInstance> u) {
+    	DTLeaf l = dt.getLeaf(u);
+    	assert l != null;
+    	l.elevatePrefix(dt, u, hyp, sdtLogicOracle);
+    }
+
+    private boolean checkLocationConsistency() {
+    	for (DTLeaf l : dt.getLeaves()) {
+    		MappedPrefix mp = l.getPrimePrefix();
+    		Iterator<MappedPrefix> it = l.getShortPrefixes().iterator();
+    		while (it.hasNext()) {
+    			ShortPrefix sp = (ShortPrefix)it.next();
+    			for (ParameterizedSymbol psi : dt.getInputs()) {
+    				Branching access_b = l.getBranching(psi);
+    				Branching prefix_b = sp.getBranching(psi);
+    				for (Word<PSymbolInstance> ws : prefix_b.getBranches().keySet()) {
+    					Word<PSymbolInstance> wa = DTLeaf.branchWithSameGuard(ws, prefix_b, sp.getParsInVars(), access_b, mp.getParsInVars(), sdtLogicOracle);
+    					DTLeaf la = dt.getLeaf(wa);
+    					DTLeaf ls = dt.getLeaf(ws);
+    					if (la != ls) {
+    						SymbolicSuffix v = distinguishingSuffix(la, ls, psi);
+    						dt.split(sp.getPrefix(), v, l);
+    						return false;
+    					}
+    				}
+    			}
+    		}
+    	} 
+    	return true;
+    }
+    
+    private boolean checkRegisterConsistency() {
+    	return true;
+    }
+    
+    private boolean checkGuardConsistency() {
+    	return true;
+    }
+    
+    private SymbolicSuffix distinguishingSuffix(DTLeaf ca, DTLeaf cb, ParameterizedSymbol psi) {
+    	SymbolicSuffix alpha = new SymbolicSuffix(psi);
+    	SymbolicSuffix v = dt.findLCA(ca, cb).getSuffix();
+    	return alpha.concat(v);
+    }
+    
+    private boolean noShortPrefixes() {
+    	for (DTLeaf l : dt.getLeaves()) {
+    		if (!l.getShortPrefixes().isEmpty())
+    			return false;
+    	}
+    	return true;
     }
 
     public void setUseOldAnalyzer(boolean useOldAnalyzer) {
         this.useOldAnalyzer = useOldAnalyzer;
     }
-
+    
     private boolean addPrefix(CEAnalysisResult ceaResult) { //Word<PSymbolInstance> word) {
     	Word<PSymbolInstance> word = ceaResult.getPrefix();
         DTLeaf dest_c = dt.sift(word, true);
@@ -460,6 +542,15 @@ public class RaTTT implements RaLearningAlgorithm {
         TreeQueryResult tqr = ceaResult.getTreeQueryResult();
         if (tqr == null) {
         	tqr = sulOracle.treeQuery(word, ceaResult.getSuffix());
+        }
+        
+        if (!tqr.getPiv().typedSize().equals(tqrHyp.getPiv().typedSize()))
+        	return false;
+        
+        PIVRemappingIterator pri = new PIVRemappingIterator(tqr.getPiv(), tqrHyp.getPiv());
+        while (pri.hasNext()) {
+        	if (tqr.getSdt().isEquivalent(tqrHyp.getSdt(), pri.next()))
+        		return true;
         }
 
     	return false;
