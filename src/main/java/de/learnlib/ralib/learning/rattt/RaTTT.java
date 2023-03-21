@@ -386,6 +386,9 @@ public class RaTTT implements RaLearningAlgorithm {
     }
     
     private boolean isGuardRefinement(Word<PSymbolInstance> word, CEAnalysisResult ceaResult) {
+    	if (dt.getLeaf(word) != null)
+    		return false;
+    	
     	Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
     	DTLeaf src_c = dt.getLeaf(src_id);
         Branching hypBranching = null;
@@ -460,6 +463,7 @@ public class RaTTT implements RaLearningAlgorithm {
     }
     
     private boolean checkGuardConsistency() {
+    	Deque<Word<PSymbolInstance>> toReuse = new LinkedList<Word<PSymbolInstance>>();
     	while (!guardPrefixes.isEmpty()) {
     		Word<PSymbolInstance> word = guardPrefixes.poll();
     		Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
@@ -503,11 +507,16 @@ public class RaTTT implements RaLearningAlgorithm {
 	            }
             }
             
-            assert suffix != null;
+            if (suffix == null) {
+            	toReuse.push(word);
+            	continue;
+            }
             
             dt.addSuffix(suffix, src_c);
             return false;
     	}
+    	
+    	guardPrefixes.addAll(toReuse);
     	return true;
     }
     
