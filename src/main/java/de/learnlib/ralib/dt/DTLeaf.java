@@ -621,9 +621,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return null;
     }
     
-    public Assignment getAssignment(DTLeaf dest_c) {
+    public Assignment getAssignment(Word<PSymbolInstance> dest_id, DTLeaf dest_c) {
 
-    	MappedPrefix r = dest_c.getPrimePrefix();
+    	MappedPrefix r = dest_c.getPrefix(dest_id);
         // assignment
         VarMapping assignments = new VarMapping();
         int max = DataWords.paramLength(DataWords.actsOf(getAccessSequence()));

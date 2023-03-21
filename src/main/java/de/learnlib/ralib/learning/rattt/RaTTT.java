@@ -23,6 +23,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
@@ -37,6 +38,7 @@ import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
@@ -487,9 +489,16 @@ public class RaTTT implements RaLearningAlgorithm {
 	            for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
 	            	TreeQueryResult tqr = e.getValue();
 	            	SymbolicSuffix s = e.getKey();
+	            	
+	            	TreeQueryResult otherTQR = branchTQRs.get(s);
+	            	
 	            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
-	            		if (suffix == null || suffix.length() > s.length())
-	            			suffix = s;
+	            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
+		            		if (suffix == null || suffix.length() > s.length()+1) {
+		            			suffix = new SymbolicSuffix(word.lastSymbol().getBaseSymbol());
+		            			suffix = suffix.concat(s);
+		            		}
+	            		}
 	            	}
 	            }
             }

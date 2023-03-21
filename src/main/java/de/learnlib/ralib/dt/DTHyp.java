@@ -104,7 +104,7 @@ public class DTHyp extends Hypothesis {
             	if (g.isSatisfied(vars, pars, this.constants)) {
                 //if (t.isEnabled(vars, pars, this.constants)) {
             		Word<PSymbolInstance> w = e.getKey();
-            		vars = current.getAssignment(dt.getLeaf(w)).compute(vars, pars, this.constants);
+            		vars = current.getAssignment(w, dt.getLeaf(w)).compute(vars, pars, this.constants);
                     //vars = t.execute(vars, pars, this.constants);
             		current = dt.getLeaf(w);
                     //current = t.getDestination();

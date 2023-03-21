@@ -81,9 +81,16 @@ public class PrefixFinder {
 //        candidateIdx = idx;
 //        return candidates[idx];
         SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
+        TreeQueryResult tqr = storedQueries.get(sw);
+        if (tqr == null) {
+        	// THIS CAN (possibly) BE DONE WITHOUT A NEW TREE QUERY
+        	tqr = sulOracle.treeQuery(sw.getPrefix(), sw.getSuffix());
+        }
         CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
         		                                       candidates[idx].getSuffix(),
-        		                                       storedQueries.get(sw));
+        		                                       tqr);
+        candidateCEs.put(candidates[idx], tqr);
+        storeCandidateCEs(ce, idx);
         return result;
     }
     
@@ -96,6 +103,8 @@ public class PrefixFinder {
         CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
                 candidates[idx].getSuffix(),
                 storedQueries.get(sw));
+        candidateCEs.put(candidates[idx], result.getTreeQueryResult());
+        storeCandidateCEs(ce, idx);
         return result;
     }
     
@@ -115,80 +124,174 @@ public class PrefixFinder {
     }
     
     private boolean computeIndex(Word<PSymbolInstance> ce, int idx) {
-
         Word<PSymbolInstance> prefix = ce.prefix(idx);
-//        System.out.println(idx + "  " + prefix);
 
         Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(prefix);
         Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
 
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
+        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -(idx+1));
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
-
+        SymbolicSuffix extendedSuffix = new SymbolicSuffix(prefix, ce.suffix(ce.length() - idx));
+        
         for(Word<PSymbolInstance> location : locations) {
 	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
 	                ce.prefix(idx+1), location);
-		        
-	        SymbolicWord symWord = new SymbolicWord(location, symSuffix);
-	        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
-	        TreeQueryResult resSul;
-	        if (storedQueries.containsKey(symWord))
-	        	resSul = storedQueries.get(symWord);
-	        else {
-	        	resSul = sulOracle.treeQuery(location, symSuffix);
-	        	storedQueries.put(new SymbolicWord(location, symSuffix), resSul);
+		    
+	        boolean candidateFound = true;
+	        Pair<TreeQueryResult, TreeQueryResult> results = checkForCE(transition, symSuffix, transition);
+	        
+	        if (results == null) {
+	        	results = checkForCE(location, extendedSuffix, transition);
+	        	candidateFound = false;
 	        }
+	        
+//	        SymbolicWord symWord = new SymbolicWord(transition, symSuffix);
+//	        TreeQueryResult resHyp = hypOracle.treeQuery(transition, symSuffix);
+//	        TreeQueryResult resSul;
+//	        if (storedQueries.containsKey(symWord))
+//	        	resSul = storedQueries.get(symWord);
+//	        else {
+//	        	resSul = sulOracle.treeQuery(transition, symSuffix);
+//	        	storedQueries.put(new SymbolicWord(transition, symSuffix), resSul);
+//	        }
+//	
+//	        log.log(Level.FINEST,"------------------------------------------------------");
+//	        log.log(Level.FINEST,"Computing index: " + idx);
+//	        log.log(Level.FINEST,"Prefix: " + prefix);
+//	        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
+//	        log.log(Level.FINEST,"Location: " + location);
+//	        log.log(Level.FINEST,"Transition: " + transition);
+//	        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
+//	        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
+//	        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
+//	        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
+//	        log.log(Level.FINEST,"------------------------------------------------------");
 	
-	        log.log(Level.FINEST,"------------------------------------------------------");
-	        log.log(Level.FINEST,"Computing index: " + idx);
-	        log.log(Level.FINEST,"Prefix: " + prefix);
-	        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
-	        log.log(Level.FINEST,"Location: " + location);
-	        log.log(Level.FINEST,"Transition: " + transition);
-	        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
-	        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
-	        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
-	        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
-	        log.log(Level.FINEST,"------------------------------------------------------");
+//	        ParameterizedSymbol act = suffix.firstSymbol().getBaseSymbol();
+//	        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
+//	        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
 	
-//	        System.out.println("------------------------------------------------------");
-//	        System.out.println("Computing index: " + idx);
-//	        System.out.println("Prefix: " + prefix);
-//	        System.out.println("SymSuffix: " + symSuffix);
-//	        System.out.println("Location: " + location);
-//	        System.out.println("Transition: " + transition);
-//	        System.out.println("PIV HYP: " + resHyp.getPiv());
-//	        System.out.println("SDT HYP: " + resHyp.getSdt());
-//	        System.out.println("PIV SYS: " + resSul.getPiv());
-//	        System.out.println("SDT SYS: " + resSul.getSdt());
-//	        System.out.println("------------------------------------------------------");
-	
-	        LocationComponent c = components.get(primeLocation);
-	        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-	        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
-	
-	        boolean hasCE = sdtOracle.hasCounterexample(location,
-	                resHyp.getSdt(), resHyp.getPiv(),
-	                resSul.getSdt(), resSul.getPiv(),
-	                new TransitionGuard(), transition);
-	
-//	        System.out.println("CE: " + hasCE);
-	
-	        if (hasCE) {
+//	        boolean hasCE = sdtOracle.hasCounterexample(location,
+//	                resHyp.getSdt(), resHyp.getPiv(),
+//	                resSul.getSdt(), resSul.getPiv(),
+//	                new TransitionGuard(), transition);
+		
+	        if (results != null) {
+	        	TreeQueryResult resHyp = results.getLeft();
+	        	TreeQueryResult resSul = results.getRight();
+	        	if (candidateFound)
+	        		candidates[idx] = new SymbolicWord(transition, symSuffix);
+	        	else {
+			        LocationComponent c = components.get(primeLocation);
+			        ParameterizedSymbol act = extendedSuffix.length() > 0 ? extendedSuffix.getActions().firstSymbol() : null;
+	        		candidates[idx] = candidate(location, act, extendedSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c, ce);
+	        	}
 	        	if (!transitionHasCE(ce, idx)) {
-	        		candidateCEs.put(new SymbolicWord(location, symSuffix), resSul);
-	        		storeCandidateCEs(ce, idx);
+//	        		candidateCEs.put(new SymbolicWord(transition, symSuffix), resSul);
+//	        		storeCandidateCEs(ce, idx);
 	        		isCE[idx] = true;
 	        	}
-//	        	candidates[idx] = candidate2(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
-                candidates[idx] = candidate(location, act, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c, ce);
-//                candidateSuffixes[idx] = symSuffix;
-//	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
 	            return true;
 	        }
         }
         return false;
     }
+
+    private Pair<TreeQueryResult, TreeQueryResult> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
+    	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
+    	TreeQueryResult resHyp = hypOracle.treeQuery(prefix, suffix);
+    	TreeQueryResult resSul;
+    	if (storedQueries.containsKey(symWord))
+    		resSul = storedQueries.get(symWord);
+    	else {
+    		resSul = sulOracle.treeQuery(prefix, suffix);
+    		storedQueries.put(symWord, resSul);
+    	}
+    	    	
+        boolean hasCE = sdtOracle.hasCounterexample(prefix,
+                resHyp.getSdt(), resHyp.getPiv(),
+                resSul.getSdt(), resSul.getPiv(),
+                new TransitionGuard(), transition);
+        
+        return hasCE ? new ImmutablePair<TreeQueryResult, TreeQueryResult>(resHyp, resSul) : null;
+    } 
+
+    
+//    private boolean computeIndex(Word<PSymbolInstance> ce, int idx) {
+//
+//        Word<PSymbolInstance> prefix = ce.prefix(idx);
+////        System.out.println(idx + "  " + prefix);
+//
+//        Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(prefix);
+//        Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
+//
+//        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
+//        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+//
+//        for(Word<PSymbolInstance> location : locations) {
+//	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
+//	                ce.prefix(idx+1), location);
+//		        
+//	        SymbolicWord symWord = new SymbolicWord(location, symSuffix);
+//	        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
+//	        TreeQueryResult resSul;
+//	        if (storedQueries.containsKey(symWord))
+//	        	resSul = storedQueries.get(symWord);
+//	        else {
+//	        	resSul = sulOracle.treeQuery(location, symSuffix);
+//	        	storedQueries.put(new SymbolicWord(location, symSuffix), resSul);
+//	        }
+//	
+//	        log.log(Level.FINEST,"------------------------------------------------------");
+//	        log.log(Level.FINEST,"Computing index: " + idx);
+//	        log.log(Level.FINEST,"Prefix: " + prefix);
+//	        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
+//	        log.log(Level.FINEST,"Location: " + location);
+//	        log.log(Level.FINEST,"Transition: " + transition);
+//	        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
+//	        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
+//	        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
+//	        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
+//	        log.log(Level.FINEST,"------------------------------------------------------");
+//	
+////	        System.out.println("------------------------------------------------------");
+////	        System.out.println("Computing index: " + idx);
+////	        System.out.println("Prefix: " + prefix);
+////	        System.out.println("SymSuffix: " + symSuffix);
+////	        System.out.println("Location: " + location);
+////	        System.out.println("Transition: " + transition);
+////	        System.out.println("PIV HYP: " + resHyp.getPiv());
+////	        System.out.println("SDT HYP: " + resHyp.getSdt());
+////	        System.out.println("PIV SYS: " + resSul.getPiv());
+////	        System.out.println("SDT SYS: " + resSul.getSdt());
+////	        System.out.println("------------------------------------------------------");
+//	
+//	        LocationComponent c = components.get(primeLocation);
+//	        ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
+//	        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+//	
+//	        boolean hasCE = sdtOracle.hasCounterexample(location,
+//	                resHyp.getSdt(), resHyp.getPiv(),
+//	                resSul.getSdt(), resSul.getPiv(),
+//	                new TransitionGuard(), transition);
+//	
+////	        System.out.println("CE: " + hasCE);
+//	
+//	        if (hasCE) {
+//	        	if (!transitionHasCE(ce, idx)) {
+//	        		candidateCEs.put(new SymbolicWord(location, symSuffix), resSul);
+//	        		storeCandidateCEs(ce, idx);
+//	        		isCE[idx] = true;
+//	        	}
+////	        	candidates[idx] = candidate2(location, act, resSul.getSdt(), resSul.getPiv(), transition, c);
+//                candidates[idx] = candidate(location, act, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c, ce);
+////                candidateSuffixes[idx] = symSuffix;
+////	            System.out.println("candidate [" + idx + "]: " + candidates[idx]);
+//	            return true;
+//	        }
+//        }
+//        return false;
+//    }
 
     private boolean transitionHasCE(Word<PSymbolInstance> ce, int idx) {
     	if (idx+1 >= ce.length())
@@ -317,7 +420,7 @@ public class PrefixFinder {
 //            return candidate;   
 //        }
         
-    	Collection<Word<PSymbolInstance>> branches = c.getBranching(action).getBranches().keySet();
+//    	Collection<Word<PSymbolInstance>> branches = c.getBranching(action).getBranches().keySet();
     	
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
         Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
@@ -326,30 +429,33 @@ public class PrefixFinder {
         allPaths.addAll(sulPaths.keySet());
         allPaths.addAll(hypPaths.keySet());
         
-        Iterator<Word<PSymbolInstance>> it = allPaths.stream().filter(w -> branches.contains(w.prefix(prefix.length()+1))).iterator();
-        while(it.hasNext()) {
-        	cePath = it.next();
-        	boolean hypAcc = sdtOracle.accepts(cePath, prefix, sdtHyp, pivHyp);
-        	boolean sulAcc = sdtOracle.accepts(cePath, prefix, sdtHyp, pivHyp);
-        	if (hypAcc != sulAcc) {
-        		SymbolicSuffix suff = new SymbolicSuffix(cePath.prefix(prefix.length()+1), ce.suffix(symSuffix.length()-1), consts);
-        		return new SymbolicWord(cePath, suff);
-        	}
-        }
+//        Iterator<Word<PSymbolInstance>> it = allPaths.stream().filter(w -> branches.contains(w.prefix(prefix.length()+1))).iterator();
+//        while(it.hasNext()) {
+//        	cePath = it.next();
+//        	boolean hypAcc = sdtOracle.accepts(cePath, prefix, sdtHyp, pivHyp);
+//        	boolean sulAcc = sdtOracle.accepts(cePath, prefix, sdtSul, pivSul);
+//        	if (hypAcc != sulAcc) {
+//        		SymbolicSuffix suff = new SymbolicSuffix(cePath.prefix(prefix.length()+1), ce.suffix(symSuffix.length()-1), consts);
+//        		return new SymbolicWord(cePath, suff);
+//        	}
+//        }
         
         for (Word<PSymbolInstance> path : allPaths) {
             boolean hypAcc = sdtOracle.accepts(path, prefix, sdtHyp, pivHyp);
             boolean sulAcc = sdtOracle.accepts(path, prefix, sdtSul, pivSul);
             if (hypAcc != sulAcc) {
                 cePath = path;
-                if (isRefiningPrefix(path, prefix, action, sdtSul, pivSul, c))
-                	break;
+                break;
+//                if (isRefiningPrefix(path, prefix, action, sdtSul, pivSul, c))
+//                	break;
             }
         }
 
         assert cePath != null : "There should be a CE path";
+        //candidate = cePath.prefix(prefix.length() + 1);
         candidate = cePath.prefix(prefix.length() + 1);
-        SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length()-1), consts);
+//        SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length()-1), consts);
+        SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), consts);
 
         return new SymbolicWord(candidate, suffix);
     }
