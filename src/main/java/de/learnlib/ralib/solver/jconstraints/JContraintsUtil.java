@@ -46,7 +46,7 @@ public class JContraintsUtil {
     
     public static Type<?> getJCType(Class<?> cls) {
         if (cls == Integer.class)  {
-            return BuiltinTypes.INTEGER;
+            return BuiltinTypes.SINT32;
         } else if (cls == Float.class) {
             return BuiltinTypes.FLOAT;
         } else if (cls == Long.class) {
