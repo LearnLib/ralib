@@ -823,6 +823,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(accSeq);
         dt.addSuffix(res.getSuffix(), leaf);
+        while(!dt.checkVariableConsistency());
         return true;
     }
     
