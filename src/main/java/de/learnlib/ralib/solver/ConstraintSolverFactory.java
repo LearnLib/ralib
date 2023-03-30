@@ -47,10 +47,7 @@ public class ConstraintSolverFactory {
     }
     
     public static JConstraintsConstraintSolver createZ3ConstraintSolver() {
-        gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory fact = 
-                new gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory();
-        
-        return new JConstraintsConstraintSolver(fact.createSolver("z3"));      
+        return new JConstraintsConstraintSolver(gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));      
     }
     
 }

@@ -61,9 +61,8 @@ public class TestUtil {
     }
     
     public static JConstraintsConstraintSolver getZ3Solver() {
-        ConstraintSolverFactory fact = new ConstraintSolverFactory();
         gov.nasa.jpf.constraints.api.ConstraintSolver solver = 
-                fact.createSolver("z3");
+                ConstraintSolverFactory.createSolver("z3");
 
         return new JConstraintsConstraintSolver(solver);        
     } 

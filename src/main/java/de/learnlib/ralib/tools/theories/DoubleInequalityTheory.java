@@ -69,8 +69,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         }
     }
 
-    private final ConstraintSolverFactory fact = new ConstraintSolverFactory();
-    private final ConstraintSolver solver = fact.createSolver("z3");
+    private final ConstraintSolver solver = ConstraintSolverFactory.createSolver("z3");
 
     private DataType type = null;
 
