@@ -39,5 +39,10 @@ public class LoginExampleBranching implements Branching {
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
         return branches;
     }
+    
+    @Override
+    public Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> dw) {
+    	throw new RuntimeException("Not implemented");
+    }
         
 }

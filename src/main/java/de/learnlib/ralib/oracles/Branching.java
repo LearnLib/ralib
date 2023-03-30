@@ -29,4 +29,5 @@ public interface Branching {
     
     public Map<Word<PSymbolInstance>, TransitionGuard> getBranches();
     
+    public Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> prefix);
 }

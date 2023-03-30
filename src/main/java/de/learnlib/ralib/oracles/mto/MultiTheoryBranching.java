@@ -27,7 +27,9 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -257,6 +259,39 @@ public class MultiTheoryBranching implements Branching {
         assert !branches.isEmpty();
 
         return branches;
+    }
+    
+    @Override
+    public Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> dw) {
+
+    	Set<SDTGuard> guardSet = getGuards();
+    	Set<SuffixValue> paramSet = new LinkedHashSet<SuffixValue>();
+    	for (SDTGuard g : guardSet) {
+    		paramSet.add(g.getParameter());
+    	}
+    	DataValue[] dwParamValues = dw.lastSymbol().getParameterValues();
+    	SuffixValue[] params = new SuffixValue[paramSet.size()];
+    	paramSet.toArray(params);
+    	ParValuation vals = new ParValuation();
+    	for (int i=0; i<paramSet.size(); i++) {
+    		DataValue dv = dwParamValues[params[i].getId()-1];
+    		SuffixValue s = params[i];
+    		Parameter p = new Parameter(s.getType(), s.getId());
+    		vals.put(p, dv);
+    	}
+    	VarValuation vars = AutomatonBuilder.computeVarValuation(new ParValuation(getPrefix()), getPiv());
+    	Map<Word<PSymbolInstance>, TransitionGuard> branches = getBranches();
+    	
+    	Word<PSymbolInstance> prefix = null;
+    	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+    		TransitionGuard g = e.getValue();
+    		if (g.isSatisfied(vars, vals, constants)) {
+    			prefix = e.getKey();
+    			break;
+    		}
+    	}
+    	
+    	return prefix;
     }
 
     private GuardExpression renameSuffixValues(GuardExpression expr) {

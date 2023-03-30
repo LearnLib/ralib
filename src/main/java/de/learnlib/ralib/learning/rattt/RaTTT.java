@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,8 +23,13 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
@@ -46,6 +52,8 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryBranching;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -81,7 +89,7 @@ public class RaTTT implements RaLearningAlgorithm {
     private int[] indices = new int[0];
 
 //    private final Deque<Word<PSymbolInstance>> shortPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
-    private final Deque<Word<PSymbolInstance>> guardPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
+    private final Map<Word<PSymbolInstance>, Boolean> guardPrefixes = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
     
     // TEMPORARY FIX
     private final Map<Word<PSymbolInstance>, SymbolicSuffix> ceSuffixes = new LinkedHashMap<Word<PSymbolInstance>, SymbolicSuffix>(); 
@@ -304,7 +312,8 @@ public class RaTTT implements RaLearningAlgorithm {
         
         if (isGuardRefinement(transition, result)) {
         	addPrefix(transition);
-        	guardPrefixes.add(transition);
+//        	dt.getLeaf(prefix).updateBranching(prefix, transition.lastSymbol().getBaseSymbol(), result.getPrefixTreeQuery());
+//        	guardPrefixes.add(transition);
         }
         else {
         	expand(transition);
@@ -404,13 +413,6 @@ public class RaTTT implements RaLearningAlgorithm {
 
         if (hypBranching.getBranches().keySet().contains(word))
         	return false;
-        
-        TransitionGuard guard = AutomatonBuilder.findMatchingGuard(word, piv, hypBranching.getBranches(), consts);
-        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : hypBranching.getBranches().entrySet()) {
-        	boolean eq = sdtLogicOracle.areEquivalent(e.getValue(), piv, guard, piv, new Mapping<SymbolicDataValue, DataValue<?>>());
-        	if (eq && !e.getKey().equals(word))
-        		return true;
-        }
 
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
         TreeQueryResult tqrHyp = hypOracle.treeQuery(word, ceaResult.getSuffix());
@@ -419,7 +421,21 @@ public class RaTTT implements RaLearningAlgorithm {
         	tqrSul = sulOracle.treeQuery(word, ceaResult.getSuffix());
         }
         
-    	return tqrHyp.getSdt().isEquivalent(tqrSul.getSdt(), tqrSul.getPiv());
+        if (tqrHyp.getSdt().isEquivalent(tqrSul.getSdt(), tqrSul.getPiv())) {
+        	guardPrefixes.put(word, false);
+        	return true;
+        }
+        
+        TransitionGuard guard = AutomatonBuilder.findMatchingGuard(word, piv, hypBranching.getBranches(), consts);
+        for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : hypBranching.getBranches().entrySet()) {
+        	boolean eq = sdtLogicOracle.areEquivalent(e.getValue(), piv, guard, piv, new Mapping<SymbolicDataValue, DataValue<?>>());
+        	if (eq && !e.getKey().equals(word)) {
+        		guardPrefixes.put(word, true);
+        		return true;
+        	}
+        }
+
+    	return false;
     }
 
     private void addPrefix(Word<PSymbolInstance> u) {
@@ -443,7 +459,10 @@ public class RaTTT implements RaLearningAlgorithm {
     				Branching access_b = l.getBranching(psi);
     				Branching prefix_b = sp.getBranching(psi);
     				for (Word<PSymbolInstance> ws : prefix_b.getBranches().keySet()) {
+//    					Word<PSymbolInstance> wa = AutomatonBuilder.findMatchingWord(ws, sp.getParsInVars(), access_b.getBranches(), consts);
+    					
     					Word<PSymbolInstance> wa = DTLeaf.branchWithSameGuard(ws, prefix_b, sp.getParsInVars(), access_b, mp.getParsInVars(), sdtLogicOracle);
+    					
     					DTLeaf la = dt.getLeaf(wa);
     					DTLeaf ls = dt.getLeaf(ws);
     					if (la != ls) {
@@ -463,9 +482,11 @@ public class RaTTT implements RaLearningAlgorithm {
     }
     
     private boolean checkGuardConsistency() {
-    	Deque<Word<PSymbolInstance>> toReuse = new LinkedList<Word<PSymbolInstance>>();
-    	while (!guardPrefixes.isEmpty()) {
-    		Word<PSymbolInstance> word = guardPrefixes.poll();
+//    	Deque<Word<PSymbolInstance>> toReuse = new LinkedList<Word<PSymbolInstance>>();
+    	Map<Word<PSymbolInstance>, Boolean> toReuse = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
+//    	while (!guardPrefixes.isEmpty()) {
+    	for (Word<PSymbolInstance> word : guardPrefixes.keySet()) {
+//    		Word<PSymbolInstance> word = guardPrefixes.poll();
     		Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
     		DTLeaf src_c = dt.getLeaf(src_id);
     		DTLeaf dest_c = dt.getLeaf(word);
@@ -484,8 +505,10 @@ public class RaTTT implements RaLearningAlgorithm {
             DTLeaf branchLeaf = dt.getLeaf(branch);
             
             SymbolicSuffix suffix = null;
-            if (branchLeaf != dest_c) {
-            	suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
+            if (guardPrefixes.get(word)) {
+	            if (branchLeaf != dest_c) {
+	            	suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
+	            }
             }
             else {
 	            MappedPrefix mp = dest_c.getPrefix(word);
@@ -508,7 +531,7 @@ public class RaTTT implements RaLearningAlgorithm {
             }
             
             if (suffix == null) {
-            	toReuse.push(word);
+            	toReuse.put(word, guardPrefixes.get(word));
             	continue;
             }
             
@@ -516,7 +539,8 @@ public class RaTTT implements RaLearningAlgorithm {
             return false;
     	}
     	
-    	guardPrefixes.addAll(toReuse);
+    	guardPrefixes.clear();
+    	guardPrefixes.putAll(toReuse);
     	return true;
     }
     
@@ -664,15 +688,45 @@ public class RaTTT implements RaLearningAlgorithm {
     	Word<PSymbolInstance> dw = mp.getPrefix();
 //    	ParameterizedSymbol ps = dw.lastSymbol().getBaseSymbol();
 //    	Map<Word<PSymbolInstance>, TransitionGuard> branches = src_c.getBranching(ps).getBranches();
-    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
+//    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
+//    	
+//    	MultiTheoryBranching mtb = (MultiTheoryBranching)branching;
+//    	Set<SDTGuard> guardSet = mtb.getGuards();
+//    	Set<SuffixValue> paramSet = new LinkedHashSet<SuffixValue>();
+//    	for (SDTGuard g : guardSet) {
+//    		paramSet.add(g.getParameter());
+//    	}
+//    	DataValue[] dwParamValues = dw.lastSymbol().getParameterValues();
+//    	DataValue[] dvs = new DataValue[paramSet.size()];
+//    	SuffixValue[] params = new SuffixValue[paramSet.size()];
+//    	paramSet.toArray(params);
+//    	ParValuation vals = new ParValuation();
+//    	for (int i=0; i<dvs.length; i++) {
+//    		dvs[i] = dwParamValues[params[i].getId()-1];
+//    		SuffixValue s = params[i];
+//    		Parameter p = new Parameter(s.getType(), s.getId());
+//    		vals.put(p, dvs[i]);
+//    	}
+//    	VarValuation vars = AutomatonBuilder.computeVarValuation(new ParValuation(src_id.getPrefix()), src_id.getParsInVars());
+//    	Word<PSymbolInstance> prefix = null;
+//    	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+//    		TransitionGuard g = e.getValue();
+//    		if (g.isSatisfied(vars, vals, consts)) {
+//    			prefix = e.getKey();
+//    			break;
+//    		}
+//    	}
     	
-    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(dw, src_id.getParsInVars(), branches, consts);
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
-    		if (e.getValue().equals(guard)) {
-    			return e.getKey();
-    		}
-    	}
-    	return null;
+    	return branching.transformPrefix(dw);
+    	
+//    	return AutomatonBuilder.findMatchingWord(dw, src_id.getParsInVars(), branches, consts);
+//    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(dw, src_id.getParsInVars(), branches, consts);
+//    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+//    		if (e.getValue().equals(guard)) {
+//    			return e.getKey();
+//    		}
+//    	}
+//    	return null;
     }
     
 //    private boolean addNewLocation(Word<PSymbolInstance> prefix, DTLeaf src_c) {

@@ -183,15 +183,16 @@ public class DTHyp extends Hypothesis {
 	}
 	
 	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, MappedPrefix src_id, Branching branching) {
-    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
-    	
-    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(word, src_id.getParsInVars(), branches, this.constants);
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
-    		if (e.getValue().equals(guard)) {
-    			return e.getKey();
-    		}
-    	}
-    	return null;
+//    	Map<Word<PSymbolInstance>, TransitionGuard> branches = branching.getBranches();
+//    	
+//    	TransitionGuard guard = AutomatonBuilder.findMatchingGuard(word, src_id.getParsInVars(), branches, this.constants);
+//    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
+//    		if (e.getValue().equals(guard)) {
+//    			return e.getKey();
+//    		}
+//    	}
+//    	return null;
+		return branching.transformPrefix(word);
 
 	}
 }
