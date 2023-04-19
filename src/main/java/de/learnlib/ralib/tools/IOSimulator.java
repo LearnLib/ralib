@@ -28,7 +28,9 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.rattt.RaTTT;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -74,6 +76,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
                 
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
+        OPTION_ALGO,
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
@@ -104,7 +107,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     
     private IOEquivalenceTest eqTest;
     
-    private RaStar rastar;
+    private RaLearningAlgorithm rastar;
 
     private IOCounterexampleLoopRemover ceOptLoops;
     
@@ -199,7 +202,17 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             }
         };
 
-        this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+        switch (this.learner) {
+            case "slstar":
+                this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                break;
+            case "rattt":
+                this.rastar = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+                break;
+            default:
+                throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
+        }
+
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
@@ -340,7 +353,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
-        
+
+        System.out.println("Learner: " + rastar.getClass().getSimpleName());
+
         for (Entry<DataType, Theory> e : teachers.entrySet()) {
             System.out.println("Theory: " + e.getKey() + " -> " + e.getValue().getClass().getName());
         }

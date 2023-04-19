@@ -41,6 +41,10 @@ import net.automatalib.commons.util.Pair;
  */
 public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
+    protected static final ConfigurationOption.StringOption OPTION_ALGO
+            = new ConfigurationOption.StringOption("learner",
+            "Learning Algorithm: slstar (default) or rattt", "slstar", true);
+
     protected static final ConfigurationOption.LongOption OPTION_RANDOM_SEED
             = new ConfigurationOption.LongOption("random.seed", "Seed for RNG", 0L, true);
 
@@ -192,6 +196,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     
     protected ConstraintSolver solver; 
 
+    protected String learner = "slstar";
+
     @Override
     public void setup(Configuration config) throws ConfigurationException {
 
@@ -223,6 +229,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.timeoutMillis = OPTION_TIMEOUT.parse(config);
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
+
+        this.learner = OPTION_ALGO.parse(config);
 
         String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
         for (String s : parsed) {

@@ -120,17 +120,19 @@ public class ConsoleClient {
     }
 
     private void parseConfig() throws IOException {
-        if (args.length == 4 && args[1].equals("-f")) {
+        if (args.length >= 4 && args[1].equals("-f")) {
             this.config = new Configuration(new File(args[2]));
-            Configuration temp = new Configuration(args[3].replaceAll(";", "\n"));
-            for (String s : temp.stringPropertyNames()) {
-                this.config.put(s, temp.get(s));
+            for (int i=3; i<args.length; i++) {
+                Configuration temp = new Configuration(args[i].replaceAll(";", System.lineSeparator()));
+                for (String s : temp.stringPropertyNames()) {
+                    this.config.put(s, temp.get(s));
+                }
             }
         }
         else if (args.length == 3 && args[1].equals("-f")) {
             this.config = new Configuration(new File(args[2]));
         } else if (args.length == 2) {
-            this.config = new Configuration(args[1].replaceAll(";", "\n"));
+            this.config = new Configuration(args[1].replaceAll(";", System.lineSeparator()));
         }
     }
 
