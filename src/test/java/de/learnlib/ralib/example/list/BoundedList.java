@@ -11,10 +11,10 @@ import java.util.LinkedList;
 public class BoundedList {
 	public static final int DEFAULT_MAX_CAPACITY = 3;
 	public static final boolean DEFAULT_USE_NULL= false;
-	public static final BigDecimal NULL_VALUE = BigDecimal.ZERO;
+	public static final Integer NULL_VALUE = 0;
 	
 	private boolean useNull = false;
-	private LinkedList<BigDecimal> list;
+	private LinkedList<Integer> list;
 	private int maxCapacity;
 
 	public BoundedList() {
@@ -28,10 +28,10 @@ public class BoundedList {
 	public BoundedList(int maxCapacity, boolean useNull) {
 		this.maxCapacity = maxCapacity;
 		this.useNull = useNull;
-		list = new LinkedList<BigDecimal>();
+		list = new LinkedList<Integer>();
 	}
 	
-	public void push(BigDecimal e) {
+	public void push(Integer e) {
 		if (useNull && e.equals(NULL_VALUE)) {
 			throw new RuntimeException();
 		}
@@ -40,7 +40,7 @@ public class BoundedList {
 		}
 	}
 	
-	public BigDecimal pop() {
+	public Integer pop() {
 		return list.pop();
 	}
 	
@@ -52,13 +52,13 @@ public class BoundedList {
 		return (useNull && NULL_VALUE.equals(e)) || !list.contains(e);
 	}
 	
-	public void insert(BigDecimal e1, BigDecimal e2) {
+	public void insert(Integer e1, Integer e2) {
 		int i=1;
 		if (useNull && e2.equals(NULL_VALUE)) {
 			throw new RuntimeException();
 		}
 		if (maxCapacity > list.size()) {
-			for (BigDecimal el : list) {
+			for (Integer el : list) {
 				if (el.equals(e1)) {
 					list.add(i-1, e2);
 					return;

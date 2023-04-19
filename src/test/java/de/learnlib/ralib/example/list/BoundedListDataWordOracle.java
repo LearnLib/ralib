@@ -54,13 +54,13 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 	private boolean getOutput(PSymbolInstance symInst, BoundedList list) {
 		try {
 			if (symInst.getBaseSymbol().equals(PUSH)) {
-				list.push((BigDecimal) symInst.getParameterValues()[0].getId());
+				list.push( (Integer) symInst.getParameterValues()[0].getId());
 				return true;
 			} else if (symInst.getBaseSymbol().equals(POP)) {
-				BigDecimal value = list.pop();
+				Integer value = list.pop();
 				return symInst.getParameterValues()[0].getId().equals(value); 
 			} else if (symInst.getBaseSymbol().equals(INSERT)) {
-				list.insert((BigDecimal) symInst.getParameterValues()[0].getId(), (BigDecimal) symInst.getParameterValues()[1].getId());
+				list.insert((Integer) symInst.getParameterValues()[0].getId(), (Integer) symInst.getParameterValues()[1].getId());
 				return true;
 			} else if (symInst.getBaseSymbol().equals(CONTAINS)) {
 				return list.contains((Integer) symInst.getParameterValues()[0].getId());

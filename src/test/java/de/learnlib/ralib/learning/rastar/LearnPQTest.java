@@ -38,6 +38,8 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -79,15 +81,15 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 //                new PSymbolInstance(OFFER,
                 //                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 1.0)));
+                        new DataValue(doubleType, BigDecimal.ONE)));
 
         DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery(ce);
         dwOracle.processQueries(Collections.singleton(ceQuery));
