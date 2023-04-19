@@ -44,13 +44,9 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
@@ -59,12 +55,12 @@ import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression
  *
  * @author falk
  */
-public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> implements TypedTheory<Double> {
+public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> implements TypedTheory<BigDecimal> {
 
-    private static final class Cpr implements Comparator<DataValue<Double>> {
+    private static final class Cpr implements Comparator<DataValue<BigDecimal>> {
 
         @Override
-        public int compare(DataValue<Double> one, DataValue<Double> other) {
+        public int compare(DataValue<BigDecimal> one, DataValue<BigDecimal> other) {
             return one.getId().compareTo(other.getId());
         }
     }
@@ -81,10 +77,10 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public List<DataValue<Double>> getPotential(List<DataValue<Double>> dvs) {
+    public List<DataValue<BigDecimal>> getPotential(List<DataValue<BigDecimal>> dvs) {
         //assume we can just sort the list and get the values
-        List<DataValue<Double>> sortedList = new ArrayList<>();
-        for (DataValue<Double> d : dvs) {
+        List<DataValue<BigDecimal>> sortedList = new ArrayList<>();
+        for (DataValue<BigDecimal> d : dvs) {
 //                    if (d.getId() instanceof Integer) {
 //                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
 //                    } else if (d.getId() instanceof Double) {
@@ -107,9 +103,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             // pick up the register
             SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
             // get the register value from the valuation
-            DataValue<Double> sdi = new DataValue(type, val.getValue(toVariable(si)));
+            DataValue<BigDecimal> sdi = new DataValue(type, (BigDecimal) val.getValue(toVariable(si)));
             // add the register value as a constant
-            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, sdi.getId());
+            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getId()));
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(si)));
 
@@ -117,16 +113,16 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             IntervalGuard iGuard = (IntervalGuard) g;
             if (!iGuard.isBiggerGuard()) {
                 SymbolicDataValue r = iGuard.getRightReg();
-                DataValue<Double> ri = new DataValue(type, val.getValue(toVariable(r)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, ri.getId());
+                DataValue<BigDecimal> ri = new DataValue(type, (BigDecimal) val.getValue(toVariable(r)));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getId()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(r)));
 
             }
             if (!iGuard.isSmallerGuard()) {
                 SymbolicDataValue l = iGuard.getLeftReg();
-                DataValue<Double> li = new DataValue(type, val.getValue(toVariable(l)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, li.getId());
+                DataValue<BigDecimal> li = new DataValue(type, (BigDecimal) val.getValue(toVariable(l)));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getId()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(l)));
 
@@ -136,7 +132,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public DataValue<Double> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<Double>> alreadyUsedValues) {
+    public DataValue<BigDecimal> instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<BigDecimal>> alreadyUsedValues) {
         //System.out.println("INSTANTIATING: " + g.toString());
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
@@ -161,15 +157,15 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
             }
 
             // add disequalities
-            for (DataValue<Double> au : alreadyUsedValues) {
-                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, au.getId());
+            for (DataValue<BigDecimal> au : alreadyUsedValues) {
+                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (au.getId()));
                 Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp));
                 eList.add(auExpr);
             }
 
             if (newVal.containsValueFor(toVariable(sp))) {
-                DataValue<Double> spDouble = new DataValue(type, newVal.getValue(toVariable(sp)));
-                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DOUBLE, spDouble.getId());
+                DataValue<BigDecimal> spDouble = new DataValue(type, newVal.getValue(toVariable(sp)));
+                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (spDouble.getId()));
                 Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
                 eList.add(spExpr);
             }
@@ -185,7 +181,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
         if (res == Result.SAT) {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
-            DataValue<Double> d = new DataValue(type, (newVal.getValue(toVariable(sp))));
+            DataValue<BigDecimal> d = new DataValue(type, (newVal.getValue(toVariable(sp))));
             //System.out.println("return d: " + d.toString());
             return d;//new DataValue<Double>(doubleType, d);
         } else {
@@ -195,17 +191,17 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public DataValue<Double> getFreshValue(List<DataValue<Double>> vals) {
+    public DataValue<BigDecimal> getFreshValue(List<DataValue<BigDecimal>> vals) {
         if (vals.isEmpty()) {
-            return new DataValue(type, 1.0);
+            return new DataValue(type, BigDecimal.ONE);
         }
-        List<DataValue<Double>> potential = getPotential(vals);
+        List<DataValue<BigDecimal>> potential = getPotential(vals);
         if (potential.isEmpty()) {
-            return new DataValue(type, 1.0);
+            return new DataValue(type, BigDecimal.ONE);
         }
         //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
-        DataValue<Double> biggestDv = Collections.max(potential, new Cpr());
-        return new DataValue(type, biggestDv.getId() + 1.0);
+        DataValue<BigDecimal> biggestDv = Collections.max(potential, new Cpr());
+        return new DataValue(type, biggestDv.getId().add(BigDecimal.ONE));
     }
 
     @Override
@@ -226,23 +222,25 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<Double> imple
     }
 
     @Override
-    public Collection<DataValue<Double>> getAllNextValues(
-            List<DataValue<Double>> vals) {
-        Set<DataValue<Double>> nextValues = new LinkedHashSet<>();
+    public Collection<DataValue<BigDecimal>> getAllNextValues(
+            List<DataValue<BigDecimal>> vals) {
+        Set<DataValue<BigDecimal>> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
         if (vals.isEmpty()) {
-            nextValues.add(new DataValue(type, 1.0));
+            nextValues.add(new DataValue(type, BigDecimal.ONE));
         } else {
             Collections.sort(vals, new Cpr());
             if (vals.size() > 1) {
                 for (int i = 0; i < (vals.size() - 1); i++) {
-                    Double d1 = vals.get(i).getId();
-                    Double d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DataValue(type, (d1 + ((d2 - d1) / 2))));
+                    BigDecimal d1 = vals.get(i).getId();
+                    BigDecimal d2 = vals.get(i + 1).getId();
+                    nextValues.add(new DataValue(type,
+                            d2.subtract(d1).divide(BigDecimal.valueOf(2.0)).add(d1)));
+                            //(d1 + ((d2 - d1) / 2))));
                 }
             }
-            nextValues.add(new DataValue(type, (Collections.min(vals, new Cpr()).getId()-1.0)));
-            nextValues.add(new DataValue(type, (Collections.max(vals, new Cpr()).getId()+1.0)));
+            nextValues.add(new DataValue(type, (Collections.min(vals, new Cpr()).getId().subtract(BigDecimal.ONE))));
+            nextValues.add(new DataValue(type, (Collections.max(vals, new Cpr()).getId().add(BigDecimal.ONE))));
         }
         return nextValues;
     }

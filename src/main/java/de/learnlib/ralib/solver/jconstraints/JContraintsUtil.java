@@ -35,6 +35,8 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,13 +48,13 @@ public class JContraintsUtil {
     
     public static Type<?> getJCType(Class<?> cls) {
         if (cls == Integer.class)  {
-            return BuiltinTypes.SINT32;
+            return BuiltinTypes.DECIMAL;
         } else if (cls == Float.class) {
-            return BuiltinTypes.FLOAT;
+            return BuiltinTypes.DECIMAL;
         } else if (cls == Long.class) {
-            return BuiltinTypes.SINT64;
+            return BuiltinTypes.DECIMAL;
         } else {
-            return BuiltinTypes.DOUBLE;
+            return BuiltinTypes.DECIMAL;
         }
     }
 
@@ -156,10 +158,10 @@ public class JContraintsUtil {
     }
     
     public static Constant toConstant(DataValue v) {
-        return new Constant( getJCType(v.getType().getBase()), v.getId());
+        return new Constant( getJCType(v.getType().getBase()), (v.getId()));
     }
 
     public static Variable toVariable(DataValue v) {
-        return new Variable(BuiltinTypes.DOUBLE, v.toString());
+        return new Variable(BuiltinTypes.DECIMAL, v.toString());
     }
 }

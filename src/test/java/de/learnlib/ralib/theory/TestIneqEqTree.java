@@ -34,6 +34,8 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
+
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -66,23 +68,23 @@ public class TestIneqEqTree extends RaLibTestSuite {
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 4.0)),
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(4.0))),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 5.0)),
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(5.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 6.0)));
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(6.0))));
         
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 1.0)),
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(1.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 2.0)),
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(2.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, 3.0)),
+                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(3.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK));
 
         // create a symbolic suffix from the concrete suffix

@@ -32,6 +32,8 @@ import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
+
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import net.automatalib.words.Word;
@@ -66,7 +68,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         @Override
         public PSymbolInstance step(PSymbolInstance i) throws SULException {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
-                    ((double)i.getParameterValues()[0].getId()) + 1.0));
+                    ((BigDecimal)i.getParameterValues()[0].getId()).add(BigDecimal.ONE)));
         }
         
     }
@@ -85,10 +87,10 @@ public class TestIneqOutputTree extends RaLibTestSuite {
                 IN);
                 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(IN, new DataValue(TYPE, 1.0)));
+                new PSymbolInstance(IN, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
                 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(OUT, new DataValue(TYPE, 1.0)));
+                new PSymbolInstance(OUT, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)

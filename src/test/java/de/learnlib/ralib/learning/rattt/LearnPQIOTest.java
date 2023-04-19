@@ -90,7 +90,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 0.1, // reset probability 
                 0.8, // prob. of choosing a fresh data value
                 10000, // 1000 runs 
-                100, // max depth
+                10, // max depth
                 consts,
                 false, // reset runs 
                 teachers,

@@ -22,6 +22,7 @@ import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -88,13 +89,13 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 1.0)));
+                        new DataValue(doubleType, BigDecimal.ONE)));
 
         DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce, true);
 
@@ -108,13 +109,13 @@ public class LearnPQTest extends RaLibTestSuite {
         
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, 2.0)),
+                        new DataValue(doubleType, BigDecimal.valueOf(2.0))),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 1.0)),
+                        new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, 2.0)));
+                        new DataValue(doubleType, BigDecimal.valueOf(2.0))));
         DefaultQuery<PSymbolInstance, Boolean> ce2Query = new DefaultQuery<>(ce2, true);
         rastar.addCounterexample(ce2Query);
         rastar.learn();

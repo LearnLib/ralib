@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.example.priority;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.PriorityQueue;
 
@@ -56,7 +57,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
             if (query.getInput().length() < 1) {
                 query.answer(true);
             } else {
-                PriorityQueue<Double> queue = new PriorityQueue<Double>();
+                PriorityQueue<BigDecimal> queue = new PriorityQueue<>();
                 PSymbolInstance[] trace = new PSymbolInstance[query.getInput().length()];
                 Boolean[] answer = new Boolean[query.getInput().length()];
 
@@ -64,12 +65,12 @@ public final class PriorityQueueOracle implements DataWordOracle {
                     answer[i] = false;
                     try {
                         PSymbolInstance psi = query.getInput().getSymbol(i);
-                        DataValue<Double> d = psi.getParameterValues()[0];
+                        DataValue<BigDecimal> d = psi.getParameterValues()[0];
                         if (psi.getBaseSymbol().equals(OFFER) && queue.size() < capacity) {
                             queue.offer(d.getId());
                             answer[i] = true;
                         } else if (psi.getBaseSymbol().equals(POLL)) {
-                            Double val = queue.poll();
+                            BigDecimal val = queue.poll();
                             if (val != null) {
                                 if (val.equals(d.getId())) {
 

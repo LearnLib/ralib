@@ -41,6 +41,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -278,7 +279,7 @@ public class RegisterAutomatonImporter {
                     o = Integer.parseInt(def.value);
                     break;
                 case "java.lang.Double":
-                    o = Double.parseDouble(def.value);
+                    o = BigDecimal.valueOf(Double.parseDouble(def.value));
                     break;
                 default:
                     throw new IllegalStateException(

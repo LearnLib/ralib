@@ -26,10 +26,12 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
+import java.math.BigDecimal;
+
 public class PriorityQueueSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE = 
-            new DataType("DOUBLE", Double.class);    
+            new DataType("DOUBLE", BigDecimal.class);
 
     public static final ParameterizedSymbol POLL = 
             new InputSymbol("poll", new DataType[]{});
