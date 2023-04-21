@@ -505,28 +505,29 @@ public class RaTTT implements RaLearningAlgorithm {
             DTLeaf branchLeaf = dt.getLeaf(branch);
             
             SymbolicSuffix suffix = null;
-            if (guardPrefixes.get(word)) {
-	            if (branchLeaf != dest_c) {
-	            	suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
-	            }
+            
+            if (branchLeaf != dest_c) {
+	            suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
             }
             else {
-	            MappedPrefix mp = dest_c.getPrefix(word);
-	            Map<SymbolicSuffix, TreeQueryResult> branchTQRs = branchLeaf.getPrefix(branch).getTQRs();
-	            for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
-	            	TreeQueryResult tqr = e.getValue();
-	            	SymbolicSuffix s = e.getKey();
-	            	
-	            	TreeQueryResult otherTQR = branchTQRs.get(s);
-	            	
-	            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
-	            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
-		            		if (suffix == null || suffix.length() > s.length()+1) {
-		            			suffix = new SymbolicSuffix(word.lastSymbol().getBaseSymbol());
-		            			suffix = suffix.concat(s);
+            	if (!guardPrefixes.get(word)) {
+		            MappedPrefix mp = dest_c.getPrefix(word);
+		            Map<SymbolicSuffix, TreeQueryResult> branchTQRs = branchLeaf.getPrefix(branch).getTQRs();
+		            for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
+		            	TreeQueryResult tqr = e.getValue();
+		            	SymbolicSuffix s = e.getKey();
+		            	
+		            	TreeQueryResult otherTQR = branchTQRs.get(s);
+		            	
+		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
+		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
+			            		if (suffix == null || suffix.length() > s.length()+1) {
+			            			suffix = new SymbolicSuffix(word.lastSymbol().getBaseSymbol());
+			            			suffix = suffix.concat(s);
+			            		}
 		            		}
-	            		}
-	            	}
+		            	}
+		            }
 	            }
             }
             
