@@ -22,6 +22,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.Hypothesis;
@@ -126,14 +127,14 @@ public class PrefixFinderTest extends RaLibTestSuite {
         		consts, I_PUSH, I_POP);
         
         rattt.learn();
-        final Hypothesis hyp = rattt.getHypothesis();
+        final DTHyp hyp = (DTHyp)rattt.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
         System.out.println(hyp);
         
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
         DTLeaf leaf = rattt.getDT().getLeaf(shortPrefix);
-        leaf.addShortPrefix(new ShortPrefix(leaf.getPrefix(shortPrefix)));
+        leaf.elevatePrefix(rattt.getDT(), shortPrefix, hyp, slo);
         
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
