@@ -67,7 +67,6 @@ public class RaTTT implements RaLearningAlgorithm {
     private static final LearnLogger log = LearnLogger.getLogger(RaTTT.class);
 
     private boolean useOldAnalyzer;
-    private boolean thoroughSearch;
     private int[] indices = new int[0];
 
 //    private final Deque<Word<PSymbolInstance>> shortPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
@@ -97,8 +96,6 @@ public class RaTTT implements RaLearningAlgorithm {
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.useOldAnalyzer = useOldAnalyzer;
-        this.thoroughSearch = thoroughSearch;
-
         this.dt.initialize();
     }
 
@@ -229,7 +226,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Word<PSymbolInstance> ceWord = ce.getInput();
         CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
         Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
-        
+
         for (DefaultQuery<PSymbolInstance, Boolean> q : prefixFinder.getCounterExamples()) {
         	if (!candidateCEs.contains(q))
         		candidateCEs.addLast(q);
@@ -839,16 +836,11 @@ public class RaTTT implements RaLearningAlgorithm {
         this.indices = indices;
     }
 
-    private void clearIndices() {
-        setIndicesToSearch();
-    }
-
     @Override
     public RaLearningAlgorithmName getName() {
         return RaLearningAlgorithmName.RATTT;
     }
 
     public void doThoroughCESearch(boolean thoroughSearch) {
-        this.thoroughSearch = thoroughSearch;
     }
 }
