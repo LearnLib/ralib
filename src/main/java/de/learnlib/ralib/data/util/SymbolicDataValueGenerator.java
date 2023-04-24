@@ -21,47 +21,47 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
  * Generates symbolic data values with increasing ids starting from id=1.
- * 
+ *
  * @author falk
  */
 public abstract class SymbolicDataValueGenerator {
-    
+
     protected int id = 1;
-    
+
     private SymbolicDataValueGenerator() {
     }
-    
+
     public void set(SymbolicDataValueGenerator g) {
     	id = g.id;
     }
-    
+
     public abstract SymbolicDataValue next(DataType type);
-    
+
     public static final class ParameterGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.Parameter next(DataType type) {
             return new SymbolicDataValue.Parameter(type, id++);
-        }        
+        }
     };
 
     public static final class RegisterGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.Register next(DataType type) {
             return new SymbolicDataValue.Register(type, id++);
-        }        
-    };   
-    
+        }
+    };
+
     public static final class SuffixValueGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.SuffixValue next(DataType type) {
             return new SymbolicDataValue.SuffixValue(type, id++);
-        }        
-    };  
-    
+        }
+    };
+
     public static final class ConstantGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.Constant next(DataType type) {
             return new SymbolicDataValue.Constant(type, id++);
-        }        
-    };     
+        }
+    };
 }

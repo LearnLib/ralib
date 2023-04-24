@@ -260,7 +260,7 @@ public class MultiTheoryBranching implements Branching {
 
         return branches;
     }
-    
+
     @Override
     public Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> dw) {
 
@@ -281,7 +281,7 @@ public class MultiTheoryBranching implements Branching {
     	}
     	VarValuation vars = AutomatonBuilder.computeVarValuation(new ParValuation(getPrefix()), getPiv());
     	Map<Word<PSymbolInstance>, TransitionGuard> branches = getBranches();
-    	
+
     	Word<PSymbolInstance> prefix = null;
     	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
     		TransitionGuard g = e.getValue();
@@ -290,7 +290,7 @@ public class MultiTheoryBranching implements Branching {
     			break;
     		}
     	}
-    	
+
     	return prefix;
     }
 

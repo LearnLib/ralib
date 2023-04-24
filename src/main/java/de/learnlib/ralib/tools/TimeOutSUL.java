@@ -27,9 +27,9 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class TimeOutSUL extends DataWordSUL {
 
     private final DataWordSUL back;
-    
+
     private final long timeoutMillis;
-    
+
     public TimeOutSUL(DataWordSUL back, long timeoutMillis) {
         this.back = back;
         this.timeoutMillis = System.currentTimeMillis() + timeoutMillis;
@@ -55,16 +55,16 @@ public class TimeOutSUL extends DataWordSUL {
 
     @Override
     public long getResets() {
-        return back.getResets(); 
+        return back.getResets();
     }
 
     @Override
     public long getInputs() {
-        return back.getInputs(); 
+        return back.getInputs();
     }
 
-    
-    
-    
-    
+
+
+
+
 }

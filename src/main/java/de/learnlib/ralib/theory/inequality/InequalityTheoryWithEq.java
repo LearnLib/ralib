@@ -98,7 +98,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                        guardSet.add(new DisequalityGuard(
 //                                x.getParameter(), x.getRegister()));
 //                    }
-//                } else { 
+//                } else {
 //                    guardSet.add(x);
 //                }
 //            } else if (g instanceof SDTAndGuard) {
@@ -142,7 +142,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //    }
 //    private List<SDTGuard> preprocess(List<SDTGuard> guardList) {
 //        for (SDTGuard g : guardList) {
-//            
+//
 //        }
 //    }
     private void addAllSafely(Collection<SDTGuard> guards, Collection<SDTGuard> toAdd, List<SymbolicDataValue> regPotential) {
@@ -268,7 +268,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                                 newInAndOut.add(1, prohibited);
                                 List<Set<SDTGuard>> nextInAndOut = mergeOneWithSet(newInAndOut, iGuard.toDeqGuard(), regPotential);
                                 newGuardSet = nextInAndOut.get(0);
-                                prohibited = nextInAndOut.get(1);//  
+                                prohibited = nextInAndOut.get(1);//
                                 processed = true;
                             }
                         }
@@ -310,11 +310,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 }
 
             }
-            
+
         }
         else {
             newGuardSet.add(target);
-            
+
         }
         newInAndOut.add(0, newGuardSet);
             newInAndOut.add(1, prohibited);
@@ -357,7 +357,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        Boolean[] modified = new Boolean[guardSet.size()];
 //        boolean processed = false;
 //        newGuardSet.addAll(guardSet);
-//        
+//
 //        int i = -1;
 //        for (SDTGuard m : guardSet) {
 //            System.out.println("guards: " + newGuardSet);
@@ -407,8 +407,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                    modified[i] = !(refSet.equals(mWithTarget));
 //                    System.out.println("g: " + guardSet);
 //                    System.out.println("n: " + newGuardSet);
-//                    
-//                    
+//
+//
 //                    if (modified[i] && !(newGuardSet.containsAll(mWithTarget))) {
 //                        for (SDTGuard x : mWithTarget) {
 //                            newGuardSet = mergeOneWithSet(newGuardSet, x, regPotential, prohibited);
@@ -417,7 +417,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                    else {
 //                        newGuardSet.addAll(mWithTarget);
 //                    }
-//        
+//
 ////                    newGuardSet.addAll(mWithTarget);
 //                    System.out.println("into: " + newGuardSet);
 //                }
@@ -473,7 +473,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         //if the set is empty
         // and the set is also empty: return true guard
-        // and the set is NOT empty: return either 
+        // and the set is NOT empty: return either
         //if the set is empty
         if (remaining.isEmpty()) {
 //            if (merged.isEmpty()) {
@@ -682,7 +682,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 ////                System.out.println("yes");
 //                return otherSDT;
 //            }
-//               
+//
         }
 //        } //else if (guard instanceof IntervalGuard) {
 //            IntervalGuard iGuard = (IntervalGuard) guard;
@@ -739,7 +739,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        return newSecond;
 //    }
     // given a map from guards to SDTs, merge guards based on whether they can
-    // use another SDT.  
+    // use another SDT.
     private Map<SDTGuard, SDT>
             mgGuards(Map<SDTGuard, SDT> unmerged, SuffixValue currentParam, List<SymbolicDataValue> regPotential) {
         assert !unmerged.isEmpty();
@@ -809,7 +809,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        }
 //        return ret;
 //    }
-//    
+//
     private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
@@ -1245,8 +1245,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else if (guard instanceof SDTAndGuard) {
                 assert ((SDTAndGuard) guard).getGuards().stream().allMatch(g -> g instanceof DisequalityGuard);
                 SDTGuard aGuard = ((SDTAndGuard) guard).getGuards().get(0);
-                
-                
+
+
 
                 returnThis = instantiate(aGuard, val, constants, alreadyUsedValues);
             } else {

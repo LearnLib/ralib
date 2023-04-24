@@ -24,22 +24,22 @@ import net.automatalib.words.Word;
 
 /**
  * A valuation of parameters.
- * 
+ *
  * @author falk
  */
 public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {
 
     public ParValuation() {
-        
+
     }
-    
+
     public ParValuation(PSymbolInstance psi) {
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataValue dv : psi.getParameterValues()) {
             this.put(pgen.next(dv.getType()), dv);
-        }    
+        }
     }
-    
+
     public ParValuation(Word<PSymbolInstance> dw) {
     	ParameterGenerator pgen = new ParameterGenerator();
     	Iterator<PSymbolInstance> it = dw.iterator();

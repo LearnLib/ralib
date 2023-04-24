@@ -54,37 +54,37 @@ public class TestEqualityTheory extends RaLibTestSuite {
 
     @Test
     public void testLoginExample1() {
-        
+
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
-            
+
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(T_UID, new IntegerEqualityTheory(T_UID));
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-        
+
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
                 oracle, theories, new Constants(), new SimpleConstraintSolver());
-        
+
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
-        
+
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
-        
-        
+
+
         // create a symbolic suffix from the concrete suffix
-        // symbolic data values: s1, s2 (userType, passType)        
+        // symbolic data values: s1, s2 (userType, passType)
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
-        
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
         SymbolicDecisionTree sdt = res.getSdt();
 
@@ -108,22 +108,22 @@ public class TestEqualityTheory extends RaLibTestSuite {
 "                    []-TRUE: s3\n" +
 "                          []-TRUE: s4\n" +
 "                                [Leaf-]\n";
-        
+
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
-        
+
         Parameter p1 = new Parameter(T_UID, 1);
         Parameter p2 = new Parameter(T_PWD, 2);
-        
+
         PIV testPiv =  new PIV();
         testPiv.put(p1, new Register(T_UID, 1));
         testPiv.put(p2, new Register(T_PWD, 2));
-        
+
         Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
-        
+
         Assert.assertEquals(b.getBranches().size(), 3);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
-   
+
 }

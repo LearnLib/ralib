@@ -27,24 +27,24 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * The SDTLogicOracle offers functions that are needed for 
+ * The SDTLogicOracle offers functions that are needed for
  * processing counterexamples and constructing branching.
- * 
+ *
  * @author falk
  */
 public interface SDTLogicOracle {
-    
+
     /**
      * checks if there is a counterexample (a word that is accepted by one sdt
-     * and rejected by the other sdt). 
-     * 
+     * and rejected by the other sdt).
+     *
      * sdts are both after prefix. the piv objects describe respective assignments
-     * of registers of the sdts. 
-     * 
+     * of registers of the sdts.
+     *
      * rep is the dataword that was used for one transition in a hypothesis
      * with guard. Guard should be used to constrain the initial parameter values
      * for the sdt.
-     * 
+     *
      * @param prefix
      * @param sdt1
      * @param piv1
@@ -52,31 +52,31 @@ public interface SDTLogicOracle {
      * @param piv2
      * @param guard
      * @param rep
-     * @return 
+     * @return
      */
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
             SymbolicDecisionTree sdt1, PIV piv1,
             SymbolicDecisionTree sdt2, PIV piv2,
             TransitionGuard guard, Word<PSymbolInstance> rep);
-            
+
     /**
      * checks if one guard refine another guard.
-     * 
+     *
      * @param refining
      * @param pivRefining
      * @param refined
      * @param pivRefined
-     * @return 
+     * @return
      */
     boolean doesRefine(TransitionGuard refining, PIV pivRefining,
             TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
-    
+
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
     boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
 			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
-    
+
     /**
      * Returns true if two guards are equivalent (guard1 is true iff guard2 is true)
      */

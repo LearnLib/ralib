@@ -32,22 +32,22 @@ import net.automatalib.words.Word;
 
 /**
  * filters out queries that do not alternate input and output
- * 
+ *
  * @author falk
  */
 public class IOFilter extends QueryCounter implements DataWordOracle {
 
-    private final Collection<ParameterizedSymbol> inputs; 
+    private final Collection<ParameterizedSymbol> inputs;
 
     private final DataWordOracle back;
-    
+
     private static LearnLogger log = LearnLogger.getLogger(IOFilter.class);
-        
+
     public IOFilter(DataWordOracle back, ParameterizedSymbol ... inputs) {
         this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));
         this.back = back;
-    }        
-    
+    }
+
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         countQueries(clctn.size());
@@ -61,19 +61,19 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
             }
         }
        back.processQueries(valid);
-    }    
-    
-    private boolean isValid(Word<PSymbolInstance> query) {        
+    }
+
+    private boolean isValid(Word<PSymbolInstance> query) {
         boolean inExp = true;
-        for (PSymbolInstance psi : query) {            
-            boolean isInput = (this.inputs.contains(psi.getBaseSymbol()));            
+        for (PSymbolInstance psi : query) {
+            boolean isInput = (this.inputs.contains(psi.getBaseSymbol()));
             if (inExp ^ isInput) {
                 return false;
-            }                        
+            }
             inExp = !inExp;
         }
-               
+
         return true;
     }
-    
+
 }

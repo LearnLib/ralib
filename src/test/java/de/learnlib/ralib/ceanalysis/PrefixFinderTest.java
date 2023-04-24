@@ -57,40 +57,40 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
  * @author falk
  */
 public class PrefixFinderTest extends RaLibTestSuite {
-	
+
     @Test
     public void prefixFinderTest() {
-        
-        Constants consts = new Constants();        
+
+        Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
-        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-        
+
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        
-        RaStar rastar = new RaStar(mto, hypFactory, slo, 
+
+        RaStar rastar = new RaStar(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        
-        rastar.learn();        
+
+        rastar.learn();
         final Hypothesis hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
         System.out.println(hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
 
         PrefixFinder pf = new PrefixFinder(
@@ -104,38 +104,38 @@ public class PrefixFinderTest extends RaLibTestSuite {
         Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         System.out.println(prefix);
     }
-    
+
 	@Test
 	public void prefixFinderMultipleAccessSequencesTest() {
 		Constants consts = new Constants();
 		RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
 		DataWordOracle dwOracle = new SimulatorOracle(sul);
-		
+
 		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
-		
+
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
         RaTTT rattt = new RaTTT(mto, hypFactory, slo,
         		consts, I_PUSH, I_POP);
-        
+
         rattt.learn();
         final DTHyp hyp = (DTHyp)rattt.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
         System.out.println(hyp);
-        
+
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
         DTLeaf leaf = rattt.getDT().getLeaf(shortPrefix);
         leaf.elevatePrefix(rattt.getDT(), shortPrefix, hyp, slo);
-        
+
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),

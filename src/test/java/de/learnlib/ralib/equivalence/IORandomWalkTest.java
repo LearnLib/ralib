@@ -62,17 +62,17 @@ public class IORandomWalkTest extends RaLibTestSuite {
 
         IORandomWalk iowalk = new IORandomWalk(new Random(0),
                 sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
+                false, // do not draw symbols uniformly
+                0.1, // reset probability
                 0.5, // prob. of choosing a fresh data value
-                1000, // 1000 runs 
+                1000, // 1000 runs
                 20, // max depth
                 consts,
-                true, // reset runs 
+                true, // reset runs
                 teachers,
                 inputs);
 
-        Object o = iowalk.findCounterExample(model, null);        
+        Object o = iowalk.findCounterExample(model, null);
         Assert.assertNull(o);
     }
 }

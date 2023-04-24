@@ -50,17 +50,17 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class ConstantsSDTBranchingTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
- 
+
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/abp.output.xml");
 
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -72,11 +72,11 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-    
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-  
+
         ParameterizedSymbol iack = new InputSymbol(
                 "IAck", new DataType[] {intType});
 
@@ -84,13 +84,13 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
                 "IIn", new DataType[] {intType});
 
         ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});    
+                "OOK", new DataType[] {});
 
         ParameterizedSymbol isend = new InputSymbol(
-                "ISendFrame", new DataType[] {});    
+                "ISendFrame", new DataType[] {});
 
         ParameterizedSymbol oframe = new OutputSymbol(
-                "OFrame", new DataType[] {intType, intType});         
+                "OFrame", new DataType[] {intType, intType});
 
         DataValue d2 = new DataValue(intType, 2);
         DataValue c1 = new DataValue(intType, 0);
@@ -100,7 +100,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(iin, d2),
                 new PSymbolInstance(ook),
                 new PSymbolInstance(isend));
-        
+
         //**** [s1, s2]((OFrame[s1, s2]))
         Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
                 new PSymbolInstance(oframe, d2, d2));
@@ -111,23 +111,23 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(ook),
                 new PSymbolInstance(isend),
                 new PSymbolInstance(oframe, d2, c1));
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
- 
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);       
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
-     
+
         final String expected = "[(r1==p1) && (c1==p2), (r1==p1) && (c1!=p2), (r1!=p1) && TRUE]";
-        
+
         Branching b = mto.getInitialBranching(prefix, oframe, tqr.getPiv(), tqr.getSdt());
         String bString = Arrays.toString(b.getBranches().values().toArray());
-        
+
         Assert.assertEquals(b.getBranches().size(), 3);
         Assert.assertEquals(bString, expected);
     }
-     
-        
+
+
 }

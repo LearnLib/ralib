@@ -59,14 +59,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         INIT, REGISTER, LOGIN, ERROR
     };
-    
+
     private final Register rUid;
     private final Register rPwd;
-    
+
     public LoginExampleTreeOracle() {
         RegisterGenerator gen = new RegisterGenerator();
         rUid = gen.next(T_UID);
-        rPwd = gen.next(T_PWD);       
+        rPwd = gen.next(T_PWD);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
         }
 
         PIV piv = new PIV();
-        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+        SymbolicDataValueGenerator.ParameterGenerator pgen =
                 new SymbolicDataValueGenerator.ParameterGenerator();
         if (uid != null && clazz == SDTClass.LOGIN) {
             piv.put(pgen.next(T_UID), rUid);
@@ -152,7 +152,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
                 new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>()));
     }
 
-    
+
     private Word<PSymbolInstance> getDefaultExtension(
             Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
 
@@ -165,18 +165,18 @@ public class LoginExampleTreeOracle implements TreeOracle {
     }
 
     @Override
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
+    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
-        
+
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
         DataValue[] vals = DataWords.valsOf(prefix);
-        
-        if (sdts.length > 0 && ps.equals(I_LOGIN) && acts.length() == 1 && 
+
+        if (sdts.length > 0 && ps.equals(I_LOGIN) && acts.length() == 1 &&
                 acts.firstSymbol().equals(I_REGISTER)) {
-            
+
             //System.out.println("+++++ special case");
-            
+
             SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
             SymbolicDataValue.Parameter pUid = pgen.next(T_UID);
             SymbolicDataValue.Parameter pPwd = pgen.next(T_PWD);
@@ -185,7 +185,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
         GuardExpression condition = new Conjunction(
                 new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
-        
+
         GuardExpression elseCond = new Disjunction(
                 new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
@@ -195,25 +195,25 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
             branches.put(getDefaultExtension(prefix, ps), elseGuard);
             branches.put(prefix.append(new PSymbolInstance(ps, vals)), ifGuard);
-            
+
         } else {
-            
+
             TransitionGuard guard = new TransitionGuard();
             branches.put(getDefaultExtension(prefix, ps), guard);
-            
+
         }
-        
+
         return new LoginExampleBranching(branches);
     }
 
     @Override
-    public Branching updateBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, Branching current, 
+    public Branching updateBranching(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Branching current,
             PIV piv, SymbolicDecisionTree... sdts) {
 
         return getInitialBranching(prefix, ps, piv, sdts);
     }
-    
+
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
     		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {

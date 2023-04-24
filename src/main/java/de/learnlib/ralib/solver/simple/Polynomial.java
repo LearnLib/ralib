@@ -26,48 +26,45 @@ import java.util.List;
 import java.util.Set;
 
 public class Polynomial extends Constraint {
-	
+
 	public static Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
-	
-	
+
 	static Constraint fromSet(Set<Monomial> constraints) {
-		int siz = constraints.size();
-		if(siz == 0)
+		int size = constraints.size();
+		if(size == 0)
 			return FALSE;
-		else if(siz == 1)
+		else if(size == 1)
 			return constraints.iterator().next();
 		return new Polynomial(constraints);
 	}
-	
+
 	private final Set<Monomial> constraints;
-	
+
 	private Polynomial(Set<Monomial> constraints) {
 		this.constraints = constraints;
 	}
-	
-	
+
 	public Constraint negate() {
 		List<Constraint> csets = new ArrayList<Constraint>(constraints.size());
-		
+
 		for(Monomial m : constraints)
 			csets.add(m.negate());
-		
+
 		return Constraint.conjunction(csets);
 	}
-	
+
 	public boolean implies(Polynomial other) {
 		return conjunction(Arrays.asList(this, other.negate())).isFalse();
 	}
-	
+
 	public boolean equivalent(Polynomial other) {
 		return implies(other) && other.implies(this);
 	}
-	
+
 	public Set<Monomial> getConstraints() {
 		return Collections.unmodifiableSet(constraints);
 	}
-	
-	
+
 	public void print(Appendable a, String[] varNames) throws IOException {
 		if(constraints.isEmpty()) {
 			a.append("false");
@@ -82,14 +79,14 @@ public class Polynomial extends Constraint {
 			c.print(a, varNames);
 		}
 	}
-	
+
 	public Polynomial shift(int[] numVars, int thisIdx) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
 			cs.add(c.shift(numVars, thisIdx));
 		return new Polynomial(cs);
 	}
-	
+
 	public Polynomial shift(int myVars, int base, int total) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
@@ -97,11 +94,10 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
-
 	public boolean isFalse() {
 		return constraints.isEmpty();
 	}
-	
+
 	public boolean isTrue() {
 		return negate().isFalse();
 	}
@@ -112,7 +108,7 @@ public class Polynomial extends Constraint {
 			cs.add(c.substitute(subst));
 		return new Polynomial(cs);
 	}
-	
+
 	public Polynomial shift(int shift) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
@@ -152,8 +148,7 @@ public class Polynomial extends Constraint {
 			return false;
 		return true;
 	}
-	
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -173,8 +168,5 @@ public class Polynomial extends Constraint {
 	public Constraint normalize() {
 		return negate().negate();
 	}
-	
-	
-	
-	
+
 }

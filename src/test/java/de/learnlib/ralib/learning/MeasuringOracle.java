@@ -11,16 +11,16 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class MeasuringOracle implements TreeOracle {
-	
+
 	private final TreeOracle oracle;
-	
+
 	private final Measurements result;
-	
+
 	public MeasuringOracle(TreeOracle oracle, Measurements m) {
 		this.oracle = oracle;
 		this.result = m;
 	}
-	
+
 	@Override
 	public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 		result.treeQueries++;

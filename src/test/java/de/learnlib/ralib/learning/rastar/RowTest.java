@@ -43,43 +43,43 @@ import java.util.logging.Level;
  * @author falk
  */
 public class RowTest extends RaLibTestSuite {
-    
+
     @Test
     public void testRowEquivalence() {
-    
+
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, 2),
                     new DataValue(T_PWD, 2)));
-        
+
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));          
-    
-        final Word<PSymbolInstance> suffix1 = Word.epsilon();        
+                    new DataValue(T_PWD, 2)));
+
+        final Word<PSymbolInstance> suffix1 = Word.epsilon();
         final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)));
-        
+
         final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1);
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
-        
+
         SymbolicSuffix[] suffixes = new SymbolicSuffix[] {symSuffix1, symSuffix2};
         logger.log(Level.FINE, "Suffixes: {0}", Arrays.toString(suffixes));
-        
+
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
-        
+
         Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes), false);
         Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes), false);
-        
+
         VarMapping renaming = null;
         for (VarMapping map : new PIVRemappingIterator(r1.getParsInVars(), r2.getParsInVars())) {
             if (r1.isEquivalentTo(r2, map)) {
@@ -91,7 +91,7 @@ public class RowTest extends RaLibTestSuite {
         Assert.assertNotNull(renaming);
         Assert.assertTrue(r1.couldBeEquivalentTo(r2));
         Assert.assertTrue(r1.isEquivalentTo(r2, renaming));
-        
+
     }
-    
+
 }

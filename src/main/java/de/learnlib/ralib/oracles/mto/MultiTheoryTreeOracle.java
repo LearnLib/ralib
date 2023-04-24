@@ -504,7 +504,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         SDT[] casted = new SDT[sdts.length + 1];
         casted[0] = oldBranching.buildFakeSDT();
-        
+
 
         VarMapping remapping = piv.createRemapping(oldBranching.getPiv());
 

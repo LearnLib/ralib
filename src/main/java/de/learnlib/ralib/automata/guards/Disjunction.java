@@ -65,11 +65,11 @@ public class Disjunction extends GuardExpression {
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
         for (GuardExpression ge : disjuncts) {
             ge.getSymbolicDataValues(vals);
-        }        
+        }
     }
 
     public GuardExpression[] getDisjuncts() {
         return disjuncts;
-    }    
-    
+    }
+
 }

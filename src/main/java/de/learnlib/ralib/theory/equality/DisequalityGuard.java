@@ -39,7 +39,7 @@ public class DisequalityGuard extends SDTIfGuard {
             SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.NOT_EQUALS);
     }
-    
+
     public DisequalityGuard(DisequalityGuard other) {
     	super(other);
 	}
@@ -106,7 +106,7 @@ public class DisequalityGuard extends SDTIfGuard {
         }
         return Objects.equals(this.parameter, other.parameter);
     }
-    
+
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
@@ -123,7 +123,7 @@ public class DisequalityGuard extends SDTIfGuard {
         else {
 //            System.out.println("attempt to merge " + this + " with " + other);
             guards.addAll(other.mergeWith(this,  regPotential));
-            
+
         }
         return guards;
     }
@@ -132,6 +132,6 @@ public class DisequalityGuard extends SDTIfGuard {
 	public SDTGuard copy() {
 		return new DisequalityGuard(this);
 	}
-    
-    
+
+
 }

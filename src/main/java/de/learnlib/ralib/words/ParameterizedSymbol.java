@@ -20,9 +20,9 @@ import de.learnlib.ralib.data.DataType;
 import java.util.Arrays;
 
 /**
- * A symbol with typed parameters 
- * (sometimes called an action). 
- * 
+ * A symbol with typed parameters
+ * (sometimes called an action).
+ *
  * @author falk
  */
 public abstract class ParameterizedSymbol {
@@ -31,7 +31,7 @@ public abstract class ParameterizedSymbol {
      * name of symbol
      */
     private final String name;
-    
+
     /**
      * parameter types
      */
@@ -67,7 +67,7 @@ public abstract class ParameterizedSymbol {
 
     @Override
     public String toString() {
-        String[] tnames = new String[this.ptypes.length]; 
+        String[] tnames = new String[this.ptypes.length];
         for (int i = 0; i < this.ptypes.length; i++) {
             tnames[i] = ptypes[i].getName();
         }
@@ -91,5 +91,5 @@ public abstract class ParameterizedSymbol {
     public DataType[] getPtypes() {
         return ptypes;
     }
-    
+
 }

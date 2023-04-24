@@ -29,7 +29,7 @@ import java.util.Set;
 public class FalseGuardExpression extends GuardExpression {
 
     public static final FalseGuardExpression FALSE = new FalseGuardExpression();
-    
+
     @Override
     public GuardExpression relabel(VarMapping relabelling) {
         return FALSE;
@@ -48,5 +48,5 @@ public class FalseGuardExpression extends GuardExpression {
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
     }
-    
+
 }

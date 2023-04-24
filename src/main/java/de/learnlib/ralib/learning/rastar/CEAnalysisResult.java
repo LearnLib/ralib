@@ -23,15 +23,15 @@ import net.automatalib.words.Word;
 
 /**
  * Container for output of an analysis of a counterexample.
- * 
+ *
  * @author falk
  */
 public class CEAnalysisResult {
-    
+
     private final Word<PSymbolInstance> prefix;
-    
+
     private final SymbolicSuffix suffix;
-    
+
     private final TreeQueryResult tqr;
 
     public CEAnalysisResult(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
@@ -39,17 +39,17 @@ public class CEAnalysisResult {
         this.suffix = suffix;
         this.tqr = null;
     }
-    
+
     public CEAnalysisResult(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, TreeQueryResult tqr) {
     	this.prefix = prefix;
     	this.suffix = suffix;
     	this.tqr = tqr;
     }
-    
+
     public CEAnalysisResult(Word<PSymbolInstance> prefix) {
         this(prefix, null);
     }
-    
+
     public boolean hasSuffix() {
         return (getSuffix() != null);
     }
@@ -67,10 +67,10 @@ public class CEAnalysisResult {
     public SymbolicSuffix getSuffix() {
         return suffix;
     }
-    
-    
+
+
     public TreeQueryResult getTreeQueryResult() {
     	return tqr;
     }
-        
+
 }

@@ -24,7 +24,7 @@ import java.util.Objects;
  * @param <T>
  */
 public class DataValue<T> {
-    
+
     protected final DataType type;
 
     protected final T id;
@@ -33,11 +33,11 @@ public class DataValue<T> {
         this.type = type;
         this.id = id;
     }
-    
-    
+
+
     @Override
     public String toString() {
-        return id.toString() + "[" + this.type.getName() + "]"; 
+        return id.toString() + "[" + this.type.getName() + "]";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class DataValue<T> {
         hash = 97 * hash + Objects.hashCode(this.id);
         return hash;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -73,6 +73,6 @@ public class DataValue<T> {
     public DataType getType() {
         return type;
     }
-    
-        
+
+
 }

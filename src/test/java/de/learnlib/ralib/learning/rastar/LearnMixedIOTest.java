@@ -63,10 +63,10 @@ public class LearnMixedIOTest extends RaLibTestSuite {
     @Test
     public void learnMixedIO() {
 
-        long seed = -1386796323025681754L; 
+        long seed = -1386796323025681754L;
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
-        
+
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/mixed.xml");
 
@@ -80,7 +80,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-        
+
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             TypedTheory th;
@@ -97,44 +97,44 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();  
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
-        
+
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 ioOracle, teachers, consts, jsolv, inputs);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-        
+
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
+                false, // do not draw symbols uniformly
+                0.1, // reset probability
                 0.8, // prob. of choosing a fresh data value
-                10000, // 1000 runs 
+                10000, // 1000 runs
                 100, // max depth
                 consts,
-                false, // reset runs 
+                false, // reset runs
                 teachers,
                 inputs);
-        
+
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-                                                
+
         int check = 0;
         while (true && check < 100) {
-            
+
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
+            DefaultQuery<PSymbolInstance, Boolean> ce =
                     iowalk.findCounterExample(hyp, null);
-           
+
             if (ce == null) {
                 break;
             }
@@ -142,18 +142,18 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-    
+
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
-            
+
             rastar.addCounterexample(ce);
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
-        
+
         Assert.assertNull(checker.findCounterExample(hyp, null));
-        
+
     }
 }

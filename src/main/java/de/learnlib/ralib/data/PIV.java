@@ -25,25 +25,25 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * A mapping from parameters to registers. 
- * 
+ * A mapping from parameters to registers.
+ *
  * @author falk
  */
 public class PIV extends VarMapping<Parameter, Register> {
 
-    public PIV() {        
+    public PIV() {
     }
-    
+
     public PIV relabel(VarMapping relabelling) {
         PIV ret = new PIV();
         for (Map.Entry<Parameter, Register> e : this) {
             Parameter p = (Parameter) relabelling.get(e.getKey());
-            Register r = (Register) relabelling.get(e.getValue());            
+            Register r = (Register) relabelling.get(e.getValue());
             ret.put(p == null ? e.getKey() : p, r == null ? e.getValue() : r);
         }
         return ret;
     }
-    
+
     public Map<DataType, Integer> typedSize() {
         Map<DataType, Integer> ret = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
@@ -52,7 +52,7 @@ public class PIV extends VarMapping<Parameter, Register> {
             ret.put(p.getType(), i);
         }
         return ret;
-    } 
+    }
 
     public Map<DataType, Parameter[]> asTypedArrays() {
         Map<DataType, List<Parameter>> tmp = new LinkedHashMap<>();
@@ -63,15 +63,15 @@ public class PIV extends VarMapping<Parameter, Register> {
                 tmp.put(p.getType(), list);
             }
             list.add(p);
-        } 
-        
+        }
+
         Map<DataType, Parameter[]> ret = new LinkedHashMap<>();
         for (Map.Entry<DataType, List<Parameter>> e : tmp.entrySet()) {
             ret.put(e.getKey(), e.getValue().toArray(new Parameter[] {}));
         }
         return ret;
     }
-    
+
     //FIXME: this method is bogus. There may be more than one value.
     public Parameter getOneKey(Register value) {
         Parameter retKey = null;
@@ -83,10 +83,10 @@ public class PIV extends VarMapping<Parameter, Register> {
                 retKey = key;
                 break;
             }
-        }   
+        }
         return retKey;
     }
-    
+
     /**
      * Creates a remapping from registers from this PIV to the supplied PIV.
      */

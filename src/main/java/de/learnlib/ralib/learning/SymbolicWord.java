@@ -7,34 +7,34 @@ public class SymbolicWord {
 	private Word<PSymbolInstance> prefix;
 	private SymbolicSuffix suffix;
 	private Word<PSymbolInstance> concreteSuffix = null;
-	
+
 	public SymbolicWord(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 		this.prefix = prefix;
 		this.suffix = suffix;
 	}
-	
+
 	public Word<PSymbolInstance> getPrefix() {
 		return prefix;
 	}
-	
+
 	public SymbolicSuffix getSuffix() {
 		return suffix;
 	}
-	
+
 	public Word<PSymbolInstance> concretize(Word<PSymbolInstance> word, Hypothesis hyp) {
 		int len = word.length() - suffix.length();
 //		Word<PSymbolInstance> cp = word.prefix(len);
 //		Word<PSymbolInstance> cs = word.suffix(suffix.length());
-		
+
 		Word<PSymbolInstance> concereteSuffix = prefix.concat(Word.epsilon());
 		for (int idx = len; idx < word.length(); idx++) {
 			Word<PSymbolInstance> cp = word.prefix(idx);
-			
+
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
@@ -49,7 +49,7 @@ public class SymbolicWord {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		int hash = 7;
@@ -57,7 +57,7 @@ public class SymbolicWord {
 		hash = 31 * hash * getSuffix().hashCode();
 		return hash;
 	}
-	
+
 	public String toString() {
 		return "{" + prefix.toString() + ", " + suffix.toString() + "}";
 	}

@@ -108,7 +108,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 //        System.out.println("MAP: " + remap);
 //        System.out.println("A2': " + expr2r);
 //        System.out.println("TEST:" + test);
-//        
+//
 //        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test, new Mapping<>());
         log.log(Level.FINEST, "Res:" + r);
@@ -158,7 +158,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
     }
-    
+
     public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
         log.log(Level.FINEST, "guard1: {0}", guard1);
@@ -178,7 +178,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
-        
+
     }
 
     public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {

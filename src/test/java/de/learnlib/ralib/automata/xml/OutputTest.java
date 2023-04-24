@@ -44,14 +44,14 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class OutputTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
-        de.learnlib.ralib.automata.RegisterAutomaton model = 
+        de.learnlib.ralib.automata.RegisterAutomaton model =
                 loader.getRegisterAutomaton();
 
         Constants consts = loader.getConstants();
@@ -64,47 +64,47 @@ public class OutputTest extends RaLibTestSuite {
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
-        
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-        
+
         ParameterizedSymbol inv = new InputSymbol(
                 "IINVITE", new DataType[] {intType});
 
         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});    
-    
+                "O100", new DataType[] {intType});
+
         DataValue d0 = new DataValue(intType, 0);
         DataValue d1 = new DataValue(intType, 1);
-        
+
         Word<PSymbolInstance> test1 = Word.fromSymbols(
                 new PSymbolInstance(inv, new DataValue[] {d0}),
                 new PSymbolInstance(o100, new DataValue[] {d0}));
 
         Word<PSymbolInstance> test2 = Word.fromSymbols(
                 new PSymbolInstance(inv, new DataValue[] {d0}),
-                new PSymbolInstance(o100, new DataValue[] {d1}));        
-                
+                new PSymbolInstance(o100, new DataValue[] {d1}));
+
         logger.log(Level.FINE, "Test 1: {0}", test1);
         logger.log(Level.FINE, "Test 2: {0}", test2);
- 
+
         boolean acc1 = model.accepts(test1);
         boolean acc2 = model.accepts(test2);
-        
+
         logger.log(Level.FINE, "SYS: {0} - {1}", new Object[]{test1, acc1});
         logger.log(Level.FINE, "SYS: {0} - {1}", new Object[]{test2, acc2});
-        
+
         Word<PSymbolInstance> trace1 = ioOracle.trace(test1);
         Word<PSymbolInstance> trace2 = ioOracle.trace(test2);
-        
+
         logger.log(Level.FINE, "SUL: {0} - {1}", new Object[]{test1, trace1});
         logger.log(Level.FINE, "SUL: {0} - {1}", new Object[]{test2, trace2});
 
         Assert.assertTrue(acc1);
         Assert.assertFalse(acc2);
-        
+
         Assert.assertEquals(test1, trace1);
         Assert.assertNotEquals(test2, trace2);
-    
+
     }
-           
+
 }

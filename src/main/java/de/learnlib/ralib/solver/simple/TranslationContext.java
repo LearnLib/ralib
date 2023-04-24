@@ -31,7 +31,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 public class TranslationContext {
 
 	private final Map<SymbolicDataValue,Integer> dvMap = new HashMap<>();
-	
+
 	public int getDataValueIndex(SymbolicDataValue dataValue) {
 		Integer i = dvMap.get(dataValue);
 		if (i == null) {
@@ -39,7 +39,7 @@ public class TranslationContext {
 		}
 		return i.intValue();
 	}
-	
+
 	public int translateDataValue(SymbolicDataValue dataValue) {
 		Integer i = dvMap.get(dataValue);
 		if (i == null) {
@@ -48,7 +48,7 @@ public class TranslationContext {
 		}
 		return i.intValue();
 	}
-	
+
 	public Constraint translateGuard(GuardExpression e) {
 		if (e instanceof TrueGuardExpression) {
 			return translate((TrueGuardExpression) e);
@@ -70,19 +70,19 @@ public class TranslationContext {
 		}
 		throw new IllegalArgumentException();
 	}
-	
+
 	private Constraint translate(TrueGuardExpression e) {
 		return Constraint.TRUE;
 	}
-	
+
 	private Constraint translate(FalseGuardExpression e) {
 		return Constraint.FALSE;
 	}
-	
+
 	private Constraint translate(Negation e) {
 		return translateGuard(e.getNegated()).negate();
 	}
-	
+
 	private Constraint translate(Conjunction e) {
 		GuardExpression[] conjuncts = e.getConjuncts();
 		Constraint[] translated = new Constraint[conjuncts.length];
@@ -91,7 +91,7 @@ public class TranslationContext {
 		}
 		return Constraint.conjunction(translated);
 	}
-	
+
 	private Constraint translate(Disjunction e) {
 		GuardExpression[] disjuncts = e.getDisjuncts();
 		Constraint[] translated = new Constraint[disjuncts.length];
@@ -100,7 +100,7 @@ public class TranslationContext {
 		}
 		return Constraint.disjunction(translated);
 	}
-	
+
 	private Monomial translate(AtomicGuardExpression<?, ?> e) {
 		int lhs = translateDataValue(e.getLeft());
 		int rhs = translateDataValue(e.getRight());

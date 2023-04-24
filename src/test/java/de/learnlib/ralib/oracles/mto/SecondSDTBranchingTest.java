@@ -56,7 +56,7 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class SecondSDTBranchingTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
 
@@ -66,7 +66,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -78,11 +78,11 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-        
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-  
+
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[] {intType});
 
@@ -90,13 +90,13 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
                 "IINVITE", new DataType[] {intType});
 
         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});    
+                "O100", new DataType[] {intType});
 
         ParameterizedSymbol o200 = new OutputSymbol(
-                "O200", new DataType[] {intType});    
+                "O200", new DataType[] {intType});
 
         ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});         
+                "O481", new DataType[] {intType});
 
         DataValue d0 = new DataValue(intType, 0);
         DataValue d1 = new DataValue(intType, 1);
@@ -106,23 +106,23 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(inv, d0),
                 new PSymbolInstance(o100, d0),
                 new PSymbolInstance(ipr, d1));
-        
+
         //**** [s1]((O481[s1]))
         Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
                 new PSymbolInstance(o481, d0));
         SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
-        
+
         //[s1, s2, s3]((O481[s1] IPRACK[s2] O200[s3]))
         Word<PSymbolInstance> suffix2 =  Word.fromSymbols(
                 new PSymbolInstance(o481, d0),
                 new PSymbolInstance(ipr, d0),
                 new PSymbolInstance(o200, d0));
         SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix, suffix2);
-        
+
         logger.log(Level.FINE, "{0}", prefix);
         logger.log(Level.FINE, "{0}", symSuffix1);
         logger.log(Level.FINE, "{0}", symSuffix2);
-        
+
         TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
         TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
 
@@ -132,24 +132,24 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         VarMapping remap = new VarMapping();
         remap.put(r1, r2);
         remap.put(r2, r1);
-        
+
         PIV piv = tqr2.getPiv();
         SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
         SymbolicDecisionTree sdt2 = tqr2.getSdt();
-       
+
         logger.log(Level.FINE, "PIV: {0}", piv);
         logger.log(Level.FINE, "SDT1: {0}", sdt1);
         logger.log(Level.FINE, "SDT2: {0}", sdt2);
-     
+
         // combine branching 1+2
-        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);        
+        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);
         b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
-   
+
         String guards = Arrays.toString(b.getBranches().values().toArray());
         logger.log(Level.FINE, "Guards: {0}", guards);
-        
+
         final String expected = "[(r2==p1), (r2!=p1)]";
         Assert.assertEquals(guards, expected);
     }
-              
+
 }

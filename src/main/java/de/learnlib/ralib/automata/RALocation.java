@@ -30,18 +30,18 @@ import static java.util.Collections.emptySet;
  * @author falk
  */
 public class RALocation {
-        
+
     private final int id;
-    
+
     private boolean accepting;
-    
+
     private final Map<ParameterizedSymbol, Collection<Transition>> out = new LinkedHashMap<>();
 
     public RALocation(int id, boolean accepting) {
         this.id = id;
         this.accepting = accepting;
     }
-        
+
     public RALocation(int id) {
         this(id, true);
     }
@@ -57,7 +57,7 @@ public class RALocation {
         }
         return ret;
     }
-    
+
     void addOut(Transition t) {
         Collection<Transition> c = out.get(t.getLabel());
         if (c == null) {
@@ -66,7 +66,7 @@ public class RALocation {
         }
         c.add(t);
     }
-    
+
     void clear() {
         this.out.clear();
     }
@@ -97,15 +97,15 @@ public class RALocation {
     public String toString() {
         return "l" + id + " (" + (this.accepting ? "+" : "-") +")";
     }
-    
+
     public String getName() {
         return "l" + id;
     }
-    
+
     public boolean isAccepting() {
         return this.accepting;
     }
-    
+
     public void setAccepting(boolean accepting) {
         this.accepting = accepting;
     }

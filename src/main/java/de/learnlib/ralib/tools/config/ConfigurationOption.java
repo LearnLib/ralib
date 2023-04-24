@@ -65,7 +65,7 @@ public abstract class ConfigurationOption<T> {
         return "" + this.key +  (optional ? "(optional)" : "") + ": " + this.description +
                 (optional ? ", default: " + this.defaultValue : "");
     }
-    
+
     public abstract T parse(Configuration c) throws ConfigurationException;
 
     public static final class BooleanOption extends ConfigurationOption<Boolean> {

@@ -26,26 +26,26 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An output mapping encodes the guard of an output transition in a 
- * more straight-forward form in the case of guards with equalities. 
- * 
+ * An output mapping encodes the guard of an output transition in a
+ * more straight-forward form in the case of guards with equalities.
+ *
  * - Fresh parameters have to be unequal to values stored in registers.
  * - A mapping encodes equalities.
- * 
+ *
  * @author falk
  */
 public class OutputMapping  {
-     
+
     private final Collection<Parameter> fresh;
-    
+
     private final VarMapping<Parameter, SymbolicDataValue> piv;
-    
-    public OutputMapping(Collection<Parameter> fresh, 
+
+    public OutputMapping(Collection<Parameter> fresh,
             VarMapping<Parameter, SymbolicDataValue> piv) {
         this.fresh = fresh;
         this.piv = piv;
     }
-    
+
     public OutputMapping() {
         this(new ArrayList<Parameter>(), new VarMapping<Parameter, SymbolicDataValue>());
     }
@@ -53,7 +53,7 @@ public class OutputMapping  {
     public OutputMapping(Parameter fresh) {
         this(Collections.singleton(fresh), new VarMapping<Parameter, SymbolicDataValue>());
     }
-    
+
     public OutputMapping(Parameter key, Register value) {
         this(new ArrayList<Parameter>(), new VarMapping<Parameter, SymbolicDataValue>(key, value));
     }
@@ -65,7 +65,7 @@ public class OutputMapping  {
     public Collection<Parameter> getFreshParameters() {
         return fresh;
     }
-    
+
     public VarMapping<Parameter, SymbolicDataValue> getOutput() {
         return piv;
     }

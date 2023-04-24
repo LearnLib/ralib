@@ -44,30 +44,30 @@ public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
     public void learnLoginExample() {
-        
-        Constants consts = new Constants();        
+
+        Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
-        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-        
+
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, 
+
+        RaTTT rattt = new RaTTT(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        
-        rattt.learn();        
-        RegisterAutomaton hyp = rattt.getHypothesis();        
+
+        rattt.learn();
+        RegisterAutomaton hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -75,34 +75,34 @@ public class LearnLoginTest extends RaLibTestSuite {
                         new DataValue(T_UID, 0), new DataValue(T_PWD, 0)),
                 new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, 0), new DataValue(T_PWD, 0)));
-    
+
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
-    
-        rattt.learn();        
-        hyp = rattt.getHypothesis();        
+
+        rattt.learn();
+        hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        
+
         Assert.assertEquals(hyp.getStates().size(), 3);
-        Assert.assertEquals(hyp.getTransitions().size(), 11);        
+        Assert.assertEquals(hyp.getTransitions().size(), 11);
     }
-    
+
 
     @Test
     public void learnLoginExampleRandom() {
         final int SEEDS = 10;
-        
-        Constants consts = new Constants();        
+
+        Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-        
+
         Measurements[] measuresTTT = new Measurements[SEEDS];
         Measurements[] measuresStar = new Measurements[SEEDS];
-        
+
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
         for (int seed=0; seed<SEEDS; seed++) {
@@ -110,11 +110,11 @@ public class LearnLoginTest extends RaLibTestSuite {
 	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	        measuresTTT[seed] = runner.getMeasurements();
 	        runner.resetMeasurements();
-	        
+
 	        Assert.assertEquals(hyp.getStates().size(), 4);
 	        Assert.assertEquals(hyp.getTransitions().size(), 14);
 	        logger.log(Level.FINE, "HYP: {0}", hyp);
-	        
+
 	        hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	        measuresStar[seed] = runner.getMeasurements();
 	        runner.resetMeasurements();
@@ -122,5 +122,5 @@ public class LearnLoginTest extends RaLibTestSuite {
         System.out.println("Queries (TTT): " + Arrays.toString(measuresTTT));
         System.out.println("Queries (Star): " + Arrays.toString(measuresStar));
     }
-    
+
 }

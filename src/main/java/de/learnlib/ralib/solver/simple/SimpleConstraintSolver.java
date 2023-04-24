@@ -61,5 +61,4 @@ public class SimpleConstraintSolver implements ConstraintSolver {
 
         return solver.isSatisfiable(exprWithVal);
     }
-
 }

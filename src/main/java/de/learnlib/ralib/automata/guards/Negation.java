@@ -33,7 +33,7 @@ public class Negation extends GuardExpression {
     public Negation(GuardExpression negated) {
         this.negated = negated;
     }
-    
+
     public GuardExpression getNegated() {
     	return negated;
     }
@@ -58,5 +58,5 @@ public class Negation extends GuardExpression {
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
         this.negated.getSymbolicDataValues(vals);
     }
-    
+
 }

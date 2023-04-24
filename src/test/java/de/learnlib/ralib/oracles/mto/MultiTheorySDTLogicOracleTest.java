@@ -37,22 +37,22 @@ public class MultiTheorySDTLogicOracleTest {
 
   @Test
   public void acceptsTest() {
-      Constants consts = new Constants();        
+      Constants consts = new Constants();
       RegisterAutomaton sul = AUTOMATON;
       DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-      final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
-      teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
+      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+      teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
       teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-      
+
       ConstraintSolver solver = new SimpleConstraintSolver();
-      
+
       MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver);
       SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-      TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-              new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+      TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+              new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                       new Constants(), solver);
       TreeOracle sulTreeOracle = hypFactory.createTreeOracle(sul);
       Word<PSymbolInstance> acceptedWord = Word.fromSymbols(
@@ -72,13 +72,13 @@ public class MultiTheorySDTLogicOracleTest {
                       new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 1))),
               Word.fromSymbols(
                       new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)),
-                      new PSymbolInstance(I_LOGOUT), 
+                      new PSymbolInstance(I_LOGOUT),
                       new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 1))));
-      
+
       for (Word<PSymbolInstance> rejectedSuffix : rejectedSuffixes) {
           Word<PSymbolInstance> rejectedWord = prefix.concat(rejectedSuffix);
           Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.getSdt(), query.getPiv()));
       }
-      
+
   }
 }

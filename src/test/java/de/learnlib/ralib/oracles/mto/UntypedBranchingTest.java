@@ -76,7 +76,7 @@ import org.testng.Assert;
  * @author falk
  */
 public class UntypedBranchingTest extends RaLibTestSuite {
-    
+
     public UntypedBranchingTest() {
     }
 
@@ -90,7 +90,7 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         RegisterAutomaton model = loader.getRegisterAutomaton();
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
-        
+
         Constants consts = loader.getConstants();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -99,66 +99,66 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-                
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-        
+
         ParameterizedSymbol reg = new InputSymbol(
                 "IRegister", new DataType[] {intType, intType});
 
         ParameterizedSymbol log = new InputSymbol(
-                "ILogin", new DataType[] {intType, intType});    
-    
+                "ILogin", new DataType[] {intType, intType});
+
         ParameterizedSymbol ok = new OutputSymbol(
-                "OOK", new DataType[] {});    
+                "OOK", new DataType[] {});
 
         DataValue u = new DataValue(intType, 0);
         DataValue p = new DataValue(intType, 1);
-        
+
         Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(reg, new DataValue[] {u, p}),
                 new PSymbolInstance(ok, new DataValue[] {}));
 
         Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(log, new DataValue[] {u, p}),
-                new PSymbolInstance(ok, new DataValue[] {}));        
-        
+                new PSymbolInstance(ok, new DataValue[] {}));
+
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        
+
         logger.log(Level.FINE, "{0}", prefix);
         logger.log(Level.FINE, "{0}", suffix);
-        logger.log(Level.FINE, "{0}", symSuffix); 
-        
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);        
+        logger.log(Level.FINE, "{0}", symSuffix);
+
+        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
         logger.log(Level.FINE, "SDT: {0}", res.getSdt());
-       
+
         SymbolicDecisionTree sdt = res.getSdt();
 
         ParameterGenerator pgen = new ParameterGenerator();
-        RegisterGenerator rgen = new RegisterGenerator();        
-        
+        RegisterGenerator rgen = new RegisterGenerator();
+
         Parameter p1 = pgen.next(intType);
         Parameter p2 = pgen.next(intType);
         Register r1 = rgen.next(intType);
         Register r2 = rgen.next(intType);
-        
+
         VarMapping map = new VarMapping();
         map.put(r1, r2);
         map.put(r2, r1);
-        
+
         PIV piv = new PIV();
         piv.put(p2, r1);
         piv.put(p1, r2);
-        
-        sdt = sdt.relabel(map);
-        
-        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());        
-        bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);        
 
-        // This set had only one word, there should be three    
+        sdt = sdt.relabel(map);
+
+        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());
+        bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);
+
+        // This set had only one word, there should be three
         Assert.assertEquals(bug2.getBranches().size(), 3);
-        
+
     }
 
 }

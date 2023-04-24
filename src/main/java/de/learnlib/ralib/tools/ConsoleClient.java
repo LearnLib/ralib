@@ -56,14 +56,14 @@ public class ConsoleClient {
                 usage();
                 return 1;
             }
-  
+
             parseConfig();
             if (config == null) {
                 System.err.println("Could not parse configuration.");
                 usage();
                 return 1;
             }
-        
+
             tool.setup(config);
 
         } catch (Throwable ex) {
@@ -81,7 +81,7 @@ public class ConsoleClient {
             ex.printStackTrace(System.err);
             return 1;
         }
-        
+
         System.err.println("Random seed: " + config.getProperty("__seed"));
         return 0;
     }

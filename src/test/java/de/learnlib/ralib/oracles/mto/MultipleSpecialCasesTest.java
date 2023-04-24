@@ -47,7 +47,7 @@ import org.testng.annotations.Test;
  * @author falk
  */
 public class MultipleSpecialCasesTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
 
@@ -56,7 +56,7 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -68,11 +68,11 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-    
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-  
+
         ParameterizedSymbol igc = new InputSymbol(
                 "IGetChallenge", new DataType[] {});
 
@@ -80,11 +80,11 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
                 "ICompleteBAC", new DataType[] {});
 
          ParameterizedSymbol irf = new InputSymbol(
-                "IReadFile", new DataType[] {intType}); 
-         
+                "IReadFile", new DataType[] {intType});
+
          ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});    
-         
+                "OOK", new DataType[] {});
+
          DataValue d0 = consts.values().iterator().next();
 
         //****** IGetChallenge[] OOK[] ICompleteBAC[]
@@ -92,24 +92,24 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
                 new PSymbolInstance(igc),
                 new PSymbolInstance(ook),
                 new PSymbolInstance(icb));
-        
+
         //**** [s1]((OOK[] IReadFile[s1] OOK[]))
         Word<PSymbolInstance> suffix =  Word.fromSymbols(
                 new PSymbolInstance(ook),
                 new PSymbolInstance(irf, d0),
                 new PSymbolInstance(ook));
-        
+
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);       
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
         String tree = tqr.getSdt().toString();
-                
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
-        
+
         String expectedTree = "[]-+\n" +
 "  []-(s1=c1)\n" +
 "   |    [Leaf+]\n" +
@@ -117,9 +117,9 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 "   |    [Leaf+]\n" +
 "   +-ANDCOMPOUND: s1[(s1!=c1), (s1!=c3)]\n" +
 "        [Leaf-]\n";
-        
+
         Assert.assertEquals(tree, expectedTree);
     }
-       
-        
+
+
 }

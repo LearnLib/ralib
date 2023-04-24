@@ -26,7 +26,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 
 	private final CacheNode root = new CacheNode();
 	private DataWordOracle oracle;
-	
+
 	public CacheDataWordOracle(DataWordOracle oracle) {
 		this.oracle = oracle;
 	}
@@ -40,7 +40,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 		}
 		countQueries(queries.size());
 	}
-	
+
     private boolean traceBoolean(Word<PSymbolInstance> query) {
         Boolean ret = answerFromCache(query);
         if (ret != null) {

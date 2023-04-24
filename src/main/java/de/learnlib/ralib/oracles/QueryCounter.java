@@ -21,16 +21,16 @@ package de.learnlib.ralib.oracles;
  * @author falk
  */
 public abstract class QueryCounter {
- 
+
     private int queryCount = 0;
-    
+
     protected void countQueries(int n) {
         queryCount += n;
     }
-    
+
     public long getQueryCount() {
         return queryCount;
     }
-    
-            
+
+
 }

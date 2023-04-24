@@ -31,81 +31,81 @@ import net.automatalib.words.Word;
 
 /**
  * An observation table.
- * 
+ *
  * @author falk
  */
 class ObservationTable {
-    
+
     private final List<SymbolicSuffix> suffixes = new LinkedList<>();
-    
+
     private final Map<Word<PSymbolInstance>, Component> components
             = new LinkedHashMap<>();
-    
+
     private final Deque<SymbolicSuffix> newSuffixes = new LinkedList<>();
-    
+
     private final Deque<Word<PSymbolInstance>> newPrefixes = new LinkedList<>();
-    
+
     private final Deque<Component> newComponents = new LinkedList<>();
 
     private final TreeOracle oracle;
-    
+
     private final ParameterizedSymbol[] inputs;
-    
+
     private final boolean ioMode;
-    
+
     private final Constants consts;
-    
+
     private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
-    
-    public ObservationTable(TreeOracle oracle, boolean ioMode, 
+
+    public ObservationTable(TreeOracle oracle, boolean ioMode,
             Constants consts, ParameterizedSymbol ... inputs) {
         this.oracle = oracle;
         this.inputs = inputs;
         this.ioMode = ioMode;
         this.consts = consts;
     }
-        
+
     void addComponent(Component c) {
         log.logEvent("Queueing component for obs: " + c);
         newComponents.add(c);
     }
-    
+
     void addSuffix(SymbolicSuffix suffix) {
         log.logEvent("Queueing suffix for obs: " +  suffix);
         newSuffixes.add(suffix);
     }
-    
+
     void addPrefix(Word<PSymbolInstance> prefix) {
         log.logEvent("Queueing prefix for obs: " + prefix);
         newPrefixes.add(prefix);
     }
-    
-    boolean complete() {        
+
+    boolean complete() {
         if (!newComponents.isEmpty()) {
             processNewComponent();
             return false;
         }
-        
+
         if (!newPrefixes.isEmpty()) {
             processNewPrefix();
             return false;
         }
-        
+
         if (!newSuffixes.isEmpty()) {
             processNewSuffix();
             checkBranchingCompleteness();
             return false;
         }
-        
+
         if (!checkVariableConsistency()) {
-            //AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());            
-            //Hypothesis hyp = ab.toRegisterAutomaton();        
-            
+            //AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());
+            //Hypothesis hyp = ab.toRegisterAutomaton();
+
             //FIXME: the default logging appender cannot log models and data structures
-            //System.out.println(hyp.toString());            
+            //System.out.println(hyp.toString());
             return false;
         }
-        
+
         return true;
     }
 
@@ -115,10 +115,10 @@ class ObservationTable {
         for (Component c : components.values()) {
             boolean ub = c.updateBranching(oracle);
             ret = ret && ub;
-        }       
+        }
         return ret;
     }
-    
+
     private boolean checkVariableConsistency() {
         log.logPhase("Checking Variable Consistency");
         for (Component c : components.values()) {
@@ -167,11 +167,11 @@ class ObservationTable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("OBS *******************************************************************\n");
-        for (Component c : getComponents().values()) {            
+        for (Component c : getComponents().values()) {
             c.toString(sb);
-        } 
+        }
         sb.append("***********************************************************************\n");
         return sb.toString();
     }
-    
+
 }

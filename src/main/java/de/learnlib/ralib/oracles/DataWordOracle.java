@@ -20,12 +20,12 @@ import de.learnlib.api.MembershipOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
- * An oracle for answering membership queries for 
+ * An oracle for answering membership queries for
  * data words.
- * 
+ *
  * @author falk
  */
-public interface DataWordOracle extends 
+public interface DataWordOracle extends
         MembershipOracle<PSymbolInstance, Boolean> {
-  
+
 }

@@ -10,14 +10,14 @@ import net.automatalib.words.Word;
 
 /**
  * This interface describes the methods needed in a discrimination tree during learning.
- * 
+ *
  * @author fredrik
  */
 public interface DiscriminationTree {
 
 	/**
 	 * Sift a prefix into the DT to find the corresponding leaf. If add is true, also adds the prefix to the set of non-short prefixes of the corresponding leaf.
-	 * 
+	 *
 	 * @param prefix
 	 * @param oracle
 	 * @param add
@@ -27,13 +27,13 @@ public interface DiscriminationTree {
 
 	/**
 	 * Split a prefix from a leaf node into a new leaf. Adds a new inner node using the suffix as a discriminator.
-	 * 
+	 *
 	 * @param prefix
 	 * @param suffix
 	 * @param leaf
 	 * @param oracle
 	 */
 	public void split(Word<PSymbolInstance> prefx, SymbolicSuffix suffix, DTLeaf leaf);
-	
+
 	public Map<Word<PSymbolInstance>, LocationComponent> getComponents();
 }

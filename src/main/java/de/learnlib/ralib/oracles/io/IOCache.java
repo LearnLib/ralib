@@ -167,14 +167,14 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
     private Word<PSymbolInstance> traceFromCache(Word<PSymbolInstance> query) {
         Word<PSymbolInstance> trace = Word.epsilon();
-        
+
         Iterator<PSymbolInstance> iter = query.iterator();
         PSymbolInstance out = null;
         CacheNode cur = root;
 
         while (iter.hasNext()) {
 
-            PSymbolInstance in = iter.next();           
+            PSymbolInstance in = iter.next();
             PSymbolInstance ref = iter.next();
 
             out = cur.output.get(in);
@@ -185,7 +185,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
             }
 
             trace = trace.append(in).append(out);
-            
+
         }
         return trace;
     }

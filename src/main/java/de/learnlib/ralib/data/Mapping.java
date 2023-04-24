@@ -36,10 +36,10 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
 
     /**
      * returns the contained values of some type.
-     * 
+     *
      * @param <T>
      * @param type the type
-     * @return 
+     * @return
      */
     public <T> Collection<DataValue<T>> values(DataType type) {
         List<DataValue<T>> list = new ArrayList<>();
@@ -55,7 +55,6 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     public Iterator<Map.Entry<K, V>> iterator() {
         return this.entrySet().iterator();
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -83,8 +82,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
 //        }
 //        return v;
 //    }
-    
-    
+
     public String toString(String map) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -94,7 +92,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
         sb.append("]");
         return sb.toString();
     }
-    
+
     public Set<K> getAllKeys(V value) {
         Set<K> retKeySet = new LinkedHashSet();
         for (K key : this.keySet()) {
@@ -104,15 +102,12 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
                 //log.log(Level.FINEST,this.get(key).toString() + " equals " + value.toString());
                 retKeySet.add(key);
             }
-        }   
+        }
         return retKeySet;
     }
-    
-    
+
     @Override
     public String toString() {
         return toString(">");
     }
-        
-    
 }

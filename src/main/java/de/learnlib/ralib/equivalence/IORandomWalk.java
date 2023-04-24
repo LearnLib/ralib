@@ -56,15 +56,15 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private final int maxDepth;
     private final Constants constants;
     private final Map<DataType, Theory> teachers;
-    
+
     private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
 
     private ParameterizedSymbol error = null;
-    
+
     /**
      * creates an IO random walk
-     * 
-     * @param rand Random 
+     *
+     * @param rand Random
      * @param target SUL
      * @param uniform draw from inputs uniformly or according to possible concrete instances
      * @param resetProbability prob. to reset after each step
@@ -100,7 +100,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         if (clctn != null && !clctn.isEmpty()) {
             log.warning("set of inputs is ignored by this equivalence oracle");
         }
-        
+
         this.hyp = a;
         // reset the counter for number of runs?
         if (resetRuns) {
@@ -130,19 +130,19 @@ public class IORandomWalk implements IOEquivalenceOracle {
             run = run.append(next).append(out);
 
             if (!hyp.accepts(run)) {
-                log.log(Level.FINE, "Run with CE: {0}", run);                
+                log.log(Level.FINE, "Run with CE: {0}", run);
                 target.post();
                 return run;
             }
 
-        } while (rand.nextDouble() > resetProbability && depth < maxDepth && 
+        } while (rand.nextDouble() > resetProbability && depth < maxDepth &&
                 !out.getBaseSymbol().equals(error));
-        
+
         log.log(Level.FINE, "Run /wo CE: {0}", run);
         target.post();
         return null;
     }
-    
+
     public void setError(ParameterizedSymbol error) {
         this.error = error;
     }
@@ -173,10 +173,10 @@ public class IORandomWalk implements IOEquivalenceOracle {
 
             Set<DataValue<Object>> newSet = new HashSet<>(
                 teacher.getAllNextValues(old));
-            
+
             newSet.removeAll(old);
             ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
-            
+
             double draw = rand.nextDouble();
             if (draw <= newDataProbability || old.isEmpty()) {
                 int idx = rand.nextInt(newList.size());

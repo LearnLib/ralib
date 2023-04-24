@@ -51,12 +51,12 @@ import org.testng.Assert;
  */
 public class TestIneqOutputTree extends RaLibTestSuite {
 
-    private final static DataType TYPE = PriorityQueueSUL.DOUBLE_TYPE;    
+    private final static DataType TYPE = PriorityQueueSUL.DOUBLE_TYPE;
     private final static InputSymbol IN = new InputSymbol("in", TYPE);
     private final static OutputSymbol OUT = new OutputSymbol("out", TYPE);
-    
+
     private static class BiggerSUL extends DataWordSUL {
-         
+
         @Override
         public void pre() {
         }
@@ -70,9 +70,9 @@ public class TestIneqOutputTree extends RaLibTestSuite {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
                     ((BigDecimal)i.getParameterValues()[0].getId()).add(BigDecimal.ONE)));
         }
-        
+
     }
-    
+
     @Test(enabled=false)
     public void testIneqEqTree() {
 
@@ -80,15 +80,15 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         BiggerSUL sul = new BiggerSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                sul, PriorityQueueSUL.ERROR, teachers, 
-                new Constants(), jsolv, 
+                sul, PriorityQueueSUL.ERROR, teachers,
+                new Constants(), jsolv,
                 IN);
-                
+
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(IN, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
-                
+
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(OUT, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
 
@@ -108,7 +108,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
 "     |    [Leaf-]\n" +
 "     +-(s1>r1)\n" +
 "          [Leaf+]\n";
-        
+
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);

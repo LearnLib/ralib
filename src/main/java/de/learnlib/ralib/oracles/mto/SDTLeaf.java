@@ -28,29 +28,29 @@ import java.util.Set;
 
 /**
  * Leaf implementation of an SDT.
- * 
+ *
  * @author falk
  */
 public class SDTLeaf extends SDT {
 
     public static final SDTLeaf ACCEPTING = new SDTLeaf(true);
-    
+
     public static final SDTLeaf REJECTING = new SDTLeaf(false);
 
     private final boolean accepting;
-    
+
     private SDTLeaf(boolean accepting) {
         super(null);
         this.accepting = accepting;
     }
-            
+
     @Override
     public boolean isEquivalent(
             SymbolicDecisionTree other, VarMapping renaming) {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
-    
+
     @Override
     public boolean canUse(SDT other) {
         if (!(other instanceof SDTLeaf)) {
@@ -60,7 +60,7 @@ public class SDTLeaf extends SDT {
             return this.isEquivalent(other, new VarMapping());
         }
     }
-    
+
     @Override
     public String toString() {
         return this.isAccepting() ? "+" : "-";
@@ -70,7 +70,7 @@ public class SDTLeaf extends SDT {
     public SymbolicDecisionTree relabel(VarMapping relabeling) {
         return this;
     }
-    
+
     public SDT relabelUnderEq(EqualityGuard e) {
         return this;
     }
@@ -79,25 +79,24 @@ public class SDTLeaf extends SDT {
     public boolean isAccepting() {
         return accepting;
     }
-    
-    
+
     @Override
     void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append("[Leaf").
                 append(isAccepting() ? "+" : "-").append("]").append("\n");
     }
-    
+
     @Override
-    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {        
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         if (this.isAccepting()) {
             ret.add(path);
         }
         return ret;
     }
-           
+
     @Override
     public Set<SymbolicDataValue.Register> getRegisters() {
-        return new LinkedHashSet<>();    
+        return new LinkedHashSet<>();
     }
 }

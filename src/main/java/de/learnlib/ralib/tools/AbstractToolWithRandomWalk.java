@@ -172,10 +172,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected static final ConfigurationOption.StringOption OPTION_SOLVER
             = new  ConfigurationOption.StringOption("solver",
-                    "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE + 
-                            ", " + ConstraintSolverFactory.ID_Z3 + ".", 
+                    "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE +
+                            ", " + ConstraintSolverFactory.ID_Z3 + ".",
                             ConstraintSolverFactory.ID_SIMPLE, true);
-    
+
     protected Random random = null;
 
     protected boolean useCeOptimizers;
@@ -193,8 +193,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected boolean useFresh = false;
 
     protected final Map<String, TypedTheory> teacherClasses = new HashMap<>();
-    
-    protected ConstraintSolver solver; 
+
+    protected ConstraintSolver solver;
 
     protected String learner = "slstar";
 

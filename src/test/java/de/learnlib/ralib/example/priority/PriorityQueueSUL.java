@@ -30,30 +30,30 @@ import java.math.BigDecimal;
 
 public class PriorityQueueSUL extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE = 
+    public static final DataType DOUBLE_TYPE =
             new DataType("DOUBLE", BigDecimal.class);
 
-    public static final ParameterizedSymbol POLL = 
+    public static final ParameterizedSymbol POLL =
             new InputSymbol("poll", new DataType[]{});
-    
-    public static final ParameterizedSymbol OFFER = 
+
+    public static final ParameterizedSymbol OFFER =
             new InputSymbol("offer", new DataType[]{DOUBLE_TYPE});
 
-    
+
     public final ParameterizedSymbol[] getInputSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER };
     }
-        
-    public static final ParameterizedSymbol ERROR = 
+
+    public static final ParameterizedSymbol ERROR =
             new OutputSymbol("_io_err", new DataType[]{});
 
-    public static final ParameterizedSymbol OUTPUT = 
+    public static final ParameterizedSymbol OUTPUT =
             new OutputSymbol("_out", new DataType[]{DOUBLE_TYPE});
-    
-    public static final ParameterizedSymbol OK = 
+
+    public static final ParameterizedSymbol OK =
             new OutputSymbol("_ok", new DataType[]{});
-        
-    public static final ParameterizedSymbol NOK = 
+
+    public static final ParameterizedSymbol NOK =
             new OutputSymbol("_not_ok", new DataType[]{});
 
     public final ParameterizedSymbol[] getActionSymbols() {
@@ -63,11 +63,11 @@ public class PriorityQueueSUL extends DataWordSUL {
 
     private PQWrapper pqueue;
     private int capacity;
-    
+
     public PriorityQueueSUL() {
         capacity = PQWrapper.CAPACITY;
     }
-    
+
     public PriorityQueueSUL(int capacity) {
         this.capacity = capacity;
     }

@@ -14,20 +14,20 @@ import de.learnlib.ralib.words.InputSymbol;
 
 public class LLambdaAutomatonExample {
 
-    public static final InputSymbol A = 
-            new InputSymbol("a", new DataType[] {}); 
-    
-    public static final InputSymbol B = 
+    public static final InputSymbol A =
+            new InputSymbol("a", new DataType[] {});
+
+    public static final InputSymbol B =
             new InputSymbol("b", new DataType[] {});
-    
+
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
-    
-    private LLambdaAutomatonExample() {      
+
+    private LLambdaAutomatonExample() {
     }
 
     private static RegisterAutomaton buildAutomaton() {
-        MutableRegisterAutomaton ra = new MutableRegisterAutomaton();        
-        
+        MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
+
         // locations
         RALocation l0 = ra.addInitialState(true);
         RALocation l1 = ra.addState(false);
@@ -36,21 +36,21 @@ public class LLambdaAutomatonExample {
         RALocation l4 = ra.addState(true);
         RALocation l5 = ra.addState(false);
         RALocation l6 = ra.addState(false);
-        
+
         // registers and parameters
-        
+
         // guards
         TransitionGuard trueGuard   = new TransitionGuard();
-        
+
         // assignments
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();
-        
+
         Assignment noAssign     = new Assignment(noMapping);
-        
+
         // initial location
         ra.addTransition(l0, A, new InputTransition(trueGuard, A, l0, l1, noAssign));
         ra.addTransition(l0, B, new InputTransition(trueGuard, B, l0, l5, noAssign));
-        
+
 
         ra.addTransition(l1, A, new InputTransition(trueGuard, A, l1, l2, noAssign));
         ra.addTransition(l1, B, new InputTransition(trueGuard, B, l1, l5, noAssign));
@@ -69,8 +69,8 @@ public class LLambdaAutomatonExample {
 
         ra.addTransition(l6, A, new InputTransition(trueGuard, A, l6, l2, noAssign));
         ra.addTransition(l6, B, new InputTransition(trueGuard, B, l6, l0, noAssign));
-        
+
         return ra;
     }
-    
+
 }

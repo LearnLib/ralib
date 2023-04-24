@@ -29,18 +29,18 @@ import net.automatalib.words.Word;
 
 /**
  * static helper methods for data words.
- * 
+ *
  * @author falk
  */
 public final class DataWords {
 
     /**
      * returns sequence of data values of a specific type in a data word.
-     * 
+     *
      * @param <T>
      * @param word
      * @param t
-     * @return 
+     * @return
      */
     public static <T> DataValue<T>[] valsOf(Word<PSymbolInstance> word, DataType t) {
         List<DataValue<T>> vals = new ArrayList<>();
@@ -53,12 +53,12 @@ public final class DataWords {
         }
         return vals.toArray(new DataValue[] {});
     }
-    
+
     /**
      * returns sequence of all data values in a data word.
-     * 
+     *
      * @param word
-     * @return 
+     * @return
      */
     public static DataValue[] valsOf(Word<PSymbolInstance> word) {
         DataValue[] vals = new DataValue[DataWords.paramLength(actsOf(word))];
@@ -73,11 +73,11 @@ public final class DataWords {
 
     /**
      * returns set of unique data values of some type in a data word.
-     * 
+     *
      * @param <T>
      * @param word
      * @param t
-     * @return 
+     * @return
      */
     public static <T> Set<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType t) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();
@@ -90,26 +90,26 @@ public final class DataWords {
         }
         return vals;
     }
-    
+
     /**
-     * 
+     *
      * @param <T>
      * @param in
-     * @return 
+     * @return
      */
     public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
-        Set<DataValue<T>> vals = new LinkedHashSet<>();    
+        Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);
         }
         return vals;
     }
-    
+
     /**
      * returns set of all unique data values in a data word.
-     * 
+     *
      * @param word
-     * @return 
+     * @return
      */
     public static Set<DataValue> valSet(Word<PSymbolInstance> word) {
         Set<DataValue> valset = new LinkedHashSet<>();
@@ -117,35 +117,35 @@ public final class DataWords {
             valset.addAll(Arrays.asList(psi.getParameterValues()));
         }
         return valset;
-    }    
-     
+    }
+
     /**
      * returns sequence of actions in a data word.
      * @param word
-     * @return 
+     * @return
      */
     public static Word<ParameterizedSymbol> actsOf(
             Word<PSymbolInstance> word) {
-        ParameterizedSymbol[] symbols = new ParameterizedSymbol[word.length()];        
+        ParameterizedSymbol[] symbols = new ParameterizedSymbol[word.length()];
         int idx = 0;
         for (PSymbolInstance psi : word) {
             symbols[idx++] = psi.getBaseSymbol();
-        }        
+        }
         return Word.fromSymbols(symbols);
     }
-    
+
     /**
      * instantiates a data word from a sequence of actions and
      * a valuation.
-     * 
+     *
      * @param actions
      * @param dataValues
-     * @return 
+     * @return
      */
     public static Word<PSymbolInstance> instantiate(
-            Word<ParameterizedSymbol> actions, 
+            Word<ParameterizedSymbol> actions,
             Map<Integer, ? extends DataValue> dataValues) {
-       
+
         PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
         int idx = 0;
         int pid = 1;
@@ -193,9 +193,9 @@ public final class DataWords {
 
     /**
      * returns the number of data values in a sequence of actions.
-     * 
+     *
      * @param word
-     * @return 
+     * @return
      */
     public static int paramLength(Word<ParameterizedSymbol> word) {
         int length = 0;
@@ -219,6 +219,6 @@ public final class DataWords {
         return length;
     }
 
-    private DataWords() {        
-    }    
+    private DataWords() {
+    }
 }

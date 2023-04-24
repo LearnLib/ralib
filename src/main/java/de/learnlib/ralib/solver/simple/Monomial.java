@@ -26,25 +26,25 @@ import java.util.List;
 import java.util.Set;
 
 public class Monomial extends Constraint {
-	
-	
+
+
 	public static final Monomial TRUE
 		= new Monomial(Collections.<IntPair>emptyList(), Collections.<IntPair>emptyList());
-	
+
 	private static List<IntPair> aggregateEqualities(List<Monomial> constraints) {
 		List<IntPair> result = new ArrayList<IntPair>();
 		for(Monomial c : constraints)
 			result.addAll(c.getEqualities());
 		return result;
 	}
-	
+
 	private static List<IntPair> aggregateInequalities(List<Monomial> constraints) {
 		List<IntPair> result = new ArrayList<IntPair>();
 		for(Monomial c : constraints)
 			result.addAll(c.getInequalities());
 		return result;
 	}
-	
+
 	private static IntPair shift(IntPair p, int myVars, int base, int total) {
 		int fst = p.getFst(), snd = p.getSnd();
 		if(fst < myVars)
@@ -57,27 +57,27 @@ public class Monomial extends Constraint {
 			snd = snd - myVars + total;
 		return new IntPair(fst, snd);
 	}
-	
-	
+
+
 	public static Monomial conjoin(Monomial ...constraints) {
 		return conjoin(Arrays.asList(constraints));
 	}
-	
+
 	public static Monomial conjoin(List<Monomial> constraints) {
 		List<IntPair> eqs = aggregateEqualities(constraints);
 		List<IntPair> neqs = aggregateInequalities(constraints);
 		return create(eqs, neqs);
 	}
-	
-	
+
+
 	public static Monomial create(List<IntPair> equalities, List<IntPair> inequalities) {
 		DisjointSet<Integer> ds = new DisjointSet<Integer>();
-		
+
 		for(IntPair eq : equalities)
 			ds.union(eq.getFst(), eq.getSnd());
-		
+
 		IntPair[] ineqs = new IntPair[inequalities.size()];
-		
+
 		{
 			int i = 0;
 			for(IntPair neq : inequalities) {
@@ -85,14 +85,14 @@ public class Monomial extends Constraint {
 				int b = ds.find(neq.getSnd());
 				if(a == b)
 					return null;
-					
+
 				ineqs[i++] = IntPair.makeOrdered(a, b);
 			}
 		}
-		
+
 
 		int pos = 0;
-		
+
 		if(ineqs.length > 0) {
 			Arrays.sort(ineqs);
 			IntPair last = ineqs[0];
@@ -106,12 +106,12 @@ public class Monomial extends Constraint {
 					pos++;
 				}
 			}
-			
+
 		}
-		
+
 		List<IntPair> eqs = new ArrayList<IntPair>();
-		
-		
+
+
 		for(List<Integer> set : ds.partition()) {
 			if(set.size() < 2)
 				continue;
@@ -125,27 +125,27 @@ public class Monomial extends Constraint {
 					eqs.add(new IntPair(min, i));
 			}
 		}
-		
+
 		return new Monomial(eqs, (pos <= 0) ? Collections.<IntPair>emptyList() : Arrays.asList(ineqs).subList(0, pos));
 	}
-	
-	
-	
+
+
+
 	private final List<IntPair> equalities;
 	private final List<IntPair> inequalities;
-	
-	
-	
+
+
+
 	private Monomial(List<IntPair> equalities, List<IntPair> inequalities) {
 		this.equalities = equalities;
 		this.inequalities = inequalities;
 	}
-	
-	
+
+
 	public List<IntPair> getEqualities() {
 		return equalities;
 	}
-	
+
 	public List<IntPair> getInequalities() {
 		return inequalities;
 	}
@@ -157,16 +157,16 @@ public class Monomial extends Constraint {
 			if(inequalities.size() < other.inequalities.size())
 				return false;
 		}
-		
+
 		DisjointSet ds = partition();
-		
+
 		for(IntPair oeq : other.equalities) {
 			if(oeq.)
 		}
-		
+
 	}*/
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see se.uu.it.synthesis.misc.Const#restrict(int)
 	 */
@@ -182,11 +182,11 @@ public class Monomial extends Constraint {
 			if(neq.getSnd() < newDomSize)
 				neqs.add(neq);
 		}
-		
+
 		return new Monomial(eqs, neqs);
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see se.uu.it.synthesis.misc.Const#negate()
 	 */
@@ -195,23 +195,23 @@ public class Monomial extends Constraint {
 		if(isTrue())
 			return Constraint.FALSE;
 		Set<Monomial> mons = new HashSet<Monomial>(negated());
-		
+
 		return Polynomial.fromSet(mons);
 	}
-	
+
 	public List<Monomial> negated() {
 		List<Monomial> result = new ArrayList<Monomial>(equalities.size() + inequalities.size());
-		
+
 		for(IntPair eq : equalities)
 			result.add(new Monomial(Collections.<IntPair>emptyList(), Collections.singletonList(eq)));
 		for(IntPair neq : inequalities)
 			result.add(new Monomial(Collections.singletonList(neq), Collections.<IntPair>emptyList()));
-		
+
 		return result;
 	}
-	
-	
-	
+
+
+
 	/* (non-Javadoc)
 	 * @see se.uu.it.synthesis.misc.Const#print(java.lang.Appendable, java.lang.String[])
 	 */
@@ -221,44 +221,44 @@ public class Monomial extends Constraint {
 			a.append("true");
 			return;
 		}
-		
-		
+
+
 		boolean first = true;
 		for(IntPair eq : equalities) {
 			if(first)
 				first = false;
 			else
 				a.append(" && ");
-			
+
 			int lhs = eq.getFst(), rhs = eq.getSnd();
-			
+
 			printIndex(a, varNames, lhs);
 			a.append(" = ");
 			printIndex(a, varNames, rhs);
 		}
-		
+
 		for(IntPair neq : inequalities) {
 			if(first)
 				first = false;
 			else
 				a.append(" && ");
-			
+
 			int lhs = neq.getFst();
 			int rhs = neq.getSnd();
-			
+
 			printIndex(a, varNames, lhs);
 			a.append(" != ");
 			printIndex(a, varNames, rhs);
 		}
 	}
-	
+
 	public static void printIndex(Appendable a, String[] varNames, int index) throws IOException {
 		if(index < varNames.length) {
 			a.append(varNames[index]);
 			return;
 		}
 		index -= varNames.length;
-		
+
 		a.append('p');
 		a.append(Integer.toString(index+1));
 	}
@@ -275,19 +275,19 @@ public class Monomial extends Constraint {
 				base = total;
 			total += numVars[i];
 		}
-		
+
 		int myVars = numVars[thisIdx];
-		
+
 		List<IntPair> eqs = new ArrayList<IntPair>(equalities.size());
 		for(IntPair ip : equalities)
 			eqs.add(shift(ip, myVars, base, total));
 		List<IntPair> neqs = new ArrayList<IntPair>(inequalities.size());
 		for(IntPair ip : inequalities)
 			neqs.add(shift(ip, myVars, base, total));
-		
+
 		return new Monomial(eqs, neqs);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see se.uu.it.synthesis.misc.Const#shift(int, int, int)
 	 */
@@ -299,12 +299,12 @@ public class Monomial extends Constraint {
 		List<IntPair> neqs = new ArrayList<IntPair>(inequalities.size());
 		for(IntPair ip : inequalities)
 			neqs.add(shift(ip, myVars, base, total));
-		
+
 		return new Monomial(eqs, neqs);
 	}
 
 	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#subsitute(int[])
+	 * @see se.uu.it.synthesis.misc.Const#substitute(int[])
 	 */
 	@Override
 	public Monomial substitute(int[] subst) {
@@ -314,10 +314,10 @@ public class Monomial extends Constraint {
 		List<IntPair> neqs = new ArrayList<IntPair>(inequalities.size());
 		for(IntPair ip : inequalities)
 			neqs.add(new IntPair(subst[ip.getFst()], subst[ip.getSnd()]));
-		
+
 		return Monomial.create(eqs, neqs);
 	}
-	
+
 
 	/* (non-Javadoc)
 	 * @see se.uu.it.synthesis.misc.Const#shift(int)
@@ -327,11 +327,11 @@ public class Monomial extends Constraint {
 		List<IntPair> eqs = new ArrayList<IntPair>(equalities.size());
 		for(IntPair ip : equalities)
 			eqs.add(new IntPair(ip.getFst() + shift, ip.getSnd() + shift));
-		
+
 		List<IntPair> neqs = new ArrayList<IntPair>(inequalities.size());
 		for(IntPair ip : inequalities)
 			neqs.add(new IntPair(ip.getFst() + shift, ip.getSnd() + shift));
-		
+
 		return new Monomial(eqs, neqs);
 	}
 
@@ -387,5 +387,5 @@ public class Monomial extends Constraint {
 	public Constraint normalize() {
 		return this;
 	}
-	
+
 }

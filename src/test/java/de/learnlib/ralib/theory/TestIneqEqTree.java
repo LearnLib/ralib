@@ -55,16 +55,16 @@ public class TestIneqEqTree extends RaLibTestSuite {
     public void testIneqEqTree() {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(PriorityQueueSUL.DOUBLE_TYPE, 
+        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();        
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                sul, PriorityQueueSUL.ERROR, teachers, 
-                new Constants(), jsolv, 
+                sul, PriorityQueueSUL.ERROR, teachers,
+                new Constants(), jsolv,
                 sul.getInputSymbols());
-                
+
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
@@ -75,7 +75,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(6.0))));
-        
+
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
                         new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(1.0))),
@@ -117,7 +117,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
 "                     |    [Leaf-]\n" +
 "                     +-(s3=r1)\n" +
 "                          [Leaf+]\n";
-        
+
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);

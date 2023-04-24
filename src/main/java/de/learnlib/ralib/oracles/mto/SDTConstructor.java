@@ -29,7 +29,7 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public interface SDTConstructor {
-    
+
     public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, PIV piv,

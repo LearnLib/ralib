@@ -55,7 +55,7 @@ import org.testng.Assert;
  * @author falk
  */
 public class FreshValuesTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
 
@@ -77,21 +77,21 @@ public class FreshValuesTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-    
+
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, new SimpleConstraintSolver());        
-                
+                ioFilter, teachers, consts, new SimpleConstraintSolver());
+
         teachers.values().stream().forEach((t) -> {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
         });
-        
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-  
-        
+
+
         ParameterizedSymbol iput = new InputSymbol(
                 "IPut", new DataType[] {intType});
 
@@ -99,19 +99,19 @@ public class FreshValuesTest extends RaLibTestSuite {
                 "IGet", new DataType[] {intType});
 
          ParameterizedSymbol oput = new OutputSymbol(
-                "OPut", new DataType[] {intType}); 
-         
+                "OPut", new DataType[] {intType});
+
          ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", new DataType[] {intType});    
-         
+                "OGet", new DataType[] {intType});
+
          ParameterizedSymbol onok = new OutputSymbol(
-                "ONOK", new DataType[] {});   
-         
+                "ONOK", new DataType[] {});
+
          DataValue d0 = new DataValue(intType, 0);
          DataValue d1 = new DataValue(intType, 1);
          DataValue d2 = new DataValue(intType, 2);
 
-        // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []  
+        // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(iput, d0),
                 new PSymbolInstance(oput, d1),
@@ -121,7 +121,7 @@ public class FreshValuesTest extends RaLibTestSuite {
          DataValue d3 = new DataValue(intType, 3);
          DataValue d4 = new DataValue(intType, 4);
          DataValue d5 = new DataValue(intType, 5);
-        
+
         // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
         Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(iget, d3),
@@ -132,20 +132,20 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(onok),
                 new PSymbolInstance(iput, d5),
                 new PSymbolInstance(onok));
-        
-        
+
+
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix1, suffix);
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);       
+
+        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
         String tree = tqr.getSdt().toString();
-                
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
-        
-        
+
+
         final String expectedTree = "[r1]-+\n" +
 "    []-(s1=r1)\n" +
 "     |    []-TRUE: s2\n" +
@@ -165,8 +165,8 @@ public class FreshValuesTest extends RaLibTestSuite {
 "                       +-ANDCOMPOUND: s4[(s4!=r1), (s4!=s3)]\n" +
 "                            []-TRUE: s5\n" +
 "                                  [Leaf+]\n";
-        
-        Assert.assertEquals(tree, expectedTree);        
+
+        Assert.assertEquals(tree, expectedTree);
     }
- 
+
 }

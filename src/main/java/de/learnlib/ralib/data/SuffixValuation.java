@@ -22,5 +22,5 @@ package de.learnlib.ralib.data;
  */
 //TODO: check is necessary
 public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, DataValue<?>> {
-    
+
 }

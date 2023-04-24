@@ -45,11 +45,11 @@ public class LearnSipIOTest extends RaLibTestSuite {
 	@Test
 	public void learnSipIO() {
 
-        long seed = -1386796323025681754L; 
+        long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
-      
+
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
@@ -63,7 +63,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-        
+
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
@@ -79,14 +79,14 @@ public class LearnSipIOTest extends RaLibTestSuite {
         teachers.values().stream().forEach((t) -> {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
         });
-        
+
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = 
+        MultiTheorySDTLogicOracle mlo =
                 new MultiTheorySDTLogicOracle(consts, solver);
-        
+
         for (ParameterizedSymbol ps : actions) {
         	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
 //        	if (ps.getArity() > 0) {
@@ -95,7 +95,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         	}
         }
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
@@ -103,19 +103,19 @@ public class LearnSipIOTest extends RaLibTestSuite {
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
         rattt.doThoroughCESearch(true);
-        
+
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
-        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);                        
+        IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
-        
+
         int check = 0;
         while (true && check < 100) {
-            
+
             check++;
             rattt.learn();
             Hypothesis hyp = rattt.getHypothesis();
-            
-            DefaultQuery<PSymbolInstance, Boolean> ce = 
+
+            DefaultQuery<PSymbolInstance, Boolean> ce =
                     ioEquiv.findCounterExample(hyp, null);
 
             if (ce == null) {
@@ -128,15 +128,15 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
-            
+
             rattt.addCounterexample(ce);
         }
 
         RegisterAutomaton hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce = 
+        DefaultQuery<PSymbolInstance, Boolean> ce =
             ioEquiv.findCounterExample(hyp, null);
-            
+
         Assert.assertNull(ce);
 	}
 }

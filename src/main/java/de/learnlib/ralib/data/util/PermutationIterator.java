@@ -25,7 +25,7 @@ import java.util.Iterator;
 public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
 
     final int[] permutation;
-    
+
     boolean init = false;
 
     public PermutationIterator(int N) {
@@ -34,17 +34,17 @@ public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
             permutation[i] = i;
         }
     }
-    
+
     @Override
     public boolean hasNext() {
         if (permutation.length < 1) {
             return false;
         }
-        
+
         if (!init) {
             return true;
-        } 
-        
+        }
+
         for (int i = 1; i < permutation.length; i++) {
             if (permutation[i-1] <= permutation[i]) {
                 return true;
@@ -58,8 +58,8 @@ public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
         if (!init) {
             init = true;
             return permutation;
-        } 
-        
+        }
+
         int i = permutation.length - 1;
         while (permutation[i - 1] >= permutation[i]) {
             i = i - 1;
@@ -81,7 +81,7 @@ public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
         }
         return permutation;
     }
-    
+
     private void swap(int i, int j) {
         int temp = permutation[i];
         permutation[i] = permutation[j];
@@ -97,7 +97,7 @@ public class PermutationIterator implements Iterable<int[]>, Iterator<int[]>{
     public Iterator<int[]> iterator() {
         return this;
     }
-    
+
     public int[] current() {
         return permutation;
     }

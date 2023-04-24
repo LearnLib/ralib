@@ -33,9 +33,8 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
 
         public boolean equals(Parameter other) {
             return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
-
         }
-        
+
         @Override
         public SymbolicDataValue.Parameter copy() {
         	return new SymbolicDataValue.Parameter(type, id);
@@ -47,7 +46,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         public Register(DataType dataType, int id) {
             super(dataType, id);
         }
-        
+
         @Override
         public SymbolicDataValue.Register copy() {
         	return new SymbolicDataValue.Register(type, id);
@@ -59,7 +58,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         public Constant(DataType dataType, int id) {
             super(dataType, id);
         }
-        
+
         @Override
         public SymbolicDataValue.Constant copy() {
         	return new SymbolicDataValue.Constant(type, id);
@@ -71,7 +70,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         public SuffixValue(DataType dataType, int id) {
             super(dataType, id);
         }
-        
+
         @Override
         public SymbolicDataValue.SuffixValue copy() {
         	return new SymbolicDataValue.SuffixValue(type, id);
@@ -85,7 +84,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public String toStringWithType() {
         return this.toString() + ":" + this.type.getName();
     }
-    
+
     public abstract SymbolicDataValue copy();
 
     @Override
@@ -145,5 +144,4 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public boolean isSuffixValue() {
         return this.getClass().equals(SuffixValue.class);
     }
-
 }

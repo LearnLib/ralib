@@ -23,8 +23,8 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.Collection;
 
 /**
- * Uses a Register Automaton to simulate a SUL. 
- * 
+ * Uses a Register Automaton to simulate a SUL.
+ *
  * @author falk
  */
 public class SimulatorOracle implements DataWordOracle {
@@ -34,7 +34,7 @@ public class SimulatorOracle implements DataWordOracle {
     public SimulatorOracle(RegisterAutomaton target) {
         this.target = target;
     }
-    
+
     @Override
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         for (Query<PSymbolInstance, Boolean> q : clctn) {
@@ -42,5 +42,5 @@ public class SimulatorOracle implements DataWordOracle {
             q.answer(inLang);
         }
     }
-    
+
 }

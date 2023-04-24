@@ -26,53 +26,53 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A tree oracle is the connection between the learning algorithm 
+ * A tree oracle is the connection between the learning algorithm
  * and theories for data values.
- * 
+ *
  * @author falk
  */
 public interface TreeOracle {
-    
+
     /**
      * performs a tree query, returning a SymbolicDecisionTree
      * an an Assignment of registers of this tree with parameters
      * of the prefix.
-     * 
+     *
      * @param prefix
      * @param suffix
-     * @return 
+     * @return
      */
     public TreeQueryResult treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix);    
-     
+            Word<PSymbolInstance> prefix, SymbolicSuffix suffix);
+
     /**
      * Computes a Branching from a set of SymbolicDecisionTrees.
-     * 
+     *
      * @param prefix
      * @param ps
      * @param piv
      * @param sdts
-     * @return 
+     * @return
      */
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
+    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
 
     /**
-     * Updates and extends an existing Branching 
+     * Updates and extends an existing Branching
      * from a set of SymbolicDecisionTrees.
-     * 
+     *
      * @param prefix
      * @param ps
      * @param current
      * @param piv
      * @param sdts
-     * @return 
+     * @return
      */
-    public Branching updateBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, Branching current, 
+    public Branching updateBranching(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Branching current,
             PIV piv, SymbolicDecisionTree ... sdts);
-    
+
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
     		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
-     
+
 }

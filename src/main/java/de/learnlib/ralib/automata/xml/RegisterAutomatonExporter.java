@@ -48,9 +48,9 @@ import javax.xml.bind.JAXB;
  * @author falk
  */
 public class RegisterAutomatonExporter {
-    
+
     private static final ObjectFactory factory = new ObjectFactory();
-    
+
     private static RegisterAutomaton.Constants exportConstants(Constants consts) {
         RegisterAutomaton.Constants ret = factory.createRegisterAutomatonConstants();
         for (Entry<Constant, DataValue<?>> e : consts) {
@@ -59,7 +59,7 @@ public class RegisterAutomatonExporter {
             c.setType(e.getKey().getType().getName());
             c.setValue(e.getValue().getId().toString());
             ret.getConstant().add(c);
-        }        
+        }
         return ret;
     }
 
@@ -71,17 +71,17 @@ public class RegisterAutomatonExporter {
             v.setType(r.getType().getName());
             v.setValue("0");
             ret.getVariable().add(v);
-        }        
+        }
         for (Entry<String, DataType> e : extra.entrySet()) {
             RegisterAutomaton.Globals.Variable v = factory.createRegisterAutomatonGlobalsVariable();
             v.setName(e.getKey());
             v.setType(e.getValue().getName());
             v.setValue("0");
-            ret.getVariable().add(v);        
+            ret.getVariable().add(v);
         }
         return ret;
     }
-    
+
     private static RegisterAutomaton.Alphabet.Inputs exportInputs(Collection<InputSymbol> is) {
         RegisterAutomaton.Alphabet.Inputs ret = factory.createRegisterAutomatonAlphabetInputs();
         for (InputSymbol input : is) {
@@ -96,7 +96,7 @@ public class RegisterAutomatonExporter {
                 s.getParam().add(param);
             }
             ret.getSymbol().add(s);
-        }        
+        }
         return ret;
     }
 
@@ -114,18 +114,18 @@ public class RegisterAutomatonExporter {
                 s.getParam().add(param);
             }
             ret.getSymbol().add(s);
-        }        
+        }
         return ret;
     }
-       
+
     private static RegisterAutomaton.Locations exportLocations(
             de.learnlib.ralib.automata.RegisterAutomaton ra, Collection<RALocation> locs) {
-        
+
         RegisterAutomaton.Locations ret = factory.createRegisterAutomatonLocations();
         for (RALocation loc : locs) {
-            RegisterAutomaton.Locations.Location l = 
+            RegisterAutomaton.Locations.Location l =
                     factory.createRegisterAutomatonLocationsLocation();
-            
+
             l.setName(loc.getName());
             if (ra.getInitialState().equals(loc)) {
                 l.setInitial("true");
@@ -134,11 +134,11 @@ public class RegisterAutomatonExporter {
         }
         return ret;
     }
-    
+
     private static RegisterAutomaton.Transitions exportTransitions(Collection<Transition> trans, Map<String, DataType> tmp) {
-        RegisterAutomaton.Transitions ret = 
+        RegisterAutomaton.Transitions ret =
                 factory.createRegisterAutomatonTransitions();
-        
+
         for (Transition t : trans) {
             if (t instanceof OutputTransition) {
                 ret.getTransition().add( exportOutputTransition( (OutputTransition)t, tmp ));
@@ -149,35 +149,35 @@ public class RegisterAutomatonExporter {
         }
         return ret;
     }
-    
+
     private static RegisterAutomaton.Transitions.Transition exportInputTransition(Transition t) {
-        RegisterAutomaton.Transitions.Transition ret = 
+        RegisterAutomaton.Transitions.Transition ret =
                 factory.createRegisterAutomatonTransitionsTransition();
-        
+
         ret.setFrom(t.getSource().getName());
         ret.setTo(t.getDestination().getName());
-        ret.setSymbol(t.getLabel().getName());                
+        ret.setSymbol(t.getLabel().getName());
         ret.setAssignments(exportAssignments(t.getAssignment()));
         String g = exportGuard(t.getGuard());
         if (g != null && g.length() > 0) {
-            ret.setGuard(g);    
+            ret.setGuard(g);
         }
         return ret;
     }
 
     private static RegisterAutomaton.Transitions.Transition exportOutputTransition(
             OutputTransition t, Map<String, DataType> tmp) {
-        RegisterAutomaton.Transitions.Transition ret = 
+        RegisterAutomaton.Transitions.Transition ret =
                 factory.createRegisterAutomatonTransitionsTransition();
 
         ret.setFrom(t.getSource().getName());
         ret.setTo(t.getDestination().getName());
-        ret.setSymbol(t.getLabel().getName());  
-        
+        ret.setSymbol(t.getLabel().getName());
+
         RegisterAutomaton.Transitions.Transition.Assignments assign =
                 exportAssignments(t.getAssignment());
-        
-        //ret.setGuard(exportGuard(t.getGuard()));        
+
+        //ret.setGuard(exportGuard(t.getGuard()));
 
         String params = "";
         OutputMapping outMap = t.getOutput();
@@ -186,33 +186,33 @@ public class RegisterAutomatonExporter {
         for (DataType type : t.getLabel().getPtypes()) {
             Parameter p = pgen.next(type);
             if (outMap.getFreshParameters().contains(p)) {
-                
-                // find out register that stores paramater
+
+                // find out register that stores parameter
                 boolean found = false;
                 for (RegisterAutomaton.Transitions.Transition.Assignments.Assign a : assign.getAssign()) {
                     if (a.getValue().equals(p.toString())) {
-                        found = true;                        
+                        found = true;
                         params += a.getTo() + ",";
                         a.setValue("__fresh__");
                     }
                 }
-                
+
                 if (!found) {
                     throw new IllegalStateException("Exporter does not support fresh values that are not stored.");
                 }
             }
             else {
                 SymbolicDataValue out = outMap.getOutput().get(p);
-                // assignments are assumed to happen before 
+                // assignments are assumed to happen before
                 // output by the parser
                 if (out instanceof Register) {
                     String tmpName = "tmp_" + out.getType().getName() + "_" + idx;
                     tmp.put(tmpName, out.getType());
                     RegisterAutomaton.Transitions.Transition.Assignments.Assign a =
                             factory.createRegisterAutomatonTransitionsTransitionAssignmentsAssign();
-                    
+
                     a.setTo(tmpName);
-                    a.setValue(out.toString());                    
+                    a.setValue(out.toString());
                     assign.getAssign().add(a);
                     params += tmpName + ",";
                 } else {
@@ -220,18 +220,18 @@ public class RegisterAutomatonExporter {
                 }
             }
             idx++;
-        }        
-        
+        }
+
         if (params.length() > 0) {
             params = params.substring(0, params.length() -1);
             ret.setParams(params);
         }
-        
+
         ret.setAssignments(assign);
-        
+
         return ret;
     }
-    
+
     private static String exportGuard(TransitionGuard guard) {
         String g = guard.toString();
         if (!g.contains("=") && !g.contains("<") && !g.contains(">")) {
@@ -243,14 +243,14 @@ public class RegisterAutomatonExporter {
         g = g.replaceAll("\\(", "").replaceAll("\\)", "");
         return g;
     }
-    
+
     private static RegisterAutomaton.Transitions.Transition.Assignments exportAssignments(Assignment as) {
-        RegisterAutomaton.Transitions.Transition.Assignments ret = 
+        RegisterAutomaton.Transitions.Transition.Assignments ret =
                 factory.createRegisterAutomatonTransitionsTransitionAssignments();
         for (Entry<Register, ? extends SymbolicDataValue> e : as.getAssignment()) {
-            RegisterAutomaton.Transitions.Transition.Assignments.Assign a = 
+            RegisterAutomaton.Transitions.Transition.Assignments.Assign a =
                     factory.createRegisterAutomatonTransitionsTransitionAssignmentsAssign();
-            
+
             if (!e.getKey().equals(e.getValue())) {
                 a.setTo(e.getKey().toString());
                 a.setValue(e.getValue().toString());
@@ -259,15 +259,15 @@ public class RegisterAutomatonExporter {
         }
         return ret;
     }
-    
+
     private static void marschall(RegisterAutomaton ra, OutputStream os) {
         JAXB.marshal(ra, os);
     }
-    
+
     public static void write(de.learnlib.ralib.automata.RegisterAutomaton ra, Constants c, OutputStream os) {
 
         RegisterAutomaton ret = factory.createRegisterAutomaton();
-        
+
         Set<InputSymbol>  inputs  = new HashSet<>();
         Set<OutputSymbol> outputs = new HashSet<>();
         for (Transition t : ra.getTransitions()) {
@@ -279,7 +279,7 @@ public class RegisterAutomatonExporter {
                 outputs.add((OutputSymbol) ps);
             }
         }
-        
+
         RegisterAutomaton.Alphabet acts = factory.createRegisterAutomatonAlphabet();
         acts.setInputs(exportInputs(inputs));
         acts.setOutputs(exportOutputs(outputs));
@@ -289,8 +289,8 @@ public class RegisterAutomatonExporter {
         ret.setLocations(exportLocations(ra, ra.getStates()));
         ret.setTransitions(exportTransitions(ra.getTransitions(), tmp));
         ret.setGlobals(exportRegisters(ra.getRegisters(), tmp));
-        
+
         marschall(ret, os);
     }
-    
+
 }

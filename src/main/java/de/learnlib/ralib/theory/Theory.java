@@ -40,57 +40,57 @@ import net.automatalib.words.Word;
  * @param <T>
  */
 public interface Theory<T> {
-      
+
 
     /**
      * Returns a fresh data value.
-     * 
+     *
      * @param vals
-     * @return a fresh data value of type T 
+     * @return a fresh data value of type T
      */
     public DataValue<T> getFreshValue(List<DataValue<T>> vals);
-    
-    /** 
+
+    /**
      * Implements a tree query for this theory. This tree query
-     * will only work on one parameter and then call the 
+     * will only work on one parameter and then call the
      * TreeOracle for the next parameter.
-     * 
+     *
      * This method should contain (a) creating all values for the
-     * current parameter and (b) merging the corresponding 
+     * current parameter and (b) merging the corresponding
      * sub-trees.
-     * 
-     * @param prefix prefix word. 
+     *
+     * @param prefix prefix word.
      * @param suffix suffix word.
      * @param values found values for complete word (pos -> dv)
-     * @param piv memorable data values of the prefix (dv <-> itr) 
-     * @param constants 
-     * @param suffixValues map of already instantiated suffix 
+     * @param piv memorable data values of the prefix (dv <-> itr)
+     * @param constants
+     * @param suffixValues map of already instantiated suffix
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
-     * 
-     * @return a symbolic decision tree and updated piv 
-     */    
+     *
+     * @return a symbolic decision tree and updated piv
+     */
     public SDT treeQuery(
-            Word<PSymbolInstance> prefix,             
+            Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
-            WordValuation values, 
+            WordValuation values,
             PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
-     
- 
+
+
     /**
      * returns all next data values to be tested (for vals).
-     * 
+     *
      * @param vals
-     * @return 
+     * @return
      */
     public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
-            
+
     /**
      * TBD
-     * 
+     *
      * @param prefix
      * @param ps
      * @param piv
@@ -99,11 +99,11 @@ public interface Theory<T> {
      * @param guard
      * @param param
      * @param oldDvs
-     * @return 
+     * @return
      */
-    public DataValue instantiate(Word<PSymbolInstance> prefix, 
+    public DataValue instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
-    
+
 }

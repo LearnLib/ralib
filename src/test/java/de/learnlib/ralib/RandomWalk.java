@@ -26,7 +26,7 @@ import net.automatalib.words.WordBuilder;
  * RandomWalk equivalence oracle for DataWordOracle
  */
 public class RandomWalk implements IOEquivalenceOracle  {
-	
+
 	private Map<DataType, Theory> teachers;
 	private Random rand;
 	private long maxRuns;
@@ -37,7 +37,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 	private DataWordOracle wordOracle;
 	private Constants consts;
 
-	public RandomWalk(Random rand, DataWordOracle membershipOracle, double resetProbability, double newDataProbability, long maxRuns, int maxDepth, 
+	public RandomWalk(Random rand, DataWordOracle membershipOracle, double resetProbability, double newDataProbability, long maxRuns, int maxDepth,
 			Map<DataType, Theory> teachers, Constants consts,
 			List<ParameterizedSymbol> symbols) {
 		this.rand = rand;
@@ -63,7 +63,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 				return query;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -72,16 +72,16 @@ public class RandomWalk implements IOEquivalenceOracle  {
 		for (int i=0; i<depth; i++) {
 			ParameterizedSymbol randSym = symbols.get(rand.nextInt(symbols.size()));
 			PSymbolInstance input = nextDataValues(wordBuilder.toWord(), randSym);
-			
+
 			wordBuilder.add(input);
 			if (rand.nextDouble() < resetProbability) {
 				break;
 			}
 		}
-		
+
 		return wordBuilder.toWord();
 	}
-	
+
 
     private PSymbolInstance nextDataValues(
             Word<PSymbolInstance> run, ParameterizedSymbol ps) {
@@ -100,15 +100,15 @@ public class RandomWalk implements IOEquivalenceOracle  {
                 }
             }
             oldSet.addAll(consts.values(t));
-            
+
             ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
 
             Set<DataValue<Object>> newSet = new HashSet<>(
                 teacher.getAllNextValues(old));
-            
+
             newSet.removeAll(old);
             ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
-            
+
             double draw = rand.nextDouble();
             if (draw <= freshProbability || old.isEmpty()) {
                 int idx = rand.nextInt(newList.size());

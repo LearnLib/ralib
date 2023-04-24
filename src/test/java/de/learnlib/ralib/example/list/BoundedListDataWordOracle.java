@@ -13,7 +13,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**
- * 
+ *
  * @author Paul Fiterau
  *
  */
@@ -24,7 +24,7 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 	public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{intType, intType});
 	public static final InputSymbol POP = new InputSymbol("pop", new DataType[]{intType});
 	public static final InputSymbol CONTAINS = new InputSymbol("contains", new DataType[]{intType});
-	
+
 
 	private Supplier<BoundedList> factory;
 
@@ -47,7 +47,7 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -58,19 +58,19 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 				return true;
 			} else if (symInst.getBaseSymbol().equals(POP)) {
 				Integer value = list.pop();
-				return symInst.getParameterValues()[0].getId().equals(value); 
+				return symInst.getParameterValues()[0].getId().equals(value);
 			} else if (symInst.getBaseSymbol().equals(INSERT)) {
 				list.insert((Integer) symInst.getParameterValues()[0].getId(), (Integer) symInst.getParameterValues()[1].getId());
 				return true;
 			} else if (symInst.getBaseSymbol().equals(CONTAINS)) {
 				return list.contains((Integer) symInst.getParameterValues()[0].getId());
-			} 
+			}
 		} catch (Exception e) {
 		}
-		
+
 		return false;
 	}
-	
+
 	public static DataValue<Integer> dv(int val) {
 		return new DataValue<Integer>(intType, val);
 	}

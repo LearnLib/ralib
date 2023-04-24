@@ -68,11 +68,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private static final ConfigurationOption.StringOption OPTION_TARGET
             = new ConfigurationOption.StringOption("target",
-                    "traget class name", null, false);
+                    "target class name", null, false);
 
     private static final ConfigurationOption.StringOption OPTION_METHODS
             = new ConfigurationOption.StringOption("methods",
-                    "traget method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
+                    "target method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
 
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
             = new ConfigurationOption.IntegerOption("max.depth",
@@ -116,7 +116,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private IOOracle back;
 
     private Map<DataType, Theory> teachers;
-    
+
     private Class<?> target = null;
 
     private final Map<String, DataType> types = new LinkedHashMap<>();
@@ -200,7 +200,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
                 }
             }
-            
+
             MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -229,13 +229,13 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
                 this.randomWalk = new IORandomWalk(random,
                         sulTest,
-                        drawUniformly, // do not draw symbols uniformly 
-                        resetProbabilty, // reset probability 
+                        drawUniformly, // do not draw symbols uniformly
+                        resetProbabilty, // reset probability
                         freshProbability, // prob. of choosing a fresh data value
-                        maxTestRuns, // 1000 runs 
+                        maxTestRuns, // 1000 runs
                         maxDepth, // max depth
                         consts,
-                        resetRuns, // reset runs 
+                        resetRuns, // reset runs
                         teachers,
                         inputSymbols);
 
@@ -320,10 +320,10 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             System.out.println("### SYS TRACE: " + sysTrace);
 
             SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);        
+            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
-            
+
             assert !hypTrace.equals(sysTrace);
             rastar.addCounterexample(ce);
         }
@@ -331,11 +331,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
 
-        System.out.println("ce lengths (oirginal): "
+        System.out.println("ce lengths (original): "
                 + Arrays.toString(ceLengths.toArray()));
 
         if (useCeOptimizers) {
-            System.out.println("ce lengths (shortend): "
+            System.out.println("ce lengths (shortened): "
                     + Arrays.toString(ceLengthsShortened.toArray()));
         }
 
@@ -344,7 +344,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             System.out.println("Locations: " + hyp.getStates().size());
             System.out.println("Transitions: " + hyp.getTransitions().size());
 
-            // input locations + transitions            
+            // input locations + transitions
             System.out.println("Input Locations: " + hyp.getInputStates().size());
             System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
 

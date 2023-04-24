@@ -49,7 +49,7 @@ public class TestUtil {
 
     /**
      * Configures the logging system.
-     * 
+     *
      * @param lvl
      */
     public static void configureLogging(Level lvl) {
@@ -59,38 +59,38 @@ public class TestUtil {
             h.setLevel(lvl);
         }
     }
-    
+
     public static JConstraintsConstraintSolver getZ3Solver() {
-        gov.nasa.jpf.constraints.api.ConstraintSolver solver = 
+        gov.nasa.jpf.constraints.api.ConstraintSolver solver =
                 ConstraintSolverFactory.createSolver("z3");
 
-        return new JConstraintsConstraintSolver(solver);        
-    } 
+        return new JConstraintsConstraintSolver(solver);
+    }
 
     public static MultiTheoryTreeOracle createMTO(
-            DataWordSUL sul, ParameterizedSymbol error,  
-            Map<DataType, Theory> teachers, Constants consts, 
+            DataWordSUL sul, ParameterizedSymbol error,
+            Map<DataType, Theory> teachers, Constants consts,
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
-        
+
         IOOracle ioOracle = new SULOracle(sul, error);
         return createMTO(ioOracle, teachers, consts, solver, inputs);
     }
-        
+
     public static MultiTheoryTreeOracle createMTO(
-            IOOracle ioOracle, 
-            Map<DataType, Theory> teachers, Constants consts, 
+            IOOracle ioOracle,
+            Map<DataType, Theory> teachers, Constants consts,
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
-      
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
-        
+
         return mto;
     }
-    
-    
+
+
     /**
      * Creates an MTO from an RA by simulating it.
      */
@@ -98,12 +98,12 @@ public class TestUtil {
 	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
 	    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
     }
-    
+
     public static RegisterAutomatonImporter getLoader(String resName) {
         return new RegisterAutomatonImporter(
                 TestUtil.class.getResourceAsStream(resName));
     }
-    
+
     public static DataType getType(String name, Collection<DataType> dataTypes) {
         for (DataType t : dataTypes) {
             if (t.getName().equals(name)) {
@@ -111,6 +111,6 @@ public class TestUtil {
             }
         }
         return null;
-    } 
-    
+    }
+
 }

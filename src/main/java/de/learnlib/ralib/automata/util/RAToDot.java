@@ -32,13 +32,13 @@ import de.learnlib.ralib.automata.output.OutputTransition;
  * @author falk
  */
 public class RAToDot {
-    
+
     private final StringBuilder stringRA = new StringBuilder();
 
     private static final String NEWLINE = System.lineSeparator();
-    
+
     private final boolean acceptingOnly;
-    
+
     public RAToDot(RegisterAutomaton ra, boolean acceptingOnly) {
         this.acceptingOnly = acceptingOnly;
         intro();
@@ -72,10 +72,10 @@ public class RAToDot {
             stringRA.append(ra.getInitialRegisters());
         }
         stringRA.append(">]").append(NEWLINE);
-        
+
     }
-    
-    private void printLocations(RegisterAutomaton ra) {                
+
+    private void printLocations(RegisterAutomaton ra) {
         for (RALocation loc : ra) {
             if (!acceptingOnly || loc.isAccepting()) {
                 printLocation(loc);
@@ -86,7 +86,7 @@ public class RAToDot {
             }
         }
     }
-    
+
     private void printLocation(RALocation loc) {
         stringRA.append("\"");
         stringRA.append(loc.getName());
@@ -96,34 +96,34 @@ public class RAToDot {
     private void initialTransition(RALocation initialState) {
         stringRA.append("\"\" -> ");
         printLocation(initialState);
-        stringRA.append(NEWLINE);        
+        stringRA.append(NEWLINE);
     }
 
     private void printTransitions(RegisterAutomaton ra) {
         for (Transition t : ra.getTransitions()) {
-            if (!acceptingOnly || (t.getSource().isAccepting() && 
+            if (!acceptingOnly || (t.getSource().isAccepting() &&
                     t.getDestination().isAccepting())) {
-                
+
                 printLocation(t.getSource());
                 stringRA.append(" -> ");
                 printLocation(t.getDestination());
                 stringRA.append(" [label=<");
-           
+
                 if (t instanceof OutputTransition) {
                     printOutputLabel( (OutputTransition)t );
                 } else {
                     printInputLabel( t );
                 }
-                    
+
                 stringRA.append(">]");
-                stringRA.append(NEWLINE);                                   
+                stringRA.append(NEWLINE);
             }
         }
     }
 
     private void printInputLabel(Transition t) {
         stringRA.append(t.getLabel());
-        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {    
+        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {
             stringRA.append("|").append(escapeGuard(t.getGuard()));
         }
         if (!t.getAssignment().getAssignment().isEmpty()) {
@@ -134,11 +134,11 @@ public class RAToDot {
 
     private void printOutputLabel(OutputTransition t) {
         stringRA.append(t.getLabel());
-        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {    
+        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {
             stringRA.append("|").append(escapeGuard(t.getGuard()));
-        }        
+        }
         if (!t.getOutput().getFreshParameters().isEmpty() ||
-                !t.getOutput().getOutput().isEmpty()) {    
+                !t.getOutput().getOutput().isEmpty()) {
             stringRA.append("/").append(
                     t.getOutput().toString().replaceAll(">", ":"));
         }
@@ -147,9 +147,8 @@ public class RAToDot {
             stringRA.append(t.getAssignment());
         }
     }
-    
+
     private String escapeGuard(TransitionGuard g) {
         return g.toString().replaceAll("&", "&amp;");
     }
-        
 }

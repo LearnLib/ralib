@@ -23,27 +23,27 @@ import java.util.List;
 import java.util.Map;
 
 public class DisjointSet<T> {
-	
+
 	private static class Node<T> {
 		T x;
 		Node<T> parent;
 		int rank;
-		
+
 		public Node(T x) {
 			this.x = x;
 			this.parent = null;
 			this.rank = 0;
 		}
 	}
-	
-	
-	
+
+
+
 	private final Map<T,Node<T>> nodes
 		= new HashMap<T,Node<T>>();
-	
+
 	public DisjointSet() {
 	}
-	
+
 	private Node<T> getNode(T x) {
 		Node<T> n = nodes.get(x);
 		if(n == null) {
@@ -52,20 +52,20 @@ public class DisjointSet<T> {
 		}
 		return n;
 	}
-	
+
 	public T find(T x) {
 		Node<T> n = getNode(x);
 		return findRoot(n).x;
 	}
-	
+
 	public T union(T a, T b) {
 		return union(findRoot(a), findRoot(b)).x;
 	}
-	
+
 	private Node<T> findRoot(T x) {
 		return findRoot(getNode(x));
 	}
-	
+
 	private Node<T> findRoot(Node<T> n) {
 		if(n.parent == null)
 			return n;
@@ -73,11 +73,11 @@ public class DisjointSet<T> {
 		n.parent = root;
 		return root;
 	}
-	
+
 	private Node<T> union(Node<T> a, Node<T> b) {
 		if(a == b)
 			return a;
-		
+
 		if(a.rank < b.rank) {
 			a.parent = b;
 			a = b;
@@ -90,12 +90,12 @@ public class DisjointSet<T> {
 		}
 		return a;
 	}
-	
-	
+
+
 	public Collection<List<T>> partition() {
 		Map<Node<T>,List<T>> result = new HashMap<Node<T>,List<T>>();
-		
-		
+
+
 		for(Node<T> n : nodes.values()) {
 			Node<T> root = findRoot(n);
 			List<T> l = result.get(root);
@@ -105,8 +105,8 @@ public class DisjointSet<T> {
 			}
 			l.add(n.x);
 		}
-		
+
 		return result.values();
 	}
-	
+
 }

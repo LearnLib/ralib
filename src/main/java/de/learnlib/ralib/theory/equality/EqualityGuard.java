@@ -39,7 +39,7 @@ public class EqualityGuard extends SDTIfGuard {
     public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param, reg, Relation.EQUALS);
     }
-    
+
     public EqualityGuard(EqualityGuard other) {
     	super(other);
     }
@@ -130,7 +130,7 @@ public class EqualityGuard extends SDTIfGuard {
         }
         return guards;
     }
-    
+
     @Override
     public EqualityGuard copy() {
     	return new EqualityGuard(this);

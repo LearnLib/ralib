@@ -22,10 +22,10 @@ import de.learnlib.ralib.words.PSymbolInstance;
 
 /**
  * Interface for IO equivalence oracles
- * 
+ *
  * @author falk
  */
-public interface IOEquivalenceOracle extends 
+public interface IOEquivalenceOracle extends
         EquivalenceOracle<RegisterAutomaton, PSymbolInstance, Boolean> {
-    
+
 }

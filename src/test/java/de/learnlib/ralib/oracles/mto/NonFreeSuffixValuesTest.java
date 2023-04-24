@@ -51,7 +51,7 @@ import org.testng.Assert;
  */
 public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
-    
+
     @Test
     public void testModelswithOutput() {
 
@@ -60,7 +60,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -69,16 +69,16 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
-            theory.setUseSuffixOpt(true);              
+            theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-    
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-          
+
         ParameterizedSymbol iput = new InputSymbol(
                 "IPut", new DataType[] {intType});
 
@@ -86,11 +86,11 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 "IGet", new DataType[] {});
 
          ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", new DataType[] {intType}); 
-         
+                "OGet", new DataType[] {intType});
+
          ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});    
-         
+                "OOK", new DataType[] {});
+
          DataValue d0 = new DataValue(intType, 0);
          DataValue d1 = new DataValue(intType, 1);
          DataValue d6 = new DataValue(intType, 6);
@@ -102,14 +102,14 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 ,new PSymbolInstance(iput,d1),
                 new PSymbolInstance(ook)
                 );
-        
+
         //**** [s2, s3, s4, s5]((IPut[s1] OOK[] IPut[s2] OOK[] IGet[] OGet[s3] IGet[] OGet[s4] IGet[] OGet[s1] IGet[] OGet[s5]))
         Word<PSymbolInstance> suffix =  Word.fromSymbols(
                 new PSymbolInstance(iput, d6),
                 new PSymbolInstance(ook),
                 new PSymbolInstance(iput,d0),
                 new PSymbolInstance(ook),
-                
+
                 new PSymbolInstance(iget),
                 new PSymbolInstance(oget,d0),
                 new PSymbolInstance(iget),
@@ -118,18 +118,18 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(oget, d6),
                 new PSymbolInstance(iget),
                 new PSymbolInstance(oget,d0));
-        
+
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);       
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
         String tree = tqr.getSdt().toString();
-                
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
-        
+
         String expectedTree = "[r1, r2]-+\n" +
 "        []-TRUE: s1\n" +
 "              []-TRUE: s2\n" +
@@ -149,8 +149,8 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "                                []-TRUE: s5\n" +
 "                                      []-TRUE: s6\n" +
 "                                            [Leaf-]\n";
-        
-        Assert.assertEquals(tree, expectedTree);        
+
+        Assert.assertEquals(tree, expectedTree);
     }
-           
+
 }

@@ -24,13 +24,13 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
  * @author falk
  */
 public interface TreeOracleFactory {
-    
+
     /**
      * creates a tree oracle around a given hypothesis.
-     * 
+     *
      * @param hyp
-     * @return 
+     * @return
      */
     public TreeOracle createTreeOracle(RegisterAutomaton hyp);
-    
+
 }

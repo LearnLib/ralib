@@ -50,16 +50,16 @@ import org.testng.Assert;
  * @author falk
  */
 public class NonFreeSuffixValuesTest2 extends RaLibTestSuite {
-        
+
     @Test
     public void testModelswithOutput() {
- 
+
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/palindrome.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -71,17 +71,17 @@ public class NonFreeSuffixValuesTest2 extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-    
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-      
+
         ParameterizedSymbol i4 = new InputSymbol(
                 "IPalindrome4", new DataType[] {intType, intType, intType, intType});
 
          ParameterizedSymbol oyes = new OutputSymbol(
-                "OYes", new DataType[] {}); 
-                  
+                "OYes", new DataType[] {});
+
          DataValue d0 = new DataValue(intType, 0);
          DataValue d1 = new DataValue(intType, 1);
          DataValue d2 = new DataValue(intType, 2);
@@ -91,29 +91,29 @@ public class NonFreeSuffixValuesTest2 extends RaLibTestSuite {
          DataValue d6 = new DataValue(intType, 6);
          DataValue d7 = new DataValue(intType, 7);
 
-        //****** 
+        //******
         Word<PSymbolInstance> prefix1 = Word.fromSymbols();
-        
+
         Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(i4, d0, d1, d2, d3),
                 new PSymbolInstance(oyes));
-        
+
         //**** []((IPalindrome4[s1, s2, s2, s1] OYes[]))
         Word<PSymbolInstance> suffix =  Word.fromSymbols(
                 new PSymbolInstance(i4, d4, d5, d6, d7),
                 new PSymbolInstance(oyes));
-        
+
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, consts);
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);       
+
+        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
         String tree = tqr.getSdt().toString();
-                
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}",tree);
-        
+
         String expectedTree = "[]-+\n" +
 "  []-TRUE: s1\n" +
 "        []-TRUE: s2\n" +
@@ -125,8 +125,8 @@ public class NonFreeSuffixValuesTest2 extends RaLibTestSuite {
 "               +-(s3!=s2)\n" +
 "                    []-TRUE: s4\n" +
 "                          [Leaf-]\n";
-        
-        Assert.assertEquals(tree, expectedTree);        
+
+        Assert.assertEquals(tree, expectedTree);
     }
- 
+
 }

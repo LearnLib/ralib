@@ -48,5 +48,5 @@ public class TrueGuardExpression extends GuardExpression {
     @Override
     protected void getSymbolicDataValues(Set<SymbolicDataValue> vals) {
     }
-    
+
 }

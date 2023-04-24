@@ -26,11 +26,11 @@ import java.util.TreeSet;
  * @author falk
  */
 public class KeyGenMap {
-        
+
     private final Set<Integer> known = new TreeSet<>();
-    
+
     private final Map<Integer,Integer> objects = new HashMap<>();
-    
+
     public Integer put(Integer o) {
         known.add(o);
         if (objects.size() > 0) {
@@ -41,7 +41,7 @@ public class KeyGenMap {
         objects.put(newKey, o);
         return newKey;
     }
-    
+
     public Integer get(Integer o) {
         known.add(o);
         return objects.get(o);

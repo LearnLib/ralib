@@ -49,13 +49,13 @@ public class IntervalGuard extends SDTGuard {
         leftLimit = ll;
         rightLimit = rl;
     }
-    
+
     public IntervalGuard(IntervalGuard other) {
     	super(other);
     	leftLimit = other.leftLimit;//.copy();
     	rightLimit = other.rightLimit;//.copy();
     }
-    
+
     public EqualityGuard toEqGuard() {
         assert !isIntervalGuard();
         SymbolicDataValue r = null;
@@ -67,7 +67,7 @@ public class IntervalGuard extends SDTGuard {
         }
         return new EqualityGuard(this.parameter,r);
     }
-    
+
     public DisequalityGuard toDeqGuard() {
         assert !isIntervalGuard();
         SymbolicDataValue r = null;
@@ -269,10 +269,10 @@ public class IntervalGuard extends SDTGuard {
                 guards.add(other);
             }
             // special case for equality guards
-        } else //if (other instanceof EqualityGuard) 
+        } else //if (other instanceof EqualityGuard)
         {
             //return this.mergeWithEquality((EqualityGuard) other);
-            //} 
+            //}
             //else {
 //            System.out.println("guard " + other + " not deq or interval");
             guards.add(this);
@@ -356,7 +356,7 @@ public class IntervalGuard extends SDTGuard {
     public List<SDTGuard> unwrap() {
         return Collections.singletonList((SDTGuard) this);
     }
-    
+
     @Override
     public IntervalGuard copy() {
     	return new IntervalGuard(this);
