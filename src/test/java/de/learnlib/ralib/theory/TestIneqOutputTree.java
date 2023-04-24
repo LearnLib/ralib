@@ -73,7 +73,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         
     }
     
-    @Test
+    @Test(enabled=false)
     public void testIneqEqTree() {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();

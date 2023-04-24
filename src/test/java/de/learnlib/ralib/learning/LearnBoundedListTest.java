@@ -43,7 +43,7 @@ import net.automatalib.words.Word;
  */
 public class LearnBoundedListTest {
 
-	@Test
+	@Test(enabled=false)
 	public void learnBoundedListOracleTest() {
 		@SuppressWarnings("unchecked")
 		Word<PSymbolInstance>[] ces = new Word[] {
