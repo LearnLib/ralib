@@ -8,7 +8,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,13 +18,10 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
-import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -238,21 +234,6 @@ public class DT implements DiscriminationTree {
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
 
-//        boolean suffixPresent = false;
-//        DTInnerNode parent = src_c.getParent();
-//        while (parent != null && !suffixPresent) {
-//        	if (parent.getSuffix().equals(suffix))
-//        		suffixPresent = true;
-//        	parent = parent.getParent();
-//        }
-//
-//        if (suffixPresent) {
-//        	Word<PSymbolInstance> src_id = src_c.getAccessSequence();
-//        	Word<PSymbolInstance> src_pre = src_id.prefix(src_id.length()-1);
-//        	SymbolicSuffix suff_diff = new SymbolicSuffix(target.prefix(src_pre.length()), target.suffix(target.length() - src_pre.length()));
-//        	suffix = suff1.concat(suff_diff);
-//        }
-
         DTInnerNode parent = src_c.getParent();
         while (parent != null) {
         	if (parent.getSuffix().equals(suffix))
@@ -298,109 +279,6 @@ public class DT implements DiscriminationTree {
             ret = ret && checkConsistency(b.getChild());
         }
         return ret;
-    }
-
-    public boolean checkDeterminism(Hypothesis hyp) {
-    	return checkDeterminism(root, hyp);
-    }
-
-    private boolean checkDeterminism(DTNode node, Hypothesis hyp) {
-    	if (node.isLeaf()) {
-    		DTLeaf leaf = (DTLeaf) node;
-    		return leaf.checkDeterminism(this, hyp, getAllPrefixes(), consts);
-    	}
-        boolean ret = true;
-        DTInnerNode inner = (DTInnerNode) node;
-        for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
-            ret = ret && checkDeterminism(b.getChild(), hyp);
-        }
-        return ret;
-    }
-
-    public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
-        List<Word<PSymbolInstance>> extensions = new ArrayList<>();
-        Collection<DTLeaf> leaves = getLeaves();
-        for (DTLeaf leaf : leaves) {
-            for (Word<PSymbolInstance> leafPrefix : leaf.getAllPrefixes()) {
-                if (!leafPrefix.isEmpty() && leafPrefix.lastSymbol().getBaseSymbol().equals(ps) && prefix.isPrefixOf(leafPrefix) && leafPrefix.length() == prefix.length() + 1) {
-                    extensions.add(leafPrefix);
-                }
-            }
-        }
-        return extensions;
-    }
-
-    public boolean checkIOConsistency(DTHyp hyp, SDTLogicOracle logicOracle) {
-        return checkIOConsistency(root, hyp, logicOracle);
-    }
-
-    private boolean checkIOConsistency(DTNode node, DTHyp hyp, SDTLogicOracle logicOracle) {
-        if (node.isLeaf()) {
-            DTLeaf l = (DTLeaf) node;
-            if (l == sink)
-                return true;
-            Word<PSymbolInstance> p = l.checkIOConsistency();
-            if (p == null)
-                return true;
-            makeIOConsistent(l, p, hyp, logicOracle);
-            return false;
-        } else {
-            DTInnerNode n = (DTInnerNode) node;
-            for (DTBranch b : n.getBranches()) {
-                if (!checkIOConsistency(b.getChild(), hyp, logicOracle))
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp, SDTLogicOracle logicOracle) {
-        Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp, logicOracle);
-
-        if (div != null) {
-
-            Word<PSymbolInstance> refinedTarget = div.getKey();
-            Word<PSymbolInstance> target = div.getValue();
-
-            addLocation(refinedTarget, src_c, getLeaf(target), getLeaf(refinedTarget));
-        } else {
-            boolean input = src_c.isInputComponent();
-            Collection<ParameterizedSymbol> used = new LinkedHashSet<ParameterizedSymbol>();
-            DTInnerNode parent = src_c.getParent();
-            do {
-                SymbolicSuffix s = parent.getSuffix();
-                if (s.length() == 1 && DTLeaf.isInput(s.getActions().firstSymbol()) ^ input)
-                    used.add(s.getActions().firstSymbol());
-                parent = parent.getParent();
-            } while (parent != null);
-
-            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(prefix);
-            for (ParameterizedSymbol i : inputs) {
-                if (!(DTLeaf.isInput(i) ^ input) || used.contains(i))
-                    continue;
-                TreeQueryResult tqr = oracle.treeQuery(prefix, new SymbolicSuffix(i));
-                Branching newBranch = oracle.getInitialBranching(prefix, i, tqr.getPiv(), tqr.getSdt());
-                Branching oldBranch = sp.getBranching(i);
-
-                if (newBranch.getBranches().size() == oldBranch.getBranches().size())
-                    continue;
-
-                Branching asBranch = src_c.getBranching(i);
-                for (Word<PSymbolInstance> p : newBranch.getBranches().keySet()) {
-                    if (!oldBranch.getBranches().keySet().contains(p)) {
-                        DTLeaf target_c = this.sift(p, false);
-
-                        for (Word<PSymbolInstance> w : asBranch.getBranches().keySet()) {
-                            DTLeaf dest_c = getLeaf(w);
-                            if (target_c != dest_c) {
-                                addLocation(p, src_c, dest_c, target_c);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -490,12 +368,6 @@ public class DT implements DiscriminationTree {
         return suffixes;
     }
 
-    private Collection<Word<PSymbolInstance>> getAllPrefixes() {
-        Collection<Word<PSymbolInstance>> prefs = new ArrayList<Word<PSymbolInstance>>();
-        getAllPrefixes(prefs, root);
-        return prefs;
-    }
-
     private void getAllPrefixes(Collection<Word<PSymbolInstance>> prefs, DTNode node) {
         if (node.isLeaf()) {
             DTLeaf leaf = (DTLeaf) node;
@@ -550,22 +422,11 @@ public class DT implements DiscriminationTree {
             parent = parent.getParent();
         }
 
-//        DTInnerNode node = path1.pop();
-//        path2.pop();
-//        while (!path1.isEmpty() && !path2.isEmpty() && path1.peek() == path2.peek()) {
-//            node = path1.pop();
-//            path2.pop();
-//        }
-
-//        DTInnerNode first = path1.peek();
-//        path2.pop();
-
         while (!path1.isEmpty()) {
         	DTInnerNode node = path1.poll();
         	if (path2.contains(node))
         		return node;
         }
-//        return first;
         return null;
     }
 

@@ -83,7 +83,6 @@ public class LearnPQTest extends RaLibTestSuite {
         RaTTT rastar = new RaTTT(mto, hypFactory, mlo, consts, OFFER, POLL);
 //        rastar.setUseOldAnalyzer(true);
         rastar.learn();
-        rastar.doThoroughCESearch(true);
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 

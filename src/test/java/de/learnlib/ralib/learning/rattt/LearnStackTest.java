@@ -70,7 +70,6 @@ public class LearnStackTest extends RaLibTestSuite {
                         new Constants(), solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.doThoroughCESearch(true);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -122,7 +121,6 @@ public class LearnStackTest extends RaLibTestSuite {
                         new Constants(), solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.doThoroughCESearch(true);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -197,7 +195,6 @@ public class LearnStackTest extends RaLibTestSuite {
                         new Constants(), solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.doThoroughCESearch(true);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
