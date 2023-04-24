@@ -120,7 +120,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
                 ? registerFreshValue(in.getRetType(), ret)
                 : new DataValue(in.getRetType(), ret);
 
-        //updateSeen(retVal);        
+        //updateSeen(retVal);
         return new PSymbolInstance(in.getOutput(), retVal);
 
     }
@@ -162,11 +162,11 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             map = new HashMap<>();
             this.buckets.put(retType, map);
         }
-        
+
         DataValue v = new DataValue(retType, map.size());
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
-        return new FreshValue(v.getType(), v.getId());    
+        return new FreshValue(v.getType(), v.getId());
     }
 
 }

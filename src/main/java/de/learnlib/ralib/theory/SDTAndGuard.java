@@ -110,5 +110,5 @@ public class SDTAndGuard extends SDTMultiGuard {
     public SDTAndGuard copy() {
     	return new SDTAndGuard(this);
     }
-    
+
 }

@@ -23,12 +23,12 @@ import net.automatalib.words.Word;
 
 /**
  * Interface for counterexample optimizations
- * 
+ *
  * @author falk
  */
 public interface IOCounterExampleOptimizer {
-    
+
     public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
             Word<PSymbolInstance> ce, Hypothesis hyp);
-    
+
 }

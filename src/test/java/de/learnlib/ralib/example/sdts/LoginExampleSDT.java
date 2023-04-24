@@ -31,19 +31,19 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 public class LoginExampleSDT implements SymbolicDecisionTree {
 
     public static enum SDTClass {ACCEPT, REJECT, LOGIN};
-    
+
     private final SDTClass clazz;
-    
+
     private final SymbolicSuffix suffix;
 
     private final Set<Register> registers;
-    
+
     public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;
     }
-    
+
     public LoginExampleSDT(LoginExampleSDT other) {
     	clazz = other.clazz;
     	suffix = new SymbolicSuffix(other.suffix);
@@ -57,18 +57,18 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
         if (!(other.getClass().equals(this.getClass()))) {
             return false;
         }
-        
+
         LoginExampleSDT sdt = (LoginExampleSDT) other;
         return (clazz == sdt.clazz) &&
                 (registers.equals(sdt.registers)) &&
                 (suffix.equals(sdt.suffix));
     }
-    
+
     @Override
     public LoginExampleSDT relabel(VarMapping relabelling) {
         return this;
     }
-    
+
     @Override
     public LoginExampleSDT copy() {
     	return new LoginExampleSDT(this);
@@ -78,10 +78,10 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     public String toString() {
         return "[" + clazz + "]";
     }
-    
+
     @Override
     public boolean isAccepting() {
         return clazz == SDTClass.ACCEPT;
     }
-            
+
 }

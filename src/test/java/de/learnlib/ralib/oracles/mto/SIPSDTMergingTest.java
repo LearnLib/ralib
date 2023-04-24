@@ -50,16 +50,16 @@ import org.testng.Assert;
  * @author falk
  */
 public class SIPSDTMergingTest extends RaLibTestSuite {
-    
+
     @Test
     public void testModelswithOutput() {
- 
+
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
-        
+
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -71,11 +71,11 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, 
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
-    
+
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-          
+
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[] {intType});
 
@@ -83,28 +83,28 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
                 "IINVITE", new DataType[] {intType});
 
          ParameterizedSymbol inil = new InputSymbol(
-                "Inil", new DataType[] {}); 
-         
+                "Inil", new DataType[] {});
+
          ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});    
+                "O100", new DataType[] {intType});
 
         ParameterizedSymbol o486 = new OutputSymbol(
-                "O486", new DataType[] {intType});    
+                "O486", new DataType[] {intType});
 
         ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});         
-         
+                "O481", new DataType[] {intType});
+
         DataValue d0 = new DataValue(intType, 0);
         DataValue d1 = new DataValue(intType, 1);
 
-        
+
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IINVITE[1[int]] O100[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(inv, d0),
                 new PSymbolInstance(o100, d0),
                 new PSymbolInstance(inv, d1),
                 new PSymbolInstance(o100, d1));
-        
+
         //**** [s1, s2, s3]((Inil[] O486[s1] IPRACK[s2] O481[s3]))
         Word<PSymbolInstance> suffix =  Word.fromSymbols(
                 new PSymbolInstance(inil),
@@ -112,16 +112,16 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
                 new PSymbolInstance(ipr, d0),
                 new PSymbolInstance(o481, d0));
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        
+
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-        
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);       
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
         String tree = tqr.getSdt().toString();
-                
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());        
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}",tree);
-        
+
         final String expectedTree = "[r1, r2]-+\n" +
 "        []-(s1=r1)\n" +
 "         |    []-(s2=r2)\n" +
@@ -136,8 +136,8 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
 "              []-TRUE: s2\n" +
 "                    []-TRUE: s3\n" +
 "                          [Leaf-]\n";
-        
+
         Assert.assertEquals(tree, expectedTree);
     }
-        
+
 }

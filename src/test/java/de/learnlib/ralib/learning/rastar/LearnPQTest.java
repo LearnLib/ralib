@@ -58,20 +58,20 @@ public class LearnPQTest extends RaLibTestSuite {
     public void PQExample() {
 
         Constants consts = new Constants();
-        DataWordOracle dwOracle = 
+        DataWordOracle dwOracle =
                 new de.learnlib.ralib.example.priority.PriorityQueueOracle();
-        
+
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-        
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();       
+
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), jsolv);
-        
+
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, OFFER, POLL);
@@ -99,7 +99,7 @@ public class LearnPQTest extends RaLibTestSuite {
         rastar.learn();
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        
+
         Assert.assertEquals(hyp.getStates().size(), 7);
         Assert.assertEquals(hyp.getTransitions().size(), 27);
     }

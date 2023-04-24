@@ -72,7 +72,7 @@ public class RAEquivalenceTestTest {
 		// assignments
 		VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
 		storeMapping.put(rVal, pVal);
-		
+
 
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
         copyMapping.put(rVal, rVal);
@@ -82,18 +82,18 @@ public class RAEquivalenceTestTest {
 		Assignment noAssign = new Assignment(new VarMapping<>());
 
 		RAEquivalenceTest test = new RAEquivalenceTest(sul, teachers, consts, true, I_PUSH, I_POP);
-		
+
 		RALocation l0 = aut.addInitialState(true);
 		RALocation l1 = aut.addState(true);
 		RALocation ls = aut.addState(false);
-		
+
 		aut.addTransition(l0, I_PUSH, new InputTransition(trueGuard, I_PUSH, l0, l1, storeAssign));
 		aut.addTransition(l0, I_POP, new InputTransition(trueGuard, I_POP, l0, ls, noAssign));
-		
+
 		aut.addTransition(l1, I_PUSH, new InputTransition(trueGuard, I_PUSH, l1, l1, copyAssign));
 		aut.addTransition(l1, I_POP, new InputTransition(eqGuard, I_POP, l1, l0, noAssign));
 		aut.addTransition(l1, I_POP, new InputTransition(neqGuard, I_POP, l1, ls, noAssign));
-		
+
 		aut.addTransition(ls, I_PUSH, new InputTransition(trueGuard, I_PUSH, ls, ls, noAssign));
 		aut.addTransition(ls, I_POP, new InputTransition(trueGuard, I_POP, ls, ls, noAssign));
 

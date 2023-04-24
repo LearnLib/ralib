@@ -43,42 +43,42 @@ import java.util.logging.Level;
  * @author falk
  */
 public class CellTest extends RaLibTestSuite {
-    
+
     @Test
     public void testCellCreation() {
-           
+
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));           
-        
+                    new DataValue(T_PWD, 2)));
+
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, 1),
                     new DataValue(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT));
-        
-        
+
+
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
-        
+
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);
         logger.log(Level.FINE, "Prefix: {0}", prefix);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix);        
-        
+        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
+
         LoggingOracle oracle = new LoggingOracle(new LoginExampleTreeOracle());
-        
+
         Cell c = Cell.computeCell(oracle, prefix, symSuffix);
-        
-        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));        
+
+        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));
         logger.log(Level.FINE, "Cell: {0}", c.toString());
-        
+
         Assert.assertTrue(c.couldBeEquivalentTo(c));
         Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
-        
+
     }
-    
+
 }

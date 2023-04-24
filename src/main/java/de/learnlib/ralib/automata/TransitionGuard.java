@@ -25,11 +25,11 @@ import de.learnlib.ralib.data.VarValuation;
 
 /**
  * Transition Guard.
- * 
+ *
  * @author falk
  */
 public class TransitionGuard {
-    
+
     private final GuardExpression condition;
 
     public TransitionGuard() {
@@ -40,22 +40,22 @@ public class TransitionGuard {
         assert condition != null;
         this.condition = condition;
     }
-    
+
     /**
-     * Checks if the guard is satisfied for the given assignments of 
+     * Checks if the guard is satisfied for the given assignments of
      * registers, parameters, and named constants.
-     * 
+     *
      * @param registers
      * @param parameters
      * @param consts
-     * @return 
+     * @return
      */
     public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
         VarMapping val = new VarMapping();
         val.putAll(registers);
         val.putAll(parameters);
         val.putAll(consts);
-                
+
         return condition.isSatisfied(val);
     }
 
@@ -70,5 +70,5 @@ public class TransitionGuard {
     public GuardExpression getCondition() {
         return condition;
     }
-        
+
 }

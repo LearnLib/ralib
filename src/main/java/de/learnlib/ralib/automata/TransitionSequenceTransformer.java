@@ -19,23 +19,23 @@ package de.learnlib.ralib.automata;
 import net.automatalib.words.Word;
 
 /**
- * Interface for Automata that can transform an input word 
- * into a representative word for the last passed transition 
- * when processing said input word. (Usually this would be a 
+ * Interface for Automata that can transform an input word
+ * into a representative word for the last passed transition
+ * when processing said input word. (Usually this would be a
  * word from the set of prefixes in active automata learning).
- * 
+ *
  * @author falk
  * @param <I> class of input symbols
  */
 public interface TransitionSequenceTransformer<I extends Object> {
-    
+
     /**
-     * returns the word representing the last transition 
+     * returns the word representing the last transition
      * passed when processing the input word.
-     * 
+     *
      * @param word
-     * @return 
+     * @return
      */
     public Word<I> transformTransitionSequence(Word<I> word);
-    
+
 }

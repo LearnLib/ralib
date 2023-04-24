@@ -32,33 +32,33 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  * Mutable Register Automaton.
- * 
+ *
  * @author falk
  */
 public class MutableRegisterAutomaton extends RegisterAutomaton
         implements MutableDeterministic<RALocation, ParameterizedSymbol, Transition, Boolean, Void> {
-    
+
     protected final Constants constants;
-    
+
     private int ids = 0;
-    
+
     private RALocation initial;
-    
+
     private final Set<RALocation> locations = new LinkedHashSet<>();
-    
+
     public MutableRegisterAutomaton(Constants consts, VarValuation initialRegisters) {
         super(initialRegisters);
         this.constants = consts;
     }
-    
+
     public MutableRegisterAutomaton(Constants consts) {
         this.constants = consts;
     }
-    
+
     public MutableRegisterAutomaton() {
         this(new Constants());
     }
-    
+
     @Override
     public RALocation getSuccessor(Transition t) {
         return t.getDestination();
@@ -67,14 +67,14 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     @Override
     public Transition getTransition(RALocation s, ParameterizedSymbol i) {
         throw new UnsupportedOperationException(
-                "There may be more than one transition per symbol in an RA."); 
+                "There may be more than one transition per symbol in an RA.");
     }
 
     @Override
     public Collection<Transition> getTransitions(RALocation s, ParameterizedSymbol i) {
         return s.getOut(i);
     }
-    
+
     @Override
     public RALocation getInitialState() {
         return initial;
@@ -84,22 +84,22 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     public Collection<RALocation> getStates() {
         return locations;
     }
-    
+
     protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
         VarValuation vars = new VarValuation(getInitialRegisters());
         RALocation current = initial;
         List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
-            
+
             ParValuation pars = new ParValuation(psi);
-            
-            Collection<Transition> candidates = 
+
+            Collection<Transition> candidates =
                     current.getOut(psi.getBaseSymbol());
-                        
+
             if (candidates == null) {
                 return null;
             }
-            
+
             boolean found = false;
             for (Transition t : candidates) {
                 if (t.isEnabled(vars, pars, this.constants)) {
@@ -110,14 +110,14 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                     break;
                 }
             }
-            
+
             if (!found) {
                 return null;
             }
         }
-        return tseq;        
+        return tseq;
     }
-    
+
     @Override
     public RALocation getLocation(Word<PSymbolInstance> dw) {
         List<Transition> tseq = getTransitions(dw);
@@ -133,7 +133,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     @Override
-    public boolean accepts(Word<PSymbolInstance> dw) {        
+    public boolean accepts(Word<PSymbolInstance> dw) {
         RALocation dest = getLocation(dw);
         return (dest != null && dest.isAccepting());
     }
@@ -215,7 +215,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     @Override
     public Transition createTransition(RALocation s, Void tp) {
         throw new UnsupportedOperationException(
-                "Unsupported: A RA can have input and output transitions."); 
+                "Unsupported: A RA can have input and output transitions.");
     }
 
     @Override
@@ -258,12 +258,12 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     @Override
     public Transition addTransition(RALocation s, ParameterizedSymbol i, RALocation s1, Void tp) {
         throw new UnsupportedOperationException(
-                "More information needed for a transition of a RA"); 
+                "More information needed for a transition of a RA");
     }
 
     @Override
     public Transition copyTransition(Transition t, RALocation s) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 

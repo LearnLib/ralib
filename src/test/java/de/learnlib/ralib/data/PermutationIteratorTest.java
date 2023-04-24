@@ -27,17 +27,17 @@ import de.learnlib.ralib.data.util.PermutationIterator;
  * @author falk
  */
 public class PermutationIteratorTest extends RaLibTestSuite {
-    
+
     @Test
     public void testIterator() {
-    
+
         int expected = 0;
         for (int i=0; i<10; i++) {
             int count = 0;
             PermutationIterator iter = new PermutationIterator(i);
             for (int[] xx : iter) {
                 count++;
-            }         
+            }
             Assert.assertEquals(expected, count);
             expected = (expected == 0) ? 1 : expected * (i+1);
         }

@@ -59,7 +59,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
      */
 
     private static class Pair<T1, T2> {
-        
+
         private final T1 first;
         private final T2 second;
 
@@ -74,28 +74,28 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         public T2 getSecond() {
             return second;
-        }                
+        }
     }
-    
-    
+
+
     /* **********************************************************************
      * state pair hash stuff ...
      */
-    
+
     private static class Tuple {
-        
+
         RALocation sys1loc;
         RALocation sys2loc;
         VarValuation sys1reg;
         VarValuation sys2reg;
-        
+
         public Tuple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = new VarValuation(r1);
             sys2reg = new VarValuation(r2);
         }
-        
+
         @Override
         public int hashCode() {
             int hash = 7;
@@ -121,23 +121,23 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             }
             return true;
         }
-                
+
     }
-    
-    private boolean compatible(Tuple t1, Tuple t2) 
+
+    private boolean compatible(Tuple t1, Tuple t2)
     {
         // compare lcoations ...
         if (!t1.equals(t2))
             return false;
-        
+
 //        log.log(Level.FINEST,t1.sys1reg);
 //        log.log(Level.FINEST,t1.sys2reg);
 //        log.log(Level.FINEST,t2.sys1reg);
 //        log.log(Level.FINEST,t2.sys2reg);
-        
+
         // compare registers
         LinkedHashMap<Object,Object> vMap = new LinkedHashMap<>();
-        
+
         return compareRegister(t1.sys1reg, t2.sys1reg, vMap) &&
                compareRegister(t1.sys2reg, t2.sys2reg, vMap);
     }
@@ -145,20 +145,20 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private boolean compareRegister(
             VarValuation r1, VarValuation r2, Map<Object,Object> vMap) {
 
-        for (Register key : r1.keySet()) 
+        for (Register key : r1.keySet())
         {
             DataValue v1 = r1.get(key);
             DataValue v2 = r2.get(key);
-            
+
             boolean n1 = (v1 == null);
             boolean n2 = (v2 == null);
-            
+
             if (n1 && n2)
                 continue;
-            
+
             if (n1 || n2)
                 return false;
-            
+
             Object o1 = vMap.get(v1.getId());
             if (o1 != null && !o1.equals(v2.getId())) {
                 return false;
@@ -169,29 +169,29 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 {
                     if (v1.equals(cv) || v2.equals(cv))
                         return false;
-                }   
+                }
             }
-            vMap.put( v1.getId(), v2.getId());            
+            vMap.put( v1.getId(), v2.getId());
         }
-        
+
         return true;
     }
-    
-    
-    
+
+
+
     /* **********************************************************************
      * queue elements
      */
-    
+
     private static class Triple {
-        
+
         RALocation sys1loc;
         RALocation sys2loc;
         VarValuation sys1reg;
         VarValuation sys2reg;
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
-        
+
         public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word w, Word t) {
             sys1loc = l1;
             sys2loc = l2;
@@ -200,30 +200,30 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             as = w;
             trace = t;
         }
-                
+
     }
-    
-    
+
+
     /* **********************************************************************
      * main class implementation
      */
-    
+
     private final RegisterAutomaton sys1;
     private RegisterAutomaton sys2;
-    
+
     private final Map<DataType, Theory> teacher;
-    
+
     private final Constants consts;
-    
+
     private final ParameterizedSymbol[] actions;
-    
+
     private final boolean checkForEqualParameters;
-    
-    public IOEquivalenceTest(RegisterAutomaton in1,  
-            Map<DataType, Theory> teacher, Constants consts,  
-            boolean checkForEqualParameters, 
+
+    public IOEquivalenceTest(RegisterAutomaton in1,
+            Map<DataType, Theory> teacher, Constants consts,
+            boolean checkForEqualParameters,
             ParameterizedSymbol ... actions) {
-        
+
         this.sys1 = in1;
 
         this.teacher = teacher;
@@ -231,75 +231,75 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         this.actions = actions;
         this.checkForEqualParameters = checkForEqualParameters;
     }
- 
+
     @Override
     public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
-        
-        this.sys2 = a;        
+
+        this.sys2 = a;
         int x=0;
-                
-        LinkedList<Triple> q = new LinkedList<>();        
-        Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(), 
-                sys1.getInitialRegisters(), sys2.getInitialRegisters(), 
+
+        LinkedList<Triple> q = new LinkedList<>();
+        Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
+                sys1.getInitialRegisters(), sys2.getInitialRegisters(),
                 Word.epsilon(), Word.epsilon());
-        
+
         q.offer(start);
-        
+
         LinkedHashMap<Tuple,ArrayList<Tuple>> visited = new LinkedHashMap<>();
         Tuple st = new Tuple(start.sys1loc, start.sys2loc, start.sys1reg, start.sys2reg);
         visited.put(st, new ArrayList<Tuple>());
         visited.get(st).add(st);
-        
-        while (!q.isEmpty()) // && x<200) 
+
+        while (!q.isEmpty()) // && x<200)
         {
             Triple t = q.poll();
-            
+
             for (ParameterizedSymbol ps : actions)
             {
                 if (!(ps instanceof InputSymbol)) {
                     continue;
                 }
-                
-                List<Word<PSymbolInstance>> words = 
+
+                List<Word<PSymbolInstance>> words =
                         getNext(t.as, ps, t.sys1reg, t.sys2reg, checkForEqualParameters);
 
                 for (Word<PSymbolInstance> w : words)
                 {
-                    //log.log(Level.FINEST,x + "----------------------------------------------------------------------");                    
+                    //log.log(Level.FINEST,x + "----------------------------------------------------------------------");
                     //log.log(Level.FINEST,w);
-                                        
+
                     Triple next = new Triple(null, null, null, null, w, null);
-                    
-                    Pair<PSymbolInstance,PSymbolInstance> out = 
+
+                    Pair<PSymbolInstance,PSymbolInstance> out =
                             executeStep(t, w.lastSymbol(), next);
-                                        
+
                     //log.log(Level.FINEST,w + " = " + out.getFirst() + " : " + out.getSecond());
                     if (out.getFirst()== null) {
                         throw new IllegalStateException();
                     }
                     // book keep the trace
                     next.trace = t.trace.append(w.lastSymbol()).append(out.getFirst());
-                    
+
                     // found counterexample
                     if (out.getSecond() == null || !out.getFirst().equals(out.getSecond())) {
                         //System.out.println("CE: " + out.getFirst() + " : " + out.getSecond());
                         return new DefaultQuery<>(next.trace, true);
-                    }     
-                    // FIXME: this may not be OK in general. I think it is ok 
+                    }
+                    // FIXME: this may not be OK in general. I think it is ok
                     // for learning ....
                     if (hasDoubles(next.sys2reg)) {
                         continue;
                     }
-                    
+
                     st = new Tuple(next.sys1loc, next.sys2loc, next.sys1reg, next.sys2reg);
                     ArrayList<Tuple> comp = visited.get(st);
-                    
+
                     // first one
-                    if (comp == null) 
+                    if (comp == null)
                     {
                         //log.log(Level.FINEST,"First one in list");
-                        visited.put(st, new ArrayList<Tuple>());                        
+                        visited.put(st, new ArrayList<Tuple>());
                     }
                     else
                     {
@@ -317,24 +317,24 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                         if (found)
                             continue;
                     }
-                    
+
                     q.add(next);
                     visited.get(st).add(st);
-                    //log.log(Level.FINEST,"added " + w + " to queue");                    
-                    
+                    //log.log(Level.FINEST,"added " + w + " to queue");
+
                 }
             }
-            
+
             x++;
-            
+
         }
-        
+
         return null;
     }
-    
+
     private static boolean hasDoubles(VarValuation r) {
         return false;
-        
+
 //        Set<Object> s = new LinkedHashSet<>();
 //        int x=0;
 //        for (String key : r.getKeys()) {
@@ -346,19 +346,19 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 //                x++;
 //                s.add(v.getValue());
 //            }
-//        }        
+//        }
 //        return (s.size() != x);
     }
-    
-    
+
+
     private Pair<PSymbolInstance, PSymbolInstance> executeStep(
             Triple in, PSymbolInstance psi, Triple out)
     {
         out.sys1reg = new VarValuation(in.sys1reg);
         out.sys2reg = new VarValuation(in.sys2reg);
-        
+
         ParValuation pval = new ParValuation(psi);
-        
+
         // first sys input
         RALocation loc1 = null;
         //System.out.println(psi + " from " + in.sys1loc);
@@ -371,7 +371,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 break;
             }
         }
-            
+
         if (loc1 == null)
             throw new IllegalStateException("No transition enabled (sys1):" + in.as + psi);
 
@@ -386,16 +386,16 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 break;
             }
         }
-            
-        if (loc2 == null) {                       
+
+        if (loc2 == null) {
             throw new IllegalStateException("No transition enabled (sys2): " + in.as + " (" + in.sys2loc + ") " + psi);
         }
 
         // first sys output prepare
         OutputTransition ot1 = getOutputTransition(loc1, out.sys1reg);
-        if (ot1 == null) 
+        if (ot1 == null)
             throw new IllegalStateException("No output transition enabled (sys1)");
-        
+
         PSymbolInstance ret1 = createOutputSymbol(ot1, out.sys1reg, out.sys2reg);
 
         // second sys output prepare
@@ -405,43 +405,43 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         }
         PSymbolInstance ret2 = createOutputSymbol(ot2, out.sys2reg, out.sys1reg);
 
-        
+
         // first sys output commit
         out.sys1reg = ot1.execute(out.sys1reg, new ParValuation(ret1), consts);
         out.sys1loc = ot1.getDestination();
-                           
+
         if (out.sys1loc == null) {
             throw new IllegalStateException("No transition enabled (sys1/o): " + in.as + "(" + loc1 + ")" + psi);
         }
-        
+
         // second sys output commit
         out.sys2reg = ot2.execute(out.sys2reg, new ParValuation(ret2), consts);
         out.sys2loc = ot2.getDestination();
-            
+
         if (out.sys2loc == null) {
-            throw new IllegalStateException("No transition enabled (sys2/o): " + in.as + psi);      
+            throw new IllegalStateException("No transition enabled (sys2/o): " + in.as + psi);
         }
-        
+
         return new Pair<>(ret1, ret2);
     }
-    
-  
-    private List<Word<PSymbolInstance>> getNext(Word<PSymbolInstance> w, 
+
+
+    private List<Word<PSymbolInstance>> getNext(Word<PSymbolInstance> w,
             ParameterizedSymbol ps, VarValuation r1, VarValuation r2,
             boolean checkForEqualParameters) {
-        
+
         Set<DataValue<?>> potential = new LinkedHashSet<>();
-        potential.addAll(r1.values());        
-        //  this is maybe ok during learning        
+        potential.addAll(r1.values());
+        //  this is maybe ok during learning
         //potential.addAll(r2.values());
-        
+
         // TODO: this should become part of the teacher
         potential.addAll(consts.values());
-        
+
         List<DataValue[]> valuations = new ArrayList<>();
-        computeValuations(ps, valuations, potential, 
+        computeValuations(ps, valuations, potential,
                 new ArrayList<DataValue<?>>(),checkForEqualParameters);
-        
+
         List<Word<PSymbolInstance>> ret = new ArrayList<>();
         for (DataValue[] data : valuations) {
             Word<PSymbolInstance> next = w.append(new PSymbolInstance(ps, data));
@@ -449,21 +449,21 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         }
         return ret;
     }
-            
+
     // FIXME: this work only for the equality case!!!!
     private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
-            Set<DataValue<?>> potential, List<DataValue<?>> val, 
+            Set<DataValue<?>> potential, List<DataValue<?>> val,
             boolean checkForEqualParameters) {
-        
+
         int idx = val.size();
         if (idx >= ps.getArity()) {
             valuations.add(val.toArray(new DataValue[] {}));
             return;
         }
-        
+
         DataType t = ps.getPtypes()[idx];
-        
-        Set<DataValue> next = valSet(potential, t);        
+
+        Set<DataValue> next = valSet(potential, t);
         Set<DataValue> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
         if (checkForEqualParameters) {
             next = forFresh;
@@ -472,11 +472,11 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         //System.out.println("FOR FRESH: " + Arrays.toString(forFresh.toArray()) + " for " + t);
         DataValue fresh = teach.getFreshValue(new ArrayList<>(forFresh));
         next.add(fresh);
-        
+
         for (DataValue d : next) {
             List<DataValue<?>> nextVal = new ArrayList<>(val);
             nextVal.add(d);
-            computeValuations(ps, valuations, potential, 
+            computeValuations(ps, valuations, potential,
                     nextVal, checkForEqualParameters);
         }
     }
@@ -489,33 +489,33 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 }
             }
         return out;
-    }    
- 
+    }
+
     private PSymbolInstance createOutputSymbol(OutputTransition ot, VarValuation register, VarValuation register2) {
         ParameterizedSymbol ps = ot.getLabel();
         OutputMapping mapping = ot.getOutput();
         DataValue[] vals = new DataValue[ps.getArity()];
-        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+        SymbolicDataValueGenerator.ParameterGenerator pgen =
                 new SymbolicDataValueGenerator.ParameterGenerator();
         ParValuation pval = new ParValuation();
         int i = 0;
         for (DataType t : ps.getPtypes()) {
             SymbolicDataValue.Parameter p = pgen.next(t);
             if (!mapping.getOutput().keySet().contains(p)) {
-                
+
                 Set<DataValue<?>> forFresh = new LinkedHashSet<>();
                 forFresh.addAll(register.values());
-                forFresh.addAll(register2.values());                
+                forFresh.addAll(register2.values());
                 List<DataValue> old = computeOld(t, pval, valSet(forFresh, t));
                 vals[i] = teacher.get(t).getFreshValue(old);
             }
             else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);                
-                if (sv.isRegister()) {                
+                SymbolicDataValue sv = mapping.getOutput().get(p);
+                if (sv.isRegister()) {
                     vals[i] = register.get( (Register) sv);
                 }
                 else if (sv.isConstant()) {
-                    vals[i] = consts.get( (SymbolicDataValue.Constant) sv);                    
+                    vals[i] = consts.get( (SymbolicDataValue.Constant) sv);
                 }
                 else if (sv.isParameter()) {
                     throw new UnsupportedOperationException("not supported yet.");
@@ -530,7 +530,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         }
         return new PSymbolInstance(ot.getLabel(), vals);
     }
-    
+
     private OutputTransition getOutputTransition(RALocation loc, VarValuation reg) {
         for (Transition t : loc.getOut()) {
             OutputTransition ot = (OutputTransition) t;
@@ -541,16 +541,16 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         return null;
     }
 
-    private List<DataValue> computeOld(DataType t, 
-            ParValuation pval, Set<DataValue> stored) {       
+    private List<DataValue> computeOld(DataType t,
+            ParValuation pval, Set<DataValue> stored) {
         stored.addAll(consts.values());
         for (DataValue d : pval.values()){
             if (d.getType().equals(t)) {
                 stored.add(d);
             }
-        }    
+        }
         return new ArrayList<>(stored);
     }
-    
-    
+
+
 }

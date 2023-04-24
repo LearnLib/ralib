@@ -26,7 +26,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
  * @author falk
  */
 public interface ConstraintSolver {
-        
+
     public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val);
-    
+
 }

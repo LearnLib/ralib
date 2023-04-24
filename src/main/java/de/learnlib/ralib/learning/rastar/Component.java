@@ -47,7 +47,7 @@ import net.automatalib.words.Word;
 /**
  * A component is a bunch of rows that correspond to the
  * same location in a hypothesis.
- * 
+ *
  * @author falk
  */
 public class Component implements LocationComponent {
@@ -61,11 +61,11 @@ public class Component implements LocationComponent {
     private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<>();
 
     private final boolean ioMode;
-    
+
     private final Constants consts;
-    
+
     private static final LearnLogger log = LearnLogger.getLogger(Component.class);
-    
+
     public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts) {
         this.primeRow = primeRow;
         this.obs = obs;
@@ -81,11 +81,11 @@ public class Component implements LocationComponent {
      * @return true if successful
      */
     boolean addRow(Row r) {
-        
+
         if (ioMode && (isInputComponent() == isInput(r.getPrefix().lastSymbol().getBaseSymbol()))) {
             return false;
         }
-        
+
         if (!primeRow.couldBeEquivalentTo(r)) {
             return false;
         }
@@ -96,21 +96,21 @@ public class Component implements LocationComponent {
         for (VarMapping m : iterator) {
             if (r.isEquivalentTo(primeRow, m)) {
                 this.otherRows.put(r, m);
-                return true; 
+                return true;
             }
         }
         return false;
     }
 
     void start(TreeOracle oracle, ParameterizedSymbol... inputs) {
-        
-        boolean input = isInputComponent();        
+
+        boolean input = isInputComponent();
         for (ParameterizedSymbol ps : inputs) {
-            
+
             if (ioMode && (input ^ isInput(ps))) {
                 continue;
             }
-            
+
             SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
                     getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
@@ -124,12 +124,12 @@ public class Component implements LocationComponent {
 
     void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
 
-        if (ioMode && suffix.getActions().length() > 0 && 
+        if (ioMode && suffix.getActions().length() > 0 &&
                 getAccessSequence().length() > 0 && !isAccepting()) {
             log.log(Level.INFO, "Not adding suffix " + suffix + " to error component " + getAccessSequence());
             return;
         }
-        
+
         primeRow.addSuffix(suffix, oracle);
         Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
         otherRows.clear();
@@ -164,7 +164,7 @@ public class Component implements LocationComponent {
         boolean ret = true;
         for (ParameterizedSymbol ps : branching.keySet()) {
             boolean ub = updateBranching(ps, oracle);
-            ret = ret && ub; 
+            ret = ret && ub;
         }
         return ret;
     }
@@ -172,13 +172,13 @@ public class Component implements LocationComponent {
     private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
         Branching b = branching.get(ps);
         SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
-        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, 
+        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b,
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
-        
+
         log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
         log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
-        
+
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {
                 obs.addPrefix(prefix);
@@ -200,29 +200,29 @@ public class Component implements LocationComponent {
         }
         return true;
     }
-    
+
     private boolean checkVariableConsistency(Row r) {
         if (r.getPrefix().length() < 2) {
             return true;
         }
-            
+
         Word<PSymbolInstance> prefix = r.getPrefix().prefix(r.getPrefix().length() -1);
         Row prefixRow = obs.getComponents().get(prefix).primeRow;
-                
+
         PIV memPrefix = prefixRow.getParsInVars();
         PIV memRow = r.getParsInVars();
-        
+
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
-        
+
         for (Parameter p : memRow.keySet()) {
             // p is used by next but not stored by this and is from this word
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                SymbolicSuffix suffix = r.getSuffixForMemorable(p);                
+                SymbolicSuffix suffix = r.getSuffixForMemorable(p);
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
                         r.getPrefix(), suffix, consts);
-                
+
 //               System.out.println("Found inconsistency. msissing " + p +
-//                        " in mem. of " + prefix);                
+//                        " in mem. of " + prefix);
 //               System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
 //               System.out.println("New symbolic suffix: " + newSuffix);
 
@@ -232,7 +232,7 @@ public class Component implements LocationComponent {
         }
         return true;
     }
-    
+
     public Word<PSymbolInstance> getAccessSequence() {
         return primeRow.getPrefix();
     }
@@ -240,27 +240,27 @@ public class Component implements LocationComponent {
     public boolean isAccepting() {
         return this.primeRow.isAccepting();
     }
-    
+
     public Branching getBranching(ParameterizedSymbol act) {
         return branching.get(act);
     }
-    
+
     public VarMapping getRemapping(PrefixContainer r) {
         return this.otherRows.get(r);
     }
-    
+
     public Row getPrimeRow() {
         return this.primeRow;
     }
-    
+
     Collection<Row> getOtherRows() {
         return this.otherRows.keySet();
     }
-    
+
     public PrefixContainer getPrimePrefix() {
     	return getPrimeRow();
     }
-    
+
     public Collection<PrefixContainer> getOtherPrefixes() {
     	Collection<PrefixContainer> ret = new LinkedHashSet<PrefixContainer>();
     	for (Row r : getOtherRows())
@@ -270,14 +270,14 @@ public class Component implements LocationComponent {
 
     @Override
     public String toString() {
-        return primeRow.getPrefix().toString() + " " + 
+        return primeRow.getPrefix().toString() + " " +
                 primeRow.getParsInVars() + " " +
                 Arrays.toString(this.otherRows.keySet().toArray());
     }
-    
+
     void toString(StringBuilder sb) {
         sb.append("********** COMPONENT: ").append(getAccessSequence()).append("\n");
-        sb.append("PIV: ").append(this.primeRow.getParsInVars()).append("\n");        
+        sb.append("PIV: ").append(this.primeRow.getParsInVars()).append("\n");
         sb.append("******** PREFIXES: ").append("\n");
         for (Row r : getOtherRows()) {
             sb.append(r.getPrefix()).append("\n");
@@ -285,23 +285,23 @@ public class Component implements LocationComponent {
         sb.append("******** BRANCHING: ").append("\n");
         for (Entry<ParameterizedSymbol, Branching> b : branching.entrySet()) {
              sb.append(b.getKey()).append(":\n");
-             for (Entry<Word<PSymbolInstance>, TransitionGuard> e : 
+             for (Entry<Word<PSymbolInstance>, TransitionGuard> e :
                      b.getValue().getBranches().entrySet()) {
                  sb.append(e.getKey()).append(" -> ").append(e.getValue()).append("\n");
              }
-        }        
+        }
         sb.append("******** ROWS: ").append("\n");
         this.primeRow.toString(sb);
         for (Entry<Row, VarMapping> e : otherRows.entrySet()) {
             e.getKey().toString(sb);
             sb.append("==== remapping: ").append(e.getValue()).append("\n");
-        }        
+        }
     }
 
     private boolean isInputComponent() {
         if (this.getAccessSequence().length() == 0)
             return true;
-        
+
         ParameterizedSymbol ps = this.getAccessSequence().lastSymbol().getBaseSymbol();
         return !isInput(ps);
     }
@@ -309,5 +309,5 @@ public class Component implements LocationComponent {
     private boolean isInput(ParameterizedSymbol ps) {
         return (ps instanceof InputSymbol);
     }
-    
+
 }

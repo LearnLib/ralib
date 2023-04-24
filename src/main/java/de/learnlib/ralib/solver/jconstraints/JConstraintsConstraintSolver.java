@@ -29,19 +29,19 @@ import gov.nasa.jpf.constraints.api.Expression;
  * @author falk
  */
 public class JConstraintsConstraintSolver implements ConstraintSolver {
-    
+
     private final gov.nasa.jpf.constraints.api.ConstraintSolver solver;
-    
+
     public JConstraintsConstraintSolver(
             gov.nasa.jpf.constraints.api.ConstraintSolver solver) {
         this.solver = solver;
     }
-    
+
     @Override
     public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
         Expression<Boolean> jexpr = JContraintsUtil.toExpression(expr, val);
         Result r = solver.isSatisfiable(jexpr);
         return r == Result.SAT;
     }
-    
+
 }

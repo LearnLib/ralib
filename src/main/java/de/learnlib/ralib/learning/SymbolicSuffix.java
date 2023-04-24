@@ -33,79 +33,79 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * A symbolic suffix is a sequence of actions with 
+ * A symbolic suffix is a sequence of actions with
  * a constraint over the parameters in the sequence.
- * 
+ *
  * @author falk
  */
 public class SymbolicSuffix {
-    
+
     /**
      * symbolic values that may connect to a prefix
      */
     private final Set<SuffixValue> freeValues;
-    
+
     /**
      * Map of positions to data values
      */
     private final Map<Integer, SuffixValue> dataValues;
-            
+
     /**
      * actions
      */
     private final Word<ParameterizedSymbol> actions;
 
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+    public SymbolicSuffix(Word<PSymbolInstance> prefix,
             Word<PSymbolInstance> suffix) {
         this(prefix, suffix, new Constants());
-    }    
-    
+    }
+
     public SymbolicSuffix(SymbolicSuffix s) {
     	freeValues = new LinkedHashSet<>();
     	dataValues = new LinkedHashMap<>();
     	actions = Word.fromWords(s.actions);
-    	
+
     	for (SuffixValue sv : s.freeValues)
     		freeValues.add(sv.copy());
     	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
     		dataValues.put(new Integer(dv.getKey()), dv.getValue().copy());
     }
-    
+
     /**
      * creates a symbolic suffix from a prefix and a suffix
      * data word.
      * Shared data values between prefix and suffix become
-     * free values. Equalities between data values in the 
-     * suffix data word are only preserved for un-free data 
-     * values. Preserving equalities for free data values 
+     * free values. Equalities between data values in the
+     * suffix data word are only preserved for un-free data
+     * values. Preserving equalities for free data values
      * would lead to undesired effects (Falk).
-     * 
+     *
      * @param prefix
-     * @param suffix 
-     * @param consts 
+     * @param suffix
+     * @param consts
      */
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+    public SymbolicSuffix(Word<PSymbolInstance> prefix,
             Word<PSymbolInstance> suffix, Constants consts) {
-        
+
 //        log.log(Level.FINEST,prefix.toString() + "\n" + suffix.toString());
-        
+
         this.actions = DataWords.actsOf(suffix);
-        
+
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
-        
+
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
-        
+
         SuffixValueGenerator valgen = new SuffixValueGenerator();
-        
+
         int arityFirst = 0;
         if (this.actions.length() > 0) {
             ParameterizedSymbol first = this.actions.firstSymbol();
             arityFirst = first.getArity();
         }
-        
+
         for (DataValue d : DataWords.valsOf(suffix)) {
             if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d) ||
                     // TODO: this changes with essentialized suffixes (!)
@@ -122,9 +122,9 @@ public class SymbolicSuffix {
                 if (ref == null) {
                     ref = valgen.next(d.getType());
                     groups.put(d, ref);
-                } 
+                }
                 this.dataValues.put(idx, ref);
-            }            
+            }
             idx++;
         }
     }
@@ -140,32 +140,32 @@ public class SymbolicSuffix {
             SuffixValue sv = valgen.next(t);
             this.freeValues.add(sv);
             this.dataValues.put(idx++, sv);
-        }        
+        }
     }
 
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+    public SymbolicSuffix(Word<PSymbolInstance> prefix,
             SymbolicSuffix symSuffix) {
         this(prefix, symSuffix, new Constants());
-    }   
-    
-    public SymbolicSuffix(Word<PSymbolInstance> prefix, 
+    }
+
+    public SymbolicSuffix(Word<PSymbolInstance> prefix,
             SymbolicSuffix symSuffix, Constants consts) {
-        
+
         this.actions = symSuffix.actions.prepend(
                 DataWords.actsOf(prefix).lastSymbol());
-        
+
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
-        
+
         Word<PSymbolInstance> suffix = prefix.suffix(1);
         prefix = prefix.prefix(prefix.length() - 1);
-        
+
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
         Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
-        
+
         SuffixValueGenerator valgen = new SuffixValueGenerator();
-        
+
         for (DataValue d : DataWords.valsOf(suffix)) {
             if (valsetPrefix.contains(d) || consts.containsValue(d)) {
                 SuffixValue sym = valgen.next(d.getType());
@@ -178,13 +178,13 @@ public class SymbolicSuffix {
                 if (ref == null) {
                     ref = valgen.next(d.getType());
                     groups.put(d, ref);
-                } 
+                }
                 this.dataValues.put(idx, ref);
-            }            
+            }
             idx++;
         }
-        
-        Map<SuffixValue, SuffixValue> symValues = new LinkedHashMap<>();        
+
+        Map<SuffixValue, SuffixValue> symValues = new LinkedHashMap<>();
         for (int i=1; i<=DataWords.paramLength(symSuffix.actions); i++) {
             SuffixValue symValue = symSuffix.getDataValue(i);
             SuffixValue shifted = symValues.get(symValue);
@@ -198,8 +198,8 @@ public class SymbolicSuffix {
             }
         }
     }
-    
-    
+
+
     SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
 			Set<SuffixValue> freeValues) {
     	this.actions = actions;
@@ -210,7 +210,7 @@ public class SymbolicSuffix {
 	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
-    
+
     public Set<SuffixValue> getFreeValues() {
         return this.freeValues;
     }
@@ -218,13 +218,13 @@ public class SymbolicSuffix {
     public Word<ParameterizedSymbol> getActions() {
         return actions;
     }
-    
+
     public SymbolicSuffix concat(SymbolicSuffix other) {
     	Word<ParameterizedSymbol> actions = this.getActions().concat(other.actions);
     	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>(this.dataValues);
     	Set<SuffixValue> freeValues = new LinkedHashSet<>(this.getFreeValues());
     	int offset = this.dataValues.size();
-    	
+
     	for (Map.Entry<Integer, SuffixValue> entry : other.dataValues.entrySet()) {
     		SuffixValue sv = new SuffixValue(entry.getValue().getType(), entry.getValue().getId() + offset);
     		dataValues.put(entry.getKey() + offset, sv);
@@ -232,21 +232,21 @@ public class SymbolicSuffix {
     			freeValues.add(sv);
     		}
     	}
-    	
+
     	SymbolicSuffix concatenatedSuffix = new SymbolicSuffix(actions, dataValues, freeValues);
     	return concatenatedSuffix;
     }
-    
+
     public int length() {
     	return actions.length();
     }
-    
+
     @Override
     public String toString() {
-        Word<PSymbolInstance> dw = 
+        Word<PSymbolInstance> dw =
                 DataWords.instantiate(actions, dataValues);
-        
-        return Arrays.toString(freeValues.toArray()) + 
+
+        return Arrays.toString(freeValues.toArray()) +
                 "((" + dw.toString() + "))";
     }
 
@@ -279,5 +279,5 @@ public class SymbolicSuffix {
         hash = 37 * hash + (this.actions != null ? this.actions.hashCode() : 0);
         return hash;
     }
-        
+
 }

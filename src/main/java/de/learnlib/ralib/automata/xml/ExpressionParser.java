@@ -34,31 +34,31 @@ import java.util.StringTokenizer;
  * @author fh
  */
 public class ExpressionParser {
-    
-    
+
+
     private final String expLine;
     private final Map<String, SymbolicDataValue> pMap;
-      
+
     private GuardExpression predicate;
-    
+
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {
         expLine = exp.trim();
         this.pMap = pMap;
-        
+
         buildExpression();
     }
-    
-    private void buildExpression() 
+
+    private void buildExpression()
     {
         this.predicate = buildDisjunction(expLine);
     }
-    
+
     private GuardExpression buildDisjunction(String dis) {
         StringTokenizer tok = new StringTokenizer(dis, "||");
         if (tok.countTokens() < 2) {
             return buildConjunction(dis);
         }
-        List<GuardExpression> disjuncts = new ArrayList<>();        
+        List<GuardExpression> disjuncts = new ArrayList<>();
         while (tok.hasMoreTokens()) {
             disjuncts.add(buildConjunction(tok.nextToken().trim()));
         }
@@ -70,56 +70,56 @@ public class ExpressionParser {
         if (tok.countTokens() < 2) {
             return buildPredicate(con);
         }
-        List<GuardExpression> conjuncts = new ArrayList<>();        
+        List<GuardExpression> conjuncts = new ArrayList<>();
         while (tok.hasMoreTokens()) {
             conjuncts.add(buildPredicate(tok.nextToken().trim()));
         }
-        return new Conjunction(conjuncts.toArray(new GuardExpression[] {}));            
+        return new Conjunction(conjuncts.toArray(new GuardExpression[] {}));
     }
 
-    private GuardExpression buildPredicate(String pred) 
+    private GuardExpression buildPredicate(String pred)
     {
-        
+
         pred = pred.replace("!=", "!!");
         if (pred.trim().length() < 1) {
             return new TrueGuardExpression();
         }
-        
+
         Relation relation = null;
         String[] related = null;
-        
+
         if (pred.contains("==")) {
             related = pred.split("==");
             relation = Relation.EQUALS;
-        } 
+        }
         else if (pred.contains("!!")) {
             related = pred.split("!!");
-            relation = Relation.NOT_EQUALS;           
+            relation = Relation.NOT_EQUALS;
         }
         else if (pred.contains("<")) {
             related = pred.split("<");
-            relation = Relation.SMALLER;           
+            relation = Relation.SMALLER;
         }
         else if (pred.contains(">")) {
             related = pred.split(">");
-            relation = Relation.BIGGER;           
-        }        
-        
+            relation = Relation.BIGGER;
+        }
+
         if (relation == null) {
             throw new IllegalStateException(
                     "this should not happen!!! " + pred + " in " + expLine);
         }
-        
+
         SymbolicDataValue left = pMap.get(related[0].trim());
         SymbolicDataValue right = pMap.get(related[1].trim());
-        return new AtomicGuardExpression(left, relation, right);          
+        return new AtomicGuardExpression(left, relation, right);
     }
-    
+
     /**
      * @return the predicate
      */
     public GuardExpression getPredicate() {
         return predicate;
     }
-    
+
 }

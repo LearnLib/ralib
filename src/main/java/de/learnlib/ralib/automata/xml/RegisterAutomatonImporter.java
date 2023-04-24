@@ -63,23 +63,23 @@ public class RegisterAutomatonImporter {
     private final Map<ParameterizedSymbol, String[]> paramNames = new LinkedHashMap<>();
     private final Map<String, RALocation> stateMap = new LinkedHashMap<>();
     private final Map<String, Constant> constMap = new LinkedHashMap<>();
-    private final Map<String, Register> regMap = new LinkedHashMap<>();   
+    private final Map<String, Register> regMap = new LinkedHashMap<>();
     private final Map<String, DataType> typeMap = new LinkedHashMap<>();
-    
+
     private final VarValuation initialRegs = new VarValuation();
     private final Constants consts = new Constants();
-    
+
     private MutableRegisterAutomaton iora;
     private Alphabet<InputSymbol> inputs;
     private Alphabet<ParameterizedSymbol> actions;
-    
-    private static final LearnLogger log = 
+
+    private static final LearnLogger log =
             LearnLogger.getLogger(RegisterAutomatonImporter.class);
-    
+
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
     }
-    
+
     public RegisterAutomatonImporter(InputStream is) {
         loadModel(is);
     }
@@ -93,7 +93,7 @@ public class RegisterAutomatonImporter {
         RegisterAutomaton a = unmarschall(is);
 
         getAlphabet(a.getAlphabet());
-        
+
         getConstants(a.getConstants());
         getRegisters(a.getGlobals());
 
@@ -120,37 +120,37 @@ public class RegisterAutomatonImporter {
                 pnames = t.getParams().split(",");
             }
             Map<String, Parameter> paramMap = paramMap(ps, pnames);
-            
+
             // guard
             String gstring = t.getGuard();
-            TransitionGuard p = new TransitionGuard();            
+            TransitionGuard p = new TransitionGuard();
             if (gstring != null) {
                 Map<String, SymbolicDataValue> map = buildValueMap(
                         constMap, regMap, (ps instanceof OutputSymbol) ? new LinkedHashMap<String, Parameter>() : paramMap);
                 ExpressionParser parser = new ExpressionParser(gstring, map);
                 p = new TransitionGuard(parser.getPredicate());
             }
-            
+
             // assignment
             Set<Register> freshRegs = new HashSet<>();
             VarMapping<Register, SymbolicDataValue> assignments = new VarMapping<>();
             if (t.getAssignments() != null) {
-                for (RegisterAutomaton.Transitions.Transition.Assignments.Assign ass : 
+                for (RegisterAutomaton.Transitions.Transition.Assignments.Assign ass :
                         t.getAssignments().getAssign()) {
                     Register left = regMap.get(ass.to);
-                    SymbolicDataValue right; 
+                    SymbolicDataValue right;
                     if ( ("__fresh__").equals(ass.value)) {
                         freshRegs.add(left);
                         continue;
                     }
-                    else if (paramMap.containsKey(ass.value)) {                        
+                    else if (paramMap.containsKey(ass.value)) {
                         right = paramMap.get(ass.value);
                     }
                     else if (constMap.containsKey(ass.value)) {
                         right = constMap.get(ass.value);
                     }
                     else {
-                        right = regMap.get(ass.value);                        
+                        right = regMap.get(ass.value);
                     }
                     assignments.put(left, right);
                 }
@@ -176,7 +176,7 @@ public class RegisterAutomatonImporter {
                         }
                         else {
                             // check if there was an assignment,
-                            // these seem to be meant to 
+                            // these seem to be meant to
                             // happen before the output
                             source = assignments.containsKey(r) ?
                                     assignments.get(r) : r;
@@ -188,23 +188,23 @@ public class RegisterAutomatonImporter {
                     }
                     outputs.put(param, source);
                 }
-                                
+
                 // all unassigned parameters have to be fresh by convention,
                 // we do not allow "don't care" in outputs
                 Set<Parameter> fresh = new LinkedHashSet<>(paramMap.values());
                 fresh.removeAll(outputs.keySet());
-                OutputMapping outMap = new OutputMapping(fresh, outputs);                
-                
-                OutputTransition tOut = new OutputTransition(p, outMap, 
+                OutputMapping outMap = new OutputMapping(fresh, outputs);
+
+                OutputTransition tOut = new OutputTransition(p, outMap,
                         (OutputSymbol) ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 log.log(Level.FINEST,"Loading: " + tOut);
             } // input
             else {
                 assert freshRegs.isEmpty();
-                
+
                 log.log(Level.FINEST,"Guard: " + gstring);
-                InputTransition tIn = new InputTransition(p, (InputSymbol) ps, 
+                InputTransition tIn = new InputTransition(p, (InputSymbol) ps,
                         from, to, assign);
                 log.log(Level.FINEST,"Loading: " + tIn);
                 iora.addTransition(from, ps, tIn);
@@ -223,12 +223,12 @@ public class RegisterAutomatonImporter {
             for (RegisterAutomaton.Alphabet.Inputs.Symbol.Param p : s.getParam()) {
                 pNames[idx] = p.name;
                 pTypes[idx] = getOrCreateType(p.type);
-                idx++; 
+                idx++;
             }
             String sName = s.getName();
             InputSymbol ps = new InputSymbol(sName, pTypes);
             inputs.add(ps);
-            actions.add(ps);            
+            actions.add(ps);
             sigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
             log.log(Level.FINEST,"Loading: " + ps);
@@ -241,7 +241,7 @@ public class RegisterAutomatonImporter {
             for (RegisterAutomaton.Alphabet.Outputs.Symbol.Param p : s.getParam()) {
                 pNames[idx] = p.name;
                 pTypes[idx] = getOrCreateType(p.type);
-                idx++; 
+                idx++;
             }
             String sName = s.getName();
             ParameterizedSymbol ps = new OutputSymbol(sName, pTypes);
@@ -256,7 +256,7 @@ public class RegisterAutomatonImporter {
         ConstantGenerator cgen = new ConstantGenerator();
         for (RegisterAutomaton.Constants.Constant def : xml.getConstant()) {
             DataType type = getOrCreateType(def.type);
-            Constant c = cgen.next(type);            
+            Constant c = cgen.next(type);
             constMap.put(def.value, c);
             constMap.put(def.name, c);
             log.log(Level.FINEST,def.name + " ->" + c);
@@ -268,7 +268,7 @@ public class RegisterAutomatonImporter {
 
     private void getRegisters(RegisterAutomaton.Globals g) {
         RegisterGenerator rgen = new RegisterGenerator();
-        for (RegisterAutomaton.Globals.Variable def : g.getVariable()) {            
+        for (RegisterAutomaton.Globals.Variable def : g.getVariable()) {
             DataType type = getOrCreateType(def.type);
             Register r = rgen.next(type);
             regMap.put(def.name, r);
@@ -283,7 +283,7 @@ public class RegisterAutomatonImporter {
                     break;
                 default:
                     throw new IllegalStateException(
-                            "Unsupported Register Type: " + 
+                            "Unsupported Register Type: " +
                                     type.getBase().getName());
             }
             DataValue dv = new DataValue(type, o);
@@ -305,27 +305,27 @@ public class RegisterAutomatonImporter {
         }
         return t;
     }
-    
+
     private boolean isDoubleTempCheck(String name) {
         return name.equals("DOUBLE") || name.equals("double");
     }
-    
+
     private Map<String, SymbolicDataValue> buildValueMap(
-            Map<String, ? extends SymbolicDataValue> ... maps) {        
+            Map<String, ? extends SymbolicDataValue> ... maps) {
         Map<String, SymbolicDataValue> ret = new LinkedHashMap<>();
         for (Map<String, ? extends SymbolicDataValue> m : maps) {
             ret.putAll(m);
         }
         return ret;
     }
-    
+
     private Map<String, Parameter> paramMap(
             ParameterizedSymbol ps, String ... pNames) {
-        
+
         if (pNames == null) {
             pNames = paramNames.get(ps);
-        }        
-        
+        }
+
         Map<String, Parameter> ret = new LinkedHashMap<>();
         ParameterGenerator pgen = new ParameterGenerator();
         int idx = 0;
@@ -337,8 +337,8 @@ public class RegisterAutomatonImporter {
     }
 
     private Parameter[] paramList(ParameterizedSymbol ps) {
-               
-        
+
+
         Parameter[] ret = new Parameter[ps.getArity()];
         ParameterGenerator pgen = new ParameterGenerator();
         int idx = 0;
@@ -348,7 +348,7 @@ public class RegisterAutomatonImporter {
         }
         return ret;
     }
-    
+
     /**
      * @return the inputs
      */
@@ -362,12 +362,12 @@ public class RegisterAutomatonImporter {
     public Alphabet<ParameterizedSymbol> getActions() {
         return actions;
     }
-    
+
     /**
      * @return the consts
      */
     public Constants getConstants() {
         return consts;
     }
-    
+
 }

@@ -45,7 +45,7 @@ import java.util.Map;
  * @author falk
  */
 public class JContraintsUtil {
-    
+
     public static Type<?> getJCType(Class<?> cls) {
         if (cls == Integer.class)  {
             return BuiltinTypes.SINT32;
@@ -62,7 +62,7 @@ public class JContraintsUtil {
             LogicalOperator op,
             Map<SymbolicDataValue, Variable> map,
             GuardExpression... expr) {
-        
+
         Expression<Boolean>[] elems = new Expression[expr.length];
         int i = 0;
         for (GuardExpression e : expr) {
@@ -77,14 +77,14 @@ public class JContraintsUtil {
                 throw new RuntimeException("Unsupported Operator: " + op);
         }
     }
-    
+
     public static Expression<Boolean> toExpression(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         Expression<Boolean> guardExpr = toExpression(expr, map);
         Expression<Boolean> valExpr = toExpression(val, map);
         return ExpressionUtil.and(guardExpr, valExpr);
     }
-    
+
     public static Expression<Boolean> toExpression(Mapping<SymbolicDataValue, DataValue<?>> val, Map<SymbolicDataValue, Variable> map) {
         Expression<Boolean>[] elems = new Expression[val.size()];
         int i = 0;
@@ -96,11 +96,11 @@ public class JContraintsUtil {
 
     public static Expression<Boolean> toExpression(GuardExpression expr) {
         return toExpression(expr, new HashMap<>());
-    }   
-    
+    }
+
     public static Expression<Boolean> toExpression(GuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
-        
+
         if (expr instanceof AtomicGuardExpression) {
             return toExpression((AtomicGuardExpression) expr, map);
         } else if (expr instanceof TrueGuardExpression) {
@@ -122,7 +122,7 @@ public class JContraintsUtil {
         throw new RuntimeException("Unsupported Guard Expression: "
                 + expr.getClass().getName());
     }
-    
+
 
     public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
             Map<SymbolicDataValue, Variable> map) {
@@ -156,7 +156,7 @@ public class JContraintsUtil {
         }
         return ret;
     }
-    
+
     public static Constant toConstant(DataValue v) {
         return new Constant( getJCType(v.getType().getBase()), (v.getId()));
     }

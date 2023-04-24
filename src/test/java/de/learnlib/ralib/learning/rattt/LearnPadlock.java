@@ -49,7 +49,7 @@ public class LearnPadlock extends RaLibTestSuite {
     static final DataType DIGIT = new DataType("id", Integer.class);
 
     static final InputSymbol IN = new InputSymbol("in", new DataType[] { DIGIT });
-    
+
     private static RegisterAutomaton buildAutomaton() {
         MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
 
@@ -98,16 +98,16 @@ public class LearnPadlock extends RaLibTestSuite {
         // IN 0 OK in 1 location
         ra.addTransition(l3, IN, new InputTransition(eqGuard, IN, l3, l4, noAssign));
         ra.addTransition(l3, IN, new InputTransition(neqGuard, IN, l3, l0, noAssign));
-        
+
         ra.addTransition(l4, IN, new InputTransition(trueGuard, IN, l4, l4, noAssign));
 
         return ra;
     }
-    
+
     @Test
     public void learnPadlock() {
 
-        Constants consts = new Constants();        
+        Constants consts = new Constants();
         RegisterAutomaton sul = buildAutomaton();
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
@@ -120,12 +120,12 @@ public class LearnPadlock extends RaLibTestSuite {
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        
+
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, true, IN);
-        
+
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
@@ -135,12 +135,12 @@ public class LearnPadlock extends RaLibTestSuite {
                 new PSymbolInstance(IN, new DataValue<>(DIGIT, 0)),
                 new PSymbolInstance(IN, new DataValue<>(DIGIT, 0)),
                 new PSymbolInstance(IN, new DataValue<>(DIGIT, 0)));
-        
+
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
         rattt.learn();
         hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
-        
+
     }
 }

@@ -71,5 +71,5 @@ public class Conjunction extends GuardExpression {
     public GuardExpression[] getConjuncts() {
         return conjuncts;
     }
-    
+
 }

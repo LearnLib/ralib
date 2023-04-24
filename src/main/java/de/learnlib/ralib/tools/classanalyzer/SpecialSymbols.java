@@ -26,15 +26,15 @@ import de.learnlib.ralib.words.OutputSymbol;
 public class SpecialSymbols {
 
     static final class ErrorSymbol extends OutputSymbol {
-        
-        private final Throwable error; 
-                
+
+        private final Throwable error;
+
         ErrorSymbol(Throwable error) {
             super("__ERR");
             this.error = error;
         }
-        
-        
+
+
         @Override
         public String toString() {
             return "E_" + this.error.getClass().getSimpleName();
@@ -51,13 +51,13 @@ public class SpecialSymbols {
                 return false;
             }
             return getClass() == obj.getClass();
-        }        
+        }
     };
-    
+
     public static final ErrorSymbol ERROR = new ErrorSymbol(new Exception("__dummy"));
-    
+
     public static final OutputSymbol NULL = new OutputSymbol("NULL");
-        
+
     public static final OutputSymbol VOID = new OutputSymbol("V");
 
     public static final OutputSymbol DEPTH = new OutputSymbol("MAXD");
@@ -65,6 +65,6 @@ public class SpecialSymbols {
     public static final OutputSymbol TRUE = new OutputSymbol("TRUE");
 
     public static final OutputSymbol FALSE = new OutputSymbol("FALSE");
-    
-    public static final DataType BOOLEAN_TYPE = new DataType("boolean", boolean.class);    
+
+    public static final DataType BOOLEAN_TYPE = new DataType("boolean", boolean.class);
 }

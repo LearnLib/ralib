@@ -19,8 +19,8 @@ package de.learnlib.ralib.solver.simple;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 
 public class SimpleSolver {
-	
-	
+
+
 	public boolean isSatisfiable(GuardExpression guard) {
 		TranslationContext ctx = new TranslationContext();
 		Constraint c = ctx.translateGuard(guard);

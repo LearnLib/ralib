@@ -32,17 +32,17 @@ import de.learnlib.ralib.words.OutputSymbol;
 import java.util.Map.Entry;
 
 /**
- * Output transitions are a convenient way of 
- * modeling systems with output.  
- * 
+ * Output transitions are a convenient way of
+ * modeling systems with output.
+ *
  * @author falk
  */
 public class OutputTransition extends Transition {
-    
+
     private final OutputMapping output;
 
-    public OutputTransition(TransitionGuard guard, OutputMapping output, 
-            OutputSymbol label, RALocation source, RALocation destination, 
+    public OutputTransition(TransitionGuard guard, OutputMapping output,
+            OutputSymbol label, RALocation source, RALocation destination,
             Assignment assignment) {
         super(label, guard, source, destination, assignment);
         this.output = output;
@@ -51,16 +51,16 @@ public class OutputTransition extends Transition {
     public OutputTransition(OutputMapping output, OutputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         this( new TransitionGuard(), output, label, source, destination, assignment);
     }
-    
+
     public boolean canBeEnabled(VarValuation registers, Constants consts) {
         // FIXME: this is not in general safe to do!! (We assume the guard to not have parameters)
         return this.guard.isSatisfied(registers, new ParValuation(), consts);
     }
-            
+
     @Override
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
-        
-        // check freshness of parameters ...        
+
+        // check freshness of parameters ...
         for (Parameter p : output.getFreshParameters()) {
             DataValue pval = parameters.get(p);
             if (registers.containsValue(pval) || consts.containsValue(pval)) {
@@ -89,15 +89,15 @@ public class OutputTransition extends Transition {
                 throw new IllegalStateException("Source for parameter has to be register or constant.");
             }
         }
-            
+
         return true;
     }
 
     @Override
     public String toString() {
-        return "(" + source + ", " + label + ", " + guard + ", " + output + 
+        return "(" + source + ", " + label + ", " + guard + ", " + output +
                 ", " + assignment + ", " + destination + ")";
-    }    
+    }
 
     /**
      * @return the output
@@ -108,7 +108,7 @@ public class OutputTransition extends Transition {
 
     @Override
     public OutputSymbol getLabel() {
-        return (OutputSymbol) super.getLabel(); 
+        return (OutputSymbol) super.getLabel();
     }
 
 

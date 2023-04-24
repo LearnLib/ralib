@@ -25,46 +25,46 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class Constraint {
-	
+
 	public static Constraint TRUE = Monomial.TRUE;
 	public static Constraint FALSE = Polynomial.FALSE;
-	
+
 	public static Constraint disjunction(List<? extends Constraint> constraints) {
 		Set<Monomial> cset = new HashSet<Monomial>();
 		for(Constraint c : constraints)
 			cset.addAll(c.monomials());
-		
+
 		return Polynomial.fromSet(cset);
 	}
-	
+
 	public static Monomial makeEquality(int lhs, int rhs) {
 		return Monomial.create(Collections.singletonList(IntPair.makeOrdered(lhs, rhs)),
 				Collections.<IntPair>emptyList());
 	}
-	
+
 	public static Monomial makeInequality(int lhs, int rhs) {
 		return Monomial.create(Collections.<IntPair>emptyList(),
 				Collections.singletonList(IntPair.makeOrdered(lhs, rhs)));
 	}
-	
+
 	public static Constraint disjunction(Constraint ...constraints) {
 		return disjunction(Arrays.asList(constraints));
 	}
-	
+
 	public static Constraint conjunction(List<? extends Constraint> constraints) {
 		Set<Monomial> cset = new HashSet<Monomial>();
 		makeConjunction(cset, constraints);
 		return Polynomial.fromSet(cset);
 	}
-	
+
 	public static Constraint conjunction(Constraint ...constraints) {
 		return conjunction(Arrays.asList(constraints));
 	}
-	
+
 	private static void makeConjunction(Set<Monomial> constraints, List<? extends Constraint> csetList) {
 		makeConjunction(constraints, csetList, Monomial.TRUE, 0);
 	}
-	
+
 	private static void makeConjunction(Set<Monomial> constraints, List<? extends Constraint> csetList, Monomial curr, int idx) {
 		if(curr == null)
 			return;
@@ -75,7 +75,7 @@ public abstract class Constraint {
 		Constraint cset = csetList.get(idx);
 		if(cset.isFalse())
 			return;
-		
+
 		for(Monomial m : cset.monomials())
 			makeConjunction(constraints, csetList, Monomial.conjoin(curr, m), idx+1);
 	}
@@ -94,17 +94,17 @@ public abstract class Constraint {
 	public abstract Constraint substitute(int[] subst);
 
 	public abstract Constraint shift(int shift);
-	
+
 	public abstract Collection<Monomial> monomials();
-	
+
 	public abstract boolean isTrue();
-	
+
 	public abstract boolean isFalse();
-	
+
 	public boolean implies(Constraint other) {
 		return conjunction(this, other.negate()).isFalse();
 	}
-	
+
 	public Relation compare(Constraint other) {
 		boolean implies = implies(other);
 		boolean impliedBy = other.implies(this);
@@ -115,15 +115,15 @@ public abstract class Constraint {
 		}
 		else if(impliedBy)
 			return Relation.IMPLIED_BY;
-		
+
 		if(conjunction(this, other).isFalse())
 			return Relation.DISJOINT;
 		return Relation.INTERSECT;
 	}
-	
+
 	public boolean equivalent(Constraint other) {
 		return implies(other) && other.implies(this);
 	}
-	
+
 	public abstract Constraint normalize();
 }

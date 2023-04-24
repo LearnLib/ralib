@@ -12,27 +12,27 @@ import net.automatalib.words.Word;
 public class ShortPrefix extends MappedPrefix {
 
 	private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<ParameterizedSymbol, Branching>();
-	
+
 	public ShortPrefix(Word<PSymbolInstance> prefix) {
 		super(prefix);
 	}
-	
+
 	public ShortPrefix(Word<PSymbolInstance> prefix, PIV piv) {
 		super(prefix, piv);
 	}
-	
+
 	public ShortPrefix(MappedPrefix mp) {
 		super(mp);
 	}
-	
+
 	public Map<ParameterizedSymbol, Branching> getBranching() {
 		return branching;
 	}
-	
+
 	public Branching getBranching(ParameterizedSymbol ps) {
 		return branching.get(ps);
 	}
-	
+
 	void putBranching(ParameterizedSymbol ps, Branching b) {
 		branching.put(ps, b);
 	}

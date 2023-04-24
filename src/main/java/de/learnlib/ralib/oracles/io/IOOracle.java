@@ -25,7 +25,7 @@ import net.automatalib.words.Word;
  * @author falk
  */
 public abstract class IOOracle extends QueryCounter {
-    
+
     public abstract Word<PSymbolInstance> trace(Word<PSymbolInstance> query);
 
 }

@@ -17,13 +17,13 @@
 package de.learnlib.ralib.automata.guards;
 
 public enum Relation {
-    
+
     SMALLER("<"),
     BIGGER(">"),
-    EQUALS("=="), 
+    EQUALS("=="),
     NOT_EQUALS("!=");
-    
-    private final String name;       
+
+    private final String name;
 
     private Relation(String s) {
         name = s;
@@ -32,5 +32,5 @@ public enum Relation {
     @Override
     public String toString(){
        return name;
-    }    
+    }
 }

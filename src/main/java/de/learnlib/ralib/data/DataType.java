@@ -19,8 +19,8 @@ package de.learnlib.ralib.data;
 import java.util.Objects;
 
 /**
- * A user-defined type of data values. 
- * 
+ * A user-defined type of data values.
+ *
  * @author falk
  */
 public final class DataType {
@@ -29,7 +29,7 @@ public final class DataType {
      * name of type (defining member)
      */
     protected final String name;
-    
+
     /**
      * base type
      */
@@ -61,11 +61,11 @@ public final class DataType {
         }
         return true;
     }
-        
+
     public String getName() {
         return name;
     }
-    
+
     public Class getBase() {
         return base;
     }

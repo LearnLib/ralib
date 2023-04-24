@@ -76,7 +76,7 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
-        
+
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[]{intType});
 

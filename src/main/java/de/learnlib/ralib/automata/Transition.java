@@ -25,24 +25,24 @@ import java.util.logging.Level;
 
 /**
  * Register Automaton transitions have input symbols, and assignments.
- * 
+ *
  * @author falk
  */
 public class Transition {
-       
+
     protected final ParameterizedSymbol label;
 
     protected final TransitionGuard guard;
-     
+
     protected final RALocation source;
-    
+
     protected final RALocation destination;
 
     protected final Assignment assignment;
 
     private static final LearnLogger log = LearnLogger.getLogger(Transition.class);
-    
-    public Transition(ParameterizedSymbol label, TransitionGuard guard, 
+
+    public Transition(ParameterizedSymbol label, TransitionGuard guard,
             RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
         this.guard = guard;
@@ -50,19 +50,19 @@ public class Transition {
         this.destination = destination;
         this.assignment = assignment;
     }
-    
-    public boolean isEnabled(VarValuation registers, 
+
+    public boolean isEnabled(VarValuation registers,
             ParValuation parameters, Constants consts) {
 //        log.log(Level.FINEST, "isEnabled..... registers: {0}", registers.toString());
 //        log.log(Level.FINEST, " ...... parameters: {0}", parameters.toString());
 //        log.log(Level.FINEST, " ..... constants {0}\n", consts.toString());
-        return guard.isSatisfied(registers, parameters, consts);        
+        return guard.isSatisfied(registers, parameters, consts);
     }
-    
-    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {    
+
+    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
         return this.getAssignment().compute(registers, parameters, consts);
     }
-    
+
     /**
      * @return the label
      */
@@ -97,10 +97,10 @@ public class Transition {
     public TransitionGuard getGuard() {
         return guard;
     }
-    
+
     @Override
     public String toString() {
         return "(" + source + ", " + label + ", " + guard + ", " + assignment + ", " + destination + ")";
-    }    
-    
+    }
+
 }

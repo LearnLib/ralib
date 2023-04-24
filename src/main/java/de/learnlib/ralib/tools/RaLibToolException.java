@@ -21,8 +21,8 @@ package de.learnlib.ralib.tools;
  * @author falk
  */
 class RaLibToolException extends Exception {
-    
+
     public RaLibToolException(String message) {
         super(message);
-    }    
+    }
 }

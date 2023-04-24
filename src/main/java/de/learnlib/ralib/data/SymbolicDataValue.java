@@ -46,7 +46,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         public Register(DataType dataType, int id) {
             super(dataType, id);
         }
-        
+
         @Override
         public SymbolicDataValue.Register copy() {
         	return new SymbolicDataValue.Register(type, id);

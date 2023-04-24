@@ -87,13 +87,13 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
-                false, // do not draw symbols uniformly 
-                0.1, // reset probability 
+                false, // do not draw symbols uniformly
+                0.1, // reset probability
                 0.8, // prob. of choosing a fresh data value
-                10000, // 1000 runs 
+                10000, // 1000 runs
                 100, // max depth
                 consts,
-                false, // reset runs 
+                false, // reset runs
                 teachers,
                 sul.getInputSymbols());
 

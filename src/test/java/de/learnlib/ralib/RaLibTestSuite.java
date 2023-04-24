@@ -29,14 +29,14 @@ import org.testng.annotations.BeforeSuite;
  */
 public abstract class RaLibTestSuite {
 
-    protected final ParameterizedSymbol ERROR = 
-            new OutputSymbol("_io_err", new DataType[]{});    
-        
+    protected final ParameterizedSymbol ERROR =
+            new OutputSymbol("_io_err", new DataType[]{});
+
     protected static final Logger logger = Logger.getLogger("UnitTest");
-    
+
     @BeforeSuite
     public void beforeSuite() {
         TestUtil.configureLogging(Level.WARNING);
     }
-    
+
 }

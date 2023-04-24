@@ -26,19 +26,19 @@ import java.util.Set;
 /**
  *
  * @author falk
- * 
+ *
  */
 public abstract class GuardExpression {
-        
-    public abstract GuardExpression relabel(VarMapping relabelling); 
 
-    public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val); 
-   
+    public abstract GuardExpression relabel(VarMapping relabelling);
+
+    public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val);
+
     public Set<SymbolicDataValue> getSymbolicDataValues() {
         Set<SymbolicDataValue> set = new LinkedHashSet<>();
         getSymbolicDataValues(set);
         return set;
     }
-    
+
     protected abstract void getSymbolicDataValues(Set<SymbolicDataValue> vals);
 }

@@ -122,7 +122,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     /**
      * Clears the short and other prefix sets.
-     * The only prefix remaining will be the leaf's access sequence. 
+     * The only prefix remaining will be the leaf's access sequence.
      */
     public void clear() {
         shortPrefixes = new PrefixSet();
@@ -178,7 +178,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public Branching getBranching(ParameterizedSymbol action) {
         return branching.get(action);
     }
-    
+
     public Branching getBranching(ParameterizedSymbol action, Word<PSymbolInstance> src) {
     	Branching b = null;
     	ShortPrefix sp = (ShortPrefix)shortPrefixes.get(src);
@@ -210,7 +210,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             prefs.add(it.next().getPrefix());
         return prefs;
     }
-    
+
     void getMappedExtendedPrefixes(Collection<MappedPrefix> mps) {
         mps.addAll(shortPrefixes.get());
         mps.addAll(otherPrefixes.get());
@@ -230,7 +230,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     		mp = otherPrefixes.get(prefix);
     	return mp;
     }
-    
+
     void addTQRs(PIV primePIV, SymbolicSuffix suffix) {
         access.updateMemorable(primePIV);
         Iterator<MappedPrefix> it = Iterators.concat(shortPrefixes.iterator(), otherPrefixes.iterator());
@@ -258,7 +258,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
      * sifted into the tree, and added to their respective leaves. If a branch of
      * prefix leads to another location than the same branch of the access sequence,
      * returns the diverging words as a Pair, otherwise returns null.
-     * 
+     *
      * @param dt
      * @param prefix
      * @param oracle
@@ -278,9 +278,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     private Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> startPrefix(DT dt, ShortPrefix mp, DTHyp hyp, SDTLogicOracle logicOracle) {
-    	
+
 //    	while(!dt.checkDeterminism(hyp));
-    	
+
         Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> divergance = null;
         boolean input = this.isInput(mp.getPrefix().lastSymbol().getBaseSymbol());
         for (ParameterizedSymbol ps : dt.getInputs()) {
@@ -327,7 +327,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         }
         return divergance;
     }
-    
+
     static public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching wordBranching, PIV wordPIV, Branching accBranching, PIV accPIV, SDTLogicOracle oracle) {
     	Word<PSymbolInstance> a = null;
     	TransitionGuard g = null;
@@ -337,7 +337,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     			break;
     		}
     	}
-    	
+
     	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : accBranching.getBranches().entrySet()) {
     		TransitionGuard ag = e.getValue();
     		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue<?>>());
@@ -352,15 +352,15 @@ public class DTLeaf extends DTNode implements LocationComponent {
     public boolean isRefinemement(DT dt, Word<PSymbolInstance> word) {
         ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
         DTLeaf target = dt.getLeaf(word);
-        
+
         Branching b = getBranching(ps);
         boolean refinement = true;
         for (Word<PSymbolInstance> w : b.getBranches().keySet()) {
             if (dt.getLeaf(w) == target)
                 refinement = false;
         }
-        
-        return refinement;        
+
+        return refinement;
 //        DTLeaf target = dt.sift(word, false);
 //
 //        Branching b = getBranching(ps);
@@ -417,21 +417,21 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 ret = false;
             }
         }
-        
+
         for (MappedPrefix sp : shortPrefixes.get()) {
             ret = ret & updateBranching(ps, (ShortPrefix) sp, dt);
         }
-        
+
         branching.put(ps, newB);
         return ret;
     }
-    
+
     private boolean updateBranching(ParameterizedSymbol ps, ShortPrefix sp, DiscriminationTree dt) {
         Branching b = branching.get(ps);
         SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(sp, ps);
         Branching newB = oracle.updateBranching(sp.getPrefix(), ps, b, sp.getParsInVars(), sdts);
         boolean ret = true;
-        
+
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {
                 dt.sift(prefix, true);
@@ -497,7 +497,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         PIV memMP = mp.getParsInVars();
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
-        
+
         for (Parameter p : memMP.keySet()) {
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
                 SymbolicSuffix suffix = mp.getSuffixForMemorable(p);
@@ -509,33 +509,33 @@ public class DTLeaf extends DTNode implements LocationComponent {
         }
         return true;
     }
-    
+
     public boolean checkParameterAssignment(Word<PSymbolInstance> word, DT dt, Hypothesis hyp, Constants consts) {
-    	if (word.length() < 2) 
+    	if (word.length() < 2)
     		return true;
-    	
+
     	MappedPrefix mp = getMappedPrefix(word);
     	Word<PSymbolInstance> prefix = word.prefix(word.length() - 1);
     	DTLeaf prefixLeaf = dt.getLeaf(prefix);
     	MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
-    	
+
     	PIV memPrefix = prefixMapped.getParsInVars();
     	PIV memMP = mp.getParsInVars();
-    	
+
     	VarMapping<Register, ? extends SymbolicDataValue> transitionMap = hyp.getLastTransitionAssignment(word);
-    	
+
     	for (Parameter p : memMP.keySet()) {
     		if (!memPrefix.containsKey(p) && !hyp.getLastTransitionAssignment(word).containsValue(p)) {
     			SymbolicSuffix suffix = mp.getSuffixForMemorable(p);
     			SymbolicSuffix newSuffix = new SymbolicSuffix(word, suffix, consts);
-    			
+
     			dt.addSuffix(newSuffix, prefixLeaf);
     			return false;
     		}
     	}
     	return true;
     }
-    
+
     public boolean checkDeterminism(DT dt, Hypothesis hyp, Collection<Word<PSymbolInstance>> allPrefs, Constants consts) {
     	if (!checkDeterminism(getAccessSequence(), branching, dt, hyp, allPrefs, consts))
     		return false;
@@ -547,7 +547,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     	}
     	return true;
     }
-    
+
     private boolean checkDeterminism(Word<PSymbolInstance> word,
     		                         Map<ParameterizedSymbol, Branching> branching,
     		                         DT dt, Hypothesis hyp,
@@ -561,7 +561,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //    	                                                    		                       .getBranches()
 //    	                                                    		                 .containsKey(i)))
 //    	                                                     .findAny();
-//    	
+//
 //    	if (nonDetPref.isPresent()) {
 //    		Word<PSymbolInstance> dest_id = nonDetPref.get();
 //    		DTLeaf dest_c = dt.getLeaf(dest_id);
@@ -571,7 +571,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //    		dt.addSuffix(suffix, this);
 //    		return false;
 //    	}
-    	
+
     	Word<PSymbolInstance> prefixNonDet = null;
     	for (Word<PSymbolInstance> w : allPrefs) {
     		if (w.size() > 1 &&
@@ -587,7 +587,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 //    				!branching.get(w.lastSymbol().getBaseSymbol()).getBranches().containsKey(w));
     		}
     	}
-    	
+
     	if (prefixNonDet != null) {
     		DTLeaf dest_c = dt.getLeaf(prefixNonDet);
     		SymbolicSuffix suff1 = new SymbolicSuffix(word, prefixNonDet.suffix(1));
@@ -596,7 +596,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     		dt.addSuffix(suffix, this);
     		return false;
     	}
-    	
+
     	return true;
     }
 
@@ -620,7 +620,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         }
         return null;
     }
-    
+
     public Assignment getAssignment(Word<PSymbolInstance> dest_id, DTLeaf dest_c) {
 
     	MappedPrefix r = dest_c.getPrefix(dest_id);
@@ -628,19 +628,19 @@ public class DTLeaf extends DTNode implements LocationComponent {
         VarMapping assignments = new VarMapping();
         int max = DataWords.paramLength(DataWords.actsOf(getAccessSequence()));
         PIV parsInVars_Src = getPrimePrefix().getParsInVars();
-        PIV parsInVars_Row = r.getParsInVars();        
+        PIV parsInVars_Row = r.getParsInVars();
         VarMapping remapping = dest_c.getRemapping(r);
-        
+
 //        log.log(Level.FINEST,"PIV ROW:" + parsInVars_Row);
 //        log.log(Level.FINEST,"PIV SRC:" + parsInVars_Src);
 //        log.log(Level.FINEST,"REMAP: " + remapping);
-        
+
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register
             Parameter p = e.getKey();
             // remapping is null for prime rows ...
             Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
-            if (p.getId() > max) {                
+            if (p.getId() > max) {
                 Parameter pNew = new Parameter(p.getType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
@@ -650,7 +650,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             }
         }
         return new Assignment(assignments);
-                
+
     }
 
     @Override

@@ -24,41 +24,41 @@ import java.util.Set;
 /**
  * This interface describes the methods that are needed in a symbolic decision
  * tree during learning.
- * 
+ *
  * @author falk
  */
 public interface SymbolicDecisionTree {
-    
-    /**
-     * checks if the the tree (under renaming) is equivalent to other tree 
-     * 
-     * @param other
-     * @param renaming
-     * @return 
-     */
-    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
-    
-    /**
-     * apply relabeling to tree and return a renamed tree.
-     * 
-     * @param relabeling
-     * @return 
-     */
-    public SymbolicDecisionTree relabel(VarMapping relabeling);
-    
 
     /**
-     * 
-     * @return 
+     * checks if the the tree (under renaming) is equivalent to other tree
+     *
+     * @param other
+     * @param renaming
+     * @return
+     */
+    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
+
+    /**
+     * apply relabeling to tree and return a renamed tree.
+     *
+     * @param relabeling
+     * @return
+     */
+    public SymbolicDecisionTree relabel(VarMapping relabeling);
+
+
+    /**
+     *
+     * @return
      */
     //public Set<SymbolicDataValue.Register> getRegisters();
-    
+
     /**
      * true if all paths in this tree are accepting
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isAccepting();
-    
+
     public SymbolicDecisionTree copy();
 }

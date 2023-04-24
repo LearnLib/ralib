@@ -37,7 +37,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**
- * 
+ *
  * @author Paul Fiterau
  *
  */

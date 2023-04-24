@@ -35,10 +35,10 @@ public class FreshMultiLogin {
     //handling each Input
 
     /* register an uid
-     * 
+     *
      * notes:
      *   - you can only register once for a specific uid
-     *   - at max only MAX_REGISTERED_USERS may be registered 
+     *   - at max only MAX_REGISTERED_USERS may be registered
      */
     public Integer IRegister(Integer uid) {
         Integer pwd = random.nextInt(10000000);
@@ -50,12 +50,12 @@ public class FreshMultiLogin {
     }
 
     /* login an user with uid
-     * 
+     *
      * notes:
-     *   - An user can only login, if the uid  
-     *       + is registered 
+     *   - An user can only login, if the uid
+     *       + is registered
      *       + and is not logged in
-     *   - at max only MAX_LOGGEDIN_USERS users may be logged in 
+     *   - at max only MAX_LOGGEDIN_USERS users may be logged in
      */
     public boolean ILogin(Integer uid, Integer pwd) {
         if (id2pwd.containsKey(uid)
@@ -70,7 +70,7 @@ public class FreshMultiLogin {
     }
 
     /* ILogout
-     * 
+     *
      * A user can only logout when logged in.
      */
     public boolean ILogout(Integer uid) {
@@ -83,7 +83,7 @@ public class FreshMultiLogin {
     }
 
     /* IChangePassword
-     * 
+     *
      * a  user can only change password when logged in
      */
     public boolean IChangePassword(Integer uid, Integer pwd) {

@@ -53,18 +53,18 @@ import net.automatalib.words.Word;
 public class IOAutomatonBuilder extends AutomatonBuilder {
 
     private final Map<Object, Constant> reverseConsts;
-    
-    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, 
+
+    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts) {
         super(components, consts);
-        
+
         this.reverseConsts = new LinkedHashMap<>();
         for (Entry<Constant, DataValue<?>> c : consts) {
             reverseConsts.put(c.getValue().getId(), c.getKey());
         }
     }
 
-    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, 
+    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts, DT dt) {
     	super(components, consts, dt);
 
@@ -75,24 +75,24 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     }
 
     @Override
-    protected Transition createTransition(ParameterizedSymbol action, 
-            TransitionGuard guard, RALocation src_loc, RALocation dest_loc, 
+    protected Transition createTransition(ParameterizedSymbol action,
+            TransitionGuard guard, RALocation src_loc, RALocation dest_loc,
             Assignment assign) {
-        
+
         if (!dest_loc.isAccepting()) {
             return null;
         }
-        
+
         if (!(action instanceof OutputSymbol)) {
             return super.createTransition(action, guard, src_loc, dest_loc, assign);
-        }       
-        
-        //IfGuard _guard = (IfGuard) guard;        
+        }
+
+        //IfGuard _guard = (IfGuard) guard;
         GuardExpression expr = guard.getCondition();
-        
-        VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();        
+
+        VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();
         analyzeExpression(expr, outmap);
-        
+
         Set<Parameter> fresh = new LinkedHashSet<>();
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataType t : action.getPtypes()) {
@@ -101,16 +101,16 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
                 fresh.add(p);
             }
         }
-                
+
         OutputMapping outMap = new OutputMapping(fresh, outmap);
-        
-        return new OutputTransition(new TransitionGuard(), 
+
+        return new OutputTransition(new TransitionGuard(),
                 outMap, (OutputSymbol) action, src_loc, dest_loc, assign);
     }
-    
-    private void analyzeExpression(GuardExpression expr, 
+
+    private void analyzeExpression(GuardExpression expr,
             VarMapping<Parameter, SymbolicDataValue> outmap) {
-        
+
         if (expr instanceof Conjunction) {
             Conjunction pc = (Conjunction) expr;
             for (GuardExpression e : pc.getConjuncts()) {
@@ -122,10 +122,10 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
             if (nbe.getRelation() == Relation.EQUALS) {
                 SymbolicDataValue left = nbe.getLeft();
                 SymbolicDataValue right = nbe.getRight();
-                
+
                 Parameter p = null;
                 SymbolicDataValue sv = null;
-                
+
                 if (left instanceof Parameter) {
                     if (right instanceof Parameter) {
                         throw new UnsupportedOperationException("not implemented yet.");
@@ -139,7 +139,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
                     p = (Parameter) right;
                     sv = left;
                 }
-                
+
                 outmap.put(p, sv);
             }
         }
@@ -147,6 +147,6 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
             // true and false ...
             //throw new IllegalStateException("Unsupported: " + expr.getClass());
         }
-    } 
-    
+    }
+
 }

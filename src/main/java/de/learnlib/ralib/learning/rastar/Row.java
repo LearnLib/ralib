@@ -78,7 +78,7 @@ public class Row implements PrefixContainer {
                 log.log(Level.INFO, "Not adding suffix " + suffix + " to error row " + getPrefix());
                 return;
             }
-            // unmatching suffix                 
+            // unmatching suffix
             if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
                     || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                     ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
@@ -229,7 +229,7 @@ public class Row implements PrefixContainer {
                     log.log(Level.INFO, "Not adding suffix " + s + " to error row " + r.getPrefix());
                     continue;
                 }
-                // unmatching suffix                 
+                // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
                         || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                         ^ s.getActions().firstSymbol() instanceof InputSymbol))) {

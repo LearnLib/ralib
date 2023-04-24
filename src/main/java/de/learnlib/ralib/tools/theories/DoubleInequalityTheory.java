@@ -140,7 +140,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         GuardExpression x = g.toExpr();
         Result res;
         if (g instanceof EqualityGuard) {
-            //System.out.println("SOLVING: " + x);                    
+            //System.out.println("SOLVING: " + x);
             res = solver.solve(toExpression(x), newVal);
         } else {
             List<Expression<Boolean>> eList = new ArrayList<>();

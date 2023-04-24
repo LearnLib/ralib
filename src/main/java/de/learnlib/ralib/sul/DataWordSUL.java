@@ -24,15 +24,15 @@ import de.learnlib.ralib.words.PSymbolInstance;
  * @author falk
  */
 public abstract class DataWordSUL implements SUL<PSymbolInstance, PSymbolInstance> {
-    
+
     private long resets = 0;
-    
+
     private long inputs = 0;
-    
+
     protected void countResets(int n) {
         resets += n;
     }
-    
+
     protected void countInputs(int n) {
         inputs += n;
     }
@@ -50,6 +50,6 @@ public abstract class DataWordSUL implements SUL<PSymbolInstance, PSymbolInstanc
     public long getInputs() {
         return inputs;
     }
-    
-    
+
+
 }

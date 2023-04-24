@@ -36,7 +36,7 @@ public class SDTTrueGuard extends SDTGuard {
     public SDTTrueGuard(SymbolicDataValue.SuffixValue param) {
         super(param);
     }
-    
+
     public SDTTrueGuard(SDTTrueGuard other) {
     	super(other);
     }
@@ -81,21 +81,21 @@ public class SDTTrueGuard extends SDTGuard {
 
         return hash;
     }
-    
+
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         throw new IllegalStateException("trying to merge true guard");
     }
-    
+
     @Override
     public SDTTrueGuard copy() {
     	return new SDTTrueGuard(this);
     }
 
-    
+
 //    @Override
 //    public SDTGuard mergeWith(Set<SDTGuard> _merged) {
 //        return new SDTOrGuard(this.parameter, _merged.toArray(new SDTGuard[]{}));
-//        
+//
 //    }
 }

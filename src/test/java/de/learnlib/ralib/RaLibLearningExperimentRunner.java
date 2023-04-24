@@ -30,19 +30,19 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
- * Class for running RA learning experiments. 
+ * Class for running RA learning experiments.
  */
 public class RaLibLearningExperimentRunner {
 
 	private long seed;
 	private Logger logger;
-	
+
 	/**
 	 * RA Learning Algorithm default settings
 	 */
 	private boolean useOldAnalyzer = false;
-	
-	
+
+
 	/**
 	 * Equivalence Oracle default settings
 	 */
@@ -50,22 +50,22 @@ public class RaLibLearningExperimentRunner {
 	private double resetProbability = 0.1; // reset probability
 	private double freshProbability = 0.5; // prob. of choosing a fresh data value
 	private int maxDepth = 20; // max depth
-	
+
 	private final Measurements measures = new Measurements();
 
 	public RaLibLearningExperimentRunner(Logger logger) {
 		seed = 0;
 		this.logger = logger;
 	}
-	
+
 	public Measurements getMeasurements() {
 		return new Measurements(measures);
 	}
-	
+
 	public void resetMeasurements() {
 		measures.reset();
 	}
-	
+
 	public void setMaxRuns(long maxRuns) {
 		this.maxRuns = maxRuns;
 	}
@@ -85,14 +85,14 @@ public class RaLibLearningExperimentRunner {
 	public void setSeed(long seed) {
 		this.seed = seed;
 	}
-	
+
 	public void setUseOldAnalyzer(boolean useOldAnalyzer) {
 		this.useOldAnalyzer = useOldAnalyzer;
 	}
 
 	/**
 	 * Launches a learning experiments for acceptor RAs.
-	 * 
+	 *
 	 */
 	public Hypothesis run(RaLearningAlgorithmName algorithmName, DataWordOracle dataOracle,
 			Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver,
@@ -122,7 +122,7 @@ public class RaLibLearningExperimentRunner {
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
 			}
 			DefaultQuery<PSymbolInstance, Boolean> ce = null;
-			IOEquivalenceOracle eqOracle = new RandomWalk(random, ioCache, 
+			IOEquivalenceOracle eqOracle = new RandomWalk(random, ioCache,
 					resetProbability, // reset probability
 					freshProbability, // prob. of choosing a fresh data value
 					maxRuns, // number of runs
@@ -144,9 +144,9 @@ public class RaLibLearningExperimentRunner {
 				learner.addCounterexample(ce);
 				measures.ces.add(ce.getInput());
 			}
-			
+
 			measures.memQueries = ioCache.getQueryCount();
-			
+
 			Assert.assertNull(ce);
 			Hypothesis hyp = learner.getHypothesis();
 
@@ -157,7 +157,7 @@ public class RaLibLearningExperimentRunner {
 		} catch (Exception e) {
 			Assert.fail(String.format("Learning experiment failed for seed %d. Cause: %s", seed, e), e);
 		}
-		
+
 		return null;
 	}
 

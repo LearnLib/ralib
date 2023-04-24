@@ -36,7 +36,7 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
 
     public IntegerEqualityTheory() {
     }
-    
+
     public IntegerEqualityTheory(DataType t) {
         this.type = t;
     }
@@ -69,9 +69,9 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     @Override
     public Collection<DataValue<Integer>> getAllNextValues(
             List<DataValue<Integer>> vals) {
-        
+
         // TODO: add constants ...
-        
+
         ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
         ret.add(getFreshValue(vals));
         return ret;

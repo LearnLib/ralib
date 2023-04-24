@@ -21,19 +21,19 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 
 /**
  * Container for result of tree queries.
- * 
+ *
  * @author falk
  */
 public class TreeQueryResult {
-    
+
     private final PIV piv;
 
     private final SymbolicDecisionTree sdt;
 
     public TreeQueryResult(
-            PIV piv, 
+            PIV piv,
             SymbolicDecisionTree sdt) {
-        
+
         this.piv = piv;
         this.sdt = sdt;
     }
@@ -53,7 +53,7 @@ public class TreeQueryResult {
         return sdt;
     }
 
-    
+
     @Override
     public String toString() {
         return "TQR[" + piv + ", " + sdt + "]";

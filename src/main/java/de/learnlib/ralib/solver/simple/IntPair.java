@@ -17,29 +17,29 @@
 package de.learnlib.ralib.solver.simple;
 
 public class IntPair implements Comparable<IntPair> {
-	
+
 	public static IntPair makeOrdered(int fst, int snd) {
 		if(fst > snd)
 			return new IntPair(snd, fst);
 		return new IntPair(fst, snd);
 	}
-	
+
 	private final int fst;
 	private final int snd;
-	
+
 	public IntPair() {
 		fst = snd = 0;
 	}
-	
+
 	public IntPair(int fst, int snd) {
 		this.fst = fst;
 		this.snd = snd;
 	}
-	
+
 	public int getFst() {
 		return fst;
 	}
-	
+
 	public int getSnd() {
 		return snd;
 	}

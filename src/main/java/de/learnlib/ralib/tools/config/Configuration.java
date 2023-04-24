@@ -28,12 +28,12 @@ import java.util.Properties;
  */
 public class Configuration extends Properties {
 
-    public Configuration(File f) throws IOException {    
+    public Configuration(File f) throws IOException {
         super.load(new FileInputStream(f));
     }
 
     public Configuration(String args) throws IOException {
         super.load(new StringReader(args));
     }
-    
+
 }

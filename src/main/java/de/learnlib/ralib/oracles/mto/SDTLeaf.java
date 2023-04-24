@@ -28,13 +28,13 @@ import java.util.Set;
 
 /**
  * Leaf implementation of an SDT.
- * 
+ *
  * @author falk
  */
 public class SDTLeaf extends SDT {
 
     public static final SDTLeaf ACCEPTING = new SDTLeaf(true);
- 
+
     public static final SDTLeaf REJECTING = new SDTLeaf(false);
 
     private final boolean accepting;
@@ -43,7 +43,7 @@ public class SDTLeaf extends SDT {
         super(null);
         this.accepting = accepting;
     }
-      
+
     @Override
     public boolean isEquivalent(
             SymbolicDecisionTree other, VarMapping renaming) {
@@ -60,7 +60,7 @@ public class SDTLeaf extends SDT {
             return this.isEquivalent(other, new VarMapping());
         }
     }
-    
+
     @Override
     public String toString() {
         return this.isAccepting() ? "+" : "-";
@@ -70,7 +70,7 @@ public class SDTLeaf extends SDT {
     public SymbolicDecisionTree relabel(VarMapping relabeling) {
         return this;
     }
-    
+
     public SDT relabelUnderEq(EqualityGuard e) {
         return this;
     }
@@ -79,7 +79,7 @@ public class SDTLeaf extends SDT {
     public boolean isAccepting() {
         return accepting;
     }
-    
+
     @Override
     void toString(StringBuilder sb, String indentation) {
         sb.append(indentation).append("[Leaf").
@@ -87,7 +87,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {        
+    List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         if (this.isAccepting()) {
             ret.add(path);
@@ -97,6 +97,6 @@ public class SDTLeaf extends SDT {
 
     @Override
     public Set<SymbolicDataValue.Register> getRegisters() {
-        return new LinkedHashSet<>();    
+        return new LinkedHashSet<>();
     }
 }

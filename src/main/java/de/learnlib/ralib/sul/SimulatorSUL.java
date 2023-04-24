@@ -53,16 +53,16 @@ import net.automatalib.words.Word;
 public class SimulatorSUL extends DataWordSUL {
 
     private final RegisterAutomaton model;
-    
+
     private final Constants consts;
     private final Map<DataType, Theory> teachers;
-    
+
     private RALocation loc = null;
     private VarValuation register = null;
     private Word<PSymbolInstance> prefix = null;
-    
+
     private static LearnLogger log = LearnLogger.getLogger(SimulatorSUL.class);
-    
+
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
             Constants consts) {
         this.model = model;
@@ -90,7 +90,7 @@ public class SimulatorSUL extends DataWordSUL {
         countInputs(1);
         log.log(Level.FINEST, "step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
         prefix = prefix.append(i);
-        
+
         boolean found = false;
         for (Transition t : this.model.getTransitions(loc, i.getBaseSymbol())) {
             ParValuation pval = new ParValuation(i);
@@ -99,17 +99,17 @@ public class SimulatorSUL extends DataWordSUL {
                 register = t.execute(register, pval, consts);
                 loc = t.getDestination();
                 break;
-            }            
+            }
         }
-        
+
         if (!found) {
             throw new IllegalStateException();
         }
-        
+
         OutputTransition ot = getOutputTransition(loc, register);
         PSymbolInstance out = createOutputSymbol(ot);
         prefix = prefix.append(out);
-        
+
         register = ot.execute(register, new ParValuation(out), consts);
         loc = ot.getDestination();
         return out;
@@ -119,7 +119,7 @@ public class SimulatorSUL extends DataWordSUL {
         ParameterizedSymbol ps = ot.getLabel();
         OutputMapping mapping = ot.getOutput();
         DataValue[] vals = new DataValue[ps.getArity()];
-        SymbolicDataValueGenerator.ParameterGenerator pgen = 
+        SymbolicDataValueGenerator.ParameterGenerator pgen =
                 new SymbolicDataValueGenerator.ParameterGenerator();
         ParValuation pval = new ParValuation();
         int i = 0;
@@ -131,12 +131,12 @@ public class SimulatorSUL extends DataWordSUL {
                 vals[i] = new FreshValue(dv.getType(), dv.getId());
             }
             else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);                
-                if (sv.isRegister()) {                
+                SymbolicDataValue sv = mapping.getOutput().get(p);
+                if (sv.isRegister()) {
                     vals[i] = register.get( (Register) sv);
                 }
                 else if (sv.isConstant()) {
-                    vals[i] = consts.get( (Constant) sv);                    
+                    vals[i] = consts.get( (Constant) sv);
                 }
                 else if (sv.isParameter()) {
                     throw new UnsupportedOperationException("not supported yet.");
@@ -151,7 +151,7 @@ public class SimulatorSUL extends DataWordSUL {
         }
         return new PSymbolInstance(ot.getLabel(), vals);
     }
-    
+
     private OutputTransition getOutputTransition(RALocation loc, VarValuation reg) {
         for (Transition t : loc.getOut()) {
             OutputTransition ot = (OutputTransition) t;
@@ -163,18 +163,18 @@ public class SimulatorSUL extends DataWordSUL {
     }
 
     private List<DataValue> computeOld(DataType t, ParValuation pval) {
-        Set<DataValue> set = new LinkedHashSet<>();        
+        Set<DataValue> set = new LinkedHashSet<>();
         set.addAll(DataWords.valSet(prefix, t));
         for (DataValue d : pval.values()){
             if (d.getType().equals(t)) {
                 set.add(d);
             }
-        }    
+        }
         return new ArrayList<>(set);
     }
-    
+
     public RALocation getLocation() {
         return loc;
     }
-    
+
 }

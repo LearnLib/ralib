@@ -25,12 +25,12 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
  * @author falk
  */
 public class ConstraintSolverFactory {
- 
+
     public final static String ID_SIMPLE = "simple";
 
     public final static String ID_Z3 = "z3";
-    
-    
+
+
     public static ConstraintSolver createSolver(final String id) {
         switch (id) {
             case ID_SIMPLE:
@@ -41,13 +41,13 @@ public class ConstraintSolverFactory {
                 throw new RuntimeException("Unsupported constraint solver: " + id);
         }
     }
-    
+
     public static SimpleConstraintSolver createSimpleConstraintSolver() {
         return new SimpleConstraintSolver();
     }
-    
+
     public static JConstraintsConstraintSolver createZ3ConstraintSolver() {
-        return new JConstraintsConstraintSolver(gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));      
+        return new JConstraintsConstraintSolver(gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));
     }
-    
+
 }

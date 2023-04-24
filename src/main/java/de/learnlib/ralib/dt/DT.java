@@ -39,7 +39,7 @@ import net.automatalib.words.Word;
 
 /**
  * Implementation of discrimination tree.
- * 
+ *
  * @author fredrik
  */
 public class DT implements DiscriminationTree {
@@ -127,11 +127,11 @@ public class DT implements DiscriminationTree {
             return new SDT(map);
         }
     }
-    
+
     private DTLeaf sift(MappedPrefix mp, DTInnerNode from, boolean add) {
         DTLeaf leaf = null;
         DTInnerNode inner = from;
-        
+
         // traverse tree from root to leaf
         do {
             SymbolicSuffix suffix = inner.getSuffix();
@@ -158,7 +158,7 @@ public class DT implements DiscriminationTree {
                 leaf = (DTLeaf) siftRes.getKey();
             }
         } while (leaf == null);
-        
+
         if (add && !leaf.getAccessSequence().equals(mp.getPrefix())) {
             if (mp instanceof ShortPrefix) {
                 leaf.addShortPrefix((ShortPrefix) mp);
@@ -166,10 +166,10 @@ public class DT implements DiscriminationTree {
                 leaf.addPrefix(mp);
             }
         }
-        
+
         return leaf;
     }
-    
+
     @Override
     public void split(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, DTLeaf leaf) {
 
@@ -220,14 +220,14 @@ public class DT implements DiscriminationTree {
         TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         DTBranch newBranch = new DTBranch(tqr.getSdt(), leaf);
         node.addBranch(newBranch);
-        
+
         Set<MappedPrefix> prefixes = new LinkedHashSet<MappedPrefix>();
         leaf.getMappedExtendedPrefixes(prefixes);
         for (MappedPrefix prefix : prefixes) {
             leaf.removePrefix(prefix.getPrefix());
             sift(prefix, node, true);
         }
-        
+
         leaf.updateBranching(this);
     }
 
@@ -237,7 +237,7 @@ public class DT implements DiscriminationTree {
         SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
-        
+
 //        boolean suffixPresent = false;
 //        DTInnerNode parent = src_c.getParent();
 //        while (parent != null && !suffixPresent) {
@@ -245,14 +245,14 @@ public class DT implements DiscriminationTree {
 //        		suffixPresent = true;
 //        	parent = parent.getParent();
 //        }
-//        
+//
 //        if (suffixPresent) {
 //        	Word<PSymbolInstance> src_id = src_c.getAccessSequence();
 //        	Word<PSymbolInstance> src_pre = src_id.prefix(src_id.length()-1);
 //        	SymbolicSuffix suff_diff = new SymbolicSuffix(target.prefix(src_pre.length()), target.suffix(target.length() - src_pre.length()));
 //        	suffix = suff1.concat(suff_diff);
 //        }
-        
+
         DTInnerNode parent = src_c.getParent();
         while (parent != null) {
         	if (parent.getSuffix().equals(suffix))
@@ -266,7 +266,7 @@ public class DT implements DiscriminationTree {
 
     /**
      * resift all prefixes of a leaf, in order to add them to the correct leaf
-     * 
+     *
      * @param leaf
      * @param oracle
      */
@@ -299,11 +299,11 @@ public class DT implements DiscriminationTree {
         }
         return ret;
     }
-    
+
     public boolean checkDeterminism(Hypothesis hyp) {
     	return checkDeterminism(root, hyp);
     }
-    
+
     private boolean checkDeterminism(DTNode node, Hypothesis hyp) {
     	if (node.isLeaf()) {
     		DTLeaf leaf = (DTLeaf) node;
@@ -316,7 +316,7 @@ public class DT implements DiscriminationTree {
         }
         return ret;
     }
-    
+
     public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
         List<Word<PSymbolInstance>> extensions = new ArrayList<>();
         Collection<DTLeaf> leaves = getLeaves();
@@ -407,7 +407,7 @@ public class DT implements DiscriminationTree {
      * check whether sifting a word into the dt leads to a refinement of the dt, i.e
      * whether the location corresponding to word is already in the branching of the
      * source location of word
-     * 
+     *
      * @param word
      * @return true if sifting word into dt leads to refinement
      */
@@ -421,7 +421,7 @@ public class DT implements DiscriminationTree {
 
     /**
      * get leaf containing prefix as
-     * 
+     *
      * @param as
      * @param node
      * @return leaf containing as, or null
@@ -527,7 +527,7 @@ public class DT implements DiscriminationTree {
 
     /**
      * find the lowest common ancestor of two leaves
-     * 
+     *
      * @param l1
      * @param l2
      * @return the lowest common ancestor of l1 and l2
@@ -556,10 +556,10 @@ public class DT implements DiscriminationTree {
 //            node = path1.pop();
 //            path2.pop();
 //        }
-        
+
 //        DTInnerNode first = path1.peek();
 //        path2.pop();
-        
+
         while (!path1.isEmpty()) {
         	DTInnerNode node = path1.poll();
         	if (path2.contains(node))

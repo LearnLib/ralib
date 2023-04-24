@@ -41,46 +41,46 @@ import de.learnlib.ralib.words.InputSymbol;
  * @author falk
  */
 public final class LoginAutomatonExample {
-    
+
     public static final DataType T_UID = new DataType("T_uid", Integer.class);
     public static final DataType T_PWD = new DataType("T_pwd", Integer.class);
 
-    public static final InputSymbol I_REGISTER = 
-            new InputSymbol("register", new DataType[] {T_UID, T_PWD}); 
-    
-    public static final InputSymbol I_LOGIN = 
+    public static final InputSymbol I_REGISTER =
+            new InputSymbol("register", new DataType[] {T_UID, T_PWD});
+
+    public static final InputSymbol I_LOGIN =
             new InputSymbol("login", new DataType[] {T_UID, T_PWD});
-    
-    public static final InputSymbol I_LOGOUT = 
+
+    public static final InputSymbol I_LOGOUT =
             new InputSymbol("logout", new DataType[] {});
-    
+
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
-    
-    private LoginAutomatonExample() {      
+
+    private LoginAutomatonExample() {
     }
-    
+
     private static RegisterAutomaton buildAutomaton() {
-        MutableRegisterAutomaton ra = new MutableRegisterAutomaton();        
-        
+        MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
+
         // locations
         RALocation l0 = ra.addInitialState(false);
         RALocation l1 = ra.addState(false);
         RALocation l2 = ra.addState(true);
-        
+
         // registers and parameters
         RegisterGenerator rgen = new RegisterGenerator();
         Register rUid = rgen.next(T_UID);
-        Register rPwd = rgen.next(T_PWD);        
+        Register rPwd = rgen.next(T_PWD);
         ParameterGenerator pgen = new ParameterGenerator();
         Parameter pUid = pgen.next(T_UID);
         Parameter pPwd = pgen.next(T_PWD);
-        
+
         // guards
-               
+
         GuardExpression condition = new Conjunction(
                 new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
-        
+
         GuardExpression elseCond = new Disjunction(
                 new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
                 new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
@@ -88,30 +88,30 @@ public final class LoginAutomatonExample {
         TransitionGuard okGuard    = new TransitionGuard(condition);
         TransitionGuard errorGuard = new TransitionGuard(elseCond);
         TransitionGuard trueGuard  = new TransitionGuard();
-        
+
         // assignments
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
         copyMapping.put(rUid, rUid);
         copyMapping.put(rPwd, rPwd);
-        
+
         VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
         storeMapping.put(rUid, pUid);
         storeMapping.put(rPwd, pPwd);
-        
+
         Assignment copyAssign  = new Assignment(copyMapping);
         Assignment storeAssign = new Assignment(storeMapping);
-                
+
         // initial location
-        ra.addTransition(l0, I_REGISTER, new InputTransition(trueGuard, I_REGISTER, l0, l1, storeAssign));        
-        
+        ra.addTransition(l0, I_REGISTER, new InputTransition(trueGuard, I_REGISTER, l0, l1, storeAssign));
+
         // reg. location
-        ra.addTransition(l1, I_LOGIN, new InputTransition(okGuard, I_LOGIN, l1, l2, copyAssign));        
-        ra.addTransition(l1, I_LOGIN, new InputTransition(errorGuard, I_LOGIN, l1, l1, copyAssign));        
-        
+        ra.addTransition(l1, I_LOGIN, new InputTransition(okGuard, I_LOGIN, l1, l2, copyAssign));
+        ra.addTransition(l1, I_LOGIN, new InputTransition(errorGuard, I_LOGIN, l1, l1, copyAssign));
+
         // login location
-        ra.addTransition(l2, I_LOGOUT, new InputTransition(trueGuard, I_LOGOUT, l2, l1, copyAssign));        
-        
+        ra.addTransition(l2, I_LOGOUT, new InputTransition(trueGuard, I_LOGOUT, l2, l1, copyAssign));
+
         return ra;
     }
-    
+
 }

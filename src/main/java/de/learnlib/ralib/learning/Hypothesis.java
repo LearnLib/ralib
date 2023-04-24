@@ -43,17 +43,17 @@ import net.automatalib.words.Word;
  *
  * @author falk
  */
-public class Hypothesis extends MutableRegisterAutomaton 
+public class Hypothesis extends MutableRegisterAutomaton
 implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransformer<PSymbolInstance> {
 
     private final Map<RALocation, Word<PSymbolInstance>> accessSequences = new LinkedHashMap<>();
 
     private final Map<Transition, Word<PSymbolInstance>> transitionSequences = new LinkedHashMap<>();
-    
+
     public Hypothesis(Constants consts) {
         super(consts);
     }
-    
+
     public void setAccessSequence(RALocation loc, Word<PSymbolInstance> as) {
         accessSequences.put(loc, as);
     }
@@ -61,13 +61,13 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public void setTransitionSequence(Transition t, Word<PSymbolInstance> as) {
         transitionSequences.put(t, as);
     }
-    
+
     @Override
     public Word<PSymbolInstance> transformAccessSequence(Word<PSymbolInstance> word) {
         RALocation loc = getLocation(word);
         return accessSequences.get(loc);
     }
-    
+
     public Set<Word<PSymbolInstance>> possibleAccessSequences(Word<PSymbolInstance> word) {
     	Set<Word<PSymbolInstance>> ret = new LinkedHashSet<Word<PSymbolInstance>>();
     	ret.add(transformAccessSequence(word));
@@ -88,11 +88,11 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);
     }
-    
+
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word, Word<PSymbolInstance> loc) {
     	return transformTransitionSequence(word);
     }
-    
+
 	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
 		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
@@ -100,7 +100,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 		List<Transition> tseq = getTransitions(word);
         Transition last = tseq.get(tseq.size() -1);
 		TransitionGuard transitionGuard = last.getGuard();
-		
+
 		for (Word<PSymbolInstance> p : branching.getBranches().keySet()) {
 			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
 				tseq = getTransitions(p);
@@ -111,7 +111,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 		}
 		return null;
 	}
-	
+
 	public VarMapping<Register, ? extends SymbolicDataValue> getLastTransitionAssignment(Word<PSymbolInstance> word) {
 		List<Transition> tseq = getTransitions(word);
 		return tseq.get(tseq.size() - 1).getAssignment().getAssignment();

@@ -44,7 +44,7 @@ public abstract class SDTGuard {
         this.parameter = param;
 
     }
-    
+
     public SDTGuard(SDTGuard other) {
     	this.parameter = (SuffixValue) other.parameter.copy();
     }
@@ -56,9 +56,9 @@ public abstract class SDTGuard {
     public abstract GuardExpression toExpr();
 
     public abstract SDTGuard relabel(VarMapping relabelling);
-    
+
     public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
-    
+
     public abstract SDTGuard copy();
 
 //    private Set<SDTGuard> mergeIfWith(SDTIfGuard thisIf, SDTIfGuard otherIf) {

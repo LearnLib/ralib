@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * A concrete data symbol.
- * 
+ *
  * @author falk
  */
 public class PSymbolInstance {
@@ -30,18 +30,18 @@ public class PSymbolInstance {
      * action
      */
     private final ParameterizedSymbol baseSymbol;
-    
+
     /**
      * concrete parameter values
      */
     private final DataValue[] parameterValues;
 
-    public PSymbolInstance(ParameterizedSymbol baseSymbol, 
+    public PSymbolInstance(ParameterizedSymbol baseSymbol,
             DataValue ... parameterValues) {
         this.baseSymbol = baseSymbol;
         this.parameterValues = parameterValues;
     }
-    
+
     public ParameterizedSymbol getBaseSymbol() {
         return baseSymbol;
     }
@@ -77,6 +77,6 @@ public class PSymbolInstance {
         hash = 11 * hash + Arrays.deepHashCode(this.parameterValues);
         return hash;
     }
-    
-    
+
+
 }

@@ -66,15 +66,15 @@ import java.util.Map.Entry;
  * @author falk
  */
 public class IOSimulator extends AbstractToolWithRandomWalk {
-            
-    private static final ConfigurationOption.StringOption OPTION_TARGET = 
-            new ConfigurationOption.StringOption("target", 
-                    "XML file with target sul", null, false);    
-            
+
+    private static final ConfigurationOption.StringOption OPTION_TARGET =
+            new ConfigurationOption.StringOption("target",
+                    "XML file with target sul", null, false);
+
     private static final ConfigurationOption.BooleanOption OPTION_USE_EQTEST =
-            new ConfigurationOption.BooleanOption("use.eqtest", 
+            new ConfigurationOption.BooleanOption("use.eqtest",
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
-                
+
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
         OPTION_ALGO,
         OPTION_LOGGING_LEVEL,
@@ -96,34 +96,34 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET
         };
-    
+
     private RegisterAutomaton model;
 
     private DataWordSUL sulLearn;
-    
+
     private DataWordSUL sulTest;
-        
+
     private IORandomWalk randomWalk = null;
-    
+
     private IOEquivalenceTest eqTest;
-    
+
     private RaLearningAlgorithm rastar;
 
     private IOCounterexampleLoopRemover ceOptLoops;
-    
-    private IOCounterExamplePrefixReplacer ceOptAsrep;                      
-    
+
+    private IOCounterExamplePrefixReplacer ceOptAsrep;
+
     private IOCounterExamplePrefixFinder ceOptPref;
-    
+
     private boolean useEqTest;
- 
+
     private long resets = 0;
     private long inputs = 0;
-    
+
     private Constants consts;
-    
+
     private final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
-    
+
     @Override
     public String description() {
         return "uses an IORA model as SUL";
@@ -132,12 +132,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     @Override
     public void setup(Configuration config) throws ConfigurationException {
         super.setup(config);
-        
+
         config.list(System.out);
-        
+
         // target
         String filename = OPTION_TARGET.parse(config);
-        FileInputStream fsi;        
+        FileInputStream fsi;
         try {
             fsi = new FileInputStream(filename);
         } catch (FileNotFoundException ex) {
@@ -145,7 +145,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
         RegisterAutomatonImporter loader = new RegisterAutomatonImporter(fsi);
         this.model = loader.getRegisterAutomaton();
-        
+
         ParameterizedSymbol[] inputSymbols = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
 
@@ -153,14 +153,14 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 new ParameterizedSymbol[]{});
 
         consts = loader.getConstants();
-        
+
         // create teachers
-        for (final DataType t : loader.getDataTypes()) {            
-            TypedTheory theory = teacherClasses.get(t.getName());            
+        for (final DataType t : loader.getDataTypes()) {
+            TypedTheory theory = teacherClasses.get(t.getName());
             theory.setType(t);
             if (this.useSuffixOpt) {
                 theory.setUseSuffixOpt(this.useSuffixOpt);
-            }            
+            }
             teachers.put(t, theory);
         }
 
@@ -173,20 +173,20 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         if (this.timeoutMillis > 0L) {
            this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
         }
-        
+
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
-        
+
        IOOracle back = new SULOracle(sulLearn, ERROR);
        IOCache ioCache = new IOCache(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
-                
+
        if (useFresh) {
            for (Theory t : teachers.values()) {
                ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
            }
        }
-       
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -216,62 +216,62 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
-      
+
         if (findCounterexamples) {
 
             boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
             double resetProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
-            double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);        
+            double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);
             long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
-            int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);        
+            int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
             boolean resetRuns = OPTION_RWALK_RESET.parse(config);
 
             this.randomWalk = new IORandomWalk(random,
                     sulTest,
-                    drawUniformly, // do not draw symbols uniformly 
-                    resetProbabilty, // reset probability 
+                    drawUniformly, // do not draw symbols uniformly
+                    resetProbabilty, // reset probability
                     freshProbability, // prob. of choosing a fresh data value
-                    maxTestRuns, // 1000 runs 
+                    maxTestRuns, // 1000 runs
                     maxDepth, // max depth
                     consts,
-                    resetRuns, // reset runs 
+                    resetRuns, // reset runs
                     teachers,
                     inputSymbols);
-            
+
         }
-          
+
         this.ceOptLoops = new IOCounterexampleLoopRemover(back);
-        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);                        
+        this.ceOptAsrep = new IOCounterExamplePrefixReplacer(back);
         this.ceOptPref = new IOCounterExamplePrefixFinder(back);
     }
-    
+
     @Override
     public void run() {
 
         System.out.println("=============================== START ===============================");
-        
+
         final String __RUN__ = "overall execution time";
         final String __LEARN__ = "learning";
         final String __SEARCH__ = "ce searching";
         final String __EQ__ = "eq tests";
-                
+
         System.out.println("SYS:------------------------------------------------");
         System.out.println(model);
         System.out.println("----------------------------------------------------");
-        
+
         SimpleProfiler.start(__RUN__);
         SimpleProfiler.start(__LEARN__);
-        
+
         boolean eqTestfoundCE = false;
         ArrayList<Integer> ceLengths = new ArrayList<>();
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
         Hypothesis hyp = null;
-        
+
         int rounds = 0;
         while (true && (maxRounds < 0 || rounds < maxRounds)) {
-                        
+
             rounds++;
-            rastar.learn();            
+            rastar.learn();
             hyp = rastar.getHypothesis();
             System.out.println("HYP:------------------------------------------------");
             System.out.println(hyp);
@@ -279,9 +279,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
-            DefaultQuery<PSymbolInstance, Boolean> ce  = null; 
-            DefaultQuery<PSymbolInstance, Boolean> origCe  = null; 
-            
+            DefaultQuery<PSymbolInstance, Boolean> ce  = null;
+            DefaultQuery<PSymbolInstance, Boolean> origCe  = null;
+
             if (useEqTest) {
                 ce = this.eqTest.findCounterExample(hyp, null);
 
@@ -290,22 +290,22 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     System.out.println("EQ-TEST found counterexample: " + ce);
                 } else {
                     eqTestfoundCE = false;
-                    System.out.println("EQ-TEST did not find counterexample!");                
+                    System.out.println("EQ-TEST did not find counterexample!");
                 }
             }
-            
+
             SimpleProfiler.stop(__EQ__);
             SimpleProfiler.start(__SEARCH__);
-            
+
             if (findCounterexamples) {
                 ce = null;
             }
-            
-            boolean nullCe = false;            
+
+            boolean nullCe = false;
             for (int i=0; i<3; i++) {
-            
+
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
-                
+
                 if (findCounterexamples) {
                     ce2 = this.randomWalk.findCounterExample(hyp, null);
                 } else {
@@ -331,26 +331,26 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     ce2 = ceOptPref.optimizeCE(ce2.getInput(), hyp);
                     System.out.println("Prefix of CE is CE: " + ce2);
                 }
-                   
+
                 ce = (ce == null || ce.getInput().length() > ce2.getInput().length()) ?
                         ce2 : ce;
             }
-   
+
             if (nullCe) {
                 break;
             }
-            
+
             SimpleProfiler.start(__LEARN__);
             //ceLengths.add(ce.getInput().length());
-            
+
             //ceLengthsShortened.add(ce.getInput().length());
-            
+
             assert model.accepts(ce.getInput());
             assert !hyp.accepts(ce.getInput());
-            
+
             rastar.addCounterexample(ce);
         }
-        
+
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
 
@@ -359,58 +359,58 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         for (Entry<DataType, Theory> e : teachers.entrySet()) {
             System.out.println("Theory: " + e.getKey() + " -> " + e.getValue().getClass().getName());
         }
-        
+
         if (useEqTest) {
             System.out.println("Last EQ Test found a counterexample: " + eqTestfoundCE);
         }
-        
+
         System.out.println("ce lengths (original): " +
                 Arrays.toString(ceLengths.toArray()));
-        
+
         if (useCeOptimizers) {
             System.out.println("ce lengths (shortened): " +
                     Arrays.toString(ceLengthsShortened.toArray()));
         }
-                
+
         // model
-        if (hyp != null) {            
+        if (hyp != null) {
             System.out.println("Locations: " + hyp.getStates().size());
             System.out.println("Transitions: " + hyp.getTransitions().size());
-        
-            // input locations + transitions            
+
+            // input locations + transitions
             System.out.println("Input Locations: " + hyp.getInputStates().size());
             System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
-            
+
             if (this.exportModel) {
                 System.out.println("exporting model to model.xml");
                 try {
                     FileOutputStream fso = new FileOutputStream("model.xml");
                     RegisterAutomatonExporter.write(hyp, consts, fso);
-                    
+
                 } catch (FileNotFoundException ex) {
                     System.out.println("... export failed");
                 }
             }
         }
-        
+
         // tests during learning
         // resets + inputs
         System.out.println("Resets Learning: " + sulLearn.getResets());
         System.out.println("Inputs Learning: " + sulLearn.getInputs());
-        
+
         // tests during search
         // resets + inputs
         System.out.println("Resets Testing: " + resets);
         System.out.println("Inputs Testing: " + inputs);
-        
+
         // + sums
         System.out.println("Resets: " + (resets + sulLearn.getResets()));
         System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
-        
+
     }
 
-    
-    
+
+
     @Override
     public String help() {
         StringBuilder sb = new StringBuilder();
@@ -419,6 +419,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
         return sb.toString();
     }
-    
-    
+
+
 }

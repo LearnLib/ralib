@@ -30,7 +30,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     public void testClassAnalyzerWithMultilogin() {
 
         final String[] options = new String[] {
-            "class-analyzer",     
+            "class-analyzer",
             "target=de.learnlib.ralib.example.login.FreshMultiLogin;" +
             "methods=" +
             "IRegister(java.lang.Integer:uid)java.lang.Integer:pwd+" +
@@ -53,22 +53,22 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "rwalk.draw.uniform=false;" +
             "teachers=uid:de.learnlib.ralib.tools.theories.IntegerEqualityTheory+" +
              "pwd:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;"};
-        
+
         try {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
-            
+
         } catch (Throwable t) {
             t.printStackTrace();
             Assert.fail(t.getClass().getName());
-        }        
+        }
     }
-    
+
     @Test
     public void testClassAnalyzerWithFreshValues() {
 
-    
+
         final String[] options = new String[] {
             "class-analyzer",
             "target=de.learnlib.ralib.example.keygen.KeyGenMap;" +
@@ -89,21 +89,21 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "rwalk.reset.count=false;" +
             "rwalk.draw.uniform=false;" +
             "teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;"};
-        
+
         try {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
-            
+
         } catch (Throwable t) {
-            
+
             Assert.fail(t.getClass().getName());
-        }        
+        }
     }
-    
+
     @Test
     public void testClassAnalyzerInequalities() {
-    
+
         final String[] options = new String[] {
             "class-analyzer",
             "target=java.util.PriorityQueue;" +
@@ -124,16 +124,16 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "rwalk.draw.uniform=false;" +
             "solver=z3;" +
             "teachers=double:de.learnlib.ralib.tools.theories.DoubleInequalityTheory"};
-        
+
         try {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
-            Assert.assertEquals(ret, 0);        
+            Assert.assertEquals(ret, 0);
         } catch (Throwable t) {
-            
+
             Assert.fail(t.getClass().getName());
         }
-        
+
     }
-    
+
 }

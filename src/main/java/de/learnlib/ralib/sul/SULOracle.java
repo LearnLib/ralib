@@ -44,7 +44,7 @@ public class SULOracle extends IOOracle {
     private static LearnLogger log = LearnLogger.getLogger(SULOracle.class);
 
     private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
-  
+
     public SULOracle(DataWordSUL sul, ParameterizedSymbol error) {
         this.sul = sul;
         this.error = error;
@@ -60,7 +60,7 @@ public class SULOracle extends IOOracle {
         Word<PSymbolInstance> trace = Word.epsilon();
         for (int i = 0; i < query.length(); i += 2) {
             PSymbolInstance in = applyReplacements(act.getSymbol(i));
-            
+
             PSymbolInstance out = sul.step(in);
             updateReplacements(act.getSymbol(i + 1), out);
 
@@ -70,15 +70,15 @@ public class SULOracle extends IOOracle {
                 break;
             }
         }
-        
+
         if (trace.length() < query.length()) {
-            
+
             // fill with errors
             for (int i = trace.length(); i < query.length(); i += 2) {
                 trace = trace.append(query.getSymbol(i)).append(new PSymbolInstance(error));
-            }                        
+            }
         }
-        
+
         sul.post();
         return trace;
     }
@@ -93,7 +93,7 @@ public class SULOracle extends IOOracle {
                 vals[i] = set.iterator().next();
             }
         }
-              
+
         return new PSymbolInstance(symbol.getBaseSymbol(), vals);
     }
 

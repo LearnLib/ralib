@@ -34,33 +34,33 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  * @author falk
  */
 public class LoggingOracle implements TreeOracle {
-    
+
     private final TreeOracle treeoracle;
 
     public LoggingOracle(TreeOracle treeoracle) {
         this.treeoracle = treeoracle;
     }
-    
+
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         //System.out.println("QUERY (tree query): " + prefix + " and " + suffix);
         return treeoracle.treeQuery(prefix, suffix);
-    }    
+    }
 
     @Override
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, 
+    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts) {
-        
+
         //System.out.println("QUERY (initial branching): " + prefix + " and " + ps);
         return treeoracle.getInitialBranching(prefix, ps, piv, sdts);
     }
 
     @Override
-    public Branching updateBranching(Word<PSymbolInstance> prefix, 
-            ParameterizedSymbol ps, Branching current, 
+    public Branching updateBranching(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Branching current,
             PIV piv, SymbolicDecisionTree ... sdts) {
-        
-        //System.out.println("QUERY (update branching): " + prefix + 
+
+        //System.out.println("QUERY (update branching): " + prefix +
         //        " and " + ps + " with " + sdts.length + " sdts");
         Branching b = treeoracle.updateBranching(prefix, ps, current, piv, sdts);
         //System.out.println(b.getBranches().size());

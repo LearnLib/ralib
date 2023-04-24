@@ -56,49 +56,49 @@ import org.testng.Assert;
  * @author falk
  */
 public class LearnLoginTest extends RaLibTestSuite {
-    
+
     @Test
     public void learnLoginExample() {
-        
-        Constants consts = new Constants();        
+
+        Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
-        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));        
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
-        
+
         ConstraintSolver solver = new SimpleConstraintSolver();
-        
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        
-        RaStar rastar = new RaStar(mto, hypFactory, slo, 
+
+        RaStar rastar = new RaStar(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        
-        rastar.learn();        
-        RegisterAutomaton hyp = rastar.getHypothesis();        
+
+        rastar.learn();
+        RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_REGISTER, 
+                new PSymbolInstance(I_REGISTER,
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)),
-                new PSymbolInstance(I_LOGIN, 
+                new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
-    
+
         rastar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
-    
-        rastar.learn();        
-        hyp = rastar.getHypothesis();        
+
+        rastar.learn();
+        hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
-        
+
         Assert.assertEquals(hyp.getStates().size(), 3);
-        Assert.assertEquals(hyp.getTransitions().size(), 11);        
+        Assert.assertEquals(hyp.getTransitions().size(), 11);
 
     }
 }

@@ -45,7 +45,7 @@ import java.util.Set;
 
 /**
  * Implementation of Symbolic Decision Trees.
- * 
+ *
  * @author Sofia Cassel
  */
 public class SDT implements SymbolicDecisionTree {
@@ -55,7 +55,7 @@ public class SDT implements SymbolicDecisionTree {
     public SDT(Map<SDTGuard, SDT> children) {
         this.children = children;
     }
-    
+
 //    public Set<SDTGuard> getGuards() {
 //        if (this instanceof SDTLeaf) {
 //            return new LinkedHashSet<>();
@@ -72,8 +72,8 @@ public class SDT implements SymbolicDecisionTree {
 
     /**
      * Returns the registers of this SDT.
-     * 
-     * @return 
+     *
+     * @return
      */
     Set<Register> getRegisters() {
         Set<Register> registers = new LinkedHashSet<>();
@@ -120,7 +120,7 @@ public class SDT implements SymbolicDecisionTree {
                 throw new RuntimeException("unexpected case");
             }
             SDT child = e.getValue();
-            // FIXME: this is bad style: it will break if the tree is only a leaf! I added code to SDTLeaf to prevent this 
+            // FIXME: this is bad style: it will break if the tree is only a leaf! I added code to SDTLeaf to prevent this
             if (child.getChildren() != null) {
                 variables.addAll(child.getVariables());
             }
@@ -160,7 +160,7 @@ public class SDT implements SymbolicDecisionTree {
         return regEq && this.canUse(otherRelabeled)
                 && otherRelabeled.canUse(this);
     }
-    
+
     public boolean isEquivalentUnder(
             SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
@@ -178,7 +178,7 @@ public class SDT implements SymbolicDecisionTree {
         boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
         return x;
     }
-    
+
     public SDT relabelUnderEq(List<SDTIfGuard> ds) {
         VarMapping eqRenaming = new VarMapping<>();
         for (SDTIfGuard d : ds) {
@@ -186,7 +186,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         return (SDT) this.relabel(eqRenaming);
     }
-    
+
     @Override
     public SymbolicDecisionTree relabel(VarMapping relabelling) {
         //System.out.println("relabeling " + relabelling);
@@ -206,13 +206,13 @@ public class SDT implements SymbolicDecisionTree {
         return relabelled;
     }
 
-    
+
     /* ***
      *
      * Logging helpers
      *
      */
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -355,7 +355,7 @@ public class SDT implements SymbolicDecisionTree {
             }
             Conjunction con = new Conjunction(
                     expr.toArray(new GuardExpression[] {}));
-            
+
             dis = (dis == null) ? con : new Disjunction(dis, con);
         }
 

@@ -25,5 +25,5 @@ public class FreshValue<T> extends DataValue<T> {
     public FreshValue(DataType type, T id) {
         super(type, id);
     }
-    
+
 }

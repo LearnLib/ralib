@@ -125,12 +125,12 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 			// IN 0 OK in 1 location
 //	        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
-//	        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));        
+//	        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));
 			ra.addTransition(l3, NOK, new OutputTransition(outMapping, NOK, l3, l2, copyAssign));
 
 			// sink location
 //	        ra.addTransition(ls, IN, new InputTransition(trueGuard, IN, ls, ls, noAssign));
-//	        ra.addTransition(ls, OK, new OutputTransition(outMapping, OK, ls, ls, noAssign));        
+//	        ra.addTransition(ls, OK, new OutputTransition(outMapping, OK, ls, ls, noAssign));
 //	        ra.addTransition(ls, NOK, new OutputTransition(outMapping, NOK, ls, ls, copyAssign));
 
 			return ra;
@@ -187,7 +187,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 			// IN 0 OUT fresh/0 in 1 location
 //		        ra.addTransition(l3, IN, new InputTransition(trueGuard, IN, l3, ls, noAssign));
-//		        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));        
+//		        ra.addTransition(l3, OK, new OutputTransition(outMapping, OK, l3, ls, noAssign));
 			ra.addTransition(l3, NOK, new OutputTransition(nokOutputMapping, NOK, l3, l2, copyAssign));
 
 			return ra;
@@ -221,7 +221,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 				teachers, consts, solver);
 
 		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, OK, NOK); 
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
 
 		rattt.learn();
 
@@ -269,7 +269,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 				teachers, consts, solver);
 
 		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT); 
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
 		rattt.learn();
 
@@ -321,7 +321,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 				teachers, consts, solver);
 
 		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT); 
+//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
 		rattt.learn();
 

@@ -31,11 +31,11 @@ import net.automatalib.words.Word;
 public class InstantiateSymbolicWordTest {
 	@Test
 	public void testInstantiateStack() {
-		Constants consts = new Constants();        
+		Constants consts = new Constants();
 	    RegisterAutomaton sul = AUTOMATON;
 	    DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();        
+	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
@@ -45,8 +45,8 @@ public class InstantiateSymbolicWordTest {
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> 
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, 
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -56,11 +56,11 @@ public class InstantiateSymbolicWordTest {
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
         SymbolicSuffix symbSuffix = new SymbolicSuffix(prefix, suffix);
-        
+
         TreeQueryResult tqr = mto.treeQuery(prefix, symbSuffix);
-        
+
         Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr.getSdt(), tqr.getPiv());
-        
+
         Word<PSymbolInstance> p1 = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
@@ -76,7 +76,7 @@ public class InstantiateSymbolicWordTest {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 2)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 3)));
-        
+
         Assert.assertEquals(words.size(), 3);
         Assert.assertTrue(words.containsKey(p1) &&
         		words.containsKey(p2) &&

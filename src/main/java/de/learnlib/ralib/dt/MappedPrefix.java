@@ -19,16 +19,16 @@ public class MappedPrefix implements PrefixContainer {
 	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
-	
+
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
 		this.prefix = prefix;
 	}
-	
+
 	public MappedPrefix(Word<PSymbolInstance> prefix, PIV piv) {
 		this.prefix = prefix;
 		updateMemorable(piv);
 	}
-	
+
 	MappedPrefix(MappedPrefix mp) {
 		this.prefix = mp.getPrefix();
 		updateMemorable(mp.getParsInVars());
@@ -44,9 +44,9 @@ public class MappedPrefix implements PrefixContainer {
 			}
 		}
 	}
-	
+
 	/*
-	 * Performs a tree query for the (new) suffix and stores it in its internal map. 
+	 * Performs a tree query for the (new) suffix and stores it in its internal map.
 	 * Returns the result.
 	 */
 	TreeQueryResult computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
@@ -54,21 +54,21 @@ public class MappedPrefix implements PrefixContainer {
 	    addTQR(suffix, tqr);
 	    return tqr;
 	}
-	
+
 	void addTQR(SymbolicSuffix s, TreeQueryResult tqr) {
 	    assert(!tqrs.containsKey(s));
 		tqrs.put(s, tqr);
 		updateMemorable(tqr.getPiv());
 	}
-	
+
 	public Map<SymbolicSuffix, TreeQueryResult> getTQRs() {
 		return tqrs;
 	}
-	
+
 	public Word<PSymbolInstance> getPrefix() {
 		return this.prefix;
 	}
-	
+
 	public String toString() {
 		return "{" + prefix.toString() + ", " + memorable.toString() + "}";
 	}
@@ -77,7 +77,7 @@ public class MappedPrefix implements PrefixContainer {
 	public PIV getParsInVars() {
 		return memorable;
 	}
-	
+
 	SymbolicSuffix getSuffixForMemorable(Parameter p) {
 		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
 			if (e.getValue().getPiv().containsKey(p))

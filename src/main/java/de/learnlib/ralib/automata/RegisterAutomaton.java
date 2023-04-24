@@ -34,9 +34,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  *
  * @author falk
  */
-public abstract class RegisterAutomaton 
+public abstract class RegisterAutomaton
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
-    
+
     private final VarValuation initialRegisters;
 
     public RegisterAutomaton(VarValuation initialRegisters) {
@@ -47,22 +47,22 @@ public abstract class RegisterAutomaton
         this(new VarValuation());
     }
 
-    
+
     /**
      * Checks if a data word is accepted by an automaton.
-     * 
+     *
      * @param dw a data word
      * @return true if dw is accepted
      */
-    public abstract boolean accepts(Word<PSymbolInstance> dw);        
+    public abstract boolean accepts(Word<PSymbolInstance> dw);
 
     public abstract RALocation getLocation(Word<PSymbolInstance> dw);
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (RALocation loc : getStates()) {
-            sb.append(loc).append( loc.equals(getInitialState()) ? " (initial)" : "").append(":\n");            
+            sb.append(loc).append( loc.equals(getInitialState()) ? " (initial)" : "").append(":\n");
             for (Transition t : loc.getOut()) {
                 sb.append("  ").append(t).append("\n");
             }
@@ -78,7 +78,7 @@ public abstract class RegisterAutomaton
     public VarValuation getInitialRegisters() {
         return initialRegisters;
     }
-    
+
     public List<Transition> getTransitions() {
         List<Transition> tList = new ArrayList<>();
         for (RALocation loc : getStates()) {
@@ -86,7 +86,7 @@ public abstract class RegisterAutomaton
         }
         return tList;
     }
-    
+
     public List<Transition> getInputTransitions() {
         List<Transition> tList = new ArrayList<>();
         for (RALocation loc : getStates()) {
@@ -97,16 +97,16 @@ public abstract class RegisterAutomaton
             }
         }
         return tList;
-    }    
-    
-    public Collection<RALocation> getInputStates() { 
+    }
+
+    public Collection<RALocation> getInputStates() {
         Set<RALocation> ret = new HashSet<>();
         for (Transition t : getInputTransitions()) {
             ret.add(t.getSource());
         }
         return ret;
     }
-    
+
     public Collection<Register> getRegisters() {
         Set<Register> regs = new HashSet<>();
         for (Transition t : getTransitions()) {

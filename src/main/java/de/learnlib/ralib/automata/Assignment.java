@@ -27,18 +27,18 @@ import de.learnlib.ralib.data.VarValuation;
 import java.util.Map.Entry;
 
 /**
- * A parallel assignment for registers. 
- * 
+ * A parallel assignment for registers.
+ *
  * @author falk
  */
 public class Assignment {
-    
+
     private final VarMapping<Register, ? extends SymbolicDataValue> assignment;
 
     public Assignment(VarMapping<Register, ? extends SymbolicDataValue> assignment) {
         this.assignment = assignment;
     }
-    
+
     public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
         VarValuation val = new VarValuation(registers);
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
@@ -69,5 +69,5 @@ public class Assignment {
     public VarMapping<Register, ? extends SymbolicDataValue> getAssignment() {
         return assignment;
     }
-    
+
 }

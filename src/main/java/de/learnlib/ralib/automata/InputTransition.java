@@ -23,16 +23,16 @@ import de.learnlib.ralib.words.InputSymbol;
  * @author falk
  */
 public class InputTransition extends Transition {
-        
+
     public InputTransition(TransitionGuard guard, InputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         super(label, guard, source, destination, assignment);
     }
 
     @Override
     public InputSymbol getLabel() {
-        return (InputSymbol) super.getLabel(); 
+        return (InputSymbol) super.getLabel();
     }
-    
-    
-        
+
+
+
 }

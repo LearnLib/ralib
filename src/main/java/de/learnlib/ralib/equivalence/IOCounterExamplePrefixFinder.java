@@ -39,7 +39,7 @@ public class IOCounterExamplePrefixFinder implements IOCounterExampleOptimizer {
         (Word<PSymbolInstance> ce, Hypothesis hypothesis) {
        return new DefaultQuery<>(findPrefix(ce, hypothesis), true);
     }
-    
+
     private Word<PSymbolInstance> findPrefix(
             Word<PSymbolInstance> ce, Hypothesis hypothesis) {
 
