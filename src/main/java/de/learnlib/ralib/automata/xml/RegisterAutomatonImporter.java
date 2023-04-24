@@ -49,7 +49,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 import net.automatalib.words.Alphabet;
 import net.automatalib.words.impl.SimpleAlphabet;
 
