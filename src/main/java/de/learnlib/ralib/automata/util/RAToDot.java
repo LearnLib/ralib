@@ -151,5 +151,4 @@ public class RAToDot {
     private String escapeGuard(TransitionGuard g) {
         return g.toString().replaceAll("&", "&amp;");
     }
-        
 }

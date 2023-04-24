@@ -34,4 +34,3 @@ public enum Relation {
        return name;
     }    
 }
-

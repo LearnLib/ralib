@@ -126,5 +126,4 @@ public abstract class Constraint {
 	}
 	
 	public abstract Constraint normalize();
-	
 }

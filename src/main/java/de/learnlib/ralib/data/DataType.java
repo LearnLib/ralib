@@ -69,6 +69,4 @@ public final class DataType {
     public Class getBase() {
         return base;
     }
-       
 }
-
