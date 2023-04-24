@@ -68,11 +68,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private static final ConfigurationOption.StringOption OPTION_TARGET
             = new ConfigurationOption.StringOption("target",
-                    "traget class name", null, false);
+                    "target class name", null, false);
 
     private static final ConfigurationOption.StringOption OPTION_METHODS
             = new ConfigurationOption.StringOption("methods",
-                    "traget method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
+                    "target method signatures. format: m1(class:type,class:type)class:type + m2() + ...", null, false);
 
     protected static final ConfigurationOption.IntegerOption OPTION_MAX_DEPTH
             = new ConfigurationOption.IntegerOption("max.depth",
@@ -331,11 +331,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
 
-        System.out.println("ce lengths (oirginal): "
+        System.out.println("ce lengths (original): "
                 + Arrays.toString(ceLengths.toArray()));
 
         if (useCeOptimizers) {
-            System.out.println("ce lengths (shortend): "
+            System.out.println("ce lengths (shortened): "
                     + Arrays.toString(ceLengthsShortened.toArray()));
         }
 

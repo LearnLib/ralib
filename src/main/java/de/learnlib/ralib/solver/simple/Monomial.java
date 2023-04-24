@@ -304,7 +304,7 @@ public class Monomial extends Constraint {
 	}
 
 	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#subsitute(int[])
+	 * @see se.uu.it.synthesis.misc.Const#substitute(int[])
 	 */
 	@Override
 	public Monomial substitute(int[] subst) {

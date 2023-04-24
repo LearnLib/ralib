@@ -108,7 +108,7 @@ public class SymbolicSuffix {
         
         for (DataValue d : DataWords.valsOf(suffix)) {
             if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d) ||
-                    // TODO: this canges with essentialized suffixes (!)
+                    // TODO: this changes with essentialized suffixes (!)
                     // we know that equalities are essential
                     (groups.containsKey(d) && idx <= arityFirst)) {
             //if (valsetPrefix.contains(d) || consts.containsValue(d)) {

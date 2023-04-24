@@ -96,7 +96,7 @@ public class Row implements PrefixContainer {
         assert c.getPrefix().equals(this.prefix);
         assert !this.cells.containsKey(c.getSuffix());
 
-        // make sure that pars-in-vars is consistant with 
+        // make sure that pars-in-vars is consistent with
         // existing cells in his row
         PIV cpv = c.getParsInVars();
         VarMapping relabelling = new VarMapping();

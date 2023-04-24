@@ -29,12 +29,11 @@ public class Polynomial extends Constraint {
 	
 	public static Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
 	
-	
 	static Constraint fromSet(Set<Monomial> constraints) {
-		int siz = constraints.size();
-		if(siz == 0)
+		int size = constraints.size();
+		if(size == 0)
 			return FALSE;
-		else if(siz == 1)
+		else if(size == 1)
 			return constraints.iterator().next();
 		return new Polynomial(constraints);
 	}
@@ -44,7 +43,6 @@ public class Polynomial extends Constraint {
 	private Polynomial(Set<Monomial> constraints) {
 		this.constraints = constraints;
 	}
-	
 	
 	public Constraint negate() {
 		List<Constraint> csets = new ArrayList<Constraint>(constraints.size());
@@ -66,7 +64,6 @@ public class Polynomial extends Constraint {
 	public Set<Monomial> getConstraints() {
 		return Collections.unmodifiableSet(constraints);
 	}
-	
 	
 	public void print(Appendable a, String[] varNames) throws IOException {
 		if(constraints.isEmpty()) {
@@ -96,7 +93,6 @@ public class Polynomial extends Constraint {
 			cs.add(c.shift(myVars, base, total));
 		return new Polynomial(cs);
 	}
-
 
 	public boolean isFalse() {
 		return constraints.isEmpty();
@@ -153,7 +149,6 @@ public class Polynomial extends Constraint {
 		return true;
 	}
 	
-	
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -173,8 +168,5 @@ public class Polynomial extends Constraint {
 	public Constraint normalize() {
 		return negate().negate();
 	}
-	
-	
-	
 	
 }

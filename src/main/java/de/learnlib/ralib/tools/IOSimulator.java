@@ -364,11 +364,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             System.out.println("Last EQ Test found a counterexample: " + eqTestfoundCE);
         }
         
-        System.out.println("ce lengths (oirginal): " + 
+        System.out.println("ce lengths (original): " +
                 Arrays.toString(ceLengths.toArray()));
         
         if (useCeOptimizers) {
-            System.out.println("ce lengths (shortend): " + 
+            System.out.println("ce lengths (shortened): " +
                     Arrays.toString(ceLengthsShortened.toArray()));
         }
                 

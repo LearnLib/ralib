@@ -170,7 +170,7 @@ public class RegisterAutomatonImporter {
                     if (regMap.containsKey(s)) {
                         Register r = regMap.get(s);
                         if (freshRegs.contains(r)) {
-                            // add assigment to store fresh value
+                            // add assignment to store fresh value
                             assignments.put(r, param);
                             continue;
                         }

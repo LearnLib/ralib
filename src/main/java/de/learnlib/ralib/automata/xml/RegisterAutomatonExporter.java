@@ -187,7 +187,7 @@ public class RegisterAutomatonExporter {
             Parameter p = pgen.next(type);
             if (outMap.getFreshParameters().contains(p)) {
                 
-                // find out register that stores paramater
+                // find out register that stores parameter
                 boolean found = false;
                 for (RegisterAutomaton.Transitions.Transition.Assignments.Assign a : assign.getAssign()) {
                     if (a.getValue().equals(p.toString())) {
