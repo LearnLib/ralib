@@ -73,9 +73,6 @@ public class RaTTT implements RaLearningAlgorithm {
 //    private final Deque<Word<PSymbolInstance>> shortPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
     private final Map<Word<PSymbolInstance>, Boolean> guardPrefixes = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
 
-    // TEMPORARY FIX
-    private final Map<Word<PSymbolInstance>, SymbolicSuffix> ceSuffixes = new LinkedHashMap<Word<PSymbolInstance>, SymbolicSuffix>();
-
     private PrefixFinder prefixFinder = null;
 
     public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
@@ -168,59 +165,6 @@ public class RaTTT implements RaLearningAlgorithm {
         }
     }
 
-    /*
-     * Update the prefix finder with a new temporary hypothesis taking into account
-     * the discovered locations. The hypothesis is temporary because it contains
-     * locations representing dangling short prefixes.
-     */
-    private void updatePrefixFinder() {
-        DT dt = new DT(this.dt);
-        dt.checkVariableConsistency();
-
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        Map<Word<PSymbolInstance>, LocationComponent> shortComponents = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-        for (Map.Entry<Word<PSymbolInstance>, LocationComponent> e : components.entrySet()) {
-            DTLeaf l = (DTLeaf) e.getValue();
-            for (MappedPrefix mp : l.getShortPrefixes().get())
-                shortComponents.put(mp.getPrefix(), e.getValue());
-        }
-        components.putAll(shortComponents);
-
-        AutomatonBuilder ab;
-        if (useOldAnalyzer)
-            ab = new AutomatonBuilder(components, consts);
-        else
-            ab = new AutomatonBuilder(components, consts, dt);
-
-        Hypothesis h = ab.toRegisterAutomaton();
-        prefixFinder.setHypothesis(h);
-        prefixFinder.setComponents(components);
-        prefixFinder.setHypothesisTreeOracle(hypOracleFactory.createTreeOracle(h));
-    }
-
-    private Hypothesis getTemporaryHyp() {
-        DT dt = new DT(this.dt);
-        dt.checkVariableConsistency();
-
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        Map<Word<PSymbolInstance>, LocationComponent> shortComponents = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-        for (Map.Entry<Word<PSymbolInstance>, LocationComponent> e : components.entrySet()) {
-            DTLeaf l = (DTLeaf) e.getValue();
-            for (MappedPrefix mp : l.getShortPrefixes().get())
-                shortComponents.put(mp.getPrefix(), e.getValue());
-        }
-        components.putAll(shortComponents);
-
-        AutomatonBuilder ab;
-        if (useOldAnalyzer)
-            ab = new AutomatonBuilder(components, consts);
-        else
-            ab = new AutomatonBuilder(components, consts, dt);
-        return ab.toRegisterAutomaton();
-     }
-
     private boolean analyzeCounterExample() {
         if (useOldAnalyzer)
             return analyzeCounterExampleOld();
@@ -285,8 +229,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Word<PSymbolInstance> ceWord = ce.getInput();
         CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
         Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
-        Word<PSymbolInstance> prefix = transition.prefix(transition.length() - 1);	// u
-
+        
         for (DefaultQuery<PSymbolInstance, Boolean> q : prefixFinder.getCounterExamples()) {
         	if (!candidateCEs.contains(q))
         		candidateCEs.addLast(q);
@@ -303,7 +246,6 @@ public class RaTTT implements RaLearningAlgorithm {
         }
 
         boolean consistent = false;
-        boolean refinedHyp = false;
         while (!consistent) {
         	consistent = true;
 

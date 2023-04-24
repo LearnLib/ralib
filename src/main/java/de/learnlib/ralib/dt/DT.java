@@ -24,8 +24,6 @@ import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
-import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -300,109 +298,6 @@ public class DT implements DiscriminationTree {
         return ret;
     }
 
-    public boolean checkDeterminism(Hypothesis hyp) {
-    	return checkDeterminism(root, hyp);
-    }
-
-    private boolean checkDeterminism(DTNode node, Hypothesis hyp) {
-    	if (node.isLeaf()) {
-    		DTLeaf leaf = (DTLeaf) node;
-    		return leaf.checkDeterminism(this, hyp, getAllPrefixes(), consts);
-    	}
-        boolean ret = true;
-        DTInnerNode inner = (DTInnerNode) node;
-        for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
-            ret = ret && checkDeterminism(b.getChild(), hyp);
-        }
-        return ret;
-    }
-
-    public Collection<Word<PSymbolInstance>> getOneSymbolExtensions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
-        List<Word<PSymbolInstance>> extensions = new ArrayList<>();
-        Collection<DTLeaf> leaves = getLeaves();
-        for (DTLeaf leaf : leaves) {
-            for (Word<PSymbolInstance> leafPrefix : leaf.getAllPrefixes()) {
-                if (!leafPrefix.isEmpty() && leafPrefix.lastSymbol().getBaseSymbol().equals(ps) && prefix.isPrefixOf(leafPrefix) && leafPrefix.length() == prefix.length() + 1) {
-                    extensions.add(leafPrefix);
-                }
-            }
-        }
-        return extensions;
-    }
-
-    public boolean checkIOConsistency(DTHyp hyp, SDTLogicOracle logicOracle) {
-        return checkIOConsistency(root, hyp, logicOracle);
-    }
-
-    private boolean checkIOConsistency(DTNode node, DTHyp hyp, SDTLogicOracle logicOracle) {
-        if (node.isLeaf()) {
-            DTLeaf l = (DTLeaf) node;
-            if (l == sink)
-                return true;
-            Word<PSymbolInstance> p = l.checkIOConsistency();
-            if (p == null)
-                return true;
-            makeIOConsistent(l, p, hyp, logicOracle);
-            return false;
-        } else {
-            DTInnerNode n = (DTInnerNode) node;
-            for (DTBranch b : n.getBranches()) {
-                if (!checkIOConsistency(b.getChild(), hyp, logicOracle))
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    private void makeIOConsistent(DTLeaf src_c, Word<PSymbolInstance> prefix, DTHyp hyp, SDTLogicOracle logicOracle) {
-        Pair<Word<PSymbolInstance>, Word<PSymbolInstance>> div = src_c.elevatePrefix(this, prefix, hyp, logicOracle);
-
-        if (div != null) {
-
-            Word<PSymbolInstance> refinedTarget = div.getKey();
-            Word<PSymbolInstance> target = div.getValue();
-
-            addLocation(refinedTarget, src_c, getLeaf(target), getLeaf(refinedTarget));
-        } else {
-            boolean input = src_c.isInputComponent();
-            Collection<ParameterizedSymbol> used = new LinkedHashSet<ParameterizedSymbol>();
-            DTInnerNode parent = src_c.getParent();
-            do {
-                SymbolicSuffix s = parent.getSuffix();
-                if (s.length() == 1 && DTLeaf.isInput(s.getActions().firstSymbol()) ^ input)
-                    used.add(s.getActions().firstSymbol());
-                parent = parent.getParent();
-            } while (parent != null);
-
-            ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(prefix);
-            for (ParameterizedSymbol i : inputs) {
-                if (!(DTLeaf.isInput(i) ^ input) || used.contains(i))
-                    continue;
-                TreeQueryResult tqr = oracle.treeQuery(prefix, new SymbolicSuffix(i));
-                Branching newBranch = oracle.getInitialBranching(prefix, i, tqr.getPiv(), tqr.getSdt());
-                Branching oldBranch = sp.getBranching(i);
-
-                if (newBranch.getBranches().size() == oldBranch.getBranches().size())
-                    continue;
-
-                Branching asBranch = src_c.getBranching(i);
-                for (Word<PSymbolInstance> p : newBranch.getBranches().keySet()) {
-                    if (!oldBranch.getBranches().keySet().contains(p)) {
-                        DTLeaf target_c = this.sift(p, false);
-
-                        for (Word<PSymbolInstance> w : asBranch.getBranches().keySet()) {
-                            DTLeaf dest_c = getLeaf(w);
-                            if (target_c != dest_c) {
-                                addLocation(p, src_c, dest_c, target_c);
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     /**
      * check whether sifting a word into the dt leads to a refinement of the dt, i.e
      * whether the location corresponding to word is already in the branching of the
@@ -488,23 +383,6 @@ public class DT implements DiscriminationTree {
         Collection<SymbolicSuffix> suffixes = new LinkedHashSet<>();
         getSuffixes(root, suffixes);
         return suffixes;
-    }
-
-    private Collection<Word<PSymbolInstance>> getAllPrefixes() {
-        Collection<Word<PSymbolInstance>> prefs = new ArrayList<Word<PSymbolInstance>>();
-        getAllPrefixes(prefs, root);
-        return prefs;
-    }
-
-    private void getAllPrefixes(Collection<Word<PSymbolInstance>> prefs, DTNode node) {
-        if (node.isLeaf()) {
-            DTLeaf leaf = (DTLeaf) node;
-            prefs.addAll(leaf.getAllPrefixes());
-        } else {
-            DTInnerNode inner = (DTInnerNode) node;
-            for (DTBranch b : inner.getBranches())
-                getAllPrefixes(prefs, b.getChild());
-        }
     }
 
     public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
