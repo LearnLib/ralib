@@ -19,6 +19,10 @@ package de.learnlib.ralib.solver;
 
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
+
+import java.util.Properties;
 
 /**
  *
@@ -47,7 +51,9 @@ public class ConstraintSolverFactory {
     }
 
     public static JConstraintsConstraintSolver createZ3ConstraintSolver() {
-        return new JConstraintsConstraintSolver(gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));
+        return new JConstraintsConstraintSolver(
+                (new NativeZ3SolverProvider()).createSolver(new Properties()));
+                //gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));
     }
 
 }
