@@ -294,7 +294,7 @@ public class DT implements DiscriminationTree {
         }
         boolean ret = true;
         DTInnerNode inner = (DTInnerNode) node;
-        for (DTBranch b : Collections.unmodifiableCollection(inner.getBranches())) {
+        for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
             ret = ret && checkConsistency(b.getChild());
         }
         return ret;
