@@ -42,6 +42,7 @@ import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -65,7 +66,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         }
     }
 
-    private final ConstraintSolver solver = ConstraintSolverFactory.createSolver("z3");
+    private final ConstraintSolver solver = (new NativeZ3SolverProvider()).createSolver(new Properties());
 
     private DataType type = null;
 
