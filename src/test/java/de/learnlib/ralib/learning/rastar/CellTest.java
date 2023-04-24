@@ -34,7 +34,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rastar.Cell;
 import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.logging.Level;
 

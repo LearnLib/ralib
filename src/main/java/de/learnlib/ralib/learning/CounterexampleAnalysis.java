@@ -16,23 +16,19 @@
  */
 package de.learnlib.ralib.learning;
 
-import de.learnlib.api.AccessSequenceTransformer;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
-import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import net.automatalib.words.Word;
 

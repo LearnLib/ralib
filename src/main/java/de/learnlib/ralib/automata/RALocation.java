@@ -19,7 +19,6 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

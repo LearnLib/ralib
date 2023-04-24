@@ -21,7 +21,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.logging.Level;
 
 /**
  * Register Automaton transitions have input symbols, and assignments.

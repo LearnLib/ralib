@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.ceanalysis;
 
-import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
@@ -24,7 +23,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
-import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.learning.rattt.RaTTT;
@@ -40,7 +38,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.LinkedHashMap;

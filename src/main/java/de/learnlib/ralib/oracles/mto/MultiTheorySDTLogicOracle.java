@@ -17,7 +17,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import de.learnlib.logging.LearnLogger;
@@ -35,17 +34,12 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
-import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 /**

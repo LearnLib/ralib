@@ -37,7 +37,6 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;

@@ -18,7 +18,6 @@ package de.learnlib.ralib.data.util;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.util.PermutationIterator;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.Iterator;

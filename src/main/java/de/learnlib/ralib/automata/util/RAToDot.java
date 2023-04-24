@@ -23,7 +23,6 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.automata.output.OutputTransition;
 

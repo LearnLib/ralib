@@ -27,7 +27,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.rastar.Component;
 import de.learnlib.ralib.learning.rastar.RaStar;
 //import de.learnlib.ralib.learning.rastar.Row;
 import de.learnlib.ralib.data.VarMapping;

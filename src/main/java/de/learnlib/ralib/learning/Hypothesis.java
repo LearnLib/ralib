@@ -17,7 +17,6 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.api.AccessSequenceTransformer;
-import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;

@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
@@ -26,7 +25,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -35,7 +33,6 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;

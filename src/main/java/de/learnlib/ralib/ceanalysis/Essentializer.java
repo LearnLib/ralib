@@ -27,7 +27,6 @@ import net.automatalib.words.Word;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Essentializer<T> {
 

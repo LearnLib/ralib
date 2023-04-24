@@ -24,7 +24,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
-import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;

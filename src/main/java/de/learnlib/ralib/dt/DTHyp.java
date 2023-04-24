@@ -1,20 +1,15 @@
 package de.learnlib.ralib.dt;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;

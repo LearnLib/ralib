@@ -1,6 +1,5 @@
 package de.learnlib.ralib.example.list;
 
-import java.math.BigDecimal;
 import java.util.LinkedList;
 
 /**

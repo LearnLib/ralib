@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles;
 
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.api.Query;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.words.PSymbolInstance;

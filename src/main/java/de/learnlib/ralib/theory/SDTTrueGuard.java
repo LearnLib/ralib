@@ -22,7 +22,6 @@ import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;

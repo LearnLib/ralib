@@ -25,7 +25,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.learning.rastar.RaStar;
 
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.*;
 import de.learnlib.ralib.oracles.DataWordOracle;

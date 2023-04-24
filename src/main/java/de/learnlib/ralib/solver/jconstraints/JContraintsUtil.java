@@ -36,7 +36,6 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 

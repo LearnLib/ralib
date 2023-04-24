@@ -1,14 +1,10 @@
 package de.learnlib.ralib.learning.rattt;
 
-import static de.learnlib.ralib.example.llambda.LLambdaAutomatonExample.A;
-import static de.learnlib.ralib.example.llambda.LLambdaAutomatonExample.AUTOMATON;
-import static de.learnlib.ralib.example.llambda.LLambdaAutomatonExample.B;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
@@ -21,7 +17,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;

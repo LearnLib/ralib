@@ -7,8 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.google.common.collect.Iterators;
 
 import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
