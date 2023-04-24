@@ -19,7 +19,6 @@ package de.learnlib.ralib.solver;
 
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 
 import java.util.Properties;
