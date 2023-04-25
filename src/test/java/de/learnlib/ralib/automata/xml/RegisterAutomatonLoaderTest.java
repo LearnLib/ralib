@@ -16,10 +16,12 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.util.logging.Level;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import java.util.logging.Level;
-import org.testng.annotations.Test;
 
 /**
  *

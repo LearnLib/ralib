@@ -1,5 +1,10 @@
 package de.learnlib.ralib.ceanalysis;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.api.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -9,10 +14,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
-import org.testng.annotations.Test;
-
-import java.util.Collection;
-import java.util.List;
 
 public class EssentializerTest {
 

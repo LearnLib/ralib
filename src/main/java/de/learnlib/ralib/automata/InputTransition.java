@@ -33,6 +33,4 @@ public class InputTransition extends Transition {
         return (InputSymbol) super.getLabel();
     }
 
-
-
 }

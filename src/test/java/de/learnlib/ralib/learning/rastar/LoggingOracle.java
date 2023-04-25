@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import net.automatalib.words.Word;
-
 import java.util.Map;
 
 import de.learnlib.ralib.data.PIV;
@@ -28,6 +26,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.words.Word;
 
 /**
  *

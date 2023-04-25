@@ -16,6 +16,15 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import jakarta.xml.bind.JAXB;
+
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
@@ -33,15 +42,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.io.OutputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import jakarta.xml.bind.JAXB;
-
 
 /**
  *

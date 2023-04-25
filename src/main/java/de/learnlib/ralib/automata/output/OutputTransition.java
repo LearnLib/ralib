@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.automata.output;
 
+import java.util.Map.Entry;
+
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
@@ -29,7 +31,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.util.Map.Entry;
 
 /**
  * Output transitions are a convenient way of

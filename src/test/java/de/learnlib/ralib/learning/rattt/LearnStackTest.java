@@ -13,10 +13,10 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.ImmutableSet;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableSet;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningExperimentRunner;

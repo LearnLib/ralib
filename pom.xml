@@ -44,8 +44,13 @@
 		    <java>
 		        <endWithNewline />
 		        <trimTrailingWhitespace />
-			<!-- <importOrder /> -->
+			<importOrder>
+			    <order>java|jakarta,com,org,de|gov|net</order>
+			</importOrder>
 			<removeUnusedImports />
+			<!--<palantirJavaFormat>
+			    <version>2.27.0</version>
+			</palantirJavaFormat>-->
 		    </java>
 		</configuration>
 	    </plugin>

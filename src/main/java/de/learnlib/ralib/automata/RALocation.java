@@ -16,13 +16,14 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import static java.util.Collections.emptySet;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static java.util.Collections.emptySet;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *

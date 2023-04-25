@@ -16,9 +16,10 @@
  */
 package de.learnlib.ralib.tools;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import de.learnlib.ralib.RaLibTestSuite;
 
 /**
  *

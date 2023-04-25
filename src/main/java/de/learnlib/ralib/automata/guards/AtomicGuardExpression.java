@@ -16,11 +16,12 @@
  */
 package de.learnlib.ralib.automata.guards;
 
+import java.util.Set;
+
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.Set;
 
 /**
  *
@@ -81,7 +82,6 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
 
         return new AtomicGuardExpression(newLeft, relation, newRight);
     }
-
 
     @Override
     public String toString() {

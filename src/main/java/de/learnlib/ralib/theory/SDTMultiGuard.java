@@ -16,14 +16,15 @@
  */
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 
 public abstract class SDTMultiGuard extends SDTGuard {
 

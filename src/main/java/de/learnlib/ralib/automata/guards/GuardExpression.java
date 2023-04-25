@@ -16,12 +16,13 @@
  */
 package de.learnlib.ralib.automata.guards;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  *

@@ -16,14 +16,15 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  *

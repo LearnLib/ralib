@@ -16,10 +16,11 @@
  */
 package de.learnlib.ralib.oracles;
 
+import java.util.Collection;
+
 import de.learnlib.api.Query;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Collection;
 
 /**
  * Uses a Register Automaton to simulate a SUL.

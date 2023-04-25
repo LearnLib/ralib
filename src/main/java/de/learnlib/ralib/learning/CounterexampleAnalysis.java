@@ -16,6 +16,9 @@
  */
 package de.learnlib.ralib.learning;
 
+import java.util.Map;
+import java.util.logging.Level;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
@@ -28,8 +31,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Map;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**

@@ -21,9 +21,9 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
-import net.automatalib.words.Word;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.api.Query;
@@ -40,8 +40,7 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.logging.Level;
-import org.testng.Assert;
+import net.automatalib.words.Word;
 
 /**
  *

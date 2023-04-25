@@ -16,6 +16,11 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
+import java.util.Deque;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
@@ -33,11 +38,6 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
-
 import net.automatalib.words.Word;
 
 /**

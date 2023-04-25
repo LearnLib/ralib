@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.I_GET;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.I_PUT;
@@ -25,7 +24,8 @@ import static de.learnlib.ralib.example.keygen.MapAutomatonExample.O_NULL;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.O_PUT;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.T_KEY;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.T_VAL;
-import net.automatalib.words.Word;
+
+import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -34,9 +34,10 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.logging.Level;
+import net.automatalib.words.Word;
 
 /**
  *

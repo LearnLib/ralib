@@ -1,8 +1,8 @@
 package de.learnlib.ralib.dt;
 
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
-import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
 import java.util.LinkedHashMap;

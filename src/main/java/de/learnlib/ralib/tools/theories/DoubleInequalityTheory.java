@@ -18,6 +18,12 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+
+import java.math.BigDecimal;
+import java.util.*;
+
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -40,12 +46,6 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-
-import java.math.BigDecimal;
-import java.util.*;
-
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
 
 /**
  *

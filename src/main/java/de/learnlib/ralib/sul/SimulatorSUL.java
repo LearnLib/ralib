@@ -16,6 +16,13 @@
  */
 package de.learnlib.ralib.sul;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+
 import de.learnlib.api.SULException;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.RALocation;
@@ -38,12 +45,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
 import net.automatalib.words.Word;
 
 /**

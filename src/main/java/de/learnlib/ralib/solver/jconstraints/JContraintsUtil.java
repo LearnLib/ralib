@@ -16,6 +16,9 @@
  */
 package de.learnlib.ralib.solver.jconstraints;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
@@ -35,9 +38,6 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *

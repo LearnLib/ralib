@@ -16,6 +16,10 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -28,11 +32,7 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 import net.automatalib.words.Word;
-
 
 /**
  *

@@ -16,11 +16,12 @@
  */
 package de.learnlib.ralib.tools.classanalyzer;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
-import java.lang.reflect.Method;
-import java.util.Map;
 import net.automatalib.commons.util.Pair;
 
 /**

@@ -16,6 +16,16 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import jakarta.xml.bind.JAXB;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
@@ -40,16 +50,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import jakarta.xml.bind.JAXB;
 import net.automatalib.words.Alphabet;
 import net.automatalib.words.impl.SimpleAlphabet;
 

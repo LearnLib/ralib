@@ -16,14 +16,15 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.TestUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
@@ -33,7 +34,6 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import org.testng.Assert;
 
 /**
  *

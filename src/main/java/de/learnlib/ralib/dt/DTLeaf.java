@@ -10,10 +10,10 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Iterators;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.collect.Iterators;
 
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.TransitionGuard;

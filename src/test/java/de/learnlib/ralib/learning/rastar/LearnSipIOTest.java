@@ -16,6 +16,14 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -45,12 +53,6 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  *

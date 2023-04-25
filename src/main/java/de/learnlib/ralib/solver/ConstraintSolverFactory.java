@@ -17,11 +17,11 @@
 
 package de.learnlib.ralib.solver;
 
+import java.util.Properties;
+
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
-
-import java.util.Properties;
 
 /**
  *
@@ -32,7 +32,6 @@ public class ConstraintSolverFactory {
     public final static String ID_SIMPLE = "simple";
 
     public final static String ID_Z3 = "z3";
-
 
     public static ConstraintSolver createSolver(final String id) {
         switch (id) {

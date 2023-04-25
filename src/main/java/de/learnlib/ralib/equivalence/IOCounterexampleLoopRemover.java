@@ -34,18 +34,19 @@ package de.learnlib.ralib.equivalence;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-import de.learnlib.oracles.DefaultQuery;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 /**

@@ -16,12 +16,14 @@
  */
 package de.learnlib.ralib;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.testng.annotations.BeforeSuite;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.testng.annotations.BeforeSuite;
 
 /**
  *

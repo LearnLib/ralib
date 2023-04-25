@@ -16,20 +16,21 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
-import net.automatalib.words.Word;
+
+import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.logging.Level;
+import net.automatalib.words.Word;
 
 /**
  *

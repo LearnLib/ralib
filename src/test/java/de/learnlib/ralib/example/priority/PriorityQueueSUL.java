@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.example.priority;
 
+import java.math.BigDecimal;
 
 import de.learnlib.api.SULException;
 import de.learnlib.ralib.data.DataType;
@@ -25,8 +26,6 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-
-import java.math.BigDecimal;
 
 public class PriorityQueueSUL extends DataWordSUL {
 

@@ -1,11 +1,11 @@
 package de.learnlib.ralib.oracles.mto;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;

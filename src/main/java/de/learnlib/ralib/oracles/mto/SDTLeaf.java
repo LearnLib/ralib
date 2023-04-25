@@ -16,15 +16,16 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 /**
  * Leaf implementation of an SDT.

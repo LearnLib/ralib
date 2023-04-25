@@ -16,6 +16,17 @@
  */
 package de.learnlib.ralib.ceanalysis;
 
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
+import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
@@ -38,16 +49,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
-import org.testng.annotations.Test;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.logging.Level;
-
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
-import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
-import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
-import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 
 /**
  *

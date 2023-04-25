@@ -16,8 +16,9 @@
  */
 package de.learnlib.ralib.words;
 
-import de.learnlib.ralib.data.DataType;
 import java.util.Arrays;
+
+import de.learnlib.ralib.data.DataType;
 
 /**
  * A symbol with typed parameters

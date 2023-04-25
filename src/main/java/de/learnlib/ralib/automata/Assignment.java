@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.automata;
 
+import java.util.Map.Entry;
+
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -24,7 +26,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
-import java.util.Map.Entry;
 
 /**
  * A parallel assignment for registers.

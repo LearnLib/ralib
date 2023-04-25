@@ -16,17 +16,22 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.TestUtil;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.automatalib.words.Word;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
@@ -48,13 +53,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import org.testng.Assert;
-
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
+import net.automatalib.words.Word;
 
 /**
  *

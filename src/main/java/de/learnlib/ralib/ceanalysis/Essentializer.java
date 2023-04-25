@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.ceanalysis;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -24,9 +26,6 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
-
-import java.util.Arrays;
-import java.util.LinkedList;
 
 public class Essentializer<T> {
 

@@ -22,13 +22,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.automatalib.automata.MutableDeterministic;
-import net.automatalib.words.Word;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.automata.MutableDeterministic;
+import net.automatalib.words.Word;
 
 /**
  * Mutable Register Automaton.
@@ -265,6 +265,5 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     public Transition copyTransition(Transition t, RALocation s) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
 
 }

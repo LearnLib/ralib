@@ -16,14 +16,6 @@
  */
 package de.learnlib.ralib.tools;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.ConstraintSolverFactory;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import de.learnlib.ralib.tools.config.Configuration;
-import de.learnlib.ralib.tools.config.ConfigurationException;
-import de.learnlib.ralib.tools.config.ConfigurationOption;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -33,6 +25,15 @@ import java.util.Random;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import de.learnlib.logging.Category;
+import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.ConstraintSolverFactory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.config.Configuration;
+import de.learnlib.ralib.tools.config.ConfigurationException;
+import de.learnlib.ralib.tools.config.ConfigurationOption;
 import net.automatalib.commons.util.Pair;
 
 /**

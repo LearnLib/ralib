@@ -16,22 +16,22 @@
  */
 package de.learnlib.ralib.words;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGOUT;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
-import net.automatalib.words.Word;
 
+import java.util.logging.Level;
+
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import java.util.logging.Level;
-import org.testng.Assert;
-
+import net.automatalib.words.Word;
 
 /**
  *

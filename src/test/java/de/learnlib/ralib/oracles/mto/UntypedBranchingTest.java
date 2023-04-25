@@ -35,16 +35,15 @@ package de.learnlib.ralib.oracles.mto;
  * MA 02110-1301  USA
  */
 
-import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.TestUtil;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import net.automatalib.words.Word;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
@@ -69,7 +68,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import org.testng.Assert;
+import net.automatalib.words.Word;
 
 /**
  *

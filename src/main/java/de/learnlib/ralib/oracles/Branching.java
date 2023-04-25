@@ -16,9 +16,10 @@
  */
 package de.learnlib.ralib.oracles;
 
+import java.util.Map;
+
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.Map;
 import net.automatalib.words.Word;
 
 /**

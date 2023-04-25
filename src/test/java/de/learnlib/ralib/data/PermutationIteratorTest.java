@@ -16,10 +16,10 @@
  */
 package de.learnlib.ralib.data;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.util.PermutationIterator;
 
 /**

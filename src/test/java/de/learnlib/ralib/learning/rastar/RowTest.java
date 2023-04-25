@@ -16,26 +16,25 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import de.learnlib.ralib.RaLibTestSuite;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
 import java.util.Arrays;
-
-import net.automatalib.words.Word;
+import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.logging.Level;
+import net.automatalib.words.Word;
 
 /**
  *

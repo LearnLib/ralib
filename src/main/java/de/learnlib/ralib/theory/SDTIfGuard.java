@@ -16,12 +16,13 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class SDTIfGuard extends SDTGuard {
 

@@ -18,6 +18,14 @@
  */
 package de.learnlib.ralib.learning.rattt;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -30,24 +38,18 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
+import de.learnlib.ralib.example.priority.PriorityQueueSUL;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Level;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  *

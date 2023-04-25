@@ -16,8 +16,9 @@
  */
 package de.learnlib.ralib.words;
 
-import de.learnlib.ralib.data.DataValue;
 import java.util.Arrays;
+
+import de.learnlib.ralib.data.DataValue;
 
 /**
  * A concrete data symbol.
