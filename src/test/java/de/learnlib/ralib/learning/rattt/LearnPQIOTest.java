@@ -71,6 +71,39 @@ public class LearnPQIOTest extends RaLibTestSuite {
         final Constants consts = new Constants();
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
+
+        RegisterAutomaton hyp = learnPQ(seed, teachers, consts, sul);
+        RegisterAutomatonImporter imp = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/pq3.xml");
+
+        IOEquivalenceTest checker = new IOEquivalenceTest(
+                imp.getRegisterAutomaton(), teachers, consts, true,
+                sul.getActionSymbols()
+        );
+
+        Assert.assertNull(checker.findCounterExample(hyp, null));
+
+    }
+
+    @Test
+    public void testPQIODoublePrecisionError() {
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
+                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
+
+        final Constants consts = new Constants();
+
+        PriorityQueueSUL sul = new PriorityQueueSUL();
+        learnPQ(6, teachers, consts, sul);
+
+        // test is passed if we reach this point without triggering an exception
+        Assert.assertTrue(true);
+    }
+
+    private Hypothesis learnPQ(long seed, Map<DataType, Theory> teachers, Constants consts, PriorityQueueSUL sul) {
+        logger.log(Level.FINE, "SEED={0}", seed);
+        final Random random = new Random(seed);
+
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
@@ -122,16 +155,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
             rastar.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rastar.getHypothesis();
-        RegisterAutomatonImporter imp = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/pq3.xml");
-
-        IOEquivalenceTest checker = new IOEquivalenceTest(
-                imp.getRegisterAutomaton(), teachers, consts, true,
-                sul.getActionSymbols()
-        );
-
-        Assert.assertNull(checker.findCounterExample(hyp, null));
+        return rastar.getHypothesis();
 
     }
 }
