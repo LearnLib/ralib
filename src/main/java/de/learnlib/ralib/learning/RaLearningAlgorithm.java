@@ -26,5 +26,9 @@ public interface RaLearningAlgorithm {
 	 */
 	public Hypothesis getHypothesis();
 
+	public void setStatisticCounter(QueryStatistics queryStats);
+
+	public QueryStatistics getQueryStatistics();
+
 	public RaLearningAlgorithmName getName();
 }
