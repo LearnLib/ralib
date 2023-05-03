@@ -11,6 +11,7 @@ import net.automatalib.words.Word;
 public class Measurements {
 	public int treeQueries = 0;
 	public long memQueries = 0;
+	public long inputs = 0;
 	public final Map<SymbolicWord, Integer> treeQueryWords = new LinkedHashMap<SymbolicWord, Integer>();
 	public final Collection<Word<PSymbolInstance>> ces = new LinkedHashSet<Word<PSymbolInstance>>();
 
@@ -33,6 +34,6 @@ public class Measurements {
 
 	@Override
 	public String toString() {
-		return "{TQ: " + treeQueries + ", MQ: " + memQueries + "}";
+		return "{TQ: " + treeQueries + ", Resets: " + memQueries + ", Inputs: " + inputs + "}";
 	}
 }

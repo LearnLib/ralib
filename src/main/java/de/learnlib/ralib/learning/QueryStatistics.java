@@ -6,35 +6,57 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import de.learnlib.ralib.oracles.QueryCounter;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public class QueryStatistics {
 	public static final int TESTING = 0;
-	public static final int CE_ANALYSIS = 1;
-	public static final int CE_PROCESSING = 2;
-	public static final int OTHER = 3;
-	public static final String[] PHASES = {"Testing", "CE Analysis", "Processing", "Other"};
-	private static final int MEASUREMENTS = 4;
+	public static final int CE_OPTIMIZE = 1;
+	public static final int CE_ANALYSIS = 2;
+	public static final int CE_PROCESSING = 3;
+	public static final int OTHER = 4;
+	public static final String[] PHASES = {"Testing", "CE Optimization", "CE Analysis", "Processing / Refinement", "Other"};
+	private static final int MEASUREMENTS = 5;
 
 	private final QueryCounter queryCounter;
+	private final DataWordSUL learningSul;
+	private final DataWordSUL testingSul;
 	private final Measurements[] phaseMeasurements = new Measurements[MEASUREMENTS];
 	private final Measurements measurements;
 	private int phase = OTHER;
-	private long countLastUpdate = 0;
+	private long queryCountLastUpdate = 0;
+	private long inputCountLastUpdate = 0;
 	public final Map<SymbolicWord, Integer> treeQueryWords = new LinkedHashMap<SymbolicWord, Integer>();
 	public final Collection<Word<PSymbolInstance>> ces = new LinkedHashSet<Word<PSymbolInstance>>();
 
 	public QueryStatistics(Measurements measurements, QueryCounter queryCounter) {
 		this.queryCounter = queryCounter;
+		learningSul = null;
+		testingSul = null;
 		this.measurements = measurements;
-		for (int i = 0; i < MEASUREMENTS; i++)
-			phaseMeasurements[i] = new Measurements();
+		initMeasurements();
 	}
 
-	public QueryStatistics(Measurements measurements, QueryCounter queryCounter, int phase) {
-		this(measurements, queryCounter);
-		this.phase = phase;
+	public QueryStatistics(Measurements measurements, DataWordSUL sul) {
+		this.queryCounter = null;
+		learningSul = sul;
+		testingSul = null;
+		this.measurements = measurements;
+		initMeasurements();
+	}
+
+	public QueryStatistics(Measurements measurements, DataWordSUL learningSul, DataWordSUL testingSul) {
+		queryCounter = null;
+		this.learningSul = learningSul;
+		this.testingSul = testingSul;
+		this.measurements = measurements;
+		initMeasurements();
+	}
+
+	private void initMeasurements() {
+		for (int i = 0; i < MEASUREMENTS; i++)
+			phaseMeasurements[i] = new Measurements();
 	}
 
 	public void reset() {
@@ -50,8 +72,19 @@ public class QueryStatistics {
 
 	public void updateMeasurements() {
 		phaseMeasurements[phase].treeQueries = phaseMeasurements[phase].treeQueries + measurements.treeQueries;
-		phaseMeasurements[phase].memQueries = phaseMeasurements[phase].memQueries + queryCounter.getQueryCount() - countLastUpdate;
-		countLastUpdate = queryCounter.getQueryCount();
+		if (phase == TESTING && testingSul != null) {
+			updateTests();
+		}
+		else if (learningSul != null) {
+			phaseMeasurements[phase].inputs = phaseMeasurements[phase].inputs + learningSul.getInputs() - inputCountLastUpdate;
+			phaseMeasurements[phase].memQueries = phaseMeasurements[phase].memQueries + learningSul.getResets() - queryCountLastUpdate;
+			inputCountLastUpdate = learningSul.getInputs();
+			queryCountLastUpdate = learningSul.getResets();
+		}
+		else if (queryCounter != null) {
+			phaseMeasurements[phase].memQueries = phaseMeasurements[phase].memQueries + queryCounter.getQueryCount() - queryCountLastUpdate;
+			queryCountLastUpdate = queryCounter.getQueryCount();
+		}
 		ces.addAll(measurements.ces);
 		treeQueryWords.putAll(measurements.treeQueryWords);
 		measurements.reset();
@@ -76,6 +109,14 @@ public class QueryStatistics {
 		}
 		return queries;
 	}
+
+	public void updateTests() {
+		if (testingSul != null) {
+			phaseMeasurements[phase].inputs = testingSul.getInputs();
+			phaseMeasurements[phase].memQueries = testingSul.getResets();
+		}
+	}
+
 	public void analyzingCounterExample() {
 		setPhase(CE_ANALYSIS);
 	}
@@ -89,10 +130,16 @@ public class QueryStatistics {
 	}
 
 	public String toString() {
-		String str = "";
+		String str = "--- Statistics ---\n";
+		long totTQ = 0;
+		long totR = 0;
+		long totI = 0;
 		for (int i = 0; i < MEASUREMENTS; i++) {
-			str = str + phaseMeasurements[i].toString() + " (" + PHASES[i] + ")\n";
+			str = str + PHASES[i] + ": " + phaseMeasurements[i].toString() + "\n";
+			totTQ = totTQ + phaseMeasurements[i].treeQueries;
+			totR = totR + phaseMeasurements[i].memQueries;
+			totI = totI + phaseMeasurements[i].inputs;
 		}
-		return str;
+		return str + "Total: " + "{TQ: " + totTQ + ", Resets: " + totR + ", Inputs: " + totI + "}";
 	}
 }

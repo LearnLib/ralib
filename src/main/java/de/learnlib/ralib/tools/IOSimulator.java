@@ -37,6 +37,9 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.Measurements;
+import de.learnlib.ralib.learning.MeasuringOracle;
+import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.learning.rattt.RaTTT;
@@ -118,8 +121,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
     private boolean useEqTest;
 
-    private long resets = 0;
-    private long inputs = 0;
+//    private long resets = 0;
+//    private long inputs = 0;
 
     private Constants consts;
 
@@ -188,7 +191,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
            }
        }
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+        Measurements measurements = new Measurements();
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
@@ -213,6 +217,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         }
+//        QueryStatistics queryStats = new QueryStatistics(measurements, back);
+        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, sulTest);
+        this.rastar.setStatisticCounter(queryStats);
 
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
@@ -268,6 +275,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
         Hypothesis hyp = null;
 
+        QueryStatistics queryStats = rastar.getQueryStatistics();
+
         int rounds = 0;
         while (true && (maxRounds < 0 || rounds < maxRounds)) {
 
@@ -320,17 +329,19 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     break;
                 }
 
-                resets = sulTest.getResets();
-                inputs = sulTest.getInputs();
-
+//                resets = sulTest.getResets();
+//                inputs = sulTest.getInputs();
+//                rastar.getQueryStatistics().updateTests();
 
                 if (useCeOptimizers) {
+                	queryStats.setPhase(QueryStatistics.CE_OPTIMIZE);
                     ce2 = ceOptLoops.optimizeCE(ce2.getInput(), hyp);
                     System.out.println("Shorter CE: " + ce2);
                     ce2 = ceOptAsrep.optimizeCE(ce2.getInput(), hyp);
                     System.out.println("New Prefix CE: " + ce2);
                     ce2 = ceOptPref.optimizeCE(ce2.getInput(), hyp);
                     System.out.println("Prefix of CE is CE: " + ce2);
+                    queryStats.setPhase(QueryStatistics.TESTING);
                 }
 
                 ce = (ce == null || ce.getInput().length() > ce2.getInput().length()) ?
@@ -396,17 +407,20 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         // tests during learning
         // resets + inputs
-        System.out.println("Resets Learning: " + sulLearn.getResets());
-        System.out.println("Inputs Learning: " + sulLearn.getInputs());
+//        System.out.println("Resets Learning: " + sulLearn.getResets());
+//        System.out.println("Inputs Learning: " + sulLearn.getInputs());
 
         // tests during search
         // resets + inputs
-        System.out.println("Resets Testing: " + resets);
-        System.out.println("Inputs Testing: " + inputs);
+//        System.out.println("Resets Testing: " + resets);
+//        System.out.println("Inputs Testing: " + inputs);
 
         // + sums
-        System.out.println("Resets: " + (resets + sulLearn.getResets()));
-        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
+//        System.out.println("Resets: " + (resets + sulLearn.getResets()));
+//        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
+
+        // statistics
+        System.out.println(queryStats.toString());
 
     }
 
