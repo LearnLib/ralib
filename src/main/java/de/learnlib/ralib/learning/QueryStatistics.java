@@ -77,12 +77,12 @@ public class QueryStatistics {
 		}
 		else if (learningSul != null) {
 			phaseMeasurements[phase].inputs = phaseMeasurements[phase].inputs + learningSul.getInputs() - inputCountLastUpdate;
-			phaseMeasurements[phase].memQueries = phaseMeasurements[phase].memQueries + learningSul.getResets() - queryCountLastUpdate;
+			phaseMeasurements[phase].resets = phaseMeasurements[phase].resets + learningSul.getResets() - queryCountLastUpdate;
 			inputCountLastUpdate = learningSul.getInputs();
 			queryCountLastUpdate = learningSul.getResets();
 		}
 		else if (queryCounter != null) {
-			phaseMeasurements[phase].memQueries = phaseMeasurements[phase].memQueries + queryCounter.getQueryCount() - queryCountLastUpdate;
+			phaseMeasurements[phase].resets = phaseMeasurements[phase].resets + queryCounter.getQueryCount() - queryCountLastUpdate;
 			queryCountLastUpdate = queryCounter.getQueryCount();
 		}
 		ces.addAll(measurements.ces);
@@ -95,9 +95,9 @@ public class QueryStatistics {
 	}
 
 	public long getMemQueries() {
-		long queries = measurements.memQueries;
+		long queries = measurements.resets;
 		for (int i = 0; i < MEASUREMENTS; i++) {
-			queries = queries + phaseMeasurements[i].memQueries;
+			queries = queries + phaseMeasurements[i].resets;
 		}
 		return queries;
 	}
@@ -113,7 +113,7 @@ public class QueryStatistics {
 	public void updateTests() {
 		if (testingSul != null) {
 			phaseMeasurements[phase].inputs = testingSul.getInputs();
-			phaseMeasurements[phase].memQueries = testingSul.getResets();
+			phaseMeasurements[phase].resets = testingSul.getResets();
 		}
 	}
 
@@ -137,7 +137,7 @@ public class QueryStatistics {
 		for (int i = 0; i < MEASUREMENTS; i++) {
 			str = str + PHASES[i] + ": " + phaseMeasurements[i].toString() + "\n";
 			totTQ = totTQ + phaseMeasurements[i].treeQueries;
-			totR = totR + phaseMeasurements[i].memQueries;
+			totR = totR + phaseMeasurements[i].resets;
 			totI = totI + phaseMeasurements[i].inputs;
 		}
 		return str + "Total: " + "{TQ: " + totTQ + ", Resets: " + totR + ", Inputs: " + totI + "}";

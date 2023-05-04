@@ -144,7 +144,7 @@ public class RaLibLearningExperimentRunner {
 				measures.ces.add(ce.getInput());
 			}
 
-			measures.memQueries = ioCache.getQueryCount();
+			measures.resets = ioCache.getQueryCount();
 
 			Assert.assertNull(ce);
 			Hypothesis hyp = learner.getHypothesis();

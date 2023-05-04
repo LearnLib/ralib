@@ -217,7 +217,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         }
-//        QueryStatistics queryStats = new QueryStatistics(measurements, back);
         QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, sulTest);
         this.rastar.setStatisticCounter(queryStats);
 
@@ -329,10 +328,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     break;
                 }
 
-//                resets = sulTest.getResets();
-//                inputs = sulTest.getInputs();
-//                rastar.getQueryStatistics().updateTests();
-
                 if (useCeOptimizers) {
                 	queryStats.setPhase(QueryStatistics.CE_OPTIMIZE);
                     ce2 = ceOptLoops.optimizeCE(ce2.getInput(), hyp);
@@ -404,20 +399,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 }
             }
         }
-
-        // tests during learning
-        // resets + inputs
-//        System.out.println("Resets Learning: " + sulLearn.getResets());
-//        System.out.println("Inputs Learning: " + sulLearn.getInputs());
-
-        // tests during search
-        // resets + inputs
-//        System.out.println("Resets Testing: " + resets);
-//        System.out.println("Inputs Testing: " + inputs);
-
-        // + sums
-//        System.out.println("Resets: " + (resets + sulLearn.getResets()));
-//        System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
 
         // statistics
         System.out.println(queryStats.toString());
