@@ -29,6 +29,7 @@ import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
+import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -66,6 +67,8 @@ public class RaStar implements RaLearningAlgorithm {
     private final SDTLogicOracle sdtLogicOracle;
 
     private final TreeOracleFactory hypOracleFactory;
+
+    private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
 
@@ -125,6 +128,8 @@ public class RaStar implements RaLearningAlgorithm {
 
         } while (analyzeCounterExample());
 
+        if (queryStats != null)
+        	queryStats.hypothesisConstructed();
     }
 
 
@@ -159,7 +164,14 @@ public class RaStar implements RaLearningAlgorithm {
 
         //System.out.println("CE ANALYSIS: " + ce + " ; S:" + sulce + " ; H:" + hypce);
 
+        if (queryStats != null)
+        	queryStats.analyzingCounterExample();
+
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
+
+        if (queryStats != null)
+        	queryStats.processingCounterExample();
+
         obs.addSuffix(res.getSuffix());
         return true;
     }
@@ -180,6 +192,14 @@ public class RaStar implements RaLearningAlgorithm {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(obs.getComponents());
         return components;
+    }
+
+    public void setStatisticCounter(QueryStatistics queryStats) {
+    	this.queryStats = queryStats;
+    }
+
+    public QueryStatistics getQueryStatistics() {
+    	return queryStats;
     }
 
 	@Override
