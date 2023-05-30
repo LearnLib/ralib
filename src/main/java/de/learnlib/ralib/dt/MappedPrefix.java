@@ -1,8 +1,10 @@
 package de.learnlib.ralib.dt;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -85,5 +87,15 @@ public class MappedPrefix implements PrefixContainer {
 				return e.getKey();
 		}
 		throw new IllegalStateException("This line is not supposed to be reached.");
+	}
+
+	Set<SymbolicSuffix> getAllSuffixesForMemorable(Parameter p) {
+		Set<SymbolicSuffix> suffixes = new LinkedHashSet<SymbolicSuffix>();
+		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
+			if (e.getValue().getPiv().containsKey(p))
+				suffixes.add(e.getKey());
+		}
+		assert !suffixes.isEmpty();
+		return suffixes;
 	}
 }
