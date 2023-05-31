@@ -470,13 +470,18 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
         for (Parameter p : memMP.keySet()) {
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                SymbolicSuffix suffix = mp.getSuffixForMemorable(p);
-                SymbolicSuffix newSuffix = new SymbolicSuffix(mp.getPrefix(), suffix, consts);
+            	for (SymbolicSuffix suffix : mp.getAllSuffixesForMemorable(p)) {
+            		SymbolicSuffix newSuffix = new SymbolicSuffix(mp.getPrefix(), suffix, consts);
+            		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
-                dt.addSuffix(newSuffix, prefixLeaf);
-                return false;
+            		if (tqr.getPiv().keySet().contains(p)) {
+            			dt.addSuffix(newSuffix, prefixLeaf);
+            			return false;
+            		}
+            	}
             }
         }
+
         return true;
     }
 
