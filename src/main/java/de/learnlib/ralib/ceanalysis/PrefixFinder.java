@@ -115,7 +115,7 @@ public class PrefixFinder {
         Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
 
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -(idx+1));
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(ce.prefix(idx+1), suffix, consts);
         SymbolicSuffix extendedSuffix = new SymbolicSuffix(prefix, ce.suffix(ce.length() - idx));
 
         for(Word<PSymbolInstance> location : locations) {
