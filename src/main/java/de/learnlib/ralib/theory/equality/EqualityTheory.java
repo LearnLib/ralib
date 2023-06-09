@@ -172,20 +172,36 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         boolean free = suffix.getFreeValues().contains(sv);
         if (!free && useNonFreeOptimization) {
             DataValue d = suffixValues.get(sv);
+            SDT sdt;
+            Map<SDTGuard, SDT> merged;
+
+            // fresh value case
             if (d == null) {
                 d = getFreshValue(potential);
+                values.put(pId, d);
+                WordValuation trueValues = new WordValuation();
+                trueValues.putAll(values);
+                SuffixValuation trueSuffixValues = new SuffixValuation();
+                trueSuffixValues.putAll(suffixValues);
+                trueSuffixValues.put(sv, d);
+                sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
+                log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+                merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
+
             }
-            values.put(pId, d);
-            WordValuation trueValues = new WordValuation();
-            trueValues.putAll(values);
-            SuffixValuation trueSuffixValues = new SuffixValuation();
-            trueSuffixValues.putAll(suffixValues);
-            trueSuffixValues.put(sv, d);
-            SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
 
-            log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
-
-            Map<SDTGuard, SDT> merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
+            // equal to previous suffix parameter
+            else {
+                values.put(pId, d);
+                WordValuation equalValues = new WordValuation();
+                equalValues.putAll(values);
+                SuffixValuation equalSuffixValues = new SuffixValuation();
+                equalSuffixValues.putAll(suffixValues);
+                equalSuffixValues.put(currentParam, d);
+                sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
+                merged = new LinkedHashMap<SDTGuard, SDT>();
+                merged.put(new EqualityGuard(currentParam, sv), sdt);
+            }
 
             log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
             // log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
