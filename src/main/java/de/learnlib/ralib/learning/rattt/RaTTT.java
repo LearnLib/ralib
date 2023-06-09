@@ -214,7 +214,7 @@ public class RaTTT implements RaLearningAlgorithm {
         	}
         }
 
-        if (noShortPrefixes())
+        if (noShortPrefixes() && !dt.isMissingParameter())
         	buildNewHypothesis();
 
         return true;

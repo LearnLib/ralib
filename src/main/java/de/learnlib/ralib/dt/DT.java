@@ -379,6 +379,22 @@ public class DT implements DiscriminationTree {
         }
     }
 
+    public boolean isMissingParameter() {
+    	return isMissingParameter(root);
+    }
+
+    private boolean isMissingParameter(DTNode node) {
+    	if (node.isLeaf())
+    		return ((DTLeaf)node).isMissingVariable();
+    	else {
+    		for (DTBranch b : ((DTInnerNode)node).getBranches()) {
+    			if (isMissingParameter(b.getChild()))
+    				return true;
+    		}
+    	}
+    	return false;
+    }
+
     public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         collectComponents(components, root);
