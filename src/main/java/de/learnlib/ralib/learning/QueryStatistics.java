@@ -1,9 +1,9 @@
 package de.learnlib.ralib.learning;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -28,7 +28,7 @@ public class QueryStatistics {
 	private long queryCountLastUpdate = 0;
 	private long inputCountLastUpdate = 0;
 	public final Map<SymbolicWord, Integer> treeQueryWords = new LinkedHashMap<SymbolicWord, Integer>();
-	public final Collection<Word<PSymbolInstance>> ces = new LinkedHashSet<Word<PSymbolInstance>>();
+	public final Set<Word<PSymbolInstance>> ces = new LinkedHashSet<Word<PSymbolInstance>>();
 
 	public QueryStatistics(Measurements measurements, QueryCounter queryCounter) {
 		this.queryCounter = queryCounter;
@@ -110,6 +110,10 @@ public class QueryStatistics {
 		return queries;
 	}
 
+	public Set<Word<PSymbolInstance>> getCEs() {
+		return ces;
+	}
+
 	public void updateTests() {
 		if (testingSul != null) {
 			phaseMeasurements[phase].inputs = testingSul.getInputs();
@@ -129,8 +133,24 @@ public class QueryStatistics {
 		setPhase(TESTING);
 	}
 
+	public void analyzeCE(Word<PSymbolInstance> ce) {
+		ces.add(ce);
+	}
+
 	public String toString() {
 		String str = "--- Statistics ---\n";
+		int sum = 0;
+		int max = 0;
+		for (Word<PSymbolInstance> ce : ces) {
+			int len = ce.length();
+			sum = sum + len;
+			if (len > max)
+				max = len;
+		}
+		int n = ces.size();
+		str = str + "Counterexamples: " + n + "\n"
+		          + "CE max length: " + max + "\n"
+		          + "CE avg length: " + (n > 0 ? sum / n : 0) + "\n";
 		long totTQ = 0;
 		long totR = 0;
 		long totI = 0;
