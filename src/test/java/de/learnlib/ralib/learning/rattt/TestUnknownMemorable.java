@@ -1,13 +1,21 @@
 package de.learnlib.ralib.learning.rattt;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -19,6 +27,7 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -225,5 +234,127 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
         // if learning reaches this point without assertion violations, the test is passed
 		Assert.assertTrue(true);
+	}
+
+	@Test
+	public void testSkippingMemorable() {
+
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+
+        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+                new ParameterizedSymbol[]{});
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        final Constants consts = loader.getConstants();
+
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
+            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);
+            teachers.put(t, theory);
+        });
+
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo =
+                new MultiTheorySDTLogicOracle(consts, solver);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+
+        RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        rattt.learn();
+
+        String[] ces = {"IPRACK[0[int]] Otimeout[] IINVITE[1[int]] Otimeout[] / true",
+        		        "Inil[] Otimeout[] IINVITE[0[int]] O100[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IACK[2[int]] Otimeout[] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] Inil[] O183[0[int]] IINVITE[3[int]] O100[3[int]] Inil[] O486[3[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] Inil[] O180[0[int]] IINVITE[0[int]] O100[0[int]] Inil[] O486[0[int]] / true"};
+
+        Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = buildSIPCEs(ces, actions);
+
+        while (!ceQueue.isEmpty()) {
+        	rattt.addCounterexample(ceQueue.pop());
+        	rattt.learn();
+        }
+
+        Assert.assertTrue(true);
+	}
+
+	private Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
+		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedList<>();
+
+		for (String ceString : ceStrings) {
+			Pattern dvPattern = Pattern.compile("\\[(.?)\\[int\\]\\]");
+			Matcher m = dvPattern.matcher(ceString);
+			Collection<Integer> params = new ArrayList<Integer>();
+			while (m.find()) {
+				String s = m.group(1);
+				params.add(Integer.parseInt(m.group(1)));
+			}
+
+			Pattern psPattern = Pattern.compile("(IACK|Inil|IPRACK|IINVITE|Otimeout|O486|O481|O200|O180|O183|O100)");
+			m = psPattern.matcher(ceString);
+			Collection<String> as = new ArrayList<String>();
+			while (m.find()) {
+				as.add(m.group());
+			}
+
+			Pattern outPattern = Pattern.compile("(true|false)");
+			m = outPattern.matcher(ceString);
+			m.find();
+			boolean outcome = Boolean.parseBoolean(m.group());
+
+			String[] actions = as.toArray(new String[as.size()]);
+			int[] dvs = new int[as.size()];
+			Iterator<Integer> paramIt = params.iterator();
+			for (int i = 0; i < as.size(); i++) {
+				if (!actions[i].equals("Otimeout") && !actions[i].equals("Inil")) {
+					dvs[i] = paramIt.next();
+				}
+			}
+
+			ces.add(buildSIPCounterExample(actions, dvs, outcome, actionSymbols));
+		}
+
+		return ces;
+	}
+
+	private DefaultQuery<PSymbolInstance, Boolean> buildSIPCounterExample(String[] actions, int[] dv, boolean outcome, ParameterizedSymbol[] actionSymbols) {
+		Word<PSymbolInstance> ce = Word.epsilon();
+		for (int i = 0; i < actions.length; i++) {
+			String action = actions[i];
+			int idx = findMatchingSymbol(action, actionSymbols);
+			if (idx < 0)
+				return null;
+			DataType[] dt = actionSymbols[idx].getPtypes();
+			PSymbolInstance psi = dt.length > 0 ?
+				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], dv[i])) :
+				new PSymbolInstance(actionSymbols[idx]);
+			ce = ce.append(psi);
+		}
+		return new DefaultQuery<PSymbolInstance, Boolean>(ce, outcome);
+	}
+
+	private int findMatchingSymbol(String action, ParameterizedSymbol[] actionSymbols) {
+		for (int i = 0; i < actionSymbols.length; i++ ) {
+			if (actionSymbols[i].getName().contains(action))
+				return i;
+		}
+		return -1;
 	}
 }
