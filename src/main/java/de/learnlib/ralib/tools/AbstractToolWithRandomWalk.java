@@ -143,6 +143,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.IntegerOption("max.rounds",
                     "Maximum number of rounds", -1, true);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_CACHE_TESTS
+    = new ConfigurationOption.BooleanOption("cache.tests",
+            "Cache test queries executed during CE analysis", false, true);
+
     protected static final ConfigurationOption.BooleanOption OPTION_RWALK_DRAW
             = new ConfigurationOption.BooleanOption("rwalk.draw.uniform",
                     "Draw next input uniformly", null, false);

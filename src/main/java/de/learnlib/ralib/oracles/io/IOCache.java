@@ -46,7 +46,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
     }
 
-    private final CacheNode root = new CacheNode();
+    private final CacheNode root;
 
     private final IOOracle sul;
 
@@ -54,6 +54,12 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
     public IOCache(IOOracle sul) {
         this.sul = sul;
+        root = new CacheNode();
+    }
+
+    public IOCache(IOOracle sul, IOCache cache) {
+        this.sul = sul;
+        this.root = cache.root;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         }
     }
 
-    private boolean traceBoolean(Word<PSymbolInstance> query) {
+    public boolean traceBoolean(Word<PSymbolInstance> query) {
         Boolean ret = answerFromCache(query);
         if (ret != null) {
             return ret;
@@ -146,7 +152,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         return Boolean.TRUE;
     }
 
-    private void addToCache(Word<PSymbolInstance> query) {
+    public void addToCache(Word<PSymbolInstance> query) {
         assert query.length() % 2 == 0;
         Iterator<PSymbolInstance> iter = query.iterator();
         CacheNode cur = root;
@@ -166,7 +172,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         }
     }
 
-    private Word<PSymbolInstance> traceFromCache(Word<PSymbolInstance> query) {
+    public Word<PSymbolInstance> traceFromCache(Word<PSymbolInstance> query) {
         Word<PSymbolInstance> trace = Word.epsilon();
 
         Iterator<PSymbolInstance> iter = query.iterator();

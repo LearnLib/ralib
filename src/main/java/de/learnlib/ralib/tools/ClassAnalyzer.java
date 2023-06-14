@@ -46,6 +46,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.sul.CachingSUL;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -105,6 +106,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private DataWordSUL sulTest;
 
+    private DataWordSUL trackingSulTest;
+
     private IORandomWalk randomWalk = null;
 
     private RaStar rastar;
@@ -163,10 +166,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             if (this.timeoutMillis > 0L) {
                 this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
             }
-            sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            if (this.timeoutMillis > 0L) {
-                this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
-            }
 
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
 
@@ -196,6 +195,20 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             back = new SULOracle(sulLearn, SpecialSymbols.ERROR);
             IOCache ioCache = new IOCache(back);
             IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
+
+            sulTest = new ClasssAnalyzerDataWordSUL(target, methods, md);
+            trackingSulTest = sulTest;
+            if (this.timeoutMillis > 0L) {
+                this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+            }
+
+            //TODO add gathering of statistics
+            if (OPTION_CACHE_TESTS.parse(config)) {
+                SULOracle testBack = new SULOracle(sulTest,  SpecialSymbols.ERROR);
+                IOCache testCache = new IOCache(testBack, ioCache);
+                this.sulTest = new CachingSUL(trackingSulTest, testCache);
+            }
+
 
             if (useFresh) {
                 for (Theory t : teachers.values()) {
@@ -301,8 +314,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 break;
             }
 
-            resets = sulTest.getResets();
-            inputs = sulTest.getInputs();
+            resets = trackingSulTest.getResets();
+            inputs = trackingSulTest.getInputs();
 
             SimpleProfiler.start(__LEARN__);
             ceLengths.add(ce.getInput().length());

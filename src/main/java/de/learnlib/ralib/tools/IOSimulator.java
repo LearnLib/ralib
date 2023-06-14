@@ -52,6 +52,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.sul.CachingSUL;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -173,10 +174,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         if (this.timeoutMillis > 0L) {
            this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
         }
-        this.sulTest  = new SimulatorSUL(model, teachers, consts);
-        if (this.timeoutMillis > 0L) {
-           this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
-        }
 
         final ParameterizedSymbol ERROR
                 = new OutputSymbol("_io_err", new DataType[]{});
@@ -184,6 +181,19 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        IOOracle back = new SULOracle(sulLearn, ERROR);
        IOCache ioCache = new IOCache(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
+
+       this.sulTest  = new SimulatorSUL(model, teachers, consts);
+       if (this.timeoutMillis > 0L) {
+          this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+       }
+
+       DataWordSUL trackingSulTest = this.sulTest;
+
+       if (OPTION_CACHE_TESTS.parse(config)) {
+           SULOracle testBack = new SULOracle(sulTest, ERROR);
+           IOCache testCache = new IOCache(testBack, ioCache);
+           this.sulTest = new CachingSUL(trackingSulTest, testCache);
+       }
 
        if (useFresh) {
            for (Theory t : teachers.values()) {
@@ -217,7 +227,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         }
-        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, sulTest);
+        QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSulTest);
         this.rastar.setStatisticCounter(queryStats);
 
         this.eqTest = new IOEquivalenceTest(model, teachers, consts, true, actions);
@@ -232,6 +242,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
             int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
             boolean resetRuns = OPTION_RWALK_RESET.parse(config);
+
+
 
             this.randomWalk = new IORandomWalk(random,
                     sulTest,
