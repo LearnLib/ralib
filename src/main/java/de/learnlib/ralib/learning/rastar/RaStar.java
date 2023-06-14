@@ -169,8 +169,10 @@ public class RaStar implements RaLearningAlgorithm {
 
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
 
-        if (queryStats != null)
+        if (queryStats != null) {
         	queryStats.processingCounterExample();
+        	queryStats.analyzeCE(ce.getInput());
+        }
 
         obs.addSuffix(res.getSuffix());
         return true;

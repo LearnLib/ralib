@@ -176,8 +176,10 @@ public class RaTTT implements RaLearningAlgorithm {
         	return true;
         }
 
-        if (queryStats != null)
+        if (queryStats != null) {
         	queryStats.analyzingCounterExample();
+        	queryStats.analyzeCE(ce.getInput());
+        }
         Word<PSymbolInstance> ceWord = ce.getInput();
         CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
         Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
@@ -419,8 +421,10 @@ public class RaTTT implements RaLearningAlgorithm {
 
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
 
-        if (queryStats != null)
+        if (queryStats != null) {
         	queryStats.processingCounterExample();
+        	queryStats.analyzeCE(ce.getInput());
+        }
 
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(accSeq);
