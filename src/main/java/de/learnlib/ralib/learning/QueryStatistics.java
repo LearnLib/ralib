@@ -160,6 +160,10 @@ public class QueryStatistics {
 			totR = totR + phaseMeasurements[i].resets;
 			totI = totI + phaseMeasurements[i].inputs;
 		}
+		long totTQNoTesting = totTQ - phaseMeasurements[TESTING].treeQueries;
+		long totRNoTesting = totR - phaseMeasurements[TESTING].resets;
+		long totINoTesting = totI - phaseMeasurements[TESTING].inputs;
+		str = str + "Total excl testing: {TQ: " + totTQNoTesting + ", Resets: " + totRNoTesting + ", Inputs: " + totINoTesting + "}\n";
 		return str + "Total: " + "{TQ: " + totTQ + ", Resets: " + totR + ", Inputs: " + totI + "}";
 	}
 }
