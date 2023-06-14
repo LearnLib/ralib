@@ -58,7 +58,7 @@ public class CachingSULTest {
         cachingSul.step(new PSymbolInstance(POLL));
         cachingSul.post();
 
-        Assert.assertEquals(2, sul.getInputs());
-        Assert.assertEquals(1, sul.getResets());
+        Assert.assertEquals(sul.getInputs(), 2);
+        Assert.assertEquals(sul.getResets(), 1);
     }
 }
