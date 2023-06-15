@@ -1042,8 +1042,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         log.log(Level.FINEST, "merged guards = " + merged.keySet());
         log.log(Level.FINEST, "merged pivs = " + piv.toString());
 
-        // clear the temporary map of children
-        tempKids = new LinkedHashMap<SDTGuard, SDT>();
+        tempKids.clear();
 
         for (SDTGuard g : merged.keySet()) {
             assert !(g == null);
@@ -1057,7 +1056,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        System.out.println("MERGED = " + merged);
         SDT returnSDT = new SDT(merged);
         return returnSDT;
-
     }
 
     private EqualityGuard pickupDataValue(DataValue<T> newDv,

@@ -27,7 +27,7 @@ import java.util.Set;
 
 public class Polynomial extends Constraint {
 
-	public static Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
+	public static final Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
 
 	static Constraint fromSet(Set<Monomial> constraints) {
 		int size = constraints.size();

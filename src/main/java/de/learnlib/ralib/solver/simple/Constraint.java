@@ -26,8 +26,8 @@ import java.util.Set;
 
 public abstract class Constraint {
 
-	public static Constraint TRUE = Monomial.TRUE;
-	public static Constraint FALSE = Polynomial.FALSE;
+	public static final Constraint TRUE = Monomial.TRUE;
+	public static final Constraint FALSE = Polynomial.FALSE;
 
 	public static Constraint disjunction(List<? extends Constraint> constraints) {
 		Set<Monomial> cset = new HashSet<Monomial>();

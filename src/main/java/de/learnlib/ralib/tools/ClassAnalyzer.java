@@ -289,7 +289,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         Hypothesis hyp = null;
 
         int rounds = 0;
-        while (true && (maxRounds < 0 || rounds < maxRounds)) {
+        while (maxRounds < 0 || rounds < maxRounds) {
 
             rounds++;
             rastar.learn();

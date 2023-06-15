@@ -182,7 +182,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        IOCache ioCache = new IOCache(back);
        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
-       this.sulTest  = new SimulatorSUL(model, teachers, consts);
+       this.sulTest = new SimulatorSUL(model, teachers, consts);
        if (this.timeoutMillis > 0L) {
           this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
        }
@@ -243,8 +243,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
             boolean resetRuns = OPTION_RWALK_RESET.parse(config);
 
-
-
             this.randomWalk = new IORandomWalk(random,
                     sulTest,
                     drawUniformly, // do not draw symbols uniformly
@@ -289,7 +287,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         QueryStatistics queryStats = rastar.getQueryStatistics();
 
         int rounds = 0;
-        while (true && (maxRounds < 0 || rounds < maxRounds)) {
+        while (maxRounds < 0 || rounds < maxRounds) {
 
             rounds++;
             rastar.learn();
@@ -322,26 +320,20 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 ce = null;
             }
 
-            boolean nullCe = false;
             for (int i=0; i<3; i++) {
 
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
-                if (findCounterexamples) {
-                    ce2 = this.randomWalk.findCounterExample(hyp, null);
-                } else {
-                    ce2 = ce;
-                }
+                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, null) : ce);
 
                 SimpleProfiler.stop(__SEARCH__);
                 System.out.println("CE: " + ce2);
                 if (ce2 == null) {
-                    nullCe = true;
                     break;
                 }
 
                 if (useCeOptimizers) {
-                	queryStats.setPhase(QueryStatistics.CE_OPTIMIZE);
+		    queryStats.setPhase(QueryStatistics.CE_OPTIMIZE);
                     ce2 = ceOptLoops.optimizeCE(ce2.getInput(), hyp);
                     System.out.println("Shorter CE: " + ce2);
                     ce2 = ceOptAsrep.optimizeCE(ce2.getInput(), hyp);
@@ -351,11 +343,12 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     queryStats.setPhase(QueryStatistics.TESTING);
                 }
 
-                ce = (ce == null || ce.getInput().length() > ce2.getInput().length()) ?
-                        ce2 : ce;
+ 		if (ce == null || ce.getInput().length() > ce2.getInput().length()) {
+		    ce = ce2;
+		}
             }
 
-            if (nullCe) {
+            if (ce == null) {
                 break;
             }
 

@@ -203,6 +203,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected String learner = "slstar";
 
+    private static final Random RANDOM = new Random();
+
     @Override
     public void setup(Configuration config) throws ConfigurationException {
 
@@ -219,7 +221,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         }
 
         // random
-        Long seed = (new Random()).nextLong();
+        Long seed = RANDOM.nextLong();
         if (config.containsKey(OPTION_RANDOM_SEED.getKey())) {
             seed = OPTION_RANDOM_SEED.parse(config);
         }

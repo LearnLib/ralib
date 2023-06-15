@@ -36,7 +36,7 @@ public class Negation extends GuardExpression {
     }
 
     public GuardExpression getNegated() {
-    	return negated;
+        return negated;
     }
 
     @Override

@@ -32,7 +32,7 @@ public abstract class SymbolicDataValueGenerator {
     }
 
     public void set(SymbolicDataValueGenerator g) {
-    	id = g.id;
+        id = g.id;
     }
 
     public abstract SymbolicDataValue next(DataType type);
