@@ -81,7 +81,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
 
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
-        OPTION_ALGO,
+        OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
@@ -222,7 +222,19 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 break;
             case "rattt":
-                this.rastar = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+                boolean useOldAnalyzer;
+                String ceanalysis = OPTION_RATTT_CEANALYSIS.parse(config);
+                switch (ceanalysis) {
+                case RATTT_CEANALYSIS_SUFFIX:
+                    useOldAnalyzer = true;
+                    break;
+                case RATTT_CEANALYSIS_PREFIX:
+                    useOldAnalyzer = false;
+                    break;
+                default:
+                    throw new ConfigurationException("Unknown RATTT CE Analysis Strategy");
+                }
+                this.rastar = new RaTTT(mto, hypFactory, mlo, consts, true, useOldAnalyzer, actions);
                 break;
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
