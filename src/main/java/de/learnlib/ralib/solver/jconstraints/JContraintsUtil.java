@@ -141,7 +141,7 @@ public class JContraintsUtil {
 
             default:
                 throw new UnsupportedOperationException(
-                        "Relation " + expr.getRelation() + " is not supoorted in guards");
+                        "Relation " + expr.getRelation() + " is not supported in guards");
         }
     }
 

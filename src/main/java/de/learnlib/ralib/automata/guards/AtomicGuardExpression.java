@@ -65,7 +65,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
 
             default:
                 throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");
+                        "Relation " + relation + " is not supported in guards");
         }
     }
 
@@ -121,7 +121,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
 
             default:
                 throw new UnsupportedOperationException(
-                        "Relation " + relation + " is not supoorted in guards");
+                        "Relation " + relation + " is not supported in guards");
         }
     }
 
