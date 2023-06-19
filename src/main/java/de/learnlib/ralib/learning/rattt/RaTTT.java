@@ -292,7 +292,8 @@ public class RaTTT implements RaLearningAlgorithm {
     					DTLeaf la = dt.getLeaf(wa);
     					DTLeaf ls = dt.getLeaf(ws);
     					if (la != ls) {
-    						SymbolicSuffix v = distinguishingSuffix(la, ls, psi);
+//    						SymbolicSuffix v = distinguishingSuffix(la, ls, psi);
+    						SymbolicSuffix v = distinguishingSuffix(wa, la, ws, ls);
     						dt.split(sp.getPrefix(), v, l);
     						return false;
     					}
@@ -330,7 +331,7 @@ public class RaTTT implements RaLearningAlgorithm {
             SymbolicSuffix suffix = null;
 
             if (branchLeaf != dest_c) {
-	            suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
+            	suffix = distinguishingSuffix(branch, branchLeaf, word, dest_c);
             }
             else {
             	if (!guardPrefixes.get(word)) {
@@ -345,7 +346,7 @@ public class RaTTT implements RaLearningAlgorithm {
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
-			            			suffix = new SymbolicSuffix(word.lastSymbol().getBaseSymbol());
+			            			suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
 			            			suffix = suffix.concat(s);
 			            		}
 		            		}
@@ -368,10 +369,20 @@ public class RaTTT implements RaLearningAlgorithm {
     	return true;
     }
 
-    private SymbolicSuffix distinguishingSuffix(DTLeaf ca, DTLeaf cb, ParameterizedSymbol psi) {
-    	SymbolicSuffix alpha = new SymbolicSuffix(psi);
+    private SymbolicSuffix distinguishingSuffix(Word<PSymbolInstance> wa, DTLeaf ca, Word<PSymbolInstance> wb, DTLeaf cb) {
+    	Word<PSymbolInstance> sa = wa.suffix(1);
+    	Word<PSymbolInstance> sb = wb.suffix(1);
+
+    	assert sa.getSymbol(0).getBaseSymbol().equals(sb.getSymbol(0).getBaseSymbol());
+
+    	SymbolicSuffix alpha_a = new SymbolicSuffix(wa.prefix(wa.length()-1),
+    			                                    sa, consts);
+    	SymbolicSuffix alpha_b = new SymbolicSuffix(wb.prefix(wb.length()-1),
+    			                                    sb, consts);
     	SymbolicSuffix v = dt.findLCA(ca, cb).getSuffix();
-    	return alpha.concat(v);
+    	return alpha_a.getFreeValues().size() > alpha_b.getFreeValues().size()
+    		   ? alpha_a.concat(v)
+    		   : alpha_b.concat(v);
     }
 
     private boolean noShortPrefixes() {

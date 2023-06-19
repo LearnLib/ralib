@@ -230,7 +230,7 @@ public class DT implements DiscriminationTree {
     public boolean addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
 
         Word<PSymbolInstance> prefix = target.prefix(target.length() - 1);
-        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
+        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1), consts);
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
 
