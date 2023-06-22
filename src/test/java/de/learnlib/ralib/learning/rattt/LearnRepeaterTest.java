@@ -35,7 +35,7 @@ import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
-public class LearnRepeater extends RaLibTestSuite {
+public class LearnRepeaterTest extends RaLibTestSuite {
 	@Test
 	public void testSuffixOptimization() {
 
@@ -88,6 +88,6 @@ public class LearnRepeater extends RaLibTestSuite {
 
         System.out.println(queryStats.toString());
 
-        Assert.assertTrue(true);
+        Assert.assertTrue(false);
 	}
 }
