@@ -144,8 +144,10 @@ public class RaTTT implements RaLearningAlgorithm {
 
         if (candidateCEs.isEmpty()) {
         	prefixFinder = null;
-        	if (counterexamples.isEmpty())
+        	if (counterexamples.isEmpty()) {
+        		assert noShortPrefixes() && !dt.isMissingParameter();
         		return false;
+        	}
         	else {
     			DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.poll();
     			candidateCEs.push(ce);
