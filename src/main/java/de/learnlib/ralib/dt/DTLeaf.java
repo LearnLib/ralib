@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,8 +50,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<ParameterizedSymbol, Branching>();
     private final TreeOracle oracle;
-
-    private final Set<Parameter> missingParameter = new LinkedHashSet<Parameter>();
 
     public DTLeaf(TreeOracle oracle) {
         super();
@@ -480,11 +476,13 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
             		if (tqr.getPiv().keySet().contains(p)) {
             			dt.addSuffix(newSuffix, prefixLeaf);
-            			missingParameter.remove(p);
+            			mp.missingParameter.remove(p);
             			return false;
             		}
             	}
-            	missingParameter.add(p);
+            	mp.missingParameter.add(p);
+            } else {
+            	mp.missingParameter.remove(p);
             }
         }
 
@@ -492,7 +490,13 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     public boolean isMissingVariable() {
-    	return !missingParameter.isEmpty();
+    	Collection<MappedPrefix> prefixes = new ArrayList<>();
+    	getMappedExtendedPrefixes(prefixes);
+    	for (MappedPrefix mp : prefixes) {
+    		if (!mp.missingParameter.isEmpty())
+    			return true;
+    	}
+    	return !access.missingParameter.isEmpty();
     }
 
     public boolean isInputComponent() {

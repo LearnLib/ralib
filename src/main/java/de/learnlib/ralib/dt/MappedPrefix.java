@@ -23,6 +23,8 @@ public class MappedPrefix implements PrefixContainer {
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
 
+	public final Set<Parameter> missingParameter = new LinkedHashSet<>();
+
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
 		this.prefix = prefix;
 	}
