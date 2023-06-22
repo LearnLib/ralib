@@ -360,6 +360,29 @@ public class SDT implements SymbolicDecisionTree {
         return dis;
     }
 
+    Map<GuardExpression, Boolean> getGuardExpressions(Constants consts) {
+    	Map<GuardExpression, Boolean> expressions = new LinkedHashMap<>();
+    	Map<List<SDTGuard>, Boolean> paths = getAllPaths(new ArrayList<SDTGuard>());
+    	if (paths.isEmpty()) {
+    		expressions.put(FalseGuardExpression.FALSE, false);
+    		return expressions;
+    	}
+    	Set<SuffixValue> svals = new LinkedHashSet<>();
+    	for (Map.Entry<List<SDTGuard>, Boolean> e : paths.entrySet()) {
+    		List<SDTGuard> list = e.getKey();
+    		List<GuardExpression> expr = new ArrayList<>();
+    		for (SDTGuard g : list) {
+    			expr.add(g.toExpr());
+    			svals.add(g.getParameter());
+    		}
+    		Conjunction con = new Conjunction(
+    				expr.toArray(new GuardExpression[] {}));
+    		expressions.put(con, e.getValue());
+    	}
+
+    	return expressions;
+    }
+
     List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
@@ -367,6 +390,18 @@ public class SDT implements SymbolicDecisionTree {
             nextPath.add(e.getKey());
             List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath);
             ret.addAll(nextRet);
+        }
+
+        return ret;
+    }
+
+    Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
+        Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
+        for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
+            List<SDTGuard> nextPath = new ArrayList<>(path);
+            nextPath.add(e.getKey());
+            Map<List<SDTGuard>, Boolean> nextRet = e.getValue().getAllPaths(nextPath);
+            ret.putAll(nextRet);
         }
 
         return ret;

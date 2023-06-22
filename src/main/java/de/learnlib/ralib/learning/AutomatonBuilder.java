@@ -27,7 +27,6 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -187,19 +186,9 @@ public class AutomatonBuilder {
         return new Transition(action, guard, src_loc, dest_loc, assign);
     }
 
-    public static VarValuation computeVarValuation(ParValuation pars, PIV piv) {
-    	VarValuation vars = new VarValuation();
-    	for (Entry<Parameter, DataValue<?>> e : pars.entrySet()) {
-    		Register r = piv.get(e.getKey());
-    		if (r != null)
-    			vars.put(r, e.getValue());
-    	}
-    	return vars;
-    }
-
     public static TransitionGuard findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, TransitionGuard> branches, Constants consts) {
     	ParValuation pars = new ParValuation(dw);
-    	VarValuation vars = computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
+    	VarValuation vars = DataWords.computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
     	for (TransitionGuard g : branches.values()) {
     		if (g.isSatisfied(vars, pars, consts)) {
     			return g;

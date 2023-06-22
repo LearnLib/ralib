@@ -37,9 +37,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -280,7 +280,7 @@ public class MultiTheoryBranching implements Branching {
     		Parameter p = new Parameter(s.getType(), s.getId());
     		vals.put(p, dv);
     	}
-    	VarValuation vars = AutomatonBuilder.computeVarValuation(new ParValuation(getPrefix()), getPiv());
+    	VarValuation vars = DataWords.computeVarValuation(new ParValuation(getPrefix()), getPiv());
     	Map<Word<PSymbolInstance>, TransitionGuard> branches = getBranches();
 
     	Word<PSymbolInstance> prefix = null;
