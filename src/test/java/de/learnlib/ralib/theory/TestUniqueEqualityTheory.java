@@ -1,5 +1,14 @@
 package de.learnlib.ralib.theory;
 
+import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.logging.Level;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
@@ -10,18 +19,9 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.tools.theories.UniqueIntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.logging.Level;
-
-import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 
 public class TestUniqueEqualityTheory extends RaLibTestSuite {
 
