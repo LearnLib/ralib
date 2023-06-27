@@ -33,6 +33,8 @@ import com.google.common.collect.Sets;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.ralib.automata.guards.FalseGuardExpression;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -45,9 +47,11 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -527,6 +531,47 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, newPiv, pval, constants, casted);
         return fluff;
+    }
+    
+    public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SymbolicDecisionTree sdt, PIV piv) {
+    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<>();
+    	mapping.putAll(constants);
+    	
+    	int index = 0;
+    	for (PSymbolInstance psi : prefix) {
+    		index = index + psi.getBaseSymbol().getArity();
+    	}
+    	
+    	SuffixValueGenerator svGen = new SuffixValueGenerator();
+    	for (PSymbolInstance psi : suffix) {
+    		DataType[] dts = psi.getBaseSymbol().getPtypes();
+    		DataValue[] dvs = psi.getParameterValues();
+    		for (int i = 0; i < dts.length; i++) {
+    			SuffixValue sv = svGen.next(dts[i]);
+    			mapping.put(sv, dvs[i]);
+    		}
+    	}
+    	
+    	ParValuation pars = DataWords.computeParValuation(prefix);
+    	VarValuation vars = DataWords.computeVarValuation(pars, piv);
+    	mapping.putAll(vars);
+
+    	SDT _sdt = (SDT)sdt;
+    	GuardExpression expr = _sdt.getAcceptingPaths(constants);
+    	if (expr instanceof FalseGuardExpression)
+    		return false;
+    	for (SymbolicDataValue sdv : expr.getSymbolicDataValues()) {
+    		if (sdv instanceof Register && mapping.get(sdv) == null) {
+    			Theory teach = teachers.get(sdv.getType());
+    			List<DataValue<?>> values = new ArrayList<>();
+    			values.addAll(mapping.values());
+    			values.addAll(pars.values());
+    			DataValue dv = teach.getFreshValue(values);
+    			mapping.put(sdv, dv);
+    		}
+    	}
+    	
+    	return expr.isSatisfied(mapping);
     }
 
 }

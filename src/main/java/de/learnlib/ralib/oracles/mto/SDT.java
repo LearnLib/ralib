@@ -30,10 +30,13 @@ import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -140,6 +143,14 @@ public class SDT implements SymbolicDecisionTree {
 
         return true;
         //return false;
+    }
+
+    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue<?>> vals, Constants consts) {
+    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+    	mapping.putAll(vals);
+    	mapping.putAll(consts);
+    	GuardExpression expr = getAcceptingPaths(consts);
+    	return expr.isSatisfied(mapping);
     }
 
     protected Map<SDTGuard, SDT> getChildren() {
@@ -336,7 +347,7 @@ public class SDT implements SymbolicDecisionTree {
     public boolean isEmpty() {
         return this.getChildren().isEmpty();
     }
-
+    
     GuardExpression getAcceptingPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());

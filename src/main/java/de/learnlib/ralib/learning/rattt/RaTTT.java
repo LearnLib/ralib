@@ -4,8 +4,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
@@ -15,7 +17,9 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -30,12 +34,16 @@ import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.SymbolicWord;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -65,6 +73,7 @@ public class RaTTT implements RaLearningAlgorithm {
     private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
+    private boolean fullOptimization = true;
 
     private static final LearnLogger log = LearnLogger.getLogger(RaTTT.class);
 
@@ -377,16 +386,64 @@ public class RaTTT implements RaLearningAlgorithm {
 
     	assert sa.getSymbol(0).getBaseSymbol().equals(sb.getSymbol(0).getBaseSymbol());
 
-    	SymbolicSuffix alpha_a = new SymbolicSuffix(wa.prefix(wa.length()-1),
-    			                                    sa, consts);
-    	SymbolicSuffix alpha_b = new SymbolicSuffix(wb.prefix(wb.length()-1),
-    			                                    sb, consts);
     	SymbolicSuffix v = dt.findLCA(ca, cb).getSuffix();
+    	
+    	Word<PSymbolInstance> prefixA = wa.prefix(wa.length() - 1);
+    	Word<PSymbolInstance> prefixB = wb.prefix(wb.length() - 1);
+    	if (fullOptimization) {
+    		TreeQueryResult tqrA = ca.getTQR(wa, v);
+    		TreeQueryResult tqrB = cb.getTQR(wb, v);
+    		Map<Word<PSymbolInstance>, Boolean> pathsA = sulOracle.instantiate(wa, v, tqrA.getSdt(), tqrA.getPiv());
+    		Map<Word<PSymbolInstance>, Boolean> pathsB = sulOracle.instantiate(wb, v, tqrB.getSdt(), tqrB.getPiv());
+    		
+    		SDT sdtA = (SDT)tqrA.getSdt();
+    		SDT sdtB = (SDT)tqrB.getSdt();
+    		
+    		Set<SymbolicSuffix> suffixes = candidateSuffixes(pathsA, v, wa, sdtB, tqrA.getPiv());
+    		suffixes.addAll(candidateSuffixes(pathsB, v, wb, sdtA, tqrB.getPiv()));
+    		
+    		SymbolicSuffix suffix = null;
+    		int minFreeValues = v.getDataValues().size() + 1;
+    		for (SymbolicSuffix s : suffixes) {
+    			if (s.getFreeValues().size() < minFreeValues) {
+    				suffix = s;
+    				minFreeValues = s.getFreeValues().size();
+    			}
+    		}
+    		if (suffix != null)
+    			return suffix;
+    	}
+
+    	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
+    	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, consts);
     	return alpha_a.getFreeValues().size() > alpha_b.getFreeValues().size()
     		   ? alpha_a.concat(v)
     		   : alpha_b.concat(v);
     }
+    
+    private Set<SymbolicSuffix> candidateSuffixes(Map<Word<PSymbolInstance>, Boolean> paths, SymbolicSuffix suffix, Word<PSymbolInstance> prefix, SDT sdt, PIV piv) {
 
+		Set<SymbolicSuffix> suffixes = new LinkedHashSet<>();
+		
+		for (Map.Entry<Word<PSymbolInstance>, Boolean> e : paths.entrySet()) {
+			Word<PSymbolInstance> path = e.getKey();
+			Word<PSymbolInstance> pathSuffix = path.suffix(suffix.length());
+//			SymbolicWord symWord = new SymbolicWord(prefix, suffix);
+			
+			boolean outcome = e.getValue();
+//			boolean sat = sdt.isAccepting(symWord.computeValuation(pathSuffix, piv), consts);
+			MultiTheoryTreeOracle mto = (MultiTheoryTreeOracle)sulOracle;
+			boolean sat = mto.accepts(prefix, pathSuffix, sdt, piv);
+			if (outcome != sat) {
+				Word<PSymbolInstance> p = prefix.prefix(prefix.length()-1);
+				Word<PSymbolInstance> s = path.suffix(path.length() - p.length());
+				SymbolicSuffix symSuffix = new SymbolicSuffix(p, s);
+				suffixes.add(symSuffix);
+			}
+		}
+		return suffixes;
+    }
+    
     private boolean noShortPrefixes() {
     	for (DTLeaf l : dt.getLeaves()) {
     		if (!l.getShortPrefixes().isEmpty())
@@ -397,6 +454,10 @@ public class RaTTT implements RaLearningAlgorithm {
 
     public void setUseOldAnalyzer(boolean useOldAnalyzer) {
         this.useOldAnalyzer = useOldAnalyzer;
+    }
+    
+    public void setFullSuffixOptimization(boolean fullOptimization) {
+    	this.fullOptimization = fullOptimization;
     }
 
     private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, MappedPrefix src_id, Branching branching) {

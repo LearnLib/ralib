@@ -33,19 +33,27 @@ public class RepeaterSUL extends DataWordSUL {
 
     private Repeater repeater;
     private int max_repeats;
+    private int capacity;
 
     public RepeaterSUL() {
     	max_repeats = Repeater.MAX_REPEATS;
+    	capacity = Repeater.CAPACITY;
     }
 
     public RepeaterSUL(int max_repeats) {
     	this.max_repeats = max_repeats;
+    	capacity = Repeater.CAPACITY;
+    }
+    
+    public RepeaterSUL(int max_repeats, int capacity) {
+    	this.max_repeats = max_repeats;
+    	this.capacity = capacity;
     }
 
 	@Override
 	public void pre() {
         countResets(1);
-		repeater = new Repeater(max_repeats);
+		repeater = new Repeater(max_repeats, capacity);
 	}
 
 	@Override

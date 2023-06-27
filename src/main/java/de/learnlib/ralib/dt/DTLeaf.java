@@ -221,6 +221,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
     		mp = otherPrefixes.get(prefix);
     	return mp;
     }
+    
+    public TreeQueryResult getTQR(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    	MappedPrefix mp = getMappedPrefix(prefix);
+    	return mp.getTQRs().get(suffix);
+    }
 
     void addTQRs(PIV primePIV, SymbolicSuffix suffix) {
         access.updateMemorable(primePIV);

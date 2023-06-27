@@ -17,6 +17,7 @@
 package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -210,6 +211,10 @@ public class SymbolicSuffix {
 	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
+	
+	public Collection<SuffixValue> getDataValues() {
+		return this.dataValues.values();
+	}
 
     public Set<SuffixValue> getFreeValues() {
         return this.freeValues;
