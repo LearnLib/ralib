@@ -211,7 +211,7 @@ public class SymbolicSuffix {
 	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
-	
+
 	public Collection<SuffixValue> getDataValues() {
 		return this.dataValues.values();
 	}
@@ -240,6 +240,19 @@ public class SymbolicSuffix {
 
     	SymbolicSuffix concatenatedSuffix = new SymbolicSuffix(actions, dataValues, freeValues);
     	return concatenatedSuffix;
+    }
+
+    public int optimizationValue() {
+    	int score = dataValues.size() - freeValues.size();
+    	int index = 2;
+    	for (int i = 1; i < dataValues.size(); i++) {
+    		SuffixValue sv = dataValues.get(i+1);
+    		if (sv.getId().intValue() == index)
+    			index++;
+    		else
+    			score++;
+    	}
+    	return score;
     }
 
     public int length() {
