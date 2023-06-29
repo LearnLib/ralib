@@ -16,10 +16,12 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -53,8 +55,51 @@ public class OptimizedSymbolicSuffixBuilder {
         // our new_suffix will be sym(s1) + suffix
         // we first determine if s1 is free (extended to all parameters in sym, if there are more)
 
+        Word<PSymbolInstance> sub1 = prefix1.prefix(prefix1.length()-1);
+        Word<PSymbolInstance> sub2 = prefix2.prefix(prefix2.length()-1);
+        PSymbolInstance action1 = prefix1.lastSymbol();
+        PSymbolInstance action2 = prefix2.lastSymbol();
+        Set<Register> actionRegisters1 = actionRegisters(sub1, action1, piv1);
+        Set<Register> actionRegisters2 = actionRegisters(sub2, action2, piv2);
 
-        return null;
+        Set<SuffixValue> newFreeValues = new LinkedHashSet<>();
+        for (SuffixValue sv : suffix.getFreeValues()) {
+        	Set<Register> registers1 = sdt1.getRegisters(sv);
+        	Set<Register> registers2 = sdt2.getRegisters(sv);
+
+        	if (!actionRegisters1.containsAll(registers1) || !actionRegisters2.containsAll(registers2)) {
+        		// suffix value still mapped to prefix parameter
+        		newFreeValues.add(sv);
+        	}
+        }
+
+        SymbolicSuffix optimizedSuffix = new SymbolicSuffix(suffix, newFreeValues);
+
+        SymbolicSuffix actionSuffix1 = new SymbolicSuffix(sub1, Word.fromSymbols(action1));
+        SymbolicSuffix actionSuffix2 = new SymbolicSuffix(sub2, Word.fromSymbols(action2));
+        Set<SuffixValue> actionFreeValues = new LinkedHashSet<>();
+        actionFreeValues.addAll(actionSuffix1.getFreeValues());
+        actionFreeValues.addAll(actionSuffix2.getFreeValues());
+        SymbolicSuffix actionSuffix = new SymbolicSuffix(actionSuffix1, actionFreeValues);
+
+        return actionSuffix.concat(optimizedSuffix);
+    }
+
+    private Set<Register> actionRegisters(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
+    	Set<Parameter> params = new LinkedHashSet<>();
+        ParameterGenerator pGen = new ParameterGenerator();
+        for (PSymbolInstance psi : prefix) {
+        	for (DataType dt : psi.getBaseSymbol().getPtypes()) {
+        		pGen.next(dt);
+        	}
+        }
+        for (DataType dt : action.getBaseSymbol().getPtypes()) {
+        	params.add(pGen.next(dt));
+        }
+
+        Set<Register> registers = new LinkedHashSet<>();
+        piv.entrySet().stream().filter((x) -> (params.contains(x.getKey()))).forEach((x) -> { registers.add(x.getValue()); });
+        return registers;
     }
 
     /**

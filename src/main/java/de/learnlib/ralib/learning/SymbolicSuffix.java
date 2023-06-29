@@ -215,6 +215,12 @@ public class SymbolicSuffix {
     	this.freeValues = freeValues;
 	}
 
+    public SymbolicSuffix(SymbolicSuffix suffix, Set<SuffixValue> freeValues) {
+    	this.actions = suffix.actions;
+    	this.dataValues = suffix.dataValues;
+    	this.freeValues = freeValues;
+    }
+
 	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }

@@ -83,6 +83,17 @@ public class SDT implements SymbolicDecisionTree {
         return registers;
     }
 
+    public Set<Register> getRegisters(SymbolicDataValue dv) {
+    	if (this instanceof SDTLeaf)
+    		return new LinkedHashSet<>();
+    	Set<Register> registers = new LinkedHashSet<>();
+    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		e.getKey().getComparands(dv).stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); } );
+    		registers.addAll(e.getValue().getRegisters(dv));
+    	}
+    	return registers;
+    }
+
     public int getHeight() {
         if (this instanceof SDTLeaf || children.size() == 0) {
             return 0;

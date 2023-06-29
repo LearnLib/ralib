@@ -17,6 +17,7 @@
 package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -84,6 +85,11 @@ public class SDTTrueGuard extends SDTGuard {
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
         throw new IllegalStateException("trying to merge true guard");
+    }
+
+    @Override
+    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    	return new LinkedHashSet<>();
     }
 
     @Override

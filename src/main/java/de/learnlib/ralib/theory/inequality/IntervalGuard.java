@@ -98,6 +98,16 @@ public class IntervalGuard extends SDTGuard {
     }
 
     @Override
+    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    	if (dv.equals(leftLimit))
+    		comparands.add(rightLimit);
+    	else if (dv.equals(rightLimit))
+    		comparands.add(leftLimit);
+    	return comparands;
+    }
+
+    @Override
     public String toString() {
         if (leftLimit == null) {
             return "(" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
