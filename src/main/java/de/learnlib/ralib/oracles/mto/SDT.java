@@ -36,7 +36,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -347,8 +346,31 @@ public class SDT implements SymbolicDecisionTree {
     public boolean isEmpty() {
         return this.getChildren().isEmpty();
     }
-    
+
     GuardExpression getAcceptingPaths(Constants consts) {
+
+        List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
+        if (paths.isEmpty()) {
+            return FalseGuardExpression.FALSE;
+        }
+        Set<SuffixValue> svals = new LinkedHashSet<>();
+        GuardExpression dis = null;
+        for (List<SDTGuard> list : paths) {
+            List<GuardExpression> expr = new ArrayList<>();
+            for (SDTGuard g : list) {
+                expr.add(g.toExpr());
+                svals.add(g.getParameter());
+            }
+            Conjunction con = new Conjunction(
+                    expr.toArray(new GuardExpression[] {}));
+
+            dis = (dis == null) ? con : new Disjunction(dis, con);
+        }
+
+        return dis;
+    }
+
+    GuardExpression getPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
@@ -404,6 +426,28 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         return ret;
+    }
+
+
+    List<List<SDTGuard>> getPaths(boolean accepting) {
+        List<List<SDTGuard>> collectedPaths = new ArrayList<List<SDTGuard>>();
+        getPaths(accepting, new ArrayList<>(), this, collectedPaths);
+        return collectedPaths;
+    }
+
+    private void getPaths(boolean accepting, List<SDTGuard> path, SDT sdt, List<List<SDTGuard>> collectedPaths) {
+        if (sdt instanceof SDTLeaf) {
+            if (sdt.isAccepting() == accepting) {
+                collectedPaths.add(path);
+            }
+        } else {
+            for (Entry<SDTGuard, SDT> e : sdt.children.entrySet()) {
+                List<SDTGuard> nextPath = new ArrayList<>(path);
+                nextPath.add(e.getKey());
+                SDT nextSdt = e.getValue();
+                getPaths(accepting, nextPath, nextSdt, collectedPaths);
+            }
+        }
     }
 
     Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
