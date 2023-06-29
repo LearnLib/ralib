@@ -1,5 +1,13 @@
 package de.learnlib.ralib.oracles.mto;
 
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.CONTAINS;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INSERT;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INT_TYPE;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.POP;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.PUSH;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.dv;
+
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.testng.Assert;
@@ -16,16 +24,62 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.example.list.BoundedList;
+import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
 
 public class OptimizedSymbolicSuffixBuilderTest {
+
+    @Test
+    public void extendDistinguishingSuffixTest() {
+        BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(2, false));
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
+        teachers.put(INT_TYPE, dit);
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
+
+        Word<PSymbolInstance> word = Word.fromSymbols(
+                new PSymbolInstance(PUSH, dv(1)),
+                new PSymbolInstance(INSERT, dv(1),dv(2)),
+                new PSymbolInstance(POP, dv(2)),
+                new PSymbolInstance(CONTAINS, dv(1)));
+
+        checkAgainstBuildingFromConcretePrefixSuffix(word, mto, new Constants(), solver);
+    }
+
+
+    /*
+     * Checks optimized suffixes built from SDTs against those built from concrete prefix/suffix
+     */
+    private void checkAgainstBuildingFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, solver);
+        TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
+        SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
+        int suffixLength;
+        for (suffixLength=1; suffixLength<word.length(); suffixLength++) {
+            Word<PSymbolInstance> suffix = word.suffix(suffixLength);
+            Word<PSymbolInstance> prefix = word.prefix(word.length() - suffixLength);
+            SymbolicSuffix expected = new SymbolicSuffix(prefix, suffix);
+            actual = builder.extendDistinguishingSuffix(prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), actual);
+            Assert.assertEquals(actual, expected);
+            tqr = mto.treeQuery(prefix, expected);
+        }
+    }
+
 
     @Test
     public void buildOptimizedSuffixTest() {
@@ -110,6 +164,5 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a));
         Assert.assertEquals(suffix34.toString(), "[s1]((a[s1] a[s2] a[s2]))");
-        System.out.println(suffix34);
     }
 }

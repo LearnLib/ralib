@@ -17,12 +17,12 @@ import net.automatalib.words.Word;
  *
  */
 public class BoundedListDataWordOracle implements DataWordOracle {
-	public static final DataType intType= new DataType("int", Integer.class);
+	public static final DataType INT_TYPE= new DataType("int", Integer.class);
 
-	public static final InputSymbol PUSH = new InputSymbol("push", new DataType[]{intType});
-	public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{intType, intType});
-	public static final InputSymbol POP = new InputSymbol("pop", new DataType[]{intType});
-	public static final InputSymbol CONTAINS = new InputSymbol("contains", new DataType[]{intType});
+	public static final InputSymbol PUSH = new InputSymbol("push", new DataType[]{INT_TYPE});
+	public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{INT_TYPE, INT_TYPE});
+	public static final InputSymbol POP = new InputSymbol("pop", new DataType[]{INT_TYPE});
+	public static final InputSymbol CONTAINS = new InputSymbol("contains", new DataType[]{INT_TYPE});
 
 
 	private Supplier<BoundedList> factory;
@@ -71,6 +71,6 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 	}
 
 	public static DataValue<Integer> dv(int val) {
-		return new DataValue<Integer>(intType, val);
+		return new DataValue<Integer>(INT_TYPE, val);
 	}
 }
