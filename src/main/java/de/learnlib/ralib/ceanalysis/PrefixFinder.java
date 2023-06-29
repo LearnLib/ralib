@@ -5,6 +5,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.words.OutputSymbol;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -78,9 +81,10 @@ public class PrefixFinder {
 
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-        int idx = binarySearch(ce);
+        //int idx = binarySearch(ce);
+		int idx = findIndex(ce);
         SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
-        TreeQueryResult tqr = storedQueries.get(sw);
+        TreeQueryResult tqr = null; //storedQueries.get(sw);
         if (tqr == null) {
         	// THIS CAN (possibly) BE DONE WITHOUT A NEW TREE QUERY
         	tqr = sulOracle.treeQuery(sw.getPrefix(), sw.getSuffix());
@@ -88,8 +92,8 @@ public class PrefixFinder {
         CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
         		                                       candidates[idx].getSuffix(),
         		                                       tqr);
-        candidateCEs.put(candidates[idx], tqr);
-        storeCandidateCEs(ce, idx);
+        //candidateCEs.put(candidates[idx], tqr);
+        //storeCandidateCEs(ce, idx);
         return result;
     }
 
@@ -118,6 +122,82 @@ public class PrefixFinder {
     		return null;
     	return candidateSuffixes[candidateIdx];
     }
+
+	private int findIndex(Word<PSymbolInstance> ce) {
+		candidates = new SymbolicWord[ce.length()];
+		int max = ce.length() - 1;
+		if (ce.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
+			max--;
+		}
+		for (int idx=max; idx>=0; idx = idx-1) {
+
+			Word<PSymbolInstance> prefix = ce.prefix(idx);
+			if (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
+				continue;
+			}
+			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
+			if (nextPrefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
+				nextPrefix = ce.prefix(idx+2);
+			}
+
+			System.out.println("ce:     " + ce);
+			System.out.println("prefix: " + prefix);
+			System.out.println("next:   " + nextPrefix);
+
+			// check for location counterexample ...
+			//
+			Word<PSymbolInstance> suffix = ce.suffix(ce.length() - nextPrefix.length());
+			SymbolicSuffix symSuffix = new SymbolicSuffix(nextPrefix, suffix, consts);
+			LOC_CHECK: for (Word<PSymbolInstance> u : hypothesis.possibleAccessSequences(prefix)) {
+				Word<PSymbolInstance> uAlpha = hypothesis.transformTransitionSequence(nextPrefix, u);
+				TreeQueryResult uAlphaResult = sulOracle.treeQuery(uAlpha, symSuffix);
+				storedQueries.put(new SymbolicWord(uAlpha, symSuffix), uAlphaResult);
+
+				// check if the word is inequivalent to all access sequences
+				//
+				for (Word<PSymbolInstance> uPrime : hypothesis.possibleAccessSequences(nextPrefix)) {
+					TreeQueryResult uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
+					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
+
+					System.out.println("--------------------");
+					System.out.println("u:  " + u);
+					System.out.println("ua: " + uAlpha);
+					System.out.println("u': " + uPrime);
+					System.out.println("v:  " + symSuffix);
+
+					// different piv sizes
+					//
+					if (!uPrimeResult.getPiv().typedSize().equals(uAlphaResult.getPiv().typedSize())) {
+						continue;
+					}
+
+					// remapping
+					//
+					PIVRemappingIterator iterator = new PIVRemappingIterator(
+							uAlphaResult.getPiv(), uPrimeResult.getPiv());
+
+					for (VarMapping m : iterator) {
+						if (uAlphaResult.getSdt().isEquivalent(uPrimeResult.getSdt(), m)) {
+							continue LOC_CHECK;
+						}
+					}
+
+				}
+				// found a counterexample!
+				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
+				System.out.println("Counterexample for location");
+				return idx;
+			}
+
+			// check for transition counterexample ...
+			//
+			if (transitionHasCE(ce, idx-1)) {
+				System.out.println("Counterexample for transition");
+				return idx;
+			}
+		}
+		throw new RuntimeException("should not reach here");
+	}
 
     private boolean computeIndex(Word<PSymbolInstance> ce, int idx) {
         Word<PSymbolInstance> prefix = ce.prefix(idx);
@@ -207,8 +287,15 @@ public class PrefixFinder {
 	                resHyp.getSdt(), resHyp.getPiv(),
 	                resSul.getSdt(), resSul.getPiv(),
 	                new TransitionGuard(), transition);
-    		if (hasCE)
-    			return true;
+
+    		if (hasCE) {
+				Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(location);
+				SymbolicWord sw = candidate(location,transition.lastSymbol().getBaseSymbol(),symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), components.get(primeLocation), ce);
+
+				// new by falk
+				candidates[idx+1] = new SymbolicWord(sw.getPrefix(),symSuffix);
+				return true;
+			}
     	}
     	return false;
     }
