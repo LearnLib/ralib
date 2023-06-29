@@ -131,16 +131,23 @@ public class SymbolicSuffix {
     }
 
     public SymbolicSuffix(ParameterizedSymbol ps) {
-        this.actions = Word.fromSymbols(ps);
+        this(Word.fromSymbols(ps));
+    }
+
+
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions) {
+        this.actions = actions;
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         int idx = 1;
-        for (DataType t : ps.getPtypes()) {
-            SuffixValue sv = valgen.next(t);
-            this.freeValues.add(sv);
-            this.dataValues.put(idx++, sv);
+        for (ParameterizedSymbol ps : actions) {
+            for (DataType t : ps.getPtypes()) {
+                SuffixValue sv = valgen.next(t);
+                this.freeValues.add(sv);
+                this.dataValues.put(idx++, sv);
+            }
         }
     }
 
@@ -201,7 +208,7 @@ public class SymbolicSuffix {
     }
 
 
-    SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
 			Set<SuffixValue> freeValues) {
     	this.actions = actions;
     	this.dataValues = dataValues;
@@ -218,6 +225,11 @@ public class SymbolicSuffix {
 
     public Set<SuffixValue> getFreeValues() {
         return this.freeValues;
+    }
+
+    public Set<SuffixValue> getValues() {
+        LinkedHashSet<SuffixValue> suffixValues = new LinkedHashSet<>(dataValues.values());
+        return suffixValues;
     }
 
     public Word<ParameterizedSymbol> getActions() {
