@@ -31,6 +31,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
@@ -52,13 +54,71 @@ public class OptimizedSymbolicSuffixBuilderTest {
         ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
+        Constants consts = new Constants();
+
         Word<PSymbolInstance> word = Word.fromSymbols(
                 new PSymbolInstance(PUSH, dv(1)),
                 new PSymbolInstance(INSERT, dv(1),dv(2)),
                 new PSymbolInstance(POP, dv(2)),
                 new PSymbolInstance(CONTAINS, dv(1)));
 
-        equalsSuffixesFromConcretePrefixSuffix(word, mto, new Constants(), solver);
+        equalsSuffixesFromConcretePrefixSuffix(word, mto, consts, solver);
+
+
+        InputSymbol A = new InputSymbol("a", INT_TYPE, INT_TYPE);
+
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, solver);
+
+        SuffixValueGenerator svGen = new SuffixValueGenerator();
+        SuffixValue s1 = svGen.next(INT_TYPE);
+        SuffixValue s2 = svGen.next(INT_TYPE);
+
+        RegisterGenerator rGen = new RegisterGenerator();
+        Register r1 = rGen.next(INT_TYPE);
+        Register r2 = rGen.next(INT_TYPE);
+
+        ParameterGenerator pGen = new ParameterGenerator();
+        Parameter p1 = pGen.next(INT_TYPE);
+        Parameter p2 = pGen.next(INT_TYPE);
+        Parameter p3 = pGen.next(INT_TYPE);
+        Parameter p4 = pGen.next(INT_TYPE);
+
+        PIV piv1 = new PIV();
+        piv1.put(p1, r1);
+        piv1.put(p3, r2);
+        PIV piv2 = new PIV();
+        piv2.put(p3, r1);
+        piv2.put(p4, r2);
+
+        Word<PSymbolInstance> word1 = Word.fromSymbols(
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)));
+        Word<PSymbolInstance> word2 = Word.fromSymbols(
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 3)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 4)));
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
+
+        SDT sdt1 = new SDT(Map.of(
+        		new EqualityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
+        				new DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
+        		new DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+        SDT sdt2 = new SDT(Map.of(
+        		new SDTOrGuard(s1, new EqualityGuard(s1, r1), new EqualityGuard(s1, r2)), new SDT(Map.of(
+        				new SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
+        		new SDTAndGuard(s1, new DisequalityGuard(s1, r1), new DisequalityGuard(s1, r2)), new SDT(Map.of(
+        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+
+        SymbolicSuffix expected = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
+        SymbolicSuffix actual = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
+        Assert.assertEquals(actual, expected);
+
+        actual = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2);
+        Assert.assertEquals(actual.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
     }
 
 
@@ -75,7 +135,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
             Word<PSymbolInstance> sub = word.prefix(word.length() - suffixLength);
             Word<PSymbolInstance> prefix = word.prefix(sub.length()+1);
             SymbolicSuffix expected = new SymbolicSuffix(sub, suffix);
-            actual = builder.extendDistinguishingSuffix(prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), actual);
+            actual = builder.extendSuffix(prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), actual);
             Assert.assertEquals(actual, expected);
             tqr = mto.treeQuery(sub, expected);
         }
