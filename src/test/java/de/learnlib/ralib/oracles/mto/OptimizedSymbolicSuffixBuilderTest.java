@@ -58,14 +58,14 @@ public class OptimizedSymbolicSuffixBuilderTest {
                 new PSymbolInstance(POP, dv(2)),
                 new PSymbolInstance(CONTAINS, dv(1)));
 
-        checkAgainstBuildingFromConcretePrefixSuffix(word, mto, new Constants(), solver);
+        equalsSuffixesFromConcretePrefixSuffix(word, mto, new Constants(), solver);
     }
 
 
     /*
-     * Checks optimized suffixes built from SDTs against those built from concrete prefix/suffix
+     * Checks for equality optimized suffixes built by pre-pending using an SDT against those built from concrete prefix/suffix
      */
-    private void checkAgainstBuildingFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
+    private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, solver);
         TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
         SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
