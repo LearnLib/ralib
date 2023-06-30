@@ -72,11 +72,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
         int suffixLength;
         for (suffixLength=1; suffixLength<word.length(); suffixLength++) {
             Word<PSymbolInstance> suffix = word.suffix(suffixLength);
-            Word<PSymbolInstance> prefix = word.prefix(word.length() - suffixLength);
-            SymbolicSuffix expected = new SymbolicSuffix(prefix, suffix);
+            Word<PSymbolInstance> sub = word.prefix(word.length() - suffixLength);
+            Word<PSymbolInstance> prefix = word.prefix(sub.length()+1);
+            SymbolicSuffix expected = new SymbolicSuffix(sub, suffix);
             actual = builder.extendDistinguishingSuffix(prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), actual);
             Assert.assertEquals(actual, expected);
-            tqr = mto.treeQuery(prefix, expected);
+            tqr = mto.treeQuery(sub, expected);
         }
     }
 
