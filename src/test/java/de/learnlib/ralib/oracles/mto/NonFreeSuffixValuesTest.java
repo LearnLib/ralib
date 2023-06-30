@@ -130,36 +130,27 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
 
-        logger.log(Level.FINE, "Prefix: {0}", prefix);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        String tree = tqr.getSdt().toString();
-
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}", tree);
-
         String expectedTree = "[r1, r2]-+\n" +
-"        []-TRUE: s1\n" +
-"              []-TRUE: s2\n" +
-"                    []-(s3=r1)\n" +
-"                     |    []-(s4=r2)\n" +
-"                     |     |    []-(s5=s1)\n" +
-"                     |     |          []-(s6=s2)\n" +
-"                     |     |           |    [Leaf+]\n" +
-"                     |     |           +-(s6!=s2)\n" +
-"                     |     |                [Leaf-]\n" +
-"                     |     +-(s4!=r2)\n" +
-"                     |          []-(s5=s1)\n" +
-"                     |                []-TRUE: s6\n" +
-"                     |                      [Leaf-]\n" +
-"                     +-(s3!=r1)\n" +
-"                          []-TRUE: s4\n" +
-"                                []-(s5=s1)\n" +
-"                                      []-TRUE: s6\n" +
-"                                            [Leaf-]\n";
+                "        []-TRUE: s1\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-(s3=r1)\n" +
+                "                     |    []-(s4=r2)\n" +
+                "                     |     |    []-(s5=s1)\n" +
+                "                     |     |          []-(s6=s2)\n" +
+                "                     |     |           |    [Leaf+]\n" +
+                "                     |     |           +-(s6!=s2)\n" +
+                "                     |     |                [Leaf-]\n" +
+                "                     |     +-(s4!=r2)\n" +
+                "                     |          []-(s5=s1)\n" +
+                "                     |                []-TRUE: s6\n" +
+                "                     |                      [Leaf-]\n" +
+                "                     +-(s3!=r1)\n" +
+                "                          []-TRUE: s4\n" +
+                "                                []-(s5=s1)\n" +
+                "                                      []-TRUE: s6\n" +
+                "                                            [Leaf-]\n";
 
-        Assert.assertEquals(tree, expectedTree);
+        checkTreeForSuffix(prefix, symSuffix, mto, expectedTree);
     }
 
 
@@ -217,14 +208,6 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, consts);
 
-        logger.log(Level.FINE, "Prefix: {0}", prefix1);
-        logger.log(Level.FINE, "Suffix: {0}", symSuffix);
-
-        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
-        String tree = tqr.getSdt().toString();
-
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}",tree);
 
         String expectedTree = "[]-+\n" +
 "  []-TRUE: s1\n" +
@@ -238,7 +221,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 "                    []-TRUE: s4\n" +
 "                          [Leaf-]\n";
 
-        Assert.assertEquals(tree, expectedTree);
+        checkTreeForSuffix(prefix1, symSuffix, mto, expectedTree);
     }
 
     @Test
@@ -274,21 +257,25 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4));
         Assert.assertTrue(suffix.getFreeValues().isEmpty());
 
-        logger.log(Level.FINE, "Prefix: {0}", word.prefix(2));
-        logger.log(Level.FINE, "Suffix: {0}", suffix);
-
-        TreeQueryResult tqr = mto.treeQuery(word.prefix(2), suffix);
-        String tree = tqr.getSdt().toString();
-
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}",tree);
-
         String expectedTree = "[]-+\n" +
 "  []-TRUE: s1\n" +
 "        []-(s2=s1)\n" +
 "              []-TRUE: s3\n" +
-"                    []-(s4=s2)\n" +
+"                    []-(s4=s3)\n" +
 "                          [Leaf-]\n";
+
+        checkTreeForSuffix(word.prefix(2), suffix, mto, expectedTree);
+    }
+
+    private void checkTreeForSuffix(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, MultiTheoryTreeOracle mto, String expectedTree) {
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", suffix);
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, suffix);
+        String tree = tqr.getSdt().toString();
+
+        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
+        logger.log(Level.FINE, "SDT: {0}",tree);
 
         Assert.assertEquals(tree, expectedTree);
     }
