@@ -19,7 +19,7 @@ public class Repeater {
 		max_repeats = max;
 		capacity = CAPACITY;
 	}
-	
+
 	public Repeater(int max, int capacity) {
 		max_repeats = max;
 		this.capacity = capacity;

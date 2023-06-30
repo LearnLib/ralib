@@ -532,16 +532,16 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, newPiv, pval, constants, casted);
         return fluff;
     }
-    
+
     public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SymbolicDecisionTree sdt, PIV piv) {
     	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<>();
     	mapping.putAll(constants);
-    	
+
     	int index = 0;
     	for (PSymbolInstance psi : prefix) {
     		index = index + psi.getBaseSymbol().getArity();
     	}
-    	
+
     	SuffixValueGenerator svGen = new SuffixValueGenerator();
     	for (PSymbolInstance psi : suffix) {
     		DataType[] dts = psi.getBaseSymbol().getPtypes();
@@ -551,7 +551,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     			mapping.put(sv, dvs[i]);
     		}
     	}
-    	
+
     	ParValuation pars = DataWords.computeParValuation(prefix);
     	VarValuation vars = DataWords.computeVarValuation(pars, piv);
     	mapping.putAll(vars);
@@ -570,8 +570,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     			mapping.put(sdv, dv);
     		}
     	}
-    	
+
     	return expr.isSatisfied(mapping);
     }
-
 }

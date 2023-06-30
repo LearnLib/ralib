@@ -226,7 +226,7 @@ public final class DataWords {
         }
         return length;
     }
-    
+
     public static ParValuation computeParValuation(Word<PSymbolInstance> word) {
     	ParameterGenerator pGen = new ParameterGenerator();
     	ParValuation pars = new ParValuation();

@@ -17,7 +17,6 @@
 package de.learnlib.ralib.learning;
 
 
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.VarMapping;
 
 /**
@@ -58,6 +57,6 @@ public interface SymbolicDecisionTree {
      * @return
      */
     public boolean isAccepting();
-    
+
     public SymbolicDecisionTree copy();
 }

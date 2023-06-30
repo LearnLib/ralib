@@ -44,7 +44,7 @@ public class RepeaterSUL extends DataWordSUL {
     	this.max_repeats = max_repeats;
     	capacity = Repeater.CAPACITY;
     }
-    
+
     public RepeaterSUL(int max_repeats, int capacity) {
     	this.max_repeats = max_repeats;
     	this.capacity = capacity;
