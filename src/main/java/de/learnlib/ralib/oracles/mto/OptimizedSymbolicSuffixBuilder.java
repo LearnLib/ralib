@@ -42,6 +42,19 @@ public class OptimizedSymbolicSuffixBuilder {
         this.consts = consts;
     }
 
+    /**
+     * Extend suffix by prepending it with the last symbol of prefix. Any suffix value in the
+     * new suffix which is not compared with a constant, a parameter in the prefix (excluding
+     * the last symbol), a previous free suffix value or more than one symbolic data value
+     * will be set to non-free. Any non-free parameter that is equal to a single non-free
+     * suffix value will be optimized for equality with that suffix value.
+     *
+     * @param prefix (last symbol will be prepended to suffix)
+     * @param sdt
+     * @param piv
+     * @param suffix
+     * @return a new suffix formed by prepending suffix with the last symbol of prefix
+     */
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, SymbolicSuffix suffix) {
     	assert !prefix.isEmpty();
 
@@ -165,33 +178,6 @@ public class OptimizedSymbolicSuffixBuilder {
         // prefix1 = subprefix1 + sym(d1); prefix2 = subprefix2 + sym(d2)
         // our new_suffix will be sym(s1) + suffix
         // we first determine if s1 is free (extended to all parameters in sym, if there are more)
-
-//        Word<PSymbolInstance> sub1 = prefix1.prefix(prefix1.length()-1);
-//        Word<PSymbolInstance> sub2 = prefix2.prefix(prefix2.length()-1);
-//        PSymbolInstance action1 = prefix1.lastSymbol();
-//        PSymbolInstance action2 = prefix2.lastSymbol();
-//        Set<Register> actionRegisters1 = actionRegisters(sub1, action1, piv1);
-//        Set<Register> actionRegisters2 = actionRegisters(sub2, action2, piv2);
-//
-//        Set<SuffixValue> newFreeValues = new LinkedHashSet<>();
-//        for (SuffixValue sv : suffix.getFreeValues()) {
-//        	Set<Register> registers1 = sdt1.getRegisters(sv);
-//        	Set<Register> registers2 = sdt2.getRegisters(sv);
-//
-//        	if (!actionRegisters1.containsAll(registers1) || !actionRegisters2.containsAll(registers2)) {
-//        		// suffix value still mapped to prefix parameter
-//        		newFreeValues.add(sv);
-//        	}
-//        }
-//
-//        SymbolicSuffix optimizedSuffix = new SymbolicSuffix(suffix, newFreeValues);
-//
-//        SymbolicSuffix actionSuffix1 = new SymbolicSuffix(sub1, Word.fromSymbols(action1));
-//        SymbolicSuffix actionSuffix2 = new SymbolicSuffix(sub2, Word.fromSymbols(action2));
-//        Set<SuffixValue> actionFreeValues = new LinkedHashSet<>();
-//        actionFreeValues.addAll(actionSuffix1.getFreeValues());
-//        actionFreeValues.addAll(actionSuffix2.getFreeValues());
-//        SymbolicSuffix actionSuffix = new SymbolicSuffix(actionSuffix1, actionFreeValues);
 
         SymbolicSuffix suffix1 = extendSuffix(prefix1, sdt1, piv1, suffix);
         SymbolicSuffix suffix2 = extendSuffix(prefix2, sdt2, piv2, suffix);

@@ -67,7 +67,6 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 
         RaTTT learner = new RaTTT(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
         learner.setStatisticCounter(queryStats);
-        learner.setFullSuffixOptimization(true);
 
         learner.learn();
 
