@@ -17,10 +17,12 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
@@ -66,6 +68,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
 
         InputSymbol A = new InputSymbol("a", INT_TYPE, INT_TYPE);
+        InputSymbol B = new InputSymbol("b");
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
 
@@ -83,12 +86,20 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Parameter p3 = pGen.next(INT_TYPE);
         Parameter p4 = pGen.next(INT_TYPE);
 
+        ConstantGenerator cGen = new ConstantGenerator();
+        SymbolicDataValue.Constant c1 = cGen.next(INT_TYPE);
+
         PIV piv1 = new PIV();
         piv1.put(p1, r1);
         piv1.put(p3, r2);
         PIV piv2 = new PIV();
         piv2.put(p3, r1);
         piv2.put(p4, r2);
+        PIV piv3 = new PIV();
+        piv3.put(p2, r1);
+
+        Constants consts2 = new Constants();
+        consts2.put(c1, new DataValue(INT_TYPE, 2));
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 0)),
@@ -98,8 +109,13 @@ public class OptimizedSymbolicSuffixBuilderTest {
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 3)),
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 4)));
+        Word<PSymbolInstance> word3 = Word.fromSymbols(
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(B),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
+        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
 
         SDT sdt1 = new SDT(Map.of(
         		new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -112,13 +128,23 @@ public class OptimizedSymbolicSuffixBuilderTest {
         				new SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
         		new SDTAndGuard(s1, new DisequalityGuard(s1, r1), new DisequalityGuard(s1, r2)), new SDT(Map.of(
         				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+        SDT sdt3 = new SDT(Map.of(
+        		new EqualityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, c1), SDTLeaf.ACCEPTING,
+        				new DisequalityGuard(s2, c1), SDTLeaf.REJECTING)),
+        		new DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
 
-        SymbolicSuffix expected = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
-        SymbolicSuffix actual = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
-        Assert.assertEquals(actual, expected);
+        SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
+        SymbolicSuffix actual1 = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
+        Assert.assertEquals(actual1, expected1);
 
-        actual = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2);
-        Assert.assertEquals(actual.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
+        SymbolicSuffix actual2 = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2);
+        Assert.assertEquals(actual2.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
+
+        SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(2), consts2);
+        SymbolicSuffix actual3 = builder.extendSuffix(word3.prefix(2), sdt3, piv3, suffix3);
+        Assert.assertEquals(actual3, expected3);
     }
 
 

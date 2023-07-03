@@ -59,6 +59,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
     		if (!actionRegisters.containsAll(registers) ||
     				comparands.size() > 1 ||
+    				comparands.stream().anyMatch((x) -> (x.isConstant())) ||
     				(comparands.size() == 1 && newFreeValues.contains(comparands.iterator().next()))) {
     			newFreeValues.add(sv);
     		} else if (comparands.size() == 1) {
