@@ -100,6 +100,8 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv2.put(p4, r2);
         PIV piv3 = new PIV();
         piv3.put(p2, r1);
+        PIV piv5 = new PIV();
+        piv5.put(p1, r1);
 
         Constants consts2 = new Constants();
         consts2.put(c1, new DataValue(INT_TYPE, 2));
@@ -123,10 +125,18 @@ public class OptimizedSymbolicSuffixBuilderTest {
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        Word<PSymbolInstance> word5 = Word.fromSymbols(
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(B),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
         SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(4));
+        SymbolicSuffix suffix5 = new SymbolicSuffix(word5.prefix(2), word5.suffix(4));
 
         SDT sdt1 = new SDT(Map.of(
         		new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -156,6 +166,14 @@ public class OptimizedSymbolicSuffixBuilderTest {
         				new DisequalityGuard(s2, s1), new SDT(Map.of(
         						new SDTTrueGuard(s3), new SDT(Map.of(
         								new SDTTrueGuard(s4), SDTLeaf.REJECTING))))))));
+        SDT sdt5 = new SDT(Map.of(
+        		new SDTTrueGuard(s1), new SDT(Map.of(
+        				new EqualityGuard(s2, s1), new SDT(Map.of(
+        						new EqualityGuard(s3, r1), new SDT(Map.of(
+        								new SDTTrueGuard(s4), SDTLeaf.REJECTING)),
+        						new DisequalityGuard(s3, r1), new SDT(Map.of(
+        								new EqualityGuard(s4, s3), SDTLeaf.ACCEPTING,
+        								new DisequalityGuard(s4, s3), SDTLeaf.REJECTING))))))));
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
         SymbolicSuffix actual1 = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
@@ -170,7 +188,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         SymbolicSuffix expected4 = new SymbolicSuffix(word4.prefix(1), word4.suffix(5));
         SymbolicSuffix actual4 = builder.extendSuffix(word4.prefix(2), sdt4, piv3, suffix4);
-        Assert.assertEquals(expected4, actual4);
+        Assert.assertEquals(actual4, expected4);
+
+        SymbolicSuffix expected5 = new SymbolicSuffix(word5.prefix(1), word5.suffix(5));
+        SymbolicSuffix actual5 = builder.extendSuffix(word5.prefix(2), sdt5, piv5, suffix5);
+        Assert.assertEquals(actual5, expected5);
     }
 
 
