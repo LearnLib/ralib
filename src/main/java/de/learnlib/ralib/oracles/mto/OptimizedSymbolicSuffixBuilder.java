@@ -134,7 +134,11 @@ public class OptimizedSymbolicSuffixBuilder {
     		if (suffixDataValues.values().contains(sv)) {
     			suffixRelations.put(i+arity, sv.getId()+arity);
     		} else if (sdv != null && sdv.isSuffixValue()) {
-    			suffixRelations.put(sv.getId()+arity, sdv.getId()+arity);
+    			if (newFreeValues.contains(sdv.getId()+arity)) {
+    				newFreeValues.add(i+arity);
+    			} else {
+    				suffixRelations.put(sv.getId()+arity, sdv.getId()+arity);
+    			}
     		} else if (sdv != null && sdv.isRegister()) {
     			Parameter p = getParameter((Register)sdv, piv);
     			SuffixValue actionSV = actionParamaterMap.get(p);
@@ -215,6 +219,10 @@ public class OptimizedSymbolicSuffixBuilder {
     	Set<SuffixValue> freeValues = new LinkedHashSet<>();
 //    	freeValues.addAll(actionSuffix.getFreeValues());
     	newFreeValues.stream().forEach((x) -> { freeValues.add(dataValues.get(x)); });
+
+    	for (SuffixValue fv : freeValues) {
+    		assert fv != null;
+    	}
 
     	SymbolicSuffix blah = new SymbolicSuffix(actions, dataValues, freeValues);
     	return new SymbolicSuffix(actions, dataValues, freeValues);
