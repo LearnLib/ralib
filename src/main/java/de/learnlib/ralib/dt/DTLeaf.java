@@ -36,6 +36,8 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
+import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -442,25 +444,25 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return sdt.relabel(relabeling);
     }
 
-    public boolean checkVariableConsistency(DT dt, Constants consts) {
-        if (!checkVariableConsistency(access, dt, consts)) {
+    public boolean checkVariableConsistency(DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
+        if (!checkVariableConsistency(access, dt, consts, suffixBuilder)) {
             return false;
         }
 
         Iterator<MappedPrefix> it = otherPrefixes.iterator();
         while (it.hasNext()) {
-            if (!checkVariableConsistency(it.next(), dt, consts))
+            if (!checkVariableConsistency(it.next(), dt, consts, suffixBuilder))
                 return false;
         }
         it = shortPrefixes.iterator();
         while (it.hasNext()) {
-            if (!checkVariableConsistency(it.next(), dt, consts))
+            if (!checkVariableConsistency(it.next(), dt, consts, suffixBuilder))
                 return false;
         }
         return true;
     }
 
-    private boolean checkVariableConsistency(MappedPrefix mp, DT dt, Constants consts) {
+    private boolean checkVariableConsistency(MappedPrefix mp, DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
         if (mp.getPrefix().length() < 2)
             return true;
 
@@ -476,7 +478,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
         for (Parameter p : memMP.keySet()) {
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
             	for (SymbolicSuffix suffix : mp.getAllSuffixesForMemorable(p)) {
-            		SymbolicSuffix newSuffix = new SymbolicSuffix(mp.getPrefix(), suffix, consts);
+            		TreeQueryResult suffixTQR = mp.getTQRs().get(suffix);
+            		SymbolicDecisionTree sdt = suffixTQR.getSdt();
+            		SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
+            				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix) :
+            				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
             		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
             		if (tqr.getPiv().keySet().contains(p)) {

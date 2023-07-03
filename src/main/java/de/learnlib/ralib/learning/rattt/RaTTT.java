@@ -31,6 +31,7 @@ import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
@@ -39,6 +40,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -65,6 +67,8 @@ public class RaTTT implements RaLearningAlgorithm {
     private final SDTLogicOracle sdtLogicOracle;
 
     private final TreeOracleFactory hypOracleFactory;
+
+    private final OptimizedSymbolicSuffixBuilder suffixBuilder;
 
     private QueryStatistics queryStats = null;
 
@@ -103,6 +107,7 @@ public class RaTTT implements RaLearningAlgorithm {
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.useOldAnalyzer = useOldAnalyzer;
+        this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts);
         this.dt.initialize();
     }
 
@@ -312,7 +317,7 @@ public class RaTTT implements RaLearningAlgorithm {
     }
 
     private boolean checkRegisterConsistency() {
-    	return dt.checkVariableConsistency();
+    	return dt.checkVariableConsistency(suffixBuilder);
     }
 
     private boolean checkGuardConsistency() {
@@ -353,8 +358,12 @@ public class RaTTT implements RaLearningAlgorithm {
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
-			            			suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
-			            			suffix = suffix.concat(s);
+			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
+			            				suffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
+			            			} else {
+			            				suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
+			            				suffix = suffix.concat(s);
+			            			}
 			            		}
 		            		}
 		            	}
@@ -386,6 +395,15 @@ public class RaTTT implements RaLearningAlgorithm {
 
     	Word<PSymbolInstance> prefixA = wa.prefix(wa.length() - 1);
     	Word<PSymbolInstance> prefixB = wb.prefix(wb.length() - 1);
+
+    	TreeQueryResult tqrA = ca.getTQR(wa, v);
+    	TreeQueryResult tqrB = cb.getTQR(wb, v);
+    	SymbolicDecisionTree sdtA = tqrA.getSdt();
+    	SymbolicDecisionTree sdtB = tqrB.getSdt();
+
+    	if (suffixBuilder != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
+    	}
 //    	if (fullOptimization) {
 //    		TreeQueryResult tqrA = ca.getTQR(wa, v);
 //    		TreeQueryResult tqrB = cb.getTQR(wb, v);
@@ -500,7 +518,7 @@ public class RaTTT implements RaLearningAlgorithm {
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(accSeq);
         dt.addSuffix(res.getSuffix(), leaf);
-        while(!dt.checkVariableConsistency());
+        while(!dt.checkVariableConsistency(suffixBuilder));
         return true;
     }
 

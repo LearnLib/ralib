@@ -67,7 +67,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         InputSymbol A = new InputSymbol("a", INT_TYPE, INT_TYPE);
 
-        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, solver);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
 
         SuffixValueGenerator svGen = new SuffixValueGenerator();
         SuffixValue s1 = svGen.next(INT_TYPE);
@@ -126,7 +126,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
      * Checks for equality optimized suffixes built by pre-pending using an SDT against those built from concrete prefix/suffix
      */
     private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
-        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, solver);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
         SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
         int suffixLength;
@@ -188,8 +188,8 @@ public class OptimizedSymbolicSuffixBuilderTest {
         PIV piv2 = new PIV();
         piv2.put(p2, r1);
 
-        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, new SimpleConstraintSolver());
-        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a));
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
+        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
         Assert.assertEquals(suffix12.toString(), "[s1]((a[s1] a[s2] a[s3]))");
 
 
@@ -223,7 +223,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv4.put(p2, r2);
 
 
-        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a));
+        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
         Assert.assertEquals(suffix34.toString(), "[s1]((a[s1] a[s2] a[s2]))");
     }
 }

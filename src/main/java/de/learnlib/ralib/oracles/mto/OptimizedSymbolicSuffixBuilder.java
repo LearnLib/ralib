@@ -34,14 +34,11 @@ import net.automatalib.words.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
 
-    private final ConstraintSolver solver;
-
     private final Constants consts;
 
     private static LearnLogger log = LearnLogger.getLogger(OptimizedSymbolicSuffixBuilder.class);
 
-    public OptimizedSymbolicSuffixBuilder(Constants consts, ConstraintSolver solver) {
-        this.solver = solver;
+    public OptimizedSymbolicSuffixBuilder(Constants consts) {
         this.consts = consts;
     }
 
@@ -168,34 +165,37 @@ public class OptimizedSymbolicSuffixBuilder {
         // our new_suffix will be sym(s1) + suffix
         // we first determine if s1 is free (extended to all parameters in sym, if there are more)
 
-        Word<PSymbolInstance> sub1 = prefix1.prefix(prefix1.length()-1);
-        Word<PSymbolInstance> sub2 = prefix2.prefix(prefix2.length()-1);
-        PSymbolInstance action1 = prefix1.lastSymbol();
-        PSymbolInstance action2 = prefix2.lastSymbol();
-        Set<Register> actionRegisters1 = actionRegisters(sub1, action1, piv1);
-        Set<Register> actionRegisters2 = actionRegisters(sub2, action2, piv2);
+//        Word<PSymbolInstance> sub1 = prefix1.prefix(prefix1.length()-1);
+//        Word<PSymbolInstance> sub2 = prefix2.prefix(prefix2.length()-1);
+//        PSymbolInstance action1 = prefix1.lastSymbol();
+//        PSymbolInstance action2 = prefix2.lastSymbol();
+//        Set<Register> actionRegisters1 = actionRegisters(sub1, action1, piv1);
+//        Set<Register> actionRegisters2 = actionRegisters(sub2, action2, piv2);
+//
+//        Set<SuffixValue> newFreeValues = new LinkedHashSet<>();
+//        for (SuffixValue sv : suffix.getFreeValues()) {
+//        	Set<Register> registers1 = sdt1.getRegisters(sv);
+//        	Set<Register> registers2 = sdt2.getRegisters(sv);
+//
+//        	if (!actionRegisters1.containsAll(registers1) || !actionRegisters2.containsAll(registers2)) {
+//        		// suffix value still mapped to prefix parameter
+//        		newFreeValues.add(sv);
+//        	}
+//        }
+//
+//        SymbolicSuffix optimizedSuffix = new SymbolicSuffix(suffix, newFreeValues);
+//
+//        SymbolicSuffix actionSuffix1 = new SymbolicSuffix(sub1, Word.fromSymbols(action1));
+//        SymbolicSuffix actionSuffix2 = new SymbolicSuffix(sub2, Word.fromSymbols(action2));
+//        Set<SuffixValue> actionFreeValues = new LinkedHashSet<>();
+//        actionFreeValues.addAll(actionSuffix1.getFreeValues());
+//        actionFreeValues.addAll(actionSuffix2.getFreeValues());
+//        SymbolicSuffix actionSuffix = new SymbolicSuffix(actionSuffix1, actionFreeValues);
 
-        Set<SuffixValue> newFreeValues = new LinkedHashSet<>();
-        for (SuffixValue sv : suffix.getFreeValues()) {
-        	Set<Register> registers1 = sdt1.getRegisters(sv);
-        	Set<Register> registers2 = sdt2.getRegisters(sv);
+        SymbolicSuffix suffix1 = extendSuffix(prefix1, sdt1, piv1, suffix);
+        SymbolicSuffix suffix2 = extendSuffix(prefix2, sdt2, piv2, suffix);
 
-        	if (!actionRegisters1.containsAll(registers1) || !actionRegisters2.containsAll(registers2)) {
-        		// suffix value still mapped to prefix parameter
-        		newFreeValues.add(sv);
-        	}
-        }
-
-        SymbolicSuffix optimizedSuffix = new SymbolicSuffix(suffix, newFreeValues);
-
-        SymbolicSuffix actionSuffix1 = new SymbolicSuffix(sub1, Word.fromSymbols(action1));
-        SymbolicSuffix actionSuffix2 = new SymbolicSuffix(sub2, Word.fromSymbols(action2));
-        Set<SuffixValue> actionFreeValues = new LinkedHashSet<>();
-        actionFreeValues.addAll(actionSuffix1.getFreeValues());
-        actionFreeValues.addAll(actionSuffix2.getFreeValues());
-        SymbolicSuffix actionSuffix = new SymbolicSuffix(actionSuffix1, actionFreeValues);
-
-        return actionSuffix.concat(optimizedSuffix);
+        return coalesceSuffixes(suffix1, suffix2);
     }
 
     private Set<Register> actionRegisters(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
@@ -220,7 +220,7 @@ public class OptimizedSymbolicSuffixBuilder {
      * based on the SDTs and associated PIVs that revealed the source of the inequivalence.
      */
     public SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1, PIV piv1,
-            Word<PSymbolInstance> prefix2,  SDT sdt2, PIV piv2,  Word<ParameterizedSymbol> suffixActions) {
+            Word<PSymbolInstance> prefix2,  SDT sdt2, PIV piv2,  Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
 
         // we relabel SDTs and PIV such that they use different registers
         SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
@@ -244,11 +244,11 @@ public class OptimizedSymbolicSuffixBuilder {
         Mapping<SymbolicDataValue, DataValue<?>> combined = new Mapping<>();
         combined.putAll(valuationSdt1);
         combined.putAll(valuationSdt2);
-        SymbolicSuffix suffix = distinguishingSuffixFromSDTs(relSdt1, relSdt2, combined, suffixActions);
+        SymbolicSuffix suffix = distinguishingSuffixFromSDTs(relSdt1, relSdt2, combined, suffixActions, solver);
         return suffix;
     }
 
-    private SymbolicSuffix distinguishingSuffixFromSDTs(SDT sdt1, SDT sdt2, Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions) {
+    private SymbolicSuffix distinguishingSuffixFromSDTs(SDT sdt1, SDT sdt2, Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
         SymbolicSuffix best = new SymbolicSuffix(suffixActions);
         for (boolean b : new boolean [] {true, false}) {
             // we check for paths
