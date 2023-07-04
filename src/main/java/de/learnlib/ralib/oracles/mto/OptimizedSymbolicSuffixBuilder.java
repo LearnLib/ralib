@@ -67,17 +67,10 @@ public class OptimizedSymbolicSuffixBuilder {
     	Map<SuffixValue, SymbolicDataValue> sdvMap = new LinkedHashMap<>();
 
     	int arity = action.getBaseSymbol().getArity();
-		int suffixParameters = 0;
-		for (ParameterizedSymbol ps : suffix.getActions()) {
-			suffixParameters = suffixParameters + ps.getArity();
-		}
+		int suffixParameters = DataWords.paramLength(suffix.getActions());
 
     	// find which values are free
     	Set<Integer> newFreeValues = new LinkedHashSet<>();
-//    	Set<SuffixValue> translatedDataValues = new LinkedHashSet<>();
-//    	suffix.getValues().stream().forEach((x) -> { translatedDataValues.add(translateDataValueToSuffixValue(x, suffix)); });
-//    	for (SuffixValue sv : translatedDataValues) {
-//    	for (SuffixValue sv : suffix.getFreeValues()) {
     	for (int i = 0; i < suffixParameters; i++) {
     		int pos = i + 1;
     		SuffixValue sv = suffix.getDataValue(pos);
@@ -85,12 +78,14 @@ public class OptimizedSymbolicSuffixBuilder {
     		Set<Register> registers = new LinkedHashSet<>();
     		comparands.stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); });
 
+    		// determine whether a suffix value is free
     		if (!actionRegisters.containsAll(registers) ||
     				comparands.size() > 1 ||
     				comparands.stream().anyMatch((x) -> (x.isConstant())) ||
     				(comparands.size() == 1 && newFreeValues.contains(comparands.iterator().next().getId()-arity))) {
     			newFreeValues.add(pos + arity);
     		} else if (comparands.size() == 1) {
+    			// if non-free and equal to a single symbolic data value, remember that value
     			SymbolicDataValue sdv = comparands.iterator().next();
     			for (SDTGuard g : sdt.getSDTGuards(sv)) {
     				if (g instanceof EqualityGuard) {
@@ -99,6 +94,7 @@ public class OptimizedSymbolicSuffixBuilder {
     			}
     		}
     	}
+    	// free suffix values in the action
     	for (int i = 0; i < action.getBaseSymbol().getArity(); i++) {
     		if (actionSuffix.getFreeValues().contains(actionSuffix.getDataValue(i+1)))
     			newFreeValues.add(i+1);
@@ -106,10 +102,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
     	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
     	Map<Parameter, SuffixValue> actionParamaterMap = new LinkedHashMap<>();
-    	int startingIndex = 1;
-    	for (PSymbolInstance ps : sub) {
-    		startingIndex = startingIndex + ps.getBaseSymbol().getArity();
-    	}
+    	int startingIndex = 1 + DataWords.paramValLength(sub);
 
     	// fill in suffix values from action
     	int position = 1;
@@ -150,34 +143,14 @@ public class OptimizedSymbolicSuffixBuilder {
     		}
     		suffixDataValues.put(i, sv);
     	}
-//    	Collection<SuffixValue> suffixValues = suffixDataValues.values();
-//    	for (SuffixValue sv : suffixValues) {
-//    		if (suffixValues.stream().filter((x) -> (x.equals(sv))).count() > 1) {
-//    			int i = 1;
-//    			boolean found = false;
-//    			while (!found) {
-//    				SuffixValue equalValue = suffixDataValues.get(i);
-//    				if (equalValue.equals(sv)) {
-//    					suffixRelations.put(sv.getId()+arity, i+arity);
-//    					found = true;
-//    				}
-//    			}
-//    		}
-//    	}
 
-    	if (suffixRelations.size() > 0)
+    	if (suffixRelations.size() > 0) {
     		assert Collections.min(suffixRelations.keySet()) >= arity + 1;
-
-    	Word<ParameterizedSymbol> actions = suffix.getActions().prepend(action.getBaseSymbol());
-    	Collection<DataType> dataTypes = new ArrayList<>();
-    	for (ParameterizedSymbol ps : actions) {
-    		for (DataType dt : ps.getPtypes()) {
-    			dataTypes.add(dt);
-    		}
     	}
-    	DataType[] dts = new DataType[dataTypes.size()];
-    	dts = dataTypes.toArray(dts);
 
+		// construct suffix
+    	Word<ParameterizedSymbol> actions = suffix.getActions().prepend(action.getBaseSymbol());
+    	DataType[] dts = dataTypes(actions);
     	for (int i = 0; i < suffixParameters; i++) {
     		int pos = i + arity + 1;
     		Integer eq = suffixRelations.get(pos);
@@ -188,46 +161,26 @@ public class OptimizedSymbolicSuffixBuilder {
     		}
     	}
 
-		// fill in suffix values from suffix
-//		for (int i = 0; i < suffixParameters; i++) {
-//			SuffixValue sv = suffix.getDataValue(i+1);
-//			SymbolicDataValue sdv = sdvMap.get(sv);
-//			if (sdv == null) {
-//				// free or no equality optimization
-//				SuffixValue newSV = svGen.next(sv.getType());
-//				position = nextPosition(dataValues.keySet());
-//				dataValues.put(position, newSV);
-//			} else if (sdv.isRegister()) {
-//				// equal to register in action
-//				Parameter p = getParameter((Register)sdv, piv);
-//				SuffixValue actionSV = actionParamaterMap.get(p);
-//				if (actionSuffix.getFreeValues().contains(actionSV)) {
-//					dataValues.put(sv.getId() + arity, svGen.next(sv.getType()));
-//				} else {
-//					dataValues.put(sv.getId() + arity, actionSV);
-//				}
-//			} else if (sdv.isSuffixValue()) {
-//				// equal to previous suffix value
-//				SuffixValue equalSV = new SuffixValue(sdv.getType(), sdv.getId() + arity);
-//				dataValues.put(sv.getId() + arity, equalSV);
-//			} else if (sdv.isConstant()) {
-//				dataValues.put(sv.getId() + arity, sv);
-//			} else {
-//    			throw new IllegalStateException("Invalid SymbolicDataValue type");
-//    		}
-//		}
-
-		// construct suffix
     	Set<SuffixValue> freeValues = new LinkedHashSet<>();
-//    	freeValues.addAll(actionSuffix.getFreeValues());
     	newFreeValues.stream().forEach((x) -> { freeValues.add(dataValues.get(x)); });
 
     	for (SuffixValue fv : freeValues) {
     		assert fv != null;
     	}
 
-    	SymbolicSuffix blah = new SymbolicSuffix(actions, dataValues, freeValues);
     	return new SymbolicSuffix(actions, dataValues, freeValues);
+    }
+
+    private DataType[] dataTypes(Word<ParameterizedSymbol> actions) {
+    	Collection<DataType> dataTypes = new ArrayList<>();
+    	for (ParameterizedSymbol ps : actions) {
+    		for (DataType dt : ps.getPtypes()) {
+    			dataTypes.add(dt);
+    		}
+    	}
+    	DataType[] dts = new DataType[dataTypes.size()];
+    	dts = dataTypes.toArray(dts);
+    	return dts;
     }
 
     private Parameter getParameter(Register r, PIV piv) {
@@ -236,24 +189,6 @@ public class OptimizedSymbolicSuffixBuilder {
     			return e.getKey();
     	}
     	return null;
-    }
-
-    private int nextPosition(Set<Integer> positions) {
-    	int pos = 1;
-    	while (positions.contains(pos)) {
-    		pos++;
-    	}
-    	return pos;
-    }
-
-    private SuffixValue translateDataValueToSuffixValue(SuffixValue sv, SymbolicSuffix suffix) {
-    	for (int i = 1; true; i++) {
-    		SuffixValue dv = suffix.getDataValue(i);
-    		if (dv == null)
-    			throw new IllegalStateException("Invalid suffix value");
-    		if (sv.equals(dv))
-    			return new SuffixValue(sv.getType(), i);
-    	}
     }
 
     /**
@@ -352,6 +287,7 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     private SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
+    	assert suffix1.getActions().equals(suffix2.getActions());
         Set<SuffixValue> freeValues = new LinkedHashSet<>();
         Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
         Map<SuffixValue, SuffixValue> sValMapping = new LinkedHashMap<>();
