@@ -62,7 +62,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
     	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
     	PSymbolInstance action = prefix.lastSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, Word.fromSymbols(action));
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, Word.fromSymbols(action), consts);
     	Set<Register> actionRegisters = actionRegisters(sub, action, piv);
     	Map<SuffixValue, SymbolicDataValue> sdvMap = new LinkedHashMap<>();
 
@@ -269,7 +269,6 @@ public class OptimizedSymbolicSuffixBuilder {
 
         SymbolicSuffix suffix1 = extendSuffix(prefix1, sdt1, piv1, suffix);
         SymbolicSuffix suffix2 = extendSuffix(prefix2, sdt2, piv2, suffix);
-
         return coalesceSuffixes(suffix1, suffix2);
     }
 
@@ -348,6 +347,7 @@ public class OptimizedSymbolicSuffixBuilder {
             Word<ParameterizedSymbol> suffixActions) {
         SymbolicSuffix suffix1 = buildOptimizedSuffix(pathSdt1, suffixActions);
         SymbolicSuffix suffix2 = buildOptimizedSuffix(pathSdt2, suffixActions);
+
         return coalesceSuffixes(suffix1, suffix2);
     }
 
