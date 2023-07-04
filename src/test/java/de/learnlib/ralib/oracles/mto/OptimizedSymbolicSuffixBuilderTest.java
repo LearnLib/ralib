@@ -132,11 +132,15 @@ public class OptimizedSymbolicSuffixBuilderTest {
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        Word<PSymbolInstance> word6 = Word.fromSymbols(
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
         SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(4));
         SymbolicSuffix suffix5 = new SymbolicSuffix(word5.prefix(2), word5.suffix(4));
+        SymbolicSuffix suffix6 = new SymbolicSuffix(word6.prefix(1), word6.suffix(1));
 
         SDT sdt1 = new SDT(Map.of(
         		new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -174,6 +178,9 @@ public class OptimizedSymbolicSuffixBuilderTest {
         						new DisequalityGuard(s3, r1), new SDT(Map.of(
         								new EqualityGuard(s4, s3), SDTLeaf.ACCEPTING,
         								new DisequalityGuard(s4, s3), SDTLeaf.REJECTING))))))));
+        SDT sdt6 = new SDT(Map.of(
+        		new EqualityGuard(s1, r1), SDTLeaf.ACCEPTING,
+        		new DisequalityGuard(s1, r1), SDTLeaf.REJECTING));
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
         SymbolicSuffix actual1 = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
@@ -193,6 +200,10 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix expected5 = new SymbolicSuffix(word5.prefix(1), word5.suffix(5));
         SymbolicSuffix actual5 = builder.extendSuffix(word5.prefix(2), sdt5, piv5, suffix5);
         Assert.assertEquals(actual5, expected5);
+
+        SymbolicSuffix expected6 = new SymbolicSuffix(Word.epsilon(), word6);
+        SymbolicSuffix actual6 = builder.extendSuffix(word6.prefix(1), sdt6, piv5, suffix6);
+        Assert.assertEquals(actual6, expected6);
     }
 
 
