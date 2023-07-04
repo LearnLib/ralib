@@ -135,12 +135,23 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Word<PSymbolInstance> word6 = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)));
+        Word<PSymbolInstance> word7a = Word.fromSymbols(
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(B),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(B));
+        Word<PSymbolInstance> word7b = Word.fromSymbols(
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(B),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
+        		new PSymbolInstance(B));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
         SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(4));
         SymbolicSuffix suffix5 = new SymbolicSuffix(word5.prefix(2), word5.suffix(4));
         SymbolicSuffix suffix6 = new SymbolicSuffix(word6.prefix(1), word6.suffix(1));
+        SymbolicSuffix suffix7 = new SymbolicSuffix(word7a.prefix(3), word7a.suffix(1));
 
         SDT sdt1 = new SDT(Map.of(
         		new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -204,6 +215,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix expected6 = new SymbolicSuffix(Word.epsilon(), word6);
         SymbolicSuffix actual6 = builder.extendSuffix(word6.prefix(1), sdt6, piv5, suffix6);
         Assert.assertEquals(actual6, expected6);
+
+        OptimizedSymbolicSuffixBuilder constBuilder = new OptimizedSymbolicSuffixBuilder(consts2);
+        SymbolicSuffix expected7 = new SymbolicSuffix(word7b.prefix(2), word7b.suffix(2), consts2);
+        SymbolicSuffix actual7 = constBuilder.extendDistinguishingSuffix(word7a.prefix(3), SDTLeaf.ACCEPTING, new PIV(), word7b.prefix(3), SDTLeaf.REJECTING, new PIV(), suffix7);
+        Assert.assertEquals(actual7, expected7);
     }
 
 
