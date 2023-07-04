@@ -142,7 +142,9 @@ public class OptimizedSymbolicSuffixBuilder {
     		} else if (sdv != null && sdv.isRegister()) {
     			Parameter p = getParameter((Register)sdv, piv);
     			SuffixValue actionSV = actionParamaterMap.get(p);
-    			if (!actionSuffix.getFreeValues().contains(actionSV)) {
+    			if (actionSuffix.getFreeValues().contains(actionSV)) {
+    				newFreeValues.add(i+arity);
+    			} else {
     				suffixRelations.put(sv.getId()+arity, actionSV.getId());
     			}
     		}
