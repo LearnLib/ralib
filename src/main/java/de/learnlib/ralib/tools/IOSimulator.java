@@ -223,6 +223,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 break;
             case "rattt":
                 this.rastar = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+                ((RaTTT)this.rastar).setSolver(solver);
                 break;
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);

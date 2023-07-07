@@ -87,6 +87,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        rattt.setSolver(solver);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);

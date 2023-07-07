@@ -39,6 +39,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -66,6 +67,7 @@ public class RaTTT implements RaLearningAlgorithm {
     private final TreeOracleFactory hypOracleFactory;
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
+    private ConstraintSolver solver = null;
 
     private QueryStatistics queryStats = null;
 
@@ -393,8 +395,9 @@ public class RaTTT implements RaLearningAlgorithm {
     	SymbolicDecisionTree sdtA = tqrA.getSdt();
     	SymbolicDecisionTree sdtB = tqrB.getSdt();
 
-    	if (suffixBuilder != null && sdtA instanceof SDT && sdtB instanceof SDT) {
-    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
+    	if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+//    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
+    		return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v.getActions(), solver);
     	}
 
     	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
@@ -488,6 +491,10 @@ public class RaTTT implements RaLearningAlgorithm {
 
     public QueryStatistics getQueryStatistics() {
     	return queryStats;
+    }
+
+    public void setSolver(ConstraintSolver solver) {
+    	this.solver = solver;
     }
 
     @Override

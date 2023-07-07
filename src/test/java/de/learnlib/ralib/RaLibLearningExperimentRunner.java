@@ -116,6 +116,7 @@ public class RaLibLearningExperimentRunner {
 				break;
 			case RATTT:
 				learner = new RaTTT(mto, hypFactory, mlo, consts, false, useOldAnalyzer, actionSymbols);
+				((RaTTT)learner).setSolver(solver);
 				break;
 			default:
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));

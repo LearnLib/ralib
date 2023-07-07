@@ -28,6 +28,8 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -171,6 +173,113 @@ public class OptimizedSymbolicSuffixBuilder {
     	return new SymbolicSuffix(actions, dataValues, freeValues);
     }
 
+    public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, List<SDTGuard> sdtPath, PIV piv, Word<ParameterizedSymbol> suffixActions) {
+    	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
+    	PSymbolInstance action = prefix.lastSymbol();
+    	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1));
+    	int actionArity = actionSymbol.getArity();
+    	int suffixArity = DataWords.paramLength(suffixActions);
+
+    	DataType[] suffixDataTypes = new DataType[suffixArity];
+    	int index = 0;
+    	for (ParameterizedSymbol ps : suffixActions) {
+    		for (int i = 0; i < ps.getArity(); i++) {
+    			suffixDataTypes[index+i] = ps.getPtypes()[i];
+    		}
+    		index = index + ps.getArity();
+    	}
+
+    	int subArity = DataWords.paramValLength(sub);
+    	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
+    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
+    		Parameter p = e.getKey();
+    		if (p.getId().intValue() > subArity) {
+    			int actionParameterIndex = p.getId() - subArity;
+    			actionParameters.put(e.getValue(), new SuffixValue(p.getType(), actionParameterIndex));
+    		}
+    	}
+
+    	Set<SuffixValue> freeValues = new LinkedHashSet<>();
+    	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
+
+    	SuffixValueGenerator svGen = new SuffixValueGenerator();
+    	for (int i = 0; i < actionArity; i++) {
+    		SuffixValue sv = actionSuffix.getDataValue(i+1);
+    		SuffixValue suffixValue = dataValues.values().contains(sv) ?
+    				sv :
+    				svGen.next(actionSymbol.getPtypes()[i]);
+    		dataValues.put(i+1, suffixValue);
+    		if (actionSuffix.getFreeValues().contains(suffixValue))
+    			freeValues.add(suffixValue);
+    	}
+
+    	for (int i = 0; i < suffixArity; i++) {
+    		int pos = i + actionArity + 1;
+    		SuffixValue sv = new SuffixValue(suffixDataTypes[i], i+1);
+    		Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    		sdtPath.stream().forEach((g) -> { comparands.addAll(g.getComparands(sv)); });
+    		Set<SDTGuard> guards = getGuards(sdtPath, sv);
+    		assert !guards.isEmpty();
+
+    		boolean free = true;
+    		SuffixValue equalSV = null;
+
+    		if (guards.size() > 1) {
+    			free = true;
+    		} else {
+    			SDTGuard guard = guards.iterator().next();
+    			if (guard instanceof SDTTrueGuard) {
+    				free = false;
+    			} else if (guard instanceof EqualityGuard || guard instanceof DisequalityGuard) {
+    				SuffixValue comparedSV = null;
+    				if (comparands.size() > 1) {
+    					free = true;
+    				} else {
+    					assert comparands.size() == 1;
+    					SymbolicDataValue sdv = comparands.iterator().next();
+    					if (sdv.isSuffixValue()) {
+//    						comparedSV = new SuffixValue(sdv.getType(), sdv.getId()+actionArity);
+    						comparedSV = dataValues.get(sdv.getId()+actionArity);
+    					} else if (sdv.isRegister()) {
+    						comparedSV = actionParameters.get(sdv);
+    					}
+    					if (comparedSV != null && !freeValues.contains(comparedSV)) {
+    						free = false;
+    						if (guard instanceof EqualityGuard)
+        						equalSV = comparedSV;
+    					}
+    					else
+    						free = true;
+    				}
+    			} else {
+    				free = true;
+    			}
+    		}
+
+    		if (equalSV != null) {
+    			dataValues.put(pos, equalSV);
+    		} else {
+    			SuffixValue suffixValue = svGen.next(suffixDataTypes[i]);
+    			if (free)
+    				freeValues.add(suffixValue);
+				dataValues.put(pos, suffixValue);
+    		}
+    	}
+
+    	Word<ParameterizedSymbol> actions = suffixActions.prepend(actionSymbol);
+    	return new SymbolicSuffix(actions, dataValues, freeValues);
+    }
+
+    private Set<SDTGuard> getGuards(List<SDTGuard> path, SuffixValue sv) {
+    	Set<SDTGuard> guards = new LinkedHashSet<>();
+    	for (SDTGuard g : path) {
+    		if (g.getParameter().equals(sv))
+    			guards.add(g);
+    	}
+    	return guards;
+    }
+
     private DataType[] dataTypes(Word<ParameterizedSymbol> actions) {
     	Collection<DataType> dataTypes = new ArrayList<>();
     	for (ParameterizedSymbol ps : actions) {
@@ -201,9 +310,9 @@ public class OptimizedSymbolicSuffixBuilder {
         // prefix1 = subprefix1 + sym(d1); prefix2 = subprefix2 + sym(d2)
         // our new_suffix will be sym(s1) + suffix
         // we first determine if s1 is free (extended to all parameters in sym, if there are more)
-
         SymbolicSuffix suffix1 = extendSuffix(prefix1, sdt1, piv1, suffix);
         SymbolicSuffix suffix2 = extendSuffix(prefix2, sdt2, piv2, suffix);
+
         return coalesceSuffixes(suffix1, suffix2);
     }
 
@@ -253,12 +362,15 @@ public class OptimizedSymbolicSuffixBuilder {
         Mapping<SymbolicDataValue, DataValue<?>> combined = new Mapping<>();
         combined.putAll(valuationSdt1);
         combined.putAll(valuationSdt2);
-        SymbolicSuffix suffix = distinguishingSuffixFromSDTs(relSdt1, relSdt2, combined, suffixActions, solver);
+        SymbolicSuffix suffix = distinguishingSuffixFromSDTs(prefix1, relSdt1, relPiv1, prefix2, relSdt2, relPiv2, combined, suffixActions, solver);
         return suffix;
     }
 
-    private SymbolicSuffix distinguishingSuffixFromSDTs(SDT sdt1, SDT sdt2, Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
-        SymbolicSuffix best = new SymbolicSuffix(suffixActions);
+    private SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1, PIV piv1,
+    		Word<PSymbolInstance> prefix2, SDT sdt2, PIV piv2,
+    		Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
+//        SymbolicSuffix best = new SymbolicSuffix(suffixActions);
+    	SymbolicSuffix best = null;
         for (boolean b : new boolean [] {true, false}) {
             // we check for paths
             List<List<SDTGuard>> pathsSdt1 = sdt1.getPaths(b);
@@ -268,7 +380,7 @@ public class OptimizedSymbolicSuffixBuilder {
                 for (List<SDTGuard> pathSdt2 : pathsSdt2) {
                     GuardExpression expr2 = toGuardExpression(pathSdt2);
                     if (solver.isSatisfiable(new Conjunction(expr1, expr2), valuation)) {
-                        SymbolicSuffix suffix = buildOptimizedSuffix(pathSdt1, pathSdt2, suffixActions);
+                        SymbolicSuffix suffix = buildOptimizedSuffix(prefix1, pathSdt1, piv1, prefix2, pathSdt2, piv2, suffixActions);
                         best = pickBest(best, suffix);
                     }
                 }
@@ -278,10 +390,13 @@ public class OptimizedSymbolicSuffixBuilder {
         return best;
     }
 
-    private SymbolicSuffix buildOptimizedSuffix(List<SDTGuard> pathSdt1, List<SDTGuard> pathSdt2,
+    private SymbolicSuffix buildOptimizedSuffix(Word<PSymbolInstance> prefix1, List<SDTGuard> pathSdt1, PIV piv1,
+    		Word<PSymbolInstance> prefix2, List<SDTGuard> pathSdt2, PIV piv2,
             Word<ParameterizedSymbol> suffixActions) {
-        SymbolicSuffix suffix1 = buildOptimizedSuffix(pathSdt1, suffixActions);
-        SymbolicSuffix suffix2 = buildOptimizedSuffix(pathSdt2, suffixActions);
+//        SymbolicSuffix suffix1 = buildOptimizedSuffix(pathSdt1, suffixActions);
+//        SymbolicSuffix suffix2 = buildOptimizedSuffix(pathSdt2, suffixActions);
+    	SymbolicSuffix suffix1 = this.extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
+    	SymbolicSuffix suffix2 = this.extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
 
         return coalesceSuffixes(suffix1, suffix2);
     }

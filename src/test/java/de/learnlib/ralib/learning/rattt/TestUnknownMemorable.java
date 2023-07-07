@@ -203,6 +203,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        rattt.setSolver(solver);
 
         rattt.learn();
 
@@ -276,6 +277,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        rattt.setSolver(solver);
         rattt.learn();
 
         String[] ces = {"IPRACK[0[int]] Otimeout[] IINVITE[1[int]] Otimeout[] / true",
