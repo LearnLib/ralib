@@ -180,25 +180,8 @@ public class OptimizedSymbolicSuffixBuilder {
     	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1));
     	int actionArity = actionSymbol.getArity();
     	int suffixArity = DataWords.paramLength(suffixActions);
-
-    	DataType[] suffixDataTypes = new DataType[suffixArity];
-    	int index = 0;
-    	for (ParameterizedSymbol ps : suffixActions) {
-    		for (int i = 0; i < ps.getArity(); i++) {
-    			suffixDataTypes[index+i] = ps.getPtypes()[i];
-    		}
-    		index = index + ps.getArity();
-    	}
-
-    	int subArity = DataWords.paramValLength(sub);
-    	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
-    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
-    		Parameter p = e.getKey();
-    		if (p.getId().intValue() > subArity) {
-    			int actionParameterIndex = p.getId() - subArity;
-    			actionParameters.put(e.getValue(), new SuffixValue(p.getType(), actionParameterIndex));
-    		}
-    	}
+    	DataType[] suffixDataTypes = dataTypes(suffixActions);
+    	Map<Register, SuffixValue> actionParameters = buildParameterMap(sub, action, piv);
 
     	Set<SuffixValue> freeValues = new LinkedHashSet<>();
     	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
@@ -239,7 +222,6 @@ public class OptimizedSymbolicSuffixBuilder {
     					assert comparands.size() == 1;
     					SymbolicDataValue sdv = comparands.iterator().next();
     					if (sdv.isSuffixValue()) {
-//    						comparedSV = new SuffixValue(sdv.getType(), sdv.getId()+actionArity);
     						comparedSV = dataValues.get(sdv.getId()+actionArity);
     					} else if (sdv.isRegister()) {
     						comparedSV = actionParameters.get(sdv);
@@ -290,6 +272,19 @@ public class OptimizedSymbolicSuffixBuilder {
     	DataType[] dts = new DataType[dataTypes.size()];
     	dts = dataTypes.toArray(dts);
     	return dts;
+    }
+
+    private Map<Register, SuffixValue> buildParameterMap(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
+    	int arity = DataWords.paramValLength(prefix);
+    	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
+    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
+    		Parameter p = e.getKey();
+    		if (p.getId().intValue() > arity) {
+    			int actionParameterIndex = p.getId() - arity;
+    			actionParameters.put(e.getValue(), new SuffixValue(p.getType(), actionParameterIndex));
+    		}
+    	}
+    	return actionParameters;
     }
 
     private Parameter getParameter(Register r, PIV piv) {
@@ -369,7 +364,6 @@ public class OptimizedSymbolicSuffixBuilder {
     private SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1, PIV piv1,
     		Word<PSymbolInstance> prefix2, SDT sdt2, PIV piv2,
     		Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
-//        SymbolicSuffix best = new SymbolicSuffix(suffixActions);
     	SymbolicSuffix best = null;
         for (boolean b : new boolean [] {true, false}) {
             // we check for paths
@@ -393,8 +387,6 @@ public class OptimizedSymbolicSuffixBuilder {
     private SymbolicSuffix buildOptimizedSuffix(Word<PSymbolInstance> prefix1, List<SDTGuard> pathSdt1, PIV piv1,
     		Word<PSymbolInstance> prefix2, List<SDTGuard> pathSdt2, PIV piv2,
             Word<ParameterizedSymbol> suffixActions) {
-//        SymbolicSuffix suffix1 = buildOptimizedSuffix(pathSdt1, suffixActions);
-//        SymbolicSuffix suffix2 = buildOptimizedSuffix(pathSdt2, suffixActions);
     	SymbolicSuffix suffix1 = this.extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
     	SymbolicSuffix suffix2 = this.extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
 
