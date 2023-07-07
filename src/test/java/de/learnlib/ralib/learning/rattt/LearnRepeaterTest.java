@@ -18,7 +18,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.repeater.Repeater;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -89,7 +88,7 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         learner.learn();
 
         System.out.println(queryStats.toString());
-        
+
         Assert.assertTrue(true);
 	}
 }
