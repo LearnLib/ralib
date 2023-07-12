@@ -116,6 +116,7 @@ public class RaLibLearningExperimentRunner {
 				break;
 			case RALAMBDA:
 				learner = new RaLambda(mto, hypFactory, mlo, consts, false, useOldAnalyzer, actionSymbols);
+				((RaLambda)learner).setSolver(solver);
 				break;
 			default:
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));

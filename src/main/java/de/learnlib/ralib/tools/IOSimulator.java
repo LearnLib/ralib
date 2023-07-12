@@ -224,6 +224,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 break;
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
                 this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+                ((RaLambda)this.rastar).setSolver(solver);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_RADT:
             	this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);

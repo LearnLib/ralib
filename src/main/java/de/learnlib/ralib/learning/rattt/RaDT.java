@@ -116,7 +116,7 @@ public class RaDT implements RaLearningAlgorithm {
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(accSeq);
         dt.addSuffix(res.getSuffix(), leaf);
-        while(!dt.checkVariableConsistency());
+        while(!dt.checkVariableConsistency(null));
         return true;
     }
 

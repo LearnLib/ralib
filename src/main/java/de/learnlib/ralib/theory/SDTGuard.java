@@ -46,6 +46,8 @@ public abstract class SDTGuard {
 
     }
 
+    public abstract Set<SymbolicDataValue> getComparands(SymbolicDataValue dv);
+
     public SDTGuard(SDTGuard other) {
     	this.parameter = (SuffixValue) other.parameter.copy();
     }

@@ -17,8 +17,10 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -94,6 +96,13 @@ public class SDTLeaf extends SDT {
             ret.add(path);
         }
         return ret;
+    }
+
+    @Override
+    Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
+    	Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
+    	ret.put(path, this.isAccepting());
+    	return ret;
     }
 
     @Override

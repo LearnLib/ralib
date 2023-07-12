@@ -17,6 +17,7 @@
 package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -130,16 +131,23 @@ public class SymbolicSuffix {
     }
 
     public SymbolicSuffix(ParameterizedSymbol ps) {
-        this.actions = Word.fromSymbols(ps);
+        this(Word.fromSymbols(ps));
+    }
+
+
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions) {
+        this.actions = actions;
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         int idx = 1;
-        for (DataType t : ps.getPtypes()) {
-            SuffixValue sv = valgen.next(t);
-            this.freeValues.add(sv);
-            this.dataValues.put(idx++, sv);
+        for (ParameterizedSymbol ps : actions) {
+            for (DataType t : ps.getPtypes()) {
+                SuffixValue sv = valgen.next(t);
+                this.freeValues.add(sv);
+                this.dataValues.put(idx++, sv);
+            }
         }
     }
 
@@ -200,19 +208,34 @@ public class SymbolicSuffix {
     }
 
 
-    SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
 			Set<SuffixValue> freeValues) {
     	this.actions = actions;
     	this.dataValues = dataValues;
     	this.freeValues = freeValues;
 	}
 
+    public SymbolicSuffix(SymbolicSuffix suffix, Set<SuffixValue> freeValues) {
+    	this.actions = suffix.actions;
+    	this.dataValues = suffix.dataValues;
+    	this.freeValues = freeValues;
+    }
+
 	public SuffixValue getDataValue(int i) {
         return this.dataValues.get(i);
     }
 
+	public Collection<SuffixValue> getDataValues() {
+		return this.dataValues.values();
+	}
+
     public Set<SuffixValue> getFreeValues() {
         return this.freeValues;
+    }
+
+    public Set<SuffixValue> getValues() {
+        LinkedHashSet<SuffixValue> suffixValues = new LinkedHashSet<>(dataValues.values());
+        return suffixValues;
     }
 
     public Word<ParameterizedSymbol> getActions() {
@@ -235,6 +258,19 @@ public class SymbolicSuffix {
 
     	SymbolicSuffix concatenatedSuffix = new SymbolicSuffix(actions, dataValues, freeValues);
     	return concatenatedSuffix;
+    }
+
+    public int optimizationValue() {
+    	int score = dataValues.size() - freeValues.size();
+    	int index = 2;
+    	for (int i = 1; i < dataValues.size(); i++) {
+    		SuffixValue sv = dataValues.get(i+1);
+    		if (sv.getId().intValue() == index)
+    			index++;
+    		else
+    			score++;
+    	}
+    	return score;
     }
 
     public int length() {

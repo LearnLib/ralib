@@ -64,6 +64,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         RaLambda rattt = new RaLambda(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
+        rattt.setSolver(solver);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();

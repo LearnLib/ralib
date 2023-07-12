@@ -29,6 +29,7 @@ import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
@@ -36,6 +37,9 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
+import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -62,6 +66,9 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private final TreeOracleFactory hypOracleFactory;
 
+    private final OptimizedSymbolicSuffixBuilder suffixBuilder;
+    private ConstraintSolver solver = null;
+
     private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
@@ -69,9 +76,7 @@ public class RaLambda implements RaLearningAlgorithm {
     private static final LearnLogger log = LearnLogger.getLogger(RaLambda.class);
 
     private boolean useOldAnalyzer;
-    private int[] indices = new int[0];
 
-//    private final Deque<Word<PSymbolInstance>> shortPrefixes = new ArrayDeque<Word<PSymbolInstance>>();
     private final Map<Word<PSymbolInstance>, Boolean> guardPrefixes = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
 
     private PrefixFinder prefixFinder = null;
@@ -98,6 +103,7 @@ public class RaLambda implements RaLearningAlgorithm {
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.useOldAnalyzer = useOldAnalyzer;
+        this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts);
         this.dt.initialize();
     }
 
@@ -144,8 +150,10 @@ public class RaLambda implements RaLearningAlgorithm {
 
         if (candidateCEs.isEmpty()) {
         	prefixFinder = null;
-        	if (counterexamples.isEmpty())
+        	if (counterexamples.isEmpty()) {
+        		assert noShortPrefixes() && !dt.isMissingParameter();
         		return false;
+        	}
         	else {
     			DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.poll();
     			candidateCEs.push(ce);
@@ -292,7 +300,7 @@ public class RaLambda implements RaLearningAlgorithm {
     					DTLeaf la = dt.getLeaf(wa);
     					DTLeaf ls = dt.getLeaf(ws);
     					if (la != ls) {
-    						SymbolicSuffix v = distinguishingSuffix(la, ls, psi);
+    						SymbolicSuffix v = distinguishingSuffix(wa, la, ws, ls);
     						dt.split(sp.getPrefix(), v, l);
     						return false;
     					}
@@ -304,7 +312,7 @@ public class RaLambda implements RaLearningAlgorithm {
     }
 
     private boolean checkRegisterConsistency() {
-    	return dt.checkVariableConsistency();
+    	return dt.checkVariableConsistency(suffixBuilder);
     }
 
     private boolean checkGuardConsistency() {
@@ -330,7 +338,7 @@ public class RaLambda implements RaLearningAlgorithm {
             SymbolicSuffix suffix = null;
 
             if (branchLeaf != dest_c) {
-	            suffix = distinguishingSuffix(branchLeaf, dest_c, word.lastSymbol().getBaseSymbol());
+            	suffix = distinguishingSuffix(branch, branchLeaf, word, dest_c);
             }
             else {
             	if (!guardPrefixes.get(word)) {
@@ -345,8 +353,12 @@ public class RaLambda implements RaLearningAlgorithm {
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
-			            			suffix = new SymbolicSuffix(word.lastSymbol().getBaseSymbol());
-			            			suffix = suffix.concat(s);
+			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
+			            				suffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
+			            			} else {
+			            				suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
+			            				suffix = suffix.concat(s);
+			            			}
 			            		}
 		            		}
 		            	}
@@ -368,10 +380,32 @@ public class RaLambda implements RaLearningAlgorithm {
     	return true;
     }
 
-    private SymbolicSuffix distinguishingSuffix(DTLeaf ca, DTLeaf cb, ParameterizedSymbol psi) {
-    	SymbolicSuffix alpha = new SymbolicSuffix(psi);
+    private SymbolicSuffix distinguishingSuffix(Word<PSymbolInstance> wa, DTLeaf ca, Word<PSymbolInstance> wb, DTLeaf cb) {
+    	Word<PSymbolInstance> sa = wa.suffix(1);
+    	Word<PSymbolInstance> sb = wb.suffix(1);
+
+    	assert sa.getSymbol(0).getBaseSymbol().equals(sb.getSymbol(0).getBaseSymbol());
+
     	SymbolicSuffix v = dt.findLCA(ca, cb).getSuffix();
-    	return alpha.concat(v);
+
+    	Word<PSymbolInstance> prefixA = wa.prefix(wa.length() - 1);
+    	Word<PSymbolInstance> prefixB = wb.prefix(wb.length() - 1);
+
+    	TreeQueryResult tqrA = ca.getTQR(wa, v);
+    	TreeQueryResult tqrB = cb.getTQR(wb, v);
+    	SymbolicDecisionTree sdtA = tqrA.getSdt();
+    	SymbolicDecisionTree sdtB = tqrB.getSdt();
+
+    	if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+//    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
+    		return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v.getActions(), solver);
+    	}
+
+    	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
+    	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, consts);
+    	return alpha_a.getFreeValues().size() > alpha_b.getFreeValues().size()
+    		   ? alpha_a.concat(v)
+    		   : alpha_b.concat(v);
     }
 
     private boolean noShortPrefixes() {
@@ -429,7 +463,7 @@ public class RaLambda implements RaLearningAlgorithm {
         Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
         DTLeaf leaf = dt.getLeaf(accSeq);
         dt.addSuffix(res.getSuffix(), leaf);
-        while(!dt.checkVariableConsistency());
+        while(!dt.checkVariableConsistency(suffixBuilder));
         return true;
     }
 
@@ -460,8 +494,8 @@ public class RaLambda implements RaLearningAlgorithm {
     	return queryStats;
     }
 
-    public void setIndicesToSearch(int... indices) {
-        this.indices = indices;
+    public void setSolver(ConstraintSolver solver) {
+    	this.solver = solver;
     }
 
     @Override

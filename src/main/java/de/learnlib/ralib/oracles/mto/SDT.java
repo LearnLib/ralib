@@ -30,6 +30,8 @@ import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -79,6 +81,45 @@ public class SDT implements SymbolicDecisionTree {
             registers.add((Register) x);
         });
         return registers;
+    }
+
+    public Set<Register> getRegisters(SymbolicDataValue dv) {
+    	Set<Register> registers = new LinkedHashSet<>();
+    	if (this instanceof SDTLeaf)
+    		return registers;
+    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		e.getKey().getComparands(dv).stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); } );
+    		registers.addAll(e.getValue().getRegisters(dv));
+    	}
+    	return registers;
+    }
+
+    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    	if (this instanceof SDTLeaf)
+    		return comparands;
+    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		SDTGuard g = e.getKey();
+    		if (g.getParameter().equals(dv))
+    			comparands.addAll(g.getComparands(dv));
+    		else
+    			comparands.addAll(e.getValue().getComparands(dv));
+    	}
+    	return comparands;
+    }
+
+    public Set<SDTGuard> getSDTGuards(SuffixValue sv) {
+    	Set<SDTGuard> guards = new LinkedHashSet<>();
+    	if (this instanceof SDTLeaf)
+    		return guards;
+    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		SDTGuard guard = e.getKey();
+    		if (guard.getParameter().equals(sv)) {
+    			guards.add(guard);
+    		}
+    		guards.addAll(e.getValue().getSDTGuards(sv));
+    	}
+    	return guards;
     }
 
     public int getHeight() {
@@ -140,6 +181,14 @@ public class SDT implements SymbolicDecisionTree {
 
         return true;
         //return false;
+    }
+
+    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue<?>> vals, Constants consts) {
+    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+    	mapping.putAll(vals);
+    	mapping.putAll(consts);
+    	GuardExpression expr = getAcceptingPaths(consts);
+    	return expr.isSatisfied(mapping);
     }
 
     protected Map<SDTGuard, SDT> getChildren() {
@@ -360,6 +409,52 @@ public class SDT implements SymbolicDecisionTree {
         return dis;
     }
 
+    GuardExpression getPaths(Constants consts) {
+
+        List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
+        if (paths.isEmpty()) {
+            return FalseGuardExpression.FALSE;
+        }
+        Set<SuffixValue> svals = new LinkedHashSet<>();
+        GuardExpression dis = null;
+        for (List<SDTGuard> list : paths) {
+            List<GuardExpression> expr = new ArrayList<>();
+            for (SDTGuard g : list) {
+                expr.add(g.toExpr());
+                svals.add(g.getParameter());
+            }
+            Conjunction con = new Conjunction(
+                    expr.toArray(new GuardExpression[] {}));
+
+            dis = (dis == null) ? con : new Disjunction(dis, con);
+        }
+
+        return dis;
+    }
+
+    Map<GuardExpression, Boolean> getGuardExpressions(Constants consts) {
+    	Map<GuardExpression, Boolean> expressions = new LinkedHashMap<>();
+    	Map<List<SDTGuard>, Boolean> paths = getAllPaths(new ArrayList<SDTGuard>());
+    	if (paths.isEmpty()) {
+    		expressions.put(FalseGuardExpression.FALSE, false);
+    		return expressions;
+    	}
+    	Set<SuffixValue> svals = new LinkedHashSet<>();
+    	for (Map.Entry<List<SDTGuard>, Boolean> e : paths.entrySet()) {
+    		List<SDTGuard> list = e.getKey();
+    		List<GuardExpression> expr = new ArrayList<>();
+    		for (SDTGuard g : list) {
+    			expr.add(g.toExpr());
+    			svals.add(g.getParameter());
+    		}
+    		Conjunction con = new Conjunction(
+    				expr.toArray(new GuardExpression[] {}));
+    		expressions.put(con, e.getValue());
+    	}
+
+    	return expressions;
+    }
+
     List<List<SDTGuard>> getPaths(List<SDTGuard> path) {
         List<List<SDTGuard>> ret = new ArrayList<>();
         for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
@@ -367,6 +462,40 @@ public class SDT implements SymbolicDecisionTree {
             nextPath.add(e.getKey());
             List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath);
             ret.addAll(nextRet);
+        }
+
+        return ret;
+    }
+
+
+    List<List<SDTGuard>> getPaths(boolean accepting) {
+        List<List<SDTGuard>> collectedPaths = new ArrayList<List<SDTGuard>>();
+        getPaths(accepting, new ArrayList<>(), this, collectedPaths);
+        return collectedPaths;
+    }
+
+    private void getPaths(boolean accepting, List<SDTGuard> path, SDT sdt, List<List<SDTGuard>> collectedPaths) {
+        if (sdt instanceof SDTLeaf) {
+            if (sdt.isAccepting() == accepting) {
+                collectedPaths.add(path);
+            }
+        } else {
+            for (Entry<SDTGuard, SDT> e : sdt.children.entrySet()) {
+                List<SDTGuard> nextPath = new ArrayList<>(path);
+                nextPath.add(e.getKey());
+                SDT nextSdt = e.getValue();
+                getPaths(accepting, nextPath, nextSdt, collectedPaths);
+            }
+        }
+    }
+
+    Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
+        Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
+        for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
+            List<SDTGuard> nextPath = new ArrayList<>(path);
+            nextPath.add(e.getKey());
+            Map<List<SDTGuard>, Boolean> nextRet = e.getValue().getAllPaths(nextPath);
+            ret.putAll(nextRet);
         }
 
         return ret;

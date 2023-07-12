@@ -104,6 +104,13 @@ public abstract class SDTMultiGuard extends SDTGuard {
     }
 
     @Override
+    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    	guards.forEach((x) -> comparands.addAll(x.getComparands(dv)));
+    	return comparands;
+    }
+
+    @Override
     public abstract GuardExpression toExpr();
 
     @Override

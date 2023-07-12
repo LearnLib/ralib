@@ -109,6 +109,33 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return r;
     }
 
+    public GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
+    		SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2) {
+
+    	SDT _sdt1 = (SDT) sdt1;
+    	SDT _sdt2 = (SDT) sdt2;
+
+    	Map<GuardExpression, Boolean> exprMap1 = _sdt1.getGuardExpressions(consts);
+    	Map<GuardExpression, Boolean> exprMap2 = _sdt2.getGuardExpressions(consts);
+
+    	for (Map.Entry<GuardExpression, Boolean> e1 : exprMap1.entrySet()) {
+    		GuardExpression expr1 = e1.getKey();
+    		boolean outcome1 = e1.getValue();
+    		for (Map.Entry<GuardExpression, Boolean> e2 : exprMap2.entrySet()) {
+    			GuardExpression expr2 = e2.getKey();
+    			boolean outcome2 = e2.getValue();
+    			if (outcome1 != outcome2) {
+    				VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+    				GuardExpression test = new Conjunction(expr1, expr2.relabel(remap));
+    				if (solver.isSatisfiable(test, new Mapping<>())) {
+    					return expr1;
+    				}
+    			}
+    		}
+    	}
+    	return null;
+    }
+
     @Override
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 

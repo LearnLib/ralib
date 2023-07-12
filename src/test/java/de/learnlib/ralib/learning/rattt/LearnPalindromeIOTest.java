@@ -76,6 +76,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        rattt.setSolver(solver);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
