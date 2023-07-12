@@ -24,6 +24,7 @@ import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.learning.rattt.RaTTT;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -230,7 +231,7 @@ public class DT implements DiscriminationTree {
     public boolean addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
 
         Word<PSymbolInstance> prefix = target.prefix(target.length() - 1);
-        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1));
+        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1), consts);
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
 
@@ -264,19 +265,19 @@ public class DT implements DiscriminationTree {
         }
     }
 
-    public boolean checkVariableConsistency() {
-        return checkConsistency(this.root);
+    public boolean checkVariableConsistency(OptimizedSymbolicSuffixBuilder suffixBuilder) {
+        return checkConsistency(this.root, suffixBuilder);
     }
 
-    private boolean checkConsistency(DTNode node) {
+    private boolean checkConsistency(DTNode node, OptimizedSymbolicSuffixBuilder suffixBuilder) {
         if (node.isLeaf()) {
             DTLeaf leaf = (DTLeaf) node;
-            return leaf.checkVariableConsistency(this, this.consts);
+            return leaf.checkVariableConsistency(this, this.consts, suffixBuilder);
         }
         boolean ret = true;
         DTInnerNode inner = (DTInnerNode) node;
         for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
-            ret = ret && checkConsistency(b.getChild());
+            ret = ret && checkConsistency(b.getChild(), suffixBuilder);
         }
         return ret;
     }

@@ -15,13 +15,12 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -39,19 +38,16 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
 
-public class LearnSipIOTest extends RaLibTestSuite {
+public class LearnABPOutputTest extends RaLibTestSuite {
 	@Test
-	public void learnSipIO() {
+	public void learnABPOutput() {
 
-        long seed = -1386796323025681754L;
-        //long seed = (new Random()).nextLong();
-        logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
+		long seed = -1297170870937649002L;
+		final Random random = new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/sip.xml");
+                "/de/learnlib/ralib/automata/xml/abp.output.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
 
@@ -87,26 +83,32 @@ public class LearnSipIOTest extends RaLibTestSuite {
         MultiTheorySDTLogicOracle mlo =
                 new MultiTheorySDTLogicOracle(consts, solver);
 
-        for (ParameterizedSymbol ps : actions) {
-        	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
-//        	if (ps.getArity() > 0) {
-        		mto.treeQuery(Word.epsilon(), new SymbolicSuffix(ps));
-        		break;
-        	}
-        }
-
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
         rattt.setSolver(solver);
 
-            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                    model, teachers, consts, true, actions);
+        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
+                model, teachers, consts, true, actions);
 
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
+
+        DefaultQuery<PSymbolInstance, Boolean> ce  = null;
+
+        IORandomWalk randomWalk = new IORandomWalk(random,
+        		sul,
+        		false,
+        		0.1,
+        		0.8,
+        		10000,
+        		100,
+        		consts,
+        		false,
+        		teachers,
+        		inputs);
 
         int check = 0;
         while (true && check < 100) {
@@ -115,16 +117,32 @@ public class LearnSipIOTest extends RaLibTestSuite {
             rattt.learn();
             Hypothesis hyp = rattt.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
+            ce = null;
 
-            if (ce == null) {
-                break;
+            boolean nullCe = false;
+            for (int i=0; i<3; i++) {
+
+                DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
+
+                ce2 = randomWalk.findCounterExample(hyp, null);
+
+                if (ce2 == null) {
+                    nullCe = true;
+                    break;
+                }
+
+               ce2 = loops.optimizeCE(ce2.getInput(), hyp);
+               ce2 = asrep.optimizeCE(ce2.getInput(), hyp);
+               ce2 = pref.optimizeCE(ce2.getInput(), hyp);
+               ce = (ce == null || ce.getInput().length() > ce2.getInput().length()) ?
+                        ce2 : ce;
             }
 
-            ce = loops.optimizeCE(ce.getInput(), hyp);
-            ce = asrep.optimizeCE(ce.getInput(), hyp);
-            ce = pref.optimizeCE(ce.getInput(), hyp);
+            if (nullCe) {
+            	ce = ioEquiv.findCounterExample(hyp, null);
+            	if (ce == null)
+            		break;
+            }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
@@ -134,8 +152,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         RegisterAutomaton hyp = rattt.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
 	}

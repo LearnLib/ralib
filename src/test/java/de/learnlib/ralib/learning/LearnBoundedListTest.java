@@ -1,10 +1,10 @@
 package de.learnlib.ralib.learning;
 
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INSERT;
+import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INT_TYPE;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.POP;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.PUSH;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.dv;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.intType;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -61,14 +61,14 @@ public class LearnBoundedListTest {
 	private Hypothesis learnBoundedListDWOracle(int size, boolean useNull, Word<PSymbolInstance>[] ces) {
 		Constants consts = new Constants();
 		if (useNull) {
-			consts.put(new Constant(intType, 1), new DataValue<>(intType, BoundedList.NULL_VALUE));
+			consts.put(new Constant(INT_TYPE, 1), new DataValue<>(INT_TYPE, BoundedList.NULL_VALUE));
 		}
 
 		BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(size, useNull));
 
 		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-		IntegerEqualityTheory dit = new IntegerEqualityTheory(intType);
-		teachers.put(intType, dit);
+		IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
+		teachers.put(INT_TYPE, dit);
 
 		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);

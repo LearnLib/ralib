@@ -197,10 +197,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 equalValues.putAll(values);
                 SuffixValuation equalSuffixValues = new SuffixValuation();
                 equalSuffixValues.putAll(suffixValues);
-                equalSuffixValues.put(currentParam, d);
                 sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
                 merged = new LinkedHashMap<SDTGuard, SDT>();
-                merged.put(new EqualityGuard(currentParam, sv), sdt);
+                int smallest = Collections.min(values.getAllKeys(d));
+                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+                merged.put(guard, sdt);
             }
 
             log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());

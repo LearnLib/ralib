@@ -120,6 +120,7 @@ public class LearnPadlock extends RaLibTestSuite {
                         new Constants(), solver);
 
         RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, true, IN);
+        rattt.setSolver(solver);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();

@@ -22,10 +22,17 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.words.Word;
 
 /**
@@ -218,6 +225,30 @@ public final class DataWords {
             length += psi.getParameterValues().length;
         }
         return length;
+    }
+
+    public static ParValuation computeParValuation(Word<PSymbolInstance> word) {
+    	ParameterGenerator pGen = new ParameterGenerator();
+    	ParValuation pars = new ParValuation();
+    	for (PSymbolInstance psi : word) {
+    		DataType[] dt = psi.getBaseSymbol().getPtypes();
+    		DataValue[] dv = psi.getParameterValues();
+    		for (int i = 0; i < dt.length; i++) {
+    			Parameter p = pGen.next(dt[i]);
+    			pars.put(p, dv[i]);
+    		}
+    	}
+    	return pars;
+    }
+
+    public static VarValuation computeVarValuation(ParValuation pars, PIV piv) {
+    	VarValuation vars = new VarValuation();
+    	for (Entry<Parameter, DataValue<?>> e : pars.entrySet()) {
+    		Register r = piv.get(e.getKey());
+    		if (r != null)
+    			vars.put(r, e.getValue());
+    	}
+    	return vars;
     }
 
     private DataWords() {

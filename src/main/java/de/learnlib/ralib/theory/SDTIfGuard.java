@@ -17,7 +17,9 @@
 package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -57,6 +59,14 @@ public abstract class SDTIfGuard extends SDTGuard {
     }
 
     public abstract SDTIfGuard toDeqGuard();
+
+    @Override
+    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    	if (this.parameter.equals(dv))
+    		comparands.add(register);
+    	return comparands;
+    }
 
     @Override
     public abstract SDTIfGuard relabel(VarMapping relabelling);

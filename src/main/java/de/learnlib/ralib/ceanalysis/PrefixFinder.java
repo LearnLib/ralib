@@ -12,13 +12,25 @@ import org.apache.commons.lang3.tuple.Pair;
 import de.learnlib.logging.LearnLogger;
 import de.learnlib.oracles.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.*;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -228,27 +240,40 @@ public class PrefixFinder {
             SymbolicDecisionTree sdtHyp, PIV pivHyp, LocationComponent c, Word<PSymbolInstance> ce) {
     	Word<PSymbolInstance> candidate = null;
 
+    	GuardExpression expr = sdtOracle.getCEGuard(prefix, sdtSul, pivSul, sdtHyp, pivHyp);
+
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
-        Map<Word<PSymbolInstance>, Boolean> hypPaths = sulOracle.instantiate(prefix, symSuffix, sdtHyp, pivHyp);
-        Set<Word<PSymbolInstance>> allPaths = new LinkedHashSet<>();
-        Word<PSymbolInstance> cePath = null;
-        allPaths.addAll(sulPaths.keySet());
-        allPaths.addAll(hypPaths.keySet());
+        for (Word<PSymbolInstance> path : sulPaths.keySet()) {
+        	ParameterGenerator parGen = new ParameterGenerator();
+        	for (PSymbolInstance psi : prefix) {
+        		for (DataType dt : psi.getBaseSymbol().getPtypes())
+        			parGen.next(dt);
+        	}
 
-        for (Word<PSymbolInstance> path : allPaths) {
-            boolean hypAcc = sdtOracle.accepts(path, prefix, sdtHyp, pivHyp);
-            boolean sulAcc = sdtOracle.accepts(path, prefix, sdtSul, pivSul);
-            if (hypAcc != sulAcc) {
-                cePath = path;
-                break;
-            }
+        	VarMapping<SuffixValue, Parameter> renaming = new VarMapping<>();
+        	SuffixValueGenerator svGen = new SuffixValueGenerator();
+        	for (ParameterizedSymbol ps : symSuffix.getActions()) {
+        		for (DataType dt : ps.getPtypes()) {
+        			Parameter p = parGen.next(dt);
+        			SuffixValue sv = svGen.next(dt);
+        			renaming.put(sv, p);
+        		}
+        	}
+        	GuardExpression exprR = expr.relabel(renaming);
+
+        	ParValuation pars = new ParValuation(path);
+        	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
+        	vals.putAll(DataWords.computeVarValuation(pars, pivSul));
+        	vals.putAll(pars);
+        	vals.putAll(consts);
+
+        	if (exprR.isSatisfied(vals)) {
+        		candidate = path.prefix(prefix.length() + 1);
+        		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), consts);
+        		return new SymbolicWord(candidate, suffix);
+        	}
         }
-
-        assert cePath != null : "There should be a CE path";
-        candidate = cePath.prefix(prefix.length() + 1);
-        SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), consts);
-
-        return new SymbolicWord(candidate, suffix);
+        throw new IllegalStateException("No CE transition found");
     }
 
     private int binarySearch(Word<PSymbolInstance> ce, int ... indices) {
