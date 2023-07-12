@@ -21,7 +21,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rattt.DiscriminationTree;
-import de.learnlib.ralib.learning.rattt.RaTTT;
+import de.learnlib.ralib.learning.rattt.RaLambda;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -101,14 +101,14 @@ public class DT implements DiscriminationTree {
                     parentBranchSDT = makeRejectingSDT((OutputSymbol) symbol, new SuffixValueGenerator(), 0);
                 }
             }
-            sift(RaTTT.EMPTY_PREFIX, true);
+            sift(RaLambda.EMPTY_PREFIX, true);
 
             for (DTBranch branch : root.getBranches()) {
                 if (!branch.getSDT().isAccepting())
                     sink = (DTLeaf) branch.getChild();
             }
         } else {
-            sift(RaTTT.EMPTY_PREFIX, true);
+            sift(RaLambda.EMPTY_PREFIX, true);
         }
     }
 

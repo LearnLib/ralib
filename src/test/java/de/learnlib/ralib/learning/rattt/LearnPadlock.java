@@ -119,7 +119,7 @@ public class LearnPadlock extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, true, IN);
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();

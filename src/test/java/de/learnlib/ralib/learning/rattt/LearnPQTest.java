@@ -80,7 +80,7 @@ public class LearnPQTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
-        RaTTT rastar = new RaTTT(mto, hypFactory, mlo, consts, OFFER, POLL);
+        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
 //        rastar.setUseOldAnalyzer(true);
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();
@@ -145,7 +145,7 @@ public class LearnPQTest extends RaLibTestSuite {
         for (int i=0; i<SEEDS; i++) {
             System.out.println(i);
             runner.setSeed(i);
-            runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+            runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
             ratttCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
 //            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});

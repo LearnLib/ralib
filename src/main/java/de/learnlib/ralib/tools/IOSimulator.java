@@ -42,7 +42,8 @@ import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.learning.rattt.RaTTT;
+import de.learnlib.ralib.learning.rattt.RaDT;
+import de.learnlib.ralib.learning.rattt.RaLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -218,24 +219,15 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         };
 
         switch (this.learner) {
-            case "slstar":
+            case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
                 this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 break;
-            case "rattt":
-                boolean useOldAnalyzer;
-                String ceanalysis = OPTION_RATTT_CEANALYSIS.parse(config);
-                switch (ceanalysis) {
-                case RATTT_CEANALYSIS_SUFFIX:
-                    useOldAnalyzer = true;
-                    break;
-                case RATTT_CEANALYSIS_PREFIX:
-                    useOldAnalyzer = false;
-                    break;
-                default:
-                    throw new ConfigurationException("Unknown RATTT CE Analysis Strategy");
-                }
-                this.rastar = new RaTTT(mto, hypFactory, mlo, consts, true, useOldAnalyzer, actions);
+            case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
+                this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
                 break;
+            case AbstractToolWithRandomWalk.LEARNER_RADT:
+            	this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+            	break;
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
         }

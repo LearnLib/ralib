@@ -69,7 +69,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -120,7 +120,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -194,7 +194,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();
@@ -239,7 +239,7 @@ public class LearnStackTest extends RaLibTestSuite {
         runner.setMaxDepth(6);
         for (int seed=0; seed<SEEDS; seed++) {
         	runner.setSeed(seed);
-        	Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
+        	Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
         	measuresTTT[seed] = runner.getMeasurements();
         	runner.resetMeasurements();
 
