@@ -3,9 +3,9 @@ RALib
 
 RALib is a library for active learning algorithms for register automata
 (a form of extended finite state machines). RALib is licensed under
-the [*Apache License, Version 2.0*][4]. 
+the [*Apache License, Version 2.0*][2]. 
 
-RALib is developed as an extension to [*LearnLib*][3]. It implements 
+RALib is developed as an extension to [*LearnLib*][1]. It implements 
 the SL* algorithm presented in 	Sofia Cassel, Falk Howar, Bengt Jonsson, 
 Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
 
@@ -13,12 +13,13 @@ Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
 Installation
 -------------------------
 
-RaLib uses the [*jConstraints-z3*][1] library as an abstraction layer for 
-interfacing (some) constraint solvers. While basic functionality of 
-RaLib can be used without *jConstraints-z3*, the parent library
-[*jConstraints*][5] is required for compilation. 
-*jConstraints* and *jConstraints-z3* are open source software and are
-licensed under the [*Apache License, Version 2.0*][4]. 
+RaLib uses maven as a build system. You can simply run
+
+```sh
+mvn package assembly:single
+``` 
+ 
+to build RaLib.
 
 
 Using RALib
@@ -88,13 +89,6 @@ Below we provide two example configurations.
    teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory
    ```
 
-Currently, *equality theories* can be used with the (default) integrated
-constraint solver. *Inequality theories* only work in combination with 
-[*jConstraints*][1]. (Configuration option ```solver=z3```
 
-
-[1]: https://bitbucket.org/psycopaths/jConstraints-z3
-[2]: https://z3.codeplex.com
-[3]: http://www.learnlib.de
-[4]: http://www.apache.org/licenses/LICENSE-2.0
-[5]: https://bitbucket.org/psycopaths/jConstraints
+[1]: http://www.learnlib.de
+[2]: http://www.apache.org/licenses/LICENSE-2.0
