@@ -5,9 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
-import de.learnlib.ralib.words.OutputSymbol;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -27,6 +24,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.*;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -126,19 +124,10 @@ public class PrefixFinder {
 	private int findIndex(Word<PSymbolInstance> ce) {
 		candidates = new SymbolicWord[ce.length()];
 		int max = ce.length() - 1;
-		if (ce.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
-			max--;
-		}
 		for (int idx=max; idx>=0; idx = idx-1) {
 
 			Word<PSymbolInstance> prefix = ce.prefix(idx);
-			if (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
-				continue;
-			}
 			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
-			if (nextPrefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
-				nextPrefix = ce.prefix(idx+2);
-			}
 
 			System.out.println("ce:     " + ce);
 			System.out.println("prefix: " + prefix);
@@ -293,7 +282,7 @@ public class PrefixFinder {
 				SymbolicWord sw = candidate(location,transition.lastSymbol().getBaseSymbol(),symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), components.get(primeLocation), ce);
 
 				// new by falk
-				candidates[idx+1] = new SymbolicWord(sw.getPrefix(),symSuffix);
+				candidates[idx+1] = sw;
 				return true;
 			}
     	}
