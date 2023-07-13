@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -35,6 +38,7 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.automata.xml.RegisterAutomaton.Transitions.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -59,12 +63,15 @@ import net.automatalib.words.impl.SimpleAlphabet;
  */
 public class RegisterAutomatonImporter {
 
-    private final Map<String, ParameterizedSymbol> sigmaMap = new LinkedHashMap<>();
+    private final Map<String, ParameterizedSymbol> inputSigmaMap = new LinkedHashMap<>();
+    private final Map<String, ParameterizedSymbol> outputSigmaMap = new LinkedHashMap<>();
     private final Map<ParameterizedSymbol, String[]> paramNames = new LinkedHashMap<>();
     private final Map<String, RALocation> stateMap = new LinkedHashMap<>();
     private final Map<String, Constant> constMap = new LinkedHashMap<>();
     private final Map<String, Register> regMap = new LinkedHashMap<>();
     private final Map<String, DataType> typeMap = new LinkedHashMap<>();
+    // TRUE input locations, FALSE output locations
+    private final Map<String, Boolean> locationTypeMap = new LinkedHashMap<>();
 
     private final VarValuation initialRegs = new VarValuation();
     private final Constants consts = new Constants();
@@ -99,12 +106,30 @@ public class RegisterAutomatonImporter {
 
         iora = new MutableRegisterAutomaton(consts, initialRegs);
 
-        // create loc map
         for (RegisterAutomaton.Locations.Location l : a.getLocations().getLocation()) {
             if (l.getInitial() != null && l.getInitial().equals("true")) {
                 stateMap.put(l.getName(), iora.addInitialState());
+                locationTypeMap.put(l.getName(), Boolean.TRUE);
             } else {
                 stateMap.put(l.getName(), iora.addState());
+            }
+        }
+
+        // determine input/output locations
+        List<RegisterAutomaton.Transitions.Transition> transitions = new LinkedList<>(a.getTransitions().getTransition());
+        while(!transitions.isEmpty()) {
+            ListIterator<Transition> iter = transitions.listIterator();
+            while (iter.hasNext()) {
+                RegisterAutomaton.Transitions.Transition t = iter.next();
+                if (locationTypeMap.containsKey(t.from)) {
+                    locationTypeMap.put(t.to, !locationTypeMap.get(t.from));
+                    iter.remove();
+                } else {
+                    if (locationTypeMap.containsKey(t.to)) {
+                        locationTypeMap.put(t.from, !locationTypeMap.get(t.to));
+                        iter.remove();
+                    }
+                }
             }
         }
 
@@ -112,7 +137,7 @@ public class RegisterAutomatonImporter {
         for (RegisterAutomaton.Transitions.Transition t : a.getTransitions().getTransition()) {
 
             // read basic data
-            ParameterizedSymbol ps = sigmaMap.get(t.getSymbol());
+            ParameterizedSymbol ps = locationTypeMap.get(t.getFrom()) ? inputSigmaMap.get(t.getSymbol()) : outputSigmaMap.get(t.getSymbol());
             RALocation from = stateMap.get(t.getFrom());
             RALocation to = stateMap.get(t.getTo());
             String[] pnames = paramNames.get(ps);
@@ -229,7 +254,7 @@ public class RegisterAutomatonImporter {
             InputSymbol ps = new InputSymbol(sName, pTypes);
             inputs.add(ps);
             actions.add(ps);
-            sigmaMap.put(s.getName(), ps);
+            inputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
             log.log(Level.FINEST,"Loading: " + ps);
         }
@@ -246,7 +271,7 @@ public class RegisterAutomatonImporter {
             String sName = s.getName();
             ParameterizedSymbol ps = new OutputSymbol(sName, pTypes);
             actions.add(ps);
-            sigmaMap.put(s.getName(), ps);
+            outputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
             log.log(Level.FINEST,"Loading: " + ps);
         }
