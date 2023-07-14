@@ -220,7 +220,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
 //		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
 
 		rattt.learn();
@@ -268,7 +268,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 //		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
 		rattt.learn();
@@ -320,7 +320,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 //		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
 		rattt.learn();

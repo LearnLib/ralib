@@ -36,7 +36,7 @@ import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.learning.rattt.RaTTT;
+import de.learnlib.ralib.learning.rattt.RaLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -121,7 +121,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo,
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo,
         		consts, I_PUSH, I_POP);
 
         rattt.learn();

@@ -62,7 +62,7 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo,
+        RaLambda rattt = new RaLambda(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
         rattt.setSolver(solver);
 
@@ -107,7 +107,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         runner.setMaxDepth(6);
         for (int seed=0; seed<SEEDS; seed++) {
         	runner.setSeed(seed);
-	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RATTT, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
 	        measuresTTT[seed] = runner.getMeasurements();
 	        runner.resetMeasurements();
 
