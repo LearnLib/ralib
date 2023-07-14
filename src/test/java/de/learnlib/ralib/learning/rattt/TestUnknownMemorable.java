@@ -202,7 +202,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
         rattt.setSolver(solver);
 
         rattt.learn();
@@ -276,7 +276,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
+        RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
         rattt.setSolver(solver);
         rattt.learn();
 

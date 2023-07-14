@@ -40,10 +40,16 @@ import net.automatalib.commons.util.Pair;
  * @author falk
  */
 public abstract class AbstractToolWithRandomWalk implements RaLibTool {
+    public static final String LEARNER_SLLAMBDA = "sllambda";
+    public static final String LEARNER_SLSTAR = "slstar";
+    public static final String LEARNER_RADT = "sldt";
+    public static final String RATTT_CEANALYSIS_SUFFIX = "suffix";
+    public static final String RATTT_CEANALYSIS_PREFIX = "prefix";
 
-    protected static final ConfigurationOption.StringOption OPTION_ALGO
+
+    protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
-            "Learning Algorithm: slstar (default) or rattt", "slstar", true);
+            "Learning Algorithm: slstar (default) or rattt", LEARNER_SLSTAR, true);
 
     protected static final ConfigurationOption.LongOption OPTION_RANDOM_SEED
             = new ConfigurationOption.LongOption("random.seed", "Seed for RNG", 0L, true);
@@ -226,7 +232,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
 
-        this.learner = OPTION_ALGO.parse(config);
+        this.learner = OPTION_LEARNER.parse(config);
 
         String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
         for (String s : parsed) {

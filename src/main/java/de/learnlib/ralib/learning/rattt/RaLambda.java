@@ -44,7 +44,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
-public class RaTTT implements RaLearningAlgorithm {
+public class RaLambda implements RaLearningAlgorithm {
 
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
 
@@ -72,7 +72,8 @@ public class RaTTT implements RaLearningAlgorithm {
     private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
-    private static final LearnLogger log = LearnLogger.getLogger(RaTTT.class);
+
+    private static final LearnLogger log = LearnLogger.getLogger(RaLambda.class);
 
     private boolean useOldAnalyzer;
 
@@ -80,19 +81,19 @@ public class RaTTT implements RaLearningAlgorithm {
 
     private PrefixFinder prefixFinder = null;
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, ParameterizedSymbol... inputs) {
 
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, false, inputs);
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, ParameterizedSymbol... inputs) {
 
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, useOldAnalyzer, false, inputs);
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, boolean thoroughSearch, ParameterizedSymbol... inputs) {
 
         this.ioMode = ioMode;
@@ -106,7 +107,7 @@ public class RaTTT implements RaLearningAlgorithm {
         this.dt.initialize();
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             ParameterizedSymbol... inputs) {
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
     }
@@ -499,6 +500,6 @@ public class RaTTT implements RaLearningAlgorithm {
 
     @Override
     public RaLearningAlgorithmName getName() {
-        return RaLearningAlgorithmName.RATTT;
+        return RaLearningAlgorithmName.RALAMBDA;
     }
 }
