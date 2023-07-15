@@ -387,13 +387,13 @@ public class OptimizedSymbolicSuffixBuilder {
     private SymbolicSuffix buildOptimizedSuffix(Word<PSymbolInstance> prefix1, List<SDTGuard> pathSdt1, PIV piv1,
     		Word<PSymbolInstance> prefix2, List<SDTGuard> pathSdt2, PIV piv2,
             Word<ParameterizedSymbol> suffixActions) {
-    	SymbolicSuffix suffix1 = this.extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
-    	SymbolicSuffix suffix2 = this.extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
+    	SymbolicSuffix suffix1 = extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
+    	SymbolicSuffix suffix2 = extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
 
         return coalesceSuffixes(suffix1, suffix2);
     }
 
-    private SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
+    SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
     	assert suffix1.getActions().equals(suffix2.getActions());
         Set<SuffixValue> freeValues = new LinkedHashSet<>();
         Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
@@ -409,16 +409,18 @@ public class OptimizedSymbolicSuffixBuilder {
             SuffixValue sv1 = suffix1.getDataValue(i+1);
             SuffixValue sv2 = suffix2.getDataValue(i+1);
             SuffixValue sv = null;
-            if (sv1.equals(sv2) && seenVals1.contains(sv1) && seenVals2.contains(sv2)) {
+
+            // TODO Do we need to make sv free if one of the sv's is equal to a previous sv?
+            boolean free = freeVals1.contains(sv1) || freeVals2.contains(sv2);
+
+            if (seenVals1.contains(sv1) && !free) {
                 sv = sValMapping.get(sv1);
+            } else if (seenVals2.contains(sv2) && !free) {
+                sv = sValMapping.get(sv2);
             } else {
                 sv = sgen.next(type);
-                if (freeVals1.contains(sv1) || freeVals2.contains(sv2)) {
+                if (free) {
                     freeValues.add(sv);
-                } else {
-                    if (!sv1.equals(sv2) || Boolean.logicalOr(seenVals1.contains(sv1), seenVals2.contains(sv2))) {
-                        freeValues.add(sv);
-                    }
                 }
             }
             seenVals1.add(sv1);
@@ -428,34 +430,6 @@ public class OptimizedSymbolicSuffixBuilder {
         }
         return new SymbolicSuffix(suffix1.getActions(), dataValues, freeValues);
     }
-
-    private SymbolicSuffix buildOptimizedSuffix(List<SDTGuard> pathSdt, Word<ParameterizedSymbol> suffixActions) {
-        Set<SuffixValue> freeValues =  new LinkedHashSet<>();
-        Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
-        Map<SuffixValue, SuffixValue> sValMapping = new LinkedHashMap<>();
-        SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        for (int i=0; i<pathSdt.size(); i++) {
-            SDTGuard guard = pathSdt.get(i);
-            DataType type = guard.getParameter().getType();
-            SuffixValue sv = null;
-            if (guard instanceof EqualityGuard) {
-                SymbolicDataValue rightSdv = ((EqualityGuard) guard).getRegister();
-                if (rightSdv.isRegister() || rightSdv.isConstant()) {
-                    sv = sgen.next(type);
-                    freeValues.add(sv);
-                } else {
-                    assert rightSdv instanceof SuffixValue;
-                    sv = sValMapping.get(rightSdv);
-                }
-            } else {
-                sv = sgen.next(type);
-            }
-            dataValues.put(i+1, sv);
-            sValMapping.put(guard.getParameter(), sv);
-        }
-        return new SymbolicSuffix(suffixActions, dataValues, freeValues);
-    }
-
 
     private SymbolicSuffix pickBest(SymbolicSuffix current, SymbolicSuffix next) {
         if (current == null) {
