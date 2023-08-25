@@ -177,7 +177,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
     	PSymbolInstance action = prefix.lastSymbol();
     	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1));
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1), consts);
     	int actionArity = actionSymbol.getArity();
     	int suffixArity = DataWords.paramLength(suffixActions);
     	DataType[] suffixDataTypes = dataTypes(suffixActions);
