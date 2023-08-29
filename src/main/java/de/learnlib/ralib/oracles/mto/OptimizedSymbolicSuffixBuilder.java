@@ -3,6 +3,7 @@ package de.learnlib.ralib.oracles.mto;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -91,7 +92,7 @@ public class OptimizedSymbolicSuffixBuilder {
     			SymbolicDataValue sdv = comparands.iterator().next();
     			for (SDTGuard g : sdt.getSDTGuards(sv)) {
     				if (g instanceof EqualityGuard) {
-    					sdvMap.put(sv, sdv);
+    					sdvMap.put(new SuffixValue(sv.getType(), pos), sdv);
     				}
     			}
     		}
@@ -125,9 +126,15 @@ public class OptimizedSymbolicSuffixBuilder {
     	Map<Integer, Integer> suffixRelations = new LinkedHashMap<>();
     	for (int i = 1; i < suffixParameters + 1; i++) {
     		SuffixValue sv = suffix.getDataValue(i);
-    		SymbolicDataValue sdv = sdvMap.get(sv);
+    		SymbolicDataValue sdv = sdvMap.get(new SuffixValue(sv.getType(), i));
     		if (suffixDataValues.values().contains(sv)) {
-    			suffixRelations.put(i+arity, sv.getId()+arity);
+    			int key = suffixDataValues.entrySet()
+    			                          .stream()
+    			                          .filter((a) -> (a.getValue().equals(sv)))
+    			                          .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+    			                          .findFirst()
+    			                          .get().getKey();
+    			suffixRelations.put(i+arity, key+arity);
     		} else if (sdv != null && sdv.isSuffixValue()) {
     			if (newFreeValues.contains(sdv.getId()+arity)) {
     				newFreeValues.add(i+arity);
@@ -177,7 +184,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
     	PSymbolInstance action = prefix.lastSymbol();
     	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1));
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1), consts);
     	int actionArity = actionSymbol.getArity();
     	int suffixArity = DataWords.paramLength(suffixActions);
     	DataType[] suffixDataTypes = dataTypes(suffixActions);
@@ -387,20 +394,20 @@ public class OptimizedSymbolicSuffixBuilder {
     private SymbolicSuffix buildOptimizedSuffix(Word<PSymbolInstance> prefix1, List<SDTGuard> pathSdt1, PIV piv1,
     		Word<PSymbolInstance> prefix2, List<SDTGuard> pathSdt2, PIV piv2,
             Word<ParameterizedSymbol> suffixActions) {
-    	SymbolicSuffix suffix1 = this.extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
-    	SymbolicSuffix suffix2 = this.extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
+    	SymbolicSuffix suffix1 = extendSuffix(prefix1, pathSdt1, piv1, suffixActions);
+    	SymbolicSuffix suffix2 = extendSuffix(prefix2, pathSdt2, piv2, suffixActions);
 
         return coalesceSuffixes(suffix1, suffix2);
     }
 
-    private SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
+    SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
     	assert suffix1.getActions().equals(suffix2.getActions());
         Set<SuffixValue> freeValues = new LinkedHashSet<>();
         Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
         Map<SuffixValue, SuffixValue> sValMapping = new LinkedHashMap<>();
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        Set<SuffixValue> freeVals1 = suffix1.getFreeValues();
-        Set<SuffixValue> freeVals2 = suffix2.getFreeValues();
+        Set<Integer> freeIndices1 = freeSuffixIndices(suffix1);
+        Set<Integer> freeIndices2 = freeSuffixIndices(suffix2);
         Set<SuffixValue> seenVals1 = new LinkedHashSet<>();
         Set<SuffixValue> seenVals2 = new LinkedHashSet<>();
 
@@ -408,17 +415,21 @@ public class OptimizedSymbolicSuffixBuilder {
             DataType type = suffix1.getDataValue(i+1).getType();
             SuffixValue sv1 = suffix1.getDataValue(i+1);
             SuffixValue sv2 = suffix2.getDataValue(i+1);
+            int index1 = suffix1.getSuffixValueIndex(sv1);
+            int index2 = suffix2.getSuffixValueIndex(sv2);
             SuffixValue sv = null;
-            if (sv1.equals(sv2) && seenVals1.contains(sv1) && seenVals2.contains(sv2)) {
+
+            // TODO Do we need to make sv free if one of the sv's is equal to a previous sv?
+            boolean free = freeIndices1.contains(index1) || freeIndices2.contains(index1) || freeIndices1.contains(index2) || freeIndices2.contains(index2);
+
+            if (seenVals1.contains(sv1) && !free) {
                 sv = sValMapping.get(sv1);
+            } else if (seenVals2.contains(sv2) && !free) {
+                sv = sValMapping.get(sv2);
             } else {
                 sv = sgen.next(type);
-                if (freeVals1.contains(sv1) || freeVals2.contains(sv2)) {
+                if (free) {
                     freeValues.add(sv);
-                } else {
-                    if (!sv1.equals(sv2) || Boolean.logicalOr(seenVals1.contains(sv1), seenVals2.contains(sv2))) {
-                        freeValues.add(sv);
-                    }
                 }
             }
             seenVals1.add(sv1);
@@ -429,33 +440,16 @@ public class OptimizedSymbolicSuffixBuilder {
         return new SymbolicSuffix(suffix1.getActions(), dataValues, freeValues);
     }
 
-    private SymbolicSuffix buildOptimizedSuffix(List<SDTGuard> pathSdt, Word<ParameterizedSymbol> suffixActions) {
-        Set<SuffixValue> freeValues =  new LinkedHashSet<>();
-        Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
-        Map<SuffixValue, SuffixValue> sValMapping = new LinkedHashMap<>();
-        SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        for (int i=0; i<pathSdt.size(); i++) {
-            SDTGuard guard = pathSdt.get(i);
-            DataType type = guard.getParameter().getType();
-            SuffixValue sv = null;
-            if (guard instanceof EqualityGuard) {
-                SymbolicDataValue rightSdv = ((EqualityGuard) guard).getRegister();
-                if (rightSdv.isRegister() || rightSdv.isConstant()) {
-                    sv = sgen.next(type);
-                    freeValues.add(sv);
-                } else {
-                    assert rightSdv instanceof SuffixValue;
-                    sv = sValMapping.get(rightSdv);
-                }
-            } else {
-                sv = sgen.next(type);
-            }
-            dataValues.put(i+1, sv);
-            sValMapping.put(guard.getParameter(), sv);
-        }
-        return new SymbolicSuffix(suffixActions, dataValues, freeValues);
+    private Set<Integer> freeSuffixIndices(SymbolicSuffix suffix) {
+    	Set<Integer> freeIndices = new LinkedHashSet<>();
+    	Set<SuffixValue> freeVals = suffix.getFreeValues();
+    	for (int i = 0; i < DataWords.paramLength(suffix.getActions()); i++) {
+    		SuffixValue sv = suffix.getDataValue(i+1);
+    		if (freeVals.contains(sv))
+    			freeIndices.add(i+1);
+    	}
+    	return freeIndices;
     }
-
 
     private SymbolicSuffix pickBest(SymbolicSuffix current, SymbolicSuffix next) {
         if (current == null) {

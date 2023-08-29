@@ -18,6 +18,7 @@ package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -240,6 +241,17 @@ public class SymbolicSuffix {
 
     public Word<ParameterizedSymbol> getActions() {
         return actions;
+    }
+
+    public int getSuffixValueIndex(SuffixValue sv) {
+    	if (!dataValues.values().contains(sv))
+    		return -1;
+    	return dataValues.entrySet()
+    			         .stream().filter((a) -> (a.getValue().equals(sv)))
+    			         .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+    			         .findFirst()
+    			         .get()
+    			         .getKey();
     }
 
     public SymbolicSuffix concat(SymbolicSuffix other) {
