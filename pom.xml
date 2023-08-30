@@ -25,6 +25,66 @@
 
     <build>
         <plugins>
+            <!-- Dependency analysis -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>analyze-only</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoreUnusedRuntime>true</ignoreUnusedRuntime>
+                        </configuration>
+                    </execution>
+                </executions>
+	    </plugin>
+
+            <!-- Format the source code -->
+            <plugin>
+	        <groupId>com.diffplug.spotless</groupId>
+	        <artifactId>spotless-maven-plugin</artifactId>
+		<version>2.39.0</version>
+		<configuration>
+		    <formats>
+                        <format>
+			    <includes>
+                                <include>.xml</include>
+			    </includes>
+			    <endWithNewline />
+			    <trimTrailingWhitespace />
+			</format>
+		    </formats>
+		    <java>
+		        <endWithNewline />
+                        <formatAnnotations />
+			<importOrder>
+			    <order>java|jakarta,com,org,de|gov|net</order>
+			</importOrder>
+                        <!--<indent>
+                            <spaces>true</spaces>
+                            <spacesPerTab>4</spacesPerTab>
+                        </indent>-->
+			<!--<palantirJavaFormat>
+			    <version>2.27.0</version>
+			</palantirJavaFormat>-->
+			<removeUnusedImports />
+                        <trimTrailingWhitespace />
+		    </java>
+		</configuration>
+		<executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+	    </plugin>
+
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -38,25 +98,6 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-	    <!-- Format the source code (using spotless) -->
-	    <plugin>
-	        <groupId>com.diffplug.spotless</groupId>
-	        <artifactId>spotless-maven-plugin</artifactId>
-		<version>2.39.0</version>
-		<configuration>
-		    <java>
-		        <endWithNewline />
-		        <trimTrailingWhitespace />
-			<importOrder>
-			    <order>java|jakarta,com,org,de|gov|net</order>
-			</importOrder>
-			<removeUnusedImports />
-			<!--<palantirJavaFormat>
-			    <version>2.27.0</version>
-			</palantirJavaFormat>-->
-		    </java>
-		</configuration>
-	    </plugin>
         </plugins>
     </build>
 
@@ -128,6 +169,7 @@
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
             <version>${jaxb-impl.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

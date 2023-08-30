@@ -10,5 +10,5 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      - name: Check with spotless and run tests
-        run: mvn spotless:check install
+      - name: Compile, run tests and code checks
+        run: mvn verify
