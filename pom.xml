@@ -14,10 +14,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <commons-lang.version>3.12.0</commons-lang.version>
-        <learnlib.version>0.12.0</learnlib.version>
-        <gson.version>2.10.1</gson.version>
+        <!-- Dependency versions appear alphabetically below -->
+        <commons-lang.version>3.13.0</commons-lang.version>
+        <guava.version>32.1.2-jre</guava.version>
+        <jakarta-xml.version>4.0.0</jakarta-xml.version>
+        <jaxb-impl.version>4.0.3</jaxb-impl.version>
         <jconstraints.version>0.9.9</jconstraints.version>
+        <learnlib.version>0.12.0</learnlib.version>
     </properties>
 
     <build>
@@ -39,7 +42,7 @@
 	    <plugin>
 	        <groupId>com.diffplug.spotless</groupId>
 	        <artifactId>spotless-maven-plugin</artifactId>
-		<version>2.38.0</version>
+		<version>2.39.0</version>
 		<configuration>
 		    <java>
 		        <endWithNewline />
@@ -66,6 +69,12 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta-xml.version}</version>
+                <scope>runtime</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -82,19 +91,15 @@
         </dependency>
         <dependency>
             <groupId>net.automatalib</groupId>
+            <artifactId>automata-commons-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.automatalib</groupId>
             <artifactId>automata-core</artifactId>
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
             <artifactId>learnlib-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-drivers-basic</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-mapper</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -112,21 +117,18 @@
             <version>${jconstraints.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
-	<!-- jaxb api -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.0</version>
         </dependency>
-	<!-- jaxb implementation -->
-        <dependency>
+	<dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>4.0.2</version>
+            <version>${jaxb-impl.version}</version>
         </dependency>
     </dependencies>
 </project>
