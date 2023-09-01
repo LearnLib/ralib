@@ -53,10 +53,6 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         SymbolicDataValue.SuffixValue sv = suffix.getDataValue(pId);
         DataType type = sv.getType();
 
-        SymbolicDataValue.SuffixValue currentParam = new SymbolicDataValue.SuffixValue(type, pId);
-
-        Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
-
         Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
                 DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
 
