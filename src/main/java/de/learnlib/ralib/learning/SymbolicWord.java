@@ -9,7 +9,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -51,7 +50,6 @@ public class SymbolicWord {
 	public Mapping<SymbolicDataValue, DataValue<?>> computeValuation(Word<PSymbolInstance> concreteSuffix, PIV piv) {
     	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
 
-    	ParameterGenerator pGen = new ParameterGenerator();
     	SuffixValueGenerator svGen = new SuffixValueGenerator();
     	Word<ParameterizedSymbol> actions = suffix.getActions();
     	int length = actions.length();
