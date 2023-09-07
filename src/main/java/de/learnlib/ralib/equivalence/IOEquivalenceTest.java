@@ -16,14 +16,7 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.collect.Sets;
 
@@ -42,6 +35,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -274,7 +268,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                     Pair<PSymbolInstance,PSymbolInstance> out =
                             executeStep(t, w.lastSymbol(), next);
 
-                    //log.log(Level.FINEST,w + " = " + out.getFirst() + " : " + out.getSecond());
+                    //System.out.println("Cand: " + w + " = " + out.getFirst() + " : " + out.getSecond());
                     if (out.getFirst()== null) {
                         throw new IllegalStateException();
                     }
@@ -435,12 +429,14 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         //  this is maybe ok during learning
         //potential.addAll(r2.values());
 
+        //System.out.println("Base: " + w + " : " + Arrays.toString(potential.toArray()));
+
         // TODO: this should become part of the teacher
         potential.addAll(consts.values());
 
         List<DataValue[]> valuations = new ArrayList<>();
         computeValuations(ps, valuations, potential,
-                new ArrayList<DataValue<?>>(),checkForEqualParameters);
+                new ArrayList<DataValue<?>>(),checkForEqualParameters, DataWords.valSet(w));
 
         List<Word<PSymbolInstance>> ret = new ArrayList<>();
         for (DataValue[] data : valuations) {
@@ -453,7 +449,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     // FIXME: this work only for the equality case!!!!
     private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
             Set<DataValue<?>> potential, List<DataValue<?>> val,
-            boolean checkForEqualParameters) {
+            boolean checkForEqualParameters, Set<DataValue<?>> prefixVals) {
 
         int idx = val.size();
         if (idx >= ps.getArity()) {
@@ -466,18 +462,23 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         Set<DataValue> next = valSet(potential, t);
         Set<DataValue> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
         if (checkForEqualParameters) {
-            next = forFresh;
+            next.addAll(forFresh);
         }
+        forFresh.addAll(valSet(prefixVals, t));
         Theory teach = teacher.get(t);
         //System.out.println("FOR FRESH: " + Arrays.toString(forFresh.toArray()) + " for " + t);
         DataValue fresh = teach.getFreshValue(new ArrayList<>(forFresh));
-        next.add(fresh);
+        //next.add(fresh);
+        List<DataValue<?>> nextValFresh = new ArrayList<>(val);
+        nextValFresh.add(fresh);
+        computeValuations(ps, valuations, potential,
+                nextValFresh, checkForEqualParameters, prefixVals);
 
         for (DataValue d : next) {
             List<DataValue<?>> nextVal = new ArrayList<>(val);
             nextVal.add(d);
             computeValuations(ps, valuations, potential,
-                    nextVal, checkForEqualParameters);
+                    nextVal, checkForEqualParameters, prefixVals);
         }
     }
 

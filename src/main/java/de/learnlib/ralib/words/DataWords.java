@@ -119,8 +119,8 @@ public final class DataWords {
      * @param word
      * @return
      */
-    public static Set<DataValue> valSet(Word<PSymbolInstance> word) {
-        Set<DataValue> valset = new LinkedHashSet<>();
+    public static Set<DataValue<?>> valSet(Word<PSymbolInstance> word) {
+        Set<DataValue<?>> valset = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
             valset.addAll(Arrays.asList(psi.getParameterValues()));
         }
