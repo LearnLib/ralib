@@ -97,7 +97,7 @@ public class SymbolicSuffix {
         this.freeValues = new LinkedHashSet<>();
 
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
-        Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
+        Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
@@ -170,7 +170,7 @@ public class SymbolicSuffix {
         prefix = prefix.prefix(prefix.length() - 1);
 
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
-        Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
+        Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
