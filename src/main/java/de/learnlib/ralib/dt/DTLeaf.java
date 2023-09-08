@@ -405,7 +405,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     private boolean updateBranching(ParameterizedSymbol ps, ShortPrefix sp, DiscriminationTree dt) {
-        Branching b = branching.get(ps);
+    	Branching b = sp.getBranching(ps);
         SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(sp, ps);
         Branching newB = oracle.updateBranching(sp.getPrefix(), ps, b, sp.getParsInVars(), sdts);
         boolean ret = true;
