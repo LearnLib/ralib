@@ -8,7 +8,6 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.learning.rastar.Row;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
