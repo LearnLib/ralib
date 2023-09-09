@@ -349,6 +349,10 @@ public class RaLambda implements RaLearningAlgorithm {
 		            	SymbolicSuffix s = e.getKey();
 
 		            	TreeQueryResult otherTQR = branchTQRs.get(s);
+                        //todo: not sure why this check was not here yet? It happens sometimes ...
+                        if (branchTQRs.get(s) == null) {
+                            continue;
+                        }
 
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
@@ -393,13 +397,18 @@ public class RaLambda implements RaLearningAlgorithm {
 
     	TreeQueryResult tqrA = ca.getTQR(wa, v);
     	TreeQueryResult tqrB = cb.getTQR(wb, v);
-    	SymbolicDecisionTree sdtA = tqrA.getSdt();
-    	SymbolicDecisionTree sdtB = tqrB.getSdt();
 
-    	if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+        // todo: i had to add this check. not sure why this did not happen before?
+        if (tqrA != null && tqrB != null) {
+
+            SymbolicDecisionTree sdtA = tqrA.getSdt();
+            SymbolicDecisionTree sdtB = tqrB.getSdt();
+
+            if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
 //    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
-    		return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v.getActions(), solver);
-    	}
+                return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT) sdtA, tqrA.getPiv(), wb, (SDT) sdtB, tqrB.getPiv(), v.getActions(), solver);
+            }
+        }
 
     	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
     	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, consts);
@@ -501,5 +510,10 @@ public class RaLambda implements RaLearningAlgorithm {
     @Override
     public RaLearningAlgorithmName getName() {
         return RaLearningAlgorithmName.RALAMBDA;
+    }
+
+    @Override
+    public String toString() {
+        return this.dt.toString();
     }
 }

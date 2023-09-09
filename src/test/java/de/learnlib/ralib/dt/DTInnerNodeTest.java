@@ -8,6 +8,7 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.learning.rastar.Row;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -73,13 +74,15 @@ public class DTInnerNodeTest {
       DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()), mto);
 
       TreeQueryResult tqr1 = mto.treeQuery(epsilon, symbSuffix);
+      PathResult r1 = PathResult.computePathResult(mto, epsilon, node.getSuffixes(), false);
       TreeQueryResult tqr2 = mto.treeQuery(push, symbSuffix);
+      PathResult r2 = PathResult.computePathResult(mto, push, node.getSuffixes(), false);
 
-      node.addBranch(new DTBranch(tqr1.getSdt(), child1));
-      node.addBranch(new DTBranch(tqr2.getSdt(), child2));
+      node.addBranch(new DTBranch(child1, r1));
+      node.addBranch(new DTBranch(child2, r2));
 
-      DTNode test1 = node.sift(p1, mto).getKey();
-      DTNode test2 = node.sift(p2, mto).getKey();
+      DTNode test1 = node.sift(p1, mto, false).getKey();
+      DTNode test2 = node.sift(p2, mto, false).getKey();
 
       Assert.assertEquals(test1, child1);
       Assert.assertEquals(test2, child2);
