@@ -1,7 +1,6 @@
 package de.learnlib.ralib.dt;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,13 +40,12 @@ public class DTInnerNode extends DTNode {
 		}
 	}
 
-	protected Pair<DTNode, TreeQueryResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle) {
-
-		TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
-
+	protected Pair<DTNode, PathResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle, boolean ioMode) {
+		PathResult r = PathResult.computePathResult(oracle, prefix, getSuffixes(), ioMode);
 		for (DTBranch b : branches) {
-			if (b.matches(tqr))
-				return new ImmutablePair<DTNode, TreeQueryResult>(b.getChild(), tqr);
+			if (b.matches(r)) {
+				return new ImmutablePair<DTNode, PathResult>(b.getChild(), r);
+			}
 		}
 
 		return null;
@@ -61,12 +59,21 @@ public class DTInnerNode extends DTNode {
 		return branches;
 	}
 
-	public void addBranch(SymbolicDecisionTree sdt, DTNode child) {
-		branches.add(new DTBranch(sdt, child));
-	}
-
 	public SymbolicSuffix getSuffix() {
 		return suffix;
+	}
+
+	List<SymbolicSuffix> getSuffixes() {
+		LinkedList<SymbolicSuffix> suffixes = new LinkedList<>();
+		getSuffixes(suffixes);
+		return suffixes;
+	}
+
+	void getSuffixes(LinkedList<SymbolicSuffix> suffixes) {
+		suffixes.addFirst(suffix);
+		if (parent != null) {
+			parent.getSuffixes(suffixes);
+		}
 	}
 
 	public boolean isLeaf() {
