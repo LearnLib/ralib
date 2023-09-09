@@ -1,6 +1,8 @@
 package de.learnlib.ralib.dt;
 
 
+import java.util.*;
+
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -11,8 +13,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
-
-import java.util.*;
 
 /**
  * this is a copy of the functionality of row
