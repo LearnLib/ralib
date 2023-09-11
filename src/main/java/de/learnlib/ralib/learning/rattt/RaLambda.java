@@ -215,11 +215,15 @@ public class RaLambda implements RaLearningAlgorithm {
         		consistent = false;
         	}
 
-        	if (!checkRegisterConsistency()) {
+        	if (!checkRegisterClosedness()) {
         		consistent = false;
         	}
 
         	if (!checkGuardConsistency()) {
+        		consistent = false;
+        	}
+
+        	if (!checkRegisterConsistency()) {
         		consistent = false;
         	}
         }
@@ -311,7 +315,7 @@ public class RaLambda implements RaLearningAlgorithm {
     	return true;
     }
 
-    private boolean checkRegisterConsistency() {
+    private boolean checkRegisterClosedness() {
     	return dt.checkVariableConsistency(suffixBuilder);
     }
 
@@ -382,6 +386,10 @@ public class RaLambda implements RaLearningAlgorithm {
     	guardPrefixes.clear();
     	guardPrefixes.putAll(toReuse);
     	return true;
+    }
+
+    private boolean checkRegisterConsistency() {
+    	return dt.checkRegisterConsistency(suffixBuilder);
     }
 
     private SymbolicSuffix distinguishingSuffix(Word<PSymbolInstance> wa, DTLeaf ca, Word<PSymbolInstance> wb, DTLeaf cb) {
