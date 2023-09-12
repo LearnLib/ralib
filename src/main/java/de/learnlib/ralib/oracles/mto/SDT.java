@@ -203,7 +203,7 @@ public class SDT implements SymbolicDecisionTree {
         }
         SDT otherSDT = (SDT) other;
         SDT otherRelabeled = (SDT) otherSDT.relabel(renaming);
-        boolean regEq = this.regCanUse(otherSDT) && otherSDT.regCanUse(this);
+        boolean regEq = this.regCanUse(otherRelabeled) && otherRelabeled.regCanUse(this);
         return regEq && this.canUse(otherRelabeled)
                 && otherRelabeled.canUse(this);
     }
