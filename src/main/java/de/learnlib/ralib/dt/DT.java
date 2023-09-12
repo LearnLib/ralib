@@ -138,6 +138,7 @@ public class DT implements DiscriminationTree {
                 leaf = new DTLeaf(oracle);
                 //tqr = mp.computeTQR(suffix, oracle);
                 PathResult r = PathResult.computePathResult(oracle, mp.getPrefix(), inner.getSuffixes(), ioMode);
+                assert !mp.getTQRs().keySet().contains(suffix);
                 mp.addTQR(suffix, r.getTQRforSuffix(suffix));
                 leaf.setAccessSequence(mp);
                 DTBranch branch = new DTBranch(leaf, r);
@@ -183,6 +184,7 @@ public class DT implements DiscriminationTree {
         newLeaf.setParent(node);
         PathResult r = PathResult.computePathResult(oracle, mp.getPrefix(), node.getSuffixes(), ioMode);
         TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        assert !mp.getTQRs().keySet().contains(suffix);
         mp.addTQR(suffix, tqr);
 
         DTBranch newBranch = new DTBranch(newLeaf, r);
@@ -224,6 +226,7 @@ public class DT implements DiscriminationTree {
         //TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r = PathResult.computePathResult(oracle, leaf.getPrimePrefix().getPrefix(), node.getSuffixes(), ioMode);
         TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        assert !leaf.getPrimePrefix().getTQRs().keySet().contains(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr);
 
         DTBranch newBranch = new DTBranch(leaf, r);
