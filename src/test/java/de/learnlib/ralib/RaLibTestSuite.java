@@ -16,9 +16,11 @@
  */
 package de.learnlib.ralib;
 
+import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 import de.learnlib.ralib.data.DataType;
@@ -41,4 +43,9 @@ public abstract class RaLibTestSuite {
         TestUtil.configureLogging(Level.WARNING);
     }
 
+    @BeforeMethod
+    public void nameBefore(Method method)
+    {
+        System.out.println("Test name: " + method.getName());
+    }
 }

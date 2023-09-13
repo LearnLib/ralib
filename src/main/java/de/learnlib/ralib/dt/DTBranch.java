@@ -1,40 +1,53 @@
 package de.learnlib.ralib.dt;
 
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 
 public class DTBranch {
 
-		private SymbolicDecisionTree sdt;
+    private PathResult urap;
 
-		private DTNode child;
+    private DTNode child;
 
-		public DTBranch(SymbolicDecisionTree sdt, DTNode child) {
-			this.sdt = sdt;
-			this.child = child;
-			child.setParentBranch(this);
-		}
+    public DTBranch(DTNode child, PathResult row) {
+        //this.sdt = sdt;
+        this.child = child;
+        this.urap = row;
+        child.setParentBranch(this);
+    }
 
-		public DTBranch(DTBranch b) {
-			sdt = b.sdt.copy();
-			child = b.child.copy();
-			child.setParentBranch(this);
-		}
+    public DTBranch(DTBranch b) {
+        child = b.child.copy();
+        urap = b.urap.copy(); //todo: should we copy?
+        child.setParentBranch(this);
+    }
 
-		public void setChild(DTNode child) {
-			this.child = child;
-			child.setParentBranch(this);
-		}
+    public void setChild(DTNode child) {
+        this.child = child;
+        child.setParentBranch(this);
+    }
 
-		public DTNode getChild() {
-			return child;
-		}
+    public DTNode getChild() {
+        return child;
+    }
 
-		public boolean matches(TreeQueryResult tqr) {
-			return sdt.isEquivalent(tqr.getSdt(), tqr.getPiv());
-		}
+    public boolean matches(PathResult r) {
+        if (!urap.couldBeEquivalentTo(r)) {
+            return false;
+        }
 
-		SymbolicDecisionTree getSDT() {
-			return sdt;
-		}
+        PIVRemappingIterator iterator = new PIVRemappingIterator(
+                r.getParsInVars(), urap.getParsInVars());
+
+        for (VarMapping m : iterator) {
+            if (r.isEquivalentTo(urap, m)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    PathResult getUrap() {
+        return urap;
+    }
 }

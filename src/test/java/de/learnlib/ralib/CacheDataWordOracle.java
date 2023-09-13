@@ -62,7 +62,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 				next = new CacheNode();
 				cur.next.put(in, next);
 			}
-
+			cur = next;
 		}
 		cur.output = response;
 	}
