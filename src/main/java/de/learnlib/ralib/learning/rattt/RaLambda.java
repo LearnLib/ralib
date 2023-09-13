@@ -353,11 +353,17 @@ public class RaLambda implements RaLearningAlgorithm {
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
+			            			SymbolicSuffix testSuffix;
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
-			            				suffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
+			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
 			            			} else {
-			            				suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
-			            				suffix = suffix.concat(s);
+			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
+			            				testSuffix = testSuffix.concat(s);
+			            			}
+			            			TreeQueryResult testTQR = sulOracle.treeQuery(src_id, testSuffix);
+			            			Branching testBranching = sulOracle.updateBranching(src_id, word.lastSymbol().getBaseSymbol(), hypBranching, testTQR.getPiv(), testTQR.getSdt());
+			            			if (testBranching.getBranches().keySet().contains(word)) {
+			            				suffix = testSuffix;
 			            			}
 			            		}
 		            		}
