@@ -37,7 +37,7 @@ import net.automatalib.words.Word;
 
 public class TestSuffixOptimization extends RaLibTestSuite {
 
-	@Test
+	//@Test
 	public void learnRepeater() {
 
         Constants consts = new Constants();

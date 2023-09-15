@@ -122,7 +122,7 @@ public class DTHyp extends Hypothesis {
 		DTLeaf leaf = dt.getLeaf(location);
 		assert leaf != null;
 
-		if (leaf.getAccessSequence().equals(location) ||
+		if (!leaf.getAccessSequence().equals(location) ||
 				!leaf.getShortPrefixes().contains(location)) {
 			Word<PSymbolInstance> tseq = transformTransitionSequence(word);
 			if (tseq == null) {
