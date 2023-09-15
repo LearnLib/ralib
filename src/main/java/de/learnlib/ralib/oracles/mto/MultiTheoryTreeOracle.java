@@ -103,7 +103,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), pir, constants, new SuffixValuation());
 
-//        System.out.println(prefix + " . " + suffix);
+        log.info("TQ: " + prefix + " . " + suffix);
 //        System.out.println(sdt);
 
         // move registers to 1 ... n
@@ -130,7 +130,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
             Constants constants, SuffixValuation suffixValues) {
 
-//        System.out.println("prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
+        log.finer("TQ: prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
 
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(suffix.getActions(), values);
