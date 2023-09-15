@@ -418,7 +418,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
-        Assert.assertEquals(suffix12.toString(), "[s1, s2]((a[s1] a[s2] a[s3] a[s4]))");
+        Assert.assertEquals(suffix12.toString(), "[]((a[s1] a[s1] a[s2] a[s3]))");
 
 
         Word<PSymbolInstance> prefix3 = prefix1;
@@ -452,6 +452,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
-        Assert.assertEquals(suffix34.toString(), "[s1, s2]((a[s1] a[s2] a[s3] a[s3]))");
+        Assert.assertEquals(suffix34.toString(), "[s2]((a[s1] a[s2] a[s3] a[s3]))");
     }
 }
