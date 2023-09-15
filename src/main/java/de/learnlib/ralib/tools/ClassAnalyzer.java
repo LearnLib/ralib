@@ -36,6 +36,9 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.RaLearningAlgorithm;
+import de.learnlib.ralib.learning.ralambda.RaDT;
+import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -82,6 +85,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     "Maximum depth to explore", -1, true);
 
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
+        OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
         OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
@@ -111,7 +115,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IORandomWalk randomWalk = null;
 
-    private RaStar rastar;
+    private RaLearningAlgorithm rastar;
 
     private IOCounterexampleLoopRemover ceOptLoops;
 
@@ -232,7 +236,22 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+            //this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+
+            switch (this.learner) {
+                case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
+                    this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
+                    break;
+                case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
+                    this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+                    ((RaLambda)this.rastar).setSolver(solver);
+                    break;
+                case AbstractToolWithRandomWalk.LEARNER_RADT:
+                    this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+                    break;
+                default:
+                    throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
+            }
 
             if (findCounterexamples) {
 

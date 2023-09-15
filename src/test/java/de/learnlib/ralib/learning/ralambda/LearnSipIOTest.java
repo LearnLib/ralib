@@ -67,7 +67,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
-            theory.setUseSuffixOpt(true);
+            theory.setUseSuffixOpt(false);
             teachers.put(t, theory);
         });
 
