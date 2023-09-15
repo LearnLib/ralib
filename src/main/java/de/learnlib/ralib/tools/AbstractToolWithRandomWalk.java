@@ -44,13 +44,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
-    public static final String RATTT_CEANALYSIS_SUFFIX = "suffix";
-    public static final String RATTT_CEANALYSIS_PREFIX = "prefix";
 
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
-            "Learning Algorithm: slstar (default) or rattt", LEARNER_SLSTAR, true);
+            "Learning Algorithm: " + LEARNER_SLSTAR + " (default) or " +
+                    LEARNER_RADT + " or " + LEARNER_SLLAMBDA, LEARNER_SLSTAR, true);
 
     protected static final ConfigurationOption.LongOption OPTION_RANDOM_SEED
             = new ConfigurationOption.LongOption("random.seed", "Seed for RNG", 0L, true);
@@ -207,7 +206,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected ConstraintSolver solver;
 
-    protected String learner = "slstar";
+    protected String learner = LEARNER_SLSTAR;
 
     private static final Random RANDOM = new Random();
 
