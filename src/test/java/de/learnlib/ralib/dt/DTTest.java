@@ -8,7 +8,6 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.data.PIV;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -16,6 +15,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
