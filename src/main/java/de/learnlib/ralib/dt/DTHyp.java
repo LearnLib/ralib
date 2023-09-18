@@ -121,9 +121,9 @@ public class DTHyp extends Hypothesis {
 
 		DTLeaf leaf = dt.getLeaf(location);
 		assert leaf != null;
+		assert leaf.getAccessSequence().equals(location) || leaf.getShortPrefixes().contains(location);
 
-		if (!leaf.getAccessSequence().equals(location) ||
-				!leaf.getShortPrefixes().contains(location)) {
+		if (leaf.getAccessSequence().equals(location)) {
 			Word<PSymbolInstance> tseq = transformTransitionSequence(word);
 			if (tseq == null) {
 				ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
