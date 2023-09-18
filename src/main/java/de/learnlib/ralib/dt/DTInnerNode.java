@@ -38,7 +38,7 @@ public class DTInnerNode extends DTNode {
 		}
 	}
 
-	protected Pair<DTNode, PathResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle, boolean ioMode) {
+	protected Pair<DTNode, PathResult> sift(MappedPrefix prefix, TreeOracle oracle, boolean ioMode) {
 		PathResult r = PathResult.computePathResult(oracle, prefix, getSuffixes(), ioMode);
 		for (DTBranch b : branches) {
 			if (b.matches(r)) {
