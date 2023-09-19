@@ -261,7 +261,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             // th.setType(t);
             th.setUseSuffixOpt(this.useSuffixOpt);
 
-            return new Pair<String, TypedTheory>(t, th);
+            return Pair.of(t, th);
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             throw new ConfigurationException(ex.getMessage());

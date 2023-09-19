@@ -341,7 +341,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             // we filter out pairs already covered
             SDTGuard[] notCoveredPairs = nextGroup.stream()
-                    .filter(next -> !headNextPairs.contains(new Pair<>(next, head))).toArray(SDTGuard[]::new);
+                    .filter(next -> !headNextPairs.contains(Pair.of(next, head))).toArray(SDTGuard[]::new);
 
             // we then select only the next guards which can be conjoined with the head
             // guard, i.e.
@@ -364,7 +364,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 LinkedHashSet<SDTGuard> newOldGuards = Sets.newLinkedHashSet(oldGuards);
                 newOldGuards.add(next);
                 mergedGroup.put(refinedGuard, newOldGuards);
-                headNextPairs.add(new Pair<>(head, next));
+                headNextPairs.add(Pair.of(head, next));
             }
         }
         return mergedGroup;
