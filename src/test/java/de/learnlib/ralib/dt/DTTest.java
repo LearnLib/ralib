@@ -15,6 +15,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -57,12 +58,12 @@ public class DTTest {
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 		DTInnerNode nodePush = new DTInnerNode(suffPush);
 
-		PathResult rPop = PathResult.computePathResult(oracle, prePop, nodeEps.getSuffixes(), false);
-		PathResult rEps = PathResult.computePathResult(oracle, epsilon, nodePop.getSuffixes(), false);
-		PathResult rPush = PathResult.computePathResult(oracle, prePush, nodePush.getSuffixes(), false);
-		PathResult rPushPush = PathResult.computePathResult(oracle, prePushPush, nodePush.getSuffixes(), false);
-		PathResult rInnerPop = PathResult.computePathResult(oracle, epsilon, nodeEps.getSuffixes(), false);
-		PathResult rInnerPush = PathResult.computePathResult(oracle, prePush, nodePop.getSuffixes(), false);
+		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new PIV()), nodeEps.getSuffixes(), false);
+		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodePop.getSuffixes(), false);
+		PathResult rPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new PIV()), nodePush.getSuffixes(), false);
+		PathResult rPushPush = PathResult.computePathResult(oracle, new MappedPrefix(prePushPush, new PIV()), nodePush.getSuffixes(), false);
+		PathResult rInnerPop = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodeEps.getSuffixes(), false);
+		PathResult rInnerPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new PIV()), nodePop.getSuffixes(), false);
 
 		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
 		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);
@@ -108,9 +109,9 @@ public class DTTest {
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 
-		PathResult rPop = PathResult.computePathResult(oracle, prePop, nodeEps.getSuffixes(), false);
-		PathResult rEps = PathResult.computePathResult(oracle, epsilon, nodePop.getSuffixes(), false);
-		PathResult rInnerPop= PathResult.computePathResult(oracle, epsilon, nodeEps.getSuffixes(), false);
+		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new PIV()), nodeEps.getSuffixes(), false);
+		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodePop.getSuffixes(), false);
+		PathResult rInnerPop= PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodeEps.getSuffixes(), false);
 
 		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
 		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);

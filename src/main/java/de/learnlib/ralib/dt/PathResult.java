@@ -11,8 +11,8 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 
 /**
  * this is a copy of the functionality of row
@@ -136,26 +136,29 @@ public class PathResult {
      * @return
      */
     public static PathResult computePathResult(TreeOracle oracle,
-                                 Word<PSymbolInstance> prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
+                                 MappedPrefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 
         PathResult r = new PathResult(ioMode);
         for (SymbolicSuffix s : suffixes) {
             //todo: potential for optimization
-            /*if (ioMode && s.getActions().length() > 0) {
+            if (ioMode && s.getActions().length() > 0) {
                 // error row
-                if (r.getPrefix().length() > 0 && !r.isAccepting()) {
-                    log.log(Level.INFO, "Not adding suffix " + s + " to error row " + r.getPrefix());
+                if (prefix.getPrefix().length() > 0 && !r.isAccepting()) {
+                    //log.log(Level.INFO, "Not adding suffix " + s + " to error row " + r.getPrefix());
                     continue;
                 }
                 // unmatching suffix
-                if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
+                if ((prefix.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
+                        || (prefix.getPrefix().length() > 0 && !(prefix.getPrefix().lastSymbol().getBaseSymbol() instanceof InputSymbol
                         ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
-                    log.log(Level.INFO, "Not adding suffix " + s + " to unmatching row " + r.getPrefix());
+                    //log.log(Level.INFO, "Not adding suffix " + s + " to unmatching row " + r.getPrefix());
                     continue;
                 }
-            }*/
-            TreeQueryResult tqr = oracle.treeQuery(prefix, s);
+            }
+            TreeQueryResult tqr = prefix.getTQRs().get(s);
+            if (tqr == null) {
+                tqr = oracle.treeQuery(prefix.getPrefix(), s);
+            }
             //System.out.println("TQ: " + prefix + " : " + s + " : " + tqr);
             r.addResult(s, tqr);
         }
