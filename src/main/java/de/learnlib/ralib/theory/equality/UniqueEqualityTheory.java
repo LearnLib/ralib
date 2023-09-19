@@ -3,7 +3,7 @@ package de.learnlib.ralib.theory.equality;
 import java.util.*;
 import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;

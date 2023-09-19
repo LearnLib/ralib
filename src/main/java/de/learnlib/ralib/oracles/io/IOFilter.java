@@ -23,8 +23,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.logging.Level;
 
-import de.learnlib.api.Query;
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;

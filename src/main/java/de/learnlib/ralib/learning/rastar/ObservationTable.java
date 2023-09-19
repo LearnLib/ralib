@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;

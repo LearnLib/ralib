@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;

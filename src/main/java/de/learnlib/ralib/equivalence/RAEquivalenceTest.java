@@ -27,7 +27,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;

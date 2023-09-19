@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;

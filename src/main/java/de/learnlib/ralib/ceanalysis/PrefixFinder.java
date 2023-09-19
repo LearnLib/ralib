@@ -9,8 +9,8 @@ import java.util.logging.Level;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;

@@ -23,8 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.api.Query;
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;

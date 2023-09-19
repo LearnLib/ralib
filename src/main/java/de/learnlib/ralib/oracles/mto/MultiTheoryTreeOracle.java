@@ -31,8 +31,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;

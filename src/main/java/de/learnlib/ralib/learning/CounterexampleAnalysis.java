@@ -19,7 +19,7 @@ package de.learnlib.ralib.learning;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Mapping;

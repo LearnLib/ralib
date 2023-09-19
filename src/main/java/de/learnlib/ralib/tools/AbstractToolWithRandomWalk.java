@@ -26,7 +26,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import de.learnlib.logging.Category;
+import de.learnlib.api.logging.Category;
 import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;

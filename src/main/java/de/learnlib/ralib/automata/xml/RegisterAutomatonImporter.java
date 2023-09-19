@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import jakarta.xml.bind.JAXB;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -55,7 +55,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Alphabet;
-import net.automatalib.words.impl.SimpleAlphabet;
+import net.automatalib.words.impl.GrowingMapAlphabet;
 
 /**
  *
@@ -238,8 +238,8 @@ public class RegisterAutomatonImporter {
     }
 
     private void getAlphabet(RegisterAutomaton.Alphabet a) {
-        inputs = new SimpleAlphabet<>();
-        actions = new SimpleAlphabet<>();
+        inputs = new GrowingMapAlphabet<>();
+        actions = new GrowingMapAlphabet<>();
         for (RegisterAutomaton.Alphabet.Inputs.Symbol s : a.getInputs().getSymbol()) {
             int pcount = s.getParam().size();
             String[] pNames = new String[pcount];

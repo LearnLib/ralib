@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import de.learnlib.api.SULException;
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.exception.SULException;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;

@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;

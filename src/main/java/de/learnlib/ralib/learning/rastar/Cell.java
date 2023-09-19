@@ -19,7 +19,7 @@ package de.learnlib.ralib.learning.rastar;
 import java.util.Collection;
 import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;

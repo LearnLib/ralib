@@ -25,8 +25,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
