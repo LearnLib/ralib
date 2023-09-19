@@ -61,7 +61,7 @@ public class MappedPrefix implements PrefixContainer {
 	}
 
 	void addTQR(SymbolicSuffix s, TreeQueryResult tqr) {
-	    if (tqrs.containsKey(s)) return;
+	    if (tqrs.containsKey(s) || tqr == null) return;
 		tqrs.put(s, tqr);
 		updateMemorable(tqr.getPiv());
 	}

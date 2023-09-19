@@ -7,8 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
 
 public class DTInnerNode extends DTNode {
 
@@ -38,7 +36,7 @@ public class DTInnerNode extends DTNode {
 		}
 	}
 
-	protected Pair<DTNode, PathResult> sift(Word<PSymbolInstance> prefix, TreeOracle oracle, boolean ioMode) {
+	protected Pair<DTNode, PathResult> sift(MappedPrefix prefix, TreeOracle oracle, boolean ioMode) {
 		PathResult r = PathResult.computePathResult(oracle, prefix, getSuffixes(), ioMode);
 		for (DTBranch b : branches) {
 			if (b.matches(r)) {
