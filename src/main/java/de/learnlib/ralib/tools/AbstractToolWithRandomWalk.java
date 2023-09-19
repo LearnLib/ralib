@@ -44,8 +44,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
-    public static final String RATTT_CEANALYSIS_SUFFIX = "suffix";
-    public static final String RATTT_CEANALYSIS_PREFIX = "prefix";
 
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
@@ -176,6 +174,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     protected static final ConfigurationOption.IntegerOption OPTION_RWALK_MAX_DEPTH
             = new ConfigurationOption.IntegerOption("rwalk.max.depth",
                     "Maximum length of each random walk", null, false);
+
+    protected static final ConfigurationOption.BooleanOption OPTION_RWALK_SEED_TRANSITIONS
+            = new ConfigurationOption.BooleanOption("rwalk.seed.transitions",
+            "Use words from U (transitions) as prefixes for runs", false, true);
 
     protected static final ConfigurationOption.StringOption OPTION_TEACHERS
             = new ConfigurationOption.StringOption("teachers",

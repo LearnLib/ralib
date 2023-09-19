@@ -31,9 +31,11 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -55,12 +57,15 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private final boolean resetRuns;
     private long runs;
     private final int maxDepth;
+    private final boolean seedTransitions;
     private final Constants constants;
     private final Map<DataType, Theory> teachers;
 
     private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
 
     private ParameterizedSymbol error = null;
+
+    private ArrayList<Word<PSymbolInstance>> seeds = null;
 
     /**
      * creates an IO random walk
@@ -79,7 +84,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
      */
     public IORandomWalk(Random rand, DataWordSUL target, boolean uniform,
             double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants,
-            boolean resetRuns, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
+            boolean resetRuns, boolean seedTransitions, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
         this.rand = rand;
@@ -92,6 +97,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         this.maxDepth = maxDepth;
         this.teachers = teachers;
         this.newDataProbability = newDataProbability;
+        this.seedTransitions = seedTransitions;
     }
 
     @Override
@@ -100,6 +106,20 @@ public class IORandomWalk implements IOEquivalenceOracle {
 
         if (clctn != null && !clctn.isEmpty()) {
             log.warning("set of inputs is ignored by this equivalence oracle");
+        }
+
+        if (this.seedTransitions) {
+            if ((a instanceof Hypothesis)) {
+                Hypothesis hypothesis = (Hypothesis) a;
+                seeds = new ArrayList<>();
+                for (Word<PSymbolInstance> u : hypothesis.getTransitionSequences().values()) {
+                    if (u.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
+                        seeds.add(u);
+                    }
+                }
+            } else {
+                seeds = null;
+            }
         }
 
         this.hyp = a;
@@ -122,6 +142,10 @@ public class IORandomWalk implements IOEquivalenceOracle {
         runs++;
         target.pre();
         Word<PSymbolInstance> run = Word.epsilon();
+        if (this.seedTransitions && seeds != null) {
+            int trans = rand.nextInt(seeds.size());
+            run.concat(seeds.get(trans));
+        }
         PSymbolInstance out;
         do {
             PSymbolInstance next = nextInput(run);

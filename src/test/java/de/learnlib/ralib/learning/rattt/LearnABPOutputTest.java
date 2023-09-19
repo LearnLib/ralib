@@ -107,6 +107,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		100,
         		consts,
         		false,
+                false,
         		teachers,
         		inputs);
 

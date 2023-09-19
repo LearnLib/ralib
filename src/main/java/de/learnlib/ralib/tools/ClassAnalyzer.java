@@ -99,7 +99,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         OPTION_RWALK_RESET_PROB,
         OPTION_RWALK_MAX_DEPTH,
         OPTION_RWALK_MAX_RUNS,
-        OPTION_RWALK_RESET
+        OPTION_RWALK_RESET,
+        OPTION_RWALK_SEED_TRANSITIONS
     };
 
     private DataWordSUL sulLearn;
@@ -241,6 +242,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 long maxTestRuns = OPTION_RWALK_MAX_RUNS.parse(config);
                 int maxDepth = OPTION_RWALK_MAX_DEPTH.parse(config);
                 boolean resetRuns = OPTION_RWALK_RESET.parse(config);
+                boolean seedTransitions = OPTION_RWALK_SEED_TRANSITIONS.parse(config);
 
                 this.randomWalk = new IORandomWalk(random,
                         sulTest,
@@ -251,6 +253,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                         maxDepth, // max depth
                         consts,
                         resetRuns, // reset runs
+                        seedTransitions,
                         teachers,
                         inputSymbols);
 
