@@ -19,7 +19,6 @@ package de.learnlib.ralib.learning;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
@@ -72,7 +71,7 @@ public class AutomatonBuilder {
     }
 
     public Hypothesis toRegisterAutomaton() {
-        log.fine("computing hypothesis");
+        log.info("computing hypothesis");
         computeLocations();
         computeTransitions();
         return this.automaton;
@@ -80,14 +79,14 @@ public class AutomatonBuilder {
 
     private void computeLocations() {
     	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);
-        log.log(Level.FINER, "{0}", c);
+        log.info("{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
         this.locations.put(RaStar.EMPTY_PREFIX, loc);
         this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
 
         for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
-                log.log(Level.FINER, "{0}", e.getValue());
+                log.info("{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
                 this.locations.put(e.getKey(), loc);
                 this.automaton.setAccessSequence(loc, e.getKey());
@@ -110,7 +109,7 @@ public class AutomatonBuilder {
             return;
         }
 
-        log.log(Level.FINER, "computing transition: {1} to {0}", new Object[]{dest_c, r});
+        log.info("computing transition: {1} to {0}", new Object[]{dest_c, r});
 
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);
@@ -152,9 +151,9 @@ public class AutomatonBuilder {
         PIV parsInVars_Row = r.getParsInVars();
         VarMapping remapping = dest_c.getRemapping(r);
 
-//        log.log(Level.FINEST,"PIV ROW:" + parsInVars_Row);
-//        log.log(Level.FINEST,"PIV SRC:" + parsInVars_Src);
-//        log.log(Level.FINEST,"REMAP: " + remapping);
+//        log.trace("PIV ROW:" + parsInVars_Row);
+//        log.trace("PIV SRC:" + parsInVars_Src);
+//        log.trace("REMAP: " + remapping);
 
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register
@@ -175,7 +174,7 @@ public class AutomatonBuilder {
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
         if (t != null) {
-            log.log(Level.FINER, "computed transition {0}", t);
+            log.info("computed transition {0}", t);
             this.automaton.addTransition(src_loc, action, t);
             this.automaton.setTransitionSequence(t, r.getPrefix());
         }

@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.logging.Level;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.api.query.DefaultQuery;
@@ -99,7 +98,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
         if (clctn != null && !clctn.isEmpty()) {
-            log.warning("set of inputs is ignored by this equivalence oracle");
+            log.warn("set of inputs is ignored by this equivalence oracle");
         }
 
         this.hyp = a;
@@ -131,7 +130,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
             run = run.append(next).append(out);
 
             if (!hyp.accepts(run)) {
-                log.log(Level.FINE, "Run with CE: {0}", run);
+                log.debug("Run with CE: {0}", run);
                 target.post();
                 return run;
             }
@@ -139,7 +138,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         } while (rand.nextDouble() > resetProbability && depth < maxDepth &&
                 !out.getBaseSymbol().equals(error));
 
-        log.log(Level.FINE, "Run /wo CE: {0}", run);
+        log.debug("Run /wo CE: {0}", run);
         target.post();
         return null;
     }

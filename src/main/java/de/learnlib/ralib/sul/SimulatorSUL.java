@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import de.learnlib.api.exception.SULException;
 import de.learnlib.api.logging.LearnLogger;
@@ -89,7 +88,7 @@ public class SimulatorSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        log.log(Level.FINEST, "step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
+        log.trace("step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
         prefix = prefix.append(i);
 
         boolean found = false;

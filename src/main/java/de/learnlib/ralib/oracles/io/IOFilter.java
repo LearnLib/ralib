@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.logging.Level;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.api.query.Query;
@@ -54,7 +53,7 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
         countQueries(clctn.size());
         List<Query<PSymbolInstance, Boolean>> valid = new ArrayList<>();
         for (Query<PSymbolInstance, Boolean> q : clctn) {
-            log.log(Level.FINEST, "MQ: {0}", q.getInput());
+            log.trace("MQ: {0}", q.getInput());
             if (isValid(q.getInput())) {
                 valid.add(q);
             } else {

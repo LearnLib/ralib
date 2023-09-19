@@ -17,7 +17,6 @@
 package de.learnlib.ralib.learning;
 
 import java.util.Map;
-import java.util.logging.Level;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -95,17 +94,17 @@ public class CounterexampleAnalysis {
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
 
-        log.log(Level.FINEST,"------------------------------------------------------");
-        log.log(Level.FINEST,"Computing index: " + idx);
-        log.log(Level.FINEST,"Prefix: " + prefix);
-        log.log(Level.FINEST,"SymSuffix: " + symSuffix);
-        log.log(Level.FINEST,"Location: " + location);
-        log.log(Level.FINEST,"Transition: " + transition);
-        log.log(Level.FINEST,"PIV HYP: " + resHyp.getPiv());
-        log.log(Level.FINEST,"SDT HYP: " + resHyp.getSdt());
-        log.log(Level.FINEST,"PIV SYS: " + resSul.getPiv());
-        log.log(Level.FINEST,"SDT SYS: " + resSul.getSdt());
-        log.log(Level.FINEST,"------------------------------------------------------");
+        log.trace("------------------------------------------------------");
+        log.trace("Computing index: " + idx);
+        log.trace("Prefix: " + prefix);
+        log.trace("SymSuffix: " + symSuffix);
+        log.trace("Location: " + location);
+        log.trace("Transition: " + transition);
+        log.trace("PIV HYP: " + resHyp.getPiv());
+        log.trace("SDT HYP: " + resHyp.getSdt());
+        log.trace("PIV SYS: " + resSul.getPiv());
+        log.trace("SDT SYS: " + resSul.getSdt());
+        log.trace("------------------------------------------------------");
 
 //        System.out.println("------------------------------------------------------");
 //        System.out.println("Computing index: " + idx);
@@ -233,7 +232,7 @@ public class CounterexampleAnalysis {
             mid = (max+min+1) / 2;
 
             IndexResult res = computeIndex(ce, mid);
-            log.log(Level.FINEST, "" + res);
+            log.trace("" + res);
 
             results[mid] = res;
             if (res == IndexResult.NO_CE) {

@@ -17,7 +17,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
-import java.util.logging.Level;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -65,10 +64,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
-        log.finest("Searching for counterexample in SDTs");
-        log.log(Level.FINEST, "SDT1: {0}", sdt1);
-        log.log(Level.FINEST, "SDT2: {0}", sdt2);
-        log.log(Level.FINEST, "Guard: {0}", guard);
+        log.info("Searching for counterexample in SDTs");
+        log.trace("SDT1: {0}", sdt1);
+        log.trace("SDT2: {0}", sdt2);
+        log.trace("Guard: {0}", guard);
 
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
@@ -105,7 +104,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 //
 //        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test, new Mapping<>());
-        log.log(Level.FINEST, "Res:" + r);
+        log.trace("Res:" + r);
         return r;
     }
 
@@ -139,10 +138,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     @Override
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 
-        log.log(Level.FINEST, "refining: {0}", refining);
-        log.log(Level.FINEST, "refined: {0}", refined);
-        log.log(Level.FINEST, "pivRefining: {0}", pivRefining);
-        log.log(Level.FINEST, "pivRefined: {0}", pivRefined);
+        log.trace("refining: {0}", refining);
+        log.trace("refined: {0}", refined);
+        log.trace("pivRefining: {0}", pivRefining);
+        log.trace("pivRefined: {0}", pivRefined);
 
         VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
@@ -152,8 +151,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         // is there any case for which refining is true but refined is false?
         GuardExpression test = new Conjunction(exprRefining, new Negation(exprRefined));
 
-        log.log(Level.FINEST, "MAP: " + remap);
-        log.log(Level.FINEST, "TEST:" + test);
+        log.trace("MAP: " + remap);
+        log.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
@@ -161,10 +160,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
-        log.log(Level.FINEST, "guard1: {0}", guard1);
-        log.log(Level.FINEST, "guard2: {0}", guard2);
-        log.log(Level.FINEST, "piv1: {0}", piv1);
-        log.log(Level.FINEST, "piv2: {0}", piv2);
+        log.trace("guard1: {0}", guard1);
+        log.trace("guard2: {0}", guard2);
+        log.trace("piv1: {0}", piv1);
+        log.trace("piv2: {0}", piv2);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
@@ -173,8 +172,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         GuardExpression test = new Conjunction(exprGuard1, exprGuard2);
 
-        log.log(Level.FINEST, "MAP: " + remap);
-        log.log(Level.FINEST, "TEST:" + test);
+        log.trace("MAP: " + remap);
+        log.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
@@ -182,10 +181,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
-        log.log(Level.FINEST, "guard1: {0}", guard1);
-        log.log(Level.FINEST, "guard2: {0}", guard2);
-        log.log(Level.FINEST, "piv1: {0}", piv1);
-        log.log(Level.FINEST, "piv2: {0}", piv2);
+        log.trace("guard1: {0}", guard1);
+        log.trace("guard2: {0}", guard2);
+        log.trace("piv1: {0}", piv1);
+        log.trace("piv2: {0}", piv2);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
@@ -194,8 +193,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         GuardExpression test = new Disjunction(new Conjunction(exprGuard1, new Negation(exprGuard2)),
         		                               new Conjunction(new Negation(exprGuard1), exprGuard2));
 
-        log.log(Level.FINEST, "MAP: " + remap);
-        log.log(Level.FINEST, "TEST:" + test);
+        log.trace("MAP: " + remap);
+        log.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;

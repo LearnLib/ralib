@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -299,7 +298,7 @@ public class PrefixFinder {
 	            mid = (max+min+1) / 2;
 
 	            boolean hasCe = computeIndex(ce, mid);
-	            log.log(Level.FINEST, "" + hasCe);
+	            log.trace("" + hasCe);
 
 	            results[mid] = hasCe;
 	            if (!hasCe) {

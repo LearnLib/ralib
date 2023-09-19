@@ -52,9 +52,9 @@ public class Transition {
 
     public boolean isEnabled(VarValuation registers,
             ParValuation parameters, Constants consts) {
-//        log.log(Level.FINEST, "isEnabled..... registers: {0}", registers.toString());
-//        log.log(Level.FINEST, " ...... parameters: {0}", parameters.toString());
-//        log.log(Level.FINEST, " ..... constants {0}\n", consts.toString());
+//        log.trace("isEnabled..... registers: {0}", registers.toString());
+//        log.trace(" ...... parameters: {0}", parameters.toString());
+//        log.trace(" ..... constants {0}\n", consts.toString());
         return guard.isSatisfied(registers, parameters, consts);
     }
 
