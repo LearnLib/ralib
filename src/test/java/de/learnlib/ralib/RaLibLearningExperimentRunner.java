@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import org.testng.Assert;
 
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;

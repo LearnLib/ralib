@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.PriorityQueue;
 
-import de.learnlib.api.Query;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;

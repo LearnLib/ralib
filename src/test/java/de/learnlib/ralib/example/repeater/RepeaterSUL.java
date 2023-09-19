@@ -1,6 +1,6 @@
 package de.learnlib.ralib.example.repeater;
 
-import de.learnlib.api.SULException;
+import de.learnlib.api.exception.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.sul.DataWordSUL;
