@@ -27,7 +27,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import de.learnlib.api.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -217,7 +216,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         EnumSet<Category> cat = OPTION_LOGGING_CATEGORY.parse(config);
         for (Handler h : root.getHandlers()) {
             h.setLevel(lvl);
-            h.setFilter(new CategoryFilter(cat));
+            // h.setFilter(new CategoryFilter(cat));	// TODO: Change to use new learnlib API
         }
 
         // random
