@@ -69,6 +69,7 @@ public class IORandomWalkTest extends RaLibTestSuite {
                 20, // max depth
                 consts,
                 true, // reset runs
+                false,
                 teachers,
                 inputs);
 

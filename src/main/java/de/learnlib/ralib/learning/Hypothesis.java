@@ -60,6 +60,14 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         transitionSequences.put(t, as);
     }
 
+    public Map<RALocation, Word<PSymbolInstance>> getAccessSequences() {
+        return accessSequences;
+    }
+
+    public Map<Transition, Word<PSymbolInstance>> getTransitionSequences() {
+        return transitionSequences;
+    }
+
     @Override
     public Word<PSymbolInstance> transformAccessSequence(Word<PSymbolInstance> word) {
         RALocation loc = getLocation(word);
