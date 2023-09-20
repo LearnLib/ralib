@@ -120,7 +120,7 @@ public class MethodConfig {
         else {
             cl = Class.forName(parts[0].trim());
         }
-        return new Pair<Class<?>, String>(cl, parts[1].trim());
+        return Pair.of(cl, parts[1].trim());
     }
 
     private DataType getOrCreate(String name, Class<?> base, Map<String, DataType> map) {

@@ -26,8 +26,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import de.learnlib.logging.Category;
-import de.learnlib.logging.filter.CategoryFilter;
+import de.learnlib.api.logging.Category;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -210,16 +209,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         config.list(System.out);
 
-        // logging
-        Logger root = Logger.getLogger("");
-        Level lvl = OPTION_LOGGING_LEVEL.parse(config);
-        root.setLevel(lvl);
-        EnumSet<Category> cat = OPTION_LOGGING_CATEGORY.parse(config);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(lvl);
-            h.setFilter(new CategoryFilter(cat));
-        }
-
         // random
         Long seed = RANDOM.nextLong();
         if (config.containsKey(OPTION_RANDOM_SEED.getKey())) {
@@ -261,7 +250,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             // th.setType(t);
             th.setUseSuffixOpt(this.useSuffixOpt);
 
-            return new Pair<String, TypedTheory>(t, th);
+            return Pair.of(t, th);
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
             throw new ConfigurationException(ex.getMessage());

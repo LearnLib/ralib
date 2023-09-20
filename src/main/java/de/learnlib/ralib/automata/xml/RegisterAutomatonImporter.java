@@ -27,10 +27,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import jakarta.xml.bind.JAXB;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -55,7 +54,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Alphabet;
-import net.automatalib.words.impl.SimpleAlphabet;
+import net.automatalib.words.impl.GrowingMapAlphabet;
 
 /**
  *
@@ -223,23 +222,23 @@ public class RegisterAutomatonImporter {
                 OutputTransition tOut = new OutputTransition(p, outMap,
                         (OutputSymbol) ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
-                log.log(Level.FINEST,"Loading: " + tOut);
+                log.trace("Loading: " + tOut);
             } // input
             else {
                 assert freshRegs.isEmpty();
 
-                log.log(Level.FINEST,"Guard: " + gstring);
+                log.trace("Guard: " + gstring);
                 InputTransition tIn = new InputTransition(p, (InputSymbol) ps,
                         from, to, assign);
-                log.log(Level.FINEST,"Loading: " + tIn);
+                log.trace("Loading: " + tIn);
                 iora.addTransition(from, ps, tIn);
             }
         }
     }
 
     private void getAlphabet(RegisterAutomaton.Alphabet a) {
-        inputs = new SimpleAlphabet<>();
-        actions = new SimpleAlphabet<>();
+        inputs = new GrowingMapAlphabet<>();
+        actions = new GrowingMapAlphabet<>();
         for (RegisterAutomaton.Alphabet.Inputs.Symbol s : a.getInputs().getSymbol()) {
             int pcount = s.getParam().size();
             String[] pNames = new String[pcount];
@@ -256,7 +255,7 @@ public class RegisterAutomatonImporter {
             actions.add(ps);
             inputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            log.log(Level.FINEST,"Loading: " + ps);
+            log.trace("Loading: " + ps);
         }
         for (RegisterAutomaton.Alphabet.Outputs.Symbol s : a.getOutputs().getSymbol()) {
             int pcount = s.getParam().size();
@@ -273,7 +272,7 @@ public class RegisterAutomatonImporter {
             actions.add(ps);
             outputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            log.log(Level.FINEST,"Loading: " + ps);
+            log.trace("Loading: " + ps);
         }
     }
 
@@ -284,11 +283,11 @@ public class RegisterAutomatonImporter {
             Constant c = cgen.next(type);
             constMap.put(def.value, c);
             constMap.put(def.name, c);
-            log.log(Level.FINEST,def.name + " ->" + c);
+            log.trace(def.name + " ->" + c);
             DataValue dv = new DataValue(type, Integer.parseInt(def.value));
             consts.put(c, dv);
         }
-        log.log(Level.FINEST,"Loading: " + consts);
+        log.trace("Loading: " + consts);
     }
 
     private void getRegisters(RegisterAutomaton.Globals g) {
@@ -297,7 +296,7 @@ public class RegisterAutomatonImporter {
             DataType type = getOrCreateType(def.type);
             Register r = rgen.next(type);
             regMap.put(def.name, r);
-            log.log(Level.FINEST,def.name + " ->" + r);
+            log.trace(def.name + " ->" + r);
             Object o = null;
             switch (type.getBase().getName()) {
                 case "java.lang.Integer":
@@ -314,7 +313,7 @@ public class RegisterAutomatonImporter {
             DataValue dv = new DataValue(type, o);
             initialRegs.put(r, dv);
         }
-        log.log(Level.FINEST,"Loading: " + initialRegs);
+        log.trace("Loading: " + initialRegs);
     }
 
     private RegisterAutomaton unmarschall(InputStream is) {

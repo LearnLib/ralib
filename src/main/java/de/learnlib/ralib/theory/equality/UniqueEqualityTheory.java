@@ -1,9 +1,8 @@
 package de.learnlib.ralib.theory.equality;
 
 import java.util.*;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -74,7 +73,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         trueSuffixValues.putAll(suffixValues);
         trueSuffixValues.put(sv, d);
         sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-        log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+        log.trace(" single deq SDT : " + sdt.toString());
 
         merged.put(new SDTTrueGuard(sv), sdt);
 
@@ -88,18 +87,18 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
                                  Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue<T>> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
+        log.trace("prefix values : " + prefixValues.toString());
         DataType type = param.getType();
         Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
 
         if (!potSet.isEmpty()) {
-            log.log(Level.FINEST, "potSet = " + potSet.toString());
+            log.trace("potSet = " + potSet.toString());
         } else {
-            log.log(Level.FINEST, "potSet is empty");
+            log.trace("potSet is empty");
         }
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
-        log.log(Level.FINEST, "fresh = " + fresh.toString());
+        log.trace("fresh = " + fresh.toString());
         return fresh;
 
     }

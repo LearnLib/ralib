@@ -26,9 +26,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -100,17 +99,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         for (Map.Entry<EqualityGuard, SDT> e : eqs.entrySet()) {
             SDT eqSdt = e.getValue();
             EqualityGuard eqGuard = e.getKey();
-            log.log(Level.FINEST, "comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
+            log.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             List<SDTIfGuard> ds = new ArrayList();
             ds.add(eqGuard);
-            log.log(Level.FINEST, "remapping: " + ds.toString());
+            log.trace("remapping: " + ds.toString());
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
-                log.log(Level.FINEST, "--> not eq.");
+                log.trace("--> not eq.");
                 deqList.add(eqGuard.toDeqGuard());
                 eqList.add(eqGuard);
             } else {
-                log.log(Level.FINEST, "--> equivalent");
+                log.trace("--> equivalent");
             }
 
         }
@@ -138,7 +137,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
             if (mg instanceof EqualityGuard) {
-                log.log(Level.FINEST, mg.toString());
+                log.trace(mg.toString());
                 SymbolicDataValue r = ((EqualityGuard) mg).getRegister();
                 Parameter p = new Parameter(r.getType(), r.getId());
                 if (r instanceof Register) {
@@ -185,7 +184,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 trueSuffixValues.putAll(suffixValues);
                 trueSuffixValues.put(sv, d);
                 sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-                log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+                log.trace(" single deq SDT : " + sdt.toString());
                 merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
 
             }
@@ -204,10 +203,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 merged.put(guard, sdt);
             }
 
-            log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-            // log.log(Level.FINEST,"temporary pivs = " + tempPiv.keySet());
-            log.log(Level.FINEST, "merged guards = " + merged.keySet());
-            log.log(Level.FINEST, "merged pivs = " + pir.toString());
+            log.trace("temporary guards = " + tempKids.keySet());
+            // log.trace("temporary pivs = " + tempPiv.keySet());
+            log.trace("merged guards = " + merged.keySet());
+            log.trace("merged pivs = " + pir.toString());
 
             return new SDT(merged);
         }
@@ -237,13 +236,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                         trueSuffixValues.put(sv, d);
                         SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
 
-                        log.log(Level.FINEST, " single deq SDT : " + sdt.toString());
+                        log.trace(" single deq SDT : " + sdt.toString());
 
                         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
 
-                        log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-                        log.log(Level.FINEST, "merged guards = " + merged.keySet());
-                        log.log(Level.FINEST, "merged pivs = " + pir.toString());
+                        log.trace("temporary guards = " + tempKids.keySet());
+                        log.trace("merged guards = " + merged.keySet());
+                        log.trace("merged pivs = " + pir.toString());
 
                         return new SDT(merged);
                     }
@@ -258,26 +257,26 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
         }
 
-        log.log(Level.FINEST, "potential " + potential.toString());
+        log.trace("potential " + potential.toString());
 
         // process each 'if' case
         // prepare by picking up the prefix values
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
-        log.log(Level.FINEST, "prefix list    " + prefixValues.toString());
+        log.trace("prefix list    " + prefixValues.toString());
 
         DataValue fresh = getFreshValue(potential);
 
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
         for (DataValue<T> newDv : potential) {
-            log.log(Level.FINEST, newDv.toString());
+            log.trace(newDv.toString());
 
             // this is the valuation of the suffixvalues in the suffix
             SuffixValuation ifSuffixValues = new SuffixValuation();
             ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
 
             EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
-            log.log(Level.FINEST, "eqGuard is: " + eqGuard.toString());
+            log.trace("eqGuard is: " + eqGuard.toString());
             diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
             // construct the equality guard
             // find the data value in the prefix
@@ -304,7 +303,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, pir, constants, elseSuffixValues);
 
         SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[] {})));
-        log.log(Level.FINEST, "diseq guard = " + deqGuard.toString());
+        log.trace("diseq guard = " + deqGuard.toString());
 
         // merge the guards
         Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
@@ -312,9 +311,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         // only keep registers that are referenced by the merged guards
         pir.putAll(keepMem(merged));
 
-        log.log(Level.FINEST, "temporary guards = " + tempKids.keySet());
-        log.log(Level.FINEST, "merged guards = " + merged.keySet());
-        log.log(Level.FINEST, "merged pivs = " + pir.toString());
+        log.trace("temporary guards = " + tempKids.keySet());
+        log.trace("merged guards = " + merged.keySet());
+        log.trace("merged pivs = " + pir.toString());
 
         // clear the temporary map of children
         tempKids.clear();
@@ -342,8 +341,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             // first index of the data value in the prefixvalues list
             newDv_i = prefixValues.indexOf(newDv) + 1;
             Register newDv_r = new Register(type, newDv_i);
-            log.log(Level.FINEST, "current param = " + currentParam.toString());
-            log.log(Level.FINEST, "New register = " + newDv_r.toString());
+            log.trace("current param = " + currentParam.toString());
+            log.trace("New register = " + newDv_r.toString());
             return new EqualityGuard(currentParam, newDv_r);
 
         } // if the data value isn't in the prefix,
@@ -361,7 +360,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        log.log(Level.FINEST, "prefix values : " + prefixValues.toString());
+        log.trace("prefix values : " + prefixValues.toString());
         DataType type = param.getType();
         Deque<SDTGuard> guards = new LinkedList<>();
         guards.add(guard);
@@ -369,14 +368,14 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         while(!guards.isEmpty()) {
             SDTGuard current = guards.remove();
             if (current instanceof EqualityGuard) {
-                log.log(Level.FINEST, "equality guard " + current.toString());
+                log.trace("equality guard " + current.toString());
                 EqualityGuard eqGuard = (EqualityGuard) current;
                 SymbolicDataValue ereg = eqGuard.getRegister();
                 if (ereg.isRegister()) {
-                    log.log(Level.FINEST, "piv: " + piv.toString()
+                    log.trace("piv: " + piv.toString()
                             + " " + ereg.toString() + " " + param.toString());
                     Parameter p = piv.getOneKey((Register) ereg);
-                    log.log(Level.FINEST, "p: " + p.toString());
+                    log.trace("p: " + p.toString());
                     int idx = p.getId();
                     return prefixValues.get(idx - 1);
                 } else if (ereg.isSuffixValue()) {
@@ -394,12 +393,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 pval.<T>values(type));
 
         if (!potSet.isEmpty()) {
-            log.log(Level.FINEST, "potSet = " + potSet.toString());
+            log.trace("potSet = " + potSet.toString());
         } else {
-            log.log(Level.FINEST, "potSet is empty");
+            log.trace("potSet is empty");
         }
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
-        log.log(Level.FINEST, "fresh = " + fresh.toString());
+        log.trace("fresh = " + fresh.toString());
         return fresh;
 
     }
