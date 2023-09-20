@@ -209,16 +209,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         config.list(System.out);
 
-        // logging
-        Logger root = Logger.getLogger("");
-        Level lvl = OPTION_LOGGING_LEVEL.parse(config);
-        root.setLevel(lvl);
-        EnumSet<Category> cat = OPTION_LOGGING_CATEGORY.parse(config);
-        for (Handler h : root.getHandlers()) {
-            h.setLevel(lvl);
-            // h.setFilter(new CategoryFilter(cat));	// TODO: Change to use new learnlib API
-        }
-
         // random
         Long seed = RANDOM.nextLong();
         if (config.containsKey(OPTION_RANDOM_SEED.getKey())) {
