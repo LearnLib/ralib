@@ -120,7 +120,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
-        log.info("PIV: " + piv);
+        log.debug("PIV: " + piv);
 
         return tqr;
     }

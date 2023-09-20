@@ -71,7 +71,7 @@ public class AutomatonBuilder {
     }
 
     public Hypothesis toRegisterAutomaton() {
-        log.info("computing hypothesis");
+        log.debug("computing hypothesis");
         computeLocations();
         computeTransitions();
         return this.automaton;
@@ -79,14 +79,14 @@ public class AutomatonBuilder {
 
     private void computeLocations() {
     	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);
-        log.info("{0}", c);
+        log.debug("{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
         this.locations.put(RaStar.EMPTY_PREFIX, loc);
         this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
 
         for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
-                log.info("{0}", e.getValue());
+                log.debug("{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
                 this.locations.put(e.getKey(), loc);
                 this.automaton.setAccessSequence(loc, e.getKey());
@@ -109,7 +109,7 @@ public class AutomatonBuilder {
             return;
         }
 
-        log.info("computing transition: {1} to {0}", new Object[]{dest_c, r});
+        log.debug("computing transition: {1} to {0}", new Object[]{dest_c, r});
 
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);
@@ -174,7 +174,7 @@ public class AutomatonBuilder {
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
         if (t != null) {
-            log.info("computed transition {0}", t);
+            log.debug("computed transition {0}", t);
             this.automaton.addTransition(src_loc, action, t);
             this.automaton.setTransitionSequence(t, r.getPrefix());
         }

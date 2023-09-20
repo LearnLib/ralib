@@ -64,7 +64,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
-        log.info("Searching for counterexample in SDTs");
+        log.trace("Searching for counterexample in SDTs");
         log.trace("SDT1: {0}", sdt1);
         log.trace("SDT2: {0}", sdt2);
         log.trace("Guard: {0}", guard);
