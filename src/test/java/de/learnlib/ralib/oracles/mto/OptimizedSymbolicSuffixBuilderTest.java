@@ -297,8 +297,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv1.put(p3, r2);
         piv1.put(p4, r3);
         PIV piv2 = new PIV();
-        PIV piv3 = new PIV();
-        piv3.put(p1, r1);
 
         Constants consts1 = new Constants();
         Constants consts2 = new Constants();
@@ -420,7 +418,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
         Assert.assertEquals(suffix12.toString(), "[]((a[s1] a[s1] a[s2] a[s3]))");
 
-
         Word<PSymbolInstance> prefix3 = prefix1;
         Word<PSymbolInstance> prefix4 = prefix2;
         SDT sdt3 = new SDT(Map.of(
@@ -431,7 +428,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
                 new DisequalityGuard(s1, r1), new SDT(Map.of(
                         new SDTTrueGuard(s2), new SDT(Map.of(
                                 new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
-
 
 
         SDT sdt4 = new SDT(Map.of(
@@ -449,7 +445,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         PIV piv4 = new PIV();
         piv4.put(p1, r1);
         piv4.put(p2, r2);
-
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
         Assert.assertEquals(suffix34.toString(), "[s2]((a[s1] a[s2] a[s3] a[s3]))");

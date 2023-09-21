@@ -132,7 +132,6 @@ public class DTTest {
 	@Test
 	public void siftTest() {
 
-	      Constants consts = new Constants();
 	      RegisterAutomaton sul = AUTOMATON;
 	      DataWordOracle dwOracle = new SimulatorOracle(sul);
 
