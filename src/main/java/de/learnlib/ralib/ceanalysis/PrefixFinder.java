@@ -74,7 +74,7 @@ public class PrefixFinder {
 
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-		int idx = findIndex(ce);
+	int idx = findIndex(ce);
         SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
         TreeQueryResult tqr = null; //storedQueries.get(sw);
         if (tqr == null) {
@@ -99,9 +99,9 @@ public class PrefixFinder {
 			Word<PSymbolInstance> prefix = ce.prefix(idx);
 			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
 
-			log.finest("idx:" + idx + "ce:     " + ce);
-			log.finest("idx:" + idx + "prefix: " + prefix);
-			log.finest("idx:" + idx + "next:   " + nextPrefix);
+			log.trace("idx:" + idx + "ce:     " + ce);
+			log.trace("idx:" + idx + "prefix: " + prefix);
+			log.trace("idx:" + idx + "next:   " + nextPrefix);
 
 			// check for location counterexample ...
 			//
@@ -118,10 +118,10 @@ public class PrefixFinder {
 					TreeQueryResult uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
 					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
 
-					log.finest("idx:" + idx + "u:  " + u);
-					log.finest("idx:" + idx + "ua: " + uAlpha);
-					log.finest("idx:" + idx + "u': " + uPrime);
-					log.finest("idx:" + idx + "v:  " + symSuffix);
+					log.trace("idx:" + idx + "u:  " + u);
+					log.trace("idx:" + idx + "ua: " + uAlpha);
+					log.trace("idx:" + idx + "u': " + uPrime);
+					log.trace("idx:" + idx + "v:  " + symSuffix);
 
 					// different piv sizes
 					//
@@ -143,14 +143,14 @@ public class PrefixFinder {
 				}
 				// found a counterexample!
 				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
-				log.finest("Counterexample for location");
+				log.trace("Counterexample for location");
 				return idx;
 			}
 
 			// check for transition counterexample ...
 			//
 			if (transitionHasCE(ce, idx-1)) {
-				log.finest("Counterexample for transition");
+				log.trace("Counterexample for transition");
 				return idx;
 			}
 		}
