@@ -129,7 +129,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
             Constants constants, SuffixValuation suffixValues) {
 
-        log.finer("TQ: prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
+        log.debug("TQ: prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
 
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(suffix.getActions(), values);
