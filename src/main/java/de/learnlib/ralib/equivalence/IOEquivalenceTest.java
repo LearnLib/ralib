@@ -20,7 +20,7 @@ import java.util.*;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
@@ -124,10 +124,10 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         if (!t1.equals(t2))
             return false;
 
-//        log.log(Level.FINEST,t1.sys1reg);
-//        log.log(Level.FINEST,t1.sys2reg);
-//        log.log(Level.FINEST,t2.sys1reg);
-//        log.log(Level.FINEST,t2.sys2reg);
+//        log.trace(t1.sys1reg);
+//        log.trace(t1.sys2reg);
+//        log.trace(t2.sys1reg);
+//        log.trace(t2.sys2reg);
 
         // compare registers
         LinkedHashMap<Object,Object> vMap = new LinkedHashMap<>();
@@ -260,8 +260,8 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
                 for (Word<PSymbolInstance> w : words)
                 {
-                    //log.log(Level.FINEST,x + "----------------------------------------------------------------------");
-                    //log.log(Level.FINEST,w);
+                    //log.trace(x + "----------------------------------------------------------------------");
+                    //log.trace(w);
 
                     Triple next = new Triple(null, null, null, null, w, null);
 
@@ -269,6 +269,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                             executeStep(t, w.lastSymbol(), next);
 
                     //System.out.println("Cand: " + w + " = " + out.getFirst() + " : " + out.getSecond());
+
                     if (out.getFirst()== null) {
                         throw new IllegalStateException();
                     }
@@ -292,18 +293,18 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                     // first one
                     if (comp == null)
                     {
-                        //log.log(Level.FINEST,"First one in list");
+                        //log.trace("First one in list");
                         visited.put(st, new ArrayList<Tuple>());
                     }
                     else
                     {
-                        //log.log(Level.FINEST,"Found list");
+                        //log.trace("Found list");
                         boolean found = false;
                         for (Tuple xx : comp) {
                             if (compatible(xx, st))
                             {
                                 found = true;
-                                //log.log(Level.FINEST,"skip " + w);
+                                //log.trace("skip " + w);
                                 break;
                             }
                         }
@@ -314,7 +315,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
                     q.add(next);
                     visited.get(st).add(st);
-                    //log.log(Level.FINEST,"added " + w + " to queue");
+                    //log.trace("added " + w + " to queue");
 
                 }
             }
@@ -552,6 +553,5 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         }
         return new ArrayList<>(stored);
     }
-
 
 }

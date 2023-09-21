@@ -3,7 +3,7 @@ package de.learnlib.ralib.example.list;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-import de.learnlib.api.Query;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -51,7 +51,7 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 	}
 
 	private boolean getOutput(PSymbolInstance symInst, BoundedList list) {
-		try {
+		//try {
 			if (symInst.getBaseSymbol().equals(PUSH)) {
 				list.push( (Integer) symInst.getParameterValues()[0].getId());
 				return true;
@@ -64,8 +64,8 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 			} else if (symInst.getBaseSymbol().equals(CONTAINS)) {
 				return list.contains((Integer) symInst.getParameterValues()[0].getId());
 			}
-		} catch (Exception e) {
-		}
+		//} catch (Exception e) {
+		//}
 
 		return false;
 	}

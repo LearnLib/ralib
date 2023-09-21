@@ -21,10 +21,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
-import de.learnlib.api.Query;
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -66,7 +65,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         countQueries(clctn.size());
         for (Query<PSymbolInstance, Boolean> q : clctn) {
-            log.log(Level.FINEST, "MQ: {0}", q.getInput());
+            log.trace("MQ: {0}", q.getInput());
             boolean accepted = traceBoolean(q.getInput());
             q.answer(accepted);
         }

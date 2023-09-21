@@ -22,9 +22,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -143,7 +142,7 @@ public class MultiTheoryBranching implements Branching {
 
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
             ParValuation pval, Constants constants, SDT... sdts) {
-        log.log(Level.FINEST, "ps = " + action.toString());
+        log.trace("ps = " + action.toString());
         this.prefix = prefix;
         this.action = action;
         this.node = node;

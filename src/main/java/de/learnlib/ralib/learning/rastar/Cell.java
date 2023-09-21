@@ -17,9 +17,8 @@
 package de.learnlib.ralib.learning.rastar;
 
 import java.util.Collection;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -76,9 +75,9 @@ final class Cell {
         boolean check = this.suffix.equals(other.suffix) &&
                 this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
                 this.sdt.isEquivalent(other.sdt, renaming);
-        log.log(Level.FINEST,this.sdt + "\nVS\n" + other.sdt + "\n");
-        log.log(Level.FINEST,this.suffix + "    " + other.suffix);
-        log.log(Level.FINEST,this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
+        log.trace(this.sdt + "\nVS\n" + other.sdt + "\n");
+        log.trace(this.suffix + "    " + other.suffix);
+        log.trace(this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
 
 //        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
         return check;
@@ -108,7 +107,7 @@ final class Cell {
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
        //System.out.println("END: computecell " + c.toString());
-        //log.log(Level.FINE, "computeCell ...... {0}", c);
+        //log.debug("computeCell ...... {0}", c);
 
         //System.out.println(c);
 //        assert tqr.getPiv().size() <= 2;

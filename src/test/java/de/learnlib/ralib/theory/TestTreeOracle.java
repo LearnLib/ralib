@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.Query;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;

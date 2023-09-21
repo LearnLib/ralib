@@ -96,10 +96,10 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     public Set<K> getAllKeys(V value) {
         Set<K> retKeySet = new LinkedHashSet();
         for (K key : this.keySet()) {
-            //log.log(Level.FINEST,"key = " + K);
-            //log.log(Level.FINEST,"value = " + this.get(key).toString());
+            //log.trace("key = " + K);
+            //log.trace("value = " + this.get(key).toString());
             if (this.get(key).equals(value)){
-                //log.log(Level.FINEST,this.get(key).toString() + " equals " + value.toString());
+                //log.trace(this.get(key).toString() + " equals " + value.toString());
                 retKeySet.add(key);
             }
         }

@@ -21,9 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -76,14 +75,14 @@ public class Row implements PrefixContainer {
         if (ioMode && suffix.getActions().length() > 0) {
             // error row
             if (getPrefix().length() > 0 && !isAccepting()) {
-                log.log(Level.INFO, "Not adding suffix " + suffix + " to error row " + getPrefix());
+                log.info("Not adding suffix " + suffix + " to error row " + getPrefix());
                 return;
             }
             // unmatching suffix
             if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
                     || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                     ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
-                log.log(Level.INFO, "Not adding suffix " + suffix + " to unmatching row " + getPrefix());
+                log.info("Not adding suffix " + suffix + " to unmatching row " + getPrefix());
                 return;
             }
         }
@@ -227,14 +226,14 @@ public class Row implements PrefixContainer {
             if (ioMode && s.getActions().length() > 0) {
                 // error row
                 if (r.getPrefix().length() > 0 && !r.isAccepting()) {
-                    log.log(Level.INFO, "Not adding suffix " + s + " to error row " + r.getPrefix());
+                    log.info("Not adding suffix " + s + " to error row " + r.getPrefix());
                     continue;
                 }
                 // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
                         || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                         ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
-                    log.log(Level.INFO, "Not adding suffix " + s + " to unmatching row " + r.getPrefix());
+                    log.info("Not adding suffix " + s + " to unmatching row " + r.getPrefix());
                     continue;
                 }
             }

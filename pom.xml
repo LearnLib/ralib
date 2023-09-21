@@ -14,13 +14,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
         <!-- Dependency versions appear alphabetically below -->
         <commons-lang.version>3.13.0</commons-lang.version>
         <guava.version>32.1.2-jre</guava.version>
-        <jakarta-xml.version>4.0.0</jakarta-xml.version>
+        <jakarta-xml.version>4.0.1</jakarta-xml.version>
         <jaxb-impl.version>4.0.3</jaxb-impl.version>
         <jconstraints.version>0.9.9</jconstraints.version>
-        <learnlib.version>0.12.0</learnlib.version>
+        <learnlib.version>0.16.0</learnlib.version>
     </properties>
 
     <build>
@@ -42,49 +43,50 @@
                         </configuration>
                     </execution>
                 </executions>
-	    </plugin>
+            </plugin>
 
             <!-- Format the source code -->
             <plugin>
-	        <groupId>com.diffplug.spotless</groupId>
-	        <artifactId>spotless-maven-plugin</artifactId>
-		<version>2.39.0</version>
-		<configuration>
-		    <formats>
+	              <groupId>com.diffplug.spotless</groupId>
+	              <artifactId>spotless-maven-plugin</artifactId>
+		            <version>2.39.0</version>
+		            <configuration>
+                    <formats>
                         <format>
-			    <includes>
+                            <includes>
                                 <include>.xml</include>
-			    </includes>
-			    <endWithNewline />
-			    <trimTrailingWhitespace />
-			</format>
-		    </formats>
-		    <java>
-		        <endWithNewline />
+			                      </includes>
+			                      <endWithNewline />
+			                      <trimTrailingWhitespace />
+			                  </format>
+		                </formats>
+		                <java>
+		                    <endWithNewline />
                         <formatAnnotations />
-			<importOrder>
-			    <order>java|jakarta,com,org,de|gov|net</order>
-			</importOrder>
+			                  <importOrder>
+                            <order>java|jakarta,com,org,de|gov|net</order>
+                        </importOrder>
                         <!--<indent>
                             <spaces>true</spaces>
                             <spacesPerTab>4</spacesPerTab>
                         </indent>-->
-			<!--<palantirJavaFormat>
-			    <version>2.27.0</version>
-			</palantirJavaFormat>-->
-			<removeUnusedImports />
+			                  <!--<palantirJavaFormat>
+                            <version>2.27.0</version>
+                        </palantirJavaFormat>-->
+                        <removeUnusedImports />
                         <trimTrailingWhitespace />
-		    </java>
-		</configuration>
-		<executions>
+                    </java>
+                </configuration>
+                <executions>
                     <execution>
                         <goals>
                             <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
-	    </plugin>
+            </plugin>
 
+            <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
@@ -103,6 +105,7 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- learnlib -->
             <dependency>
                 <groupId>de.learnlib</groupId>
                 <artifactId>learnlib-parent</artifactId>
@@ -110,10 +113,18 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- jakarta-xml api -->
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta-xml.version}</version>
+            </dependency>
+            <!-- jaxb implementation -->
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>${jaxb-impl.version}</version>
+                <scope>runtime</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -139,7 +150,11 @@
         </dependency>
         <dependency>
             <groupId>de.learnlib</groupId>
-            <artifactId>learnlib-core</artifactId>
+            <artifactId>learnlib-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.learnlib</groupId>
+            <artifactId>learnlib-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -165,11 +180,9 @@
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
-	<dependency>
+        <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-            <version>${jaxb-impl.version}</version>
-            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>

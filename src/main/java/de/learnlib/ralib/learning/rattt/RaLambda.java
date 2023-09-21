@@ -7,8 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
@@ -501,5 +501,10 @@ public class RaLambda implements RaLearningAlgorithm {
     @Override
     public RaLearningAlgorithmName getName() {
         return RaLearningAlgorithmName.RALAMBDA;
+    }
+
+    @Override
+    public String toString() {
+        return this.dt.toString();
     }
 }

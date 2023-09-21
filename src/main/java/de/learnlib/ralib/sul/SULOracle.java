@@ -20,9 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -52,7 +51,7 @@ public class SULOracle extends IOOracle {
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         countQueries(1);
         Word<PSymbolInstance> act = query;
-        log.log(Level.FINEST, "MQ: {0}", query);
+        log.trace("MQ: {0}", query);
         sul.pre();
         replacements.clear();
         Word<PSymbolInstance> trace = Word.epsilon();

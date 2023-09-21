@@ -89,7 +89,7 @@ public class SymbolicSuffix {
     public SymbolicSuffix(Word<PSymbolInstance> prefix,
             Word<PSymbolInstance> suffix, Constants consts) {
 
-//        log.log(Level.FINEST,prefix.toString() + "\n" + suffix.toString());
+//        log.trace(prefix.toString() + "\n" + suffix.toString());
 
         this.actions = DataWords.actsOf(suffix);
 
@@ -109,7 +109,7 @@ public class SymbolicSuffix {
         }
 
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d) ||
+            if (valsetPrefix.contains(d) || consts.containsValue(d) ||
                     // TODO: this changes with essentialized suffixes (!)
                     // we know that equalities are essential
                     (groups.containsKey(d) && idx <= arityFirst)) {
@@ -117,7 +117,7 @@ public class SymbolicSuffix {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
-//                log.log(Level.FINEST,"adding " + sym.toString() + " at " + idx);
+//                log.trace("adding " + sym.toString() + " at " + idx);
 
             } else {
                 SuffixValue ref = groups.get(d);
@@ -180,7 +180,7 @@ public class SymbolicSuffix {
                 SuffixValue sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
-//                log.log(Level.FINEST,"adding " + sym.toString() + " at " + idx);
+//                log.trace("adding " + sym.toString() + " at " + idx);
 
             } else {
                 SuffixValue ref = groups.get(d);

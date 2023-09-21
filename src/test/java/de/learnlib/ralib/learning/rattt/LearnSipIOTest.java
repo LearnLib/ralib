@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -110,7 +110,6 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         int check = 0;
         while (true && check < 100) {
-
             check++;
             rattt.learn();
             Hypothesis hyp = rattt.getHypothesis();

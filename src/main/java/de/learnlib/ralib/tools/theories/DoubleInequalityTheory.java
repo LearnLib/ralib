@@ -195,7 +195,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         if (potential.isEmpty()) {
             return new DoubleDataValue(type, BigDecimal.ONE);
         }
-        //log.log(Level.FINEST, "smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
+        //log.trace("smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
         DataValue<BigDecimal> biggestDv = Collections.max(potential, new Cpr());
         return new DoubleDataValue(type, biggestDv.getId().add(BigDecimal.ONE));
     }
