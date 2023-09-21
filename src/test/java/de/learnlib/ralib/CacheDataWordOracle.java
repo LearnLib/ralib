@@ -4,10 +4,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
-import de.learnlib.api.Query;
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -34,7 +33,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 	@Override
 	public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> queries) {
 		for (Query<PSymbolInstance, Boolean> query : queries) {
-			log.log(Level.FINEST, "MQ: {0}", query.getInput());
+			log.trace("MQ: {0}", query.getInput());
 			boolean answer = traceBoolean(query.getInput());
 			query.answer(answer);
 		}

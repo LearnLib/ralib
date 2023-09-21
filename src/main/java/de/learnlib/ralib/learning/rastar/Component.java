@@ -24,9 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
-import de.learnlib.logging.LearnLogger;
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
@@ -127,7 +126,7 @@ public class Component implements LocationComponent {
 
         if (ioMode && suffix.getActions().length() > 0 &&
                 getAccessSequence().length() > 0 && !isAccepting()) {
-            log.log(Level.INFO, "Not adding suffix " + suffix + " to error component " + getAccessSequence());
+            log.info("Not adding suffix " + suffix + " to error component " + getAccessSequence());
             return;
         }
 
@@ -177,8 +176,8 @@ public class Component implements LocationComponent {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
 
-        log.log(Level.FINEST,"OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
-        log.log(Level.FINEST,"NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
+        log.trace("OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
+        log.trace("NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
 
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {

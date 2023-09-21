@@ -25,14 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.logging.LearnLogger;
-import de.learnlib.oracles.DefaultQuery;
+import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -121,7 +120,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
-        log.finer("PIV: " + piv);
+        log.debug("PIV: " + piv);
 
         return tqr;
     }
@@ -166,7 +165,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
             SymbolicDecisionTree... sdts) {
 
-        log.log(Level.INFO, "computing initial branching for {0} after {1}", new Object[] { ps, prefix });
+        log.info("computing initial branching for {0} after {1}", new Object[] { ps, prefix });
 
         // TODO: check if this casting can be avoided by proper use of generics
         // TODO: the problem seems to be
@@ -182,7 +181,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching mtb = this.getInitialBranching(prefix, ps, piv, new ParValuation(), casted);
 
-        log.log(Level.FINEST, mtb.toString());
+        log.trace(mtb.toString());
 
         return mtb;
     }
@@ -213,7 +212,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
             DataType type = ps.getPtypes()[i - 1];
-            log.log(Level.FINEST, "current type: " + type.getName());
+            log.trace("current type: " + type.getName());
             Parameter p = new Parameter(type, i);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, i));
             Theory teach = teachers.get(type);
@@ -296,8 +295,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 guardMap.put(dvi, guard);
             }
 
-            log.log(Level.FINEST, "guardMap: " + guardMap.toString());
-            log.log(Level.FINEST, "nextMap: " + nextMap.toString());
+            log.trace("guardMap: " + guardMap.toString());
+            log.trace("nextMap: " + nextMap.toString());
             assert !nextMap.isEmpty();
             assert !guardMap.isEmpty();
             return new Node(p, nextMap, guardMap);
@@ -341,7 +340,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             // we filter out pairs already covered
             SDTGuard[] notCoveredPairs = nextGroup.stream()
-                    .filter(next -> !headNextPairs.contains(new Pair<>(next, head))).toArray(SDTGuard[]::new);
+                    .filter(next -> !headNextPairs.contains(Pair.of(next, head))).toArray(SDTGuard[]::new);
 
             // we then select only the next guards which can be conjoined with the head
             // guard, i.e.
@@ -364,7 +363,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 LinkedHashSet<SDTGuard> newOldGuards = Sets.newLinkedHashSet(oldGuards);
                 newOldGuards.add(next);
                 mergedGroup.put(refinedGuard, newOldGuards);
-                headNextPairs.add(new Pair<>(head, next));
+                headNextPairs.add(Pair.of(head, next));
             }
         }
         return mergedGroup;

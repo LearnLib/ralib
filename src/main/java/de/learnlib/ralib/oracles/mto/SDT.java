@@ -306,7 +306,7 @@ public class SDT implements SymbolicDecisionTree {
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
         for (int c = 0; c < (maybeArr.length); c++) {
-            //log.log(Level.FINEST,maybeArr[c]);
+            //log.trace(maybeArr[c]);
             if (!maybeArr[c]) {
                 maybe = false;
                 break;

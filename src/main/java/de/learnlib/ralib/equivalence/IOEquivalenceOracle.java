@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import de.learnlib.api.EquivalenceOracle;
+import de.learnlib.api.oracle.EquivalenceOracle;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.words.PSymbolInstance;
 

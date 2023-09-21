@@ -18,7 +18,7 @@ package de.learnlib.ralib.tools;
 
 import java.util.Collection;
 
-import de.learnlib.api.Query;
+import de.learnlib.api.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 
