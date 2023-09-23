@@ -67,9 +67,9 @@ public class SymbolicSuffix {
     	actions = Word.fromWords(s.actions);
 
     	for (SuffixValue sv : s.freeValues)
-    		freeValues.add(sv.copy());
+            freeValues.add(sv.copy());
     	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
-    		dataValues.put(new Integer(dv.getKey()), dv.getValue().copy());
+            dataValues.put(Integer.valueOf(dv.getKey()), dv.getValue().copy());
     }
 
     /**
