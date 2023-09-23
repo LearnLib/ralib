@@ -1,6 +1,5 @@
 package de.learnlib.ralib.learning.rattt;
 
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -120,7 +119,7 @@ public class LearnPadlock extends RaLibTestSuite {
                         new Constants(), solver);
 
         RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
-		rattt.setSolver(solver);
+        rattt.setSolver(solver);
 
         rattt.learn();
         RegisterAutomaton hyp = rattt.getHypothesis();

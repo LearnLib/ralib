@@ -44,8 +44,7 @@ public abstract class RaLibTestSuite {
     }
 
     @BeforeMethod
-    public void nameBefore(Method method)
-    {
+    public void nameBefore(Method method) {
         System.out.println("Test name: " + method.getName());
     }
 }

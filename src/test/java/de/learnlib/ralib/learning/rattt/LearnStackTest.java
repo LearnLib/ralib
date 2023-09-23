@@ -45,23 +45,23 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class LearnStackTest extends RaLibTestSuite {
-	@Test
-	public void learnStackExample() {
 
-		Constants consts = new Constants();
-	    RegisterAutomaton sul = AUTOMATON;
-	    DataWordOracle dwOracle = new SimulatorOracle(sul);
+    @Test
+    public void learnStackExample() {
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
+	Constants consts = new Constants();
+        RegisterAutomaton sul = AUTOMATON;
+        DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	    Measurements mes = new Measurements();
+        ConstraintSolver solver = new SimpleConstraintSolver();
 
-	    MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
-	              dwOracle, teachers, new Constants(), solver),
-	    		mes);
+        Measurements mes = new Measurements();
+
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
+              dwOracle, teachers, new Constants(), solver), mes);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -99,21 +99,21 @@ public class LearnStackTest extends RaLibTestSuite {
 
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
-	}
+    }
 
-	@Test
-	public void learnStackExampleSwitchedCE() {
-		Constants consts = new Constants();
-	    RegisterAutomaton sul = AUTOMATON;
-	    DataWordOracle dwOracle = new SimulatorOracle(sul);
+    @Test
+    public void learnStackExampleSwitchedCE() {
+        Constants consts = new Constants();
+        RegisterAutomaton sul = AUTOMATON;
+        DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new SimpleConstraintSolver();
 
-	    MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-	              dwOracle, teachers, new Constants(), solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+              dwOracle, teachers, new Constants(), solver);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -135,7 +135,6 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
 
-
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
         rattt.learn();
@@ -145,7 +144,6 @@ public class LearnStackTest extends RaLibTestSuite {
         ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
-
 
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -174,9 +172,9 @@ public class LearnStackTest extends RaLibTestSuite {
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
         Assert.assertEquals(suffixActions, expectedSuffixActions);
-	}
+    }
 
-	@Test
+    @Test
     public void learnStackExampleLongCE() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
@@ -212,7 +210,6 @@ public class LearnStackTest extends RaLibTestSuite {
                 new PSymbolInstance(I_POP, new DataValue(T_INT, 0))
                 );
 
-
         rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
         rattt.learn();
@@ -222,11 +219,11 @@ public class LearnStackTest extends RaLibTestSuite {
         Assert.assertTrue(hyp.accepts(ce));
     }
 
-	@Test
-	public void learnStackExampleRandom() {
-		final int SEEDS = 10;
-		Constants consts = new Constants();
-		RegisterAutomaton sul = AUTOMATON;
+    @Test
+    public void learnStackExampleRandom() {
+	final int SEEDS = 10;
+	Constants consts = new Constants();
+	RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
@@ -240,21 +237,21 @@ public class LearnStackTest extends RaLibTestSuite {
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
-        for (int seed=0; seed<SEEDS; seed++) {
-        	runner.setSeed(seed);
-        	Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
-        	measuresTTT[seed] = runner.getMeasurements();
-        	runner.resetMeasurements();
+        for (int seed = 0; seed < SEEDS; seed++) {
+            runner.setSeed(seed);
+            Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
+            measuresTTT[seed] = runner.getMeasurements();
+            runner.resetMeasurements();
 
-        	Assert.assertEquals(hypTTT.getStates().size(), 4);
-        	Assert.assertEquals(hypTTT.getTransitions().size(), 10);
+            Assert.assertEquals(hypTTT.getStates().size(), 4);
+            Assert.assertEquals(hypTTT.getTransitions().size(), 10);
 
-        	Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
-        	measuresStar[seed] = runner.getMeasurements();
-        	runner.resetMeasurements();
+            Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
+            measuresStar[seed] = runner.getMeasurements();
+            runner.resetMeasurements();
         }
 
-        System.out.println("Queries (RaTTT): " + Arrays.toString(measuresTTT));
+        System.out.println("Queries (RaLambda): " + Arrays.toString(measuresTTT));
         System.out.println("Queries (RaStar): " + Arrays.toString(measuresStar));
-	}
+    }
 }

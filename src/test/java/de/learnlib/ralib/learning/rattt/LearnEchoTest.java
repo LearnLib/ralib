@@ -36,8 +36,8 @@ import net.automatalib.words.Word;
 
 public class LearnEchoTest extends RaLibTestSuite {
 
-	@Test
-	public void learnEchoTest() {
+    @Test
+    public void learnEchoTest() {
 
         Constants consts = new Constants();
 
@@ -48,15 +48,13 @@ public class LearnEchoTest extends RaLibTestSuite {
 
         RepeaterSUL sul = new RepeaterSUL(-1, 4);
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
-	    IOCache ioCache = new IOCache(ioOracle);
-	    IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+	IOCache ioCache = new IOCache(ioOracle);
+	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                oracle, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo =
-                new MultiTheorySDTLogicOracle(consts, solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
@@ -65,16 +63,16 @@ public class LearnEchoTest extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 2)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 3)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 3)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 4)),
-        		new PSymbolInstance(ONOK));
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, 2)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, 3)),
+       	        new PSymbolInstance(OECHO, new DataValue(TINT, 3)),
+       	        new PSymbolInstance(IPUT, new DataValue(TINT, 4)),
+       	        new PSymbolInstance(ONOK));
 
         learner.addCounterexample(new DefaultQuery<>(ce, true));
         learner.learn();
@@ -83,5 +81,5 @@ public class LearnEchoTest extends RaLibTestSuite {
 
         Assert.assertEquals(hyp.getStates().size(), 11);
         Assert.assertTrue(hyp.accepts(ce));
-	}
+    }
 }
