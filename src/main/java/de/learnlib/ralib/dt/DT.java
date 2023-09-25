@@ -199,7 +199,7 @@ public class DT implements DiscriminationTree {
         //TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
         TreeQueryResult tqr2 = r2.getTQRforSuffix(suffix);
-        mp.addTQR(suffix, tqr2);
+        leaf.getPrimePrefix().addTQR(suffix, tqr2);
         //        assert !tqr.getSdt().isEquivalent(tqr2.getSdt(), new VarMapping<>());
         DTBranch b = new DTBranch(leaf, r2);
         leaf.setParent(node);
