@@ -404,16 +404,15 @@ public class RaLambda implements RaLearningAlgorithm {
     	TreeQueryResult tqrA = ca.getTQR(wa, v);
     	TreeQueryResult tqrB = cb.getTQR(wb, v);
 
-        // todo: i had to add this check. not sure why this did not happen before?
-        if (tqrA != null && tqrB != null) {
+    	assert tqrA != null && tqrB != null;
 
-            SymbolicDecisionTree sdtA = tqrA.getSdt();
-            SymbolicDecisionTree sdtB = tqrB.getSdt();
+        SymbolicDecisionTree sdtA = tqrA.getSdt();
+        SymbolicDecisionTree sdtB = tqrB.getSdt();
 
-            if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+        if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
 //    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
-                return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT) sdtA, tqrA.getPiv(), wb, (SDT) sdtB, tqrB.getPiv(), v.getActions(), solver);
-            }
+          	SymbolicSuffix suffix = suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT) sdtA, tqrA.getPiv(), wb, (SDT) sdtB, tqrB.getPiv(), v.getActions(), solver);
+           	return suffix;
         }
 
     	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
