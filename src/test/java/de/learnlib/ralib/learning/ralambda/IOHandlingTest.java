@@ -1,10 +1,10 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.ID;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.IN;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.NOK;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.OK;
-import static de.learnlib.ralib.learning.rattt.IOHandlingTest.IORAExamples.OUT;
+import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.ID;
+import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.IN;
+import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.NOK;
+import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.OK;
+import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.OUT;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,7 +35,6 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -221,21 +220,20 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
 
-		rattt.learn();
+		ralambda.learn();
 
-		RegisterAutomaton hyp = rattt.getHypothesis();
+		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
 				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, 1)), new PSymbolInstance(NOK));
 
-		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		rattt.learn();
-		hyp = rattt.getHypothesis();
+		ralambda.learn();
+		hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, OK, NOK);
@@ -269,12 +267,11 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
-		rattt.learn();
+		ralambda.learn();
 
-		RegisterAutomaton hyp = rattt.getHypothesis();
+		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 //		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
@@ -284,10 +281,10 @@ public class IOHandlingTest extends RaLibTestSuite {
 				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
 				new PSymbolInstance(NOK));
 
-		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		rattt.learn();
-		hyp = rattt.getHypothesis();
+		ralambda.learn();
+		hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);
@@ -321,22 +318,21 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
-//		RaStar rattt = new RaStar(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
 
-		rattt.learn();
+		ralambda.learn();
 
-		RegisterAutomaton hyp = rattt.getHypothesis();
+		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
 				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 1)),
 				new PSymbolInstance(NOK));
 
-		rattt.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		rattt.learn();
-		hyp = rattt.getHypothesis();
+		ralambda.learn();
+		hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);

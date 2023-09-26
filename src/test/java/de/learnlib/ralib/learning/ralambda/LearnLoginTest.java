@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_LOGIN;
@@ -25,7 +25,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -63,12 +62,12 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda rattt = new RaLambda(mto, hypFactory, slo,
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        rattt.setSolver(solver);
+        ralambda.setSolver(solver);
 
-        rattt.learn();
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        ralambda.learn();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -77,10 +76,10 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, 0), new DataValue(T_PWD, 0)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 3);

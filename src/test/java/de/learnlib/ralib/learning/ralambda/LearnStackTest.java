@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
@@ -30,7 +30,6 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -70,21 +69,21 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        ralambda.setSolver(solver);
 
-        rattt.learn();
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        ralambda.learn();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         ce = Word.fromSymbols(
@@ -92,10 +91,10 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 4);
@@ -122,13 +121,13 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        ralambda.setSolver(solver);
 
-        rattt.learn();
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        ralambda.learn();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
-        hyp = rattt.getHypothesis();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -136,20 +135,20 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
@@ -157,11 +156,11 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
 
-        Collection<SymbolicSuffix> suffixes = rattt.getDT().getSuffixes();
+        Collection<SymbolicSuffix> suffixes = ralambda.getDT().getSuffixes();
         Set<Word<ParameterizedSymbol>> suffixActions = suffixes.stream().map(s -> s.getActions()).collect(Collectors.toSet());
         Set<Word<ParameterizedSymbol>> expectedSuffixActions = ImmutableSet.of(
             Word.fromSymbols(),
@@ -195,13 +194,13 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda rattt = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        ralambda.setSolver(solver);
 
-        rattt.learn();
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        ralambda.learn();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
-        hyp = rattt.getHypothesis();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -211,10 +210,10 @@ public class LearnStackTest extends RaLibTestSuite {
                 new PSymbolInstance(I_POP, new DataValue(T_INT, 0))
                 );
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertTrue(hyp.accepts(ce));
