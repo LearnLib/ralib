@@ -232,26 +232,26 @@ public class LearnStackTest extends RaLibTestSuite {
         theory.setUseSuffixOpt(false);
         teachers.put(T_INT, theory);
 
-        Measurements[] measuresTTT = new Measurements[SEEDS];
+        Measurements[] measuresLambda = new Measurements[SEEDS];
         Measurements[] measuresStar = new Measurements[SEEDS];
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
         for (int seed = 0; seed < SEEDS; seed++) {
             runner.setSeed(seed);
-            Hypothesis hypTTT = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
-            measuresTTT[seed] = runner.getMeasurements();
+            Hypothesis hypLambda = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol[]{I_PUSH, I_POP});
+            measuresLambda[seed] = runner.getMeasurements();
             runner.resetMeasurements();
 
-            Assert.assertEquals(hypTTT.getStates().size(), 4);
-            Assert.assertEquals(hypTTT.getTransitions().size(), 10);
+            Assert.assertEquals(hypLambda.getStates().size(), 4);
+            Assert.assertEquals(hypLambda.getTransitions().size(), 10);
 
             Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
             measuresStar[seed] = runner.getMeasurements();
             runner.resetMeasurements();
         }
 
-        System.out.println("Queries (RaLambda): " + Arrays.toString(measuresTTT));
+        System.out.println("Queries (RaLambda): " + Arrays.toString(measuresLambda));
         System.out.println("Queries (RaStar): " + Arrays.toString(measuresStar));
     }
 }

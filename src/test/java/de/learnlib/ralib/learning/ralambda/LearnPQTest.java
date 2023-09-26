@@ -153,7 +153,7 @@ public class LearnPQTest extends RaLibTestSuite {
 //            runner.resetMeasurements();
         }
 
-        System.out.println("Queries (TTT): " + Arrays.toString(ralambdaCount));
+        System.out.println("Queries (Lambda): " + Arrays.toString(ralambdaCount));
 //        System.out.println("Queries (Star): " + Arrays.toString(rastarCount));
     }
 }

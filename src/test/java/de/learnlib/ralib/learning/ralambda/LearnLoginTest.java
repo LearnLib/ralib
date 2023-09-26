@@ -100,7 +100,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        Measurements[] measuresTTT = new Measurements[SEEDS];
+        Measurements[] measuresLambda = new Measurements[SEEDS];
         Measurements[] measuresStar = new Measurements[SEEDS];
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
@@ -108,7 +108,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         for (int seed=0; seed<SEEDS; seed++) {
         	runner.setSeed(seed);
 	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
-	        measuresTTT[seed] = runner.getMeasurements();
+	        measuresLambda[seed] = runner.getMeasurements();
 	        runner.resetMeasurements();
 
 	        Assert.assertEquals(hyp.getStates().size(), 4);
@@ -119,7 +119,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 	        measuresStar[seed] = runner.getMeasurements();
 	        runner.resetMeasurements();
         }
-        System.out.println("Queries (TTT): " + Arrays.toString(measuresTTT));
+        System.out.println("Queries (Lambda): " + Arrays.toString(measuresLambda));
         System.out.println("Queries (Star): " + Arrays.toString(measuresStar));
     }
 
