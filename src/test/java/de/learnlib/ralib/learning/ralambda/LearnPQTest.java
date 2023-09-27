@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
 import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
@@ -140,20 +140,20 @@ public class LearnPQTest extends RaLibTestSuite {
         runner.setMaxDepth(4);
 //        runner.setUseOldAnalyzer(true);
 
-        Measurements[] ratttCount = new Measurements [SEEDS];
+        Measurements[] ralambdaCount = new Measurements [SEEDS];
         Measurements[] rastarCount = new Measurements [SEEDS];
         for (int i=0; i<SEEDS; i++) {
             System.out.println(i);
             runner.setSeed(i);
             runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
-            ratttCount[i] = runner.getMeasurements();
+            ralambdaCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
 //            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
 //            rastarCount[i] = runner.getMeasurements();
 //            runner.resetMeasurements();
         }
 
-        System.out.println("Queries (TTT): " + Arrays.toString(ratttCount));
+        System.out.println("Queries (Lambda): " + Arrays.toString(ralambdaCount));
 //        System.out.println("Queries (Star): " + Arrays.toString(rastarCount));
     }
 }

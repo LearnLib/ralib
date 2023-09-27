@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;

@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,8 +86,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda rattt = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        ralambda.setSolver(solver);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
@@ -114,8 +114,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         while (true && check < 100) {
 
             check++;
-            rattt.learn();
-            Hypothesis hyp = rattt.getHypothesis();
+            ralambda.learn();
+            Hypothesis hyp = ralambda.getHypothesis();
 
             ce = null;
 
@@ -147,10 +147,10 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
 
-            rattt.addCounterexample(ce);
+            ralambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         ce = ioEquiv.findCounterExample(hyp, null);
 

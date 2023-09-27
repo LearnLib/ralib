@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.IPUT;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.OECHO;
