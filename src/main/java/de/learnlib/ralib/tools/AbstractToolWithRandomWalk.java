@@ -172,6 +172,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.IntegerOption("rwalk.max.depth",
                     "Maximum length of each random walk", null, false);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_RWALK_SEED_TRANSITIONS
+            = new ConfigurationOption.BooleanOption("rwalk.seed.transitions",
+            "Use words from U (transitions) as prefixes for runs", false, true);
+
     protected static final ConfigurationOption.StringOption OPTION_TEACHERS
             = new ConfigurationOption.StringOption("teachers",
                     "Teachers. Format: type:class + type:class + ...", null, false);

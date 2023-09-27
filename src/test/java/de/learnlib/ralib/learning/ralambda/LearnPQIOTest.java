@@ -128,6 +128,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 10, // max depth
                 consts,
                 false, // reset runs
+                false,
                 teachers,
                 sul.getInputSymbols());
 
