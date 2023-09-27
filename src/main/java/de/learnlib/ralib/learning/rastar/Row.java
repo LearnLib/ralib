@@ -158,9 +158,9 @@ public class Row implements PrefixContainer {
             return false;
         }
 
-        for (SymbolicSuffix s : this.cells.keySet()) {
-            Cell c1 = this.cells.get(s);
-            Cell c2 = other.cells.get(s);
+        for (Map.Entry<SymbolicSuffix, Cell> entry : this.cells.entrySet()) {
+            Cell c1 = entry.getValue();
+            Cell c2 = other.cells.get(entry.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {
@@ -189,9 +189,9 @@ public class Row implements PrefixContainer {
             return false;
         }
 
-        for (SymbolicSuffix s : this.cells.keySet()) {
-            Cell c1 = this.cells.get(s);
-            Cell c2 = other.cells.get(s);
+        for (Map.Entry<SymbolicSuffix, Cell> entry : this.cells.entrySet()) {
+            Cell c1 = entry.getValue();
+            Cell c2 = other.cells.get(entry.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {

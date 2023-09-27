@@ -325,11 +325,12 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private boolean checkGuardConsistency() {
     	Map<Word<PSymbolInstance>, Boolean> toReuse = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-    	for (Word<PSymbolInstance> word : guardPrefixes.keySet()) {
-    		Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
-    		DTLeaf src_c = dt.getLeaf(src_id);
-    		DTLeaf dest_c = dt.getLeaf(word);
-            Branching hypBranching = null;
+	for (Map.Entry<Word<PSymbolInstance>, Boolean> entry : guardPrefixes.entrySet()) {
+	    Word<PSymbolInstance> word = entry.getKey();
+	    Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
+	    DTLeaf src_c = dt.getLeaf(src_id);
+	    DTLeaf dest_c = dt.getLeaf(word);
+	    Branching hypBranching = null;
             if (src_c.getAccessSequence().equals(src_id)) {
                 hypBranching = src_c.getBranching(word.lastSymbol().getBaseSymbol());
             } else {
@@ -349,7 +350,7 @@ public class RaLambda implements RaLearningAlgorithm {
             	suffix = distinguishingSuffix(branch, branchLeaf, word, dest_c);
             }
             else {
-            	if (!guardPrefixes.get(word)) {
+			if (!entry.getValue()) {
 		            MappedPrefix mp = dest_c.getPrefix(word);
 		            Map<SymbolicSuffix, TreeQueryResult> branchTQRs = branchLeaf.getPrefix(branch).getTQRs();
 		            for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {

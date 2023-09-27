@@ -95,12 +95,12 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
 
     public Set<K> getAllKeys(V value) {
         Set<K> retKeySet = new LinkedHashSet();
-        for (K key : this.keySet()) {
+        for (Map.Entry<K,V> entry : this.entrySet()) {
             //log.trace("key = " + K);
-            //log.trace("value = " + this.get(key).toString());
-            if (this.get(key).equals(value)){
-                //log.trace(this.get(key).toString() + " equals " + value.toString());
-                retKeySet.add(key);
+            //log.trace("value = " + entry.getKey().toString());
+            if (entry.getValue().equals(value)){
+                //log.trace(entry.getKey().toString() + " equals " + value.toString());
+                retKeySet.add(entry.getKey());
             }
         }
         return retKeySet;

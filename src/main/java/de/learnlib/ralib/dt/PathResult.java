@@ -66,9 +66,9 @@ public class PathResult {
             return false;
         }
 
-        for (SymbolicSuffix s : this.results.keySet()) {
-            TreeQueryResult c1 = this.results.get(s);
-            TreeQueryResult c2 = other.results.get(s);
+        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
+            TreeQueryResult c1 = e.getValue();
+            TreeQueryResult c2 = other.results.get(e.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {
@@ -102,9 +102,9 @@ public class PathResult {
             return false;
         }
 
-        for (SymbolicSuffix s : this.results.keySet()) {
-            TreeQueryResult c1 = this.results.get(s);
-            TreeQueryResult c2 = other.results.get(s);
+        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
+            TreeQueryResult c1 = e.getValue();
+            TreeQueryResult c2 = other.results.get(e.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {

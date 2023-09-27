@@ -120,7 +120,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
     private boolean compatible(Tuple t1, Tuple t2)
     {
-        // compare lcoations ...
+        // compare locations ...
         if (!t1.equals(t2))
             return false;
 
@@ -139,10 +139,10 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private boolean compareRegister(
             VarValuation r1, VarValuation r2, Map<Object,Object> vMap) {
 
-        for (Register key : r1.keySet())
+        for (Map.Entry<Register,DataValue<?>> entry : r1.entrySet())
         {
-            DataValue v1 = r1.get(key);
-            DataValue v2 = r2.get(key);
+            DataValue v1 = entry.getValue();
+            DataValue v2 = r2.get(entry.getKey());
 
             boolean n1 = (v1 == null);
             boolean n2 = (v2 == null);
