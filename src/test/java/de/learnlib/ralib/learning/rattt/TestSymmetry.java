@@ -3,7 +3,6 @@ package de.learnlib.ralib.learning.rattt;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -16,6 +15,7 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
+import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
