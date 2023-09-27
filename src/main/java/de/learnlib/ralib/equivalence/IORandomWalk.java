@@ -141,7 +141,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         runs++;
         target.pre();
         Word<PSymbolInstance> run = Word.epsilon();
-        if (this.seedTransitions && seeds != null) {
+        if (this.seedTransitions && seeds != null && !seeds.isEmpty()) {
             int trans = rand.nextInt(seeds.size());
             run.concat(seeds.get(trans));
         }
