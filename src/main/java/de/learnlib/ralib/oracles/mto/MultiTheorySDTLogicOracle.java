@@ -150,11 +150,15 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         // is there any case for which refining is true but refined is false?
         GuardExpression test = new Conjunction(exprRefining, new Negation(exprRefined));
+        // it is important to include constants to see that, e.g., c1==p1 refines c2!=p1
+        Mapping<SymbolicDataValue, DataValue<?>> valWithConsts = new Mapping<>();
+        valWithConsts.putAll(valuation);
+        valWithConsts.putAll(consts);
 
         log.trace("MAP: " + remap);
         log.trace("TEST:" + test);
 
-        boolean r = solver.isSatisfiable(test, valuation);
+        boolean r = solver.isSatisfiable(test, valWithConsts);
         return !r;
     }
 
