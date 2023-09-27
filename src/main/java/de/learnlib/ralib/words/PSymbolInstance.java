@@ -47,7 +47,7 @@ public class PSymbolInstance {
         return baseSymbol;
     }
 
-    public DataValue[] getParameterValues() {
+    public DataValue<?>[] getParameterValues() {
         return parameterValues;
     }
 

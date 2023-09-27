@@ -51,7 +51,7 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 	}
 
 	private boolean getOutput(PSymbolInstance symInst, BoundedList list) {
-		try {
+		//try {
 			if (symInst.getBaseSymbol().equals(PUSH)) {
 				list.push( (Integer) symInst.getParameterValues()[0].getId());
 				return true;
@@ -64,8 +64,8 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 			} else if (symInst.getBaseSymbol().equals(CONTAINS)) {
 				return list.contains((Integer) symInst.getParameterValues()[0].getId());
 			}
-		} catch (Exception e) {
-		}
+		//} catch (Exception e) {
+		//}
 
 		return false;
 	}

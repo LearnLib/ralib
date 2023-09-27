@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -98,8 +98,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, mlo, consts, true, actions);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        ralambda.setSolver(solver);
 
             IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
@@ -110,10 +110,9 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         int check = 0;
         while (true && check < 100) {
-
             check++;
-            rattt.learn();
-            Hypothesis hyp = rattt.getHypothesis();
+            ralambda.learn();
+            Hypothesis hyp = ralambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce =
                     ioEquiv.findCounterExample(hyp, null);
@@ -129,10 +128,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertTrue(!hyp.accepts(ce.getInput()));
 
-            rattt.addCounterexample(ce);
+            ralambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce =
             ioEquiv.findCounterExample(hyp, null);

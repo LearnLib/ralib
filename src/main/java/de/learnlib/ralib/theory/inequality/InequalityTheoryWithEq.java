@@ -870,12 +870,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
-        DataValue<T>[] typedPrefixValues = DataWords.valsOf(prefix, type);
-        WordValuation typedPrefixValuation = new WordValuation();
-        for (int i = 0; i < typedPrefixValues.length; i++) {
-            typedPrefixValuation.put(i + 1, typedPrefixValues[i]);
-        }
-
         SuffixValue currentParam = new SuffixValue(type, pId);
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
@@ -1062,9 +1056,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getType();
         int newDv_i;
-        for (SymbolicDataValue.Constant c : constants.keySet()) {
-            if (constants.get(c).equals(newDv)) {
-                return new EqualityGuard(currentParam, c);
+        for (Map.Entry<SymbolicDataValue.Constant, DataValue<?>> entry : constants.entrySet()) {
+            if (entry.getValue().equals(newDv)) {
+                return new EqualityGuard(currentParam, entry.getKey());
             }
         }
         if (prefixValues.contains(newDv)) {

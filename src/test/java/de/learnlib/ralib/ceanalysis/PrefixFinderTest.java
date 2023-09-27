@@ -35,8 +35,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.learning.rattt.RaTTT;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -121,18 +121,18 @@ public class PrefixFinderTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo,
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
         		consts, I_PUSH, I_POP);
 
-        rattt.learn();
-        final DTHyp hyp = (DTHyp)rattt.getHypothesis();
+        ralambda.learn();
+        final DTHyp hyp = (DTHyp)ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
         System.out.println(hyp);
 
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
-        DTLeaf leaf = rattt.getDT().getLeaf(shortPrefix);
-        leaf.elevatePrefix(rattt.getDT(), shortPrefix, hyp, slo);
+        DTLeaf leaf = ralambda.getDT().getLeaf(shortPrefix);
+        leaf.elevatePrefix(ralambda.getDT(), shortPrefix, hyp, slo);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
@@ -143,7 +143,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                rattt.getComponents(),
+                ralambda.getComponents(),
                 consts
         );
 

@@ -15,6 +15,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        <!-- Dependency versions appear alphabetically below -->
         <commons-lang.version>3.13.0</commons-lang.version>
         <guava.version>32.1.2-jre</guava.version>
         <jakarta-xml.version>4.0.1</jakarta-xml.version>
@@ -43,6 +44,48 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Format the source code -->
+            <plugin>
+	        <groupId>com.diffplug.spotless</groupId>
+	        <artifactId>spotless-maven-plugin</artifactId>
+		<version>2.39.0</version>
+		<configuration>
+		    <formats>
+                        <format>
+			    <includes>
+                                <include>.xml</include>
+			    </includes>
+			    <endWithNewline />
+			    <trimTrailingWhitespace />
+			</format>
+		    </formats>
+		    <java>
+		        <endWithNewline />
+                        <formatAnnotations />
+			<importOrder>
+			    <order>java|jakarta,com,org,de|gov|net</order>
+			</importOrder>
+                        <!--<indent>
+                            <spaces>true</spaces>
+                            <spacesPerTab>4</spacesPerTab>
+                        </indent>-->
+			<!--<palantirJavaFormat>
+			    <version>2.27.0</version>
+			</palantirJavaFormat>-->
+			<removeUnusedImports />
+                        <trimTrailingWhitespace />
+		    </java>
+		</configuration>
+		<executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+	    </plugin>
+
             <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -57,25 +100,6 @@
                     </descriptorRefs>
                 </configuration>
             </plugin>
-	    <!-- Format the source code (using spotless) -->
-	    <plugin>
-	        <groupId>com.diffplug.spotless</groupId>
-	        <artifactId>spotless-maven-plugin</artifactId>
-		<version>2.39.0</version>
-		<configuration>
-		    <java>
-		        <endWithNewline />
-		        <trimTrailingWhitespace />
-			<importOrder>
-			    <order>java|jakarta,com,org,de|gov|net</order>
-			</importOrder>
-			<removeUnusedImports />
-			<!--<palantirJavaFormat>
-			    <version>2.27.0</version>
-			</palantirJavaFormat>-->
-		    </java>
-		</configuration>
-	    </plugin>
         </plugins>
     </build>
 

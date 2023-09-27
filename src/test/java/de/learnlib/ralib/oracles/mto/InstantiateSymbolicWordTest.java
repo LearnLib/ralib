@@ -125,8 +125,6 @@ public class InstantiateSymbolicWordTest {
 		// assignments
 		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         store.put(r1, p1);
-        VarMapping<Register, SymbolicDataValue> copy = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
-        copy.put(r1, r1);
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
 
         Assignment storeAssign = new Assignment(store);

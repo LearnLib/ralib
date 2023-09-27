@@ -33,7 +33,6 @@ public class DTInnerNodeTest {
   @Test
   public void siftTest() {
 
-      Constants consts = new Constants();
       RegisterAutomaton sul = AUTOMATON;
       DataWordOracle dwOracle = new SimulatorOracle(sul);
 
@@ -73,13 +72,15 @@ public class DTInnerNodeTest {
       DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()), mto);
 
       TreeQueryResult tqr1 = mto.treeQuery(epsilon, symbSuffix);
+      PathResult r1 = PathResult.computePathResult(mto, new MappedPrefix(epsilon, new PIV()), node.getSuffixes(), false);
       TreeQueryResult tqr2 = mto.treeQuery(push, symbSuffix);
+      PathResult r2 = PathResult.computePathResult(mto, new MappedPrefix(push, new PIV()), node.getSuffixes(), false);
 
-      node.addBranch(new DTBranch(tqr1.getSdt(), child1));
-      node.addBranch(new DTBranch(tqr2.getSdt(), child2));
+      node.addBranch(new DTBranch(child1, r1));
+      node.addBranch(new DTBranch(child2, r2));
 
-      DTNode test1 = node.sift(p1, mto).getKey();
-      DTNode test2 = node.sift(p2, mto).getKey();
+      DTNode test1 = node.sift(new MappedPrefix(p1, new PIV()), mto, false).getKey();
+      DTNode test2 = node.sift(new MappedPrefix(p2, new PIV()), mto, false).getKey();
 
       Assert.assertEquals(test1, child1);
       Assert.assertEquals(test2, child2);

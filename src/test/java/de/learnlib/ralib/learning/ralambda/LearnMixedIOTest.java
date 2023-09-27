@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +38,6 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
-import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -46,78 +45,71 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
+import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
  * @author falk
  */
-public class LearnPQIOTest extends RaLibTestSuite {
+public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnPQIO() {
+    public void learnMixedIO() {
 
-        long seed = -4750580074638681533L;
+        long seed = -1386796323025681754L;
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
 
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/mixed.xml");
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+
+        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+                new ParameterizedSymbol[]{});
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        final Constants consts = loader.getConstants();
+
+
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
+        loader.getDataTypes().stream().forEach((t) -> {
+            TypedTheory th;
+            if (t.getName().equals("int")) {
+                th = new IntegerEqualityTheory();
+            }
+            else {
+                th = new DoubleInequalityTheory();
+            }
+            th.setType(t);
+            th.setUseSuffixOpt(true);
+            teachers.put(t, th);
+        });
 
-        final Constants consts = new Constants();
-
-        PriorityQueueSUL sul = new PriorityQueueSUL();
-
-        RegisterAutomaton hyp = learnPQ(seed, teachers, consts, sul);
-        RegisterAutomatonImporter imp = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/pq3.xml");
-
-        IOEquivalenceTest checker = new IOEquivalenceTest(
-                imp.getRegisterAutomaton(), teachers, consts, true,
-                sul.getActionSymbols()
-        );
-
-        Assert.assertNull(checker.findCounterExample(hyp, null));
-
-    }
-
-    @Test
-    public void testPQIODoublePrecisionError() {
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
-
-        final Constants consts = new Constants();
-
-        PriorityQueueSUL sul = new PriorityQueueSUL();
-        learnPQ(6, teachers, consts, sul);
-
-        // test is passed if we reach this point without triggering an exception
-        Assert.assertTrue(true);
-    }
-
-    private Hypothesis learnPQ(long seed, Map<DataType, Theory> teachers, Constants consts, PriorityQueueSUL sul) {
-        logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
-        IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
+                ioOracle, teachers, consts, jsolv, inputs);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
-        MultiTheorySDTLogicOracle mlo
-                = new MultiTheorySDTLogicOracle(consts, jsolv);
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
-
-        RaTTT rastar = new RaTTT(mto, hypFactory, mlo,
-                consts, true, sul.getActionSymbols());
+        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+		rastar.setSolver(jsolv);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -125,11 +117,11 @@ public class LearnPQIOTest extends RaLibTestSuite {
                 0.1, // reset probability
                 0.8, // prob. of choosing a fresh data value
                 10000, // 1000 runs
-                10, // max depth
+                100, // max depth
                 consts,
                 false, // reset runs
                 teachers,
-                sul.getInputSymbols());
+                inputs);
 
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
@@ -137,14 +129,14 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         int check = 0;
         while (true && check < 100) {
+
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce =
+                    iowalk.findCounterExample(hyp, null);
 
-            //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }
@@ -152,10 +144,18 @@ public class LearnPQIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
+
+            Assert.assertTrue(model.accepts(ce.getInput()));
+            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+
             rastar.addCounterexample(ce);
         }
 
-        return rastar.getHypothesis();
+        RegisterAutomaton hyp = rastar.getHypothesis();
+        IOEquivalenceTest checker = new IOEquivalenceTest(
+                model, teachers, consts, true, actions);
+
+        Assert.assertNull(checker.findCounterExample(hyp, null));
 
     }
 }

@@ -30,8 +30,8 @@ import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
 import de.learnlib.ralib.learning.rastar.RaStar;
-import de.learnlib.ralib.learning.rattt.DiscriminationTree;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -405,7 +405,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     private boolean updateBranching(ParameterizedSymbol ps, ShortPrefix sp, DiscriminationTree dt) {
-        Branching b = branching.get(ps);
+    	Branching b = sp.getBranching(ps);
         SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(sp, ps);
         Branching newB = oracle.updateBranching(sp.getPrefix(), ps, b, sp.getParsInVars(), sdts);
         boolean ret = true;
