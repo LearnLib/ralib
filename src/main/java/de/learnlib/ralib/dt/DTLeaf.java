@@ -567,7 +567,13 @@ public class DTLeaf extends DTNode implements LocationComponent {
         	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
         		SymbolicDecisionTree sdt = e.getValue().getSdt();
         		for (VarMapping<Parameter, Parameter> vm : difference) {
-        			if (!sdt.isEquivalent(sdt, vm)) {
+                	VarMapping<Register, Register> renaming = new VarMapping<>();
+                	for (Map.Entry<Parameter, Parameter> paramRenaming : vm.entrySet()) {
+                		Register oldRegister = memPrefix.get(paramRenaming.getKey());
+                		Register newRegister = memPrefix.get(paramRenaming.getValue());
+                		renaming.put(oldRegister, newRegister);
+                	}
+        			if (!sdt.isEquivalent(sdt, renaming)) {
         				SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
             					suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, e.getValue().getPiv(), e.getKey()) :
             					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
