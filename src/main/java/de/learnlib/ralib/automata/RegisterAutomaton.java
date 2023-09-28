@@ -62,7 +62,7 @@ public abstract class RegisterAutomaton
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (RALocation loc : getStates()) {
-            sb.append(loc).append( loc.equals(getInitialState()) ? " (initial)" : "").append(":\n");
+            sb.append(loc).append(loc.equals(getInitialState()) ? " (initial)" : "").append(":\n");
             for (Transition t : loc.getOut()) {
                 sb.append("  ").append(t).append("\n");
             }
@@ -92,7 +92,7 @@ public abstract class RegisterAutomaton
         for (RALocation loc : getStates()) {
             for (Transition t : loc.getOut()) {
                 if (!(t instanceof OutputTransition)) {
-                    tList.add( t);
+                    tList.add(t);
                 }
             }
         }

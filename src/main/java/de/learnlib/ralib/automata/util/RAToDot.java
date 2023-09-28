@@ -71,7 +71,6 @@ public class RAToDot {
             stringRA.append(ra.getInitialRegisters());
         }
         stringRA.append(">]").append(NEWLINE);
-
     }
 
     private void printLocations(RegisterAutomaton ra) {

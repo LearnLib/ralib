@@ -48,8 +48,8 @@ public class LearnEchoTest extends RaLibTestSuite {
 
         RepeaterSUL sul = new RepeaterSUL(-1, 4);
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
-	IOCache ioCache = new IOCache(ioOracle);
-	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
         ConstraintSolver solver = new SimpleConstraintSolver();
 
