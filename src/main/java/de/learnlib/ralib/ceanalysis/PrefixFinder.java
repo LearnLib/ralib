@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.*;
@@ -56,11 +57,6 @@ public class PrefixFinder {
     private final Map<SymbolicWord, TreeQueryResult> usedCEs = new LinkedHashMap<SymbolicWord, TreeQueryResult>();
     private final Map<SymbolicWord, TreeQueryResult> storedQueries = new LinkedHashMap<SymbolicWord, TreeQueryResult>();
 
-    private SymbolicSuffix[] candidateSuffixes;
-    private int candidateIdx = -1;
-
-    private int low = 0;
-
     private static final LearnLogger log = LearnLogger.getLogger(PrefixFinder.class);
 
     public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
@@ -78,9 +74,9 @@ public class PrefixFinder {
 
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
-        int idx = binarySearch(ce);
+		int idx = findIndex(ce);
         SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
-        TreeQueryResult tqr = storedQueries.get(sw);
+        TreeQueryResult tqr = null; //storedQueries.get(sw);
         if (tqr == null) {
         	// THIS CAN (possibly) BE DONE WITHOUT A NEW TREE QUERY
         	tqr = sulOracle.treeQuery(sw.getPrefix(), sw.getSuffix());
@@ -88,77 +84,78 @@ public class PrefixFinder {
         CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
         		                                       candidates[idx].getSuffix(),
         		                                       tqr);
-        candidateCEs.put(candidates[idx], tqr);
-        storeCandidateCEs(ce, idx);
+
+		candidateCEs.put(candidates[idx], tqr);
+		storeCandidateCEs(ce, idx);
+
         return result;
     }
 
-    public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce, int ... indices) {
-    	int idx = binarySearch(ce, indices);
-    	SymbolicWord sw = new SymbolicWord(candidates[idx].getPrefix(), candidates[idx].getSuffix());
-        CEAnalysisResult result = new CEAnalysisResult(candidates[idx].getPrefix(),
-                candidates[idx].getSuffix(),
-                storedQueries.get(sw));
-        candidateCEs.put(candidates[idx], result.getTreeQueryResult());
-        storeCandidateCEs(ce, idx);
-        return result;
-    }
+	private int findIndex(Word<PSymbolInstance> ce) {
+		candidates = new SymbolicWord[ce.length()];
+		int max = ce.length() - 1;
+		for (int idx=max; idx>=0; idx = idx-1) {
 
-    public Set<Word<PSymbolInstance>> getCandidatePrefixes() {
-    	Set<Word<PSymbolInstance>> candidatePrefixes = new LinkedHashSet<Word<PSymbolInstance>>();
-    	for (int i = 0; i < candidates.length; i++) {
-    		if (isCE[i])
-    			candidatePrefixes.add(candidates[i].getPrefix());
-    	}
-    	return candidatePrefixes;
-    }
+			Word<PSymbolInstance> prefix = ce.prefix(idx);
+			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
 
-    public SymbolicSuffix getCandidateSuffix() {
-    	if (candidateIdx < 0)
-    		return null;
-    	return candidateSuffixes[candidateIdx];
-    }
+			log.trace("idx:" + idx + "ce:     " + ce);
+			log.trace("idx:" + idx + "prefix: " + prefix);
+			log.trace("idx:" + idx + "next:   " + nextPrefix);
 
-    private boolean computeIndex(Word<PSymbolInstance> ce, int idx) {
-        Word<PSymbolInstance> prefix = ce.prefix(idx);
+			// check for location counterexample ...
+			//
+			Word<PSymbolInstance> suffix = ce.suffix(ce.length() - nextPrefix.length());
+			SymbolicSuffix symSuffix = new SymbolicSuffix(nextPrefix, suffix, consts);
+			LOC_CHECK: for (Word<PSymbolInstance> u : hypothesis.possibleAccessSequences(prefix)) {
+				Word<PSymbolInstance> uAlpha = hypothesis.transformTransitionSequence(nextPrefix, u);
+				TreeQueryResult uAlphaResult = sulOracle.treeQuery(uAlpha, symSuffix);
+				storedQueries.put(new SymbolicWord(uAlpha, symSuffix), uAlphaResult);
 
-        Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(prefix);
-        Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
+				// check if the word is inequivalent to all access sequences
+				//
+				for (Word<PSymbolInstance> uPrime : hypothesis.possibleAccessSequences(nextPrefix)) {
+					TreeQueryResult uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
+					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
 
-        Word<PSymbolInstance> suffix = ce.suffix(ce.length() -(idx+1));
-        SymbolicSuffix symSuffix = new SymbolicSuffix(ce.prefix(idx+1), suffix, consts);
-        SymbolicSuffix extendedSuffix = new SymbolicSuffix(prefix, ce.suffix(ce.length() - idx), consts);
+					log.trace("idx:" + idx + "u:  " + u);
+					log.trace("idx:" + idx + "ua: " + uAlpha);
+					log.trace("idx:" + idx + "u': " + uPrime);
+					log.trace("idx:" + idx + "v:  " + symSuffix);
 
-        for(Word<PSymbolInstance> location : locations) {
-	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-	                ce.prefix(idx+1), location);
+					// different piv sizes
+					//
+					if (!uPrimeResult.getPiv().typedSize().equals(uAlphaResult.getPiv().typedSize())) {
+						continue;
+					}
 
-	        boolean candidateFound = true;
-	        Pair<TreeQueryResult, TreeQueryResult> results = checkForCE(transition, symSuffix, transition);
+					// remapping
+					//
+					PIVRemappingIterator iterator = new PIVRemappingIterator(
+							uAlphaResult.getPiv(), uPrimeResult.getPiv());
 
-	        if (results == null) {
-	        	results = checkForCE(location, extendedSuffix, transition);
-	        	candidateFound = false;
-	        }
+					for (VarMapping m : iterator) {
+						if (uAlphaResult.getSdt().isEquivalent(uPrimeResult.getSdt(), m)) {
+							continue LOC_CHECK;
+						}
+					}
 
-	        if (results != null) {
-	        	TreeQueryResult resHyp = results.getLeft();
-	        	TreeQueryResult resSul = results.getRight();
-	        	if (candidateFound)
-	        		candidates[idx] = new SymbolicWord(transition, symSuffix);
-	        	else {
-			        LocationComponent c = components.get(primeLocation);
-			        ParameterizedSymbol act = extendedSuffix.length() > 0 ? extendedSuffix.getActions().firstSymbol() : null;
-	        		candidates[idx] = candidate(location, act, extendedSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), c, ce);
-	        	}
-	        	if (!transitionHasCE(ce, idx)) {
-	        		isCE[idx] = true;
-	        	}
-	            return true;
-	        }
-        }
-        return false;
-    }
+				}
+				// found a counterexample!
+				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
+				log.trace("Counterexample for location");
+				return idx;
+			}
+
+			// check for transition counterexample ...
+			//
+			if (transitionHasCE(ce, idx-1)) {
+				log.trace("Counterexample for transition");
+				return idx;
+			}
+		}
+		throw new RuntimeException("should not reach here");
+	}
 
     private Pair<TreeQueryResult, TreeQueryResult> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
     	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
@@ -207,8 +204,15 @@ public class PrefixFinder {
 	                resHyp.getSdt(), resHyp.getPiv(),
 	                resSul.getSdt(), resSul.getPiv(),
 	                new TransitionGuard(), transition);
-    		if (hasCE)
-    			return true;
+
+    		if (hasCE) {
+				Word<PSymbolInstance> primeLocation = hypothesis.transformAccessSequence(location);
+				SymbolicWord sw = candidate(location,transition.lastSymbol().getBaseSymbol(),symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), components.get(primeLocation), ce);
+
+				// new by falk
+				candidates[idx+1] = sw;
+				return true;
+			}
     	}
     	return false;
     }
@@ -231,8 +235,6 @@ public class PrefixFinder {
     		candidateCEs.put(symWord, tqr);
     	}
     }
-
-
 
     private SymbolicWord candidate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol action, SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
@@ -275,67 +277,6 @@ public class PrefixFinder {
         throw new IllegalStateException("No CE transition found");
     }
 
-    private int binarySearch(Word<PSymbolInstance> ce, int ... indices) {
-
-        assert ce.length() > 1;
-
-        boolean[] results = new boolean[ce.length()];
-        candidates = new SymbolicWord[ce.length()];
-        isCE = new boolean[ce.length()];
-        for (int i = 0; i < indices.length; i++) {
-        	int idx = indices[i];
-        	results[idx] = computeIndex(ce, idx);
-        }
-
-        int min = low;
-        int max = ce.length() - 1;
-        int mid = -1;
-
-        int idx = 0;
-        while(max >= 0) {
-	        while (max >= min) {
-
-	            mid = (max+min+1) / 2;
-
-	            boolean hasCe = computeIndex(ce, mid);
-	            log.trace("" + hasCe);
-
-	            results[mid] = hasCe;
-	            if (!hasCe) {
-	                max = mid -1;
-	            } else {
-	                min = mid +1;
-	            }
-	        }
-
-	        assert mid >= 0;
-
-	        idx = mid;
-
-//	        System.out.println(Arrays.toString(results));
-//	        System.out.println(idx + " : " + results[idx]);
-
-	        // if in the last step there was no counterexample,
-	        // we have to move one step to the left
-	        if (!results[idx]) {
-	        	assert idx > 0;
-	        	idx--;
-	        }
-
-	        if (!isCE[idx]) {
-	        	max = idx - 1;
-	        	min = 0;
-	        }
-	        else
-	        	break;
-        }
-        return idx;
-    }
-
-    public void reset() {
-    	low = 0;
-    }
-
     public Set<DefaultQuery<PSymbolInstance, Boolean>> getCounterExamples() {
     	Set<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedHashSet<DefaultQuery<PSymbolInstance, Boolean>>();
     	for (Map.Entry<SymbolicWord, TreeQueryResult> e : candidateCEs.entrySet()) {
@@ -348,33 +289,6 @@ public class PrefixFinder {
     	}
 
     	return ces;
-    }
-
-    public DefaultQuery<PSymbolInstance, Boolean> getCounterExample() {
-    	Map<SymbolicWord, TreeQueryResult> cces = new LinkedHashMap<SymbolicWord, TreeQueryResult>(candidateCEs);
-    	for (Map.Entry<SymbolicWord, TreeQueryResult> e : cces.entrySet()) {
-    		SymbolicWord sw = e.getKey();
-    		TreeQueryResult tqr = e.getValue();
-    		Map<Word<PSymbolInstance>, Boolean> ces = sulOracle.instantiate(sw.getPrefix(), sw.getSuffix(), tqr.getSdt(), tqr.getPiv());
-    		for (Word<PSymbolInstance> ce : ces.keySet()) {
-    			boolean hypce = hypothesis.accepts(ce);
-    			boolean sulce = ces.get(ce);
-    			if (hypce != sulce) {
-    				DefaultQuery<PSymbolInstance, Boolean> query = new DefaultQuery<PSymbolInstance, Boolean>(ce, sulce);
-    				usedCEs.put(sw, tqr);
-    				candidateCEs.remove(sw);
-    				return query;
-    			}
-    		}
-			discardedCEs.put(sw, tqr);
-			candidateCEs.remove(sw);
-    	}
-
-    	candidateCEs.putAll(discardedCEs);
-    	candidateCEs.putAll(usedCEs);
-    	if (usedCEs.isEmpty())
-    		return null;
-    	return getCounterExample();
     }
 
     public void setHypothesisTreeOracle(TreeOracle hypOracle) {
