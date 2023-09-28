@@ -297,6 +297,23 @@ public class DT implements DiscriminationTree {
         return ret;
     }
 
+    public boolean checkRegisterConsistency(OptimizedSymbolicSuffixBuilder suffixBuilder) {
+    	return checkRegisterConsistency(root, suffixBuilder);
+    }
+
+    private boolean checkRegisterConsistency(DTNode node, OptimizedSymbolicSuffixBuilder suffixBuilder) {
+        if (node.isLeaf()) {
+            DTLeaf leaf = (DTLeaf) node;
+            return leaf.checkRegisterConsistency(this, this.consts, suffixBuilder);
+        }
+        boolean ret = true;
+        DTInnerNode inner = (DTInnerNode) node;
+        for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
+            ret = ret && checkRegisterConsistency(b.getChild(), suffixBuilder);
+        }
+        return ret;
+    }
+
     /**
      * check whether sifting a word into the dt leads to a refinement of the dt, i.e
      * whether the location corresponding to word is already in the branching of the

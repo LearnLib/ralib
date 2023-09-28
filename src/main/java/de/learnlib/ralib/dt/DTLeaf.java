@@ -7,10 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -499,7 +501,91 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
         return true;
     }
+    public boolean checkRegisterConsistency(DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
+    	if (access.getParsInVars().isEmpty())
+    		return true;
 
+    	if (!checkRegisterConsistency(access, dt, consts, suffixBuilder))
+    		return false;
+
+    	Iterator<MappedPrefix> it = otherPrefixes.iterator();
+    	while (it.hasNext()) {
+    		if (!checkRegisterConsistency(it.next(), dt, consts, suffixBuilder))
+    			return false;
+    	}
+    	it = shortPrefixes.iterator();
+    	while (it.hasNext()) {
+    		if (!checkRegisterConsistency(it.next(), dt, consts, suffixBuilder))
+    			return false;
+    	}
+    	return true;
+    }
+
+    public boolean checkRegisterConsistency(MappedPrefix mp, DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
+    	if (mp.getPrefix().length() < 2)
+    		return true;
+
+    	PIV memMP = mp.getParsInVars();
+    	if (memMP.isEmpty())
+    		return true;
+
+    	Word<PSymbolInstance> prefix = mp.getPrefix().prefix(mp.getPrefix().length() - 1);
+    	DTLeaf prefixLeaf = dt.getLeaf(prefix);
+    	MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
+        PIV memPrefix = prefixMapped.getParsInVars();
+
+        Set<Parameter> paramsIntersect = Sets.intersection(memPrefix.keySet(), memMP.keySet());
+        if (prefixMapped.equivalentRenamings(memPrefix.keySet()).size() < 2)
+        	return true;
+//        if (renamingsPrefix.size() < 2)
+//        	return true;    // there are no equivalent renamings
+
+        if (!paramsIntersect.isEmpty() && paramsIntersect.size() < memPrefix.size()) {
+        	// word shares some data values with prefix, but not all
+        	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
+        		PIV piv = e.getValue().getPiv();
+        		if (!Sets.intersection(piv.keySet(), paramsIntersect).isEmpty()) {
+        			SymbolicDecisionTree sdt = e.getValue().getSdt();
+        			SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
+        					suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, piv, e.getKey()) :
+        					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
+        			if (!prefixMapped.getTQRs().containsKey(newSuffix)) {
+        				dt.addSuffix(newSuffix, prefixLeaf);
+        				return false;
+        			}
+        		}
+        	}
+        }
+
+        Set<VarMapping<Parameter, Parameter>> renamingsPrefix = prefixMapped.equivalentRenamings(paramsIntersect);
+        if (renamingsPrefix.size() < 2)
+        	return true;    // there are no equivalent renamings
+        Set<VarMapping<Parameter, Parameter>> renamingsMP = mp.equivalentRenamings(paramsIntersect);
+        Set<VarMapping<Parameter, Parameter>> difference = Sets.difference(renamingsPrefix, renamingsMP);
+        if (!difference.isEmpty()) {
+        	// there are symmetric parameter mappings in the prefix which are not symmetric in mp
+        	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
+        		SymbolicDecisionTree sdt = e.getValue().getSdt();
+        		for (VarMapping<Parameter, Parameter> vm : difference) {
+                	VarMapping<Register, Register> renaming = new VarMapping<>();
+                	for (Map.Entry<Parameter, Parameter> paramRenaming : vm.entrySet()) {
+                		Register oldRegister = memPrefix.get(paramRenaming.getKey());
+                		Register newRegister = memPrefix.get(paramRenaming.getValue());
+                		renaming.put(oldRegister, newRegister);
+                	}
+        			if (!sdt.isEquivalent(sdt, renaming)) {
+        				SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
+            					suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, e.getValue().getPiv(), e.getKey()) :
+            					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
+            			dt.addSuffix(newSuffix, prefixLeaf);
+            			return false;
+        			}
+        		}
+        	}
+        }
+
+        return true;
+    }
     public boolean isMissingVariable() {
     	Collection<MappedPrefix> prefixes = new ArrayList<>();
     	getMappedExtendedPrefixes(prefixes);
