@@ -230,7 +230,7 @@ public class TestSymmetry extends RaLibTestSuite {
         		new PSymbolInstance(A, new DataValue(T_INT, 1)),
         		new PSymbolInstance(B, new DataValue(T_INT, 2)),
         		new PSymbolInstance(B, new DataValue(T_INT, 3)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(B, new DataValue(T_INT, 2)));
 
         Assert.assertTrue(hyp.accepts(ce));
 	}
