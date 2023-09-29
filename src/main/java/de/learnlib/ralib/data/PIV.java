@@ -76,12 +76,12 @@ public class PIV extends VarMapping<Parameter, Register> {
     //FIXME: this method is bogus. There may be more than one value.
     public Parameter getOneKey(Register value) {
         Parameter retKey = null;
-        for (Parameter key : this.keySet()) {
-//            System.out.println("key = " + key.toString());
-//            System.out.println("value = " + this.get(key).toString());
-            if (this.get(key).getId().equals(value.getId())){
-//                System.out.println(this.get(key).toString() + " equals " + value.toString());
-                retKey = key;
+        for (Map.Entry<Parameter,Register> entry : this.entrySet()) {
+//            System.out.println("key = " + entry.getKey().toString());
+//            System.out.println("value = " + entry.getValue().toString());
+            if (entry.getValue().getId().equals(value.getId())){
+//                System.out.println(entry.getValue().toString() + " equals " + value.toString());
+                retKey = entry.getKey();
                 break;
             }
         }

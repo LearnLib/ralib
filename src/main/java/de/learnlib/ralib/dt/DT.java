@@ -20,8 +20,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.learning.rattt.DiscriminationTree;
-import de.learnlib.ralib.learning.rattt.RaTTT;
+import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
+import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
@@ -91,25 +91,25 @@ public class DT implements DiscriminationTree {
     public void initialize() {
         if (ioMode) {
             DTInnerNode parent = root;
-            SDT parentBranchSDT = SDTLeaf.ACCEPTING;
+            MappedPrefix epsilon = new MappedPrefix(RaLambda.EMPTY_PREFIX, new PIV());
             for (ParameterizedSymbol symbol : inputs) {
                 if (symbol instanceof OutputSymbol) {
                     DTInnerNode outputNode = new DTInnerNode(new SymbolicSuffix(symbol));
-                    DTBranch branch = new DTBranch(parentBranchSDT, outputNode);
-                    parent.addBranch(branch);
+                    PathResult r = PathResult.computePathResult(oracle, epsilon, parent.getSuffixes(), ioMode);
+                    DTBranch branch = new DTBranch(outputNode, r);
                     outputNode.setParent(parent);
+                    parent.addBranch(branch);
                     parent = outputNode;
-                    parentBranchSDT = makeRejectingSDT((OutputSymbol) symbol, new SuffixValueGenerator(), 0);
                 }
             }
-            sift(RaTTT.EMPTY_PREFIX, true);
+            sift(epsilon, root, true);
 
             for (DTBranch branch : root.getBranches()) {
-                if (!branch.getSDT().isAccepting())
+                if (!branch.getUrap().isAccepting())
                     sink = (DTLeaf) branch.getChild();
             }
         } else {
-            sift(RaTTT.EMPTY_PREFIX, true);
+            sift(RaLambda.EMPTY_PREFIX, true);
         }
     }
 
@@ -132,22 +132,24 @@ public class DT implements DiscriminationTree {
         // traverse tree from root to leaf
         do {
             SymbolicSuffix suffix = inner.getSuffix();
-            Pair<DTNode, TreeQueryResult> siftRes = inner.sift(mp.getPrefix(), oracle);
+            Pair<DTNode, PathResult> siftRes = inner.sift(mp, oracle, ioMode);
 
-            TreeQueryResult tqr;
             if (siftRes == null) {
                 // discovered new location
                 leaf = new DTLeaf(oracle);
-                tqr = mp.computeTQR(suffix, oracle);
+                //tqr = mp.computeTQR(suffix, oracle);
+                PathResult r = PathResult.computePathResult(oracle, mp, inner.getSuffixes(), ioMode);
+                assert !mp.getTQRs().keySet().contains(suffix);
+                mp.addTQR(suffix, r.getTQRforSuffix(suffix));
                 leaf.setAccessSequence(mp);
-                DTBranch branch = new DTBranch(tqr.getSdt(), leaf);
+                DTBranch branch = new DTBranch(leaf, r);
                 inner.addBranch(branch);
                 leaf.setParent(inner);
                 leaf.start(this, ioMode, inputs);
                 leaf.updateBranching(this);
                 return leaf;
             }
-            tqr = siftRes.getValue();
+            TreeQueryResult tqr = siftRes.getValue().getTQRforSuffix(suffix);
             mp.addTQR(suffix, tqr);
             if (!siftRes.getKey().isLeaf()) {
                 inner = (DTInnerNode) siftRes.getKey();
@@ -178,10 +180,15 @@ public class DT implements DiscriminationTree {
 
         // add the new leaf
         MappedPrefix mp = leaf.getMappedPrefix(prefix);
-        TreeQueryResult tqr = mp.computeTQR(suffix, oracle);
+        //TreeQueryResult tqr = mp.computeTQR(suffix, oracle);
         DTLeaf newLeaf = new DTLeaf(mp, oracle);
         newLeaf.setParent(node);
-        DTBranch newBranch = new DTBranch(tqr.getSdt(), newLeaf);
+        PathResult r = PathResult.computePathResult(oracle, mp, node.getSuffixes(), ioMode);
+        TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        assert !mp.getTQRs().keySet().contains(suffix);
+        mp.addTQR(suffix, tqr);
+
+        DTBranch newBranch = new DTBranch(newLeaf, r);
         node.addBranch(newBranch);
         ShortPrefix sp = (ShortPrefix) leaf.getShortPrefixes().get(prefix);
 
@@ -189,9 +196,12 @@ public class DT implements DiscriminationTree {
         boolean removed = leaf.removeShortPrefix(prefix);
         assert (removed == true); // must not split a prefix that isn't there
 
-        TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
-//        assert !tqr.getSdt().isEquivalent(tqr2.getSdt(), new VarMapping<>());
-        DTBranch b = new DTBranch(tqr2.getSdt(), leaf);
+        //TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
+        PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
+        TreeQueryResult tqr2 = r2.getTQRforSuffix(suffix);
+        leaf.getPrimePrefix().addTQR(suffix, tqr2);
+        //        assert !tqr.getSdt().isEquivalent(tqr2.getSdt(), new VarMapping<>());
+        DTBranch b = new DTBranch(leaf, r2);
         leaf.setParent(node);
         node.addBranch(b);
 
@@ -214,8 +224,13 @@ public class DT implements DiscriminationTree {
         branch.setChild(node);
         leaf.setParent(node);
 
-        TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
-        DTBranch newBranch = new DTBranch(tqr.getSdt(), leaf);
+        //TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
+        PathResult r = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
+        TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        assert !leaf.getPrimePrefix().getTQRs().keySet().contains(suffix);
+        leaf.getPrimePrefix().addTQR(suffix, tqr);
+
+        DTBranch newBranch = new DTBranch(leaf, r);
         node.addBranch(newBranch);
 
         Set<MappedPrefix> prefixes = new LinkedHashSet<MappedPrefix>();
@@ -278,6 +293,23 @@ public class DT implements DiscriminationTree {
         DTInnerNode inner = (DTInnerNode) node;
         for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
             ret = ret && checkConsistency(b.getChild(), suffixBuilder);
+        }
+        return ret;
+    }
+
+    public boolean checkRegisterConsistency(OptimizedSymbolicSuffixBuilder suffixBuilder) {
+    	return checkRegisterConsistency(root, suffixBuilder);
+    }
+
+    private boolean checkRegisterConsistency(DTNode node, OptimizedSymbolicSuffixBuilder suffixBuilder) {
+        if (node.isLeaf()) {
+            DTLeaf leaf = (DTLeaf) node;
+            return leaf.checkRegisterConsistency(this, this.consts, suffixBuilder);
+        }
+        boolean ret = true;
+        DTInnerNode inner = (DTInnerNode) node;
+        for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
+            ret = ret && checkRegisterConsistency(b.getChild(), suffixBuilder);
         }
         return ret;
     }
@@ -462,21 +494,22 @@ public class DT implements DiscriminationTree {
     private void buildTreeString(StringBuilder builder, DTNode node, String currentIndentation, String indentation,
             String sep) {
         if (node.isLeaf()) {
-            builder.append(node.toString());
+            builder.append("\n").append(currentIndentation).append("Leaf: ").append(node.toString());
         } else {
             DTInnerNode inner = (DTInnerNode) node;
+            builder.append("\n").append(currentIndentation).append("Inner: ").append(inner.getSuffix());
             if (!inner.getBranches().isEmpty()) {
                 Iterator<DTBranch> iter = inner.getBranches().iterator();
                 while (iter.hasNext()) {
                     builder.append("\n").append(currentIndentation);
                     DTBranch branch = iter.next();
-                    builder.append("(").append(inner.getSuffix()).append(", ")
-                            .append(branch.getSDT().toString().replaceAll("\\s+", " ")).append(")").append(sep);
+                    builder.append("Branch: ").append(branch.getUrap());
                     buildTreeString(builder, branch.getChild(), indentation + currentIndentation, indentation, sep);
                 }
-            } else {
-                builder.append("(").append(inner.getSuffix()).append(",").append("∅").append(")");
             }
+            //else {
+            //    builder.append("(").append(inner.getSuffix()).append(",").append("∅").append(")");
+            //}
         }
     }
 }

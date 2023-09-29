@@ -57,9 +57,9 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
         byParams = new Parameter[by_ta.size()][];
 
         int idx = 0;
-        for (DataType t : rep_ta.keySet()) {
-            replaceParams[idx] = rep_ta.get(t);
-            byParams[idx] = by_ta.get(t);
+        for (Map.Entry <DataType, Parameter[]> entry : rep_ta.entrySet()) {
+            replaceParams[idx] = entry.getValue();
+            byParams[idx] = by_ta.get(entry.getKey());
             iterators[idx] = new PermutationIterator(replaceParams[idx].length);
             iterators[idx].next();
             idx++;

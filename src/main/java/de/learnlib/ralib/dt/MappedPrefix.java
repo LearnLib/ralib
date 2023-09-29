@@ -9,6 +9,8 @@ import java.util.Set;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.PermutationIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -40,6 +42,33 @@ public class MappedPrefix implements PrefixContainer {
 		tqrs.putAll(mp.getTQRs());
 	}
 
+	public Set<VarMapping<Parameter, Parameter>> equivalentRenamings(Set<Parameter> params) {
+
+		assert memorable.keySet().containsAll(params);
+
+		Parameter[] params_arr = new Parameter[params.size()];
+		params_arr = params.toArray(params_arr);
+		PermutationIterator permutations = new PermutationIterator(params_arr.length);
+		Set<VarMapping<Parameter, Parameter>> renamings = new LinkedHashSet<>();
+
+		LOC: while (permutations.hasNext()) {
+			int[] perm = permutations.next();
+			VarMapping<Parameter, Parameter> paramRenaming = new VarMapping<>();
+			VarMapping<Register, Register> registerRenaming = new VarMapping<>();
+			for (int i = 0; i < params_arr.length; i++) {
+				Parameter po = params_arr[i];
+				Parameter pr = params_arr[perm[i]];
+				paramRenaming.put(params_arr[i], params_arr[perm[i]]);
+				registerRenaming.put(memorable.get(po), memorable.get(pr));
+			}
+			for (TreeQueryResult tqr : tqrs.values()) {
+				if (!tqr.getSdt().isEquivalent(tqr.getSdt(), registerRenaming))
+					continue LOC;
+			}
+			renamings.add(paramRenaming);
+		}
+		return renamings;
+	}
 	void updateMemorable(PIV piv) {
 		for (Entry<Parameter, Register> e : piv.entrySet()) {
 			Register r = memorable.get(e.getKey());
@@ -61,7 +90,7 @@ public class MappedPrefix implements PrefixContainer {
 	}
 
 	void addTQR(SymbolicSuffix s, TreeQueryResult tqr) {
-	    assert(!tqrs.containsKey(s));
+	    if (tqrs.containsKey(s) || tqr == null) return;
 		tqrs.put(s, tqr);
 		updateMemorable(tqr.getPiv());
 	}

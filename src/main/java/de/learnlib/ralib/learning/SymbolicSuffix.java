@@ -18,6 +18,7 @@ package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -69,7 +70,7 @@ public class SymbolicSuffix {
     	for (SuffixValue sv : s.freeValues)
             freeValues.add(sv.copy());
     	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
-            dataValues.put(Integer.valueOf(dv.getKey()), dv.getValue().copy());
+            dataValues.put(dv.getKey(), dv.getValue().copy());
     }
 
     /**
@@ -96,7 +97,7 @@ public class SymbolicSuffix {
         this.freeValues = new LinkedHashSet<>();
 
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
-        Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
+        Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
@@ -108,7 +109,7 @@ public class SymbolicSuffix {
         }
 
         for (DataValue d : DataWords.valsOf(suffix)) {
-            if (prefix.length() == 0 || valsetPrefix.contains(d) || consts.containsValue(d) ||
+            if (valsetPrefix.contains(d) || consts.containsValue(d) ||
                     // TODO: this changes with essentialized suffixes (!)
                     // we know that equalities are essential
                     (groups.containsKey(d) && idx <= arityFirst)) {
@@ -169,7 +170,7 @@ public class SymbolicSuffix {
         prefix = prefix.prefix(prefix.length() - 1);
 
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
-        Set<DataValue> valsetPrefix = DataWords.valSet(prefix);
+        Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
@@ -240,6 +241,17 @@ public class SymbolicSuffix {
 
     public Word<ParameterizedSymbol> getActions() {
         return actions;
+    }
+
+    public int getSuffixValueIndex(SuffixValue sv) {
+    	if (!dataValues.values().contains(sv))
+    		return -1;
+    	return dataValues.entrySet()
+    			         .stream().filter((a) -> (a.getValue().equals(sv)))
+    			         .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+    			         .findFirst()
+    			         .get()
+    			         .getKey();
     }
 
     public SymbolicSuffix concat(SymbolicSuffix other) {

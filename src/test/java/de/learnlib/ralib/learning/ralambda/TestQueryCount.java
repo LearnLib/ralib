@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -58,7 +58,7 @@ public class TestQueryCount extends RaLibTestSuite {
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
         QueryStatistics queryStats = new QueryStatistics(measurements, ioOracle);
-        RaTTT learner = new RaTTT(mto, hypFactory, mlo,
+        RaLambda learner = new RaLambda(mto, hypFactory, mlo,
                 consts, true, sul.getActionSymbols());
         learner.setStatisticCounter(queryStats);
 
@@ -78,7 +78,7 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries1 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries1, 22);
+        Assert.assertEquals(memQueries1, 2);
 
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
         		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
@@ -96,7 +96,7 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries2 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries2, 41);
+        Assert.assertEquals(memQueries2, 36);
 
         Word<PSymbolInstance> ce3 = Word.fromSymbols(
         		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
@@ -114,6 +114,6 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries3 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries3, 49);
+        Assert.assertEquals(memQueries3, 44);
 	}
 }

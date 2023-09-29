@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
+package de.learnlib.ralib.learning.ralambda;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -44,7 +44,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
-public class RaTTT implements RaLearningAlgorithm {
+public class RaLambda implements RaLearningAlgorithm {
 
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
 
@@ -72,7 +72,8 @@ public class RaTTT implements RaLearningAlgorithm {
     private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
-    private static final LearnLogger log = LearnLogger.getLogger(RaTTT.class);
+
+    private static final LearnLogger log = LearnLogger.getLogger(RaLambda.class);
 
     private boolean useOldAnalyzer;
 
@@ -80,19 +81,19 @@ public class RaTTT implements RaLearningAlgorithm {
 
     private PrefixFinder prefixFinder = null;
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, ParameterizedSymbol... inputs) {
 
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, false, inputs);
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, ParameterizedSymbol... inputs) {
 
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, useOldAnalyzer, false, inputs);
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, boolean thoroughSearch, ParameterizedSymbol... inputs) {
 
         this.ioMode = ioMode;
@@ -106,7 +107,7 @@ public class RaTTT implements RaLearningAlgorithm {
         this.dt.initialize();
     }
 
-    public RaTTT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             ParameterizedSymbol... inputs) {
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
     }
@@ -214,11 +215,15 @@ public class RaTTT implements RaLearningAlgorithm {
         		consistent = false;
         	}
 
-        	if (!checkRegisterConsistency()) {
+        	if (!checkRegisterClosedness()) {
         		consistent = false;
         	}
 
         	if (!checkGuardConsistency()) {
+        		consistent = false;
+        	}
+
+        	if (!checkRegisterConsistency()) {
         		consistent = false;
         	}
         }
@@ -310,17 +315,22 @@ public class RaTTT implements RaLearningAlgorithm {
     	return true;
     }
 
-    private boolean checkRegisterConsistency() {
+    private boolean checkRegisterClosedness() {
     	return dt.checkVariableConsistency(suffixBuilder);
+    }
+
+    private boolean checkRegisterConsistency() {
+    	return dt.checkRegisterConsistency(suffixBuilder);
     }
 
     private boolean checkGuardConsistency() {
     	Map<Word<PSymbolInstance>, Boolean> toReuse = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-    	for (Word<PSymbolInstance> word : guardPrefixes.keySet()) {
-    		Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
-    		DTLeaf src_c = dt.getLeaf(src_id);
-    		DTLeaf dest_c = dt.getLeaf(word);
-            Branching hypBranching = null;
+	for (Map.Entry<Word<PSymbolInstance>, Boolean> entry : guardPrefixes.entrySet()) {
+	    Word<PSymbolInstance> word = entry.getKey();
+	    Word<PSymbolInstance> src_id = word.prefix(word.size() - 1);
+	    DTLeaf src_c = dt.getLeaf(src_id);
+	    DTLeaf dest_c = dt.getLeaf(word);
+	    Branching hypBranching = null;
             if (src_c.getAccessSequence().equals(src_id)) {
                 hypBranching = src_c.getBranching(word.lastSymbol().getBaseSymbol());
             } else {
@@ -340,7 +350,7 @@ public class RaTTT implements RaLearningAlgorithm {
             	suffix = distinguishingSuffix(branch, branchLeaf, word, dest_c);
             }
             else {
-            	if (!guardPrefixes.get(word)) {
+			if (!entry.getValue()) {
 		            MappedPrefix mp = dest_c.getPrefix(word);
 		            Map<SymbolicSuffix, TreeQueryResult> branchTQRs = branchLeaf.getPrefix(branch).getTQRs();
 		            for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
@@ -348,15 +358,25 @@ public class RaTTT implements RaLearningAlgorithm {
 		            	SymbolicSuffix s = e.getKey();
 
 		            	TreeQueryResult otherTQR = branchTQRs.get(s);
+                        //todo: not sure why this check was not here yet? It happens sometimes ...
+                        if (branchTQRs.get(s) == null) {
+                            continue;
+                        }
 
 		            	if (tqr.getSdt().isEquivalent(branchTQRs.get(s).getSdt(), tqr.getPiv())) {
 		            		if (!tqr.getPiv().equals(otherTQR.getPiv())) {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
+			            			SymbolicSuffix testSuffix;
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
-			            				suffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
+			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
 			            			} else {
-			            				suffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
-			            				suffix = suffix.concat(s);
+			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
+			            				testSuffix = testSuffix.concat(s);
+			            			}
+			            			TreeQueryResult testTQR = sulOracle.treeQuery(src_id, testSuffix);
+			            			Branching testBranching = sulOracle.updateBranching(src_id, word.lastSymbol().getBaseSymbol(), hypBranching, testTQR.getPiv(), testTQR.getSdt());
+			            			if (testBranching.getBranches().keySet().contains(word)) {
+			            				suffix = testSuffix;
 			            			}
 			            		}
 		            		}
@@ -392,13 +412,17 @@ public class RaTTT implements RaLearningAlgorithm {
 
     	TreeQueryResult tqrA = ca.getTQR(wa, v);
     	TreeQueryResult tqrB = cb.getTQR(wb, v);
-    	SymbolicDecisionTree sdtA = tqrA.getSdt();
-    	SymbolicDecisionTree sdtB = tqrB.getSdt();
 
-    	if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
+    	assert tqrA != null && tqrB != null;
+
+        SymbolicDecisionTree sdtA = tqrA.getSdt();
+        SymbolicDecisionTree sdtB = tqrB.getSdt();
+
+        if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
 //    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
-    		return suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v.getActions(), solver);
-    	}
+          	SymbolicSuffix suffix = suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT) sdtA, tqrA.getPiv(), wb, (SDT) sdtB, tqrB.getPiv(), v.getActions(), solver);
+           	return suffix;
+        }
 
     	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
     	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, consts);
@@ -499,6 +523,11 @@ public class RaTTT implements RaLearningAlgorithm {
 
     @Override
     public RaLearningAlgorithmName getName() {
-        return RaLearningAlgorithmName.RATTT;
+        return RaLearningAlgorithmName.RALAMBDA;
+    }
+
+    @Override
+    public String toString() {
+        return this.dt.toString();
     }
 }

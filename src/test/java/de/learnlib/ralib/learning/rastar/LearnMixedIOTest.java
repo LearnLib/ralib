@@ -119,6 +119,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 100, // max depth
                 consts,
                 false, // reset runs
+                false,
                 teachers,
                 inputs);
 

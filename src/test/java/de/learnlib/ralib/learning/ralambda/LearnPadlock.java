@@ -1,5 +1,4 @@
-package de.learnlib.ralib.learning.rattt;
-
+package de.learnlib.ralib.learning.ralambda;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -119,11 +118,11 @@ public class LearnPadlock extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaTTT rattt = new RaTTT(mto, hypFactory, slo, consts, false, false, true, IN);
-        rattt.setSolver(solver);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
+        ralambda.setSolver(solver);
 
-        rattt.learn();
-        RegisterAutomaton hyp = rattt.getHypothesis();
+        ralambda.learn();
+        RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -132,10 +131,10 @@ public class LearnPadlock extends RaLibTestSuite {
                 new PSymbolInstance(IN, new DataValue<>(DIGIT, 0)),
                 new PSymbolInstance(IN, new DataValue<>(DIGIT, 0)));
 
-        rattt.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        rattt.learn();
-        hyp = rattt.getHypothesis();
+        ralambda.learn();
+        hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
     }
