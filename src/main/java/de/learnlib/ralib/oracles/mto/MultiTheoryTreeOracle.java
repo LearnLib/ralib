@@ -84,8 +84,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final ConstraintSolver solver;
 
-    private final MultiTheorySDTLogicOracle logicOracle;
-
     private static LearnLogger log = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
 
     public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants,
@@ -94,7 +92,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
-        this.logicOracle = new MultiTheorySDTLogicOracle(constants, solver);
     }
 
     @Override
@@ -134,7 +131,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(suffix.getActions(), values);
 
-            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
+//            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
             DefaultQuery<PSymbolInstance, Boolean> query = new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
@@ -267,11 +264,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
                 SDTGuard guard = mergedGuardEntry.getKey();
                 Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
-                DataValue dvi = null;
 
                 // first solve using a constraint solver
-                dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
-
+                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
                 // if merging of guards is done properly, there should be no case where the
                 // guard cannot be instantiated.
                 assert (dvi != null);

@@ -303,10 +303,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
             DefaultQuery<PSymbolInstance, Boolean> ce  = null;
-            DefaultQuery<PSymbolInstance, Boolean> origCe  = null;
 
             if (useEqTest) {
-                ce = this.eqTest.findCounterExample(hyp, null);
+                ce = this.eqTest.findCounterExample(hyp, new ArrayList<>());
 
                 if (ce != null) {
                     eqTestfoundCE = true;
@@ -328,7 +327,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
-                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, null) : ce);
+                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, new ArrayList<>()) : ce);
 
                 SimpleProfiler.stop(__SEARCH__);
                 System.out.println("CE: " + ce2);
