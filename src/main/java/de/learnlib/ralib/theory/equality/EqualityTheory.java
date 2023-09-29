@@ -332,9 +332,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getType();
         int newDv_i;
-        for (Constant c : constants.keySet()) {
-            if (constants.get(c).equals(newDv)) {
-                return new EqualityGuard(currentParam, c);
+        for (Map.Entry <Constant, DataValue<?>> entry : constants.entrySet()) {
+            if (entry.getValue().equals(newDv)) {
+                return new EqualityGuard(currentParam, entry.getKey());
             }
         }
         if (prefixValues.contains(newDv)) {

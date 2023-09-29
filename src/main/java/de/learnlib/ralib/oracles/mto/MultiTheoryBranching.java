@@ -243,16 +243,16 @@ public class MultiTheoryBranching implements Branching {
                 new LinkedHashMap<DataValue[], List<SDTGuard>>(), new DataValue[0], new ArrayList<SDTGuard>(),
                 new ArrayList<Node>());
 
-        for (DataValue[] dvs : tempMap.keySet()) {
+        for (Map.Entry <DataValue[], List<SDTGuard>> entry : tempMap.entrySet()) {
             List<GuardExpression> gExpr = new ArrayList<>();
-            List<SDTGuard> gList = tempMap.get(dvs);
+            List<SDTGuard> gList = entry.getValue();
             for (SDTGuard g : gList) {
                 gExpr.add(renameSuffixValues(g.toExpr()));
             }
             TransitionGuard tg = new TransitionGuard(new Conjunction(gExpr.toArray(new GuardExpression[] {})));
             assert tg != null;
 
-            Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, dvs));
+            Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, entry.getKey()));
             branches.put(branch, tg);
         }
 
