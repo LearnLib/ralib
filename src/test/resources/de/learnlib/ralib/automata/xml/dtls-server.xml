@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="FINISHED">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_KEY_EXCHANGE">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="APPLICATION">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="CHANGE_CIPHER_SPEC">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="PSK_CLIENT_HELLO">
+                <param type="epoch" name="p1"/>
+            </symbol>
+        </inputs>
+        <outputs>
+            <symbol name="ALERT">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="CHANGE_CIPHER_SPEC|FINISHED">
+                <param type="epoch" name="p1"/>
+                <param type="epoch" name="p2"/>
+            </symbol>
+            <symbol name="SERVER_HELLO|SERVER_HELLO_DONE">
+                <param type="epoch" name="p1"/>
+                <param type="epoch" name="p2"/>
+            </symbol>
+            <symbol name="HELLO_VERIFY_REQUEST">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="APPLICATION">
+                <param type="epoch" name="p1"/>
+            </symbol>
+            <symbol name="TIMEOUT"/>
+        </outputs>
+    </alphabet>
+    <constants>
+        <constant type="epoch" name="c1">0</constant>
+        <constant type="epoch" name="c2">1</constant>
+    </constants>
+    <globals/>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+        <location name="l9"/>
+        <location name="l10"/>
+        <location name="l11"/>
+        <location name="l12"/>
+        <location name="l13"/>
+        <location name="l14"/>
+        <location name="l15"/>
+        <location name="l16"/>
+        <location name="l17"/>
+        <location name="l18"/>
+        <location name="l19"/>
+        <location name="l20"/>
+        <location name="l21"/>
+        <location name="l22"/>
+        <location name="l23"/>
+        <location name="l24"/>
+        <location name="l25"/>
+        <location name="l26"/>
+        <location name="l27"/>
+        <location name="l28"/>
+        <location name="l29"/>
+        <location name="l30"/>
+        <location name="l31"/>
+        <location name="l32"/>
+        <location name="l33"/>
+        <location name="l34"/>
+        <location name="l35"/>
+        <location name="l36"/>
+        <location name="l37"/>
+        <location name="l38"/>
+        <location name="l39"/>
+        <location name="l40"/>
+        <location name="l41"/>
+        <location name="l42"/>
+        <location name="l43"/>
+        <location name="l44"/>
+        <location name="l45"/>
+        <location name="l46"/>
+        <location name="l47"/>
+        <location name="l48"/>
+        <location name="l49"/>
+        <location name="l50"/>
+        <location name="l51"/>
+        <location name="l52"/>
+        <location name="l53"/>
+        <location name="l54"/>
+        <location name="l55"/>
+        <location name="l56"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_HELLO">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l4" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l0" to="l1" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l1" to="l0" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l5" symbol="HELLO_VERIFY_REQUEST" params="c1">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="PSK_CLIENT_HELLO">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l7" symbol="SERVER_HELLO|SERVER_HELLO_DONE" params="c1,c1">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l8" symbol="FINISHED">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="FINISHED">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l8" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="PSK_CLIENT_HELLO">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l11" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l9" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l5" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l9" to="l10" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l9" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l9" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l10" to="l9" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l11" to="l12" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l9" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1 &amp;&amp; c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l13" symbol="PSK_CLIENT_HELLO">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l14" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c1!=p1 &amp;&amp; c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l13" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l14" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l16" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l9" symbol="FINISHED">
+            <guard>c1!=p1 &amp;&amp; c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l13" symbol="FINISHED">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l14" symbol="FINISHED">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l12" to="l11" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l13" to="l5" symbol="ALERT" params="c1">
+            <assignments/>
+        </transition>
+        <transition from="l14" to="l15" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c1!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l31" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c1==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l14" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l14" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l14" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l15" to="l14" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l16" to="l17" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l9" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l31" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l31" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l9" symbol="FINISHED">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l18" symbol="FINISHED">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l16" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l32" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l17" to="l27" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l18" to="l19" symbol="CHANGE_CIPHER_SPEC|FINISHED" params="c1,c2">
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l22" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l21" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l22" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l22" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l22" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l25" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l19" to="l36" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l20" to="l23" symbol="ALERT" params="c2">
+            <assignments/>
+        </transition>
+        <transition from="l21" to="l23" symbol="APPLICATION" params="c2">
+            <assignments/>
+        </transition>
+        <transition from="l22" to="l24" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l36" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l28" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l21" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l28" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l28" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l23" to="l28" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l46" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l25" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l46" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l46" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l46" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l24" to="l54" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l25" to="l26" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l25" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l29" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l29" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l29" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l26" to="l29" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l27" to="l30" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l28" to="l23" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l29" to="l19" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l9" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l31" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l31" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l9" symbol="FINISHED">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l18" symbol="FINISHED">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l16" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l30" to="l27" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l31" to="l10" symbol="ALERT" params="c1">
+            <assignments/>
+        </transition>
+        <transition from="l32" to="l33" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l33" to="l9" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l33" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l33" to="l9" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l33" to="l32" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l33" to="l34" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l34" to="l35" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l9" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l31" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l9" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l31" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l9" symbol="FINISHED">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l18" symbol="FINISHED">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l32" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l35" to="l34" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l36" to="l38" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l37" to="l39" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l38" to="l36" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l38" to="l40" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l38" to="l40" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l38" to="l40" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l38" to="l40" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l39" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l39" to="l41" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l39" to="l41" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l39" to="l41" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l39" to="l41" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l40" to="l42" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l41" to="l43" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l42" to="l28" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l42" to="l28" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l42" to="l28" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l42" to="l28" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l42" to="l36" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l21" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l47" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l44" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l47" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l47" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l43" to="l47" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l44" to="l45" symbol="ALERT" params="c2">
+            <assignments/>
+        </transition>
+        <transition from="l45" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l45" to="l48" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l45" to="l48" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l45" to="l48" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l45" to="l48" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l46" to="l49" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l47" to="l51" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l48" to="l50" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l46" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l25" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l46" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l46" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l46" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l49" to="l54" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l48" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l21" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l48" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l48" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l50" to="l48" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l51" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l51" to="l52" symbol="PSK_CLIENT_HELLO">
+            <assignments/>
+        </transition>
+        <transition from="l51" to="l52" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l51" to="l52" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l51" to="l52" symbol="APPLICATION">
+            <assignments/>
+        </transition>
+        <transition from="l52" to="l53" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l52" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l52" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l52" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l52" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l53" to="l54" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l54" to="l55" symbol="APPLICATION" params="c2">
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l9" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l37" symbol="CHANGE_CIPHER_SPEC">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l20" symbol="PSK_CLIENT_HELLO">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l56" symbol="PSK_CLIENT_HELLO">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l54" symbol="APPLICATION">
+            <guard>c2==p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l56" symbol="APPLICATION">
+            <guard>c2!=p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l56" symbol="PSK_CLIENT_KEY_EXCHANGE">
+            <assignments/>
+        </transition>
+        <transition from="l55" to="l56" symbol="FINISHED">
+            <assignments/>
+        </transition>
+        <transition from="l56" to="l55" symbol="TIMEOUT">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>
