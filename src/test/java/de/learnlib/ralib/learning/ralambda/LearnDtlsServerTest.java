@@ -7,6 +7,7 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -21,6 +22,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class LearnDtlsServerTest extends RaLibTestSuite {
@@ -49,10 +51,12 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
-        runner.setEqOracle(new IOEquivalenceTest(model, teachers, consts, false, actions));
+        IOEquivalenceTest eqOracle = new IOEquivalenceTest(model, teachers, consts, false, actions);
+        runner.setEqOracle(eqOracle);
         runner.setIoMode(true);
         Hypothesis result = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, actions);
-        Assert.assertEquals(result.getStates().size(), model.getStates().size());
+        DefaultQuery<PSymbolInstance, Boolean> ce = eqOracle.findCounterExample(result, null);
+        Assert.assertNull(ce);
     }
 
 }
