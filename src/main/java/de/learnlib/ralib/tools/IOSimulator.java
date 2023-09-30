@@ -279,6 +279,11 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         System.out.println("SYS:------------------------------------------------");
         System.out.println(model);
         System.out.println("----------------------------------------------------");
+        System.out.println("Sys. Locations: " + model.getStates().size());
+        System.out.println("Sys. Transitions: " + model.getTransitions().size());
+        System.out.println("Sys. Registers: " + model.getRegisters().size());
+        System.out.println("Constants: " + consts.size());
+
 
         SimpleProfiler.start(__RUN__);
         SimpleProfiler.start(__LEARN__);
@@ -390,12 +395,14 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         // model
         if (hyp != null) {
-            System.out.println("Locations: " + hyp.getStates().size());
-            System.out.println("Transitions: " + hyp.getTransitions().size());
+            System.out.println("Hyp. Locations: " + hyp.getStates().size());
+            System.out.println("Hyp. Transitions: " + hyp.getTransitions().size());
 
             // input locations + transitions
-            System.out.println("Input Locations: " + hyp.getInputStates().size());
-            System.out.println("Input Transitions: " + hyp.getInputTransitions().size());
+            System.out.println("Hyp. Input Locations: " + hyp.getInputStates().size());
+            System.out.println("Hyp. Input Transitions: " + hyp.getInputTransitions().size());
+
+            System.out.println("Hyp. Registers: " + hyp.getRegisters().size());
 
             if (this.exportModel) {
                 System.out.println("exporting model to model.xml");
