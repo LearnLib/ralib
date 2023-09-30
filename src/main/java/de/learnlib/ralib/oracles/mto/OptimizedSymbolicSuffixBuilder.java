@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -40,8 +39,6 @@ import net.automatalib.words.Word;
 public class OptimizedSymbolicSuffixBuilder {
 
     private final Constants consts;
-
-    private static LearnLogger log = LearnLogger.getLogger(OptimizedSymbolicSuffixBuilder.class);
 
     public OptimizedSymbolicSuffixBuilder(Constants consts) {
         this.consts = consts;
