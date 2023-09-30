@@ -59,7 +59,7 @@ public class SULOracle extends IOOracle {
             PSymbolInstance in = applyReplacements(act.getSymbol(i));
 
             PSymbolInstance out = sul.step(in);
-            updateReplacements(act.getSymbol(i + 1), out);
+            updateReplacements(out);
 
             trace = trace.append(in).append(out);
 
@@ -94,9 +94,7 @@ public class SULOracle extends IOOracle {
         return new PSymbolInstance(symbol.getBaseSymbol(), vals);
     }
 
-    private void updateReplacements(
-            PSymbolInstance outTest, PSymbolInstance outSys) {
-
+    private void updateReplacements(PSymbolInstance outSys) {
         for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
             Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);
             set.add(outSys.getParameterValues()[i]);

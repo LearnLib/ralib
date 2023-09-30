@@ -232,7 +232,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
         this.sys2 = a;
-        int x=0;
+        //int x = 0;
 
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
@@ -258,7 +258,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             {
 
                 List<Word<PSymbolInstance>> words =
-                        getNext(t.as, ps, t.sys1reg, t.sys2reg, checkForEqualParameters);
+                        getNext(t.as, ps, t.sys1reg, checkForEqualParameters);
 
                 for (Word<PSymbolInstance> w : words)
                 {
@@ -279,9 +279,9 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                     }
                     // FIXME: this may not be OK in general. I think it is ok
                     // for learning ....
-                    if (hasDoubles(next.sys2reg)) {
-                        continue;
-                    }
+                    //if (hasDoubles(next.sys2reg)) {
+                    //    continue;
+                    //}
 
                     st = new Tuple(next.sys1loc, next.sys2loc, next.sys1reg, next.sys2reg);
                     ArrayList<Tuple> comp = visited.get(st);
@@ -312,19 +312,18 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                     q.add(next);
                     visited.get(st).add(st);
                     //log.trace("added " + w + " to queue");
-
                 }
             }
 
-            x++;
+            //x++;
 
         }
 
         return null;
     }
 
-    private static boolean hasDoubles(VarValuation r) {
-        return false;
+//    private static boolean hasDoubles(VarValuation r) {
+//        return false;
 
 //        Set<Object> s = new LinkedHashSet<>();
 //        int x=0;
@@ -339,12 +338,9 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 //            }
 //        }
 //        return (s.size() != x);
-    }
+//    }
 
-
-    private void executeStep(
-            Triple in, PSymbolInstance psi, Triple out)
-    {
+    private void executeStep(Triple in, PSymbolInstance psi, Triple out) {
         out.sys1reg = new VarValuation(in.sys1reg);
         out.sys2reg = new VarValuation(in.sys2reg);
 
@@ -389,7 +385,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
 
     private List<Word<PSymbolInstance>> getNext(Word<PSymbolInstance> w,
-            ParameterizedSymbol ps, VarValuation r1, VarValuation r2,
+            ParameterizedSymbol ps, VarValuation r1,
             boolean checkForEqualParameters) {
 
         Set<DataValue<?>> potential = new LinkedHashSet<>();

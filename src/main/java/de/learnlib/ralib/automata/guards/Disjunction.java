@@ -49,7 +49,6 @@ public class Disjunction extends GuardExpression {
 
     @Override
     public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
-        int i = 0;
         for (GuardExpression ge : disjuncts) {
             if (ge.isSatisfied(val)) {
                 return true;
