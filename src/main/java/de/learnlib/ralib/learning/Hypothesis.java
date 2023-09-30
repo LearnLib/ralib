@@ -29,12 +29,15 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
@@ -102,17 +105,15 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
 		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
-		// get guard of last transition
-		List<Transition> tseq = getTransitions(word);
-        Transition last = tseq.get(tseq.size() -1);
-		TransitionGuard transitionGuard = last.getGuard();
+        List<Pair<Transition, VarValuation>> tvseq = getTransitionsAndValuations(word);
+        VarValuation vars = tvseq.get(tvseq.size()-1).getSecond();
+        ParValuation pval = new ParValuation(word.lastSymbol());
 
-		for (Word<PSymbolInstance> p : branching.getBranches().keySet()) {
-			if (p.lastSymbol().getBaseSymbol().equals(ps)) {
-				tseq = getTransitions(p);
-				last = tseq.get(tseq.size()-1);
-				if (last.getGuard() == transitionGuard)
-					return p;
+		for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branching.getBranches().entrySet()) {
+			if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
+			    if (e.getValue().isSatisfied(vars, pval, constants)) {
+			        return e.getKey();
+			    }
 			}
 		}
 		return null;

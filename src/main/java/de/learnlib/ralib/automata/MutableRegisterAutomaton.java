@@ -28,6 +28,7 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.automata.MutableDeterministic;
+import net.automatalib.commons.util.Pair;
 import net.automatalib.words.Word;
 
 /**
@@ -116,6 +117,39 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             }
         }
         return tseq;
+    }
+
+    protected List<Pair<Transition,VarValuation>> getTransitionsAndValuations(Word<PSymbolInstance> dw) {
+        VarValuation vars = new VarValuation(getInitialRegisters());
+        RALocation current = initial;
+        List<Pair<Transition,VarValuation>> tvseq = new ArrayList<>();
+        for (PSymbolInstance psi : dw) {
+
+            ParValuation pars = new ParValuation(psi);
+
+            Collection<Transition> candidates =
+                    current.getOut(psi.getBaseSymbol());
+
+            if (candidates == null) {
+                return null;
+            }
+
+            boolean found = false;
+            for (Transition t : candidates) {
+                if (t.isEnabled(vars, pars, constants)) {
+                    vars = t.execute(vars, pars, constants);
+                    current = t.getDestination();
+                    tvseq.add(Pair.of(t, new VarValuation(vars)));
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                return null;
+            }
+        }
+        return tvseq;
     }
 
     @Override
