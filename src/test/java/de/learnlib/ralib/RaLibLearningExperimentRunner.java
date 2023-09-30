@@ -18,6 +18,7 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
+import de.learnlib.ralib.learning.ralambda.RaDT;
 import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -42,10 +43,12 @@ public class RaLibLearningExperimentRunner {
 	 */
 	private boolean useOldAnalyzer = false;
 
+	private boolean ioMode = false;
 
 	/**
 	 * Equivalence Oracle default settings
 	 */
+	private IOEquivalenceOracle eqOracle = null; // use custom eqOracle
 	private long maxRuns = 1000; // maximum number of runs
 	private double resetProbability = 0.1; // reset probability
 	private double freshProbability = 0.5; // prob. of choosing a fresh data value
@@ -86,8 +89,16 @@ public class RaLibLearningExperimentRunner {
 		this.seed = seed;
 	}
 
+	public void setIoMode(boolean ioMode) {
+	    this.ioMode = ioMode;
+	}
+
 	public void setUseOldAnalyzer(boolean useOldAnalyzer) {
 		this.useOldAnalyzer = useOldAnalyzer;
+	}
+
+	public void setEqOracle(IOEquivalenceOracle eqOracle) {
+	    this.eqOracle = eqOracle;
 	}
 
 	/**
@@ -112,23 +123,31 @@ public class RaLibLearningExperimentRunner {
 			RaLearningAlgorithm learner = null;
 			switch (algorithmName) {
 			case RASTAR:
-				learner = new RaStar(mto, hypFactory, mlo, consts, false, actionSymbols);
+				learner = new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 				break;
 			case RALAMBDA:
-				learner = new RaLambda(mto, hypFactory, mlo, consts, false, useOldAnalyzer, actionSymbols);
+				learner = new RaLambda(mto, hypFactory, mlo, consts, ioMode, useOldAnalyzer, actionSymbols);
 				((RaLambda)learner).setSolver(solver);
 				break;
+			case RADT:
+			    learner = new RaDT(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
+			    break;
 			default:
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
 			}
 			DefaultQuery<PSymbolInstance, Boolean> ce = null;
-			IOEquivalenceOracle eqOracle = new RandomWalk(random, ioCache,
+			IOEquivalenceOracle eqOracle;
+			if (this.eqOracle == null) {
+			eqOracle = new RandomWalk(random, ioCache,
 					resetProbability, // reset probability
 					freshProbability, // prob. of choosing a fresh data value
 					maxRuns, // number of runs
 					maxDepth, // max depth
 					teachers,
 					consts, Arrays.asList(actionSymbols));
+			} else {
+			    eqOracle = this.eqOracle;
+			}
 
 			int check = 0;
 			while (true && check < 100) {
