@@ -392,13 +392,11 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return FalseGuardExpression.FALSE;
         }
-        Set<SuffixValue> svals = new LinkedHashSet<>();
         GuardExpression dis = null;
         for (List<SDTGuard> list : paths) {
             List<GuardExpression> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr());
-                svals.add(g.getParameter());
             }
             Conjunction con = new Conjunction(
                     expr.toArray(new GuardExpression[] {}));
@@ -415,13 +413,11 @@ public class SDT implements SymbolicDecisionTree {
         if (paths.isEmpty()) {
             return FalseGuardExpression.FALSE;
         }
-        Set<SuffixValue> svals = new LinkedHashSet<>();
         GuardExpression dis = null;
         for (List<SDTGuard> list : paths) {
             List<GuardExpression> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr());
-                svals.add(g.getParameter());
             }
             Conjunction con = new Conjunction(
                     expr.toArray(new GuardExpression[] {}));
@@ -439,13 +435,11 @@ public class SDT implements SymbolicDecisionTree {
     		expressions.put(FalseGuardExpression.FALSE, false);
     		return expressions;
     	}
-    	Set<SuffixValue> svals = new LinkedHashSet<>();
     	for (Map.Entry<List<SDTGuard>, Boolean> e : paths.entrySet()) {
     		List<SDTGuard> list = e.getKey();
     		List<GuardExpression> expr = new ArrayList<>();
     		for (SDTGuard g : list) {
     			expr.add(g.toExpr());
-    			svals.add(g.getParameter());
     		}
     		Conjunction con = new Conjunction(
     				expr.toArray(new GuardExpression[] {}));
