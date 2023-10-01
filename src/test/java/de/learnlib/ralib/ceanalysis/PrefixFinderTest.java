@@ -95,7 +95,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                rastar.getComponents(),
+                // rastar.getComponents(),
                 consts
         );
 
@@ -143,7 +143,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                ralambda.getComponents(),
+                // ralambda.getComponents(),
                 consts
         );
 

@@ -1,6 +1,5 @@
 package de.learnlib.ralib.learning.ralambda;
 
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,8 +33,8 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
 
-        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-                new ParameterizedSymbol[]{});
+//        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+//                new ParameterizedSymbol[]{});
 
         ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});

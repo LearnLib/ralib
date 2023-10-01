@@ -141,7 +141,7 @@ public class LearnPQTest extends RaLibTestSuite {
 //        runner.setUseOldAnalyzer(true);
 
         Measurements[] ralambdaCount = new Measurements [SEEDS];
-        Measurements[] rastarCount = new Measurements [SEEDS];
+//        Measurements[] rastarCount = new Measurements [SEEDS];
         for (int i=0; i<SEEDS; i++) {
             System.out.println(i);
             runner.setSeed(i);

@@ -305,7 +305,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 			Matcher m = dvPattern.matcher(ceString);
 			Collection<Integer> params = new ArrayList<Integer>();
 			while (m.find()) {
-				String s = m.group(1);
+				//String s = m.group(1);
 				params.add(Integer.parseInt(m.group(1)));
 			}
 
