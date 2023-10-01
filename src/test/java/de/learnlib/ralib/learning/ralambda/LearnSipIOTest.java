@@ -42,13 +42,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {
-	@Test
-	public void learnSipIO() {
+    @Test
+    public void learnSipIO() {
 
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
         logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
+        final Random unused = new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
@@ -62,7 +62,6 @@ public class LearnSipIOTest extends RaLibTestSuite {
                 new ParameterizedSymbol[]{});
 
         final Constants consts = loader.getConstants();
-
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
@@ -133,9 +132,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
-	}
+    }
 }

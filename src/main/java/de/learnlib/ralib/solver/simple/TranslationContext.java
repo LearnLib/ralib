@@ -71,11 +71,11 @@ public class TranslationContext {
 		throw new IllegalArgumentException();
 	}
 
-	private Constraint translate(TrueGuardExpression e) {
+	private Constraint translate(TrueGuardExpression unused) {
 		return Constraint.TRUE;
 	}
 
-	private Constraint translate(FalseGuardExpression e) {
+	private Constraint translate(FalseGuardExpression unused) {
 		return Constraint.FALSE;
 	}
 
