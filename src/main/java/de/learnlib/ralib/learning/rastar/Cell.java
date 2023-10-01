@@ -85,7 +85,7 @@ final class Cell {
 
     /**
      *
-     * @param r
+     * @param other
      * @return
      */
     boolean couldBeEquivalentTo(Cell other) {

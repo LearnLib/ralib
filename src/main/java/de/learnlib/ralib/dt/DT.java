@@ -265,7 +265,6 @@ public class DT implements DiscriminationTree {
      * resift all prefixes of a leaf, in order to add them to the correct leaf
      *
      * @param leaf
-     * @param oracle
      */
     private void resift(DTLeaf leaf) {
         // Potential optimization:
@@ -334,7 +333,6 @@ public class DT implements DiscriminationTree {
      * get leaf containing prefix as
      *
      * @param as
-     * @param node
      * @return leaf containing as, or null
      */
     public DTLeaf getLeaf(Word<PSymbolInstance> as) {
@@ -428,6 +426,7 @@ public class DT implements DiscriminationTree {
     	return false;
     }
 
+    @Override
     public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         collectComponents(components, root);
@@ -483,6 +482,7 @@ public class DT implements DiscriminationTree {
         return sink;
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("DT: {");

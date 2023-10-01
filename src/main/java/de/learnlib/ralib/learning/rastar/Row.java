@@ -134,10 +134,12 @@ public class Row implements PrefixContainer {
         return sdts.toArray(new SymbolicDecisionTree[]{});
     }
 
+    @Override
     public PIV getParsInVars() {
         return this.memorable;
     }
 
+    @Override
     public Word<PSymbolInstance> getPrefix() {
         return this.prefix;
     }
@@ -181,7 +183,7 @@ public class Row implements PrefixContainer {
 
     /**
      *
-     * @param r
+     * @param other
      * @return
      */
     boolean couldBeEquivalentTo(Row other) {

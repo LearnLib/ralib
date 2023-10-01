@@ -137,6 +137,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return otherPrefixes;
     }
 
+    @Override
     public boolean isLeaf() {
         return true;
     }
@@ -261,7 +262,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
      *
      * @param dt
      * @param prefix
-     * @param oracle
+     * @param hyp
+     * @param logicOracle
      * @return Pair of diverging words, if such a pair of words exists. Otherwise
      *         null.
      */
@@ -641,6 +643,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return new DTLeaf(this);
     }
 
+    @Override
     public String toString() {
         return getAllPrefixes().toString();
     }
