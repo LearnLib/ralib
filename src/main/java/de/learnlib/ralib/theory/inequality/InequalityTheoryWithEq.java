@@ -529,7 +529,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             assert headSDT.getClass().equals(refSDT.getClass());
             //assert !(headSDT.isEmpty());
             //assert !(refSDT.isEmpty());
-            SDTGuard headGuard = headList.get(0);
+            //SDTGuard headGuard = headList.get(0);
             SDT newSDT = headSDT;
 //            System.out.println("head: " + newHeadList + " against " + refGuard);
             if (headSDT instanceof SDTLeaf) {
