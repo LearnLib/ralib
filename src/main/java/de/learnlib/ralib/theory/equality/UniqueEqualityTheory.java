@@ -18,21 +18,21 @@ import net.automatalib.words.Word;
 
 public abstract class UniqueEqualityTheory<T> implements Theory<T> {
 
-    protected boolean useNonFreeOptimization;
+    // protected boolean useNonFreeOptimization;
 
-    protected boolean freshValues = false;
+    // protected boolean freshValues = false;
 
-    protected IOOracle ioOracle;
+    // protected IOOracle ioOracle;
 
     private static final LearnLogger log = LearnLogger.getLogger(EqualityTheory.class);
 
     public UniqueEqualityTheory(boolean useNonFreeOptimization) {
-        this.useNonFreeOptimization = useNonFreeOptimization;
+        // this.useNonFreeOptimization = useNonFreeOptimization;
     }
 
     public void setFreshValues(boolean freshValues, IOOracle ioOracle) {
-        this.ioOracle = ioOracle;
-        this.freshValues = freshValues;
+        // this.ioOracle = ioOracle;
+        // this.freshValues = freshValues;
     }
 
     public UniqueEqualityTheory() {
