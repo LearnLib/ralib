@@ -27,14 +27,14 @@ import net.automatalib.words.Word;
  * @author falk
  * @param <I> class of input symbols
  */
-public interface TransitionSequenceTransformer<I extends Object> {
+public interface TransitionSequenceTransformer<I> {
 
     /**
-     * returns the word representing the last transition
+     * Returns the word representing the last transition
      * passed when processing the input word.
      *
-     * @param word
-     * @return
+     * @param word  the input word
+     * @return  the word representing the last passed transition
      */
     public Word<I> transformTransitionSequence(Word<I> word);
 
