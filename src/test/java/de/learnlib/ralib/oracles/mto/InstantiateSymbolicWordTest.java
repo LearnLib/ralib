@@ -43,7 +43,6 @@ public class InstantiateSymbolicWordTest {
 
     @Test
     public void testInstantiateStack() {
-        Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 

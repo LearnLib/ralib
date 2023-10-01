@@ -2,27 +2,17 @@ package de.learnlib.ralib.learning;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.logging.Level;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.sul.SimulatorSUL;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -35,27 +25,13 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
   @Test
   public void concatTest() {
 
-	  RegisterAutomatonImporter loader = TestUtil.getLoader(
+      RegisterAutomatonImporter loader = TestUtil.getLoader(
               "/de/learnlib/ralib/automata/xml/fifo7.xml");
 
-      RegisterAutomaton model = loader.getRegisterAutomaton();
-      logger.log(Level.FINE, "SYS: {0}", model);
-
-      ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-              new ParameterizedSymbol[]{});
+      //RegisterAutomaton model = loader.getRegisterAutomaton();
+      //logger.log(Level.FINE, "SYS: {0}", model);
 
       Constants consts = loader.getConstants();
-
-      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-      loader.getDataTypes().stream().forEach((t) -> {
-          TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
-          theory.setUseSuffixOpt(true);
-          teachers.put(t, theory);
-      });
-
-      DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-      MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-              teachers, consts, new SimpleConstraintSolver(), inputs);
 
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -65,23 +41,22 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       ParameterizedSymbol iget = new InputSymbol(
               "IGet", new DataType[] {});
 
-       ParameterizedSymbol oget = new OutputSymbol(
+      ParameterizedSymbol oget = new OutputSymbol(
               "OGet", new DataType[] {intType});
 
-       ParameterizedSymbol ook = new OutputSymbol(
+      ParameterizedSymbol ook = new OutputSymbol(
               "OOK", new DataType[] {});
 
-       DataValue d0 = new DataValue(intType, 0);
-       DataValue d1 = new DataValue(intType, 1);
-       DataValue d6 = new DataValue(intType, 6);
+      DataValue d0 = new DataValue(intType, 0);
+      DataValue d1 = new DataValue(intType, 1);
+      DataValue d6 = new DataValue(intType, 6);
 
       //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
       Word<PSymbolInstance> prefix1 = Word.fromSymbols(
               new PSymbolInstance(iput,d0),
-              new PSymbolInstance(ook)
-              ,new PSymbolInstance(iput,d1),
-              new PSymbolInstance(ook)
-              );
+              new PSymbolInstance(ook),
+              new PSymbolInstance(iput,d1),
+              new PSymbolInstance(ook));
 
       //**** [s2, s3, s4, s5]((IPut[s1] OOK[] IPut[s2] OOK[] IGet[] OGet[s3] IGet[] OGet[s4] IGet[] OGet[s1] IGet[] OGet[s5]))
       Word<PSymbolInstance> suffix1 =  Word.fromSymbols(
@@ -89,8 +64,6 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
               new PSymbolInstance(ook),
               new PSymbolInstance(iput,d0),
               new PSymbolInstance(ook));
-
-
 
       Word<PSymbolInstance> prefix2 = Word.fromSymbols(new PSymbolInstance(iget),
       new PSymbolInstance(oget,d0),
