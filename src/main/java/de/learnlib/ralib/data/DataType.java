@@ -28,12 +28,12 @@ public final class DataType {
     /**
      * name of type (defining member)
      */
-    protected final String name;
+    final String name;
 
     /**
      * base type
      */
-    protected final Class base;
+    final Class base;
 
     public DataType(String name, Class base) {
         this.name = name;
