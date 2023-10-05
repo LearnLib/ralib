@@ -50,30 +50,6 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 {
 
     /* **********************************************************************
-     * object pairs ...
-     */
-
-    private static class Pair<T1, T2> {
-
-        private final T1 first;
-        private final T2 second;
-
-        public Pair(T1 first, T2 second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        public T1 getFirst() {
-            return first;
-        }
-
-        public T2 getSecond() {
-            return second;
-        }
-    }
-
-
-    /* **********************************************************************
      * state pair hash stuff ...
      */
 
@@ -274,7 +250,6 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
                     // found counterexample
                     if (next.sys1loc.isAccepting() != next.sys2loc.isAccepting()) {
-                        //System.out.println("CE: " + out.getFirst() + " : " + out.getSecond());
                         return new DefaultQuery<>(next.trace, next.sys1loc.isAccepting());
                     }
                     // FIXME: this may not be OK in general. I think it is ok
