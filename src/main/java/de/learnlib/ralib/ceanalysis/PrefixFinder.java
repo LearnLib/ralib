@@ -5,9 +5,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.api.query.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
@@ -153,24 +150,24 @@ public class PrefixFinder {
 		throw new RuntimeException("should not reach here");
 	}
 
-    private Pair<TreeQueryResult, TreeQueryResult> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
-    	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
-    	TreeQueryResult resHyp = hypOracle.treeQuery(prefix, suffix);
-    	TreeQueryResult resSul;
-    	if (storedQueries.containsKey(symWord))
-    		resSul = storedQueries.get(symWord);
-    	else {
-    		resSul = sulOracle.treeQuery(prefix, suffix);
-    		storedQueries.put(symWord, resSul);
-    	}
-
-        boolean hasCE = sdtOracle.hasCounterexample(prefix,
-                resHyp.getSdt(), resHyp.getPiv(),
-                resSul.getSdt(), resSul.getPiv(),
-                new TransitionGuard(), transition);
-
-        return hasCE ? new ImmutablePair<TreeQueryResult, TreeQueryResult>(resHyp, resSul) : null;
-    }
+//    private Pair<TreeQueryResult, TreeQueryResult> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
+//    	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
+//    	TreeQueryResult resHyp = hypOracle.treeQuery(prefix, suffix);
+//    	TreeQueryResult resSul;
+//    	if (storedQueries.containsKey(symWord))
+//    		resSul = storedQueries.get(symWord);
+//    	else {
+//    		resSul = sulOracle.treeQuery(prefix, suffix);
+//    		storedQueries.put(symWord, resSul);
+//    	}
+//
+//        boolean hasCE = sdtOracle.hasCounterexample(prefix,
+//                resHyp.getSdt(), resHyp.getPiv(),
+//                resSul.getSdt(), resSul.getPiv(),
+//                new TransitionGuard(), transition);
+//
+//        return hasCE ? new ImmutablePair<TreeQueryResult, TreeQueryResult>(resHyp, resSul) : null;
+//    }
 
     private boolean transitionHasCE(Word<PSymbolInstance> ce, int idx) {
     	if (idx+1 >= ce.length())
