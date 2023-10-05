@@ -105,7 +105,7 @@ public class TestSymmetry extends RaLibTestSuite {
 
 		System.out.println(learner.getHypothesis().toString());
 		System.out.println(learner.getDT());
-		Assert.assertTrue(hyp.accepts(ce));
+		Assert.assertTrue(learner.getDTHyp().accepts(ce));
 	}
 
 	private RegisterAutomaton buildCT2() {

@@ -125,7 +125,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         		consts, I_PUSH, I_POP);
 
         ralambda.learn();
-        final DTHyp hyp = (DTHyp)ralambda.getHypothesis();
+        final DTHyp hyp = ralambda.getDTHyp();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
         System.out.println(hyp);
 
