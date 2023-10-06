@@ -52,7 +52,7 @@ public class BoundedList {
 	}
 
 	public void insert(Integer e1, Integer e2) {
-		int i=1;
+		int i = 1;
 		if (useNull && e2.equals(NULL_VALUE)) {
 			throw new RuntimeException();
 		}
