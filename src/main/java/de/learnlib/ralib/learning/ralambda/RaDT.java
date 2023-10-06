@@ -70,13 +70,15 @@ public class RaDT implements RaLearningAlgorithm {
 
 	@Override
 	public void learn() {
-    	if (hyp == null)
-    		buildHypothesis();
+        if (hyp == null) {
+            buildHypothesis();
+        }
 
         while (analyzeCounterExample());
 
-        if (queryStats != null)
+        if (queryStats != null) {
         	queryStats.hypothesisConstructed();
+        }
 	}
 
     private boolean analyzeCounterExample() {
@@ -103,8 +105,9 @@ public class RaDT implements RaLearningAlgorithm {
             return false;
         }
 
-        if (queryStats != null)
+        if (queryStats != null) {
         	queryStats.analyzingCounterExample();
+        }
 
         CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
 
@@ -131,15 +134,16 @@ public class RaDT implements RaLearningAlgorithm {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(dt.getComponents());
         AutomatonBuilder ab;
-        if (ioMode)
-            ab = new IOAutomatonBuilder(components, consts, dt);
-        else
-            ab = new AutomatonBuilder(components, consts, this.dt);
+        if (ioMode) {
+            ab = new IOAutomatonBuilder(components, consts);
+        } else {
+            ab = new AutomatonBuilder(components, consts);
+        }
         return ab.toRegisterAutomaton();
 	}
 
     public DT getDT() {
-        return this.dt;
+        return dt;
     }
 
 	@Override

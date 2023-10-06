@@ -119,8 +119,9 @@ public class RaLambda implements RaLearningAlgorithm {
 
     public void learn() {
 
-    	if (hyp == null)
-    		buildNewHypothesis();
+        if (hyp == null) {
+            buildNewHypothesis();
+        }
 
         while (analyzeCounterExample());
 
@@ -133,8 +134,8 @@ public class RaLambda implements RaLearningAlgorithm {
 
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(dt.getComponents());
-
         AutomatonBuilder ab = new AutomatonBuilder(components, consts, dt);
+
         hyp = (DTHyp) ab.toRegisterAutomaton();
         if (prefixFinder != null) {
         	prefixFinder.setHypothesis(hyp);
@@ -228,8 +229,9 @@ public class RaLambda implements RaLearningAlgorithm {
         	}
         }
 
-        if (noShortPrefixes() && !dt.isMissingParameter())
+        if (noShortPrefixes() && !dt.isMissingParameter()) {
         	buildNewHypothesis();
+        }
 
         return true;
     }
@@ -494,15 +496,20 @@ public class RaLambda implements RaLearningAlgorithm {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(dt.getComponents());
         AutomatonBuilder ab;
-        if (ioMode)
-            ab = new IOAutomatonBuilder(components, consts, dt);
-        else
-            ab = new AutomatonBuilder(components, consts, this.dt);
+        if (ioMode) {
+            ab = new IOAutomatonBuilder(components, consts);
+        } else {
+            ab = new AutomatonBuilder(components, consts);
+        }
         return ab.toRegisterAutomaton();
     }
 
     public DT getDT() {
-        return this.dt;
+        return dt;
+    }
+
+    public DTHyp getDTHyp() {
+        return hyp;
     }
 
     public Map<Word<PSymbolInstance>, LocationComponent> getComponents() {
@@ -528,6 +535,6 @@ public class RaLambda implements RaLearningAlgorithm {
 
     @Override
     public String toString() {
-        return this.dt.toString();
+        return dt.toString();
     }
 }

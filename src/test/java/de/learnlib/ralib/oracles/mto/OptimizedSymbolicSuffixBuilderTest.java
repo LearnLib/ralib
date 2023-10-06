@@ -245,7 +245,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     /*
-     * Checks for equality optimized suffixes built by pre-pending using an SDT against those built from concrete prefix/suffix
+     * Checks for equality optimized suffixes built by prepending using an SDT against those built from concrete prefix/suffix
      */
     private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
