@@ -54,14 +54,14 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
 
     @Override
     public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
-        if (!(other.getClass().equals(this.getClass()))) {
+        if (! other.getClass().equals(this.getClass())) {
             return false;
         }
 
         LoginExampleSDT sdt = (LoginExampleSDT) other;
         return (clazz == sdt.clazz) &&
-                (registers.equals(sdt.registers)) &&
-                (suffix.equals(sdt.suffix));
+                registers.equals(sdt.registers) &&
+                suffix.equals(sdt.suffix);
     }
 
     @Override

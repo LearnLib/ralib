@@ -87,7 +87,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
 
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
-        for (int c = 0; c < (maybeArr.length); c++) {
+        for (int c = 0; c < maybeArr.length; c++) {
             if (!maybeArr[c]) {
                 maybe = false;
                 break;

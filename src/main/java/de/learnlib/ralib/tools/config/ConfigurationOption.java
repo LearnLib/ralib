@@ -84,7 +84,7 @@ public abstract class ConfigurationOption<T> {
             }
 
             String value = c.getProperty(getKey());
-            return !(value.toLowerCase().equals("false"));
+            return !value.toLowerCase().equals("false");
         }
     }
 
