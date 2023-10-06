@@ -36,7 +36,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 	private static final InputSymbol A =
 			new InputSymbol("a", new DataType[] {T_INT});
 
-	private class DummyDT extends DT {
+	private static class DummyDT extends DT {
 
 		private DTLeaf prefixLeaf;
 		private DTLeaf leaf;
