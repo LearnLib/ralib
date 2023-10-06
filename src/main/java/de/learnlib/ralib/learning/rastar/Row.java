@@ -63,13 +63,13 @@ public class Row implements PrefixContainer {
         this.ioMode = ioMode;
     }
 
-    private Row(Word<PSymbolInstance> prefix, List<Cell> cells, boolean ioMode) {
-        this(prefix, ioMode);
-
-        for (Cell c : cells) {
-            this.cells.put(c.getSuffix(), c);
-        }
-    }
+//    private Row(Word<PSymbolInstance> prefix, List<Cell> cells, boolean ioMode) {
+//        this(prefix, ioMode);
+//
+//        for (Cell c : cells) {
+//            this.cells.put(c.getSuffix(), c);
+//        }
+//    }
 
     void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
         if (ioMode && suffix.getActions().length() > 0) {
