@@ -186,7 +186,6 @@ public class IORandomWalk implements IOEquivalenceOracle {
         for (DataType t : ps.getPtypes()) {
             Theory teacher = teachers.get(t);
             // TODO: generics hack?
-            // TODO: add constants?
             Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
             for (int j = 0; j < i; j++) {
                 if (vals[j].getType().equals(t)) {
@@ -197,6 +196,9 @@ public class IORandomWalk implements IOEquivalenceOracle {
 
             Set<DataValue<Object>> newSet = new HashSet<>(
                 teacher.getAllNextValues(old));
+
+            // TODO: add constants in teacher?
+            newSet.addAll(constants.values(t));
 
             newSet.removeAll(old);
             ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
