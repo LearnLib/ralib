@@ -43,53 +43,53 @@ import net.automatalib.words.Word;
  */
 public class LearnBoundedListTest {
 
-	@Test(enabled=false)
-	public void learnBoundedListOracleTest() {
-		@SuppressWarnings("unchecked")
-		Word<PSymbolInstance>[] ces = new Word[] {
-				Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(POP, dv(1))),
-				Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(INSERT, dv(1), dv(2)),
-						new PSymbolInstance(INSERT, dv(3), dv(4)), new PSymbolInstance(POP, dv(0)),
-						new PSymbolInstance(POP, dv(2))),
-				Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(PUSH, dv(0)),
-						new PSymbolInstance(INSERT, dv(0), dv(1)), new PSymbolInstance(POP, dv(1))) };
+    @Test(enabled=false)
+    public void learnBoundedListOracleTest() {
+        @SuppressWarnings("unchecked")
+        Word<PSymbolInstance>[] ces = new Word[] {
+                Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(POP, dv(1))),
+                Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(INSERT, dv(1), dv(2)),
+                        new PSymbolInstance(INSERT, dv(3), dv(4)), new PSymbolInstance(POP, dv(0)),
+                        new PSymbolInstance(POP, dv(2))),
+                Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(PUSH, dv(0)),
+                        new PSymbolInstance(INSERT, dv(0), dv(1)), new PSymbolInstance(POP, dv(1))) };
 
-		Hypothesis result = learnBoundedListDWOracle(3, false, ces);
-		Assert.assertEquals(result.getStates().size(), 5);
-	}
+        Hypothesis result = learnBoundedListDWOracle(3, false, ces);
+        Assert.assertEquals(result.getStates().size(), 5);
+    }
 
-	private Hypothesis learnBoundedListDWOracle(int size, boolean useNull, Word<PSymbolInstance>[] ces) {
-		Constants consts = new Constants();
-		if (useNull) {
-			consts.put(new Constant(INT_TYPE, 1), new DataValue<>(INT_TYPE, BoundedList.NULL_VALUE));
-		}
+    private Hypothesis learnBoundedListDWOracle(int size, boolean useNull, Word<PSymbolInstance>[] ces) {
+        Constants consts = new Constants();
+        if (useNull) {
+            consts.put(new Constant(INT_TYPE, 1), new DataValue<>(INT_TYPE, BoundedList.NULL_VALUE));
+        }
 
-		BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(size, useNull));
+        BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(size, useNull));
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-		IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
-		teachers.put(INT_TYPE, dit);
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
+        teachers.put(INT_TYPE, dit);
 
-		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
-		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
-		SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
+                teachers, consts, solver);
 
-		List<ParameterizedSymbol> alphabet = Arrays.asList(INSERT, PUSH, POP);
-		RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, false,
-				alphabet.toArray(new ParameterizedSymbol[alphabet.size()]));
+        List<ParameterizedSymbol> alphabet = Arrays.asList(INSERT, PUSH, POP);
+        RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, false,
+                alphabet.toArray(new ParameterizedSymbol[alphabet.size()]));
 
-		rastar.learn();
-		Hypothesis hypothesis = rastar.getHypothesis();
+        rastar.learn();
+        Hypothesis hypothesis = rastar.getHypothesis();
 
-		for (Word<PSymbolInstance> ce : ces) {
-			rastar.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, dwOracle.answerQuery(ce)));
-			rastar.learn();
-			hypothesis = rastar.getHypothesis();
-		}
-		return hypothesis;
-	}
+        for (Word<PSymbolInstance> ce : ces) {
+            rastar.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, dwOracle.answerQuery(ce)));
+            rastar.learn();
+            hypothesis = rastar.getHypothesis();
+        }
+        return hypothesis;
+    }
 }
