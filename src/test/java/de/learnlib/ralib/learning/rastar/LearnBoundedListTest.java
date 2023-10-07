@@ -1,4 +1,4 @@
-package de.learnlib.ralib.learning;
+package de.learnlib.ralib.learning.rastar;
 
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INSERT;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INT_TYPE;
@@ -22,7 +22,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.example.list.BoundedList;
 import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
-import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
