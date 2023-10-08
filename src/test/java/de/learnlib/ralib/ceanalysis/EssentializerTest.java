@@ -30,7 +30,7 @@ public class EssentializerTest {
                 for (DataValue<Integer> i : vals) {
                     max = Math.max(max, i.getId());
                 }
-                return new DataValue<Integer>(_t, max +1);
+                return new DataValue<Integer>(_t, max + 1);
             }
 
             @Override
@@ -44,7 +44,7 @@ public class EssentializerTest {
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> collection) {
                 for (Query<PSymbolInstance, Boolean> q : collection) {
                     DataValue[] vals = DataWords.valsOf(q.getInput());
-                    System.out.println("MQ: " + q.getInput());
+                    //System.out.println("MQ: " + q.getInput());
                     q.answer(vals.length == 4 && vals[0].equals(vals[2]) && vals[1].equals(vals[3]));
                 }
             }
@@ -82,6 +82,5 @@ public class EssentializerTest {
         Word<PSymbolInstance> _w3 = e.essentialEq(w3);
         assert _w3.equals(w4);
     }
-
 
 }
