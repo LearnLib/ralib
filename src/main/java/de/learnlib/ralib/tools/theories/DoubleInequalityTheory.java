@@ -24,6 +24,7 @@ import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 import java.math.BigDecimal;
 import java.util.*;
 
+import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -62,6 +63,8 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
     private final ConstraintSolver solver = (new NativeZ3SolverProvider()).createSolver(new Properties());
+
+    private static final LearnLogger log = LearnLogger.getLogger(DoubleInequalityTheory.class);
 
     private DataType type = null;
 
@@ -207,13 +210,13 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 
     @Override
     public void setUseSuffixOpt(boolean useit) {
-        System.err.println("Optimized suffixes are currently not supported for theory "
+        log.info("Optimized suffixes are currently not supported for theory "
                 + DoubleInequalityTheory.class.getName());
     }
 
     @Override
     public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        System.err.println("Fresh values are currently not supported for theory "
+        log.info("Fresh values are currently not supported for theory "
                 + DoubleInequalityTheory.class.getName());
     }
 
