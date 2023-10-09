@@ -297,6 +297,7 @@ public class RaLambda implements RaLearningAlgorithm {
     		Iterator<MappedPrefix> it = l.getShortPrefixes().iterator();
     		while (it.hasNext()) {
     			ShortPrefix sp = (ShortPrefix)it.next();
+    			SymbolicSuffix suffix = null;
     			for (ParameterizedSymbol psi : dt.getInputs()) {
     				Branching access_b = l.getBranching(psi);
     				Branching prefix_b = sp.getBranching(psi);
@@ -307,10 +308,15 @@ public class RaLambda implements RaLearningAlgorithm {
     					DTLeaf ls = dt.getLeaf(ws);
     					if (la != ls) {
     						SymbolicSuffix v = distinguishingSuffix(wa, la, ws, ls);
-    						dt.split(sp.getPrefix(), v, l);
-    						return false;
+    						if (suffix == null || suffix.length() > v.length()) {
+    							suffix = v;
+    						}
     					}
     				}
+    			}
+    			if (suffix != null) {
+    				dt.split(sp.getPrefix(), suffix, l);
+    				return false;
     			}
     		}
     	}
