@@ -60,8 +60,8 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         buckets.clear();
         depth = 0;
         try {
-            sul = sulClass.newInstance();
-        } catch (InstantiationException | IllegalAccessException ex) {
+            sul = sulClass.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
             throw new RuntimeException(ex);
         }
     }

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.tools;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -251,7 +252,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             String[] parts = config.trim().split(":");
             Class<?> cl = Class.forName(parts[1].trim());
 
-            TypedTheory th = (TypedTheory) cl.newInstance();
+            TypedTheory th = (TypedTheory) cl.getDeclaredConstructor().newInstance();
             String t = parts[0].trim();
             // Do this later !!!
             // th.setType(t);
@@ -259,7 +260,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
             return Pair.of(t, th);
 
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
     }

@@ -18,6 +18,7 @@ package de.learnlib.ralib.tools;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -110,14 +111,14 @@ public class ConsoleClient {
         }
     }
 
-    private void parseTool() throws InstantiationException, IllegalAccessException {
+    private void parseTool() throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         if (args.length < 1) {
             return;
         }
 
         toolname = args[0];
         Class<? extends RaLibTool> toolClass = tools.get(toolname);
-        this.tool = toolClass.newInstance();
+        this.tool = toolClass.getDeclaredConstructor().newInstance();
     }
 
     private void parseConfig() throws IOException {
