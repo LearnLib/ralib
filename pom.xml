@@ -19,7 +19,7 @@
         <commons-lang.version>3.13.0</commons-lang.version>
         <guava.version>32.1.3-jre</guava.version>
         <jakarta-xml.version>4.0.1</jakarta-xml.version>
-        <jaxb-impl.version>4.0.3</jaxb-impl.version>
+        <jaxb-impl.version>4.0.4</jaxb-impl.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.16.0</learnlib.version>
     </properties>
