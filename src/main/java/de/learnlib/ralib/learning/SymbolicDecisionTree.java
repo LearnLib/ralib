@@ -28,7 +28,7 @@ import de.learnlib.ralib.data.VarMapping;
 public interface SymbolicDecisionTree {
 
     /**
-     * checks if the the tree (under renaming) is equivalent to other tree
+     * checks if the tree (under renaming) is equivalent to other tree
      *
      * @param other
      * @param renaming
