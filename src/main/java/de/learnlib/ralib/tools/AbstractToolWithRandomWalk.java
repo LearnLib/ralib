@@ -18,11 +18,11 @@ package de.learnlib.ralib.tools;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Level;
 
 import de.learnlib.logging.Category;
@@ -42,7 +42,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
-
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
@@ -68,12 +67,13 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                 }
             };
 
-    protected static final ConfigurationOption<EnumSet<Category>> OPTION_LOGGING_CATEGORY
-            = new ConfigurationOption<EnumSet<Category>>("logging.category", "Log category",
-                    EnumSet.allOf(Category.class), true) {
+    protected static final ConfigurationOption<Set<Category>> OPTION_LOGGING_CATEGORY
+            = new ConfigurationOption<Set<Category>>("logging.category", "Log category",
+                    null, // XXX: WAS: Set.allOf(Category.class),  FIXME
+                    true) {
 
                 @Override
-                public EnumSet<Category> parse(Configuration c) throws ConfigurationException {
+                public Set<Category> parse(Configuration c) throws ConfigurationException {
                     if (!c.containsKey(this.getKey())) {
                         if (!this.isOptional()) {
                             throw new ConfigurationException("Missing config value for " + this.getKey());
@@ -85,7 +85,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     for (String n : names) {
                         list.add(parseCategory(n));
                     }
-                    EnumSet<Category> ret = EnumSet.copyOf(list);
+                    Set<Category> ret = Set.copyOf(list);
                     return ret;
                 }
 
@@ -93,25 +93,26 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     n = n.toUpperCase();
                     switch (n) {
                         case "CONFIG":
-                            return Category.CONFIG;
+                            //return Category.CONFIG;
                         case "COUNTEREXAMPLE":
-                            return Category.COUNTEREXAMPLE;
+                            //return Category.COUNTEREXAMPLE;
                         case "DATASTRUCTURE":
-                            return Category.DATASTRUCTURE;
+                            //return Category.DATASTRUCTURE;
                         case "EVENT":
-                            return Category.EVENT;
+                            //return Category.EVENT;
                         case "MODEL":
-                            return Category.MODEL;
+                            //return Category.MODEL;
                         case "PHASE":
-                            return Category.PHASE;
+                            //return Category.PHASE;
                         case "PROFILING":
-                            return Category.PROFILING;
+                            //return Category.PROFILING;
                         case "QUERY":
-                            return Category.QUERY;
+                            //return Category.QUERY;
                         case "STATISTIC":
-                            return Category.STATISTIC;
+                            //return Category.STATISTIC;
                         case "SYSTEM":
-                            return Category.SYSTEM;
+                            //return Category.SYSTEM;
+                            return null;	// XXX: Temporary solution -- FIXME
                     }
                     throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
                 }
