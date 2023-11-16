@@ -18,7 +18,9 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
-import de.learnlib.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
@@ -51,7 +53,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     private final Constants consts;
 
-    private static LearnLogger log = LearnLogger.getLogger(MultiTheorySDTLogicOracle.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(MultiTheorySDTLogicOracle.class);
 
     public MultiTheorySDTLogicOracle(Constants consts, ConstraintSolver solver) {
         this.solver = solver;
@@ -64,10 +66,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
-        log.trace("Searching for counterexample in SDTs");
-        log.trace("SDT1: {0}", sdt1);
-        log.trace("SDT2: {0}", sdt2);
-        log.trace("Guard: {0}", guard);
+        LOGGER.trace("Searching for counterexample in SDTs");
+        LOGGER.trace("SDT1: {0}", sdt1);
+        LOGGER.trace("SDT2: {0}", sdt2);
+        LOGGER.trace("Guard: {0}", guard);
 
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
@@ -104,7 +106,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 //
 //        System.out.println("HAS CE: " + test);
         boolean r = solver.isSatisfiable(test, new Mapping<>());
-        log.trace("Res:" + r);
+        LOGGER.trace("Res:" + r);
         return r;
     }
 
@@ -138,10 +140,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     @Override
     public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
 
-        log.trace("refining: {0}", refining);
-        log.trace("refined: {0}", refined);
-        log.trace("pivRefining: {0}", pivRefining);
-        log.trace("pivRefined: {0}", pivRefined);
+        LOGGER.trace("refining: {0}", refining);
+        LOGGER.trace("refined: {0}", refined);
+        LOGGER.trace("pivRefining: {0}", pivRefining);
+        LOGGER.trace("pivRefined: {0}", pivRefined);
 
         VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
@@ -155,8 +157,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         valWithConsts.putAll(valuation);
         valWithConsts.putAll(consts);
 
-        log.trace("MAP: " + remap);
-        log.trace("TEST:" + test);
+        LOGGER.trace("MAP: " + remap);
+        LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valWithConsts);
         return !r;
@@ -164,10 +166,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
-        log.trace("guard1: {0}", guard1);
-        log.trace("guard2: {0}", guard2);
-        log.trace("piv1: {0}", piv1);
-        log.trace("piv2: {0}", piv2);
+        LOGGER.trace("guard1: {0}", guard1);
+        LOGGER.trace("guard2: {0}", guard2);
+        LOGGER.trace("piv1: {0}", piv1);
+        LOGGER.trace("piv2: {0}", piv2);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
@@ -176,8 +178,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         GuardExpression test = new Conjunction(exprGuard1, exprGuard2);
 
-        log.trace("MAP: " + remap);
-        log.trace("TEST:" + test);
+        LOGGER.trace("MAP: " + remap);
+        LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
@@ -185,10 +187,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
-        log.trace("guard1: {0}", guard1);
-        log.trace("guard2: {0}", guard2);
-        log.trace("piv1: {0}", piv1);
-        log.trace("piv2: {0}", piv2);
+        LOGGER.trace("guard1: {0}", guard1);
+        LOGGER.trace("guard2: {0}", guard2);
+        LOGGER.trace("piv1: {0}", piv1);
+        LOGGER.trace("piv2: {0}", piv2);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
@@ -197,8 +199,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         GuardExpression test = new Disjunction(new Conjunction(exprGuard1, new Negation(exprGuard2)),
         		                               new Conjunction(new Negation(exprGuard1), exprGuard2));
 
-        log.trace("MAP: " + remap);
-        log.trace("TEST:" + test);
+        LOGGER.trace("MAP: " + remap);
+        LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;

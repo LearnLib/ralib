@@ -16,8 +16,8 @@
  */
 package de.learnlib.ralib.sul;
 
-import de.learnlib.sul.SUL;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.sul.SUL;
 
 /**
  *

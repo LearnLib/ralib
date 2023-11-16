@@ -366,7 +366,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
-        System.out.println(SimpleProfiler.getResults());
+        SimpleProfiler.logResults();
 
         System.out.println("ce lengths (original): "
                 + Arrays.toString(ceLengths.toArray()));

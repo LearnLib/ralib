@@ -22,7 +22,10 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.query.Query;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
@@ -49,7 +52,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
     private final IOOracle sul;
 
-    private static LearnLogger log = LearnLogger.getLogger(IOCache.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(IOCache.class);
 
     public IOCache(IOOracle sul) {
         this.sul = sul;
@@ -65,7 +68,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
     public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
         countQueries(clctn.size());
         for (Query<PSymbolInstance, Boolean> q : clctn) {
-            log.trace("MQ: {0}", q.getInput());
+            LOGGER.trace(Category.QUERY, "MQ: {0}", q.getInput());
             boolean accepted = traceBoolean(q.getInput());
             q.answer(accepted);
         }

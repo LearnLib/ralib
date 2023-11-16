@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -53,7 +56,7 @@ public class Row implements PrefixContainer {
 
     private final RegisterGenerator regGen = new RegisterGenerator();
 
-    private static final LearnLogger log = LearnLogger.getLogger(Row.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Row.class);
 
     private final boolean ioMode;
 
@@ -75,14 +78,14 @@ public class Row implements PrefixContainer {
         if (ioMode && suffix.getActions().length() > 0) {
             // error row
             if (getPrefix().length() > 0 && !isAccepting()) {
-                log.info("Not adding suffix " + suffix + " to error row " + getPrefix());
+                LOGGER.info(Category.EVENT, "Not adding suffix {} to error row {}", suffix, getPrefix());
                 return;
             }
             // unmatching suffix
             if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
                     || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                     ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
-                log.info("Not adding suffix " + suffix + " to unmatching row " + getPrefix());
+                LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", suffix, getPrefix());
                 return;
             }
         }
@@ -228,14 +231,14 @@ public class Row implements PrefixContainer {
             if (ioMode && s.getActions().length() > 0) {
                 // error row
                 if (r.getPrefix().length() > 0 && !r.isAccepting()) {
-                    log.info("Not adding suffix " + s + " to error row " + r.getPrefix());
+                    LOGGER.info(Category.EVENT, "Not adding suffix {} to error row {}", s, r.getPrefix());
                     continue;
                 }
                 // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
                         || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
                         ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
-                    log.info("Not adding suffix " + s + " to unmatching row " + r.getPrefix());
+                    LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", s, r.getPrefix());
                     continue;
                 }
             }

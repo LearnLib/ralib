@@ -22,8 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.learnlib.exception.SULException;
-import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
@@ -61,7 +64,7 @@ public class SimulatorSUL extends DataWordSUL {
     private VarValuation register = null;
     private Word<PSymbolInstance> prefix = null;
 
-    private static LearnLogger log = LearnLogger.getLogger(SimulatorSUL.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(SimulatorSUL.class);
 
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
             Constants consts) {
@@ -88,7 +91,7 @@ public class SimulatorSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        log.trace("step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
+        LOGGER.trace(Category.EVENT, "step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
         prefix = prefix.append(i);
 
         boolean found = false;

@@ -5,7 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.dt.DT;
@@ -47,7 +50,7 @@ public class RaDT implements RaLearningAlgorithm {
 
     private final boolean ioMode;
 
-    private static final LearnLogger log = LearnLogger.getLogger(RaDT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaDT.class);
 
     public RaDT(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
             boolean ioMode, ParameterizedSymbol... inputs) {
@@ -82,7 +85,7 @@ public class RaDT implements RaLearningAlgorithm {
 	}
 
     private boolean analyzeCounterExample() {
-        log.logPhase("Analyzing Counterexample");
+        LOGGER.info(Category.PHASE, "Analyzing Counterexample");
         if (counterexamples.isEmpty()) {
             return false;
         }
@@ -100,7 +103,7 @@ public class RaDT implements RaLearningAlgorithm {
         boolean hypce = hyp.accepts(ce.getInput());
         boolean sulce = ce.getOutput();
         if (hypce == sulce) {
-            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
+            LOGGER.info(Category.EVENT, "word is not a counterexample: " + ce + " - " + sulce);
             counterexamples.poll();
             return false;
         }
@@ -127,7 +130,7 @@ public class RaDT implements RaLearningAlgorithm {
 
 	@Override
 	public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
-        log.logEvent("adding counterexample: " + ce);
+        LOGGER.info(Category.EVENT, "adding counterexample: " + ce);
         counterexamples.add(ce);
     }
 

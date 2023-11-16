@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -51,7 +51,7 @@ public class PrefixFinder {
     private final Map<SymbolicWord, TreeQueryResult> candidateCEs = new LinkedHashMap<SymbolicWord, TreeQueryResult>();
     private final Map<SymbolicWord, TreeQueryResult> storedQueries = new LinkedHashMap<SymbolicWord, TreeQueryResult>();
 
-    private static final LearnLogger log = LearnLogger.getLogger(PrefixFinder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrefixFinder.class);
 
     public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
@@ -92,9 +92,9 @@ public class PrefixFinder {
 			Word<PSymbolInstance> prefix = ce.prefix(idx);
 			Word<PSymbolInstance> nextPrefix = ce.prefix(idx+1);
 
-			log.trace("idx:" + idx + "ce:     " + ce);
-			log.trace("idx:" + idx + "prefix: " + prefix);
-			log.trace("idx:" + idx + "next:   " + nextPrefix);
+			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} ce:     {}", idx, ce);
+			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} prefix: {}", idx, prefix);
+			LOGGER.trace(Category.DATASTRUCTURE, "idx: {} next:   {}", idx, nextPrefix);
 
 			// check for location counterexample ...
 			//
@@ -111,10 +111,10 @@ public class PrefixFinder {
 					TreeQueryResult uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
 					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
 
-					log.trace("idx:" + idx + "u:  " + u);
-					log.trace("idx:" + idx + "ua: " + uAlpha);
-					log.trace("idx:" + idx + "u': " + uPrime);
-					log.trace("idx:" + idx + "v:  " + symSuffix);
+					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u:  {}", idx, u);
+					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} ua: {}", idx, uAlpha);
+					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u': {}", idx, uPrime);
+					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} v:  {}", idx, symSuffix);
 
 					// different piv sizes
 					//
@@ -136,14 +136,14 @@ public class PrefixFinder {
 				}
 				// found a counterexample!
 				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
-				log.trace("Counterexample for location");
+				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for location");
 				return idx;
 			}
 
 			// check for transition counterexample ...
 			//
 			if (transitionHasCE(ce, idx-1)) {
-				log.trace("Counterexample for transition");
+				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
 				return idx;
 			}
 		}

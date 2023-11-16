@@ -29,7 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import jakarta.xml.bind.JAXB;
 
-import de.learnlib.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -79,8 +82,7 @@ public class RegisterAutomatonImporter {
     private Alphabet<InputSymbol> inputs;
     private Alphabet<ParameterizedSymbol> actions;
 
-    private static final LearnLogger log =
-            LearnLogger.getLogger(RegisterAutomatonImporter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegisterAutomatonImporter.class);
 
     public Collection<DataType> getDataTypes() {
         return typeMap.values();
@@ -222,15 +224,15 @@ public class RegisterAutomatonImporter {
                 OutputTransition tOut = new OutputTransition(p, outMap,
                         (OutputSymbol) ps, from, to, assign);
                 iora.addTransition(from, ps, tOut);
-                log.trace("Loading: " + tOut);
+                LOGGER.trace(Category.EVENT, "Loading: {}", tOut);
             } // input
             else {
                 assert freshRegs.isEmpty();
 
-                log.trace("Guard: " + gstring);
+                LOGGER.trace(Category.DATASTRUCTURE, "Guard: {}", gstring);
                 InputTransition tIn = new InputTransition(p, (InputSymbol) ps,
                         from, to, assign);
-                log.trace("Loading: " + tIn);
+                LOGGER.trace(Category.EVENT, "Loading: {}", tIn);
                 iora.addTransition(from, ps, tIn);
             }
         }
@@ -255,7 +257,7 @@ public class RegisterAutomatonImporter {
             actions.add(ps);
             inputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            log.trace("Loading: " + ps);
+            LOGGER.trace(Category.EVENT, "Loading: {}", ps);
         }
         for (RegisterAutomaton.Alphabet.Outputs.Symbol s : a.getOutputs().getSymbol()) {
             int pcount = s.getParam().size();
@@ -272,7 +274,7 @@ public class RegisterAutomatonImporter {
             actions.add(ps);
             outputSigmaMap.put(s.getName(), ps);
             paramNames.put(ps, pNames);
-            log.trace("Loading: " + ps);
+            LOGGER.trace(Category.EVENT, "Loading: {}", ps);
         }
     }
 
@@ -283,11 +285,11 @@ public class RegisterAutomatonImporter {
             Constant c = cgen.next(type);
             constMap.put(def.value, c);
             constMap.put(def.name, c);
-            log.trace(def.name + " ->" + c);
+            LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, c);
             DataValue dv = new DataValue(type, Integer.parseInt(def.value));
             consts.put(c, dv);
         }
-        log.trace("Loading: " + consts);
+        LOGGER.trace(Category.EVENT, "Loading: {}", consts);
     }
 
     private void getRegisters(RegisterAutomaton.Globals g) {
@@ -296,7 +298,7 @@ public class RegisterAutomatonImporter {
             DataType type = getOrCreateType(def.type);
             Register r = rgen.next(type);
             regMap.put(def.name, r);
-            log.trace(def.name + " ->" + r);
+            LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, r);
             Object o = null;
             switch (type.getBase().getName()) {
                 case "java.lang.Integer":
@@ -313,7 +315,7 @@ public class RegisterAutomatonImporter {
             DataValue dv = new DataValue(type, o);
             initialRegs.put(r, dv);
         }
-        log.trace("Loading: " + initialRegs);
+        LOGGER.trace(Category.EVENT, "Loading: {}", initialRegs);
     }
 
     private RegisterAutomaton unmarschall(InputStream is) {

@@ -22,7 +22,10 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.learnlib.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
@@ -41,7 +44,7 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
 
     private final DataWordOracle back;
 
-    private static LearnLogger log = LearnLogger.getLogger(IOFilter.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(IOFilter.class);
 
     public IOFilter(DataWordOracle back, ParameterizedSymbol ... inputs) {
         this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));
@@ -53,7 +56,7 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
         countQueries(clctn.size());
         List<Query<PSymbolInstance, Boolean>> valid = new ArrayList<>();
         for (Query<PSymbolInstance, Boolean> q : clctn) {
-            log.trace("MQ: {0}", q.getInput());
+            LOGGER.trace(Category.QUERY, "MQ: {0}", q.getInput());
             if (isValid(q.getInput())) {
                 valid.add(q);
             } else {
