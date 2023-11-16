@@ -14,7 +14,7 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -34,7 +34,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

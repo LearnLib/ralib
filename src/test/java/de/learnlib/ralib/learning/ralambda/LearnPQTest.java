@@ -31,7 +31,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
@@ -52,7 +52,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

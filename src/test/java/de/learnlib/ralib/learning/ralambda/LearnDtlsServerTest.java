@@ -6,7 +6,7 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;

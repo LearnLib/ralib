@@ -37,7 +37,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class InstantiateSymbolicWordTest {
 
