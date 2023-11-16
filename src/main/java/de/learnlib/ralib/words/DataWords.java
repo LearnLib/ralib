@@ -33,7 +33,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * static helper methods for data words.

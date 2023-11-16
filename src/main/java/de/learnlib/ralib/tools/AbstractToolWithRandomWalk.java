@@ -25,14 +25,14 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import de.learnlib.api.logging.Category;
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import net.automatalib.commons.util.Pair;
+import net.automatalib.common.util.Pair;
 
 /**
  *

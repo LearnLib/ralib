@@ -56,7 +56,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

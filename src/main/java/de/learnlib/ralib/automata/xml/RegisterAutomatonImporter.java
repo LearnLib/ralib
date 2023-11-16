@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import jakarta.xml.bind.JAXB;
 
-import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
@@ -53,8 +53,8 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Alphabet;
-import net.automatalib.words.impl.GrowingMapAlphabet;
+import net.automatalib.alphabet.Alphabet;
+import net.automatalib.alphabet.GrowingMapAlphabet;
 
 /**
  *

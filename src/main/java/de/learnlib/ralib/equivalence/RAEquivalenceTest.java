@@ -27,7 +27,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.Transition;
@@ -40,7 +40,7 @@ import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Equivalence test for acceptor RA.

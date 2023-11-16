@@ -30,10 +30,10 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
- * Analyzes Counterexamples in a binary search
+ * Analyzes counterexamples in a binary search
  * as described in SEFM 2014.
  *
  * @author falk

@@ -33,7 +33,7 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Implementation of discrimination tree.

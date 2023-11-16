@@ -21,8 +21,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.logging.LearnLogger;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
@@ -39,7 +39,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Learning algorithm for register automata

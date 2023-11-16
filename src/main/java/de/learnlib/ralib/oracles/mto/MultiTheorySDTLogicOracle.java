@@ -18,7 +18,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
+import de.learnlib.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
@@ -39,7 +39,7 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

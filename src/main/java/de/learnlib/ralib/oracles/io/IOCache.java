@@ -23,13 +23,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.Query;
+import de.learnlib.query.Query;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * The IO-Cache can be used to reduce queries for deterministic IO-Systems,

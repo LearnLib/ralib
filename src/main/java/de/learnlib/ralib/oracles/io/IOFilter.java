@@ -22,13 +22,13 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.Query;
+import de.learnlib.logging.LearnLogger;
+import de.learnlib.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * filters out queries that do not alternate input and output

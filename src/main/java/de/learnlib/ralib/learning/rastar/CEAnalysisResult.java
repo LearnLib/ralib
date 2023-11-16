@@ -19,7 +19,7 @@ package de.learnlib.ralib.learning.rastar;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Container for output of an analysis of a counterexample.

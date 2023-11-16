@@ -30,8 +30,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.logging.LearnLogger;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -67,8 +67,8 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.commons.util.Pair;
-import net.automatalib.words.Word;
+import net.automatalib.common.util.Pair;
+import net.automatalib.word.Word;
 
 /**
  *

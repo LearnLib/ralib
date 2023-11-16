@@ -1,10 +1,10 @@
 package de.learnlib.ralib.sul;
 
-import de.learnlib.api.exception.SULException;
+import de.learnlib.exception.SULException;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * A SUL with caching functionality.
