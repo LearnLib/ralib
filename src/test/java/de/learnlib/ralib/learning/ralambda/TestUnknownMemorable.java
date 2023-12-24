@@ -297,6 +297,70 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         Assert.assertTrue(true);
 	}
 
+	@Test
+	public void testSkippingMemorable2() {
+
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+
+        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+                new ParameterizedSymbol[]{});
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        final Constants consts = loader.getConstants();
+
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
+            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);
+            teachers.put(t, theory);
+        });
+
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo =
+                new MultiTheorySDTLogicOracle(consts, solver);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+
+        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        ralambda.setSolver(solver);
+        ralambda.learn();
+
+        String[] ces = {"IINVITE[0[int]] O100[0[int]] / true",
+        		        "IACK[0[int]] Otimeout[] IINVITE[0[int]] Otimeout[] / true",
+        		        "IINVITE[0[int]] O100[0[int]] Inil[] O183[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[1[int]] O481[1[int]] / true",
+        		        "Inil[] Otimeout[] IINVITE[0[int]] O100[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IACK[0[int]] Otimeout[] IPRACK[1[int]] O481[1[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] Inil[] O180[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IACK[0[int]] Otimeout[] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] IPRACK[0[int]] Otimeout[] IINVITE[0[int]] O100[0[int]] Inil[] O486[0[int]] / true"};
+
+        Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = buildSIPCEs(ces, actions);
+
+        while (!ceQueue.isEmpty()) {
+        	ralambda.addCounterexample(ceQueue.pop());
+        	ralambda.learn();
+        }
+
+        Assert.assertTrue(true);
+	}
+
 	private Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
 		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedList<>();
 

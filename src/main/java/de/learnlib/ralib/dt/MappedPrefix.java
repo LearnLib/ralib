@@ -24,7 +24,6 @@ public class MappedPrefix implements PrefixContainer {
 	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
-
 	public final Set<Parameter> missingParameter = new LinkedHashSet<>();
 
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
@@ -126,7 +125,6 @@ public class MappedPrefix implements PrefixContainer {
 			if (e.getValue().getPiv().containsKey(p))
 				suffixes.add(e.getKey());
 		}
-		assert !suffixes.isEmpty();
 		return suffixes;
 	}
 }

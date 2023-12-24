@@ -480,13 +480,20 @@ public class DTLeaf extends DTNode implements LocationComponent {
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
 
         for (Parameter p : memMP.keySet()) {
-            if (!memPrefix.containsKey(p) && p.getId() <= max) {
-            	for (SymbolicSuffix suffix : mp.getAllSuffixesForMemorable(p)) {
+        	boolean prefixMissingParam = !memPrefix.containsKey(p) ||
+        			               prefixMapped.missingParameter.contains(p);
+            if (prefixMissingParam && p.getId() <= max) {
+            	Set<SymbolicSuffix> prefixSuffixes = prefixMapped.getAllSuffixesForMemorable(p);
+            	Set<SymbolicSuffix> suffixes = mp.getAllSuffixesForMemorable(p);
+            	assert !suffixes.isEmpty();
+            	for (SymbolicSuffix suffix : suffixes) {
             		TreeQueryResult suffixTQR = mp.getTQRs().get(suffix);
             		SymbolicDecisionTree sdt = suffixTQR.getSdt();
             		SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
             				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix) :
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
+            		if (prefixSuffixes.contains(newSuffix))
+            			continue;
             		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
             		if (tqr.getPiv().keySet().contains(p)) {
@@ -495,7 +502,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
             			return false;
             		}
             	}
-            	mp.missingParameter.add(p);
+            	if (!prefixMapped.missingParameter.contains(p)) {
+            		mp.missingParameter.add(p);
+            	}
             } else {
             	mp.missingParameter.remove(p);
             }
