@@ -208,6 +208,8 @@ public class RaLambda implements RaLearningAlgorithm {
         	expand(transition);
         }
 
+        while (!dt.checkIOSuffixes());
+
         boolean consistent = false;
         while (!consistent) {
         	consistent = true;
