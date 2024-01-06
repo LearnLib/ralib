@@ -19,7 +19,7 @@
         <commons-lang.version>3.14.0</commons-lang.version>
         <guava.version>33.0.0-jre</guava.version>
         <jakarta-xml.version>4.0.1</jakarta-xml.version>
-        <jaxb-impl.version>4.0.4</jaxb-impl.version>
+        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.16.0</learnlib.version>
     </properties>
@@ -119,11 +119,11 @@
                 <artifactId>jakarta.xml.bind-api</artifactId>
                 <version>${jakarta-xml.version}</version>
             </dependency>
-            <!-- jaxb implementation -->
+            <!-- jaxb runtime -->
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>${jaxb-impl.version}</version>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
 	        <scope>runtime</scope>
             </dependency>
         </dependencies>
@@ -181,8 +181,8 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
         </dependency>
     </dependencies>
 </project>
