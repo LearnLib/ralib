@@ -473,7 +473,8 @@ public class OptimizedSymbolicSuffixBuilder {
         for (SDTGuard g : guards) {
             expr.add(g.toExpr());
         }
-        return new Conjunction(expr.toArray(GuardExpression []::new));
+        GuardExpression[] exprArr = new GuardExpression[expr.size()];
+        return new Conjunction(expr.toArray(exprArr));
     }
 
     private Mapping<SymbolicDataValue, DataValue<?>> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
