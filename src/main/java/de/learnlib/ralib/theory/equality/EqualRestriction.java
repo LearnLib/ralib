@@ -1,11 +1,8 @@
 package de.learnlib.ralib.theory.equality;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -27,23 +24,14 @@ public class EqualRestriction extends SuffixValueRestriction {
 
 	public EqualRestriction(EqualRestriction other, int shift) {
 		super(other, shift);
-		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId());
+		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId()+shift);
 	}
 
 	@Override
 	public GuardExpression toGuardExpression(Set<SymbolicDataValue> vals) {
 		assert vals.contains(equalParam);
 
-		List<GuardExpression> expr = new ArrayList<>();
-		expr.add(new AtomicGuardExpression<SuffixValue, SuffixValue>(parameter, Relation.EQUALS, equalParam));
-		for (SymbolicDataValue sdv : vals) {
-			if (!sdv.equals(equalParam)) {
-				expr.add(new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter, Relation.NOT_EQUALS, sdv));
-			}
-		}
-		GuardExpression[] exprArr = new GuardExpression[expr.size()];
-		expr.toArray(exprArr);
-		return new Conjunction(exprArr);
+		return new AtomicGuardExpression<SuffixValue, SuffixValue>(parameter, Relation.EQUALS, equalParam);
 	}
 
 	@Override
@@ -54,6 +42,10 @@ public class EqualRestriction extends SuffixValueRestriction {
 	@Override
 	public String toString() {
 		return "(" + parameter.toString() + "=" + equalParam.toString() + ")";
+	}
+
+	public SuffixValue getEqualParameter() {
+		return equalParam;
 	}
 
 }

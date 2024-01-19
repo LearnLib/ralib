@@ -1,24 +1,16 @@
 package de.learnlib.ralib.theory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.WordValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public abstract class SuffixValueRestriction {
@@ -47,30 +39,39 @@ public abstract class SuffixValueRestriction {
 	public static SuffixValueRestriction generateRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
 		DataValue[] prefixVals = DataWords.valsOf(prefix);
 		DataValue[] suffixVals = DataWords.valsOf(suffix);
+		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
+		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
 		DataValue val = suffixVals[sv.getId()-1];
-//		DataValue val = suffixVals[idx];
-//		SuffixValue sv = new SuffixValue(val.getType(), idx+1);
+		int arityFirst = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
 
-		boolean equalsPrefixValue = false;
-		for (DataValue dv : prefixVals) {
-			if (dv.equals(val))
-				equalsPrefixValue = true;
+		boolean unrestricted = false;
+		for (int i = 0; i < prefixVals.length; i++) {
+			DataValue<?> dv = prefixVals[i];
+			DataType dt = prefixTypes[i];
+			if (dt.equals(sv.getType()) && dv.equals(val))
+				unrestricted = true;
 		}
 		boolean equalsSuffixValue = false;
 		int equalSV = -1;
 		for (int i = 0; i < sv.getId()-1 && !equalsSuffixValue; i++) {
-			if (suffixVals[i].equals(val)) {
-				equalsSuffixValue = true;
-				equalSV = i;
+			DataType dt = suffixTypes[i];
+			if (dt.equals(sv.getType()) && suffixVals[i].equals(val)) {
+				if (sv.getId() <= arityFirst) {
+					unrestricted = true;
+				} else {
+					equalsSuffixValue = true;
+					equalSV = i;
+				}
 			}
 		}
 
 		// case equal to previous suffix value
-		if (equalsSuffixValue && !equalsPrefixValue) {
-			return new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getType(), equalSV+1));
+		if (equalsSuffixValue && !unrestricted) {
+			SuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getType(), equalSV+1));
+			return restr;
 		}
 		// case fresh
-		else if (!equalsSuffixValue && !equalsPrefixValue) {
+		else if (!equalsSuffixValue && !unrestricted) {
 			return new FreshSuffixValue(sv);
 		}
 		// case unrestricted

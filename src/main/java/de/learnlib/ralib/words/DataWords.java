@@ -79,6 +79,17 @@ public final class DataWords {
         return vals;
     }
 
+    public static DataType[] typesOf(Word<ParameterizedSymbol> word) {
+    	DataType[] types = new DataType[DataWords.paramLength(word)];
+    	int i = 0;
+    	for (ParameterizedSymbol ps : word) {
+    		for (DataType t : ps.getPtypes()) {
+    			types[i++] = t;
+    		}
+    	}
+    	return types;
+    }
+
     /**
      * returns set of unique data values of some type in a data word.
      *

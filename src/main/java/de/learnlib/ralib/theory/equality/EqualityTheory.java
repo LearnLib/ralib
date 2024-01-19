@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +47,7 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -155,10 +157,8 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         int pId = values.size() + 1;
 
-        SuffixValue sv = suffix.getDataValue(pId);
-        DataType type = sv.getType();
-
-        SuffixValue currentParam = new SuffixValue(type, pId);
+        SuffixValue currentParam = suffix.getSuffixValue(pId);
+        DataType type = currentParam.getType();
 
         Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
 
@@ -168,48 +168,56 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
-        boolean free = suffix.getFreeValues().contains(sv);
-        if (!free && useNonFreeOptimization) {
-            DataValue d = suffixValues.get(sv);
-            SDT sdt;
-            Map<SDTGuard, SDT> merged;
+        DataValue fresh = getFreshValue(potential);
 
-            // fresh value case
-            if (d == null) {
-                d = getFreshValue(potential);
-                values.put(pId, d);
-                WordValuation trueValues = new WordValuation();
-                trueValues.putAll(values);
-                SuffixValuation trueSuffixValues = new SuffixValuation();
-                trueSuffixValues.putAll(suffixValues);
-                trueSuffixValues.put(sv, d);
-                sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-                log.trace(" single deq SDT : " + sdt.toString());
-                merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
+        List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
+        equivClasses.add(fresh);
+        EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<T>(equivClasses, useNonFreeOptimization);
+        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
+        assert filteredEquivClasses.size() > 0;
 
-            }
-
-            // equal to previous suffix parameter
-            else {
-                values.put(pId, d);
-                WordValuation equalValues = new WordValuation();
-                equalValues.putAll(values);
-                SuffixValuation equalSuffixValues = new SuffixValuation();
-                equalSuffixValues.putAll(suffixValues);
-                sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
-                merged = new LinkedHashMap<SDTGuard, SDT>();
-                int smallest = Collections.min(values.getAllKeys(d));
-                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue(type, smallest));
-                merged.put(guard, sdt);
-            }
-
-            log.trace("temporary guards = " + tempKids.keySet());
-            // log.trace("temporary pivs = " + tempPiv.keySet());
-            log.trace("merged guards = " + merged.keySet());
-            log.trace("merged pivs = " + pir.toString());
-
-            return new SDT(merged);
-        }
+//        boolean free = suffix.getFreeValues().contains(sv);
+//        if (!free && useNonFreeOptimization) {
+//            DataValue d = suffixValues.get(sv);
+//            SDT sdt;
+//            Map<SDTGuard, SDT> merged;
+//
+//            // fresh value case
+//            if (d == null) {
+//                d = getFreshValue(potential);
+//                values.put(pId, d);
+//                WordValuation trueValues = new WordValuation();
+//                trueValues.putAll(values);
+//                SuffixValuation trueSuffixValues = new SuffixValuation();
+//                trueSuffixValues.putAll(suffixValues);
+//                trueSuffixValues.put(sv, d);
+//                sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
+//                log.trace(" single deq SDT : " + sdt.toString());
+//                merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
+//
+//            }
+//
+//            // equal to previous suffix parameter
+//            else {
+//                values.put(pId, d);
+//                WordValuation equalValues = new WordValuation();
+//                equalValues.putAll(values);
+//                SuffixValuation equalSuffixValues = new SuffixValuation();
+//                equalSuffixValues.putAll(suffixValues);
+//                sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
+//                merged = new LinkedHashMap<SDTGuard, SDT>();
+//                int smallest = Collections.min(values.getAllKeys(d));
+//                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+//                merged.put(guard, sdt);
+//            }
+//
+//            log.trace("temporary guards = " + tempKids.keySet());
+//            // log.trace("temporary pivs = " + tempPiv.keySet());
+//            log.trace("merged guards = " + merged.keySet());
+//            log.trace("merged pivs = " + pir.toString());
+//
+//            return new SDT(merged);
+//        }
 
         // special case: fresh values in outputs
         if (freshValues) {
@@ -233,7 +241,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                         trueValues.putAll(values);
                         SuffixValuation trueSuffixValues = new SuffixValuation();
                         trueSuffixValues.putAll(suffixValues);
-                        trueSuffixValues.put(sv, d);
+                        trueSuffixValues.put(currentParam, d);
                         SDT sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
 
                         log.trace(" single deq SDT : " + sdt.toString());
@@ -265,48 +273,61 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         log.trace("prefix list    " + prefixValues.toString());
 
-        DataValue fresh = getFreshValue(potential);
-
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
         for (DataValue<T> newDv : potential) {
-            log.trace(newDv.toString());
+        	if (filteredEquivClasses.contains(newDv)) {
+	            log.trace(newDv.toString());
 
-            // this is the valuation of the suffixvalues in the suffix
-            SuffixValuation ifSuffixValues = new SuffixValuation();
-            ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
+	            // this is the valuation of the suffixvalues in the suffix
+	            SuffixValuation ifSuffixValues = new SuffixValuation();
+	            ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
 
-            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
-            log.trace("eqGuard is: " + eqGuard.toString());
-            diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
-            // construct the equality guard
-            // find the data value in the prefix
-            // this is the valuation of the positions in the suffix
-            WordValuation ifValues = new WordValuation();
-            ifValues.putAll(values);
-            ifValues.put(pId, newDv);
-            SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, pir, constants, ifSuffixValues);
+	            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
+	            log.trace("eqGuard is: " + eqGuard.toString());
+	            diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
+	            // construct the equality guard
+	            // find the data value in the prefix
+	            // this is the valuation of the positions in the suffix
+	            WordValuation ifValues = new WordValuation();
+	            ifValues.putAll(values);
+	            ifValues.put(pId, newDv);
+	            SDT eqOracleSdt = oracle.treeQuery(prefix, suffix, ifValues, pir, constants, ifSuffixValues);
 
-            tempKids.put(eqGuard, eqOracleSdt);
+	            tempKids.put(eqGuard, eqOracleSdt);
+        	}
         }
 
+        Map<SDTGuard, SDT> merged;
+
         // process the 'else' case
-        // this is the valuation of the positions in the suffix
-        WordValuation elseValues = new WordValuation();
-        elseValues.putAll(values);
-        elseValues.put(pId, fresh);
+        if (filteredEquivClasses.contains(fresh)) {
+        	// this is the valuation of the positions in the suffix
+	        WordValuation elseValues = new WordValuation();
+	        elseValues.putAll(values);
+	        elseValues.put(pId, fresh);
 
-        // this is the valuation of the suffixvalues in the suffix
-        SuffixValuation elseSuffixValues = new SuffixValuation();
-        elseSuffixValues.putAll(suffixValues);
-        elseSuffixValues.put(sv, fresh);
+	        // this is the valuation of the suffixvalues in the suffix
+	        SuffixValuation elseSuffixValues = new SuffixValuation();
+	        elseSuffixValues.putAll(suffixValues);
+	        elseSuffixValues.put(currentParam, fresh);
 
-        SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, pir, constants, elseSuffixValues);
+	        SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, pir, constants, elseSuffixValues);
 
-        SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[] {})));
-        log.trace("diseq guard = " + deqGuard.toString());
+	        SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[] {})));
+	        log.trace("diseq guard = " + deqGuard.toString());
 
-        // merge the guards
-        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
+	        // merge the guards
+	        merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
+        } else {
+        	// if no else case, we can only have a true guard
+        	// TODO: add  support for multiple equalities with same outcome
+        	assert tempKids.size() == 1;
+
+        	Iterator<Map.Entry<EqualityGuard, SDT>> it = tempKids.entrySet().iterator();
+        	Map.Entry<EqualityGuard, SDT> e = it.next();
+        	merged = new LinkedHashMap<SDTGuard, SDT>();
+        	merged.put(e.getKey(), e.getValue());
+        }
 
         // only keep registers that are referenced by the merged guards
         pir.putAll(keepMem(merged));
