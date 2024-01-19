@@ -1,10 +1,9 @@
 package de.learnlib.ralib.theory;
 
-import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 
@@ -19,13 +18,18 @@ public class UnrestrictedSuffixValue extends SuffixValueRestriction {
 	}
 
 	@Override
-	public GuardExpression toGuardExpression(Map<SymbolicDataValue, DataValue<?>> vals) {
+	public GuardExpression toGuardExpression(Set<SymbolicDataValue> vals) {
 		return new TrueGuardExpression();
 	}
 
 	@Override
 	public SuffixValueRestriction shift(int shiftStep) {
 		return new UnrestrictedSuffixValue(this, shiftStep);
+	}
+
+	@Override
+	public String toString() {
+		return "Unrestricted(" + parameter.toString() + ")";
 	}
 
 }
