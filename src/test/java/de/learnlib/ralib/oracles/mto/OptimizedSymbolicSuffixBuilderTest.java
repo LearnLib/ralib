@@ -484,6 +484,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4));
         SymbolicSuffix suffixExpected = new SymbolicSuffix(word3.prefix(1), word3.suffix(4));
         SymbolicSuffix suffixActual = builder.coalesceSuffixes(suffix1, suffix2);
-        Assert.assertEquals(suffixExpected, suffixActual);
+        Assert.assertEquals(suffixActual, suffixExpected);
     }
 }
