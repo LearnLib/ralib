@@ -449,4 +449,41 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
         Assert.assertEquals(suffix34.toString(), "[s2]((a[s1] a[s2] a[s3] a[s3]))");
     }
+
+    @Test
+    public void testCoalesce() {
+        DataType type = new DataType("int",Integer.class);
+        InputSymbol a = new InputSymbol("a", type);
+
+        DataValue dv1 = new DataValue(type, 0);
+        DataValue dv2 = new DataValue(type, 1);
+        DataValue dv3 = new DataValue(type, 2);
+
+        Constants consts = new Constants();
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
+
+        Word<PSymbolInstance> word1 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv3));
+        Word<PSymbolInstance> word2 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv3),
+        		new PSymbolInstance(a, dv3));
+        Word<PSymbolInstance> word3 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1));
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4));
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4));
+        SymbolicSuffix suffixExpected = new SymbolicSuffix(word3.prefix(1), word3.suffix(4));
+        SymbolicSuffix suffixActual = builder.coalesceSuffixes(suffix1, suffix2);
+        Assert.assertEquals(suffixExpected, suffixActual);
+    }
 }
