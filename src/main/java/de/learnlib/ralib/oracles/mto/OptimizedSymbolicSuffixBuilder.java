@@ -30,6 +30,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
@@ -402,42 +403,20 @@ public class OptimizedSymbolicSuffixBuilder {
 
     SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
     	assert suffix1.getActions().equals(suffix2.getActions());
-        Set<SuffixValue> freeValues = new LinkedHashSet<>();
-        Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
-        Map<SuffixValue, SuffixValue> sValMapping = new LinkedHashMap<>();
-        SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        Set<Integer> freeIndices1 = freeSuffixIndices(suffix1);
-        Set<Integer> freeIndices2 = freeSuffixIndices(suffix2);
-        Set<SuffixValue> seenVals1 = new LinkedHashSet<>();
-        Set<SuffixValue> seenVals2 = new LinkedHashSet<>();
 
-        for (int i=0; i<DataWords.paramLength(suffix1.getActions()); i++) {
-            DataType type = suffix1.getDataValue(i+1).getType();
-            SuffixValue sv1 = suffix1.getDataValue(i+1);
-            SuffixValue sv2 = suffix2.getDataValue(i+1);
-            int index1 = suffix1.getSuffixValueIndex(sv1);
-            int index2 = suffix2.getSuffixValueIndex(sv2);
-            SuffixValue sv = null;
+    	Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
 
-            // TODO Do we need to make sv free if one of the sv's is equal to a previous sv?
-            boolean free = freeIndices1.contains(index1) || freeIndices2.contains(index1) || freeIndices1.contains(index2) || freeIndices2.contains(index2);
+    	SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
+    	for (int i=0; i<DataWords.paramLength(suffix1.getActions()); i++) {
+    		DataType type = suffix1.getDataValue(i+1).getType();
+    		SuffixValue sv = sgen.next(type);
+    		SuffixValueRestriction restr1 = suffix1.getRestriction(sv);
+    		SuffixValueRestriction restr2 = suffix2.getRestriction(sv);
+    		SuffixValueRestriction restr = restr1.merge(restr2, restrictions);
+    		restrictions.put(sv, restr);
+    	}
 
-            if (seenVals1.contains(sv1) && !free) {
-                sv = sValMapping.get(sv1);
-            } else if (seenVals2.contains(sv2) && !free) {
-                sv = sValMapping.get(sv2);
-            } else {
-                sv = sgen.next(type);
-                if (free) {
-                    freeValues.add(sv);
-                }
-            }
-            seenVals1.add(sv1);
-            seenVals2.add(sv2);
-            sValMapping.put(sv1, sv);
-            dataValues.put(i+1, sv);
-        }
-        return new SymbolicSuffix(suffix1.getActions(), dataValues, freeValues);
+    	return new SymbolicSuffix(suffix1.getActions(), restrictions);
     }
 
     private Set<Integer> freeSuffixIndices(SymbolicSuffix suffix) {

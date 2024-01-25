@@ -1,5 +1,6 @@
 package de.learnlib.ralib.theory.equality;
 
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
@@ -7,7 +8,9 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 
 public class EqualRestriction extends SuffixValueRestriction {
 	private final SuffixValue equalParam;
@@ -37,6 +40,23 @@ public class EqualRestriction extends SuffixValueRestriction {
 	@Override
 	public SuffixValueRestriction shift(int shiftStep) {
 		return new EqualRestriction(this, shiftStep);
+	}
+
+	@Override
+	public SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior) {
+		assert other.getParameter().equals(parameter);
+		if (prior.get(equalParam) instanceof FreshSuffixValue) {
+			if (other instanceof EqualRestriction &&
+					((EqualRestriction) other).equalParam.equals(equalParam)) {
+				// equality only if the same equality and that parameter is fresh
+				return this;
+			}
+			if (other instanceof FreshSuffixValue) {
+				// choose equality over fresh
+				return this;
+			}
+		}
+		return new UnrestrictedSuffixValue(parameter);
 	}
 
 	@Override

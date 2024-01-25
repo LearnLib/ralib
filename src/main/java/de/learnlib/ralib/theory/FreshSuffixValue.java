@@ -2,6 +2,7 @@ package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
@@ -38,7 +39,16 @@ public class FreshSuffixValue extends SuffixValueRestriction {
 	}
 
 	@Override
+	public SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior) {
+		if (other instanceof FreshSuffixValue) {
+			return this;
+		}
+		return other.merge(this, prior);
+	}
+
+	@Override
 	public String toString() {
 		return "Fresh(" + parameter.toString() + ")";
 	}
+
 }

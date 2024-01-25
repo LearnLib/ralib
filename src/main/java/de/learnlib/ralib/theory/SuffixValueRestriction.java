@@ -1,5 +1,6 @@
 package de.learnlib.ralib.theory;
 
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -35,6 +36,8 @@ public abstract class SuffixValueRestriction {
 	public abstract SuffixValueRestriction shift(int shiftStep);
 
 	public abstract GuardExpression toGuardExpression(Set<SymbolicDataValue> vals);
+
+	public abstract SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior);
 
 	public static SuffixValueRestriction generateRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
 		DataValue[] prefixVals = DataWords.valsOf(prefix);

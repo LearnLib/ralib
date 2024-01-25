@@ -62,11 +62,6 @@ public class SymbolicSuffix {
     private final Word<ParameterizedSymbol> actions;
 
     /**
-     * suffix values
-     */
-    private final Set<SuffixValue> suffixValues;
-
-    /**
      * restrictions on suffix values
      */
     private final Map<SuffixValue, SuffixValueRestriction> restrictions;
@@ -80,15 +75,12 @@ public class SymbolicSuffix {
     	freeValues = new LinkedHashSet<>();
     	dataValues = new LinkedHashMap<>();
     	actions = Word.fromWords(s.actions);
-    	suffixValues = new LinkedHashSet<>();
     	restrictions = new LinkedHashMap<>();
 
     	for (SuffixValue sv : s.freeValues)
             freeValues.add(sv.copy());
     	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
             dataValues.put(dv.getKey(), dv.getValue().copy());
-    	for (SuffixValue sv : s.suffixValues)
-    		suffixValues.add(sv.copy());
     	for (Map.Entry<SuffixValue, SuffixValueRestriction> r : s.restrictions.entrySet())
     		restrictions.put(r.getKey(), r.getValue());
     }
@@ -115,7 +107,6 @@ public class SymbolicSuffix {
 
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
-        this.suffixValues = new LinkedHashSet<>();
         this.restrictions = new LinkedHashMap<>();
 
         SuffixValueGenerator svgen = new SuffixValueGenerator();
@@ -123,7 +114,6 @@ public class SymbolicSuffix {
         	SuffixValue sv = svgen.next(dv.getType());
         	SuffixValueRestriction restriction = SuffixValueRestriction.generateRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
-        	suffixValues.add(sv);
         }
 
         Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
@@ -170,7 +160,6 @@ public class SymbolicSuffix {
         this.actions = actions;
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
-        this.suffixValues = new LinkedHashSet<>();
         this.restrictions = new LinkedHashMap<>();
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
@@ -181,7 +170,6 @@ public class SymbolicSuffix {
                 this.freeValues.add(sv);
                 this.dataValues.put(idx++, sv);
                 restrictions.put(sv, new UnrestrictedSuffixValue(sv));
-                suffixValues.add(sv);
             }
         }
     }
@@ -199,7 +187,6 @@ public class SymbolicSuffix {
 
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
-        this.suffixValues = new LinkedHashSet<>();
         this.restrictions = new LinkedHashMap<>();
 
         Word<PSymbolInstance> suffix = prefix.suffix(1);
@@ -210,15 +197,14 @@ public class SymbolicSuffix {
         	SuffixValue sv = svgen.next(dv.getType());
         	SuffixValueRestriction restriction = SuffixValueRestriction.generateRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
-        	suffixValues.add(sv);
         }
 
         int actionArity = suffix.firstSymbol().getBaseSymbol().getArity();
-        for (SuffixValue sv : symSuffix.suffixValues) {
-        	SuffixValueRestriction restriction = symSuffix.restrictions.get(sv);
+        for (Map.Entry<SuffixValue, SuffixValueRestriction> e : symSuffix.restrictions.entrySet()) {
+        	SuffixValue sv = e.getKey();
+        	SuffixValueRestriction restriction = e.getValue();
         	SuffixValue s = new SuffixValue(sv.getType(), sv.getId()+actionArity);
         	restrictions.put(s, restriction.shift(actionArity));
-        	suffixValues.add(s);
         }
 
         // old
@@ -267,21 +253,26 @@ public class SymbolicSuffix {
     	this.actions = actions;
     	this.dataValues = dataValues;
     	this.freeValues = freeValues;
-    	this.suffixValues = new LinkedHashSet<>();
     	this.restrictions = new LinkedHashMap<>();
 
-    	SuffixValueGenerator svgen = new SuffixValueGenerator();
     	Set<SuffixValue> seen = new LinkedHashSet<>();
     	for (Map.Entry<Integer, SuffixValue> e : dataValues.entrySet()) {
-    		SuffixValue sv = svgen.next(e.getValue().getType());
-    		suffixValues.add(sv);
+    		SuffixValue sv = e.getValue();
+    		SuffixValue suffixValue = new SuffixValue(sv.getType(), e.getKey());
     		if (freeValues.contains(sv)) {
-    			restrictions.put(sv, new UnrestrictedSuffixValue(sv));
+    			restrictions.put(suffixValue, new UnrestrictedSuffixValue(suffixValue));
     			seen.add(sv);
-    		} else if (seen.contains(e.getValue())) {
-    			restrictions.put(sv, new EqualRestriction(sv, e.getValue()));
+    		} else if (seen.contains(sv)) {
+    			int id = dataValues.entrySet()
+   			         .stream().filter((a) -> (a.getValue().equals(sv)))
+   			         .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
+   			         .findFirst()
+   			         .get()
+   			         .getKey();
+    			SuffixValue equalSV = new SuffixValue(suffixValue.getType(), id);
+    			restrictions.put(suffixValue, new EqualRestriction(suffixValue, equalSV));
     		} else {
-    			restrictions.put(sv, new FreshSuffixValue(sv));
+    			restrictions.put(suffixValue, new FreshSuffixValue(suffixValue));
     			seen.add(sv);
     		}
     	}
@@ -291,12 +282,39 @@ public class SymbolicSuffix {
     	this(suffix.actions, suffix.dataValues, freeValues);
     }
 
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<SuffixValue, SuffixValueRestriction> restrictions) {
+    	this.actions = actions;
+    	this.restrictions = restrictions;
+    	this.dataValues = new LinkedHashMap<>();
+    	this.freeValues = new LinkedHashSet<>();
+
+    	assert DataWords.paramLength(actions) == restrictions.size();
+
+    	SuffixValueGenerator svgen = new SuffixValueGenerator();
+    	for (Map.Entry<SuffixValue, SuffixValueRestriction> e : restrictions.entrySet()) {
+    		SuffixValue dataValue = e.getKey();
+    		SuffixValueRestriction restr = e.getValue();
+    		int id = dataValue.getId();
+    		SuffixValue sv;
+    		if (restr instanceof EqualRestriction) {
+    			SuffixValue other = ((EqualRestriction) restr).getEqualParameter();
+    			sv = dataValues.get(other.getId());
+    		} else {
+    			sv = svgen.next(dataValue.getType());
+    		}
+    		dataValues.put(id, sv);
+    		if (restr instanceof UnrestrictedSuffixValue) {
+    			freeValues.add(sv);
+    		}
+    	}
+    }
+
     public SuffixValueRestriction getRestriction(SuffixValue sv) {
     	return restrictions.get(sv);
     }
 
     public SuffixValue getSuffixValue(int i) {
-    	for (SuffixValue sv : suffixValues) {
+    	for (SuffixValue sv : restrictions.keySet()) {
     		if (sv.getId() == i)
     			return sv;
     	}

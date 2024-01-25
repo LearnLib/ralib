@@ -1,5 +1,6 @@
 package de.learnlib.ralib.theory;
 
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -30,6 +31,11 @@ public class UnrestrictedSuffixValue extends SuffixValueRestriction {
 	@Override
 	public String toString() {
 		return "Unrestricted(" + parameter.toString() + ")";
+	}
+
+	@Override
+	public SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior) {
+		return this;
 	}
 
 }
