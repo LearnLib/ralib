@@ -435,7 +435,7 @@ public class OptimizedSymbolicSuffixBuilder {
             if (notSeen || free) {
                 sv = sgen.next(type);
                 if (free) {
-                	freeValues.add(sv);
+                    freeValues.add(sv);
                 }
             }
             seenVals1.add(sv1);
