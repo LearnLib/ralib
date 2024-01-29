@@ -421,12 +421,18 @@ public class OptimizedSymbolicSuffixBuilder {
 
             // TODO Do we need to make sv free if one of the sv's is equal to a previous sv?
             boolean free = freeIndices1.contains(index1) || freeIndices2.contains(index1) || freeIndices1.contains(index2) || freeIndices2.contains(index2);
+            boolean notSeen = false;
 
             if (seenVals1.contains(sv1) && !free) {
                 sv = sValMapping.get(sv1);
             } else if (seenVals2.contains(sv2) && !free) {
                 sv = sValMapping.get(sv2);
             } else {
+            	notSeen = true;
+            }
+            if (sv != null && freeValues.contains(sv))
+            	free = true;
+            if (notSeen || free) {
                 sv = sgen.next(type);
                 if (free) {
                     freeValues.add(sv);
