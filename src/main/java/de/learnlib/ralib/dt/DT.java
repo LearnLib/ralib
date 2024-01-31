@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -277,6 +278,52 @@ public class DT implements DiscriminationTree {
             leaf.removePrefix(prefix.getPrefix());
             sift(prefix, parent, true);
         }
+    }
+
+    public boolean checkIOSuffixes() {
+    	if (ioMode) {
+    		for (DTBranch b : root.getBranches()) {
+    			if (b.getUrap().getTQRforSuffix(root.getSuffix()).getSdt().isAccepting())
+    				return checkIOSuffixes(b.getChild());
+    		}
+    		throw new java.lang.RuntimeException("No accepting child of root");
+    	}
+    	else
+    		return true;
+    }
+
+    private boolean checkIOSuffixes(DTNode node) {
+    	if (node.isLeaf()) {
+    		boolean missingSuffix = false;
+    		DTLeaf leaf = (DTLeaf) node;
+    		MappedPrefix accessMP = leaf.getPrimePrefix();
+    		if (accessMP.getPrefix().length() == 0
+    				|| accessMP.getPrefix().lastSymbol().getBaseSymbol() instanceof OutputSymbol) {
+    			return true;
+    		}
+    		Set<ParameterizedSymbol> ioSuffixes = accessMP.getTQRs()
+    				.keySet()
+    				.stream()
+    				.filter(s -> s.length() == 1)
+    				.map(s -> s.getActions().firstSymbol())
+    				.filter(ps -> ps instanceof OutputSymbol)
+    				.collect(Collectors.toSet());
+    		for (ParameterizedSymbol ps : inputs) {
+    			if (ps instanceof OutputSymbol
+    					&& !ioSuffixes.contains(ps)) {
+    				SymbolicSuffix suffix = new SymbolicSuffix(ps);
+    				addSuffix(suffix, leaf);
+    				missingSuffix = true;
+    			}
+    		}
+    		return !missingSuffix;
+    	}
+    	boolean ret = true;
+    	DTInnerNode inner = (DTInnerNode) node;
+    	for (DTBranch b : Collections.unmodifiableCollection(new LinkedHashSet<DTBranch>(inner.getBranches()))) {
+    		ret = ret && checkIOSuffixes(b.getChild());
+    	}
+    	return ret;
     }
 
     public boolean checkVariableConsistency(OptimizedSymbolicSuffixBuilder suffixBuilder) {

@@ -361,7 +361,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         Assert.assertTrue(true);
 	}
 
-	private Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
+	public static Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
 		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedList<>();
 
 		for (String ceString : ceStrings) {
@@ -400,7 +400,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		return ces;
 	}
 
-	private DefaultQuery<PSymbolInstance, Boolean> buildSIPCounterExample(String[] actions, int[] dv, boolean outcome, ParameterizedSymbol[] actionSymbols) {
+	private static DefaultQuery<PSymbolInstance, Boolean> buildSIPCounterExample(String[] actions, int[] dv, boolean outcome, ParameterizedSymbol[] actionSymbols) {
 		Word<PSymbolInstance> ce = Word.epsilon();
 		for (int i = 0; i < actions.length; i++) {
 			String action = actions[i];
@@ -416,7 +416,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		return new DefaultQuery<PSymbolInstance, Boolean>(ce, outcome);
 	}
 
-	private int findMatchingSymbol(String action, ParameterizedSymbol[] actionSymbols) {
+	private static int findMatchingSymbol(String action, ParameterizedSymbol[] actionSymbols) {
 		for (int i = 0; i < actionSymbols.length; i++ ) {
 			if (actionSymbols[i].getName().contains(action))
 				return i;
