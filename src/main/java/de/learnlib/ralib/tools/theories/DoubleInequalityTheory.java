@@ -256,9 +256,8 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 	}
 
 	@Override
-	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path,
-			Map<SuffixValue, SuffixValueRestriction> prior) {
-		return new UnrestrictedSuffixValue(suffixValue);
+	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+		return new UnrestrictedSuffixValue(guard.getParameter());
 	}
 
 }

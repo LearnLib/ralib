@@ -119,7 +119,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         for (DataValue dv : DataWords.valsOf(suffix)) {
         	SuffixValue sv = svgen.next(dv.getType());
-        	SuffixValueRestriction restriction = SuffixValueRestriction.generateGenericRestriction(sv, prefix, suffix, consts);
+        	SuffixValueRestriction restriction = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
         }
 
@@ -243,7 +243,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         for (DataValue dv : DataWords.valsOf(suffix)) {
         	SuffixValue sv = svgen.next(dv.getType());
-        	SuffixValueRestriction restriction = SuffixValueRestriction.generateGenericRestriction(sv, prefix, suffix, consts);
+        	SuffixValueRestriction restriction = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
         }
 

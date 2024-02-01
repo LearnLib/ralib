@@ -7,6 +7,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -47,7 +48,7 @@ public class SymbolicSuffixRestrictionBuilder {
     		SuffixValueRestriction restr;
     		if (teachers == null) {
     			// use standard restrictions
-    			restr = SuffixValueRestriction.generateGenericRestriction(sv, prefix, suffix, consts);
+    			restr = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
     		} else {
     			// theory-specific restrictions
     			Theory<?> theory = teachers.get(t);
@@ -56,5 +57,12 @@ public class SymbolicSuffixRestrictionBuilder {
     		restrictions.put(sv, restr);
     	}
     	return restrictions;
+    }
+
+    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    	if (teachers == null)
+    		return SuffixValueRestriction.genericRestriction(guard, prior);
+    	Theory theory = teachers.get(guard.getParameter().getType());
+    	return theory.restrictSuffixValue(guard, prior);
     }
 }

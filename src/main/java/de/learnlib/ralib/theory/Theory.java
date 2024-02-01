@@ -110,6 +110,6 @@ public interface Theory<T> {
 
     public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path, Map<SuffixValue, SuffixValueRestriction> prior);
+    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
 
 }

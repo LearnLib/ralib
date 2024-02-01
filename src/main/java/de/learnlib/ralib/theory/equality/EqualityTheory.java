@@ -48,14 +48,12 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
-import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -489,78 +487,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
     @Override
     public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
-		DataValue<?>[] prefixVals = DataWords.valsOf(prefix);
-		DataValue<?>[] suffixVals = DataWords.valsOf(suffix);
-		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
-		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
-		DataValue<?> val = suffixVals[suffixValue.getId()-1];
-		int arityFirst = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
-
-		boolean unrestricted = false;
-		// equal to prefix value
-		for (int i = 0; i < prefixVals.length; i++) {
-			DataValue<?> dv = prefixVals[i];
-			DataType dt = prefixTypes[i];
-			if (dt.equals(suffixValue.getType()) && dv.equals(val))
-				unrestricted = true;
-		}
-		// equal to constant
-		if (consts.containsValue(val)) {
-			unrestricted = true;
-		}
-		// equal to prior suffix value
-		boolean equalsSuffixValue = false;
-		int equalSV = -1;
-		for (int i = 0; i < suffixValue.getId()-1 && !equalsSuffixValue; i++) {
-			DataType dt = suffixTypes[i];
-			if (dt.equals(suffixValue.getType()) && suffixVals[i].equals(val)) {
-				if (suffixValue.getId() <= arityFirst) {
-					unrestricted = true;
-				} else {
-					equalsSuffixValue = true;
-					equalSV = i;
-				}
-			}
-		}
-
-		// case equal to prior suffix value
-		if (equalsSuffixValue && !unrestricted) {
-			SuffixValueRestriction restr = new EqualRestriction(suffixValue, new SuffixValue(suffixVals[equalSV].getType(), equalSV+1));
-			return restr;
-		}
-		// case fresh
-		else if (!equalsSuffixValue && !unrestricted) {
-			return new FreshSuffixValue(suffixValue);
-		}
-		// case unrestricted
-		else {
-			return new UnrestrictedSuffixValue(suffixValue);
-		}
+    	// for now, use generic restrictions with equality theory
+    	return SuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path, Map<SuffixValue, SuffixValueRestriction> prior) {
-    	for (SDTGuard g : path) {
-    		if (g.getParameter().equals(suffixValue)) {
-    			// case fresh
-    			if (g instanceof SDTTrueGuard) {
-    				return new FreshSuffixValue(suffixValue);
-    			// case equal to previous suffix value
-    			} else if (g instanceof EqualityGuard) {
-    				SymbolicDataValue param = ((EqualityGuard) g).getRegister();
-    				if (param instanceof SuffixValue &&
-    						prior.get(param) instanceof FreshSuffixValue) {
-    					return new EqualRestriction(suffixValue, (SuffixValue)param);
-    				} else {
-    					return new UnrestrictedSuffixValue(suffixValue);
-    				}
-    			// case unrestricted
-    			} else {
-    				return new UnrestrictedSuffixValue(suffixValue);
-    			}
-    		}
-    	}
-    	throw new java.lang.IllegalArgumentException("Suffix value not in path");
+    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    	// for now, use generic restrictions with equality theory
+    	return SuffixValueRestriction.genericRestriction(guard, prior);
     }
-
 }

@@ -31,7 +31,6 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -195,78 +194,34 @@ public class OptimizedSymbolicSuffixBuilder {
     	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
     	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1), restrictionBuilder);
     	int actionArity = actionSymbol.getArity();
-    	int suffixArity = DataWords.paramLength(suffixActions);
-    	DataType[] suffixDataTypes = dataTypes(suffixActions);
-    	Map<Register, SuffixValue> actionParameters = buildParameterMap(sub, action, piv);
+    	int subArity = DataWords.paramValLength(sub);
 
-    	Set<SuffixValue> freeValues = new LinkedHashSet<>();
-    	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
-
-    	SuffixValueGenerator svGen = new SuffixValueGenerator();
-    	for (int i = 0; i < actionArity; i++) {
-    		SuffixValue sv = actionSuffix.getDataValue(i+1);
-    		SuffixValue suffixValue = dataValues.values().contains(sv) ?
-    				sv :
-    				svGen.next(actionSymbol.getPtypes()[i]);
-    		dataValues.put(i+1, suffixValue);
-    		if (actionSuffix.getFreeValues().contains(suffixValue))
-    			freeValues.add(suffixValue);
+    	Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
+    	for (SuffixValue sv : actionSuffix.getDataValues()) {
+    		restrictions.put(sv, actionSuffix.getRestriction(sv));
     	}
 
-    	for (int i = 0; i < suffixArity; i++) {
-    		int pos = i + actionArity + 1;
-    		SuffixValue sv = new SuffixValue(suffixDataTypes[i], i+1);
-    		Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
-    		sdtPath.stream().forEach((g) -> { comparands.addAll(g.getComparands(sv)); });
-    		Set<SDTGuard> guards = getGuards(sdtPath, sv);
-    		assert !guards.isEmpty();
-
-    		boolean free = true;
-    		SuffixValue equalSV = null;
-
-    		if (guards.size() > 1) {
-    			free = true;
-    		} else {
-    			SDTGuard guard = guards.iterator().next();
-    			if (guard instanceof SDTTrueGuard) {
-    				free = false;
-    			} else if (guard instanceof EqualityGuard || guard instanceof DisequalityGuard) {
-    				SuffixValue comparedSV = null;
-    				if (comparands.size() > 1) {
-    					free = true;
-    				} else {
-    					assert comparands.size() == 1;
-    					SymbolicDataValue sdv = comparands.iterator().next();
-    					if (sdv.isSuffixValue()) {
-    						comparedSV = dataValues.get(sdv.getId()+actionArity);
-    					} else if (sdv.isRegister()) {
-    						comparedSV = actionParameters.get(sdv);
-    					}
-    					if (comparedSV != null && !freeValues.contains(comparedSV)) {
-    						free = false;
-    						if (guard instanceof EqualityGuard)
-        						equalSV = comparedSV;
-    					}
-    					else
-    						free = true;
-    				}
-    			} else {
-    				free = true;
-    			}
+    	VarMapping<SymbolicDataValue, SuffixValue> renaming = new VarMapping<>();
+    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
+    		Parameter p = e.getKey();
+    		Register r = e.getValue();
+    		if (p.getId() > subArity) {
+    			SuffixValue sv = new SuffixValue(p.getType(), p.getId()-subArity);
+    			renaming.put(r, sv);
     		}
-
-    		if (equalSV != null) {
-    			dataValues.put(pos, equalSV);
-    		} else {
-    			SuffixValue suffixValue = svGen.next(suffixDataTypes[i]);
-    			if (free)
-    				freeValues.add(suffixValue);
-				dataValues.put(pos, suffixValue);
-    		}
+    	}
+    	for (SDTGuard guard : sdtPath) {
+    		SuffixValue oldSV = guard.getParameter();
+    		SuffixValue newSV = new SuffixValue(oldSV.getType(), oldSV.getId()+actionArity);
+    		renaming.put(oldSV, newSV);
+    		// for some reason, true guards ignore relabelling
+    		SDTGuard renamedGuard = guard instanceof SDTTrueGuard ? new SDTTrueGuard(newSV) : guard.relabel(renaming);
+    		SuffixValueRestriction restr = restrictionBuilder.restrictSuffixValue(renamedGuard, restrictions);
+    		restrictions.put(newSV, restr);
     	}
 
     	Word<ParameterizedSymbol> actions = suffixActions.prepend(actionSymbol);
-    	return new SymbolicSuffix(actions, dataValues, freeValues);
+    	return new SymbolicSuffix(actions, restrictions);
     }
 
     private Set<SDTGuard> getGuards(List<SDTGuard> path, SuffixValue sv) {

@@ -9,7 +9,9 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.words.Word;
@@ -48,7 +50,7 @@ public abstract class SuffixValueRestriction {
 	 * @param consts
 	 * @return
 	 */
-	public static SuffixValueRestriction generateGenericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+	public static SuffixValueRestriction genericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
 		DataValue[] prefixVals = DataWords.valsOf(prefix);
 		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
@@ -93,5 +95,31 @@ public abstract class SuffixValueRestriction {
 		else {
 			return new UnrestrictedSuffixValue(sv);
 		}
+	}
+
+	public static SuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    	SuffixValue suffixValue = guard.getParameter();
+    	// case fresh
+    	if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+    		return new FreshSuffixValue(suffixValue);
+    	// case equal to previous suffix value
+    	} else if (guard instanceof EqualityGuard) {
+    		SymbolicDataValue param = ((EqualityGuard) guard).getRegister();
+    		if (param instanceof SuffixValue) {
+    			SuffixValueRestriction restr = prior.get(param);
+    			if (restr instanceof FreshSuffixValue) {
+    				return new EqualRestriction(suffixValue, (SuffixValue)param);
+    			} else if (restr instanceof EqualRestriction) {
+    				return new EqualRestriction(suffixValue, ((EqualRestriction)restr).getEqualParameter());
+    			} else {
+    				return new UnrestrictedSuffixValue(suffixValue);
+    			}
+    		} else {
+    			return new UnrestrictedSuffixValue(suffixValue);
+    		}
+    	// case unrestricted
+    	} else {
+    		return new UnrestrictedSuffixValue(suffixValue);
+    	}
 	}
 }

@@ -72,8 +72,7 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
 	}
 
 	@Override
-	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path,
-			Map<SuffixValue, SuffixValueRestriction> prior) {
-		return new UnrestrictedSuffixValue(suffixValue);
+	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+		return new UnrestrictedSuffixValue(guard.getParameter());
 	}
 }
