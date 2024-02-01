@@ -17,6 +17,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -56,6 +57,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
       MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
               teachers, consts, new SimpleConstraintSolver(), inputs);
+      SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -103,8 +105,8 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       new PSymbolInstance(iget),
       new PSymbolInstance(oget,d0));
 
-      SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1, consts);
-      SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, consts);
+      SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1, restrictionBuilder);
+      SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, restrictionBuilder);
 
       LinkedHashMap<Integer, SuffixValue> dataValues = new LinkedHashMap<Integer, SuffixValue>();
       for (int i=1; i<=5; i++) {

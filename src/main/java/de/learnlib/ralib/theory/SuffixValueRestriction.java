@@ -39,7 +39,16 @@ public abstract class SuffixValueRestriction {
 
 	public abstract SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior);
 
-	public static SuffixValueRestriction generateRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+	/**
+	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
+	 *
+	 * @param sv
+	 * @param prefix
+	 * @param suffix
+	 * @param consts
+	 * @return
+	 */
+	public static SuffixValueRestriction generateGenericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
 		DataValue[] prefixVals = DataWords.valsOf(prefix);
 		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
@@ -53,6 +62,9 @@ public abstract class SuffixValueRestriction {
 			DataType dt = prefixTypes[i];
 			if (dt.equals(sv.getType()) && dv.equals(val))
 				unrestricted = true;
+		}
+		if (consts.containsValue(val)) {
+			unrestricted = true;
 		}
 		boolean equalsSuffixValue = false;
 		int equalSV = -1;

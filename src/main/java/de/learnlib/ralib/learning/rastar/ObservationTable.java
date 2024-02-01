@@ -26,6 +26,8 @@ import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -56,6 +58,8 @@ class ObservationTable {
 
     private final Constants consts;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
 
     public ObservationTable(TreeOracle oracle, boolean ioMode,
@@ -64,6 +68,11 @@ class ObservationTable {
         this.inputs = inputs;
         this.ioMode = ioMode;
         this.consts = consts;
+        if (oracle instanceof MultiTheoryTreeOracle) {
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
+        } else {
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+        }
     }
 
     void addComponent(Component c) {
@@ -149,7 +158,7 @@ class ObservationTable {
                 return;
             }
         }
-        Component c = new Component(r, this, ioMode, consts);
+        Component c = new Component(r, this, ioMode, consts, restrictionBuilder);
         addComponent(c);
     }
 

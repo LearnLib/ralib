@@ -79,6 +79,12 @@ public final class DataWords {
         return vals;
     }
 
+    /**
+     * returns a sequence of all data types in a data word
+     *
+     * @param word
+     * @return
+     */
     public static DataType[] typesOf(Word<ParameterizedSymbol> word) {
     	DataType[] types = new DataType[DataWords.paramLength(word)];
     	int i = 0;

@@ -3,12 +3,20 @@ package de.learnlib.ralib.tools.theories;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.UniqueEqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.words.Word;
 
 public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> implements TypedTheory<Integer> {
 
@@ -56,4 +64,16 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
         ret.add(getFreshValue(vals));
         return ret;
     }
+
+	@Override
+	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+			Word<PSymbolInstance> suffix, Constants consts) {
+		return new UnrestrictedSuffixValue(suffixValue);
+	}
+
+	@Override
+	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path,
+			Map<SuffixValue, SuffixValueRestriction> prior) {
+		return new UnrestrictedSuffixValue(suffixValue);
+	}
 }

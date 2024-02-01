@@ -18,6 +18,7 @@ package de.learnlib.ralib.theory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
@@ -26,6 +27,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
@@ -105,5 +107,9 @@ public interface Theory<T> {
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
             SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
+
+    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
+
+    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, List<SDTGuard> path, Map<SuffixValue, SuffixValueRestriction> prior);
 
 }

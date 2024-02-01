@@ -24,9 +24,11 @@ import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
 import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -47,12 +49,17 @@ public class DT implements DiscriminationTree {
     private boolean ioMode;
     private final Constants consts;
     private DTLeaf sink = null;
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
     public DT(TreeOracle oracle, boolean ioMode, Constants consts, ParameterizedSymbol... inputs) {
         this.oracle = oracle;
         this.ioMode = ioMode;
         this.inputs = inputs;
         this.consts = consts;
+        if (oracle instanceof MultiTheoryTreeOracle)
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
+        else
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
 
         Word<PSymbolInstance> epsilon = Word.epsilon();
         SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -66,6 +73,10 @@ public class DT implements DiscriminationTree {
         this.ioMode = ioMode;
         this.inputs = inputs;
         this.consts = consts;
+        if (oracle instanceof MultiTheoryTreeOracle)
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
+        else
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
     }
 
     public DT(DT dt) {
@@ -73,6 +84,7 @@ public class DT implements DiscriminationTree {
         this.oracle = dt.oracle;
         this.ioMode = dt.ioMode;
         this.consts = dt.consts;
+        this.restrictionBuilder = dt.restrictionBuilder;
 
         root = new DTInnerNode(dt.root);
     }
@@ -246,7 +258,7 @@ public class DT implements DiscriminationTree {
     public boolean addLocation(Word<PSymbolInstance> target, DTLeaf src_c, DTLeaf dest_c, DTLeaf target_c) {
 
         Word<PSymbolInstance> prefix = target.prefix(target.length() - 1);
-        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1), consts);
+        SymbolicSuffix suff1 = new SymbolicSuffix(prefix, target.suffix(1), restrictionBuilder);
         SymbolicSuffix suff2 = findLCA(dest_c, target_c).getSuffix();
         SymbolicSuffix suffix = suff1.concat(suff2);
 

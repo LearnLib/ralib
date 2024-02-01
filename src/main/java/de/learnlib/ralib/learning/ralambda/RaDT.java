@@ -23,6 +23,8 @@ import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
@@ -43,6 +45,8 @@ public class RaDT implements RaLearningAlgorithm {
 
     private final TreeOracleFactory hypOracleFactory;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private QueryStatistics queryStats = null;
 
     private final boolean ioMode;
@@ -56,6 +60,11 @@ public class RaDT implements RaLearningAlgorithm {
     	this.sdtLogicOracle = sdtLogicOracle;
     	this.consts = consts;
     	this.ioMode = ioMode;
+    	if (oracle instanceof MultiTheoryTreeOracle) {
+    		this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
+    	} else {
+    		this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+    	}
         this.dt = new DT(oracle, ioMode, consts, inputs);
         this.dt.initialize();
     }

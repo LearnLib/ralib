@@ -484,6 +484,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
             	for (SymbolicSuffix suffix : mp.getAllSuffixesForMemorable(p)) {
             		TreeQueryResult suffixTQR = mp.getTQRs().get(suffix);
             		SymbolicDecisionTree sdt = suffixTQR.getSdt();
+            		// suffixBuilder == null ==> suffix.isOptimizedGeneric()
+            		assert suffixBuilder != null || suffix.isOptimizationGeneric() : "Optimized with restriction builder, but no restriction builder provided";
             		SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
             				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix) :
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);

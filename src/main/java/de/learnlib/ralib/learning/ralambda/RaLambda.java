@@ -22,7 +22,6 @@ import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.dt.MappedPrefix;
 import de.learnlib.ralib.dt.ShortPrefix;
 import de.learnlib.ralib.learning.AutomatonBuilder;
-import de.learnlib.ralib.learning.CounterexampleAnalysis;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.IOAutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
@@ -37,8 +36,10 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -67,6 +68,7 @@ public class RaLambda implements RaLearningAlgorithm {
     private final TreeOracleFactory hypOracleFactory;
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
     private ConstraintSolver solver = null;
 
     private QueryStatistics queryStats = null;
@@ -97,13 +99,18 @@ public class RaLambda implements RaLearningAlgorithm {
             boolean ioMode, boolean useOldAnalyzer, boolean thoroughSearch, ParameterizedSymbol... inputs) {
 
         this.ioMode = ioMode;
-        this.dt = new DT(oracle, ioMode, consts, inputs);
         this.consts = consts;
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.useOldAnalyzer = useOldAnalyzer;
-        this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts);
+        if (oracle instanceof MultiTheoryTreeOracle) {
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
+        } else {
+        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+        }
+        this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
+        this.dt = new DT(oracle, ioMode, consts, inputs);
         this.dt.initialize();
     }
 
@@ -145,8 +152,8 @@ public class RaLambda implements RaLearningAlgorithm {
     }
 
     private boolean analyzeCounterExample() {
-        if (useOldAnalyzer)
-            return analyzeCounterExampleOld();
+//        if (useOldAnalyzer)
+//            return analyzeCounterExampleOld();
         log.logPhase("Analyzing Counterexample");
 
         if (candidateCEs.isEmpty()) {
@@ -378,7 +385,7 @@ public class RaLambda implements RaLearningAlgorithm {
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
 			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
 			            			} else {
-			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), consts);
+			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), restrictionBuilder);
 			            				testSuffix = testSuffix.concat(s);
 			            			}
 			            			TreeQueryResult testTQR = sulOracle.treeQuery(src_id, testSuffix);
@@ -432,8 +439,8 @@ public class RaLambda implements RaLearningAlgorithm {
            	return suffix;
         }
 
-    	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, consts);
-    	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, consts);
+    	SymbolicSuffix alpha_a = new SymbolicSuffix(prefixA, sa, restrictionBuilder);
+    	SymbolicSuffix alpha_b = new SymbolicSuffix(prefixB, sb, restrictionBuilder);
     	return alpha_a.getFreeValues().size() > alpha_b.getFreeValues().size()
     		   ? alpha_a.concat(v)
     		   : alpha_b.concat(v);
@@ -457,46 +464,46 @@ public class RaLambda implements RaLearningAlgorithm {
     	return branching.transformPrefix(dw);
     }
 
-    private boolean analyzeCounterExampleOld() {
-        log.logPhase("Analyzing Counterexample");
-        if (counterexamples.isEmpty()) {
-            return false;
-        }
-
-        TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
-
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        components.putAll(dt.getComponents());
-        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle,
-                components, consts);
-
-        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
-
-        // check if ce still is a counterexample ...
-        boolean hypce = hyp.accepts(ce.getInput());
-        boolean sulce = ce.getOutput();
-        if (hypce == sulce) {
-            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
-            counterexamples.poll();
-            return false;
-        }
-
-        if (queryStats != null)
-        	queryStats.analyzingCounterExample();
-
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
-
-        if (queryStats != null) {
-        	queryStats.processingCounterExample();
-        	queryStats.analyzeCE(ce.getInput());
-        }
-
-        Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
-        DTLeaf leaf = dt.getLeaf(accSeq);
-        dt.addSuffix(res.getSuffix(), leaf);
-        while(!dt.checkVariableConsistency(suffixBuilder));
-        return true;
-    }
+//    private boolean analyzeCounterExampleOld() {
+//        log.logPhase("Analyzing Counterexample");
+//        if (counterexamples.isEmpty()) {
+//            return false;
+//        }
+//
+//        TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
+//
+//        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+//        components.putAll(dt.getComponents());
+//        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle,
+//                components, consts);
+//
+//        DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
+//
+//        // check if ce still is a counterexample ...
+//        boolean hypce = hyp.accepts(ce.getInput());
+//        boolean sulce = ce.getOutput();
+//        if (hypce == sulce) {
+//            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
+//            counterexamples.poll();
+//            return false;
+//        }
+//
+//        if (queryStats != null)
+//        	queryStats.analyzingCounterExample();
+//
+//        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
+//
+//        if (queryStats != null) {
+//        	queryStats.processingCounterExample();
+//        	queryStats.analyzeCE(ce.getInput());
+//        }
+//
+//        Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
+//        DTLeaf leaf = dt.getLeaf(accSeq);
+//        dt.addSuffix(res.getSuffix(), leaf);
+//        while(!dt.checkVariableConsistency(suffixBuilder));
+//        return true;
+//    }
 
     public Hypothesis getHypothesis() {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();

@@ -572,4 +572,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     	return expr.isSatisfied(mapping);
     }
+
+    public Map<DataType, Theory> getTeachers() {
+    	return teachers;
+    }
+
 }

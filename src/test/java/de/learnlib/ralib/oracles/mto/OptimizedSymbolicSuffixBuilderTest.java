@@ -61,6 +61,8 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Constants consts = new Constants();
 
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+
         Word<PSymbolInstance> word = Word.fromSymbols(
                 new PSymbolInstance(PUSH, dv(1)),
                 new PSymbolInstance(INSERT, dv(1),dv(2)),
@@ -74,7 +76,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         InputSymbol B = new InputSymbol("b");
         InputSymbol C = new InputSymbol("c", INT_TYPE);
 
-        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
 
         SuffixValueGenerator svGen = new SuffixValueGenerator();
         SuffixValue s1 = svGen.next(INT_TYPE);
@@ -108,6 +110,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Constants consts2 = new Constants();
         consts2.put(c1, new DataValue(INT_TYPE, 2));
+        SymbolicSuffixRestrictionBuilder restrictionBuilder2 = new SymbolicSuffixRestrictionBuilder(consts2, teachers);
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 0)),
@@ -160,14 +163,14 @@ public class OptimizedSymbolicSuffixBuilderTest {
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
-        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
-        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
-        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
-        SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(4));
-        SymbolicSuffix suffix5 = new SymbolicSuffix(word5.prefix(2), word5.suffix(4));
-        SymbolicSuffix suffix6 = new SymbolicSuffix(word6.prefix(1), word6.suffix(1));
-        SymbolicSuffix suffix7 = new SymbolicSuffix(word7a.prefix(3), word7a.suffix(1));
-        SymbolicSuffix suffix8 = new SymbolicSuffix(word8a.prefix(2), word8a.suffix(1));
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1), restrictionBuilder);
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1), restrictionBuilder);
+        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), restrictionBuilder2);
+        SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(4), restrictionBuilder);
+        SymbolicSuffix suffix5 = new SymbolicSuffix(word5.prefix(2), word5.suffix(4), restrictionBuilder);
+        SymbolicSuffix suffix6 = new SymbolicSuffix(word6.prefix(1), word6.suffix(1), restrictionBuilder);
+        SymbolicSuffix suffix7 = new SymbolicSuffix(word7a.prefix(3), word7a.suffix(1), restrictionBuilder);
+        SymbolicSuffix suffix8 = new SymbolicSuffix(word8a.prefix(2), word8a.suffix(1), restrictionBuilder);
 
         SDT sdt1 = new SDT(Map.of(
         		new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -211,35 +214,35 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SDT sdt7 = new SDT(Map.of(
         		new SDTTrueGuard(s1), SDTLeaf.REJECTING));
 
-        SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2));
+        SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2), restrictionBuilder);
         SymbolicSuffix actual1 = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
         Assert.assertEquals(actual1, expected1);
 
         SymbolicSuffix actual2 = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2);
         Assert.assertEquals(actual2.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
 
-        SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(2), consts2);
+        SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(2), restrictionBuilder2);
         SymbolicSuffix actual3 = builder.extendSuffix(word3.prefix(2), sdt3, piv3, suffix3);
         Assert.assertEquals(actual3, expected3);
 
-        SymbolicSuffix expected4 = new SymbolicSuffix(word4.prefix(1), word4.suffix(5));
+        SymbolicSuffix expected4 = new SymbolicSuffix(word4.prefix(1), word4.suffix(5), restrictionBuilder);
         SymbolicSuffix actual4 = builder.extendSuffix(word4.prefix(2), sdt4, piv3, suffix4);
         Assert.assertEquals(actual4, expected4);
 
-        SymbolicSuffix expected5 = new SymbolicSuffix(word5.prefix(1), word5.suffix(5));
+        SymbolicSuffix expected5 = new SymbolicSuffix(word5.prefix(1), word5.suffix(5), restrictionBuilder);
         SymbolicSuffix actual5 = builder.extendSuffix(word5.prefix(2), sdt5, piv5, suffix5);
         Assert.assertEquals(actual5, expected5);
 
-        SymbolicSuffix expected6 = new SymbolicSuffix(Word.epsilon(), word6);
+        SymbolicSuffix expected6 = new SymbolicSuffix(Word.epsilon(), word6, restrictionBuilder);
         SymbolicSuffix actual6 = builder.extendSuffix(word6.prefix(1), sdt6, piv5, suffix6);
         Assert.assertEquals(actual6, expected6);
 
-        OptimizedSymbolicSuffixBuilder constBuilder = new OptimizedSymbolicSuffixBuilder(consts2);
-        SymbolicSuffix expected7 = new SymbolicSuffix(word7b.prefix(2), word7b.suffix(2), consts2);
+        OptimizedSymbolicSuffixBuilder constBuilder = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
+        SymbolicSuffix expected7 = new SymbolicSuffix(word7b.prefix(2), word7b.suffix(2), restrictionBuilder2);
         SymbolicSuffix actual7 = constBuilder.extendDistinguishingSuffix(word7a.prefix(3), SDTLeaf.ACCEPTING, new PIV(), word7b.prefix(3), SDTLeaf.REJECTING, new PIV(), suffix7);
         Assert.assertEquals(actual7, expected7);
 
-        SymbolicSuffix expected8 = new SymbolicSuffix(word8c.prefix(1), word8c.suffix(2));
+        SymbolicSuffix expected8 = new SymbolicSuffix(word8c.prefix(1), word8c.suffix(2), restrictionBuilder);
         SymbolicSuffix actual8 = builder.extendDistinguishingSuffix(word8a.prefix(2), sdt6, piv3, word8b.prefix(2), sdt7, new PIV(), suffix8);
         Assert.assertEquals(actual8, expected8);
     }
@@ -267,6 +270,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
     public void extendSuffixTest() {
 
         DataType type = new DataType("int",Integer.class);
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
         InputSymbol A = new InputSymbol("a", type, type);
         InputSymbol B = new InputSymbol("b", type);
         InputSymbol C = new InputSymbol("c");
@@ -303,6 +311,9 @@ public class OptimizedSymbolicSuffixBuilderTest {
         consts2.put(c1, new DataValue(INT_TYPE, 3));
         consts2.put(c2, new DataValue(INT_TYPE, 4));
 
+        SymbolicSuffixRestrictionBuilder restrictionBuilder1 = new SymbolicSuffixRestrictionBuilder(consts1, teachers);
+        SymbolicSuffixRestrictionBuilder restrictionBuilder2 = new SymbolicSuffixRestrictionBuilder(consts2, teachers);
+
         Word<PSymbolInstance> word1 = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
@@ -324,10 +335,10 @@ public class OptimizedSymbolicSuffixBuilderTest {
         		new PSymbolInstance(B, new DataValue(INT_TYPE, 0)),
         		new PSymbolInstance(B, new DataValue(INT_TYPE, 3)),
         		new PSymbolInstance(C));
-        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(3), consts1);
-        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), consts1);
-        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(2), consts2);
-        SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(1), consts2);
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(3), restrictionBuilder1);
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder1);
+        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(2), restrictionBuilder2);
+        SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(1), restrictionBuilder2);
 
         List<SDTGuard> sdtPath1 = new ArrayList<>();
         sdtPath1.add(new EqualityGuard(s1, r1));
@@ -348,19 +359,19 @@ public class OptimizedSymbolicSuffixBuilderTest {
         List<List<SDTGuard>> sdtPaths4 = SDTLeaf.ACCEPTING.getPaths(true);
         List<SDTGuard> sdtPath4 = SDTLeaf.ACCEPTING.getPaths(true).get(0);
 
-        OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1);
-        OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2);
+        OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1, restrictionBuilder1);
+        OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), consts1);
+        SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), restrictionBuilder1);
         SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, piv1, suffix1.getActions());
         Assert.assertEquals(actual1, expected1);
 
-        SymbolicSuffix expected2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4), consts1);
+        SymbolicSuffix expected2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4), restrictionBuilder1);
         SymbolicSuffix actual2 = builder1.extendSuffix(word2.prefix(2), sdtPath2, piv1, suffix2.getActions());
         Assert.assertEquals(actual2, expected2);
 
-        SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), consts2);
+        SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder2);
         SymbolicSuffix actual3 = builder1.extendSuffix(word3.prefix(2), sdtPath3, piv2, suffix3.getActions());
         Assert.assertEquals(actual1, expected1);
 
@@ -373,6 +384,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         DataType type = new DataType("int",Integer.class);
         InputSymbol a = new InputSymbol("a", type);
+
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
         SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
         SuffixValue s1 = sgen.next(type);
         SuffixValue s2 = sgen.next(type);

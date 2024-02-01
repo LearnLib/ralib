@@ -42,10 +42,18 @@ public class OptimizedSymbolicSuffixBuilder {
 
     private final Constants consts;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private static LearnLogger log = LearnLogger.getLogger(OptimizedSymbolicSuffixBuilder.class);
 
     public OptimizedSymbolicSuffixBuilder(Constants consts) {
-        this.consts = consts;
+    	this.consts = consts;
+    	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+    }
+
+    public OptimizedSymbolicSuffixBuilder(Constants consts, SymbolicSuffixRestrictionBuilder restrictionBuilder) {
+    	this.consts = consts;
+    	this.restrictionBuilder = restrictionBuilder;
     }
 
     /**
@@ -66,7 +74,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
     	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
     	PSymbolInstance action = prefix.lastSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, Word.fromSymbols(action), consts);
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, Word.fromSymbols(action), restrictionBuilder);
     	Set<Register> actionRegisters = actionRegisters(sub, action, piv);
     	Map<SuffixValue, SymbolicDataValue> sdvMap = new LinkedHashMap<>();
 
@@ -185,7 +193,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
     	PSymbolInstance action = prefix.lastSymbol();
     	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1), consts);
+    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, prefix.suffix(1), restrictionBuilder);
     	int actionArity = actionSymbol.getArity();
     	int suffixArity = DataWords.paramLength(suffixActions);
     	DataType[] suffixDataTypes = dataTypes(suffixActions);
