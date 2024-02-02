@@ -260,4 +260,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 		return new UnrestrictedSuffixValue(guard.getParameter());
 	}
 
+	@Override
+	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+		// not yet implemented for inequality theory
+		return false;
+	}
 }

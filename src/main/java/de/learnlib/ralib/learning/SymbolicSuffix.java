@@ -17,7 +17,6 @@
 package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -416,8 +415,8 @@ public class SymbolicSuffix {
         return this.dataValues.get(i);
     }
 
-	public Collection<SuffixValue> getDataValues() {
-		return this.dataValues.values();
+	public Set<SuffixValue> getDataValues() {
+		return restrictions.keySet();
 	}
 
     public Set<SuffixValue> getFreeValues() {

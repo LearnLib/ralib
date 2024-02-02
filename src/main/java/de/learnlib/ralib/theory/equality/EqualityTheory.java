@@ -51,6 +51,7 @@ import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
@@ -495,5 +496,19 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	// for now, use generic restrictions with equality theory
     	return SuffixValueRestriction.genericRestriction(guard, prior);
+    }
+
+    @Override
+    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
+    		return true;
+    	} else if (guard instanceof SDTMultiGuard) {
+    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
+    			if (g instanceof EqualityGuard && ((EqualityGuard) g).getRegister().equals(register)) {
+    				return true;
+    			}
+    		}
+    	}
+    	return false;
     }
 }

@@ -10,7 +10,6 @@ import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 
 public class FreshSuffixValue extends SuffixValueRestriction {
@@ -53,7 +52,7 @@ public class FreshSuffixValue extends SuffixValueRestriction {
 	}
 
 	@Override
-	public boolean revealsRegister(Register r) {
+	public boolean revealsRegister(SymbolicDataValue r) {
 		return false;
 	}
 }

@@ -1,10 +1,14 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -64,5 +68,20 @@ public class SymbolicSuffixRestrictionBuilder {
     		return SuffixValueRestriction.genericRestriction(guard, prior);
     	Theory theory = teachers.get(guard.getParameter().getType());
     	return theory.restrictSuffixValue(guard, prior);
+    }
+
+    public boolean sdtPathRevealsRegister(List<SDTGuard> path, SymbolicDataValue[] registers) {
+    	if (teachers == null)
+    		return false;
+    	Set<SymbolicDataValue> revealedRegisters = new LinkedHashSet<>();
+    	for (SDTGuard guard : path) {
+    		Theory theory = teachers.get(guard.getParameter().getType());
+    		for (SymbolicDataValue r : registers) {
+    			if (theory.guardRevealsRegister(guard, r)) {
+    				revealedRegisters.add(r);
+    			}
+    		}
+    	}
+    	return revealedRegisters.size() == registers.length;
     }
 }

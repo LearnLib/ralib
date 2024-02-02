@@ -7,7 +7,6 @@ import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
@@ -70,7 +69,7 @@ public class EqualRestriction extends SuffixValueRestriction {
 	}
 
 	@Override
-	public boolean revealsRegister(Register r) {
-		return false;  // cannot reveal register, as equality only with suffix value
+	public boolean revealsRegister(SymbolicDataValue r) {
+		return equalParam.equals(r);
 	}
 }

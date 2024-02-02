@@ -67,8 +67,15 @@ public class OptimizedSymbolicSuffixBuilder {
      */
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, SymbolicSuffix suffix, Register... registers) {
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
-    	if (registers.length > 0)
-    		return extendSuffixRevealingRegisters(prefix, sdt, piv, suffixActions, registers);
+    	if (registers.length > 0) {
+    		SymbolicSuffix s = extendSuffixRevealingRegisters(prefix, sdt, piv, suffixActions, registers);
+    		if (s == null) {
+    			// no path found which reveals all registers, so do not optimize
+    			s = new SymbolicSuffix(prefix.prefix(prefix.length()-1), prefix.suffix(1), restrictionBuilder);
+    			return s.concat(suffix);
+    		}
+    		return s;
+    	}
 
     	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
     	SymbolicSuffix coalesced = null;
@@ -87,19 +94,10 @@ public class OptimizedSymbolicSuffixBuilder {
     	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
     	SymbolicSuffix best = null;
     	for (List<SDTGuard> path : paths) {
-    		SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
-    		SymbolicSuffix s = registers.length > 0 ? null : extendedSuffix;
-    		for (Register r : registers) {
-    			if (extendedSuffix.getValues()
-    					.stream()
-    					.filter(sv -> extendedSuffix.getRestriction(sv).revealsRegister(r))
-    					.findAny()
-    					.isPresent()) {
-    				s = extendedSuffix;
-    				break;
-    			}
+    		if (restrictionBuilder.sdtPathRevealsRegister(path, registers)) {
+    			SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
+    			best = pickBest(best, extendedSuffix);
     		}
-    		best = pickBest(best, s);
     	}
     	return best;
     }

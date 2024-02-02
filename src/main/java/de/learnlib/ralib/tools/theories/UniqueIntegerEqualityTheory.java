@@ -8,6 +8,7 @@ import java.util.Map;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -74,5 +75,11 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
 	@Override
 	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
 		return new UnrestrictedSuffixValue(guard.getParameter());
+	}
+
+	@Override
+	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+		// not yet implemented for inequality theory
+		return false;
 	}
 }

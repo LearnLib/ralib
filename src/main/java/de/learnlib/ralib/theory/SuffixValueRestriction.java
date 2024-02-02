@@ -8,7 +8,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
@@ -42,7 +41,7 @@ public abstract class SuffixValueRestriction {
 
 	public abstract SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior);
 
-	public abstract boolean revealsRegister(Register r);
+	public abstract boolean revealsRegister(SymbolicDataValue r);
 
 	/**
 	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
