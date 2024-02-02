@@ -6,6 +6,7 @@ import java.util.Set;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 
 public class UnrestrictedSuffixValue extends SuffixValueRestriction {
@@ -38,4 +39,8 @@ public class UnrestrictedSuffixValue extends SuffixValueRestriction {
 		return this;
 	}
 
+	@Override
+	public boolean revealsRegister(Register r) {
+		return true;
+	}
 }

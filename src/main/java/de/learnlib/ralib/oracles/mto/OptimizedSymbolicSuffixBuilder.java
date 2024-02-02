@@ -2,8 +2,6 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,13 +23,11 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -66,126 +62,46 @@ public class OptimizedSymbolicSuffixBuilder {
      * @param sdt
      * @param piv
      * @param suffix
+     * @param registers - a list of registers that must be revealed by the suffix
      * @return a new suffix formed by prepending suffix with the last symbol of prefix
      */
-    public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, SymbolicSuffix suffix) {
-    	assert !prefix.isEmpty();
+    public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, SymbolicSuffix suffix, Register... registers) {
+    	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
+    	if (registers.length > 0)
+    		return extendSuffixRevealingRegisters(prefix, sdt, piv, suffixActions, registers);
 
-    	Word<PSymbolInstance> sub = prefix.prefix(prefix.length()-1);
-    	PSymbolInstance action = prefix.lastSymbol();
-    	SymbolicSuffix actionSuffix = new SymbolicSuffix(sub, Word.fromSymbols(action), restrictionBuilder);
-    	Set<Register> actionRegisters = actionRegisters(sub, action, piv);
-    	Map<SuffixValue, SymbolicDataValue> sdvMap = new LinkedHashMap<>();
-
-    	int arity = action.getBaseSymbol().getArity();
-		int suffixParameters = DataWords.paramLength(suffix.getActions());
-
-    	// find which values are free
-    	Set<Integer> newFreeValues = new LinkedHashSet<>();
-    	for (int i = 0; i < suffixParameters; i++) {
-    		int pos = i + 1;
-    		SuffixValue sv = suffix.getDataValue(pos);
-    		Set<SymbolicDataValue> comparands = sdt.getComparands(new SuffixValue(sv.getType(), pos));
-    		Set<Register> registers = new LinkedHashSet<>();
-    		comparands.stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); });
-
-    		// determine whether a suffix value is free
-    		if (!actionRegisters.containsAll(registers) ||
-    				comparands.size() > 1 ||
-    				comparands.stream().anyMatch((x) -> (x.isConstant())) ||
-    				(comparands.size() == 1 && newFreeValues.contains(comparands.iterator().next().getId()-arity))) {
-    			newFreeValues.add(pos + arity);
-    		} else if (comparands.size() == 1) {
-    			// if non-free and equal to a single symbolic data value, remember that value
-    			SymbolicDataValue sdv = comparands.iterator().next();
-    			for (SDTGuard g : sdt.getSDTGuards(sv)) {
-    				if (g instanceof EqualityGuard) {
-    					sdvMap.put(new SuffixValue(sv.getType(), pos), sdv);
-    				}
-    			}
-    		}
-    	}
-    	// free suffix values in the action
-    	for (int i = 0; i < action.getBaseSymbol().getArity(); i++) {
-    		if (actionSuffix.getFreeValues().contains(actionSuffix.getDataValue(i+1)))
-    			newFreeValues.add(i+1);
-    	}
-
-    	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
-    	Map<Parameter, SuffixValue> actionParamaterMap = new LinkedHashMap<>();
-    	int startingIndex = 1 + DataWords.paramValLength(sub);
-
-    	// fill in suffix values from action
-    	int position = 1;
-    	ParameterizedSymbol actionSymbol = action.getBaseSymbol();
-    	SuffixValueGenerator svGen = new SuffixValueGenerator();
-    	for (int i = 0; i < actionSymbol.getArity(); i++ ) {
-    		DataType dt = actionSymbol.getPtypes()[i];
-    		SuffixValue sv = actionSuffix.getDataValue(i+1);
-    		if (!dataValues.values().contains(sv))
-    			svGen.next(dt);
-    		dataValues.put(position, sv);
-    		position++;
-    		actionParamaterMap.put(new Parameter(dt, startingIndex+i), sv);
-    	}
-
-    	// find relations
-    	Map<Integer, SuffixValue> suffixDataValues = new LinkedHashMap<>();
-    	Map<Integer, Integer> suffixRelations = new LinkedHashMap<>();
-    	for (int i = 1; i < suffixParameters + 1; i++) {
-    		SuffixValue sv = suffix.getDataValue(i);
-    		SymbolicDataValue sdv = sdvMap.get(new SuffixValue(sv.getType(), i));
-    		if (suffixDataValues.values().contains(sv)) {
-    			int key = suffixDataValues.entrySet()
-    			                          .stream()
-    			                          .filter((a) -> (a.getValue().equals(sv)))
-    			                          .sorted(Map.Entry.comparingByKey(Comparator.naturalOrder()))
-    			                          .findFirst()
-    			                          .get().getKey();
-    			suffixRelations.put(i+arity, key+arity);
-    		} else if (sdv != null && sdv.isSuffixValue()) {
-    			if (newFreeValues.contains(sdv.getId()+arity)) {
-    				newFreeValues.add(i+arity);
-    			} else {
-    				suffixRelations.put(sv.getId()+arity, sdv.getId()+arity);
-    			}
-    		} else if (sdv != null && sdv.isRegister()) {
-    			Parameter p = getParameter((Register)sdv, piv);
-    			SuffixValue actionSV = actionParamaterMap.get(p);
-    			if (actionSuffix.getFreeValues().contains(actionSV)) {
-    				newFreeValues.add(i+arity);
-    			} else {
-    				suffixRelations.put(sv.getId()+arity, actionSV.getId());
-    			}
-    		}
-    		suffixDataValues.put(i, sv);
-    	}
-
-    	if (suffixRelations.size() > 0) {
-    		assert Collections.min(suffixRelations.keySet()) >= arity + 1;
-    	}
-
-		// construct suffix
-    	Word<ParameterizedSymbol> actions = suffix.getActions().prepend(action.getBaseSymbol());
-    	DataType[] dts = dataTypes(actions);
-    	for (int i = 0; i < suffixParameters; i++) {
-    		int pos = i + arity + 1;
-    		Integer eq = suffixRelations.get(pos);
-    		if (eq == null) {
-    			dataValues.put(pos, svGen.next(dts[i]));
+    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
+    	SymbolicSuffix coalesced = null;
+    	for (List<SDTGuard> path : paths) {
+    		SymbolicSuffix extended = extendSuffix(prefix, path, piv, suffixActions);
+    		if (coalesced == null) {
+    			coalesced = extended;
     		} else {
-    			dataValues.put(pos, dataValues.get(eq));
+    			coalesced = coalesceSuffixes(coalesced, extended);
     		}
     	}
+    	return coalesced;
+    }
 
-    	Set<SuffixValue> freeValues = new LinkedHashSet<>();
-    	newFreeValues.stream().forEach((x) -> { freeValues.add(dataValues.get(x)); });
-
-    	for (SuffixValue fv : freeValues) {
-    		assert fv != null;
+    public SymbolicSuffix extendSuffixRevealingRegisters(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, Word<ParameterizedSymbol> suffixActions, Register[] registers) {
+    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
+    	SymbolicSuffix best = null;
+    	for (List<SDTGuard> path : paths) {
+    		SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
+    		SymbolicSuffix s = registers.length > 0 ? null : extendedSuffix;
+    		for (Register r : registers) {
+    			if (extendedSuffix.getValues()
+    					.stream()
+    					.filter(sv -> extendedSuffix.getRestriction(sv).revealsRegister(r))
+    					.findAny()
+    					.isPresent()) {
+    				s = extendedSuffix;
+    				break;
+    			}
+    		}
+    		best = pickBest(best, s);
     	}
-
-    	return new SymbolicSuffix(actions, dataValues, freeValues);
+    	return best;
     }
 
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, List<SDTGuard> sdtPath, PIV piv, Word<ParameterizedSymbol> suffixActions) {

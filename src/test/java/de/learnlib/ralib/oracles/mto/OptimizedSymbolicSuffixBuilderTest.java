@@ -226,7 +226,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Assert.assertEquals(actual3, expected3);
 
         SymbolicSuffix expected4 = new SymbolicSuffix(word4.prefix(1), word4.suffix(5), restrictionBuilder);
-        SymbolicSuffix actual4 = builder.extendSuffix(word4.prefix(2), sdt4, piv3, suffix4);
+        SymbolicSuffix actual4 = builder.extendSuffix(word4.prefix(2), sdt4, piv5, suffix4);
         Assert.assertEquals(actual4, expected4);
 
         SymbolicSuffix expected5 = new SymbolicSuffix(word5.prefix(1), word5.suffix(5), restrictionBuilder);
