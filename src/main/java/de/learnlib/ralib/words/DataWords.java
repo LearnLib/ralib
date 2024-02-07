@@ -161,12 +161,8 @@ public final class DataWords {
             DataValue[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues.get(pid++);
-                //log.trace(pvalues[i].toString());
             }
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
-        }
-        for (PSymbolInstance p : symbols) {
-            //log.trace(p.toString());
         }
         return Word.fromSymbols(symbols);
     }
@@ -189,12 +185,8 @@ public final class DataWords {
             DataValue[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues[pid++ -1];
-                //log.trace(pvalues[i].toString());
             }
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
-        }
-        for (PSymbolInstance p : symbols) {
-            //log.trace(p.toString());
         }
         return Word.fromSymbols(symbols);
     }

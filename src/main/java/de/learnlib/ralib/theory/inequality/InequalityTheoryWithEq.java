@@ -156,7 +156,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 addSafely(guards, t, regPotential);
             }
         }
-        return;
     }
 
     private void addSafely(Collection<SDTGuard> guards, SDTGuard guard, List<SymbolicDataValue> regPotential) {
@@ -191,7 +190,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             guards.add(guard);
         }
 //        System.out.println("added safely: " + guard + " to " + guards);
-        return;
     }
 
     private void removeProhibited(Collection<SDTGuard> guards, Collection<SDTGuard> prohibited) {
@@ -201,7 +199,6 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             }
         }
         //System.out.println("guards after removing " + prohibited + " :: " + guards);
-        return;
     }
 
 //    private Set<SDTGuard> mergeSetWithSet(Set<SDTGuard> guardSet, Set<SDTGuard> targets, Set<SDTGuard> prohibited) {
@@ -532,7 +529,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             assert headSDT.getClass().equals(refSDT.getClass());
             //assert !(headSDT.isEmpty());
             //assert !(refSDT.isEmpty());
-            SDTGuard headGuard = headList.get(0);
+            //SDTGuard headGuard = headList.get(0);
             SDT newSDT = headSDT;
 //            System.out.println("head: " + newHeadList + " against " + refGuard);
             if (headSDT instanceof SDTLeaf) {

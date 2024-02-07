@@ -67,8 +67,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
                 new PSymbolInstance(POP, dv(2)),
                 new PSymbolInstance(CONTAINS, dv(1)));
 
-        equalsSuffixesFromConcretePrefixSuffix(word, mto, consts, solver);
-
+        equalsSuffixesFromConcretePrefixSuffix(word, mto, consts);
 
         InputSymbol A = new InputSymbol("a", INT_TYPE, INT_TYPE);
         InputSymbol B = new InputSymbol("b");
@@ -247,7 +246,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     /*
      * Checks for equality optimized suffixes built by prepending using an SDT against those built from concrete prefix/suffix
      */
-    private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
+    private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
         SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
@@ -266,7 +265,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     public void extendSuffixTest() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int", Integer.class);
         InputSymbol A = new InputSymbol("a", type, type);
         InputSymbol B = new InputSymbol("b", type);
         InputSymbol C = new InputSymbol("c");
@@ -284,7 +283,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
         Parameter p1 = pgen.next(type);
-        Parameter p2 = pgen.next(type);
+        pgen.next(type);
         Parameter p3 = pgen.next(type);
         Parameter p4 = pgen.next(type);
 
@@ -346,11 +345,10 @@ public class OptimizedSymbolicSuffixBuilderTest {
         sdtPath3.add(new DisequalityGuard(s2, c2));
         sdtPath3.add(new SDTTrueGuard(s3));
         List<List<SDTGuard>> sdtPaths4 = SDTLeaf.ACCEPTING.getPaths(true);
-        List<SDTGuard> sdtPath4 = SDTLeaf.ACCEPTING.getPaths(true).get(0);
+        List<SDTGuard> sdtPath4 = sdtPaths4.get(0);
 
         OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1);
         OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2);
-        ConstraintSolver solver = new SimpleConstraintSolver();
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), consts1);
         SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, piv1, suffix1.getActions());
@@ -362,7 +360,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), consts2);
         SymbolicSuffix actual3 = builder1.extendSuffix(word3.prefix(2), sdtPath3, piv2, suffix3.getActions());
-        Assert.assertEquals(actual1, expected1);
+        Assert.assertEquals(actual3, expected3);
 
         SymbolicSuffix actual4 = builder2.extendSuffix(word4.prefix(2), sdtPath4, new PIV(), suffix4.getActions());
         Assert.assertEquals(actual4.getFreeValues().size(), 1);

@@ -246,7 +246,7 @@ public class LearnStackTest extends RaLibTestSuite {
             Assert.assertEquals(hypLambda.getStates().size(), 4);
             Assert.assertEquals(hypLambda.getTransitions().size(), 10);
 
-            Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
+            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
             measuresStar[seed] = runner.getMeasurements();
             runner.resetMeasurements();
         }

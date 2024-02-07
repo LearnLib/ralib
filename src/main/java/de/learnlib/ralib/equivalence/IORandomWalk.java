@@ -172,7 +172,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     }
 
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {
-        ParameterizedSymbol ps = nextSymbol(run);
+        ParameterizedSymbol ps = nextSymbol();
         PSymbolInstance psi = nextDataValues(run, ps);
         return psi;
     }
@@ -217,7 +217,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         return new PSymbolInstance(ps, vals);
     }
 
-    private ParameterizedSymbol nextSymbol(Word<PSymbolInstance> run) {
+    private ParameterizedSymbol nextSymbol() {
         ParameterizedSymbol ps = null;
         Map<DataType, Integer> tCount = new LinkedHashMap<>();
         if (uniform) {

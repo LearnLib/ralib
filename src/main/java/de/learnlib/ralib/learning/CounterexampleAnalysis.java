@@ -179,41 +179,41 @@ public class CounterexampleAnalysis {
         return true;
     }
 
-    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
-
-        assert ce.length() > 1;
-
-        IndexResult[] results = new IndexResult[ce.length()];
-        results[ce.length()-1] = IndexResult.NO_CE;
-
-        int idx = ce.length()-2;
-
-        while (idx >= 0) {
-            IndexResult res = computeIndex(ce, idx);
-            results[idx] = res;
-            if (res != IndexResult.NO_CE) {
-                break;
-            }
-            idx--;
-        }
-
-        assert (idx >= 0);
-
-        // if in the last step there was no counterexample,
-        // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
-            assert idx > 0;
-            idx--;
-        }
-
-        // if the current index has no refinement use the
-        // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
-            idx++;
-        }
-
-        return idx;
-    }
+//    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
+//
+//        assert ce.length() > 1;
+//
+//        IndexResult[] results = new IndexResult[ce.length()];
+//        results[ce.length()-1] = IndexResult.NO_CE;
+//
+//        int idx = ce.length()-2;
+//
+//        while (idx >= 0) {
+//            IndexResult res = computeIndex(ce, idx);
+//            results[idx] = res;
+//            if (res != IndexResult.NO_CE) {
+//                break;
+//            }
+//            idx--;
+//        }
+//
+//        assert (idx >= 0);
+//
+//        // if in the last step there was no counterexample,
+//        // we have to move one step to the left
+//        if (results[idx] == IndexResult.NO_CE) {
+//            assert idx > 0;
+//            idx--;
+//        }
+//
+//        // if the current index has no refinement use the
+//        // suffix of the next index
+//        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+//            idx++;
+//        }
+//
+//        return idx;
+//    }
 
     private int binarySearch(Word<PSymbolInstance> ce) {
 

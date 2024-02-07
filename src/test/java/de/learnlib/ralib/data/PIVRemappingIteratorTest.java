@@ -54,7 +54,7 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
         PIV piv2 = generatePIV(new PIV(), type1, 4);
 
         int count = 0;
-        for (VarMapping map : new PIVRemappingIterator(piv1, piv2)) {
+        for (VarMapping unused : new PIVRemappingIterator(piv1, piv2)) {
             count++;
         }
 
@@ -74,8 +74,7 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
         piv2 = generatePIV(piv2, type2, 2);
 
         int count = 0;
-        for (VarMapping map : new PIVRemappingIterator(piv1, piv2)) {
-            //System.out.println(map);
+        for (VarMapping unused : new PIVRemappingIterator(piv1, piv2)) {
             count++;
         }
 

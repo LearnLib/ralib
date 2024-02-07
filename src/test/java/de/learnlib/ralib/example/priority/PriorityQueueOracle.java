@@ -58,7 +58,6 @@ public final class PriorityQueueOracle implements DataWordOracle {
                 query.answer(true);
             } else {
                 PriorityQueue<BigDecimal> queue = new PriorityQueue<>();
-                PSymbolInstance[] trace = new PSymbolInstance[query.getInput().length()];
                 Boolean[] answer = new Boolean[query.getInput().length()];
 
                 for (int i = 0; i < query.getInput().length(); i++) {

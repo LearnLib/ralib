@@ -12,7 +12,6 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> implements TypedTheory<Integer> {
 
-
     private DataType type = null;
 
     public UniqueIntegerEqualityTheory() {
@@ -38,8 +37,8 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
     }
 
     @Override
-    public void setUseSuffixOpt(boolean useit) {
-        this.useNonFreeOptimization = useit;
+    public void setUseSuffixOpt(boolean unused) {
+        // this.useNonFreeOptimization = unused;
     }
 
     @Override

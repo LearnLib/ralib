@@ -151,8 +151,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     MappedPrefix getMappedPrefix(Word<PSymbolInstance> p) {
         if (access.getPrefix().equals(p))
             return access;
-        MappedPrefix ret = null;
-        ret = shortPrefixes.get(p);
+        MappedPrefix ret = shortPrefixes.get(p);
         if (ret != null)
             return ret;
         ret = otherPrefixes.get(p);
@@ -218,12 +217,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     public MappedPrefix getPrefix(Word<PSymbolInstance> prefix) {
-    	MappedPrefix mp = null;
     	if (getAccessSequence().equals(prefix))
-    		return getPrimePrefix();
-    	mp = shortPrefixes.get(prefix);
+            return getPrimePrefix();
+        MappedPrefix mp = shortPrefixes.get(prefix);
     	if (mp == null)
-    		mp = otherPrefixes.get(prefix);
+            mp = otherPrefixes.get(prefix);
     	return mp;
     }
 

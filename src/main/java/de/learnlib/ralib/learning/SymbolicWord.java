@@ -18,7 +18,6 @@ import net.automatalib.words.Word;
 public class SymbolicWord {
 	private Word<PSymbolInstance> prefix;
 	private SymbolicSuffix suffix;
-	private Word<PSymbolInstance> concreteSuffix = null;
 
 	public SymbolicWord(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 		this.prefix = prefix;
@@ -31,20 +30,6 @@ public class SymbolicWord {
 
 	public SymbolicSuffix getSuffix() {
 		return suffix;
-	}
-
-	public Word<PSymbolInstance> concretize(Word<PSymbolInstance> word, Hypothesis hyp) {
-		int len = word.length() - suffix.length();
-//		Word<PSymbolInstance> cp = word.prefix(len);
-//		Word<PSymbolInstance> cs = word.suffix(suffix.length());
-
-		Word<PSymbolInstance> concereteSuffix = prefix.concat(Word.epsilon());
-		for (int idx = len; idx < word.length(); idx++) {
-			Word<PSymbolInstance> cp = word.prefix(idx);
-
-		}
-
-		return null;
 	}
 
 	public Mapping<SymbolicDataValue, DataValue<?>> computeValuation(Word<PSymbolInstance> concreteSuffix, PIV piv) {

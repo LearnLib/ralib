@@ -139,7 +139,7 @@ public class RaLambda implements RaLearningAlgorithm {
         hyp = (DTHyp) ab.toRegisterAutomaton();
         if (prefixFinder != null) {
         	prefixFinder.setHypothesis(hyp);
-        	prefixFinder.setComponents(components);
+                //prefixFinder.setComponents(components);
         	prefixFinder.setHypothesisTreeOracle(hypOracleFactory.createTreeOracle(hyp));
         }
     }
@@ -164,9 +164,9 @@ public class RaLambda implements RaLearningAlgorithm {
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
 
         if (prefixFinder == null) {
-        	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        	components.putAll(dt.getComponents());
-            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+            //Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+            //components.putAll(dt.getComponents());
+            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, consts);
         }
 
         boolean foundce = false;
@@ -351,7 +351,7 @@ public class RaLambda implements RaLearningAlgorithm {
             	continue;
             }
 
-            Word<PSymbolInstance> branch = branchWithSameGuard(dest_c.getPrefix(word), src_c.getPrefix(src_id), hypBranching);
+            Word<PSymbolInstance> branch = branchWithSameGuard(dest_c.getPrefix(word), hypBranching);
             DTLeaf branchLeaf = dt.getLeaf(branch);
 
             SymbolicSuffix suffix = null;
@@ -453,7 +453,7 @@ public class RaLambda implements RaLearningAlgorithm {
         this.useOldAnalyzer = useOldAnalyzer;
     }
 
-    private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, MappedPrefix src_id, Branching branching) {
+    private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, Branching branching) {
     	Word<PSymbolInstance> dw = mp.getPrefix();
 
     	return branching.transformPrefix(dw);

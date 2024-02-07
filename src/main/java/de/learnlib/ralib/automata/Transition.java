@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.automata;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
@@ -39,8 +38,6 @@ public class Transition {
 
     protected final Assignment assignment;
 
-    private static final LearnLogger log = LearnLogger.getLogger(Transition.class);
-
     public Transition(ParameterizedSymbol label, TransitionGuard guard,
             RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
@@ -50,11 +47,7 @@ public class Transition {
         this.assignment = assignment;
     }
 
-    public boolean isEnabled(VarValuation registers,
-            ParValuation parameters, Constants consts) {
-//        log.trace("isEnabled..... registers: {0}", registers.toString());
-//        log.trace(" ...... parameters: {0}", parameters.toString());
-//        log.trace(" ..... constants {0}\n", consts.toString());
+    public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
         return guard.isSatisfied(registers, parameters, consts);
     }
 

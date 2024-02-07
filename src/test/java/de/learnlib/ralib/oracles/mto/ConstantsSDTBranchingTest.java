@@ -57,7 +57,6 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/abp.output.xml");
 
-
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
 
@@ -77,8 +76,8 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol iack = new InputSymbol(
-                "IAck", new DataType[] {intType});
+        //ParameterizedSymbol iack = new InputSymbol(
+        //        "IAck", new DataType[] {intType});
 
         ParameterizedSymbol iin = new InputSymbol(
                 "IIn", new DataType[] {intType});
@@ -93,7 +92,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
                 "OFrame", new DataType[] {intType, intType});
 
         DataValue d2 = new DataValue(intType, 2);
-        DataValue c1 = new DataValue(intType, 0);
+        //DataValue c1 = new DataValue(intType, 0);
 
         //****** ROW:  IIn OOK ISendFrame
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -106,15 +105,8 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
                 new PSymbolInstance(oframe, d2, d2));
         SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix, suffix1);
 
-        Word<PSymbolInstance> test =  Word.fromSymbols(
-                new PSymbolInstance(iin, d2),
-                new PSymbolInstance(ook),
-                new PSymbolInstance(isend),
-                new PSymbolInstance(oframe, d2, c1));
-
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
-
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
         logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
@@ -128,6 +120,5 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         Assert.assertEquals(b.getBranches().size(), 3);
         Assert.assertEquals(bString, expected);
     }
-
 
 }

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -40,8 +39,6 @@ import net.automatalib.words.Word;
 public class OptimizedSymbolicSuffixBuilder {
 
     private final Constants consts;
-
-    private static LearnLogger log = LearnLogger.getLogger(OptimizedSymbolicSuffixBuilder.class);
 
     public OptimizedSymbolicSuffixBuilder(Constants consts) {
         this.consts = consts;
@@ -188,7 +185,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	int actionArity = actionSymbol.getArity();
     	int suffixArity = DataWords.paramLength(suffixActions);
     	DataType[] suffixDataTypes = dataTypes(suffixActions);
-    	Map<Register, SuffixValue> actionParameters = buildParameterMap(sub, action, piv);
+        Map<Register, SuffixValue> actionParameters = buildParameterMap(sub, piv);
 
     	Set<SuffixValue> freeValues = new LinkedHashSet<>();
     	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>();
@@ -281,7 +278,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	return dts;
     }
 
-    private Map<Register, SuffixValue> buildParameterMap(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
+    private Map<Register, SuffixValue> buildParameterMap(Word<PSymbolInstance> prefix, PIV piv) {
     	int arity = DataWords.paramValLength(prefix);
     	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
     	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {

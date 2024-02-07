@@ -32,10 +32,10 @@ public class PermutationIteratorTest extends RaLibTestSuite {
     public void testIterator() {
 
         int expected = 0;
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             int count = 0;
             PermutationIterator iter = new PermutationIterator(i);
-            for (int[] xx : iter) {
+            for (int[] unused : iter) {
                 count++;
             }
             Assert.assertEquals(expected, count);

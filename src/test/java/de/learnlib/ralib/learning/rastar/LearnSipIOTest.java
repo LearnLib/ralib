@@ -66,7 +66,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
         logger.log(Level.FINE, "SEED={0}", seed);
-        final Random random = new Random(seed);
+        final Random unused = new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
@@ -80,7 +80,6 @@ public class LearnSipIOTest extends RaLibTestSuite {
                 new ParameterizedSymbol[]{});
 
         final Constants consts = loader.getConstants();
-
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
@@ -110,8 +109,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
-            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                    model, teachers, consts, true, actions);
+        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
