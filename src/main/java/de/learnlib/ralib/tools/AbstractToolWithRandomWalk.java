@@ -67,57 +67,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                 }
             };
 
-    protected static final ConfigurationOption<Set<Category>> OPTION_LOGGING_CATEGORY
-            = new ConfigurationOption<Set<Category>>("logging.category", "Log category",
-                    null, // XXX: WAS: Set.allOf(Category.class),  FIXME
-                    true) {
-
-                @Override
-                public Set<Category> parse(Configuration c) throws ConfigurationException {
-                    if (!c.containsKey(this.getKey())) {
-                        if (!this.isOptional()) {
-                            throw new ConfigurationException("Missing config value for " + this.getKey());
-                        }
-                        return this.getDefaultValue();
-                    }
-                    String[] names = c.getProperty(this.getKey()).split(",");
-                    List<Category> list = new ArrayList<>();
-                    for (String n : names) {
-                        list.add(parseCategory(n));
-                    }
-                    Set<Category> ret = Set.copyOf(list);
-                    return ret;
-                }
-
-                private Category parseCategory(String n) throws ConfigurationException {
-                    n = n.toUpperCase();
-                    switch (n) {
-                        case "CONFIG":
-                            //return Category.CONFIG;
-                        case "COUNTEREXAMPLE":
-                            //return Category.COUNTEREXAMPLE;
-                        case "DATASTRUCTURE":
-                            //return Category.DATASTRUCTURE;
-                        case "EVENT":
-                            //return Category.EVENT;
-                        case "MODEL":
-                            //return Category.MODEL;
-                        case "PHASE":
-                            //return Category.PHASE;
-                        case "PROFILING":
-                            //return Category.PROFILING;
-                        case "QUERY":
-                            //return Category.QUERY;
-                        case "STATISTIC":
-                            //return Category.STATISTIC;
-                        case "SYSTEM":
-                            //return Category.SYSTEM;
-                            return null;	// XXX: Temporary solution -- FIXME
-                    }
-                    throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
-                }
-            };
-
     protected static final ConfigurationOption.BooleanOption OPTION_USE_RWALK
             = new ConfigurationOption.BooleanOption("use.rwalk",
                     "Use random walk for finding counterexamples. "

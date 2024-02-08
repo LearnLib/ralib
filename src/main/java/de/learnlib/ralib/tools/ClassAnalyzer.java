@@ -87,7 +87,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
-        OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
         OPTION_METHODS,
         OPTION_TEACHERS,
