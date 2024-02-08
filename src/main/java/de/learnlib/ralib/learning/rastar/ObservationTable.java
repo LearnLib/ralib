@@ -22,13 +22,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * An observation table.
@@ -56,7 +59,7 @@ class ObservationTable {
 
     private final Constants consts;
 
-    private static LearnLogger log = LearnLogger.getLogger(ObservationTable.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ObservationTable.class);
 
     public ObservationTable(TreeOracle oracle, boolean ioMode,
             Constants consts, ParameterizedSymbol ... inputs) {
@@ -67,17 +70,17 @@ class ObservationTable {
     }
 
     void addComponent(Component c) {
-        log.logEvent("Queueing component for obs: " + c);
+        LOGGER.info(Category.EVENT, "Queueing component for obs: {}", c);
         newComponents.add(c);
     }
 
     void addSuffix(SymbolicSuffix suffix) {
-        log.logEvent("Queueing suffix for obs: " +  suffix);
+        LOGGER.info(Category.EVENT, "Queueing suffix for obs: {}", suffix);
         newSuffixes.add(suffix);
     }
 
     void addPrefix(Word<PSymbolInstance> prefix) {
-        log.logEvent("Queueing prefix for obs: " + prefix);
+        LOGGER.info(Category.EVENT, "Queueing prefix for obs: {}", prefix);
         newPrefixes.add(prefix);
     }
 
@@ -111,7 +114,7 @@ class ObservationTable {
     }
 
     private boolean checkBranchingCompleteness() {
-        log.logPhase("Checking Branching Completeness");
+        LOGGER.info(Category.PHASE, "Checking Branching Completeness");
         boolean ret = true;
         for (Component c : components.values()) {
             boolean ub = c.updateBranching(oracle);
@@ -121,7 +124,7 @@ class ObservationTable {
     }
 
     private boolean checkVariableConsistency() {
-        log.logPhase("Checking Variable Consistency");
+        LOGGER.info(Category.PHASE, "Checking Variable Consistency");
         for (Component c : components.values()) {
             if (!c.checkVariableConsistency()) {
                 return false;
@@ -132,7 +135,7 @@ class ObservationTable {
 
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
-        log.logEvent("Adding suffix to obs: " + suffix);
+        LOGGER.info(Category.EVENT, "Adding suffix to obs: {}", suffix);
 //        System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
@@ -142,7 +145,7 @@ class ObservationTable {
 
     private void processNewPrefix() {
         Word<PSymbolInstance> prefix = newPrefixes.poll();
-        log.logEvent("Adding prefix to obs: " + prefix);
+        LOGGER.info(Category.EVENT, "Adding prefix to obs: {}", prefix);
         Row r = Row.computeRow(oracle, prefix, suffixes, ioMode);
         for (Component c : components.values()) {
             if (c.addRow(r)) {

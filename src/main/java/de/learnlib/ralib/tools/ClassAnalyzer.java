@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
@@ -63,8 +63,8 @@ import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import de.learnlib.util.statistics.SimpleProfiler;
-import net.automatalib.words.Word;
+import de.learnlib.util.statistic.SimpleProfiler;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -87,7 +87,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
         OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
-        OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
         OPTION_METHODS,
         OPTION_TEACHERS,
@@ -366,7 +365,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
-        System.out.println(SimpleProfiler.getResults());
+        SimpleProfiler.logResults();
 
         System.out.println("ce lengths (original): "
                 + Arrays.toString(ceLengths.toArray()));

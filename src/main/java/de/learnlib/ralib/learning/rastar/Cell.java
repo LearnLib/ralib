@@ -18,7 +18,6 @@ package de.learnlib.ralib.learning.rastar;
 
 import java.util.Collection;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
@@ -27,7 +26,9 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 /**
  * A cell of an observation table.
@@ -44,7 +45,7 @@ final class Cell {
 
     private final PIV parsInVars;
 
-    private static LearnLogger log = LearnLogger.getLogger(Cell.class);
+//    private static Logger LOGGER = LoggerFactory.getLogger(Cell.class);
 
     private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV parsInVars) {
         this.prefix = prefix;
@@ -75,9 +76,9 @@ final class Cell {
         boolean check = this.suffix.equals(other.suffix) &&
                 this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
                 this.sdt.isEquivalent(other.sdt, renaming);
-        log.trace(this.sdt + "\nVS\n" + other.sdt + "\n");
-        log.trace(this.suffix + "    " + other.suffix);
-        log.trace(this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
+//        LOGGER.trace(this.sdt + "\nVS\n" + other.sdt + "\n");
+//        LOGGER.trace(this.suffix + "    " + other.suffix);
+//        LOGGER.trace(this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
 
 //        System.out.println("EQ: " + this.prefix + " . " + this.suffix + " : " + check);
         return check;
@@ -107,7 +108,7 @@ final class Cell {
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
         Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
        //System.out.println("END: computecell " + c.toString());
-        //log.debug("computeCell ...... {0}", c);
+        //LOGGER.debug("computeCell ...... {0}", c);
 
         //System.out.println(c);
 //        assert tqr.getPiv().size() <= 2;

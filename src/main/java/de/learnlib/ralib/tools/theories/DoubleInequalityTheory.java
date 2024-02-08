@@ -24,7 +24,10 @@ import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 import java.math.BigDecimal;
 import java.util.*;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -64,7 +67,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 
     private final ConstraintSolver solver = (new NativeZ3SolverProvider()).createSolver(new Properties());
 
-    private static final LearnLogger log = LearnLogger.getLogger(DoubleInequalityTheory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DoubleInequalityTheory.class);
 
     private DataType type = null;
 
@@ -198,7 +201,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         if (potential.isEmpty()) {
             return new DoubleDataValue(type, BigDecimal.ONE);
         }
-        //log.trace("smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
+        //LOGGER.trace("smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
         DataValue<BigDecimal> biggestDv = Collections.max(potential, new Cpr());
         return new DoubleDataValue(type, biggestDv.getId().add(BigDecimal.ONE));
     }
@@ -210,14 +213,16 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 
     @Override
     public void setUseSuffixOpt(boolean useit) {
-        log.info("Optimized suffixes are currently not supported for theory "
-                + DoubleInequalityTheory.class.getName());
+        LOGGER.info(Category.SYSTEM,
+                    "Optimized suffixes are currently not supported for theory {}",
+                    DoubleInequalityTheory.class.getName());
     }
 
     @Override
     public void setCheckForFreshOutputs(boolean doit, IOOracle oracle) {
-        log.info("Fresh values are currently not supported for theory "
-                + DoubleInequalityTheory.class.getName());
+        LOGGER.info(Category.SYSTEM,
+                    "Fresh values are currently not supported for theory {}",
+                    DoubleInequalityTheory.class.getName());
     }
 
     @Override

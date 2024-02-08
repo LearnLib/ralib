@@ -21,7 +21,7 @@ import java.util.Map;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

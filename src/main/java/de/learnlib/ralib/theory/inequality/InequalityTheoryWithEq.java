@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -56,7 +55,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -65,8 +64,8 @@ import net.automatalib.words.Word;
  */
 public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
-    private static final LearnLogger log
-            = LearnLogger.getLogger(InequalityTheoryWithEq.class);
+//    private static final LearnLogger LOGGER
+//            = LearnLogger.getLogger(InequalityTheoryWithEq.class);
 
 //    private Set<SDTGuard> setify(SDTGuard... gs) {
 //        Set<SDTGuard> guardSet = new LinkedHashSet<>();
@@ -455,7 +454,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     private boolean hasTrue(Boolean[] maybeArr) {
         boolean maybe = false;
         for (int c = 0; c < (maybeArr.length); c++) {
-            //log.trace(maybeArr[c]);
+            //LOGGER.trace(maybeArr[c]);
             if (maybeArr[c]) {
                 maybe = true;
                 break;
@@ -812,7 +811,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
             if (mg instanceof SDTIfGuard) {
-                log.trace(mg.toString());
+                //LOGGER.trace(mg.toString());
                 SymbolicDataValue r = ((SDTIfGuard) mg).getRegister();
                 Parameter p = new Parameter(r.getType(), r.getId());
                 if (r instanceof Register) {
@@ -996,7 +995,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             }
 //            System.out.println("eq potential is: " + potential);
             for (DataValue<T> newDv : potential) {
-//                log.trace(newDv.toString());
+//                LOGGER.trace(newDv.toString());
 
                 // this is the valuation of the suffixvalues in the suffix
                 SuffixValuation ifSuffixValues = new SuffixValuation();
@@ -1004,7 +1003,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
                 EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues,
                         currentParam, values, constants);
-//                log.trace("eqGuard is: " + eqGuard.toString());
+//                LOGGER.trace("eqGuard is: " + eqGuard.toString());
                 //construct the equality guard
                 // find the data value in the prefix
                 // this is the valuation of the positions in the suffix
@@ -1028,9 +1027,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        System.out.println("MERGED = " + merged);
         piv.putAll(keepMem(merged));
 
-        log.trace("temporary guards = " + tempKids.keySet());
-        log.trace("merged guards = " + merged.keySet());
-        log.trace("merged pivs = " + piv.toString());
+//        LOGGER.trace("temporary guards = " + tempKids.keySet());
+//        LOGGER.trace("merged guards = " + merged.keySet());
+//        LOGGER.trace("merged pivs = " + piv.toString());
 
         tempKids.clear();
 
@@ -1138,9 +1137,9 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             List<DataValue> prefixValues, Constants constants,
             ParValuation pval) {
         if (r.isRegister()) {
-            log.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
+//            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
             Parameter p = piv.getOneKey((Register) r);
-            log.trace("p: " + p.toString());
+//            LOGGER.trace("p: " + p.toString());
             int idx = p.getId();
             return prefixValues.get(idx - 1);
         } else if (r.isSuffixValue()) {
@@ -1170,16 +1169,15 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         DataValue<T> returnThis = null;
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
-        log.trace("prefix values : " + prefixValues.toString());
+//        LOGGER.trace("prefix values : " + prefixValues.toString());
 
         if (guard instanceof EqualityGuard) {
             EqualityGuard eqGuard = (EqualityGuard) guard;
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg.isRegister()) {
-                log.trace("piv: " + piv.toString()
-                        + " " + ereg.toString() + " " + param.toString());
+//                LOGGER.trace("piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
                 Parameter p = piv.getOneKey((Register) ereg);
-                log.trace("p: " + p.toString());
+//                LOGGER.trace("p: " + p.toString());
                 int idx = p.getId();
                 returnThis = prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
@@ -1284,7 +1282,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //
 //        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 //
-//        log.trace("prefix values : " + prefixValues.toString());
+//        LOGGER.trace("prefix values : " + prefixValues.toString());
 //
 //        if (guard instanceof EqualityGuard) {
 //            EqualityGuard eqGuard = (EqualityGuard) guard;

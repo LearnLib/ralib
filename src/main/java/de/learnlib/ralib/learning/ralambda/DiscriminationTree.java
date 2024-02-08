@@ -6,7 +6,7 @@ import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * This interface describes the methods needed in a discrimination tree during learning.

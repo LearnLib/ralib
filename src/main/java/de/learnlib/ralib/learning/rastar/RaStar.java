@@ -21,8 +21,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.CounterexampleAnalysis;
@@ -39,7 +42,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Learning algorithm for register automata
@@ -72,7 +75,7 @@ public class RaStar implements RaLearningAlgorithm {
 
     private final boolean ioMode;
 
-    private static final LearnLogger log = LearnLogger.getLogger(RaStar.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaStar.class);
 
     public RaStar(TreeOracle oracle, TreeOracleFactory hypOracleFactory,
             SDTLogicOracle sdtLogicOracle, Constants consts, boolean ioMode,
@@ -111,9 +114,9 @@ public class RaStar implements RaLearningAlgorithm {
 
         do {
 
-            log.logPhase("completing observation table");
+            LOGGER.info(Category.PHASE, "completing observation table");
             while(!(obs.complete())) {};
-            log.logPhase("completed observation table");
+            LOGGER.info(Category.PHASE, "completed observation table");
 
             //System.out.println(obs.toString());
 
@@ -124,7 +127,7 @@ public class RaStar implements RaLearningAlgorithm {
 
             //FIXME: the default logging appender cannot log models and data structures
             //System.out.println(hyp.toString());
-            log.logModel(hyp);
+            LOGGER.info(Category.MODEL, "{}", hyp);
 
         } while (analyzeCounterExample());
 
@@ -134,12 +137,12 @@ public class RaStar implements RaLearningAlgorithm {
 
 
     public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
-        log.logEvent("adding counterexample: " + ce);
+        LOGGER.info(Category.EVENT, "adding counterexample: {}", ce);
         counterexamples.add(ce);
     }
 
     private boolean analyzeCounterExample() {
-        log.logPhase("Analyzing Counterexample");
+        LOGGER.info(Category.PHASE, "Analyzing Counterexample");
         if (counterexamples.isEmpty()) {
             return false;
         }
@@ -157,7 +160,7 @@ public class RaStar implements RaLearningAlgorithm {
         boolean hypce = hyp.accepts(ce.getInput());
         boolean sulce = ce.getOutput();
         if (hypce == sulce) {
-            log.logEvent("word is not a counterexample: " + ce + " - " + sulce);
+            LOGGER.info(Category.EVENT, "word is not a counterexample: {} - {}", ce, sulce);
             counterexamples.poll();
             return false;
         }

@@ -31,7 +31,7 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

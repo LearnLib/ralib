@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.oracles;
 
-import de.learnlib.api.oracle.MembershipOracle;
+import de.learnlib.oracle.MembershipOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 
 /**

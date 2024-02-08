@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -41,7 +40,7 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -138,11 +137,8 @@ public class MultiTheoryBranching implements Branching {
 
     private ParValuation pval;
 
-    private static final LearnLogger log = LearnLogger.getLogger(MultiTheoryBranching.class);
-
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
             ParValuation pval, Constants constants, SDT... sdts) {
-        log.trace("ps = " + action.toString());
         this.prefix = prefix;
         this.action = action;
         this.node = node;

@@ -21,7 +21,7 @@
         <jakarta-xml.version>4.0.1</jakarta-xml.version>
         <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
-        <learnlib.version>0.16.0</learnlib.version>
+        <learnlib.version>0.17.0</learnlib.version>
     </properties>
 
     <build>
@@ -183,6 +183,10 @@
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 </project>

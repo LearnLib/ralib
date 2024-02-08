@@ -2,7 +2,10 @@ package de.learnlib.ralib.theory.equality;
 
 import java.util.*;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -14,7 +17,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public abstract class UniqueEqualityTheory<T> implements Theory<T> {
 
@@ -24,7 +27,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
 
     // protected IOOracle ioOracle;
 
-    private static final LearnLogger log = LearnLogger.getLogger(EqualityTheory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EqualityTheory.class);
 
     public UniqueEqualityTheory(boolean useNonFreeOptimization) {
         // this.useNonFreeOptimization = useNonFreeOptimization;
@@ -69,7 +72,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         trueSuffixValues.putAll(suffixValues);
         trueSuffixValues.put(sv, d);
         sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-        log.trace(" single deq SDT : " + sdt.toString());
+        LOGGER.trace(Category.QUERY, " single deq SDT : {}", sdt.toString());
 
         merged.put(new SDTTrueGuard(sv), sdt);
 
@@ -83,18 +86,18 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
                                  Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue<T>> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        log.trace("prefix values : " + prefixValues.toString());
+        LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues.toString());
         DataType type = param.getType();
         Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
 
         if (!potSet.isEmpty()) {
-            log.trace("potSet = " + potSet.toString());
+            LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet.toString());
         } else {
-            log.trace("potSet is empty");
+            LOGGER.trace(Category.DATASTRUCTURE, "potSet is empty");
         }
         DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
-        log.trace("fresh = " + fresh.toString());
+        LOGGER.trace(Category.DATASTRUCTURE, "fresh = {}", fresh.toString());
         return fresh;
 
     }

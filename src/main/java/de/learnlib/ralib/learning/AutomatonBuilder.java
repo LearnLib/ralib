@@ -20,7 +20,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
@@ -39,7 +42,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Constructs Register Automata from observation tables
@@ -56,7 +59,7 @@ public class AutomatonBuilder {
 
     protected final Constants consts;
 
-    private static LearnLogger log = LearnLogger.getLogger(AutomatonBuilder.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AutomatonBuilder.class);
 
     public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
         this.consts = consts;
@@ -71,7 +74,7 @@ public class AutomatonBuilder {
     }
 
     public Hypothesis toRegisterAutomaton() {
-        log.debug("computing hypothesis");
+        LOGGER.debug(Category.EVENT, "computing hypothesis");
         computeLocations();
         computeTransitions();
         return this.automaton;
@@ -79,14 +82,14 @@ public class AutomatonBuilder {
 
     private void computeLocations() {
     	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);
-        log.debug("{0}", c);
+        LOGGER.debug(Category.EVENT, "{0}", c);
         RALocation loc = this.automaton.addInitialState(c.isAccepting());
         this.locations.put(RaStar.EMPTY_PREFIX, loc);
         this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
 
         for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
-                log.debug("{0}", e.getValue());
+                LOGGER.debug(Category.EVENT, "{0}", e.getValue());
                 loc = this.automaton.addState(e.getValue().isAccepting());
                 this.locations.put(e.getKey(), loc);
                 this.automaton.setAccessSequence(loc, e.getKey());
@@ -109,7 +112,7 @@ public class AutomatonBuilder {
             return;
         }
 
-        log.debug("computing transition: {1} to {0}", new Object[]{dest_c, r});
+        LOGGER.debug(Category.EVENT, "computing transition: {1} to {0}", new Object[]{dest_c, r});
 
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);
@@ -151,9 +154,9 @@ public class AutomatonBuilder {
         PIV parsInVars_Row = r.getParsInVars();
         VarMapping remapping = dest_c.getRemapping(r);
 
-//        log.trace("PIV ROW:" + parsInVars_Row);
-//        log.trace("PIV SRC:" + parsInVars_Src);
-//        log.trace("REMAP: " + remapping);
+//        LOGGER.trace(Category.EVENT, "PIV ROW: {}", parsInVars_Row);
+//        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
+//        LOGGER.trace(Category.EVENT, "REMAP: {}", remapping);
 
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register
@@ -174,7 +177,7 @@ public class AutomatonBuilder {
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
         if (t != null) {
-            log.debug("computed transition {0}", t);
+            LOGGER.debug(Category.EVENT, "computed transition {0}", t);
             this.automaton.addTransition(src_loc, action, t);
             this.automaton.setTransitionSequence(t, r.getPrefix());
         }
