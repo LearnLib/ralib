@@ -3,11 +3,21 @@ RALib
 
 RALib is a library for active learning algorithms for register automata
 (a form of extended finite state machines). RALib is licensed under
-the [*Apache License, Version 2.0*][2]. 
+the [*Apache License, Version 2.0*][2].
 
-RALib is developed as an extension to [*LearnLib*][1]. It implements 
-the SL* algorithm presented in 	Sofia Cassel, Falk Howar, Bengt Jonsson, 
-Bernhard Steffen: Learning Extended Finite State Machines. SEFM 2014: 250-264.
+RALib is developed as an extension to [*LearnLib*][1].
+It currently implements the following algorithms for learning register automata:
+
+1. The _SL* algorithm_
+   by Sofia Cassel, Falk Howar, Bengt Jonsson, and Bernhard Steffen,
+   presented in the paper [Learning Extended Finite State Machines][3],
+   Software Engineering and Formal Methods (SEFM 2014), pp 250-264.
+
+2. The _SLλ algorithm_
+   by Simon Dierl, Paul Fiterau-Brostean, Falk Howar, Bengt Jonsson,
+   Konstantinos Sagonas, and Fredrik Tåquist,
+   presented in the paper [Scalable Tree-based Register Automata Learning][4],
+   Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2024).
 
 
 Installation
@@ -17,8 +27,8 @@ RaLib uses maven as a build system. You can simply run
 
 ```sh
 mvn package assembly:single
-``` 
- 
+```
+
 to build RaLib.
 
 
@@ -27,7 +37,7 @@ Using RALib
 
 RALib can be used as a library from Java. The test cases that come with RALib
 demonstrate how this can be done. RALib currently also provides two tools
-that can be run from the shell. A 'simulator' for inferring RA models from 
+that can be run from the shell. A 'simulator' for inferring RA models from
 simulated systems (automata) and a 'class analyzer' for inferring RA models
 of Java classes. Running
 ```sh
@@ -71,7 +81,7 @@ Below we provide two example configurations.
    with the following `config` file
    ```
    target=src/test/resources/de/learnlib/ralib/automata/xml/sip.xml
-   
+
    logging.level=WARNING
    max.time.millis=600000
    use.eqtest=true
@@ -92,3 +102,5 @@ Below we provide two example configurations.
 
 [1]: http://www.learnlib.de
 [2]: http://www.apache.org/licenses/LICENSE-2.0
+[3]: https://link.springer.com/chapter/10.1007/978-3-319-10431-7_18
+[4]: https://arxiv.org/pdf/2401.14324.pdf
