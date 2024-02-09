@@ -80,6 +80,7 @@ public class PrefixSet {
 		return prefixes.isEmpty();
 	}
 
+	@Override
 	public String toString() {
 		return prefixes.toString();
 	}

@@ -107,15 +107,15 @@ public class RaStar implements RaLearningAlgorithm {
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, inputs);
     }
 
+    @Override
     public void learn() {
         if (hyp != null) {
             analyzeCounterExample();
         }
 
         do {
-
             LOGGER.info(Category.PHASE, "completing observation table");
-            while(!(obs.complete())) {};
+            while(! obs.complete()) {};
             LOGGER.info(Category.PHASE, "completed observation table");
 
             //System.out.println(obs.toString());
@@ -135,7 +135,7 @@ public class RaStar implements RaLearningAlgorithm {
         	queryStats.hypothesisConstructed();
     }
 
-
+    @Override
     public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
         LOGGER.info(Category.EVENT, "adding counterexample: {}", ce);
         counterexamples.add(ce);
@@ -181,7 +181,7 @@ public class RaStar implements RaLearningAlgorithm {
         return true;
     }
 
-
+    @Override
     public Hypothesis getHypothesis() {
     	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
     	components.putAll(obs.getComponents());
@@ -199,16 +199,18 @@ public class RaStar implements RaLearningAlgorithm {
         return components;
     }
 
+    @Override
     public void setStatisticCounter(QueryStatistics queryStats) {
     	this.queryStats = queryStats;
     }
 
+    @Override
     public QueryStatistics getQueryStatistics() {
     	return queryStats;
     }
 
-	@Override
-	public RaLearningAlgorithmName getName() {
-		return RaLearningAlgorithmName.RASTAR;
-	}
+    @Override
+    public RaLearningAlgorithmName getName() {
+        return RaLearningAlgorithmName.RASTAR;
+    }
 }
