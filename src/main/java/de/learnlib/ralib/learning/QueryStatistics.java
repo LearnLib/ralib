@@ -137,6 +137,7 @@ public class QueryStatistics {
 		ces.add(ce);
 	}
 
+        @Override
 	public String toString() {
 		String str = "--- Statistics ---\n";
 		int sum = 0;
