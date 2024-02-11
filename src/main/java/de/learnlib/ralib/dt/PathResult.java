@@ -183,6 +183,7 @@ public class PathResult {
         return  r;
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {

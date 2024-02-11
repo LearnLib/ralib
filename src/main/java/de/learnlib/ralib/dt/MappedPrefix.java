@@ -98,10 +98,12 @@ public class MappedPrefix implements PrefixContainer {
 		return tqrs;
 	}
 
+	@Override
 	public Word<PSymbolInstance> getPrefix() {
 		return this.prefix;
 	}
 
+	@Override
 	public String toString() {
 		return "{" + prefix.toString() + ", " + memorable.toString() + "}";
 	}

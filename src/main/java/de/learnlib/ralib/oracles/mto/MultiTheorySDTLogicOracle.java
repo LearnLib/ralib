@@ -110,6 +110,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return r;
     }
 
+    @Override
     public GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
     		SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2) {
 
@@ -164,6 +165,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return !r;
     }
 
+    @Override
     public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
@@ -185,6 +187,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         return !r;
     }
 
+    @Override
     public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
             PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
@@ -204,9 +207,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         boolean r = solver.isSatisfiable(test, valuation);
         return !r;
-
     }
 
+    @Override
     public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {
         assert prefix.isPrefixOf(word) : "invalid prefix";
         SDT _sdt =  (SDT) sdt;

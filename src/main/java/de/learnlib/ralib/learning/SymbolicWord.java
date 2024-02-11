@@ -87,6 +87,7 @@ public class SymbolicWord {
 		return hash;
 	}
 
+        @Override
 	public String toString() {
 		return "{" + prefix.toString() + ", " + suffix.toString() + "}";
 	}

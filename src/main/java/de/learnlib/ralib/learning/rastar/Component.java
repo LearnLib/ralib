@@ -236,18 +236,22 @@ public class Component implements LocationComponent {
         return true;
     }
 
+    @Override
     public Word<PSymbolInstance> getAccessSequence() {
         return primeRow.getPrefix();
     }
 
+    @Override
     public boolean isAccepting() {
         return this.primeRow.isAccepting();
     }
 
+    @Override
     public Branching getBranching(ParameterizedSymbol act) {
         return branching.get(act);
     }
 
+    @Override
     public VarMapping getRemapping(PrefixContainer r) {
         return this.otherRows.get(r);
     }
@@ -260,10 +264,12 @@ public class Component implements LocationComponent {
         return this.otherRows.keySet();
     }
 
+    @Override
     public PrefixContainer getPrimePrefix() {
     	return getPrimeRow();
     }
 
+    @Override
     public Collection<PrefixContainer> getOtherPrefixes() {
     	Collection<PrefixContainer> ret = new LinkedHashSet<PrefixContainer>();
     	for (Row r : getOtherRows())

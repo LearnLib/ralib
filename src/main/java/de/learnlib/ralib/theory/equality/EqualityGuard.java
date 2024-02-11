@@ -52,6 +52,7 @@ public class EqualityGuard extends SDTIfGuard {
 
     }
 
+    @Override
     public DisequalityGuard toDeqGuard() {
         return new DisequalityGuard(parameter, register);
     }

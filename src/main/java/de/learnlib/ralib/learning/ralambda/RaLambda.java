@@ -115,11 +115,13 @@ public class RaLambda implements RaLearningAlgorithm {
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
     }
 
+    @Override
     public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
         LOGGER.info(Category.EVENT, "adding counterexample: {}", ce);
         counterexamples.add(ce);
     }
 
+    @Override
     public void learn() {
 
         if (hyp == null) {
@@ -503,6 +505,7 @@ public class RaLambda implements RaLearningAlgorithm {
         return true;
     }
 
+    @Override
     public Hypothesis getHypothesis() {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(dt.getComponents());
@@ -527,10 +530,12 @@ public class RaLambda implements RaLearningAlgorithm {
         return dt.getComponents();
     }
 
+    @Override
     public void setStatisticCounter(QueryStatistics queryStats) {
     	this.queryStats = queryStats;
     }
 
+    @Override
     public QueryStatistics getQueryStatistics() {
     	return queryStats;
     }
