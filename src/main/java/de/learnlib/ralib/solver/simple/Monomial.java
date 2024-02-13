@@ -124,7 +124,7 @@ public class Monomial extends Constraint {
 	private final List<IntPair> equalities;
 	private final List<IntPair> inequalities;
 
-	Monomial(List<IntPair> equalities, List<IntPair> inequalities) {
+	private Monomial(List<IntPair> equalities, List<IntPair> inequalities) {
 		this.equalities = equalities;
 		this.inequalities = inequalities;
 	}

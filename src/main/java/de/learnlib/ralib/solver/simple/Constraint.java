@@ -26,8 +26,8 @@ import java.util.Set;
 
 public abstract class Constraint {
 
-	public static final Constraint TRUE = new Monomial(Collections.<IntPair>emptyList(), Collections.<IntPair>emptyList());
-	public static final Constraint FALSE = new Polynomial(Collections.<Monomial>emptySet());
+	public static final Monomial TRUE = Monomial.create(Collections.<IntPair>emptyList(), Collections.<IntPair>emptyList());
+	public static final Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
 
 	public static Constraint disjunction(List<? extends Constraint> constraints) {
 		Set<Monomial> cset = new HashSet<Monomial>();
@@ -62,7 +62,7 @@ public abstract class Constraint {
 	}
 
 	private static void makeConjunction(Set<Monomial> constraints, List<? extends Constraint> csetList) {
-		makeConjunction(constraints, csetList, (Monomial)TRUE, 0);
+		makeConjunction(constraints, csetList, TRUE, 0);
 	}
 
 	private static void makeConjunction(Set<Monomial> constraints, List<? extends Constraint> csetList, Monomial curr, int idx) {
