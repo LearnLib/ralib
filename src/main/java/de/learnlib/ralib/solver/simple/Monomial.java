@@ -153,10 +153,6 @@ public class Monomial extends Constraint {
 
 	}*/
 
-
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#restrict(int)
-	 */
 	@Override
 	public Monomial restrict(int newDomSize) {
 		List<IntPair> eqs = new ArrayList<IntPair>();
@@ -173,10 +169,6 @@ public class Monomial extends Constraint {
 		return new Monomial(eqs, neqs);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#negate()
-	 */
 	@Override
 	public Constraint negate() {
 		if(isTrue())
@@ -197,18 +189,12 @@ public class Monomial extends Constraint {
 		return result;
 	}
 
-
-
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#print(java.lang.Appendable, java.lang.String[])
-	 */
 	@Override
 	public void print(Appendable a, String[] varNames) throws IOException {
 		if(equalities.isEmpty() && inequalities.isEmpty()) {
 			a.append("true");
 			return;
 		}
-
 
 		boolean first = true;
 		for(IntPair eq : equalities) {
@@ -250,9 +236,6 @@ public class Monomial extends Constraint {
 		a.append(Integer.toString(index+1));
 	}
 
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#shift(int[], int)
-	 */
 	@Override
 	public Monomial shift(int[] numVars, int thisIdx) {
 		int base = 0;
@@ -275,9 +258,6 @@ public class Monomial extends Constraint {
 		return new Monomial(eqs, neqs);
 	}
 
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#shift(int, int, int)
-	 */
 	@Override
 	public Monomial shift(int myVars, int base, int total) {
 		List<IntPair> eqs = new ArrayList<IntPair>(equalities.size());
@@ -290,9 +270,6 @@ public class Monomial extends Constraint {
 		return new Monomial(eqs, neqs);
 	}
 
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#substitute(int[])
-	 */
 	@Override
 	public Monomial substitute(int[] subst) {
 		List<IntPair> eqs = new ArrayList<IntPair>(equalities.size());
@@ -305,10 +282,6 @@ public class Monomial extends Constraint {
 		return Monomial.create(eqs, neqs);
 	}
 
-
-	/* (non-Javadoc)
-	 * @see se.uu.it.synthesis.misc.Const#shift(int)
-	 */
 	@Override
 	public Monomial shift(int shift) {
 		List<IntPair> eqs = new ArrayList<IntPair>(equalities.size());
