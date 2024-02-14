@@ -86,6 +86,24 @@
                 </executions>
 	    </plugin>
 
+            <!-- Static code analysis -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>4.8.3.1</version>
+                <configuration>
+                    <threshold>High</threshold>
+                    <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>

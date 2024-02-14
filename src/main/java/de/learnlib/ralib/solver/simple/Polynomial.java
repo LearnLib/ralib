@@ -27,20 +27,18 @@ import java.util.Set;
 
 public class Polynomial extends Constraint {
 
-	public static final Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
-
 	static Constraint fromSet(Set<Monomial> constraints) {
 		int size = constraints.size();
 		if(size == 0)
-			return FALSE;
+		    return FALSE;
 		else if(size == 1)
-			return constraints.iterator().next();
+		    return constraints.iterator().next();
 		return new Polynomial(constraints);
 	}
 
 	private final Set<Monomial> constraints;
 
-	private Polynomial(Set<Monomial> constraints) {
+	Polynomial(Set<Monomial> constraints) {
 		this.constraints = constraints;
 	}
 
@@ -174,7 +172,7 @@ public class Polynomial extends Constraint {
 	}
 
 
-	@Override
+        @Override
 	public Constraint normalize() {
 		return negate().negate();
 	}
