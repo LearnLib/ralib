@@ -27,7 +27,7 @@ import java.util.Set;
 public abstract class Constraint {
 
 	public static final Monomial TRUE = Monomial.create(Collections.<IntPair>emptyList(), Collections.<IntPair>emptyList());
-	public static final Constraint FALSE = Polynomial.fromSet(Collections.<Monomial>emptySet());
+	public static final Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
 
 	public static Constraint disjunction(List<? extends Constraint> constraints) {
 		Set<Monomial> cset = new HashSet<Monomial>();

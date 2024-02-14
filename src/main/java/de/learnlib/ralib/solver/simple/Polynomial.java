@@ -30,7 +30,7 @@ public class Polynomial extends Constraint {
 	static Constraint fromSet(Set<Monomial> constraints) {
 		int size = constraints.size();
 		if(size == 0)
-		    return new Polynomial(constraints);
+		    return FALSE;
 		else if(size == 1)
 		    return constraints.iterator().next();
 		return new Polynomial(constraints);
@@ -38,7 +38,7 @@ public class Polynomial extends Constraint {
 
 	private final Set<Monomial> constraints;
 
-	private Polynomial(Set<Monomial> constraints) {
+	Polynomial(Set<Monomial> constraints) {
 		this.constraints = constraints;
 	}
 
