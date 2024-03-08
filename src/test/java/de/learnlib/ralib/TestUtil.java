@@ -49,7 +49,7 @@ public class TestUtil {
     /**
      * Configures the logging system.
      *
-     * @param lvl
+     * @param lvl  the logging level
      */
     public static void configureLogging(Level lvl) {
         Logger root = Logger.getLogger("");
@@ -94,8 +94,8 @@ public class TestUtil {
      * Creates an MTO from an RA by simulating it.
      */
     public static MultiTheoryTreeOracle createSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
-	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
-	    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
+        DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
+        return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
     }
 
     public static RegisterAutomatonImporter getLoader(String resName) {
