@@ -57,7 +57,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.alphabet.Alphabet;
-import net.automatalib.alphabet.GrowingMapAlphabet;
+import net.automatalib.alphabet.impl.GrowingMapAlphabet;
 
 /**
  *
