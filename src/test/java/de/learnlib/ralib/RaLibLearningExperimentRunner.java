@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 import org.testng.Assert;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
@@ -27,8 +27,8 @@ import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 
 /**
  * Class for running RA learning experiments.

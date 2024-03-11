@@ -1,7 +1,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public interface PrefixContainer {

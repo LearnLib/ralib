@@ -27,6 +27,7 @@ import static de.learnlib.ralib.example.keygen.MapAutomatonExample.T_VAL;
 
 import java.util.logging.Level;
 
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -35,8 +36,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.data.DataValue;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

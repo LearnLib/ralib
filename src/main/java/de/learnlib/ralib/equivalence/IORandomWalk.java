@@ -29,17 +29,17 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

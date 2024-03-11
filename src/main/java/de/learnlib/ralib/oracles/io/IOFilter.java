@@ -29,8 +29,8 @@ import de.learnlib.logging.Category;
 import de.learnlib.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

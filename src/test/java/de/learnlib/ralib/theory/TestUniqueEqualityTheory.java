@@ -6,6 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.SymbolicDataValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,7 +24,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.tools.theories.UniqueIntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class TestUniqueEqualityTheory extends RaLibTestSuite {

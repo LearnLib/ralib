@@ -28,11 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.SymbolicDataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;

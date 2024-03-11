@@ -2,6 +2,11 @@ package de.learnlib.ralib.theory.equality;
 
 import java.util.*;
 
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.SymbolicDataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +20,8 @@ import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public abstract class UniqueEqualityTheory<T> implements Theory<T> {

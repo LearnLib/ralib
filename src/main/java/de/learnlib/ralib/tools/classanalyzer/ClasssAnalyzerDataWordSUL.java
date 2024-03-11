@@ -22,12 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.learnlib.exception.SULException;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 
 /**
  *

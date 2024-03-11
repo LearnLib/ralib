@@ -19,14 +19,14 @@ package de.learnlib.ralib.solver.simple;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.FalseGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Negation;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Conjunction;
+import net.automatalib.automaton.ra.guard.impl.Disjunction;
+import net.automatalib.automaton.ra.guard.impl.FalseGuardExpression;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Negation;
+import net.automatalib.automaton.ra.guard.impl.TrueGuardExpression;
+import net.automatalib.data.SymbolicDataValue;
 
 public class TranslationContext {
 

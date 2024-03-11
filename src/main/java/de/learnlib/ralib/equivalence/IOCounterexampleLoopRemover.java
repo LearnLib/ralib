@@ -42,11 +42,11 @@ import java.util.List;
 import java.util.Map;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

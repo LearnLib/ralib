@@ -17,14 +17,14 @@
 package de.learnlib.ralib.oracles;
 
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

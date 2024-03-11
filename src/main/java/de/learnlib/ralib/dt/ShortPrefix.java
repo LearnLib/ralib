@@ -5,8 +5,8 @@ import java.util.Map;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class ShortPrefix extends MappedPrefix {

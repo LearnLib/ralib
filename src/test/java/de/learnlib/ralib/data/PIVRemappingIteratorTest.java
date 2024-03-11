@@ -16,13 +16,15 @@
  */
 package de.learnlib.ralib.data;
 
+import net.automatalib.data.DataType;
+import net.automatalib.data.VarMapping;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import net.automatalib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import net.automatalib.data.SymbolicDataValueGenerator.RegisterGenerator;
 
 /**
  *

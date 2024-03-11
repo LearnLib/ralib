@@ -25,14 +25,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarValuation;
+import net.automatalib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

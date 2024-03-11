@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.solver.simple;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
+import net.automatalib.automaton.ra.GuardExpression;
 
 public class SimpleSolver {
 

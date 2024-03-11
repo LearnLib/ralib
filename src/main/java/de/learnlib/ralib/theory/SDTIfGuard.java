@@ -21,10 +21,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.automaton.ra.guard.impl.Relation;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.VarMapping;
 
 public abstract class SDTIfGuard extends SDTGuard {
 

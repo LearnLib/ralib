@@ -17,16 +17,16 @@ import com.google.common.collect.Sets;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
+import net.automatalib.automaton.ra.Assignment;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
@@ -41,9 +41,9 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class DTLeaf extends DTNode implements LocationComponent {

@@ -19,12 +19,12 @@
 
 package de.learnlib.ralib.automata.util;
 
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.automata.output.OutputTransition;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.TransitionGuard;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.guard.impl.TrueGuardExpression;
+import net.automatalib.automaton.ra.impl.OutputTransition;
 
 /**
  *

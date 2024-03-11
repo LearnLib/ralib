@@ -28,12 +28,12 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -42,7 +42,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

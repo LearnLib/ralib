@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Relation;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 

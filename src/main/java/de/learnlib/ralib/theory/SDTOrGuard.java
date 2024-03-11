@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.automaton.ra.guard.impl.Disjunction;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.automaton.ra.guard.impl.TrueGuardExpression;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.VarMapping;
 
 public class SDTOrGuard extends SDTMultiGuard {
 

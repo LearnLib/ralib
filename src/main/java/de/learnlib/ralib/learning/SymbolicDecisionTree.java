@@ -17,7 +17,7 @@
 package de.learnlib.ralib.learning;
 
 
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.VarMapping;
 
 /**
  * This interface describes the methods that are needed in a symbolic decision

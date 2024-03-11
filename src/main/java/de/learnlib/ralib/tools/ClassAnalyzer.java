@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.tools;
 
-import static de.learnlib.ralib.tools.AbstractToolWithRandomWalk.OPTION_LOGGING_LEVEL;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -27,10 +25,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -61,8 +58,9 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.serialization.xml.ra.RegisterAutomatonExporter;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import de.learnlib.util.statistic.SimpleProfiler;
 import net.automatalib.word.Word;
 

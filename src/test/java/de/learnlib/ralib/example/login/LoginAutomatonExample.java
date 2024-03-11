@@ -16,25 +16,25 @@
  */
 package de.learnlib.ralib.example.login;
 
-import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.InputTransition;
-import de.learnlib.ralib.automata.MutableRegisterAutomaton;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.words.InputSymbol;
+import net.automatalib.automaton.ra.Assignment;
+import net.automatalib.automaton.ra.impl.InputTransition;
+import net.automatalib.automaton.ra.impl.MutableRegisterAutomaton;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Conjunction;
+import net.automatalib.automaton.ra.guard.impl.Disjunction;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Relation;
+import net.automatalib.data.DataType;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import net.automatalib.data.SymbolicDataValueGenerator.RegisterGenerator;
+import net.automatalib.symbol.impl.InputSymbol;
 
 /**
  *

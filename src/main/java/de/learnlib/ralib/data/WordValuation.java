@@ -16,12 +16,14 @@
  */
 package de.learnlib.ralib.data;
 
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
+
 /**
  *
  * @author falk
  */
 //TODO: check is necessary
-public class WordValuation extends
-        Mapping<Integer, DataValue<?>> {
+public class WordValuation extends Mapping<Integer, DataValue<?>> {
 
 }

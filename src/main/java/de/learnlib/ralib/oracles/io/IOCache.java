@@ -27,11 +27,11 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.Query;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.tools.classanalyzer;
 
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.Theory;
 

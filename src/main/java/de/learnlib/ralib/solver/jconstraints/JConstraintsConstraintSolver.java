@@ -16,10 +16,10 @@
  */
 package de.learnlib.ralib.solver.jconstraints;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
+import net.automatalib.data.SymbolicDataValue;
 import de.learnlib.ralib.solver.*;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;

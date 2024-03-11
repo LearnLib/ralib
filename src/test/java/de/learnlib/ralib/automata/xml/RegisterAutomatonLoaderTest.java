@@ -18,6 +18,7 @@ package de.learnlib.ralib.automata.xml;
 
 import java.util.logging.Level;
 
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;

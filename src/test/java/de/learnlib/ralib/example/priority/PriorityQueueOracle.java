@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.PriorityQueue;
 
 import de.learnlib.query.Query;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
 
 /**
  *

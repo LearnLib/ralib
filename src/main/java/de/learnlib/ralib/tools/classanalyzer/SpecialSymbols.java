@@ -16,8 +16,8 @@
  */
 package de.learnlib.ralib.tools.classanalyzer;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.words.OutputSymbol;
+import net.automatalib.data.DataType;
+import net.automatalib.symbol.impl.OutputSymbol;
 
 /**
  *

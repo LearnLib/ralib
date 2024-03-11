@@ -22,8 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import net.automatalib.data.DataType;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarMapping;
 
 /**
  * A mapping from parameters to registers.

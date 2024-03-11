@@ -4,15 +4,15 @@ package de.learnlib.ralib.dt;
 import java.util.*;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.OutputSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.impl.OutputSymbol;
 
 /**
  * this is a copy of the functionality of row

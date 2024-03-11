@@ -26,11 +26,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.equivalence.*;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
@@ -58,9 +56,11 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.serialization.xml.ra.RegisterAutomatonExporter;
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import de.learnlib.util.statistic.SimpleProfiler;
 
 /**

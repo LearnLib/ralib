@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.data.Constants;
+import net.automatalib.data.Constants;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -26,8 +26,8 @@ import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class RaDT implements RaLearningAlgorithm {

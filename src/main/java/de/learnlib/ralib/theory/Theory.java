@@ -20,18 +20,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import net.automatalib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

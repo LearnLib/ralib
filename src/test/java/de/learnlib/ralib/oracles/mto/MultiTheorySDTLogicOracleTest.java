@@ -15,10 +15,10 @@ import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -29,7 +29,7 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class MultiTheorySDTLogicOracleTest {

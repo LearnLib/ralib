@@ -28,18 +28,18 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarValuation;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.automaton.ra.Transition;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarValuation;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

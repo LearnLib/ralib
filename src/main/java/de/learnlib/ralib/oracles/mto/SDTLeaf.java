@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;

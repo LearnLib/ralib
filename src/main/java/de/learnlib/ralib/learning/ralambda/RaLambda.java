@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.TransitionGuard;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -43,8 +43,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class RaLambda implements RaLearningAlgorithm {

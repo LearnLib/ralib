@@ -8,16 +8,16 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -33,8 +33,8 @@ import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class TestOutputSuffixes extends RaLibTestSuite {

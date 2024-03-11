@@ -24,14 +24,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

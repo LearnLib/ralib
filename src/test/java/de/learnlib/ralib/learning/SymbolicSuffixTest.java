@@ -3,21 +3,21 @@ package de.learnlib.ralib.learning;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SymbolicSuffixTest extends RaLibTestSuite {

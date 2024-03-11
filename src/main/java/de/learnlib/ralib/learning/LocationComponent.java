@@ -2,10 +2,10 @@ package de.learnlib.ralib.learning;
 
 import java.util.Collection;
 
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public interface LocationComponent {

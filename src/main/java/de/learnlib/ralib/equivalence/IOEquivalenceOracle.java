@@ -17,8 +17,8 @@
 package de.learnlib.ralib.equivalence;
 
 import de.learnlib.oracle.EquivalenceOracle;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.symbol.PSymbolInstance;
 
 /**
  * Interface for IO equivalence oracles

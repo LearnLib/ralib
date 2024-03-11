@@ -29,11 +29,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
@@ -42,9 +42,9 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

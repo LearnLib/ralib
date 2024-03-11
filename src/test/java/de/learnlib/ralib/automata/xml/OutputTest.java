@@ -20,24 +20,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**
@@ -52,7 +54,7 @@ public class OutputTest extends RaLibTestSuite {
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
-        de.learnlib.ralib.automata.RegisterAutomaton model =
+        RegisterAutomaton model =
                 loader.getRegisterAutomaton();
 
         Constants consts = loader.getConstants();

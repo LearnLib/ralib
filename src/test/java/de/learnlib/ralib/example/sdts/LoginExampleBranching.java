@@ -18,9 +18,9 @@ package de.learnlib.ralib.example.sdts;
 
 import java.util.Map;
 
-import de.learnlib.ralib.automata.TransitionGuard;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

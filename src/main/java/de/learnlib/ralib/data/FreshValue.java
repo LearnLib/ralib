@@ -16,6 +16,9 @@
  */
 package de.learnlib.ralib.data;
 
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+
 /**
  *
  * @author falk

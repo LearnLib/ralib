@@ -24,12 +24,15 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
 import java.util.logging.Level;
 
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
+import net.automatalib.symbol.impl.InputSymbol;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import net.automatalib.word.Word;
 

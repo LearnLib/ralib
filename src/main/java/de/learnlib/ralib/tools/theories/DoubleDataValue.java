@@ -2,8 +2,8 @@ package de.learnlib.ralib.tools.theories;
 
 import java.math.BigDecimal;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 
 public class DoubleDataValue extends DataValue<BigDecimal> {
 

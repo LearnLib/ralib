@@ -2,17 +2,17 @@ package de.learnlib.ralib.learning;
 
 import java.util.Arrays;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.VarValuation;
+import net.automatalib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SymbolicWord {

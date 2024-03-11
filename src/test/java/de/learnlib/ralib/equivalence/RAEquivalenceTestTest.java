@@ -12,25 +12,25 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.InputTransition;
-import de.learnlib.ralib.automata.MutableRegisterAutomaton;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
+import net.automatalib.automaton.ra.Assignment;
+import net.automatalib.automaton.ra.impl.InputTransition;
+import net.automatalib.automaton.ra.impl.MutableRegisterAutomaton;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Relation;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValueGenerator.ParameterGenerator;
+import net.automatalib.data.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 
 public class RAEquivalenceTestTest {
 	@Test

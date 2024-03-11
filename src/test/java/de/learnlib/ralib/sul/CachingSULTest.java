@@ -12,11 +12,11 @@ import java.math.BigDecimal;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 
 
 public class CachingSULTest {

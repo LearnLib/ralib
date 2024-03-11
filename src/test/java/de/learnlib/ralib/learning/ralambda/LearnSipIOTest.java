@@ -5,16 +5,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
@@ -37,8 +37,8 @@ import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {

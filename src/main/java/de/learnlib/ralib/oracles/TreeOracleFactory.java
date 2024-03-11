@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.oracles;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
 
 
 /**

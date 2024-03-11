@@ -1,7 +1,7 @@
 package de.learnlib.ralib.learning;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 
 public interface RaLearningAlgorithm {
 

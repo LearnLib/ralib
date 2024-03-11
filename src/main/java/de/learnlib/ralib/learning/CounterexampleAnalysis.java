@@ -21,17 +21,17 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.Mapping;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.data.Constants;
+import net.automatalib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

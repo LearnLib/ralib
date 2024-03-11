@@ -17,7 +17,7 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.oracle.MembershipOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 
 /**
  * An oracle for answering membership queries for

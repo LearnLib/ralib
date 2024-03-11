@@ -29,11 +29,11 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

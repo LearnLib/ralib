@@ -22,10 +22,9 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -37,7 +36,8 @@ import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.serialization.xml.ra.RegisterAutomatonImporter;
+import net.automatalib.symbol.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 
 /**

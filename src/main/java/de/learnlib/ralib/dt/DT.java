@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
@@ -30,9 +30,9 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

@@ -19,13 +19,13 @@ package de.learnlib.ralib.learning.rastar;
 import java.util.Collection;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;

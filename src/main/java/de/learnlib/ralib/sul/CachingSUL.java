@@ -2,8 +2,8 @@ package de.learnlib.ralib.sul;
 
 import de.learnlib.exception.SULException;
 import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

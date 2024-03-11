@@ -167,6 +167,10 @@
             <artifactId>automata-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.automatalib</groupId>
+            <artifactId>automata-serialization-xml</artifactId>
+        </dependency>
+        <dependency>
             <groupId>de.learnlib</groupId>
             <artifactId>learnlib-api</artifactId>
         </dependency>

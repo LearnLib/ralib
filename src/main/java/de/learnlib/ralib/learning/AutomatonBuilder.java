@@ -24,24 +24,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
+import net.automatalib.automaton.ra.Assignment;
+import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
+import net.automatalib.data.VarMapping;
+import net.automatalib.data.VarValuation;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class PrefixSet {

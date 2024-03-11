@@ -17,7 +17,7 @@
 package de.learnlib.ralib.oracles.io;
 
 import de.learnlib.ralib.oracles.QueryCounter;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

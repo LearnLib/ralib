@@ -16,11 +16,15 @@
  */
 package de.learnlib.ralib.data;
 
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+
 /**
  *
  * @author falk
  */
 //TODO: check is necessary
-public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, DataValue<?>> {
+public class SuffixValuation extends Mapping<SuffixValue, DataValue<?>> {
 
 }

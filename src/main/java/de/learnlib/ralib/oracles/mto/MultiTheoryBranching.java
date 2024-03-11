@@ -23,23 +23,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.automaton.ra.guard.impl.Conjunction;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.VarMapping;
+import net.automatalib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**

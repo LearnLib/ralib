@@ -9,16 +9,16 @@ import java.util.Random;
 import java.util.Set;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.automaton.ra.impl.RegisterAutomaton;
+import net.automatalib.data.Constants;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.equivalence.IOEquivalenceOracle;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 import net.automatalib.word.WordBuilder;
 

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
+import net.automatalib.data.DataType;
+import net.automatalib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.equality.UniqueEqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;

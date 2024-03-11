@@ -19,12 +19,13 @@ package de.learnlib.ralib.solver.simple;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Conjunction;
+import net.automatalib.automaton.ra.GuardExpression;
+import net.automatalib.automaton.ra.guard.impl.Relation;
+import net.automatalib.data.DataValue;
+import net.automatalib.data.Mapping;
+import net.automatalib.data.SymbolicDataValue;
 import de.learnlib.ralib.solver.ConstraintSolver;
 
 /**
@@ -49,10 +50,10 @@ public class SimpleConstraintSolver implements ConstraintSolver {
             for (int j = i + 1; j < sdvs.length; j++) {
                 if (val.get(sdvs[i]).equals(val.get(sdvs[j]))) {
                     conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
-                            de.learnlib.ralib.automata.guards.Relation.EQUALS, sdvs[j]));
+                                                                                                  Relation.EQUALS, sdvs[j]));
                 } else {
                     conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
-                            de.learnlib.ralib.automata.guards.Relation.NOT_EQUALS, sdvs[j]));
+                                                                                                  Relation.NOT_EQUALS, sdvs[j]));
                 }
             }
         }

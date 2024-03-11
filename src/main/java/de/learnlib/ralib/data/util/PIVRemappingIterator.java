@@ -19,10 +19,10 @@ package de.learnlib.ralib.data.util;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.learnlib.ralib.data.DataType;
+import net.automatalib.data.DataType;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.VarMapping;
 
 /**
  * Iterates all possible re-mappings between two VarMappings of the same size.

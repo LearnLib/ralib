@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import net.automatalib.automaton.ra.impl.TransitionGuard;
+import net.automatalib.data.Constants;
+import net.automatalib.data.ParValuation;
+import net.automatalib.data.VarValuation;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.symbol.PSymbolInstance;
+import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class DTHyp extends Hypothesis {

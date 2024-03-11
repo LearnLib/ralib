@@ -7,7 +7,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.sul.DataWordSUL;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class QueryStatistics {

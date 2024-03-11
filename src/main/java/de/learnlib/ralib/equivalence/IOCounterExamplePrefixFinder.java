@@ -19,7 +19,7 @@ package de.learnlib.ralib.equivalence;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 /**

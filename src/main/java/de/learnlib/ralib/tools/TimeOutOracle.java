@@ -20,7 +20,7 @@ import java.util.Collection;
 
 import de.learnlib.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.symbol.PSymbolInstance;
 
 /**
  * Uses a Register Automaton to simulate a SUL.

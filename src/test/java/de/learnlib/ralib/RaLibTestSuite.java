@@ -23,9 +23,9 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.data.DataType;
+import net.automatalib.symbol.impl.OutputSymbol;
+import net.automatalib.symbol.ParameterizedSymbol;
 
 /**
  *

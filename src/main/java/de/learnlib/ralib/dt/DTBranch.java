@@ -1,6 +1,6 @@
 package de.learnlib.ralib.dt;
 
-import de.learnlib.ralib.data.VarMapping;
+import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 
 public class DTBranch {
