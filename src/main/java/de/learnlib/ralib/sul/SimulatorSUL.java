@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.exception.SULException;
 import de.learnlib.logging.Category;
-import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RALocation;
 import net.automatalib.automaton.ra.impl.RegisterAutomaton;
-import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.Transition;
 import net.automatalib.automaton.ra.impl.OutputMapping;
 import net.automatalib.automaton.ra.impl.OutputTransition;
 import net.automatalib.data.Constants;

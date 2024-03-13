@@ -21,9 +21,9 @@ import java.util.*;
 import com.google.common.collect.Sets;
 
 import de.learnlib.query.DefaultQuery;
-import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RALocation;
 import net.automatalib.automaton.ra.impl.RegisterAutomaton;
-import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.Transition;
 import net.automatalib.automaton.ra.impl.OutputMapping;
 import net.automatalib.automaton.ra.impl.OutputTransition;
 import net.automatalib.data.Constants;

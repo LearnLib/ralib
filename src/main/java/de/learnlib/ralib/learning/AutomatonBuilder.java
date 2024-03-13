@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import net.automatalib.automaton.ra.Assignment;
-import net.automatalib.automaton.ra.RALocation;
-import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.RALocation;
+import net.automatalib.automaton.ra.impl.Transition;
 import net.automatalib.automaton.ra.impl.TransitionGuard;
 import net.automatalib.data.Constants;
 import de.learnlib.ralib.data.PIV;

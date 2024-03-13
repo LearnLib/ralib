@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.learnlib.query.DefaultQuery;
-import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RALocation;
 import net.automatalib.automaton.ra.impl.RegisterAutomaton;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.io.IOOracle;

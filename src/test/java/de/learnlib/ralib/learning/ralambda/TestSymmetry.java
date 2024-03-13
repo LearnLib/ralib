@@ -11,7 +11,7 @@ import de.learnlib.ralib.RaLibTestSuite;
 import net.automatalib.automaton.ra.Assignment;
 import net.automatalib.automaton.ra.impl.InputTransition;
 import net.automatalib.automaton.ra.impl.MutableRegisterAutomaton;
-import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RALocation;
 import net.automatalib.automaton.ra.impl.RegisterAutomaton;
 import net.automatalib.automaton.ra.impl.TransitionGuard;
 import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;

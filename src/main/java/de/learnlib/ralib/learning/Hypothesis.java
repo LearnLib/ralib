@@ -24,8 +24,8 @@ import java.util.Set;
 
 import de.learnlib.AccessSequenceTransformer;
 import net.automatalib.automaton.ra.impl.MutableRegisterAutomaton;
-import net.automatalib.automaton.ra.RALocation;
-import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.RALocation;
+import net.automatalib.automaton.ra.impl.Transition;
 import net.automatalib.automaton.ra.impl.TransitionGuard;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import net.automatalib.data.Constants;

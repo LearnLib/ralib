@@ -19,10 +19,10 @@
 
 package de.learnlib.ralib.automata.util;
 
-import net.automatalib.automaton.ra.RALocation;
+import net.automatalib.automaton.ra.impl.RALocation;
 import net.automatalib.automaton.ra.TransitionGuard;
 import net.automatalib.automaton.ra.impl.RegisterAutomaton;
-import net.automatalib.automaton.ra.Transition;
+import net.automatalib.automaton.ra.impl.Transition;
 import net.automatalib.automaton.ra.guard.impl.TrueGuardExpression;
 import net.automatalib.automaton.ra.impl.OutputTransition;
 
