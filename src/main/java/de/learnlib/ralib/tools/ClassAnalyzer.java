@@ -31,6 +31,8 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -182,6 +184,13 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
             final Constants consts = new Constants();
+
+            String cstString = OPTION_CONSTANTS.parse(config);
+            if (cstString != null) {
+            	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator();
+            	DataValue<?>[] cstArray = super.parseDataValues(cstString, types);
+            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            }
 
             // create teachers
             teachers = new LinkedHashMap<DataType, Theory>();
