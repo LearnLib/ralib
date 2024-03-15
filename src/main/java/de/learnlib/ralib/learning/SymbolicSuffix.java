@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import net.automatalib.data.Constants;
 import net.automatalib.data.DataType;
@@ -277,7 +278,7 @@ public class SymbolicSuffix {
     	int index = 2;
     	for (int i = 1; i < dataValues.size(); i++) {
     		SuffixValue sv = dataValues.get(i+1);
-    		if (sv.getId().intValue() == index)
+    		if (sv.getId() == index)
     			index++;
     		else
     			score++;
@@ -291,11 +292,17 @@ public class SymbolicSuffix {
 
     @Override
     public String toString() {
-        Word<PSymbolInstance> dw =
-                DataWords.instantiate(actions, dataValues);
+        StringJoiner sj = new StringJoiner(" ");
+        int pid = 1;
+        for (ParameterizedSymbol ps : actions) {
+            SuffixValue[] svalues = new SuffixValue[ps.getArity()];
+            for (int i = 0; i < ps.getArity(); i++) {
+                svalues[i] = dataValues.get(pid++);
+            }
+            sj.add(ps.getName() + Arrays.toString(svalues));
+        }
 
-        return Arrays.toString(freeValues.toArray()) +
-                "((" + dw.toString() + "))";
+        return Arrays.toString(freeValues.toArray()) + "((" + sj + "))";
     }
 
     @Override

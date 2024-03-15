@@ -160,7 +160,7 @@ public class JContraintsUtil {
         return new Constant( getJCType(v.getType().getBase()), (v.getId()));
     }
 
-    public static Variable toVariable(DataValue v) {
+    public static Variable toVariable(SymbolicDataValue v) {
         return new Variable(BuiltinTypes.DECIMAL, v.toString());
     }
 }

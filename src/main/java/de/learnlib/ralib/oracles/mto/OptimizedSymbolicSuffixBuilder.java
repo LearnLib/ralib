@@ -283,7 +283,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
     	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
     		Parameter p = e.getKey();
-    		if (p.getId().intValue() > arity) {
+    		if (p.getId() > arity) {
     			int actionParameterIndex = p.getId() - arity;
     			actionParameters.put(e.getValue(), new SuffixValue(p.getType(), actionParameterIndex));
     		}
