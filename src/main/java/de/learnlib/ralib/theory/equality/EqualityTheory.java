@@ -178,49 +178,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
         assert filteredEquivClasses.size() > 0;
 
-//        boolean free = suffix.getFreeValues().contains(sv);
-//        if (!free && useNonFreeOptimization) {
-//            DataValue d = suffixValues.get(sv);
-//            SDT sdt;
-//            Map<SDTGuard, SDT> merged;
-//
-//            // fresh value case
-//            if (d == null) {
-//                d = getFreshValue(potential);
-//                values.put(pId, d);
-//                WordValuation trueValues = new WordValuation();
-//                trueValues.putAll(values);
-//                SuffixValuation trueSuffixValues = new SuffixValuation();
-//                trueSuffixValues.putAll(suffixValues);
-//                trueSuffixValues.put(sv, d);
-//                sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
-//                log.trace(" single deq SDT : " + sdt.toString());
-//                merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
-//
-//            }
-//
-//            // equal to previous suffix parameter
-//            else {
-//                values.put(pId, d);
-//                WordValuation equalValues = new WordValuation();
-//                equalValues.putAll(values);
-//                SuffixValuation equalSuffixValues = new SuffixValuation();
-//                equalSuffixValues.putAll(suffixValues);
-//                sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
-//                merged = new LinkedHashMap<SDTGuard, SDT>();
-//                int smallest = Collections.min(values.getAllKeys(d));
-//                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue(type, smallest));
-//                merged.put(guard, sdt);
-//            }
-//
-//            log.trace("temporary guards = " + tempKids.keySet());
-//            // log.trace("temporary pivs = " + tempPiv.keySet());
-//            log.trace("merged guards = " + merged.keySet());
-//            log.trace("merged pivs = " + pir.toString());
-//
-//            return new SDT(merged);
-//        }
-
         // TODO: integrate fresh-value optimization with restrictions
         // special case: fresh values in outputs
         if (freshValues) {
@@ -508,9 +465,6 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     		boolean revealsGuard = false;
     		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
     			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
-//    			if (g instanceof EqualityGuard && ((EqualityGuard) g).getRegister().equals(register)) {
-//    				return true;
-//    			}
     		}
     		return revealsGuard;
     	}

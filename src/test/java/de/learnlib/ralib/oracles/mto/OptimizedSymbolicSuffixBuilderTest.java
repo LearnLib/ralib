@@ -645,7 +645,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
         SDT actual1 = builder.pruneSDT(sdt1, new SymbolicDataValue[] {r1});
-//        builder.printStuff = true;
         SDT actual2 = builder.pruneSDT(sdt2, new SymbolicDataValue[] {r1});
         SDT actual3 = builder.pruneSDT(sdt3, new SymbolicDataValue[] {r1});
 

@@ -1,7 +1,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -23,7 +22,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -36,8 +34,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
-
-	public boolean printStuff = false;
 
     private final Constants consts;
 
@@ -73,11 +69,6 @@ public class OptimizedSymbolicSuffixBuilder {
     	Word<ParameterizedSymbol> suffixActions = suffix.getActions();
     	if (registers.length > 0) {
     		SymbolicSuffix s = extendSuffixRevealingRegisters(prefix, sdt, piv, suffixActions, registers);
-    		if (s == null) {
-    			// no path found which reveals all registers, so do not optimize
-    			s = new SymbolicSuffix(prefix.prefix(prefix.length()-1), prefix.suffix(1), restrictionBuilder);
-    			return s.concat(suffix);
-    		}
     		return s;
     	}
 
@@ -95,29 +86,9 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     public SymbolicSuffix extendSuffixRevealingRegisters(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, Word<ParameterizedSymbol> suffixActions, Register[] registers) {
-//    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
-//    	List<List<SDTGuard>> pathsAccepting = sdt.getPaths(true);
-//    	List<List<SDTGuard>> pathsRejecting = sdt.getPaths(false);
-//    	SymbolicSuffix best = null;
-//    	for (List<SDTGuard> pathA : pathsAccepting) {
-//    		for (List<SDTGuard> pathR : pathsRejecting) {
-//    			SymbolicSuffix suffix1 = extendSuffix(prefix, pathA, piv, suffixActions);
-//    			SymbolicSuffix suffix2 = extendSuffix(prefix, pathR, piv, suffixActions);
-//    			SymbolicSuffix extendedSuffix = coalesceSuffixes(suffix1, suffix2);
-//    			if (suffixRevealsRegisters(extendedSuffix, registers)) {
-//    				best = pickBest(best, extendedSuffix);
-//    			}
-//    		}
-//    	}
-//    	for (List<SDTGuard> path : paths) {
-//    		if (restrictionBuilder.sdtPathRevealsRegister(path, registers)) {
-//    			SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
-//    			best = pickBest(best, extendedSuffix);
-//    		}
-//    	}
-
     	SDT prunedSDT = pruneSDT(sdt, registers);
     	Set<List<SDTGuard>> paths = prunedSDT.getAllPaths(new ArrayList<>()).keySet();
+    	assert paths.size() > 0 : "All paths in SDT were pruned";
     	SymbolicSuffix suffix = null;
     	for (List<SDTGuard> path : paths) {
     		SymbolicSuffix extended = extendSuffix(prefix, path, piv, suffixActions);
@@ -168,8 +139,6 @@ public class OptimizedSymbolicSuffixBuilder {
 
     protected SDT pruneSDT(SDT sdt, SymbolicDataValue[] registers) {
     	LabeledSDT lsdt = new LabeledSDT(0, sdt);
-    	if (printStuff)
-    		System.out.println(lsdt.toString());
     	LabeledSDT pruned = pruneSDTNode(lsdt, lsdt, registers);
     	return pruned.toUnlabeled();
     }
@@ -191,8 +160,6 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     private LabeledSDT pruneSDTBranch(LabeledSDT lsdt, int label, SymbolicDataValue[] registers) {
-    	if (printStuff)
-    		System.out.println("Attempting to prune " + label);
     	if (branchContainsRegister(lsdt.get(label), registers) ||
     			guardOnRegisters(lsdt.getGuard(label), registers))
     		return lsdt;
@@ -200,13 +167,10 @@ public class OptimizedSymbolicSuffixBuilder {
     	SDT prunedSDT = pruned.toUnlabeled();
     	int revealedRegisters = 0;
     	for (SymbolicDataValue r : registers) {
-//    		if (sdtRevealsRegister(prunedSDT, r) && guardsOnRegisterHaveBothOutcomes(prunedSDT, r))
     		if (guardsOnRegisterHaveBothOutcomes(prunedSDT, r))
     			revealedRegisters++;
     	}
     	if (revealedRegisters < registers.length) {
-    		if (printStuff)
-    			System.out.println("Contains " + revealedRegisters + " registers, needs " + registers.length);
     		return lsdt;
     	}
     	return pruned;
@@ -219,8 +183,6 @@ public class OptimizedSymbolicSuffixBuilder {
     		Set<SymbolicDataValue> comparands = guard.getComparands(guard.getParameter());
     		for (SymbolicDataValue sdv : registers) {
     			if (comparands.contains(sdv)) {
-    				if (printStuff)
-    					System.out.println("Branch contains register " + sdv);
     				return true;
     			}
     		}
@@ -235,8 +197,6 @@ public class OptimizedSymbolicSuffixBuilder {
     	SuffixValue sv = guard.getParameter();
     	for (SymbolicDataValue r : registers) {
     		if (guard.getComparands(sv).contains(r)) {
-    			if (printStuff)
-    				System.out.println("Guard " + guard.toString() + " contains register " + r);
     			return true;
     		}
     	}
@@ -258,43 +218,6 @@ public class OptimizedSymbolicSuffixBuilder {
     	}
     	return new SymbolicSuffix(suffix1.getActions(), restrictions);
     }
-
-//    private LabeledSDT pruneSDT(LabeledSDT lsdt, int currLabel, SymbolicDataValue[] registers) {
-//    	LabeledSDT pruned, nextSDT;
-//    	Integer nextLabel = null;
-//    	int parentLabel = lsdt.getParent(currLabel).getLabel();
-//    	if (lsdt.getParent(currLabel).getChildren().size() > 1) {
-//	    	pruned = LabeledSDT.pruneBranch(lsdt, currLabel);
-//	    	SDT sdt = pruned.toUnlabeled();
-//	    	int revealedRegisters = 0;
-//	    	for (SymbolicDataValue r : registers) {
-//	    		if (sdtRevealsRegister(sdt, r))
-//	    			revealedRegisters++;
-//	    	}
-//	    	// reject pruning if not all registers revealed
-//	    	nextSDT = revealedRegisters == registers.length ? pruned : lsdt;
-//
-//	    	// continue with next branch (smallest l in nextSDT.getChildIndices() s.t. l > currLabel)
-//	    	LabeledSDT parentNode = nextSDT.get(parentLabel);
-//	    	for (int l : parentNode.getChildIndices()) {
-//	    		if (l > currLabel && (nextLabel == null || l < nextLabel))
-//	    			nextLabel = l;
-//	    	}
-//    	} else {
-//    		nextSDT = lsdt;
-//    	}
-//
-//    	if (nextLabel == null) {
-//    		// all branches pruned, proceed to next level
-//    		LabeledSDT currNode = nextSDT.get(parentLabel);
-//    		for (int l : currNode.getChildIndices()) {
-//    			nextSDT = pruneSDT(nextSDT, l, registers);
-//    		}
-//    		return nextSDT;
-//    	}
-//
-//    	return pruneSDT(nextSDT, nextLabel, registers);
-//    }
 
     public boolean sdtRevealsRegister(SDT sdt, SymbolicDataValue register) {
     	if (sdt instanceof SDTLeaf) {
@@ -360,43 +283,6 @@ public class OptimizedSymbolicSuffixBuilder {
     		ret = ret && guardsOnRegisterHaveBothOutcomes(child, register);
     	}
     	return ret;
-
-//    	Set<SuffixValue> suffixValues = new LinkedHashSet<>();
-//    	sdt.getComparands(register)
-//    	.stream()
-//    	.filter(sdv -> sdv instanceof SuffixValue)
-//    	.forEach(sdv -> suffixValues.add((SuffixValue)sdv));
-//
-//    	if (printStuff)
-//    		System.out.println("Suffix values with guards on " + register + ": " + suffixValues);
-//
-//    	List<List<SDTGuard>> pathsA = sdt.getPaths(true);
-//    	List<List<SDTGuard>> pathsR = sdt.getPaths(false);
-//    	if (printStuff) {
-//    		System.out.println("Accepting paths: " + pathsA);
-//    		System.out.println("Rejecting paths: " + pathsR);
-//    	}
-//
-//    	for (SuffixValue sv : suffixValues) {
-//    		Set<SDTGuard> guards = sdt.getSDTGuards(sv).stream().filter(g -> g.getComparands(sv).contains(register)).collect(Collectors.toSet());
-//    		if (printStuff)
-//    			System.out.println("Guards on " + sv + ": " + guards);
-//    		if (guards.size() < 2)
-//    			return false;
-//    		SDTGuard guard = guards.stream().findFirst().get();
-//    		boolean acceptingPath = pathListContainsGuard(pathsA, guard);
-//    		if (printStuff)
-//    			System.out.println("Guard " + guard + " accepting is " + acceptingPath);
-//    		for (SDTGuard g : guards) {
-//    			if (g.equals(guard))
-//    				continue;
-//    			if ((acceptingPath && !pathListContainsGuard(pathsR, g) && !pathListContainsGuard(pathsR, guard)) ||
-//    					!acceptingPath && !pathListContainsGuard(pathsA, g) && !pathListContainsGuard(pathsA, guard))
-//    				return false;
-//    		}
-//    	}
-//
-//    	return true;
     }
 
     private boolean guardHasBothOutcomes(Map<SDTGuard, SDT> children) {
@@ -418,53 +304,7 @@ public class OptimizedSymbolicSuffixBuilder {
     	return false;
     }
 
-	private boolean pathListContainsGuard(List<List<SDTGuard>> paths, SDTGuard guard) {
-		return paths.stream().filter(p -> p.contains(guard)).findAny().isPresent();
-	}
-
-    private Set<SDTGuard> getGuards(List<SDTGuard> path, SuffixValue sv) {
-    	Set<SDTGuard> guards = new LinkedHashSet<>();
-    	for (SDTGuard g : path) {
-    		if (g.getParameter().equals(sv))
-    			guards.add(g);
-    	}
-    	return guards;
-    }
-
-    private DataType[] dataTypes(Word<ParameterizedSymbol> actions) {
-    	Collection<DataType> dataTypes = new ArrayList<>();
-    	for (ParameterizedSymbol ps : actions) {
-    		for (DataType dt : ps.getPtypes()) {
-    			dataTypes.add(dt);
-    		}
-    	}
-    	DataType[] dts = new DataType[dataTypes.size()];
-    	dts = dataTypes.toArray(dts);
-    	return dts;
-    }
-
-    private Map<Register, SuffixValue> buildParameterMap(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
-    	int arity = DataWords.paramValLength(prefix);
-    	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
-    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
-    		Parameter p = e.getKey();
-    		if (p.getId().intValue() > arity) {
-    			int actionParameterIndex = p.getId() - arity;
-    			actionParameters.put(e.getValue(), new SuffixValue(p.getType(), actionParameterIndex));
-    		}
-    	}
-    	return actionParameters;
-    }
-
-    private Parameter getParameter(Register r, PIV piv) {
-    	for (Map.Entry<Parameter, Register> e : piv) {
-    		if (e.getValue().equals(r))
-    			return e.getKey();
-    	}
-    	return null;
-    }
-
-    /**
+	/**
      * Provides a one-symbol extension of an (optimized) suffix for two non-empty prefixes leading to inequivalent locations,
      * based on the SDTs and associated PIVs that revealed the source of the inequivalence.
      */
@@ -478,23 +318,6 @@ public class OptimizedSymbolicSuffixBuilder {
         SymbolicSuffix suffix2 = extendSuffix(prefix2, sdt2, piv2, suffix);
 
         return coalesceSuffixes(suffix1, suffix2);
-    }
-
-    private Set<Register> actionRegisters(Word<PSymbolInstance> prefix, PSymbolInstance action, PIV piv) {
-    	Set<Parameter> params = new LinkedHashSet<>();
-        ParameterGenerator pGen = new ParameterGenerator();
-        for (PSymbolInstance psi : prefix) {
-        	for (DataType dt : psi.getBaseSymbol().getPtypes()) {
-        		pGen.next(dt);
-        	}
-        }
-        for (DataType dt : action.getBaseSymbol().getPtypes()) {
-        	params.add(pGen.next(dt));
-        }
-
-        Set<Register> registers = new LinkedHashSet<>();
-        piv.entrySet().stream().filter((x) -> (params.contains(x.getKey()))).forEach((x) -> { registers.add(x.getValue()); });
-        return registers;
     }
 
     /**
@@ -580,17 +403,6 @@ public class OptimizedSymbolicSuffixBuilder {
     	return new SymbolicSuffix(suffix1.getActions(), restrictions);
     }
 
-    private Set<Integer> freeSuffixIndices(SymbolicSuffix suffix) {
-    	Set<Integer> freeIndices = new LinkedHashSet<>();
-    	Set<SuffixValue> freeVals = suffix.getFreeValues();
-    	for (int i = 0; i < DataWords.paramLength(suffix.getActions()); i++) {
-    		SuffixValue sv = suffix.getDataValue(i+1);
-    		if (freeVals.contains(sv))
-    			freeIndices.add(i+1);
-    	}
-    	return freeIndices;
-    }
-
     private SymbolicSuffix pickBest(SymbolicSuffix current, SymbolicSuffix next) {
         if (current == null) {
             return next;
@@ -599,20 +411,6 @@ public class OptimizedSymbolicSuffixBuilder {
             return next;
         }
         return current;
-    }
-
-    private boolean suffixRevealsRegisters(SymbolicSuffix suffix, Register[] registers) {
-    	int revealedRegisters = 0;
-    	for (Register r : registers) {
-    		for (SuffixValue sv : suffix.getDataValues()) {
-    			SuffixValueRestriction restr = suffix.getRestriction(sv);
-    			if (restr.revealsRegister(r)) {
-    				revealedRegisters++;
-    				break;
-    			}
-    		}
-    	}
-    	return revealedRegisters == registers.length;
     }
 
     private int score(SymbolicSuffix suffix) {

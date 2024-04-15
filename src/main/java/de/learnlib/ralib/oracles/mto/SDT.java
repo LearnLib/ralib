@@ -101,12 +101,8 @@ public class SDT implements SymbolicDecisionTree {
     	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
     		SDTGuard g = e.getKey();
     		Set<SymbolicDataValue> guardComparands = g.getComparands(dv);
-//    		if (g.getParameter().equals(dv))
-//    			comparands.addAll(g.getComparands(dv));
     		if (!guardComparands.isEmpty()) {
     			comparands.addAll(guardComparands);
-//    		} else {
-//    			comparands.addAll(e.getValue().getComparands(dv));
     		}
     		comparands.addAll(e.getValue().getComparands(dv));
     	}
@@ -170,16 +166,6 @@ public class SDT implements SymbolicDecisionTree {
             }
         }
         return variables;
-    }
-
-    public Set<SuffixValue> getSuffixValues() {
-    	Set<SuffixValue> suffixValues = new LinkedHashSet<>();
-    	if (children != null && !children.isEmpty()) {
-    		Map.Entry<SDTGuard, SDT> e = children.entrySet().stream().findFirst().get();
-    		suffixValues.add(e.getKey().getParameter());
-    		suffixValues.addAll(e.getValue().getSuffixValues());
-    	}
-    	return suffixValues;
     }
 
     @Override
