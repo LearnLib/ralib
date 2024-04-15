@@ -487,7 +487,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             		// suffixBuilder == null ==> suffix.isOptimizedGeneric()
             		assert suffixBuilder != null || suffix.isOptimizationGeneric() : "Optimized with restriction builder, but no restriction builder provided";
             		SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
-            				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix) :
+            				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix, suffixTQR.getPiv().get(p)) :
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
             		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
