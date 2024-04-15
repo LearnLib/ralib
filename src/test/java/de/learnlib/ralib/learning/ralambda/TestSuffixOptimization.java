@@ -37,8 +37,8 @@ import net.automatalib.word.Word;
 
 public class TestSuffixOptimization extends RaLibTestSuite {
 
-	@Test
-	public void learnRepeater() {
+    @Test
+    public void learnRepeaterSuffixOptTest() {
 
         Constants consts = new Constants();
 
@@ -49,43 +49,49 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 
         RepeaterSUL sul = new RepeaterSUL(-1, 2);
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
-	    IOCache ioCache = new IOCache(ioOracle);
-	    IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+	IOCache ioCache = new IOCache(ioOracle);
+	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                oracle, teachers, consts, solver);
+        MultiTheoryTreeOracle mto =
+	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
         MultiTheorySDTLogicOracle mlo =
-                new MultiTheorySDTLogicOracle(consts, solver);
+	    new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         Measurements measurements = new Measurements();
-        QueryStatistics queryStats = new QueryStatistics(measurements, sul);
+        QueryStatistics stats = new QueryStatistics(measurements, sul);
 
         RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
-        learner.setStatisticCounter(queryStats);
+        learner.setStatisticCounter(stats);
         learner.setSolver(solver);
 
         learner.learn();
 
-        Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
+        Word<PSymbolInstance> ce =
+	    Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
 
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
 
         learner.learn();
-        Hypothesis hyp = learner.getHypothesis();
 
+	Hypothesis hyp = learner.getHypothesis();
         Assert.assertEquals(hyp.getStates().size(), 7);
 
-        System.out.println(queryStats.toString());
-	}
+	String str = stats.toString();
+	Assert.assertTrue(str.contains("Counterexamples: 1"));
+        Assert.assertTrue(str.contains("CE max length: 6"));
+        Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 2, Inputs: 5}"));
+        Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 1, Inputs: 4}"));
+        Assert.assertTrue(str.contains("Other: {TQ: 0, Resets: 1, Inputs: 1}"));
+        Assert.assertTrue(str.contains("Total: {TQ: 0, Resets: 4, Inputs: 10}"));
+    }
 }

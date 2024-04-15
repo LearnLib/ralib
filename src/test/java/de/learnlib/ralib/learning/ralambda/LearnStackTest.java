@@ -47,7 +47,7 @@ import net.automatalib.word.Word;
 public class LearnStackTest extends RaLibTestSuite {
 
     @Test
-    public void learnStackExample() {
+    public void learnStackTest() {
 
 	Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
@@ -102,7 +102,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackExampleSwitchedCE() {
+    public void learnStackSwitchedCETest() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -175,7 +175,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackExampleLongCE() {
+    public void learnStackLongCETest() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -220,7 +220,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackExampleRandom() {
+    public void learnStackRandomTest() {
 	final int SEEDS = 10;
 	Constants consts = new Constants();
 	RegisterAutomaton sul = AUTOMATON;
@@ -251,7 +251,27 @@ public class LearnStackTest extends RaLibTestSuite {
             runner.resetMeasurements();
         }
 
-        System.out.println("Queries (RaLambda): " + Arrays.toString(measuresLambda));
-        System.out.println("Queries (RaStar): " + Arrays.toString(measuresStar));
+        Assert.assertEquals(Arrays.toString(measuresLambda),
+			    "[{TQ: 60, Resets: 1199, Inputs: 0}," +
+			    " {TQ: 65, Resets: 1859, Inputs: 0}," +
+			    " {TQ: 60, Resets: 1178, Inputs: 0}," +
+			    " {TQ: 62, Resets: 1516, Inputs: 0}," +
+			    " {TQ: 70, Resets: 2717, Inputs: 0}," +
+			    " {TQ: 62, Resets: 1443, Inputs: 0}," +
+			    " {TQ: 56, Resets: 1148, Inputs: 0}," +
+			    " {TQ: 41, Resets: 1089, Inputs: 0}," +
+			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
+			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(measuresStar),
+			    "[{TQ: 51, Resets: 1582, Inputs: 0}," +
+			    " {TQ: 50, Resets: 12577, Inputs: 0}," +
+			    " {TQ: 63, Resets: 1317, Inputs: 0}," +
+			    " {TQ: 50, Resets: 10633, Inputs: 0}," +
+			    " {TQ: 39, Resets: 10917, Inputs: 0}," +
+			    " {TQ: 62, Resets: 1310, Inputs: 0}," +
+			    " {TQ: 60, Resets: 1298, Inputs: 0}," +
+			    " {TQ: 49, Resets: 1207, Inputs: 0}," +
+			    " {TQ: 53, Resets: 11290, Inputs: 0}," +
+			    " {TQ: 49, Resets: 1301, Inputs: 0}]");
     }
 }

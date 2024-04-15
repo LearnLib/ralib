@@ -42,8 +42,7 @@ import net.automatalib.word.Word;
 public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExample() {
-
+    public void learnLoginTest() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -86,9 +85,8 @@ public class LearnLoginTest extends RaLibTestSuite {
         Assert.assertEquals(hyp.getTransitions().size(), 11);
     }
 
-
     @Test
-    public void learnLoginExampleRandom() {
+    public void learnLoginRandomTest() {
         final int SEEDS = 10;
 
         Constants consts = new Constants();
@@ -105,22 +103,42 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(6);
-        for (int seed=0; seed<SEEDS; seed++) {
-        	runner.setSeed(seed);
-	        Hypothesis hyp = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
-	        measuresLambda[seed] = runner.getMeasurements();
-	        runner.resetMeasurements();
+        for (int seed = 0; seed < SEEDS; seed++) {
+	    runner.setSeed(seed);
+	    Hypothesis hyp = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	    measuresLambda[seed] = runner.getMeasurements();
+	    runner.resetMeasurements();
 
-	        Assert.assertEquals(hyp.getStates().size(), 4);
-	        Assert.assertEquals(hyp.getTransitions().size(), 14);
-	        logger.log(Level.FINE, "HYP: {0}", hyp);
+	    Assert.assertEquals(hyp.getStates().size(), 4);
+	    Assert.assertEquals(hyp.getTransitions().size(), 14);
+	    logger.log(Level.FINE, "HYP: {0}", hyp);
 
-	        hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
-	        measuresStar[seed] = runner.getMeasurements();
-	        runner.resetMeasurements();
+	    hyp = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {I_LOGIN, I_LOGOUT, I_REGISTER});
+	    measuresStar[seed] = runner.getMeasurements();
+	    runner.resetMeasurements();
         }
-        System.out.println("Queries (Lambda): " + Arrays.toString(measuresLambda));
-        System.out.println("Queries (Star): " + Arrays.toString(measuresStar));
+        Assert.assertEquals(Arrays.toString(measuresLambda),
+			    "[{TQ: 64, Resets: 2511, Inputs: 0}," +
+			    " {TQ: 64, Resets: 2485, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1958, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1959, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1886, Inputs: 0}," +
+			    " {TQ: 64, Resets: 2750, Inputs: 0}," +
+			    " {TQ: 64, Resets: 2487, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1737, Inputs: 0}," +
+			    " {TQ: 68, Resets: 1758, Inputs: 0}," +
+			    " {TQ: 64, Resets: 1604, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(measuresStar),
+			    "[{TQ: 65, Resets: 2339, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2313, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2208, Inputs: 0}," +
+			    " {TQ: 64, Resets: 2200, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2136, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2578, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2315, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2192, Inputs: 0}," +
+			    " {TQ: 65, Resets: 3618, Inputs: 0}," +
+			    " {TQ: 65, Resets: 2059, Inputs: 0}]");
     }
 
 }

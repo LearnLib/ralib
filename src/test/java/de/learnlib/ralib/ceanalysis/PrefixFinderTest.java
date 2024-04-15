@@ -23,8 +23,8 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
@@ -58,7 +58,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
     @Test
     public void prefixFinderTest() {
-
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -82,8 +81,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         rastar.learn();
         final Hypothesis hyp = rastar.getHypothesis();
-        logger.log(Level.FINE, "HYP1: {0}", hyp);
-        System.out.println(hyp);
+        // System.out.println(hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
@@ -100,17 +98,17 @@ public class PrefixFinderTest extends RaLibTestSuite {
         );
 
         Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
-        System.out.println(prefix);
+	Assert.assertEquals(prefix.toString(), "register[0[T_uid], 0[T_pwd]]");
     }
 
-	@Test
-	public void prefixFinderMultipleAccessSequencesTest() {
-		Constants consts = new Constants();
-		RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
-		DataWordOracle dwOracle = new SimulatorOracle(sul);
+    @Test
+    public void prefixFinderMultipleAccessSequencesTest() {
+	Constants consts = new Constants();
+	RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
+	DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
+	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
 
@@ -126,8 +124,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         ralambda.learn();
         final DTHyp hyp = ralambda.getDTHyp();
-        logger.log(Level.FINE, "HYP1: {0}", hyp);
-        System.out.println(hyp);
+        // System.out.println(hyp);
 
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
@@ -148,8 +145,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         );
 
         Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
-        System.out.println(prefix);
-
-	}
+	Assert.assertEquals(prefix.toString(), "push[0[T_int]] pop[0[T_int]]");
+    }
 
 }
