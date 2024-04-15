@@ -99,6 +99,16 @@ public abstract class SuffixValueRestriction {
 		}
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SuffixValueRestriction))
+			return false;
+		SuffixValueRestriction other = (SuffixValueRestriction)obj;
+		if (!this.getClass().equals(other.getClass()))
+			return false;
+		return parameter.equals(other.parameter);
+	}
+
 	public static SuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	SuffixValue suffixValue = guard.getParameter();
     	// case fresh

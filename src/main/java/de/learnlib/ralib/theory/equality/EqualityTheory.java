@@ -502,12 +502,17 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
     	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
     		return true;
+    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
+    		return true;
     	} else if (guard instanceof SDTMultiGuard) {
+    		boolean revealsGuard = false;
     		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
-    			if (g instanceof EqualityGuard && ((EqualityGuard) g).getRegister().equals(register)) {
-    				return true;
-    			}
+    			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
+//    			if (g instanceof EqualityGuard && ((EqualityGuard) g).getRegister().equals(register)) {
+//    				return true;
+//    			}
     		}
+    		return revealsGuard;
     	}
     	return false;
     }

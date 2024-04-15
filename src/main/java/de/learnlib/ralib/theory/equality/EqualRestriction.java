@@ -64,6 +64,14 @@ public class EqualRestriction extends SuffixValueRestriction {
 		return "(" + parameter.toString() + "=" + equalParam.toString() + ")";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof EqualRestriction))
+			return false;
+		EqualRestriction other = (EqualRestriction)obj;
+		return super.equals(obj) && equalParam.equals(other.equalParam);
+	}
+
 	public SuffixValue getEqualParameter() {
 		return equalParam;
 	}

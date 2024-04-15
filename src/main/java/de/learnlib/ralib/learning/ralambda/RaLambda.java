@@ -4,8 +4,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.api.query.DefaultQuery;
@@ -16,6 +18,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -383,6 +387,8 @@ public class RaLambda implements RaLearningAlgorithm {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
 			            			SymbolicSuffix testSuffix;
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
+//			            				Register[] differentlyMapped = differentlyMappedRegisters(tqr.getPiv(), otherTQR.getPiv());
+//			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s, differentlyMapped);
 			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
 			            			} else {
 			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), restrictionBuilder);
@@ -462,6 +468,23 @@ public class RaLambda implements RaLearningAlgorithm {
     	Word<PSymbolInstance> dw = mp.getPrefix();
 
     	return branching.transformPrefix(dw);
+    }
+
+    private Register[] differentlyMappedRegisters(PIV piv1, PIV piv2) {
+    	Set<Register> differentlyMapped = new LinkedHashSet<>();
+    	for (Map.Entry<Parameter, Register> e1 : piv1.entrySet()) {
+    		Parameter p1 = e1.getKey();
+    		Register r1 = e1.getValue();
+    		for (Map.Entry<Parameter, Register> e2 : piv2.entrySet()) {
+    			Parameter p2 = e2.getKey();
+    			Register r2 = e2.getValue();
+    			if (r1.equals(r2) && !p1.equals(p2)) {
+    				differentlyMapped.add(r1);
+    			}
+    		}
+    	}
+    	Register[] ret = new Register[differentlyMapped.size()];
+    	return differentlyMapped.toArray(ret);
     }
 
 //    private boolean analyzeCounterExampleOld() {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -519,10 +520,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Word<PSymbolInstance> word2 = Word.fromSymbols(
         		new PSymbolInstance(a, new DataValue(type, 0)),
         		new PSymbolInstance(a, new DataValue(type, 1)),
+        		new PSymbolInstance(a, new DataValue(type, 2)),
         		new PSymbolInstance(a, new DataValue(type, 1)),
         		new PSymbolInstance(a, new DataValue(type, 0)));
-        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(2), restrictionBuilder);
-        SymbolicSuffix expectedSuffix2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(3), restrictionBuilder);
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(3), word2.suffix(2), restrictionBuilder);
+        SymbolicSuffix expectedSuffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder);
         SDT sdt2 = new SDT(Map.of(
         		new EqualityGuard(s1, r2), new SDT(Map.of(
         				new EqualityGuard(s2, r1), SDTLeaf.ACCEPTING,
@@ -556,5 +558,111 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv3.put(p3, r3);
         SymbolicSuffix actualSuffix3 = builder.extendSuffix(word3.prefix(2), sdt3, piv3, suffix3, r2, r3);
         Assert.assertEquals(actualSuffix3, expectedSuffix3);
+    }
+
+    @Test
+    private void sdtPruneTest() {
+
+        DataType type = new DataType("int",Integer.class);
+        InputSymbol a = new InputSymbol("a", type);
+        InputSymbol b = new InputSymbol("b", type, type);
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
+        SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
+        SuffixValue s1 = sgen.next(type);
+        SuffixValue s2 = sgen.next(type);
+        SuffixValue s3 = sgen.next(type);
+
+        RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
+        Register r1 = rgen.next(type);
+        Register r2 = rgen.next(type);
+        Register r3 = rgen.next(type);
+
+        ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
+        Parameter p1 = pgen.next(type);
+        Parameter p2 = pgen.next(type);
+        Parameter p3 = pgen.next(type);
+
+        Constants consts = new Constants();
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
+
+        SDT subSDT1 = new SDT(Map.of(
+        		new EqualityGuard(s2, r1), new SDT(Map.of(
+        				new SDTTrueGuard(s3), SDTLeaf.ACCEPTING)),
+        		new DisequalityGuard(s2, r1), new SDT(Map.of(
+        				new EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
+        				new DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
+        SDT subSDT2 = new SDT(Map.of(
+        		new SDTTrueGuard(s2), new SDT(Map.of(
+        				new EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
+        				new DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
+        SDT subSDT3 = new SDT(Map.of(
+        		new SDTTrueGuard(s2), new SDT(Map.of(
+        				new SDTTrueGuard(s3), SDTLeaf.REJECTING))));
+
+        SDT sdt1 = new SDT(Map.of(
+        		new EqualityGuard(s1, r2), subSDT1,
+        		new DisequalityGuard(s1, r2), subSDT2));
+        SDT sdt2 = new SDT(Map.of(
+        		new EqualityGuard(s1, r2), subSDT1,
+        		new DisequalityGuard(s1, r2), subSDT3));
+        Map<SDTGuard, SDT> branches2 = new LinkedHashMap<>();
+        for (Map.Entry<SDTGuard, SDT> e : sdt2.getChildren().entrySet()) {
+        	if (e.getKey() instanceof EqualityGuard)
+        		branches2.put(e.getKey(), e.getValue());
+        }
+
+        SDT sdt3 = new SDT(Map.of(
+        		new EqualityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, r1), new SDT(Map.of(
+        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
+        						new DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
+        				new DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, r1), new SDT(Map.of(
+        						new EqualityGuard(s3, r2), SDTLeaf.REJECTING,
+        						new DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+        SDT expected1 = sdt1;
+        SDT expected2 = new SDT(branches2);
+        SDT expected3 = new SDT(Map.of(
+        		new EqualityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, r1), new SDT(Map.of(
+        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new EqualityGuard(s2, r1), new SDT(Map.of(
+        						new DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+        SDT actual1 = builder.pruneSDT(sdt1, new SymbolicDataValue[] {r1});
+//        builder.printStuff = true;
+        SDT actual2 = builder.pruneSDT(sdt2, new SymbolicDataValue[] {r1});
+        SDT actual3 = builder.pruneSDT(sdt3, new SymbolicDataValue[] {r1});
+
+        Set<List<SDTGuard>> expectedPaths1 = expected1.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> expectedPaths2 = expected2.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> expectedPaths3 = expected3.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths1 = actual1.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths2 = actual2.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths3 = actual3.getAllPaths(new ArrayList<>()).keySet();
+
+        Assert.assertEquals(actualPaths1.size(), expectedPaths1.size());
+        Assert.assertTrue(actualPaths1.containsAll(expectedPaths1));
+
+        Assert.assertEquals(actualPaths2.size(), expectedPaths2.size());
+        Assert.assertTrue(actualPaths2.containsAll(expectedPaths2));
+
+        Assert.assertEquals(actualPaths3.size(), expectedPaths3.size());
+        Assert.assertTrue(actualPaths3.containsAll(expectedPaths3));
     }
 }

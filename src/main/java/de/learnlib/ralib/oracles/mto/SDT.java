@@ -100,10 +100,15 @@ public class SDT implements SymbolicDecisionTree {
     		return comparands;
     	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
     		SDTGuard g = e.getKey();
-    		if (g.getParameter().equals(dv))
-    			comparands.addAll(g.getComparands(dv));
-    		else
-    			comparands.addAll(e.getValue().getComparands(dv));
+    		Set<SymbolicDataValue> guardComparands = g.getComparands(dv);
+//    		if (g.getParameter().equals(dv))
+//    			comparands.addAll(g.getComparands(dv));
+    		if (!guardComparands.isEmpty()) {
+    			comparands.addAll(guardComparands);
+//    		} else {
+//    			comparands.addAll(e.getValue().getComparands(dv));
+    		}
+    		comparands.addAll(e.getValue().getComparands(dv));
     	}
     	return comparands;
     }
@@ -165,6 +170,16 @@ public class SDT implements SymbolicDecisionTree {
             }
         }
         return variables;
+    }
+
+    public Set<SuffixValue> getSuffixValues() {
+    	Set<SuffixValue> suffixValues = new LinkedHashSet<>();
+    	if (children != null && !children.isEmpty()) {
+    		Map.Entry<SDTGuard, SDT> e = children.entrySet().stream().findFirst().get();
+    		suffixValues.add(e.getKey().getParameter());
+    		suffixValues.addAll(e.getValue().getSuffixValues());
+    	}
+    	return suffixValues;
     }
 
     @Override
@@ -252,7 +267,6 @@ public class SDT implements SymbolicDecisionTree {
         assert !relabelled.isEmpty();
         return relabelled;
     }
-
 
     /* ***
      *
@@ -499,6 +513,20 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         return ret;
+    }
+
+    public boolean replaceBranch(SDTGuard guard, SDT from, SDT with) {
+    	for (Map.Entry<SDTGuard, SDT> branch : children.entrySet()) {
+    		if (branch.getKey().equals(guard) && branch.getValue().equals(from)) {
+    			children.put(guard, with);
+    			return true;
+    		} else {
+    			boolean done = branch.getValue().replaceBranch(guard, from, with);
+    			if (done)
+    				return true;
+    		}
+    	}
+    	return false;
     }
 
     public static SDT getFinest(SDT... sdts) {

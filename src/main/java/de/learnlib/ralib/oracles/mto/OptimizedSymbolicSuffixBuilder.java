@@ -2,6 +2,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,12 +29,15 @@ import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.words.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
+
+	public boolean printStuff = false;
 
     private final Constants consts;
 
@@ -91,15 +95,39 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     public SymbolicSuffix extendSuffixRevealingRegisters(Word<PSymbolInstance> prefix, SDT sdt, PIV piv, Word<ParameterizedSymbol> suffixActions, Register[] registers) {
-    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
-    	SymbolicSuffix best = null;
+//    	Set<List<SDTGuard>> paths = sdt.getAllPaths(new ArrayList<>()).keySet();
+//    	List<List<SDTGuard>> pathsAccepting = sdt.getPaths(true);
+//    	List<List<SDTGuard>> pathsRejecting = sdt.getPaths(false);
+//    	SymbolicSuffix best = null;
+//    	for (List<SDTGuard> pathA : pathsAccepting) {
+//    		for (List<SDTGuard> pathR : pathsRejecting) {
+//    			SymbolicSuffix suffix1 = extendSuffix(prefix, pathA, piv, suffixActions);
+//    			SymbolicSuffix suffix2 = extendSuffix(prefix, pathR, piv, suffixActions);
+//    			SymbolicSuffix extendedSuffix = coalesceSuffixes(suffix1, suffix2);
+//    			if (suffixRevealsRegisters(extendedSuffix, registers)) {
+//    				best = pickBest(best, extendedSuffix);
+//    			}
+//    		}
+//    	}
+//    	for (List<SDTGuard> path : paths) {
+//    		if (restrictionBuilder.sdtPathRevealsRegister(path, registers)) {
+//    			SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
+//    			best = pickBest(best, extendedSuffix);
+//    		}
+//    	}
+
+    	SDT prunedSDT = pruneSDT(sdt, registers);
+    	Set<List<SDTGuard>> paths = prunedSDT.getAllPaths(new ArrayList<>()).keySet();
+    	SymbolicSuffix suffix = null;
     	for (List<SDTGuard> path : paths) {
-    		if (restrictionBuilder.sdtPathRevealsRegister(path, registers)) {
-    			SymbolicSuffix extendedSuffix = extendSuffix(prefix, path, piv, suffixActions);
-    			best = pickBest(best, extendedSuffix);
+    		SymbolicSuffix extended = extendSuffix(prefix, path, piv, suffixActions);
+    		if (suffix == null) {
+    			suffix = extended;
+    		} else {
+    			suffix = mergeSuffixes(extended, suffix);
     		}
     	}
-    	return best;
+    	return suffix;
     }
 
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, List<SDTGuard> sdtPath, PIV piv, Word<ParameterizedSymbol> suffixActions) {
@@ -137,6 +165,262 @@ public class OptimizedSymbolicSuffixBuilder {
     	Word<ParameterizedSymbol> actions = suffixActions.prepend(actionSymbol);
     	return new SymbolicSuffix(actions, restrictions);
     }
+
+    protected SDT pruneSDT(SDT sdt, SymbolicDataValue[] registers) {
+    	LabeledSDT lsdt = new LabeledSDT(0, sdt);
+    	if (printStuff)
+    		System.out.println(lsdt.toString());
+    	LabeledSDT pruned = pruneSDTNode(lsdt, lsdt, registers);
+    	return pruned.toUnlabeled();
+    }
+
+    private LabeledSDT pruneSDTNode(LabeledSDT lsdt, LabeledSDT node, SymbolicDataValue[] registers) {
+    	LabeledSDT pruned = lsdt;
+    	int nodeLabel = node.getLabel();
+	    for (int label : node.getChildIndices()) {
+	    	if (pruned.get(nodeLabel).getChildren().size() < 2)
+	    		break;
+	    	pruned = pruneSDTBranch(pruned, label, registers);
+	    }
+    	for (int label : pruned.get(nodeLabel).getChildIndices()) {
+    		LabeledSDT parent = pruned.get(label);
+    		if (parent != null)
+    			pruned = pruneSDTNode(pruned, parent, registers);
+    	}
+    	return pruned;
+    }
+
+    private LabeledSDT pruneSDTBranch(LabeledSDT lsdt, int label, SymbolicDataValue[] registers) {
+    	if (printStuff)
+    		System.out.println("Attempting to prune " + label);
+    	if (branchContainsRegister(lsdt.get(label), registers) ||
+    			guardOnRegisters(lsdt.getGuard(label), registers))
+    		return lsdt;
+    	LabeledSDT pruned = LabeledSDT.pruneBranch(lsdt, label);
+    	SDT prunedSDT = pruned.toUnlabeled();
+    	int revealedRegisters = 0;
+    	for (SymbolicDataValue r : registers) {
+//    		if (sdtRevealsRegister(prunedSDT, r) && guardsOnRegisterHaveBothOutcomes(prunedSDT, r))
+    		if (guardsOnRegisterHaveBothOutcomes(prunedSDT, r))
+    			revealedRegisters++;
+    	}
+    	if (revealedRegisters < registers.length) {
+    		if (printStuff)
+    			System.out.println("Contains " + revealedRegisters + " registers, needs " + registers.length);
+    		return lsdt;
+    	}
+    	return pruned;
+    }
+
+    private boolean branchContainsRegister(LabeledSDT node, SymbolicDataValue[] registers) {
+    	for (Map.Entry<SDTGuard, LabeledSDT> e : node.getChildren().entrySet()) {
+    		SDTGuard guard = e.getKey();
+    		LabeledSDT child = e.getValue();
+    		Set<SymbolicDataValue> comparands = guard.getComparands(guard.getParameter());
+    		for (SymbolicDataValue sdv : registers) {
+    			if (comparands.contains(sdv)) {
+    				if (printStuff)
+    					System.out.println("Branch contains register " + sdv);
+    				return true;
+    			}
+    		}
+    		boolean childContainsRegister = branchContainsRegister(child, registers);
+    		if (childContainsRegister)
+    			return true;
+    	}
+    	return false;
+    }
+
+    private boolean guardOnRegisters(SDTGuard guard, SymbolicDataValue[] registers) {
+    	SuffixValue sv = guard.getParameter();
+    	for (SymbolicDataValue r : registers) {
+    		if (guard.getComparands(sv).contains(r)) {
+    			if (printStuff)
+    				System.out.println("Guard " + guard.toString() + " contains register " + r);
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+
+    private SymbolicSuffix mergeSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
+    	assert suffix1.getActions().equals(suffix2.getActions());
+
+    	Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
+    	for (SuffixValue sv : suffix1.getDataValues()) {
+    		SuffixValueRestriction restr1 = suffix1.getRestriction(sv);
+    		SuffixValueRestriction restr2 = suffix2.getRestriction(sv);
+    		if (restr1.equals(restr2)) {
+    			restrictions.put(sv, restr1);
+    		} else {
+    			restrictions.put(sv, new UnrestrictedSuffixValue(sv));
+    		}
+    	}
+    	return new SymbolicSuffix(suffix1.getActions(), restrictions);
+    }
+
+//    private LabeledSDT pruneSDT(LabeledSDT lsdt, int currLabel, SymbolicDataValue[] registers) {
+//    	LabeledSDT pruned, nextSDT;
+//    	Integer nextLabel = null;
+//    	int parentLabel = lsdt.getParent(currLabel).getLabel();
+//    	if (lsdt.getParent(currLabel).getChildren().size() > 1) {
+//	    	pruned = LabeledSDT.pruneBranch(lsdt, currLabel);
+//	    	SDT sdt = pruned.toUnlabeled();
+//	    	int revealedRegisters = 0;
+//	    	for (SymbolicDataValue r : registers) {
+//	    		if (sdtRevealsRegister(sdt, r))
+//	    			revealedRegisters++;
+//	    	}
+//	    	// reject pruning if not all registers revealed
+//	    	nextSDT = revealedRegisters == registers.length ? pruned : lsdt;
+//
+//	    	// continue with next branch (smallest l in nextSDT.getChildIndices() s.t. l > currLabel)
+//	    	LabeledSDT parentNode = nextSDT.get(parentLabel);
+//	    	for (int l : parentNode.getChildIndices()) {
+//	    		if (l > currLabel && (nextLabel == null || l < nextLabel))
+//	    			nextLabel = l;
+//	    	}
+//    	} else {
+//    		nextSDT = lsdt;
+//    	}
+//
+//    	if (nextLabel == null) {
+//    		// all branches pruned, proceed to next level
+//    		LabeledSDT currNode = nextSDT.get(parentLabel);
+//    		for (int l : currNode.getChildIndices()) {
+//    			nextSDT = pruneSDT(nextSDT, l, registers);
+//    		}
+//    		return nextSDT;
+//    	}
+//
+//    	return pruneSDT(nextSDT, nextLabel, registers);
+//    }
+
+    public boolean sdtRevealsRegister(SDT sdt, SymbolicDataValue register) {
+    	if (sdt instanceof SDTLeaf) {
+    		return false;
+    	}
+
+    	Map<SDTGuard, SDT> children = sdt.getChildren();
+    	Set<SDTGuard> guards = new LinkedHashSet<>();
+    	for (Map.Entry<SDTGuard, SDT> branch : children.entrySet()) {
+    		SDTGuard guard = branch.getKey();
+    		SDT s = branch.getValue();
+    		if (guard.getComparands(guard.getParameter()).contains(register)) {
+    			guards.add(guard);
+    		} else {
+    			boolean revealed = sdtRevealsRegister(s, register);
+    			if (revealed)
+    				return true;
+    		}
+    	}
+
+    	// cannot have both outcomes if not at least 2 branches
+    	if (guards.size() < 2)
+    		return false;
+
+    	// find a guard that can accept
+    	SDTGuard guardA = null;
+    	for (SDTGuard g : guards) {
+    		SDT s = children.get(g);
+    		if (!s.getPaths(true).isEmpty()) {
+    			guardA = g;
+    			break;
+    		}
+    	}
+    	if (guardA == null)
+    		return false;
+    	// exists other guard which can reject?
+    	for (SDTGuard g : guards) {
+    		if (g == guardA)
+    			continue;
+    		SDT s = children.get(g);
+    		if (!s.getPaths(false).isEmpty()) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+
+    private boolean guardsOnRegisterHaveBothOutcomes(SDT sdt, SymbolicDataValue register) {
+    	if (sdt instanceof SDTLeaf)
+    		return true;
+
+    	Map<SDTGuard, SDT> childrenWithRegister = new LinkedHashMap<>();
+    	for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
+    		if (!e.getKey().getComparands(register).isEmpty())
+    			childrenWithRegister.put(e.getKey(), e.getValue());
+    	}
+    	if (!childrenWithRegister.isEmpty()) {
+    		if (!guardHasBothOutcomes(childrenWithRegister))
+    			return false;
+    	}
+    	boolean ret = true;
+    	for (SDT child : sdt.getChildren().values()) {
+    		ret = ret && guardsOnRegisterHaveBothOutcomes(child, register);
+    	}
+    	return ret;
+
+//    	Set<SuffixValue> suffixValues = new LinkedHashSet<>();
+//    	sdt.getComparands(register)
+//    	.stream()
+//    	.filter(sdv -> sdv instanceof SuffixValue)
+//    	.forEach(sdv -> suffixValues.add((SuffixValue)sdv));
+//
+//    	if (printStuff)
+//    		System.out.println("Suffix values with guards on " + register + ": " + suffixValues);
+//
+//    	List<List<SDTGuard>> pathsA = sdt.getPaths(true);
+//    	List<List<SDTGuard>> pathsR = sdt.getPaths(false);
+//    	if (printStuff) {
+//    		System.out.println("Accepting paths: " + pathsA);
+//    		System.out.println("Rejecting paths: " + pathsR);
+//    	}
+//
+//    	for (SuffixValue sv : suffixValues) {
+//    		Set<SDTGuard> guards = sdt.getSDTGuards(sv).stream().filter(g -> g.getComparands(sv).contains(register)).collect(Collectors.toSet());
+//    		if (printStuff)
+//    			System.out.println("Guards on " + sv + ": " + guards);
+//    		if (guards.size() < 2)
+//    			return false;
+//    		SDTGuard guard = guards.stream().findFirst().get();
+//    		boolean acceptingPath = pathListContainsGuard(pathsA, guard);
+//    		if (printStuff)
+//    			System.out.println("Guard " + guard + " accepting is " + acceptingPath);
+//    		for (SDTGuard g : guards) {
+//    			if (g.equals(guard))
+//    				continue;
+//    			if ((acceptingPath && !pathListContainsGuard(pathsR, g) && !pathListContainsGuard(pathsR, guard)) ||
+//    					!acceptingPath && !pathListContainsGuard(pathsA, g) && !pathListContainsGuard(pathsA, guard))
+//    				return false;
+//    		}
+//    	}
+//
+//    	return true;
+    }
+
+    private boolean guardHasBothOutcomes(Map<SDTGuard, SDT> children) {
+    	if (children.size() < 2)
+    		return false;
+    	Iterator<SDTGuard> guards = children.keySet().iterator();
+    	SDT firstSDT = children.get(guards.next());
+    	boolean hasAccepting = !firstSDT.getPaths(true).isEmpty();
+    	while(guards.hasNext()) {
+    		// if hasAccepting, find rejecting
+    		// else find accepting
+    		if (!children.get(guards.next()).getPaths(!hasAccepting).isEmpty())
+    			return true;
+    	}
+    	if (hasAccepting) {
+    		// could not find rejecting, see if first sdt has rejecting
+    		return !firstSDT.getPaths(false).isEmpty();
+    	}
+    	return false;
+    }
+
+	private boolean pathListContainsGuard(List<List<SDTGuard>> paths, SDTGuard guard) {
+		return paths.stream().filter(p -> p.contains(guard)).findAny().isPresent();
+	}
 
     private Set<SDTGuard> getGuards(List<SDTGuard> path, SuffixValue sv) {
     	Set<SDTGuard> guards = new LinkedHashSet<>();
@@ -315,6 +599,20 @@ public class OptimizedSymbolicSuffixBuilder {
             return next;
         }
         return current;
+    }
+
+    private boolean suffixRevealsRegisters(SymbolicSuffix suffix, Register[] registers) {
+    	int revealedRegisters = 0;
+    	for (Register r : registers) {
+    		for (SuffixValue sv : suffix.getDataValues()) {
+    			SuffixValueRestriction restr = suffix.getRestriction(sv);
+    			if (restr.revealsRegister(r)) {
+    				revealedRegisters++;
+    				break;
+    			}
+    		}
+    	}
+    	return revealedRegisters == registers.length;
     }
 
     private int score(SymbolicSuffix suffix) {
