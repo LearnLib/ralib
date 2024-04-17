@@ -19,6 +19,7 @@ package de.learnlib.ralib.words;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.word.Word;
@@ -182,6 +184,22 @@ public final class DataWords {
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
         }
         return Word.fromSymbols(symbols);
+    }
+
+    public static Word<PSymbolInstance> instantiate(
+    		Word<ParameterizedSymbol> actions,
+    		Collection<SuffixValue> suffixValues) {
+    	PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
+    	int idx = 0;
+    	Iterator<SuffixValue> svit = suffixValues.iterator();
+    	for (ParameterizedSymbol ps : actions) {
+    		DataValue[] pvalues = new DataValue[ps.getArity()];
+    		for (int i = 0; i < ps.getArity(); i++) {
+    			pvalues[i] = svit.next();
+    		}
+    		symbols[idx++] = new PSymbolInstance(ps, pvalues);
+    	}
+    	return Word.fromSymbols(symbols);
     }
 
     /**

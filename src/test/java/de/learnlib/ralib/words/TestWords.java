@@ -22,6 +22,9 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.testng.Assert;
@@ -30,7 +33,12 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.FreshSuffixValue;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
+import de.learnlib.ralib.theory.equality.EqualRestriction;
 import net.automatalib.word.Word;
 
 /**
@@ -71,8 +79,17 @@ public class TestWords extends RaLibTestSuite {
         SymbolicSuffix sym = new SymbolicSuffix(prefix, suffix);
 
        logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
-       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
-        Assert.assertEquals(sym.toString(), expString);
+       Collection<SuffixValue> symSVs = sym.getDataValues();
+       SuffixValue[] symSVArr = symSVs.toArray(new SuffixValue[symSVs.size()]);
+       Map<SuffixValue, SuffixValueRestriction> expRestr = new LinkedHashMap<>();
+       expRestr.put(symSVArr[0], new UnrestrictedSuffixValue(symSVArr[0]));
+       expRestr.put(symSVArr[1], new FreshSuffixValue(symSVArr[1]));
+       expRestr.put(symSVArr[2], new EqualRestriction(symSVArr[2], symSVArr[1]));
+       expRestr.put(symSVArr[3], new UnrestrictedSuffixValue(symSVArr[3]));
+       SymbolicSuffix exp = new SymbolicSuffix(sym.getActions(), expRestr);
+       Assert.assertEquals(sym, exp);
+//       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
+//        Assert.assertEquals(sym.toString(), expString);
     }
 
     @Test
@@ -106,8 +123,8 @@ public class TestWords extends RaLibTestSuite {
         logger.log(Level.FINE, "Sym. Suffix 1: {0}", symSuffix1);
         logger.log(Level.FINE, "Sym. Suffix 2: {0}", symSuffix2);
 
-        String expected1 = "[s1, s2]((login[s1, s2]))";
-        String expected2 = "[s1, s2]((logout[] login[s1, s2]))";
+        String expected1 = "((login[s1, s2]))[Unrestricted(s1), Unrestricted(s2)]";
+        String expected2 = "((logout[] login[s1, s2]))[Unrestricted(s1), Unrestricted(s2)]";
 
         Assert.assertEquals(symSuffix1.toString(), expected1);
         Assert.assertEquals(symSuffix2.toString(), expected2);

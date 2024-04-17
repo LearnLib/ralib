@@ -36,12 +36,16 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -219,7 +223,15 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Assert.assertEquals(actual1, expected1);
 
         SymbolicSuffix actual2 = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2);
-        Assert.assertEquals(actual2.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
+//        SuffixValue[] actualSV2 = actual2.getDataValues().toArray(new SuffixValue[actual2.getDataValues().size()]);
+        Map<SuffixValue, SuffixValueRestriction> expectedRestr2 = new LinkedHashMap<>();
+        expectedRestr2.put(s1, new FreshSuffixValue(s1));
+        expectedRestr2.put(s2, new FreshSuffixValue(s2));
+        expectedRestr2.put(s3, new UnrestrictedSuffixValue(s3));
+        expectedRestr2.put(s4, new FreshSuffixValue(s4));
+        SymbolicSuffix expected2 = new SymbolicSuffix(actual2.getActions(), expectedRestr2);
+        Assert.assertEquals(actual2, expected2);
+//        Assert.assertEquals(actual2.toString(), "[s3]((a[s1, s2] a[s3, s4]))");
 
         SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(2), restrictionBuilder2);
         SymbolicSuffix actual3 = builder.extendSuffix(word3.prefix(2), sdt3, piv3, suffix3);
@@ -395,6 +407,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SuffixValue s1 = sgen.next(type);
         SuffixValue s2 = sgen.next(type);
         SuffixValue s3 = sgen.next(type);
+        SuffixValue s4 = sgen.next(type);
 
         RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
         Register r1 = rgen.next(type);
@@ -434,7 +447,14 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
-        Assert.assertEquals(suffix12.toString(), "[]((a[s1] a[s1] a[s2] a[s3]))");
+        Map<SuffixValue, SuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
+        expectedRestr12.put(s1, new FreshSuffixValue(s1));
+        expectedRestr12.put(s2, new EqualRestriction(s2, s1));
+        expectedRestr12.put(s3, new FreshSuffixValue(s3));
+        expectedRestr12.put(s4, new FreshSuffixValue(s4));
+        SymbolicSuffix expected12 = new SymbolicSuffix(suffix12.getActions(), expectedRestr12);
+        Assert.assertEquals(suffix12, expected12);
+//        Assert.assertEquals(suffix12.toString(), "[]((a[s1] a[s1] a[s2] a[s3]))");
 
         Word<PSymbolInstance> prefix3 = prefix1;
         Word<PSymbolInstance> prefix4 = prefix2;
@@ -465,7 +485,14 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv4.put(p2, r2);
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
-        Assert.assertEquals(suffix34.toString(), "[s2]((a[s1] a[s2] a[s3] a[s3]))");
+        Map<SuffixValue, SuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
+        expectedRestr34.put(s1, new FreshSuffixValue(s1));
+        expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));
+        expectedRestr34.put(s3, new FreshSuffixValue(s3));
+        expectedRestr34.put(s4, new EqualRestriction(s4, s3));
+        SymbolicSuffix expected34 = new SymbolicSuffix(suffix34.getActions(), expectedRestr34);
+        Assert.assertEquals(suffix34, expected34);
+//        Assert.assertEquals(suffix34.toString(), "[s2]((a[s1] a[s2] a[s3] a[s3]))");
     }
 
     @Test
