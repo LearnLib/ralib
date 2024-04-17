@@ -28,7 +28,7 @@ import de.learnlib.ralib.RaLibTestSuite;
 public class ClassAnalyzerTest extends RaLibTestSuite {
 
     @Test
-    public void testClassAnalyzerWithMultilogin() {
+    public void classAnalyzerWithMultiloginTest() {
 
         final String[] options = new String[] {
             "class-analyzer",
@@ -53,13 +53,12 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "rwalk.reset.count=false;" +
             "rwalk.draw.uniform=false;" +
             "teachers=uid:de.learnlib.ralib.tools.theories.IntegerEqualityTheory+" +
-             "pwd:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;"};
+	    "pwd:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;"};
 
         try {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
-
         } catch (Throwable t) {
             t.printStackTrace();
             Assert.fail(t.getClass().getName());
@@ -67,8 +66,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testClassAnalyzerWithFreshValues() {
-
+    public void classAnalyzerWithFreshValuesTest() {
 
         final String[] options = new String[] {
             "class-analyzer",
@@ -95,15 +93,13 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
-
         } catch (Throwable t) {
-
             Assert.fail(t.getClass().getName());
         }
     }
 
     @Test
-    public void testClassAnalyzerInequalities() {
+    public void classAnalyzerInequalitiesTest() {
 
         final String[] options = new String[] {
             "class-analyzer",
@@ -131,10 +127,8 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
         } catch (Throwable t) {
-
             Assert.fail(t.getClass().getName());
         }
-
     }
 
 }

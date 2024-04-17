@@ -14,41 +14,39 @@ import net.automatalib.word.Word;
 
 public class QueryStatisticsTest extends RaLibTestSuite {
 
-	public static final InputSymbol A = new InputSymbol("a", new DataType[] {});
+    public static final InputSymbol A = new InputSymbol("a", new DataType[] {});
 
-	@Test
-	public void testCounterexampleStatistics() {
+    @Test
+    public void counterexampleStatisticsTest() {
 
-		DataWordSUL sul = null;
-		QueryStatistics qs = new QueryStatistics(null, sul);
+	DataWordSUL sul = null;
+	QueryStatistics qs = new QueryStatistics(null, sul);
 
-		Word<PSymbolInstance> ceLen6 = buildCE(2);
-		Word<PSymbolInstance> ceLen2 = buildCE(6);
-		Word<PSymbolInstance> ceLen7 = buildCE(7);
+	Word<PSymbolInstance> ceLen6 = buildCE(2);
+	Word<PSymbolInstance> ceLen2 = buildCE(6);
+	Word<PSymbolInstance> ceLen7 = buildCE(7);
 
-		qs.analyzeCE(ceLen2);
-		qs.analyzeCE(ceLen6);
-		qs.analyzeCE(ceLen7);
+	qs.analyzeCE(ceLen2);
+	qs.analyzeCE(ceLen6);
+	qs.analyzeCE(ceLen7);
 
-		Set<Word<PSymbolInstance>> ces = qs.getCEs();
+	Set<Word<PSymbolInstance>> ces = qs.getCEs();
+	Assert.assertEquals(ces.size(), 3);
+	Assert.assertTrue(ces.contains(ceLen2));
+	Assert.assertTrue(ces.contains(ceLen6));
+	Assert.assertTrue(ces.contains(ceLen7));
 
-		Assert.assertEquals(ces.size(), 3);
-		Assert.assertTrue(ces.contains(ceLen2));
-		Assert.assertTrue(ces.contains(ceLen6));
-		Assert.assertTrue(ces.contains(ceLen7));
+	String str = qs.toString();
+	Assert.assertTrue(str.contains("Counterexamples: 3"));
+	Assert.assertTrue(str.contains("CE max length: 7"));
+	Assert.assertTrue(str.contains("CE avg length: 5"));
+    }
 
-		String str = qs.toString();
-
-		Assert.assertTrue(str.contains("Counterexamples: 3"));
-		Assert.assertTrue(str.contains("CE max length: 7"));
-		Assert.assertTrue(str.contains("CE avg length: 5"));
+    private Word<PSymbolInstance> buildCE(int length) {
+	Word<PSymbolInstance> ce = Word.epsilon();
+	for (int i = 0; i < length; i++) {
+	    ce = ce.append(new PSymbolInstance(A));
 	}
-
-	private Word<PSymbolInstance> buildCE(int length) {
-		Word<PSymbolInstance> ce = Word.epsilon();
-		for (int i = 0; i < length; i++) {
-			ce = ce.append(new PSymbolInstance(A));
-		}
-		return ce;
-	}
+	return ce;
+    }
 }

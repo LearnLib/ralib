@@ -93,7 +93,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         List<Transition> tseq = getTransitions(word);
         //System.out.println("TSEQ: " + tseq);
         if (tseq == null)
-        	return null;
+	    return null;
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);
     }
@@ -102,25 +102,25 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     	return transformTransitionSequence(word);
     }
 
-	public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
-		ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
+    public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
+	ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
         List<Pair<Transition, VarValuation>> tvseq = getTransitionsAndValuations(word);
         VarValuation vars = tvseq.get(tvseq.size()-1).getSecond();
         ParValuation pval = new ParValuation(word.lastSymbol());
 
-		for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branching.getBranches().entrySet()) {
-			if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
-			    if (e.getValue().isSatisfied(vars, pval, constants)) {
-			        return e.getKey();
-			    }
-			}
+	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branching.getBranches().entrySet()) {
+	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
+		if (e.getValue().isSatisfied(vars, pval, constants)) {
+		    return e.getKey();
 		}
-		return null;
+	    }
 	}
+	return null;
+    }
 
-	public VarMapping<Register, ? extends SymbolicDataValue> getLastTransitionAssignment(Word<PSymbolInstance> word) {
-		List<Transition> tseq = getTransitions(word);
-		return tseq.get(tseq.size() - 1).getAssignment().getAssignment();
-	}
+    public VarMapping<Register, ? extends SymbolicDataValue> getLastTransitionAssignment(Word<PSymbolInstance> word) {
+	List<Transition> tseq = getTransitions(word);
+	return tseq.get(tseq.size() - 1).getAssignment().getAssignment();
+    }
 }

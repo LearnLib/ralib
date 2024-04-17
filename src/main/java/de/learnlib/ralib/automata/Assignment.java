@@ -45,14 +45,14 @@ public class Assignment {
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
             SymbolicDataValue valp = e.getValue();
             if (valp.isRegister()) {
-                val.put(e.getKey(), registers.get( (Register) valp));
+                val.put(e.getKey(), registers.get((Register) valp));
             }
             else if (valp.isParameter()) {
-                val.put(e.getKey(), parameters.get( (Parameter) valp));
+                val.put(e.getKey(), parameters.get((Parameter) valp));
             }
             //TODO: check if we want to copy constant values into vars
             else if (valp.isConstant()) {
-                val.put(e.getKey(), consts.get( (Constant) valp));
+                val.put(e.getKey(), consts.get((Constant) valp));
             }
             else {
                 throw new IllegalStateException("Illegal assignment: " +
