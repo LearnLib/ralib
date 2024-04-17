@@ -17,14 +17,13 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class MappedPrefix implements PrefixContainer {
 	private Word<PSymbolInstance> prefix;
 	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
-
 	public final Set<Parameter> missingParameter = new LinkedHashSet<>();
 
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
@@ -99,10 +98,12 @@ public class MappedPrefix implements PrefixContainer {
 		return tqrs;
 	}
 
+	@Override
 	public Word<PSymbolInstance> getPrefix() {
 		return this.prefix;
 	}
 
+	@Override
 	public String toString() {
 		return "{" + prefix.toString() + ", " + memorable.toString() + "}";
 	}
@@ -126,7 +127,6 @@ public class MappedPrefix implements PrefixContainer {
 			if (e.getValue().getPiv().containsKey(p))
 				suffixes.add(e.getKey());
 		}
-		assert !suffixes.isEmpty();
 		return suffixes;
 	}
 }

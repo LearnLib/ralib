@@ -21,12 +21,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -38,7 +41,7 @@ public class SULOracle extends IOOracle {
 
     private final ParameterizedSymbol error;
 
-    private static LearnLogger log = LearnLogger.getLogger(SULOracle.class);
+    private static Logger log = LoggerFactory.getLogger(SULOracle.class);
 
     private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
 
@@ -51,7 +54,7 @@ public class SULOracle extends IOOracle {
     public Word<PSymbolInstance> trace(Word<PSymbolInstance> query) {
         countQueries(1);
         Word<PSymbolInstance> act = query;
-        log.trace("MQ: {0}", query);
+        log.trace(Category.QUERY, "MQ: {0}", query);
         sul.pre();
         replacements.clear();
         Word<PSymbolInstance> trace = Word.epsilon();
@@ -59,7 +62,7 @@ public class SULOracle extends IOOracle {
             PSymbolInstance in = applyReplacements(act.getSymbol(i));
 
             PSymbolInstance out = sul.step(in);
-            updateReplacements(act.getSymbol(i + 1), out);
+            updateReplacements(out);
 
             trace = trace.append(in).append(out);
 
@@ -94,9 +97,7 @@ public class SULOracle extends IOOracle {
         return new PSymbolInstance(symbol.getBaseSymbol(), vals);
     }
 
-    private void updateReplacements(
-            PSymbolInstance outTest, PSymbolInstance outSys) {
-
+    private void updateReplacements(PSymbolInstance outSys) {
         for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
             Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);
             set.add(outSys.getParameterValues()[i]);

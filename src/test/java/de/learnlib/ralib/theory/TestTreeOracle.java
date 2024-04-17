@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.Query;
+import de.learnlib.query.Query;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -40,7 +40,7 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -48,7 +48,6 @@ import net.automatalib.words.Word;
  */
 @Test
 public class TestTreeOracle extends RaLibTestSuite {
-
 
     public void testTreeOracle() {
 
@@ -63,11 +62,11 @@ public class TestTreeOracle extends RaLibTestSuite {
         final ParameterizedSymbol login = new InputSymbol(
                 "login", new DataType[] {userType, passType});
 
-        final ParameterizedSymbol change = new InputSymbol(
-                "change", new DataType[] {passType});
+        //final ParameterizedSymbol change = new InputSymbol(
+        //        "change", new DataType[] {passType});
 
-        final ParameterizedSymbol logout = new InputSymbol(
-                "logout", new DataType[] {userType});
+        //final ParameterizedSymbol logout = new InputSymbol(
+        //        "logout", new DataType[] {userType});
 
         // create prefix: register(falk[userType], secret[passType])
         final Word<PSymbolInstance> prefix = Word.fromLetter(
@@ -80,7 +79,6 @@ public class TestTreeOracle extends RaLibTestSuite {
                     new DataValue(userType, "falk"),
                     new DataValue(passType, "secret"))
                     );
-
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
@@ -96,7 +94,6 @@ public class TestTreeOracle extends RaLibTestSuite {
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
 
                 // given a collection of queries, process each one (with Bool replies)
-
                 for (Query q : clctn) {
                     Word<PSymbolInstance> trace = q.getInput();
 
@@ -131,7 +128,6 @@ public class TestTreeOracle extends RaLibTestSuite {
             public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
-
 
         };
 
@@ -177,7 +173,5 @@ public class TestTreeOracle extends RaLibTestSuite {
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
     }
-
-
 
 }

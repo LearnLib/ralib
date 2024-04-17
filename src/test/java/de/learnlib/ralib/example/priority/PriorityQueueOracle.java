@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.PriorityQueue;
 
-import de.learnlib.api.query.Query;
+import de.learnlib.query.Query;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -58,7 +58,6 @@ public final class PriorityQueueOracle implements DataWordOracle {
                 query.answer(true);
             } else {
                 PriorityQueue<BigDecimal> queue = new PriorityQueue<>();
-                PSymbolInstance[] trace = new PSymbolInstance[query.getInput().length()];
                 Boolean[] answer = new Boolean[query.getInput().length()];
 
                 for (int i = 0; i < query.getInput().length(); i++) {

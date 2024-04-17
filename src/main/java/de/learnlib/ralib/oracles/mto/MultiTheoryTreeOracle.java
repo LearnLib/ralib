@@ -30,8 +30,11 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.guards.FalseGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -67,8 +70,8 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.commons.util.Pair;
-import net.automatalib.words.Word;
+import net.automatalib.common.util.Pair;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -84,9 +87,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final ConstraintSolver solver;
 
-    private final MultiTheorySDTLogicOracle logicOracle;
-
-    private static LearnLogger log = LearnLogger.getLogger(MultiTheoryTreeOracle.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(MultiTheoryTreeOracle.class);
 
     public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants,
             ConstraintSolver solver) {
@@ -94,7 +95,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
-        this.logicOracle = new MultiTheorySDTLogicOracle(constants, solver);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
         TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
-        log.debug("PIV: " + piv);
+        LOGGER.debug(Category.QUERY, "PIV: {}", piv);
 
         return tqr;
     }
@@ -134,7 +134,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (values.size() == DataWords.paramLength(suffix.getActions())) {
             Word<PSymbolInstance> concSuffix = DataWords.instantiate(suffix.getActions(), values);
 
-            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
+//            Word<PSymbolInstance> trace = prefix.concat(concSuffix);
             DefaultQuery<PSymbolInstance, Boolean> query = new DefaultQuery<>(prefix, concSuffix);
             oracle.processQueries(Collections.singletonList(query));
             boolean qOut = query.getOutput();
@@ -165,7 +165,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
             SymbolicDecisionTree... sdts) {
 
-        log.info("computing initial branching for {0} after {1}", new Object[] { ps, prefix });
+        LOGGER.info(Category.QUERY, "computing initial branching for {0} after {1}", new Object[] { ps, prefix });
 
         // TODO: check if this casting can be avoided by proper use of generics
         // TODO: the problem seems to be
@@ -181,7 +181,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching mtb = this.getInitialBranching(prefix, ps, piv, new ParValuation(), casted);
 
-        log.trace(mtb.toString());
+        LOGGER.trace(Category.QUERY, mtb.toString());
 
         return mtb;
     }
@@ -212,7 +212,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
             DataType type = ps.getPtypes()[i - 1];
-            log.trace("current type: " + type.getName());
+            LOGGER.trace(Category.QUERY, "current type: " + type.getName());
             Parameter p = new Parameter(type, i);
             SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, i));
             Theory teach = teachers.get(type);
@@ -267,11 +267,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
                 SDTGuard guard = mergedGuardEntry.getKey();
                 Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
-                DataValue dvi = null;
 
                 // first solve using a constraint solver
-                dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
-
+                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
                 // if merging of guards is done properly, there should be no case where the
                 // guard cannot be instantiated.
                 assert (dvi != null);
@@ -295,8 +293,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 guardMap.put(dvi, guard);
             }
 
-            log.trace("guardMap: " + guardMap.toString());
-            log.trace("nextMap: " + nextMap.toString());
+            LOGGER.trace(Category.QUERY, "guardMap: " + guardMap.toString());
+            LOGGER.trace(Category.QUERY, "nextMap: " + nextMap.toString());
             assert !nextMap.isEmpty();
             assert !guardMap.isEmpty();
             return new Node(p, nextMap, guardMap);
@@ -448,9 +446,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return valuation;
     }
 
+    @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             SymbolicDecisionTree sdt, PIV piv) {
-
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
         instantiate(words, prefix, suffix, (SDT) sdt, piv, 0, 0,

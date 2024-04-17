@@ -46,7 +46,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -59,7 +59,6 @@ public class FreshValuesTest extends RaLibTestSuite {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/keygen.xml");
-
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
         logger.log(Level.FINE, "SYS: {0}", model);
@@ -96,18 +95,18 @@ public class FreshValuesTest extends RaLibTestSuite {
         ParameterizedSymbol iget = new InputSymbol(
                 "IGet", new DataType[] {intType});
 
-         ParameterizedSymbol oput = new OutputSymbol(
+        ParameterizedSymbol oput = new OutputSymbol(
                 "OPut", new DataType[] {intType});
 
-         ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", new DataType[] {intType});
+//        ParameterizedSymbol oget = new OutputSymbol(
+//                "OGet", new DataType[] {intType});
 
-         ParameterizedSymbol onok = new OutputSymbol(
+        ParameterizedSymbol onok = new OutputSymbol(
                 "ONOK", new DataType[] {});
 
-         DataValue d0 = new DataValue(intType, 0);
-         DataValue d1 = new DataValue(intType, 1);
-         DataValue d2 = new DataValue(intType, 2);
+        DataValue d0 = new DataValue(intType, 0);
+        DataValue d1 = new DataValue(intType, 1);
+        DataValue d2 = new DataValue(intType, 2);
 
         // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -116,9 +115,9 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(iget, d2),
                 new PSymbolInstance(onok));
 
-         DataValue d3 = new DataValue(intType, 3);
-         DataValue d4 = new DataValue(intType, 4);
-         DataValue d5 = new DataValue(intType, 5);
+        DataValue d3 = new DataValue(intType, 3);
+        DataValue d4 = new DataValue(intType, 4);
+        DataValue d5 = new DataValue(intType, 5);
 
         // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
         Word<PSymbolInstance> suffix = Word.fromSymbols(
@@ -130,7 +129,6 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(onok),
                 new PSymbolInstance(iput, d5),
                 new PSymbolInstance(onok));
-
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix1, suffix);
 

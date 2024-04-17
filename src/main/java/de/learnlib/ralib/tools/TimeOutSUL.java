@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.tools;
 
-import de.learnlib.api.exception.SULException;
+import de.learnlib.exception.SULException;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
 

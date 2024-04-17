@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *

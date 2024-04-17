@@ -27,23 +27,22 @@ import java.util.Set;
 
 public class Polynomial extends Constraint {
 
-	public static final Polynomial FALSE = new Polynomial(Collections.<Monomial>emptySet());
-
 	static Constraint fromSet(Set<Monomial> constraints) {
 		int size = constraints.size();
 		if(size == 0)
-			return FALSE;
+		    return FALSE;
 		else if(size == 1)
-			return constraints.iterator().next();
+		    return constraints.iterator().next();
 		return new Polynomial(constraints);
 	}
 
 	private final Set<Monomial> constraints;
 
-	private Polynomial(Set<Monomial> constraints) {
+	Polynomial(Set<Monomial> constraints) {
 		this.constraints = constraints;
 	}
 
+        @Override
 	public Constraint negate() {
 		List<Constraint> csets = new ArrayList<Constraint>(constraints.size());
 
@@ -65,6 +64,7 @@ public class Polynomial extends Constraint {
 		return Collections.unmodifiableSet(constraints);
 	}
 
+        @Override
 	public void print(Appendable a, String[] varNames) throws IOException {
 		if(constraints.isEmpty()) {
 			a.append("false");
@@ -80,6 +80,7 @@ public class Polynomial extends Constraint {
 		}
 	}
 
+        @Override
 	public Polynomial shift(int[] numVars, int thisIdx) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
@@ -87,6 +88,7 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
+        @Override
 	public Polynomial shift(int myVars, int base, int total) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
@@ -94,14 +96,17 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
+        @Override
 	public boolean isFalse() {
 		return constraints.isEmpty();
 	}
 
+        @Override
 	public boolean isTrue() {
 		return negate().isFalse();
 	}
 
+        @Override
 	public Polynomial substitute(int[] subst) {
 		Set<Monomial> cs = new HashSet<Monomial>();
 		for(Monomial c : constraints)
@@ -109,6 +114,7 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
+        @Override
 	public Polynomial shift(int shift) {
 		Set<Monomial> cs = new HashSet<Monomial>(constraints.size());
 		for(Monomial c : constraints)
@@ -116,6 +122,7 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
+        @Override
 	public Polynomial restrict(int numVars) {
 		Set<Monomial> cs = new HashSet<Monomial>();
 		for(Monomial c : constraints)
@@ -123,7 +130,7 @@ public class Polynomial extends Constraint {
 		return new Polynomial(cs);
 	}
 
-	@Override
+        @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -132,7 +139,7 @@ public class Polynomial extends Constraint {
 		return result;
 	}
 
-	@Override
+        @Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -149,6 +156,7 @@ public class Polynomial extends Constraint {
 		return true;
 	}
 
+        @Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		try {
@@ -158,13 +166,13 @@ public class Polynomial extends Constraint {
 		return sb.toString();
 	}
 
-	@Override
+        @Override
 	public Collection<Monomial> monomials() {
 		return constraints;
 	}
 
 
-	@Override
+        @Override
 	public Constraint normalize() {
 		return negate().negate();
 	}

@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibLearningExperimentRunner;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -42,7 +42,7 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class LearnStackTest extends RaLibTestSuite {
 
@@ -246,7 +246,7 @@ public class LearnStackTest extends RaLibTestSuite {
             Assert.assertEquals(hypLambda.getStates().size(), 4);
             Assert.assertEquals(hypLambda.getTransitions().size(), 10);
 
-            Hypothesis hypStar = runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
+            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol[] {I_PUSH, I_POP});
             measuresStar[seed] = runner.getMeasurements();
             runner.resetMeasurements();
         }

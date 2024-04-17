@@ -25,7 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
@@ -61,7 +61,7 @@ import de.learnlib.ralib.tools.config.ConfigurationOption;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import de.learnlib.util.statistics.SimpleProfiler;
+import de.learnlib.util.statistic.SimpleProfiler;
 
 /**
  *
@@ -80,7 +80,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
         OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
-        OPTION_LOGGING_CATEGORY,
         OPTION_TARGET,
         OPTION_RANDOM_SEED,
         OPTION_TEACHERS,
@@ -308,10 +307,9 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             SimpleProfiler.stop(__LEARN__);
             SimpleProfiler.start(__EQ__);
             DefaultQuery<PSymbolInstance, Boolean> ce  = null;
-            DefaultQuery<PSymbolInstance, Boolean> origCe  = null;
 
             if (useEqTest) {
-                ce = this.eqTest.findCounterExample(hyp, null);
+                ce = this.eqTest.findCounterExample(hyp, new ArrayList<>());
 
                 if (ce != null) {
                     eqTestfoundCE = true;
@@ -333,7 +331,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
-                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, null) : ce);
+                ce2 = (findCounterexamples ? this.randomWalk.findCounterExample(hyp, new ArrayList<>()) : ce);
 
                 SimpleProfiler.stop(__SEARCH__);
                 System.out.println("CE: " + ce2);
@@ -373,7 +371,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
-        System.out.println(SimpleProfiler.getResults());
+        SimpleProfiler.logResults();
 
         System.out.println("Learner: " + rastar.getClass().getSimpleName());
 

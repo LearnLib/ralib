@@ -49,7 +49,6 @@ public class Conjunction extends GuardExpression {
 
     @Override
     public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
-        int i = 0;
         for (GuardExpression ge : conjuncts) {
             if (!ge.isSatisfied(val)) {
                 return false;

@@ -18,7 +18,7 @@ package de.learnlib.ralib.example.priority;
 
 import java.math.BigDecimal;
 
-import de.learnlib.api.exception.SULException;
+import de.learnlib.exception.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.sul.DataWordSUL;

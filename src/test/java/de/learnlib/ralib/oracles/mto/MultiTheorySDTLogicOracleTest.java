@@ -20,7 +20,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -31,7 +30,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class MultiTheorySDTLogicOracleTest {
 
@@ -39,7 +38,6 @@ public class MultiTheorySDTLogicOracleTest {
   public void acceptsTest() {
       Constants consts = new Constants();
       RegisterAutomaton sul = AUTOMATON;
-      DataWordOracle dwOracle = new SimulatorOracle(sul);
 
       final Map<DataType, Theory> teachers = new LinkedHashMap<>();
       teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
@@ -47,8 +45,6 @@ public class MultiTheorySDTLogicOracleTest {
 
       ConstraintSolver solver = new SimpleConstraintSolver();
 
-      MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-              dwOracle, teachers, new Constants(), solver);
       SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
       TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
@@ -79,6 +75,5 @@ public class MultiTheorySDTLogicOracleTest {
           Word<PSymbolInstance> rejectedWord = prefix.concat(rejectedSuffix);
           Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.getSdt(), query.getPiv()));
       }
-
   }
 }

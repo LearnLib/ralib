@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -31,15 +30,13 @@ import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
 
     private final Constants consts;
 
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
-
-    private static LearnLogger log = LearnLogger.getLogger(OptimizedSymbolicSuffixBuilder.class);
 
     public OptimizedSymbolicSuffixBuilder(Constants consts) {
     	this.consts = consts;
@@ -425,7 +422,8 @@ public class OptimizedSymbolicSuffixBuilder {
         for (SDTGuard g : guards) {
             expr.add(g.toExpr());
         }
-        return new Conjunction(expr.toArray(GuardExpression []::new));
+        GuardExpression[] exprArr = new GuardExpression[expr.size()];
+        return new Conjunction(expr.toArray(exprArr));
     }
 
     private Mapping<SymbolicDataValue, DataValue<?>> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {

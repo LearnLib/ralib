@@ -1,8 +1,12 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -14,8 +18,7 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -29,21 +32,20 @@ import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import net.automatalib.word.Word;
 
-public class LearnPalindromeIOTest extends RaLibTestSuite {
+public class TestOutputSuffixes extends RaLibTestSuite {
 
-    @Test
-    public void learnPalindromeIO() {
+	@Test
+	public void testSIPOutputSuffixesPresent() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
-                "/de/learnlib/ralib/automata/xml/palindrome.xml");
+                "/de/learnlib/ralib/automata/xml/sip.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
-        logger.log(Level.FINE, "SYS: {0}", model);
 
         ParameterizedSymbol[] inputs = loader.getInputs().toArray(
                 new ParameterizedSymbol[]{});
@@ -51,66 +53,57 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
 
-        Constants consts = loader.getConstants();
+        final Constants consts = loader.getConstants();
+
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
-            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
-
-        ConstraintSolver solver = new SimpleConstraintSolver();
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
-                consts, solver);
+        MultiTheorySDTLogicOracle mlo =
+                new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+        RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+        radt.learn();
 
-        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
-                model, teachers, consts, true, actions);
+        String ces[] = {"IINVITE[1[int]] O100[1[int]] / true",
+        		"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true"};
 
-        int check = 0;
-        while (true && check < 10) {
+        Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = TestUnknownMemorable.buildSIPCEs(ces, actions);
 
-            check++;
-            ralambda.learn();
-            Hypothesis hyp = ralambda.getHypothesis();
-            logger.log(Level.FINE, "HYP: {0}", hyp);
-
-
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
-
-            logger.log(Level.FINE, "CE: {0}", ce);
-            if (ce == null) {
-                break;
-            }
-
-            Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
-
-            ralambda.addCounterexample(ce);
+        while (!ceQueue.isEmpty()) {
+        	radt.addCounterexample(ceQueue.pop());
+        	radt.learn();
         }
 
-        RegisterAutomaton hyp = ralambda.getHypothesis();
-        logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        Set<ParameterizedSymbol> outputs = Sets.difference(Set.of(actions), Set.of(inputs));
 
-        Assert.assertNull(ce);
-//        Assert.assertEquals(hyp.getStates().size(), 5);
-        Assert.assertEquals(hyp.getTransitions().size(), 16);
-    }
+        String wordStr[] = {"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] / true"};
+        ceQueue = TestUnknownMemorable.buildSIPCEs(wordStr, actions);
+        Word<PSymbolInstance> word = ceQueue.getFirst().getInput();
+
+        Set<SymbolicSuffix> suffixes = radt.getDT().getLeaf(word).getPrefix(word).getTQRs().keySet();
+        Set<ParameterizedSymbol> suffixActions = suffixes.stream()
+        		                                         .filter(s -> s.length() == 1)
+        		                                         .map(s -> s.getActions().firstSymbol())
+        		                                         .collect(Collectors.toSet());
+        for (ParameterizedSymbol ps : outputs) {
+        	Assert.assertTrue(suffixActions.contains(ps));
+        }
+	}
 }

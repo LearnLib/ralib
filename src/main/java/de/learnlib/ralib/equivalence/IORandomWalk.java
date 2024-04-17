@@ -24,8 +24,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -37,7 +40,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -60,7 +63,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private final Constants constants;
     private final Map<DataType, Theory> teachers;
 
-    private static LearnLogger log = LearnLogger.getLogger(IORandomWalk.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(IORandomWalk.class);
 
     private ParameterizedSymbol error = null;
 
@@ -104,7 +107,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
         if (clctn != null && !clctn.isEmpty()) {
-            log.warn("set of inputs is ignored by this equivalence oracle");
+            LOGGER.warn(Category.QUERY, "set of inputs is ignored by this equivalence oracle");
         }
 
         if (this.seedTransitions) {
@@ -154,7 +157,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
             run = run.append(next).append(out);
 
             if (!hyp.accepts(run)) {
-                log.debug("Run with CE: {0}", run);
+                LOGGER.debug(Category.COUNTEREXAMPLE, "Run with CE: {0}", run);
                 target.post();
                 return run;
             }
@@ -162,7 +165,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         } while (rand.nextDouble() > resetProbability && depth < maxDepth &&
                 !out.getBaseSymbol().equals(error));
 
-        log.debug("Run /wo CE: {0}", run);
+        LOGGER.debug(Category.COUNTEREXAMPLE, "Run /wo CE: {0}", run);
         target.post();
         return null;
     }
@@ -172,7 +175,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     }
 
     private PSymbolInstance nextInput(Word<PSymbolInstance> run) {
-        ParameterizedSymbol ps = nextSymbol(run);
+        ParameterizedSymbol ps = nextSymbol();
         PSymbolInstance psi = nextDataValues(run, ps);
         return psi;
     }
@@ -217,7 +220,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         return new PSymbolInstance(ps, vals);
     }
 
-    private ParameterizedSymbol nextSymbol(Word<PSymbolInstance> run) {
+    private ParameterizedSymbol nextSymbol() {
         ParameterizedSymbol ps = null;
         Map<DataType, Integer> tCount = new LinkedHashMap<>();
         if (uniform) {

@@ -18,7 +18,9 @@ package de.learnlib.ralib.learning;
 
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Mapping;
@@ -32,10 +34,10 @@ import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
- * Analyzes Counterexamples in a binary search
+ * Analyzes counterexamples in a binary search
  * as described in SEFM 2014.
  *
  * @author falk
@@ -58,7 +60,7 @@ public class CounterexampleAnalysis {
 
     private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
 
-    private static final LearnLogger log = LearnLogger.getLogger(CounterexampleAnalysis.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 
     public CounterexampleAnalysis(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
@@ -103,17 +105,17 @@ public class CounterexampleAnalysis {
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
 
-        log.trace("------------------------------------------------------");
-        log.trace("Computing index: " + idx);
-        log.trace("Prefix: " + prefix);
-        log.trace("SymSuffix: " + symSuffix);
-        log.trace("Location: " + location);
-        log.trace("Transition: " + transition);
-        log.trace("PIV HYP: " + resHyp.getPiv());
-        log.trace("SDT HYP: " + resHyp.getSdt());
-        log.trace("PIV SYS: " + resSul.getPiv());
-        log.trace("SDT SYS: " + resSul.getSdt());
-        log.trace("------------------------------------------------------");
+        LOGGER.trace("------------------------------------------------------");
+        LOGGER.trace("Computing index: {}", idx);
+        LOGGER.trace("Prefix: {}", prefix);
+        LOGGER.trace("SymSuffix: {}", symSuffix);
+        LOGGER.trace("Location: {}", location);
+        LOGGER.trace("Transition: {}", transition);
+        LOGGER.trace("PIV HYP: {}", resHyp.getPiv());
+        LOGGER.trace("SDT HYP: {}", resHyp.getSdt());
+        LOGGER.trace("PIV SYS: {}", resSul.getPiv());
+        LOGGER.trace("SDT SYS: {}", resSul.getSdt());
+        LOGGER.trace("------------------------------------------------------");
 
 //        System.out.println("------------------------------------------------------");
 //        System.out.println("Computing index: " + idx);
@@ -188,41 +190,41 @@ public class CounterexampleAnalysis {
         return true;
     }
 
-    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
-
-        assert ce.length() > 1;
-
-        IndexResult[] results = new IndexResult[ce.length()];
-        results[ce.length()-1] = IndexResult.NO_CE;
-
-        int idx = ce.length()-2;
-
-        while (idx >= 0) {
-            IndexResult res = computeIndex(ce, idx);
-            results[idx] = res;
-            if (res != IndexResult.NO_CE) {
-                break;
-            }
-            idx--;
-        }
-
-        assert (idx >= 0);
-
-        // if in the last step there was no counterexample,
-        // we have to move one step to the left
-        if (results[idx] == IndexResult.NO_CE) {
-            assert idx > 0;
-            idx--;
-        }
-
-        // if the current index has no refinement use the
-        // suffix of the next index
-        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
-            idx++;
-        }
-
-        return idx;
-    }
+//    private int linearBackWardsSearch(Word<PSymbolInstance> ce) {
+//
+//        assert ce.length() > 1;
+//
+//        IndexResult[] results = new IndexResult[ce.length()];
+//        results[ce.length()-1] = IndexResult.NO_CE;
+//
+//        int idx = ce.length()-2;
+//
+//        while (idx >= 0) {
+//            IndexResult res = computeIndex(ce, idx);
+//            results[idx] = res;
+//            if (res != IndexResult.NO_CE) {
+//                break;
+//            }
+//            idx--;
+//        }
+//
+//        assert (idx >= 0);
+//
+//        // if in the last step there was no counterexample,
+//        // we have to move one step to the left
+//        if (results[idx] == IndexResult.NO_CE) {
+//            assert idx > 0;
+//            idx--;
+//        }
+//
+//        // if the current index has no refinement use the
+//        // suffix of the next index
+//        if (results[idx] == IndexResult.HAS_CE_NO_REFINE) {
+//            idx++;
+//        }
+//
+//        return idx;
+//    }
 
     private int binarySearch(Word<PSymbolInstance> ce) {
 
@@ -241,7 +243,7 @@ public class CounterexampleAnalysis {
             mid = (max+min+1) / 2;
 
             IndexResult res = computeIndex(ce, mid);
-            log.trace("" + res);
+            LOGGER.trace("" + res);
 
             results[mid] = res;
             if (res == IndexResult.NO_CE) {

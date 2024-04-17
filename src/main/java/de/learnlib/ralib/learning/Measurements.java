@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class Measurements {
 	public int treeQueries = 0;

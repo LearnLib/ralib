@@ -17,22 +17,18 @@
 package de.learnlib.ralib.tools;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import de.learnlib.api.logging.Category;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
-import net.automatalib.commons.util.Pair;
+import net.automatalib.common.util.Pair;
 
 /**
  *
@@ -42,7 +38,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     public static final String LEARNER_SLLAMBDA = "sllambda";
     public static final String LEARNER_SLSTAR = "slstar";
     public static final String LEARNER_RADT = "sldt";
-
 
     protected static final ConfigurationOption.StringOption OPTION_LEARNER
             = new ConfigurationOption.StringOption("learner",
@@ -65,55 +60,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                     }
                     Level lvl = Level.parse(c.getProperty(this.getKey()));
                     return lvl;
-                }
-            };
-
-    protected static final ConfigurationOption<EnumSet<Category>> OPTION_LOGGING_CATEGORY
-            = new ConfigurationOption<EnumSet<Category>>("logging.category", "Log category",
-                    EnumSet.allOf(Category.class), true) {
-
-                @Override
-                public EnumSet<Category> parse(Configuration c) throws ConfigurationException {
-                    if (!c.containsKey(this.getKey())) {
-                        if (!this.isOptional()) {
-                            throw new ConfigurationException("Missing config value for " + this.getKey());
-                        }
-                        return this.getDefaultValue();
-                    }
-                    String[] names = c.getProperty(this.getKey()).split(",");
-                    List<Category> list = new ArrayList<>();
-                    for (String n : names) {
-                        list.add(parseCategory(n));
-                    }
-                    EnumSet<Category> ret = EnumSet.copyOf(list);
-                    return ret;
-                }
-
-                private Category parseCategory(String n) throws ConfigurationException {
-                    n = n.toUpperCase();
-                    switch (n) {
-                        case "CONFIG":
-                            return Category.CONFIG;
-                        case "COUNTEREXAMPLE":
-                            return Category.COUNTEREXAMPLE;
-                        case "DATASTRUCTURE":
-                            return Category.DATASTRUCTURE;
-                        case "EVENT":
-                            return Category.EVENT;
-                        case "MODEL":
-                            return Category.MODEL;
-                        case "PHASE":
-                            return Category.PHASE;
-                        case "PROFILING":
-                            return Category.PROFILING;
-                        case "QUERY":
-                            return Category.QUERY;
-                        case "STATISTIC":
-                            return Category.STATISTIC;
-                        case "SYSTEM":
-                            return Category.SYSTEM;
-                    }
-                    throw new ConfigurationException("can not parse " + this.getKey() + ": " + n);
                 }
             };
 

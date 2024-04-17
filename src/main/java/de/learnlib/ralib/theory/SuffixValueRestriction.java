@@ -1,6 +1,7 @@
 package de.learnlib.ralib.theory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -14,7 +15,7 @@ import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public abstract class SuffixValueRestriction {
 	protected final SuffixValue parameter;
@@ -100,13 +101,20 @@ public abstract class SuffixValueRestriction {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(parameter);
+	}
+
+	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof SuffixValueRestriction))
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-		SuffixValueRestriction other = (SuffixValueRestriction)obj;
-		if (!this.getClass().equals(other.getClass()))
+		if (getClass() != obj.getClass())
 			return false;
-		return parameter.equals(other.parameter);
+		SuffixValueRestriction other = (SuffixValueRestriction) obj;
+		return Objects.equals(parameter, other.parameter);
 	}
 
 	public static SuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {

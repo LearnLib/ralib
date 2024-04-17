@@ -72,6 +72,7 @@ public class DTInnerNode extends DTNode {
 		}
 	}
 
+	@Override
 	public boolean isLeaf() {
 		return false;
 	}
@@ -81,6 +82,7 @@ public class DTInnerNode extends DTNode {
 		return new DTInnerNode(this);
 	}
 
+	@Override
 	public String toString() {
 		return "(" +  suffix.toString() + ")";
 	}

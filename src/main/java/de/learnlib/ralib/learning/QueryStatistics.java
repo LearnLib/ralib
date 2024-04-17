@@ -8,7 +8,7 @@ import java.util.Set;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class QueryStatistics {
 	public static final int TESTING = 0;
@@ -137,6 +137,7 @@ public class QueryStatistics {
 		ces.add(ce);
 	}
 
+        @Override
 	public String toString() {
 		String str = "--- Statistics ---\n";
 		int sum = 0;

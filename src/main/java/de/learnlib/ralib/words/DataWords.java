@@ -33,7 +33,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * static helper methods for data words.
@@ -178,12 +178,8 @@ public final class DataWords {
             DataValue[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues.get(pid++);
-                //log.trace(pvalues[i].toString());
             }
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
-        }
-        for (PSymbolInstance p : symbols) {
-            //log.trace(p.toString());
         }
         return Word.fromSymbols(symbols);
     }
@@ -206,12 +202,8 @@ public final class DataWords {
             DataValue[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues[pid++ -1];
-                //log.trace(pvalues[i].toString());
             }
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
-        }
-        for (PSymbolInstance p : symbols) {
-            //log.trace(p.toString());
         }
         return Word.fromSymbols(symbols);
     }

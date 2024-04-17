@@ -9,8 +9,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.DefaultQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
@@ -47,7 +50,7 @@ import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class RaLambda implements RaLearningAlgorithm {
 
@@ -79,7 +82,7 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private final boolean ioMode;
 
-    private static final LearnLogger log = LearnLogger.getLogger(RaLambda.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RaLambda.class);
 
     private boolean useOldAnalyzer;
 
@@ -123,11 +126,13 @@ public class RaLambda implements RaLearningAlgorithm {
         this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
     }
 
+    @Override
     public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
-        log.logEvent("adding counterexample: " + ce);
+        LOGGER.info(Category.EVENT, "adding counterexample: {}", ce);
         counterexamples.add(ce);
     }
 
+    @Override
     public void learn() {
 
         if (hyp == null) {
@@ -150,7 +155,7 @@ public class RaLambda implements RaLearningAlgorithm {
         hyp = (DTHyp) ab.toRegisterAutomaton();
         if (prefixFinder != null) {
         	prefixFinder.setHypothesis(hyp);
-        	prefixFinder.setComponents(components);
+                //prefixFinder.setComponents(components);
         	prefixFinder.setHypothesisTreeOracle(hypOracleFactory.createTreeOracle(hyp));
         }
     }
@@ -158,7 +163,7 @@ public class RaLambda implements RaLearningAlgorithm {
     private boolean analyzeCounterExample() {
 //        if (useOldAnalyzer)
 //            return analyzeCounterExampleOld();
-        log.logPhase("Analyzing Counterexample");
+        LOGGER.info(Category.PHASE, "Analyzing Counterexample");
 
         if (candidateCEs.isEmpty()) {
         	prefixFinder = null;
@@ -175,9 +180,9 @@ public class RaLambda implements RaLearningAlgorithm {
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
 
         if (prefixFinder == null) {
-        	Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
-        	components.putAll(dt.getComponents());
-            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
+            //Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
+            //components.putAll(dt.getComponents());
+            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, consts);
         }
 
         boolean foundce = false;
@@ -218,6 +223,8 @@ public class RaLambda implements RaLearningAlgorithm {
         else {
         	expand(transition);
         }
+
+        while (!dt.checkIOSuffixes());
 
         boolean consistent = false;
         while (!consistent) {
@@ -360,7 +367,7 @@ public class RaLambda implements RaLearningAlgorithm {
             	continue;
             }
 
-            Word<PSymbolInstance> branch = branchWithSameGuard(dest_c.getPrefix(word), src_c.getPrefix(src_id), hypBranching);
+            Word<PSymbolInstance> branch = branchWithSameGuard(dest_c.getPrefix(word), hypBranching);
             DTLeaf branchLeaf = dt.getLeaf(branch);
 
             SymbolicSuffix suffix = null;
@@ -464,7 +471,7 @@ public class RaLambda implements RaLearningAlgorithm {
         this.useOldAnalyzer = useOldAnalyzer;
     }
 
-    private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, MappedPrefix src_id, Branching branching) {
+    private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, Branching branching) {
     	Word<PSymbolInstance> dw = mp.getPrefix();
 
     	return branching.transformPrefix(dw);
@@ -528,6 +535,7 @@ public class RaLambda implements RaLearningAlgorithm {
 //        return true;
 //    }
 
+    @Override
     public Hypothesis getHypothesis() {
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
         components.putAll(dt.getComponents());
@@ -552,10 +560,12 @@ public class RaLambda implements RaLearningAlgorithm {
         return dt.getComponents();
     }
 
+    @Override
     public void setStatisticCounter(QueryStatistics queryStats) {
     	this.queryStats = queryStats;
     }
 
+    @Override
     public QueryStatistics getQueryStatistics() {
     	return queryStats;
     }

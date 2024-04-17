@@ -27,8 +27,8 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.automata.DeterministicAutomaton;
-import net.automatalib.words.Word;
+import net.automatalib.automaton.DeterministicAutomaton;
+import net.automatalib.word.Word;
 
 /**
  *

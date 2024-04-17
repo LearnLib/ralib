@@ -25,7 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.api.logging.LearnLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
@@ -43,7 +46,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * A component is a bunch of rows that correspond to the
@@ -67,7 +70,7 @@ public class Component implements LocationComponent {
 
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
-    private static final LearnLogger log = LearnLogger.getLogger(Component.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Component.class);
 
     public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts, SymbolicSuffixRestrictionBuilder restrictionBuilder) {
         this.primeRow = primeRow;
@@ -130,7 +133,7 @@ public class Component implements LocationComponent {
 
         if (ioMode && suffix.getActions().length() > 0 &&
                 getAccessSequence().length() > 0 && !isAccepting()) {
-            log.info("Not adding suffix " + suffix + " to error component " + getAccessSequence());
+            LOGGER.info(Category.DATASTRUCTURE, "Not adding suffix {} to error component {}", suffix, getAccessSequence());
             return;
         }
 
@@ -180,8 +183,8 @@ public class Component implements LocationComponent {
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
 
-        log.trace("OLD: " + Arrays.toString(b.getBranches().keySet().toArray()));
-        log.trace("NEW: " + Arrays.toString(newB.getBranches().keySet().toArray()));
+        LOGGER.trace(Category.DATASTRUCTURE, "OLD: {}", Arrays.toString(b.getBranches().keySet().toArray()));
+        LOGGER.trace(Category.DATASTRUCTURE, "NEW: {}", Arrays.toString(newB.getBranches().keySet().toArray()));
 
         for (Word<PSymbolInstance> prefix : newB.getBranches().keySet()) {
             if (!b.getBranches().containsKey(prefix)) {
@@ -237,18 +240,22 @@ public class Component implements LocationComponent {
         return true;
     }
 
+    @Override
     public Word<PSymbolInstance> getAccessSequence() {
         return primeRow.getPrefix();
     }
 
+    @Override
     public boolean isAccepting() {
         return this.primeRow.isAccepting();
     }
 
+    @Override
     public Branching getBranching(ParameterizedSymbol act) {
         return branching.get(act);
     }
 
+    @Override
     public VarMapping getRemapping(PrefixContainer r) {
         return this.otherRows.get(r);
     }
@@ -261,10 +268,12 @@ public class Component implements LocationComponent {
         return this.otherRows.keySet();
     }
 
+    @Override
     public PrefixContainer getPrimePrefix() {
     	return getPrimeRow();
     }
 
+    @Override
     public Collection<PrefixContainer> getOtherPrefixes() {
     	Collection<PrefixContainer> ret = new LinkedHashSet<PrefixContainer>();
     	for (Row r : getOtherRows())

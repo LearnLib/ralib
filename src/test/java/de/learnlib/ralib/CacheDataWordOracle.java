@@ -5,18 +5,21 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.api.logging.LearnLogger;
-import de.learnlib.api.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.learnlib.query.Query;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.QueryCounter;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Basic caching wrapper that can be used when learning acceptor RAs.
  */
 public class CacheDataWordOracle extends QueryCounter implements DataWordOracle {
-	private static LearnLogger log = LearnLogger.getLogger(CacheDataWordOracle.class);
+
+	private static Logger LOGGER = LoggerFactory.getLogger(CacheDataWordOracle.class);
 
 	private static class CacheNode {
 		final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
@@ -33,7 +36,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 	@Override
 	public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> queries) {
 		for (Query<PSymbolInstance, Boolean> query : queries) {
-			log.trace("MQ: {0}", query.getInput());
+			LOGGER.trace("MQ: {0}", query.getInput());
 			boolean answer = traceBoolean(query.getInput());
 			query.answer(answer);
 		}

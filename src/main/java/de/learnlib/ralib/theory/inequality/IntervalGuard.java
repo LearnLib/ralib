@@ -32,7 +32,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 
@@ -252,16 +251,16 @@ public class IntervalGuard extends SDTGuard {
 
     }
 
-    private Set<SDTGuard> mergeWithEquality(EqualityGuard other) {
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        if (!(other.getRegister().equals(this.leftLimit) || other.getRegister().equals(this.rightLimit))) {
-            guards.add(this);
-            guards.add(other);
-        } else {
-            guards.add(new SDTOrGuard(this.parameter, this, other));
-        }
-        return guards;
-    }
+//    private Set<SDTGuard> mergeWithEquality(EqualityGuard other) {
+//        Set<SDTGuard> guards = new LinkedHashSet<>();
+//        if (!(other.getRegister().equals(this.leftLimit) || other.getRegister().equals(this.rightLimit))) {
+//            guards.add(this);
+//            guards.add(other);
+//        } else {
+//            guards.add(new SDTOrGuard(this.parameter, this, other));
+//        }
+//        return guards;
+//    }
 
     @Override
     public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {

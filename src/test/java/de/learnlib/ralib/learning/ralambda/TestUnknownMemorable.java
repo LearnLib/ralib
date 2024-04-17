@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import de.learnlib.api.query.DefaultQuery;
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.Assignment;
@@ -53,7 +53,7 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class TestUnknownMemorable extends RaLibTestSuite {
 
@@ -297,7 +297,71 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         Assert.assertTrue(true);
 	}
 
-	private Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
+	@Test
+	public void testSkippingMemorable2() {
+
+        RegisterAutomatonImporter loader = TestUtil.getLoader(
+                "/de/learnlib/ralib/automata/xml/sip.xml");
+
+        RegisterAutomaton model = loader.getRegisterAutomaton();
+
+        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
+                new ParameterizedSymbol[]{});
+
+        ParameterizedSymbol[] actions = loader.getActions().toArray(
+                new ParameterizedSymbol[]{});
+
+        final Constants consts = loader.getConstants();
+
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        loader.getDataTypes().stream().forEach((t) -> {
+            IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+            theory.setUseSuffixOpt(true);
+            teachers.put(t, theory);
+        });
+
+        DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
+        IOOracle ioOracle = new SULOracle(sul, ERROR);
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter ioFilter = new IOFilter(ioCache, inputs);
+
+        ConstraintSolver solver = new SimpleConstraintSolver();
+
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                ioFilter, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo =
+                new MultiTheorySDTLogicOracle(consts, solver);
+
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+
+        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        ralambda.setSolver(solver);
+        ralambda.learn();
+
+        String[] ces = {"IINVITE[0[int]] O100[0[int]] / true",
+        		        "IACK[0[int]] Otimeout[] IINVITE[0[int]] Otimeout[] / true",
+        		        "IINVITE[0[int]] O100[0[int]] Inil[] O183[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[1[int]] O481[1[int]] / true",
+        		        "Inil[] Otimeout[] IINVITE[0[int]] O100[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IACK[0[int]] Otimeout[] IPRACK[1[int]] O481[1[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] Inil[] O180[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IACK[0[int]] Otimeout[] IPRACK[0[int]] O200[0[int]] / true",
+        		        "IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] IPRACK[0[int]] Otimeout[] IINVITE[0[int]] O100[0[int]] Inil[] O486[0[int]] / true"};
+
+        Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = buildSIPCEs(ces, actions);
+
+        while (!ceQueue.isEmpty()) {
+        	ralambda.addCounterexample(ceQueue.pop());
+        	ralambda.learn();
+        }
+
+        Assert.assertTrue(true);
+	}
+
+	public static Deque<DefaultQuery<PSymbolInstance, Boolean>> buildSIPCEs(String[] ceStrings, ParameterizedSymbol[] actionSymbols) {
 		Deque<DefaultQuery<PSymbolInstance, Boolean>> ces = new LinkedList<>();
 
 		for (String ceString : ceStrings) {
@@ -305,7 +369,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 			Matcher m = dvPattern.matcher(ceString);
 			Collection<Integer> params = new ArrayList<Integer>();
 			while (m.find()) {
-				String s = m.group(1);
+				//String s = m.group(1);
 				params.add(Integer.parseInt(m.group(1)));
 			}
 
@@ -336,7 +400,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		return ces;
 	}
 
-	private DefaultQuery<PSymbolInstance, Boolean> buildSIPCounterExample(String[] actions, int[] dv, boolean outcome, ParameterizedSymbol[] actionSymbols) {
+	private static DefaultQuery<PSymbolInstance, Boolean> buildSIPCounterExample(String[] actions, int[] dv, boolean outcome, ParameterizedSymbol[] actionSymbols) {
 		Word<PSymbolInstance> ce = Word.epsilon();
 		for (int i = 0; i < actions.length; i++) {
 			String action = actions[i];
@@ -352,7 +416,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		return new DefaultQuery<PSymbolInstance, Boolean>(ce, outcome);
 	}
 
-	private int findMatchingSymbol(String action, ParameterizedSymbol[] actionSymbols) {
+	private static int findMatchingSymbol(String action, ParameterizedSymbol[] actionSymbols) {
 		for (int i = 0; i < actionSymbols.length; i++ ) {
 			if (actionSymbols[i].getName().contains(action))
 				return i;

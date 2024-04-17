@@ -48,7 +48,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
@@ -95,7 +95,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                rastar.getComponents(),
+                // rastar.getComponents(),
                 consts
         );
 
@@ -143,7 +143,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                ralambda.getComponents(),
+                // ralambda.getComponents(),
                 consts
         );
 

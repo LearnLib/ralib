@@ -22,7 +22,7 @@ import java.util.Map;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
-import net.automatalib.commons.util.Pair;
+import net.automatalib.common.util.Pair;
 
 /**
  *

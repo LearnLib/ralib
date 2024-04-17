@@ -29,7 +29,7 @@ import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class DTTest {
 
@@ -51,8 +51,6 @@ public class DTTest {
 		TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
 		TreeQueryResult tqrPush = oracle.treeQuery(prePush, suffPush);
 		TreeQueryResult tqrPushPush = oracle.treeQuery(prePushPush, suffPush);
-		TreeQueryResult tqrInnerPop = oracle.treeQuery(epsilon, suffEps);
-		TreeQueryResult tqrInnerPush = oracle.treeQuery(prePush, suffPop);
 
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
@@ -104,7 +102,6 @@ public class DTTest {
 
 		TreeQueryResult tqrPop = oracle.treeQuery(prePop, suffEps);
 		TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
-		TreeQueryResult tqrInnerPop = oracle.treeQuery(epsilon, suffEps);
 
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);

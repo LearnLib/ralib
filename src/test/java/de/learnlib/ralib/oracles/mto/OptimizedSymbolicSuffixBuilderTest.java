@@ -46,7 +46,7 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class OptimizedSymbolicSuffixBuilderTest {
 
@@ -70,8 +70,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
                 new PSymbolInstance(POP, dv(2)),
                 new PSymbolInstance(CONTAINS, dv(1)));
 
-        equalsSuffixesFromConcretePrefixSuffix(word, mto, consts, solver);
-
+        equalsSuffixesFromConcretePrefixSuffix(word, mto, consts);
 
         InputSymbol A = new InputSymbol("a", INT_TYPE, INT_TYPE);
         InputSymbol B = new InputSymbol("b");
@@ -251,7 +250,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     /*
      * Checks for equality optimized suffixes built by prepending using an SDT against those built from concrete prefix/suffix
      */
-    private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts, ConstraintSolver solver) {
+    private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
         SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
@@ -293,7 +292,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
         Parameter p1 = pgen.next(type);
-        Parameter p2 = pgen.next(type);
+        pgen.next(type);
         Parameter p3 = pgen.next(type);
         Parameter p4 = pgen.next(type);
 
@@ -330,7 +329,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Word<PSymbolInstance> word3 = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
         		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 6)),
         		new PSymbolInstance(B, new DataValue(INT_TYPE, 5)));
         Word<PSymbolInstance> word4 = Word.fromSymbols(
         		new PSymbolInstance(B, new DataValue(INT_TYPE, 0)),
@@ -358,7 +357,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         sdtPath3.add(new DisequalityGuard(s2, c2));
         sdtPath3.add(new SDTTrueGuard(s3));
         List<List<SDTGuard>> sdtPaths4 = SDTLeaf.ACCEPTING.getPaths(true);
-        List<SDTGuard> sdtPath4 = SDTLeaf.ACCEPTING.getPaths(true).get(0);
+        List<SDTGuard> sdtPath4 = sdtPaths4.get(0);
 
         OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1, restrictionBuilder1);
         OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
@@ -375,7 +374,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         SymbolicSuffix expected3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder2);
         SymbolicSuffix actual3 = builder1.extendSuffix(word3.prefix(2), sdtPath3, piv2, suffix3.getActions());
-        Assert.assertEquals(actual1, expected1);
+        Assert.assertEquals(actual3, expected3);
 
         SymbolicSuffix actual4 = builder2.extendSuffix(word4.prefix(2), sdtPath4, new PIV(), suffix4.getActions());
         Assert.assertEquals(actual4.getFreeValues().size(), 1);
@@ -663,5 +662,41 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Assert.assertEquals(actualPaths3.size(), expectedPaths3.size());
         Assert.assertTrue(actualPaths3.containsAll(expectedPaths3));
+    }
+
+    public void testCoalesce() {
+        DataType type = new DataType("int",Integer.class);
+        InputSymbol a = new InputSymbol("a", type);
+
+        DataValue dv1 = new DataValue(type, 0);
+        DataValue dv2 = new DataValue(type, 1);
+        DataValue dv3 = new DataValue(type, 2);
+
+        Constants consts = new Constants();
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
+
+        Word<PSymbolInstance> word1 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv3));
+        Word<PSymbolInstance> word2 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv3),
+        		new PSymbolInstance(a, dv3));
+        Word<PSymbolInstance> word3 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv1));
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4));
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(1), word2.suffix(4));
+        SymbolicSuffix suffixExpected = new SymbolicSuffix(word3.prefix(1), word3.suffix(4));
+        SymbolicSuffix suffixActual = builder.coalesceSuffixes(suffix1, suffix2);
+        Assert.assertEquals(suffixActual, suffixExpected);
     }
 }

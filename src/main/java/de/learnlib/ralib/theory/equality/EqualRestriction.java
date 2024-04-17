@@ -1,6 +1,7 @@
 package de.learnlib.ralib.theory.equality;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
@@ -70,6 +71,12 @@ public class EqualRestriction extends SuffixValueRestriction {
 			return false;
 		EqualRestriction other = (EqualRestriction)obj;
 		return super.equals(obj) && equalParam.equals(other.equalParam);
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = super.hashCode();
+		return 89 * hash + Objects.hash(equalParam);
 	}
 
 	public SuffixValue getEqualParameter() {

@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.automata;
 
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  * Interface for Automata that can transform an input word

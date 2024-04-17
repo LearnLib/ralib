@@ -27,7 +27,7 @@ import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class RegisterConsistencyTest extends RaLibTestSuite {
 

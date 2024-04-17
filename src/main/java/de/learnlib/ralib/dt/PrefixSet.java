@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class PrefixSet {
 	private Set<MappedPrefix> prefixes;
@@ -80,6 +80,7 @@ public class PrefixSet {
 		return prefixes.isEmpty();
 	}
 
+	@Override
 	public String toString() {
 		return prefixes.toString();
 	}

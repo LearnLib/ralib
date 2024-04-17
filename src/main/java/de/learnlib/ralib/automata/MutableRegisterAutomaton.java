@@ -27,9 +27,9 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.automata.MutableDeterministic;
-import net.automatalib.commons.util.Pair;
-import net.automatalib.words.Word;
+import net.automatalib.automaton.MutableDeterministic;
+import net.automatalib.common.util.Pair;
+import net.automatalib.word.Word;
 
 /**
  * Mutable Register Automaton.

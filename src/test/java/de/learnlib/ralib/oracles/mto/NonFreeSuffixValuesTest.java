@@ -52,14 +52,13 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 /**
  *
  * @author falk
  */
 public class NonFreeSuffixValuesTest extends RaLibTestSuite {
-
 
     @Test
     public void testModelswithOutputFifo() {
@@ -95,15 +94,15 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         ParameterizedSymbol iget = new InputSymbol(
                 "IGet", new DataType[] {});
 
-         ParameterizedSymbol oget = new OutputSymbol(
+        ParameterizedSymbol oget = new OutputSymbol(
                 "OGet", new DataType[] {intType});
 
-         ParameterizedSymbol ook = new OutputSymbol(
+        ParameterizedSymbol ook = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-         DataValue d0 = new DataValue(intType, 0);
-         DataValue d1 = new DataValue(intType, 1);
-         DataValue d6 = new DataValue(intType, 6);
+        DataValue d0 = new DataValue(intType, 0);
+        DataValue d1 = new DataValue(intType, 1);
+        DataValue d6 = new DataValue(intType, 6);
 
         //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -245,8 +244,6 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 oracle, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo =
-                new MultiTheorySDTLogicOracle(consts, solver);
 
         Word<PSymbolInstance> word = Word.fromSymbols(
                 new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
@@ -255,7 +252,6 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
                 new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
                 new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
-
 
         SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4), restrictionBuilder);
         Assert.assertTrue(suffix.getFreeValues().isEmpty());

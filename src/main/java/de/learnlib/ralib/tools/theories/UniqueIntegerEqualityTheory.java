@@ -17,10 +17,9 @@ import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.UniqueEqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.words.Word;
+import net.automatalib.word.Word;
 
 public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> implements TypedTheory<Integer> {
-
 
     private DataType type = null;
 
@@ -47,8 +46,8 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
     }
 
     @Override
-    public void setUseSuffixOpt(boolean useit) {
-        this.useNonFreeOptimization = useit;
+    public void setUseSuffixOpt(boolean unused) {
+        // this.useNonFreeOptimization = unused;
     }
 
     @Override
