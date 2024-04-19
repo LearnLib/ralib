@@ -394,9 +394,8 @@ public class RaLambda implements RaLearningAlgorithm {
 			            		if (suffix == null || suffix.length() > s.length()+1) {
 			            			SymbolicSuffix testSuffix;
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
-//			            				Register[] differentlyMapped = differentlyMappedRegisters(tqr.getPiv(), otherTQR.getPiv());
-//			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s, differentlyMapped);
-			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s);
+			            				Register[] differentlyMapped = differentlyMappedRegisters(tqr.getPiv(), otherTQR.getPiv());
+			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s, differentlyMapped);
 			            			} else {
 			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), restrictionBuilder);
 			            				testSuffix = testSuffix.concat(s);
