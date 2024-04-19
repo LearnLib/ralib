@@ -132,12 +132,12 @@ public class LearnLoginTest extends RaLibTestSuite {
 			    "[{TQ: 65, Resets: 2339, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2313, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2208, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2200, Inputs: 0}," +
+			    " {TQ: 64, Resets: 2205, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2136, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2578, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2315, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2192, Inputs: 0}," +
-			    " {TQ: 65, Resets: 3618, Inputs: 0}," +
+			    " {TQ: 65, Resets: 3623, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2059, Inputs: 0}]");
     }
 
