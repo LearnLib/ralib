@@ -127,6 +127,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private IOOracle back;
 
     private Map<DataType, Theory> teachers;
+    
+    private final Constants consts = new Constants();
 
     private Class<?> target = null;
 
@@ -183,7 +185,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
-            final Constants consts = new Constants();
+//            final Constants consts = new Constants();
 
             String cstString = OPTION_CONSTANTS.parse(config);
             if (cstString != null) {
@@ -364,7 +366,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
+            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
             IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);
@@ -374,6 +376,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
+        System.out.println("FINAL HYP:------------------------------------------");
+        System.out.println(hyp);
+        System.out.println("----------------------------------------------------");
         SimpleProfiler.logResults();
 
         System.out.println("ce lengths (original): "
