@@ -127,7 +127,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     private IOOracle back;
 
     private Map<DataType, Theory> teachers;
-    
+
     private final Constants consts = new Constants();
 
     private Class<?> target = null;
