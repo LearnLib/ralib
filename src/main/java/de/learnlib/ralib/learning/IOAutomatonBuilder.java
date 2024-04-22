@@ -33,11 +33,13 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -92,13 +94,13 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         analyzeExpression(expr, outmap);
 
         Set<Parameter> fresh = new LinkedHashSet<>();
-//        ParameterGenerator pgen = new ParameterGenerator();
-//        for (DataType t : action.getPtypes()) {
-//            Parameter p = pgen.next(t);
-//            if (!outmap.containsKey(p)) {
-//                fresh.add(p);
-//            }
-//        }
+        ParameterGenerator pgen = new ParameterGenerator();
+        for (DataType t : action.getPtypes()) {
+            Parameter p = pgen.next(t);
+            if (!outmap.containsKey(p) && consts.isEmpty()) {
+                fresh.add(p);
+            }
+        }
 
         OutputMapping outMap = new OutputMapping(fresh, outmap);
 
