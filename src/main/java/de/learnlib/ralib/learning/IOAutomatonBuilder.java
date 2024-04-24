@@ -97,7 +97,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataType t : action.getPtypes()) {
             Parameter p = pgen.next(t);
-            if (!outmap.containsKey(p) && consts.isEmpty()) {
+            if (!outmap.containsKey(p)) {
                 fresh.add(p);
             }
         }

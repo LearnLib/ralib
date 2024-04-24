@@ -137,7 +137,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
                 DataValue f = out.getParameterValues()[i];
                 DataValue d = ref.getParameterValues()[i];
                 if (f instanceof FreshValue) {
-//                    assert !replacements.containsKey(d);
+                    assert !replacements.containsKey(d);
                     replacements.put(d, f);
                 }
                 DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;

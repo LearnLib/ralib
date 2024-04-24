@@ -170,11 +170,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
 
-            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            if (this.timeoutMillis > 0L) {
-                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
-            }
-
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
 
             actList.add(SpecialSymbols.ERROR);
@@ -192,6 +187,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator();
             	DataValue<?>[] cstArray = super.parseDataValues(cstString, types);
             	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            }
+
+            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md, consts);
+            if (this.timeoutMillis > 0L) {
+                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
             }
 
             // create teachers
