@@ -137,4 +137,39 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
 
     }
 
+    @Test
+    public void classAnalyzerConstantsTest() {
+
+    	final String[] options = new String[] {
+    			"class-analyzer",
+    			"target=de.learnlib.ralib.example.container.ContainerSUL;" +
+    			"methods=put(java.lang.Integer:int)void+" +
+    					"get()java.lang.Integer:int;" +
+    			"random.seed=652102309071547789;" +
+                "logging.level=WARNING;" +
+                "max.time.millis=600000;" +
+                "learner=sllambda;" +
+                "use.ceopt=false;" +
+                "use.suffixopt=true;" +
+                "use.fresh=true;" +
+                "use.rwalk=true;" +
+                "export.model=false;" +
+                "rwalk.prob.fresh=0.8;" +
+                "rwalk.prob.reset=0.1;" +
+                "rwalk.max.depth=6;" +
+                "rwalk.max.runs=1000;" +
+                "rwalk.reset.count=false;" +
+                "rwalk.draw.uniform=false;" +
+                "teachers=int:de.learnlib.ralib.tools.theories.IntegerEqualityTheory;" +
+                "constants=[{'type':'int','value':'0'}]"};
+
+    	try {
+    		ConsoleClient cl = new ConsoleClient(options);
+    		int ret = cl.run();
+    		Assert.assertEquals(ret, 0);
+    	} catch (Throwable t) {
+    		Assert.fail(t.getClass().getName());
+    	}
+    }
+
 }
