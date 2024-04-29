@@ -70,7 +70,6 @@ public class LearnPQTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), jsolv);
@@ -126,7 +125,7 @@ public class LearnPQTest extends RaLibTestSuite {
 
     @Test
     public void learnPQRandom() {
-        int SEEDS = 1;
+        int SEEDS = 1;	// NB: results are hard-coded for one seed only
         Constants consts = new Constants();
         DataWordOracle dwOracle =
                 new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
@@ -134,26 +133,25 @@ public class LearnPQTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(4);
 //        runner.setUseOldAnalyzer(true);
 
         Measurements[] ralambdaCount = new Measurements [SEEDS];
-//        Measurements[] rastarCount = new Measurements [SEEDS];
-        for (int i=0; i<SEEDS; i++) {
-            System.out.println(i);
+        Measurements[] rastarCount = new Measurements [SEEDS];
+        for (int i = 0; i < SEEDS; i++) {
             runner.setSeed(i);
             runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
             ralambdaCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
-//            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
-//            rastarCount[i] = runner.getMeasurements();
-//            runner.resetMeasurements();
+            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+            rastarCount[i] = runner.getMeasurements();
+            runner.resetMeasurements();
         }
 
-        System.out.println("Queries (Lambda): " + Arrays.toString(ralambdaCount));
-//        System.out.println("Queries (Star): " + Arrays.toString(rastarCount));
+	// hard-coded results from first seed
+        Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 82, Resets: 1989, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(rastarCount),   "[{TQ: 71, Resets: 8321, Inputs: 0}]");
     }
 }

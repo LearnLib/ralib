@@ -41,7 +41,7 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        List<SDTGuard> s = new ArrayList();
+        List<SDTGuard> s = new ArrayList<SDTGuard>();
         s.add(this);
         return s;
     }

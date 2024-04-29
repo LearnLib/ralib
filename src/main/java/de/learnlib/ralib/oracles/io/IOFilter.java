@@ -69,13 +69,12 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
     private boolean isValid(Word<PSymbolInstance> query) {
         boolean inExp = true;
         for (PSymbolInstance psi : query) {
-            boolean isInput = (this.inputs.contains(psi.getBaseSymbol()));
+            boolean isInput = this.inputs.contains(psi.getBaseSymbol());
             if (inExp ^ isInput) {
                 return false;
             }
             inExp = !inExp;
         }
-
         return true;
     }
 

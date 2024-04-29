@@ -131,9 +131,9 @@ public class IORandomWalk implements IOEquivalenceOracle {
         }
         // find counterexample ...
         while (runs < maxRuns) {
-            Word ce = run();
+            Word<PSymbolInstance> ce = run();
             if (ce != null) {
-                return new DefaultQuery<>(ce, true);
+                return new DefaultQuery<PSymbolInstance, Boolean>(ce, true);
             }
         }
         return null;

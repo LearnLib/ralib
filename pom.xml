@@ -17,7 +17,7 @@
 
         <!-- Dependency versions appear alphabetically below -->
         <commons-lang.version>3.14.0</commons-lang.version>
-        <guava.version>33.0.0-jre</guava.version>
+        <guava.version>33.1.0-jre</guava.version>
         <jakarta-xml.version>4.0.2</jakarta-xml.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
@@ -91,7 +91,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.3.1</version>
+                <version>4.8.4.0</version>
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
