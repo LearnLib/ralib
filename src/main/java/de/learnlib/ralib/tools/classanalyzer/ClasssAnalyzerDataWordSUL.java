@@ -159,9 +159,13 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     }
 
     private boolean isFresh(DataType t, Object id) {
-        Map<DataValue, Object> map = this.buckets.get(t);
-        if (consts.values().stream().filter(d -> d.getType().equals(t) && d.getId().equals(id)).findAny().isPresent())
+        if (consts.values()
+        		.stream()
+        		.filter(d -> d.getType().equals(t) && d.getId().equals(id))
+        		.findAny()
+        		.isPresent())
         	return false;
+        Map<DataValue, Object> map = this.buckets.get(t);
         return map == null || !map.containsValue(id);
     }
 

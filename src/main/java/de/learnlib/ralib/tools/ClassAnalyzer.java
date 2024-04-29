@@ -180,8 +180,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
-//            final Constants consts = new Constants();
-
             String cstString = OPTION_CONSTANTS.parse(config);
             if (cstString != null) {
             	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator();
@@ -245,8 +243,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
                 }
             };
-
-            //this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
             switch (this.learner) {
                 case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
@@ -376,9 +372,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
         }
 
         System.out.println("=============================== STOP ===============================");
-        System.out.println("FINAL HYP:------------------------------------------");
-        System.out.println(hyp);
-        System.out.println("----------------------------------------------------");
         SimpleProfiler.logResults();
 
         System.out.println("ce lengths (original): "
