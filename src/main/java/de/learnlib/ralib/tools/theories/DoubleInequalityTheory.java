@@ -270,4 +270,28 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 		// not yet implemented for inequality theory
 		return false;
 	}
+
+	@Override
+	protected Comparator<DataValue<BigDecimal>> getComparator() {
+		return new Comparator<DataValue<BigDecimal>>() {
+			@Override
+			public int compare(DataValue<BigDecimal> d1, DataValue<BigDecimal> d2) {
+				return d1.getId().compareTo(d2.getId());
+			}
+		};
+	}
+
+	@Override
+	protected DataValue<BigDecimal> safeCast(DataValue<?> dv) {
+		if (dv.getId() instanceof BigDecimal) {
+			return new DataValue<BigDecimal>(dv.getType(), (BigDecimal) dv.getId());
+		}
+		return null;
+	}
+//	protected List<DataValue<BigDecimal>> sort(Collection<DataValue<BigDecimal>> pot) {
+//		List<DataValue<BigDecimal>> ret = new ArrayList<>();
+//		ret.addAll(pot);
+//		ret.sort((d1, d2) -> d1.getId().compareTo(d2.getId()));
+//		return ret;
+//	}
 }

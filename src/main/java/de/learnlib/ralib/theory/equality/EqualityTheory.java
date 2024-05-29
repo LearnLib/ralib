@@ -177,7 +177,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
         EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<T>(equivClasses, useNonFreeOptimization);
-        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
+        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values, constants);
         assert filteredEquivClasses.size() > 0;
 
         // TODO: integrate fresh-value optimization with restrictions

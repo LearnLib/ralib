@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -28,7 +29,7 @@ public class EquivalenceClassFilter<T> {
 	}
 
 	public List<DataValue<T>> toList(SuffixValueRestriction restr,
-			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation) {
+			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation, Constants consts) {
 
 		if (!useOptimization)
 			return equivClasses;
@@ -60,6 +61,7 @@ public class EquivalenceClassFilter<T> {
 		for (DataValue<T> ec : equivClasses) {
 			Mapping<SymbolicDataValue, DataValue<?>> ecMapping = new Mapping<SymbolicDataValue, DataValue<?>>();
 			ecMapping.putAll(mapping);
+			ecMapping.putAll(consts);
 			ecMapping.put(restr.getParameter(), ec);
 			if (expr.isSatisfied(ecMapping)) {
 				filtered.add(ec);
