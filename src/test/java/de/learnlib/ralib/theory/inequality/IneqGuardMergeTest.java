@@ -81,13 +81,11 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts1.put(g6, SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> expected1 = new LinkedHashMap<>();
-//        expected1.put(new SDTOrGuard(s1, g0, g1), SDTLeaf.ACCEPTING);
         expected1.put(g0, SDTLeaf.ACCEPTING);
         expected1.put(g1, SDTLeaf.ACCEPTING);
         expected1.put(new IntervalGuard(s1, r1, r3), SDTLeaf.REJECTING);
         expected1.put(g5, SDTLeaf.ACCEPTING);
         expected1.put(g6, SDTLeaf.ACCEPTING);
-//        expected1.put(new SDTOrGuard(s1, g5, g6), SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, new ArrayList<DataValue<BigDecimal>>());
 
@@ -106,7 +104,6 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Map<SDTGuard, SDT> expected2 = new LinkedHashMap<>();
         expected2.put(new IntervalGuard(s1, null, r2), SDTLeaf.ACCEPTING);
-//        expected2.put(new SDTOrGuard(s1, g3, g4, g5), SDTLeaf.REJECTING);
         expected2.put(g3, SDTLeaf.REJECTING);
         expected2.put(g4, SDTLeaf.REJECTING);
         expected2.put(g5, SDTLeaf.REJECTING);
@@ -130,7 +127,6 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         Map<SDTGuard, SDT> expected3 = new LinkedHashMap<>();
         expected3.put(g0, SDTLeaf.ACCEPTING);
         expected3.put(g1, SDTLeaf.REJECTING);
-//        expected3.put(new SDTOrGuard(s1, g2, g3), SDTLeaf.ACCEPTING);
         expected3.put(g2, SDTLeaf.ACCEPTING);
         expected3.put(g3, SDTLeaf.ACCEPTING);
         expected3.put(new IntervalGuard(s1, r2, null), SDTLeaf.REJECTING);
@@ -152,7 +148,6 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Map<SDTGuard, SDT> expected4 = new LinkedHashMap<>();
         expected4.put(g0, SDTLeaf.ACCEPTING);
-//        expected4.put(new SDTOrGuard(s1, g1, g2), SDTLeaf.REJECTING);
         expected4.put(g1, SDTLeaf.REJECTING);
         expected4.put(g2, SDTLeaf.REJECTING);
         expected4.put(g3, SDTLeaf.ACCEPTING);
@@ -274,7 +269,6 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         filtered.add(dv6);
 
         Map<SDTGuard, SDT> expected = new LinkedHashMap<>();
-//        expected.put(new SDTOrGuard(s1, g1, g2), SDTLeaf.ACCEPTING);
         expected.put(g1, SDTLeaf.ACCEPTING);
         expected.put(g2, SDTLeaf.ACCEPTING);
         expected.put(g5, SDTLeaf.REJECTING);
@@ -337,8 +331,6 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts.put(g4, sdt3);
 
         Map<SDTGuard, SDT> expected = new LinkedHashMap<>();
-//        expected.put(new SDTOrGuard(s1, g0, g1), sdt1);
-//        expected.put(new SDTOrGuard(s1, g2, g3), sdt2);
         expected.put(g0, sdt1);
         expected.put(g1, sdt1);
         expected.put(g2, sdt2);
