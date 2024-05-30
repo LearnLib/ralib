@@ -16,10 +16,7 @@
  */
 package de.learnlib.ralib.theory.equality;
 
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -27,9 +24,7 @@ import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
 
 /**
  *
@@ -108,30 +103,30 @@ public class EqualityGuard extends SDTIfGuard {
                 Relation.EQUALS, parameter);
     }
 
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        if (other instanceof DisequalityGuard) {
-            if (!(other.equals(this.toDeqGuard()))) {
-                guards.add(this);
-                guards.add(other);
-            }
-        } else if (other instanceof EqualityGuard) {
-            if (!(this.equals(other))) {
-                guards.add(other);
-            }
-            guards.add(this);
-        } else if (other instanceof SDTOrGuard) {
-            for (SDTGuard s : ((SDTOrGuard)other).getGuards()) {
-                guards.addAll(this.mergeWith(s, regPotential));
-            }
-        }else {
-            //System.out.println("attempt to merge " + this + " with " + other);
-            guards.addAll(other.mergeWith(this, regPotential));
-
-        }
-        return guards;
-    }
+//    @Override
+//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+//        Set<SDTGuard> guards = new LinkedHashSet<>();
+//        if (other instanceof DisequalityGuard) {
+//            if (!(other.equals(this.toDeqGuard()))) {
+//                guards.add(this);
+//                guards.add(other);
+//            }
+//        } else if (other instanceof EqualityGuard) {
+//            if (!(this.equals(other))) {
+//                guards.add(other);
+//            }
+//            guards.add(this);
+//        } else if (other instanceof SDTOrGuard) {
+//            for (SDTGuard s : ((SDTOrGuard)other).getGuards()) {
+//                guards.addAll(this.mergeWith(s, regPotential));
+//            }
+//        }else {
+//            //System.out.println("attempt to merge " + this + " with " + other);
+//            guards.addAll(other.mergeWith(this, regPotential));
+//
+//        }
+//        return guards;
+//    }
 
     @Override
     public EqualityGuard copy() {

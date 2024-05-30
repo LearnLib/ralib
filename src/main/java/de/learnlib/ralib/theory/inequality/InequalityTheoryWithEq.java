@@ -51,7 +51,6 @@ import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
@@ -231,104 +230,153 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 	private SDTGuard mergeIntervals(SDTGuard leftGuard, SDTGuard rightGuard) {
 		SuffixValue suffixValue = leftGuard.getParameter();
-		if (leftGuard instanceof IntervalGuard) {
-			IntervalGuard igLeft = (IntervalGuard)leftGuard;
-			if (!igLeft.isBiggerGuard()) {
-				if (rightGuard instanceof EqualityGuard &&
-						((EqualityGuard) rightGuard).getRegister().equals(igLeft.getRightReg())) {
-					return new SDTOrGuard(suffixValue, leftGuard, rightGuard);
-				}
-			}
-		} else if (leftGuard instanceof EqualityGuard) {
-			EqualityGuard egLeft = (EqualityGuard)leftGuard;
+		if (leftGuard instanceof EqualityGuard) {
+			EqualityGuard egLeft = (EqualityGuard) leftGuard;
+			SymbolicDataValue rl = egLeft.getRegister();
 			if (rightGuard instanceof IntervalGuard) {
-				IntervalGuard igRight = (IntervalGuard)rightGuard;
-				if (!igRight.isSmallerGuard() &&
-						igRight.getLeftReg().equals(egLeft.getRegister())) {
-					return new SDTOrGuard(suffixValue, leftGuard, rightGuard);
-				}
-			} else if (rightGuard instanceof SDTOrGuard) {
-				List<SDTGuard> subGuards = ((SDTOrGuard) rightGuard).getGuards();
-				if (subGuards.size() == 1)
-					return mergeIntervals(leftGuard, subGuards.get(0));
-				if (subGuards.size() == 2 &&
-						subGuards.get(0) instanceof IntervalGuard &&
-						subGuards.get(1) instanceof EqualityGuard) {
-					IntervalGuard igRight = (IntervalGuard) subGuards.get(0);
-					EqualityGuard egRight = (EqualityGuard) subGuards.get(1);
-					SymbolicDataValue lr = egLeft.getRegister();
-					SymbolicDataValue rr = egRight.getRegister();
-					if (igRight.isIntervalGuard() &&
-							igRight.getLeftReg().equals(lr) &&
-							igRight.getRightReg().equals(rr)) {
-						return new SDTOrGuard(suffixValue, egLeft, igRight, egRight);
+				IntervalGuard igRight = (IntervalGuard) rightGuard;
+				if (!igRight.isSmallerGuard() && igRight.getLeftReg().equals(rl)) {
+					if (igRight.isBiggerGuard()) {
+						return IntervalGuard.greaterOrEqualGuard(suffixValue, rl);
+					} else {
+						return new IntervalGuard(suffixValue, rl, igRight.getRightReg(), true, false);
 					}
 				}
 			}
-		} else if (leftGuard instanceof SDTMultiGuard) {
-			List<SDTGuard> subGuards = ((SDTOrGuard) leftGuard).getGuards();
-			if (subGuards.size() == 1)
-				return mergeIntervals(subGuards.get(0), rightGuard);
-			if (subGuards.size() == 2) {
-				if (subGuards.get(0) instanceof IntervalGuard &&
-						subGuards.get(1) instanceof EqualityGuard &&
-						rightGuard instanceof IntervalGuard) {
-					IntervalGuard igLeft = (IntervalGuard) subGuards.get(0);
-					EqualityGuard egMid = (EqualityGuard) subGuards.get(1);
+		} else if (leftGuard instanceof IntervalGuard && !((IntervalGuard) leftGuard).isBiggerGuard()) {
+			IntervalGuard igLeft = (IntervalGuard) leftGuard;
+			SymbolicDataValue rr = igLeft.getRightReg();
+			if (igLeft.isSmallerGuard()) {
+				if (rightGuard instanceof EqualityGuard && ((EqualityGuard) rightGuard).getRegister().equals(rr)) {
+					return IntervalGuard.lessOrEqualGuard(suffixValue, rr);
+				} else if (rightGuard instanceof IntervalGuard &&
+						!((IntervalGuard) rightGuard).isSmallerGuard() &&
+						((IntervalGuard) rightGuard).getLeftReg().equals(rr)) {
 					IntervalGuard igRight = (IntervalGuard) rightGuard;
-					SymbolicDataValue r = egMid.getRegister();
-					if (!igLeft.isBiggerGuard() && igLeft.getRightReg().equals(r) &&
-							!igRight.isSmallerGuard() && igRight.getLeftReg().equals(r)) {
-						if (igLeft.isSmallerGuard()) {
-							if (igRight.isBiggerGuard()) {
-								return new SDTTrueGuard(suffixValue);
-							} else if (igRight.isIntervalGuard()) {
-								return new IntervalGuard(suffixValue, null, igRight.getRightReg());
-							}
-						} else if (igLeft.isIntervalGuard()) {
-							if (igRight.isBiggerGuard()) {
-								return new IntervalGuard(suffixValue, igLeft.getLeftReg(), null);
-							} else if (igRight.isIntervalGuard()) {
-								return new IntervalGuard(suffixValue, igLeft.getLeftReg(), igRight.getRightReg());
-							}
-						}
-					}
-				} else if (subGuards.get(0) instanceof EqualityGuard &&
-						subGuards.get(1) instanceof IntervalGuard &&
-						rightGuard instanceof EqualityGuard) {
-					EqualityGuard egLeft = (EqualityGuard) subGuards.get(0);
-					IntervalGuard igMid = (IntervalGuard) subGuards.get(1);
-					EqualityGuard egRight = (EqualityGuard) rightGuard;
-					if (egLeft.getRegister().equals(igMid.getLeftReg()) &&
-							egRight.getRegister().equals(igMid.getRightReg())) {
-						return new SDTOrGuard(suffixValue, egLeft, igMid, egRight);
+					if (igRight.isIntervalGuard()) {
+						return IntervalGuard.lessGuard(suffixValue, igRight.getRightReg());
+					} else {
+						return new SDTTrueGuard(suffixValue);
 					}
 				}
-			} else if (subGuards.size() == 3) {
-				if (subGuards.get(0) instanceof EqualityGuard &&
-						subGuards.get(1) instanceof IntervalGuard &&
-						subGuards.get(2) instanceof EqualityGuard &&
-						rightGuard instanceof IntervalGuard) {
-					EqualityGuard egFirst = (EqualityGuard) subGuards.get(0);
-					IntervalGuard igSecond = (IntervalGuard) subGuards.get(1);
-					EqualityGuard egThird = (EqualityGuard) subGuards.get(2);
-					IntervalGuard igLast = (IntervalGuard) rightGuard;
-					SymbolicDataValue lr = egFirst.getRegister();
-					SymbolicDataValue rr = egThird.getRegister();
-					if (igSecond.isIntervalGuard() &&
-							igSecond.getLeftReg().equals(lr) &&
-							igSecond.getRightReg().equals(rr)) {
-						if (!igLast.isSmallerGuard() && igLast.getLeftReg().equals(rr)) {
-							return new SDTOrGuard(suffixValue,
-									egFirst,
-									new IntervalGuard(suffixValue, lr, igLast.getRightReg()));
-						}
+			} else if (igLeft.isIntervalGuard()) {
+				if (rightGuard instanceof EqualityGuard && ((EqualityGuard) rightGuard).getRegister().equals(rr)) {
+					return new IntervalGuard(suffixValue, igLeft.getLeftReg(), rr, igLeft.isLeftClosed(), true);
+				} else if (rightGuard instanceof IntervalGuard &&
+						!((IntervalGuard) rightGuard).isSmallerGuard() &&
+						((IntervalGuard) rightGuard).getLeftReg().equals(rr)) {
+					IntervalGuard igRight = (IntervalGuard) rightGuard;
+					if (igRight.isBiggerGuard()) {
+						return new IntervalGuard(suffixValue, igLeft.getLeftReg(), null, igLeft.isLeftClosed(), false);
+					} else {
+						return new IntervalGuard(suffixValue, igLeft.getLeftReg(), igRight.getRightReg(), igLeft.isLeftClosed(), igRight.isRightClosed());
 					}
 				}
 			}
 		}
 		throw new java.lang.IllegalArgumentException("Guards are not compatible for merging");
 	}
+
+//	private SDTGuard mergeIntervals(SDTGuard leftGuard, SDTGuard rightGuard) {
+//		SuffixValue suffixValue = leftGuard.getParameter();
+//		if (leftGuard instanceof IntervalGuard) {
+//			IntervalGuard igLeft = (IntervalGuard)leftGuard;
+//			if (!igLeft.isBiggerGuard()) {
+//				if (rightGuard instanceof EqualityGuard &&
+//						((EqualityGuard) rightGuard).getRegister().equals(igLeft.getRightReg())) {
+//					return new SDTOrGuard(suffixValue, leftGuard, rightGuard);
+//				}
+//			}
+//		} else if (leftGuard instanceof EqualityGuard) {
+//			EqualityGuard egLeft = (EqualityGuard)leftGuard;
+//			if (rightGuard instanceof IntervalGuard) {
+//				IntervalGuard igRight = (IntervalGuard)rightGuard;
+//				if (!igRight.isSmallerGuard() &&
+//						igRight.getLeftReg().equals(egLeft.getRegister())) {
+//					return new SDTOrGuard(suffixValue, leftGuard, rightGuard);
+//				}
+//			} else if (rightGuard instanceof SDTOrGuard) {
+//				List<SDTGuard> subGuards = ((SDTOrGuard) rightGuard).getGuards();
+//				if (subGuards.size() == 1)
+//					return mergeIntervals(leftGuard, subGuards.get(0));
+//				if (subGuards.size() == 2 &&
+//						subGuards.get(0) instanceof IntervalGuard &&
+//						subGuards.get(1) instanceof EqualityGuard) {
+//					IntervalGuard igRight = (IntervalGuard) subGuards.get(0);
+//					EqualityGuard egRight = (EqualityGuard) subGuards.get(1);
+//					SymbolicDataValue lr = egLeft.getRegister();
+//					SymbolicDataValue rr = egRight.getRegister();
+//					if (igRight.isIntervalGuard() &&
+//							igRight.getLeftReg().equals(lr) &&
+//							igRight.getRightReg().equals(rr)) {
+//						return new SDTOrGuard(suffixValue, egLeft, igRight, egRight);
+//					}
+//				}
+//			}
+//		} else if (leftGuard instanceof SDTMultiGuard) {
+//			List<SDTGuard> subGuards = ((SDTOrGuard) leftGuard).getGuards();
+//			if (subGuards.size() == 1)
+//				return mergeIntervals(subGuards.get(0), rightGuard);
+//			if (subGuards.size() == 2) {
+//				if (subGuards.get(0) instanceof IntervalGuard &&
+//						subGuards.get(1) instanceof EqualityGuard &&
+//						rightGuard instanceof IntervalGuard) {
+//					IntervalGuard igLeft = (IntervalGuard) subGuards.get(0);
+//					EqualityGuard egMid = (EqualityGuard) subGuards.get(1);
+//					IntervalGuard igRight = (IntervalGuard) rightGuard;
+//					SymbolicDataValue r = egMid.getRegister();
+//					if (!igLeft.isBiggerGuard() && igLeft.getRightReg().equals(r) &&
+//							!igRight.isSmallerGuard() && igRight.getLeftReg().equals(r)) {
+//						if (igLeft.isSmallerGuard()) {
+//							if (igRight.isBiggerGuard()) {
+//								return new SDTTrueGuard(suffixValue);
+//							} else if (igRight.isIntervalGuard()) {
+//								return new IntervalGuard(suffixValue, null, igRight.getRightReg());
+//							}
+//						} else if (igLeft.isIntervalGuard()) {
+//							if (igRight.isBiggerGuard()) {
+//								return new IntervalGuard(suffixValue, igLeft.getLeftReg(), null);
+//							} else if (igRight.isIntervalGuard()) {
+//								return new IntervalGuard(suffixValue, igLeft.getLeftReg(), igRight.getRightReg());
+//							}
+//						}
+//					}
+//				} else if (subGuards.get(0) instanceof EqualityGuard &&
+//						subGuards.get(1) instanceof IntervalGuard &&
+//						rightGuard instanceof EqualityGuard) {
+//					EqualityGuard egLeft = (EqualityGuard) subGuards.get(0);
+//					IntervalGuard igMid = (IntervalGuard) subGuards.get(1);
+//					EqualityGuard egRight = (EqualityGuard) rightGuard;
+//					if (egLeft.getRegister().equals(igMid.getLeftReg()) &&
+//							egRight.getRegister().equals(igMid.getRightReg())) {
+//						return new SDTOrGuard(suffixValue, egLeft, igMid, egRight);
+//					}
+//				}
+//			} else if (subGuards.size() == 3) {
+//				if (subGuards.get(0) instanceof EqualityGuard &&
+//						subGuards.get(1) instanceof IntervalGuard &&
+//						subGuards.get(2) instanceof EqualityGuard &&
+//						rightGuard instanceof IntervalGuard) {
+//					EqualityGuard egFirst = (EqualityGuard) subGuards.get(0);
+//					IntervalGuard igSecond = (IntervalGuard) subGuards.get(1);
+//					EqualityGuard egThird = (EqualityGuard) subGuards.get(2);
+//					IntervalGuard igLast = (IntervalGuard) rightGuard;
+//					SymbolicDataValue lr = egFirst.getRegister();
+//					SymbolicDataValue rr = egThird.getRegister();
+//					if (igSecond.isIntervalGuard() &&
+//							igSecond.getLeftReg().equals(lr) &&
+//							igSecond.getRightReg().equals(rr)) {
+//						if (!igLast.isSmallerGuard() && igLast.getLeftReg().equals(rr)) {
+//							return new SDTOrGuard(suffixValue,
+//									egFirst,
+//									new IntervalGuard(suffixValue, lr, igLast.getRightReg()));
+//						}
+//					}
+//				}
+//			}
+//		}
+//		throw new java.lang.IllegalArgumentException("Guards are not compatible for merging");
+//	}
 
 	private DataValue<T> getSmallerDataValue(DataValue<T> dv) {
 		SuffixValue s = new SuffixValue(dv.getType(), 1);

@@ -101,6 +101,6 @@ public class LearnPQTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 9);
-        Assert.assertEquals(hyp.getTransitions().size(), 33);
+        Assert.assertEquals(hyp.getTransitions().size(), 32);
     }
 }

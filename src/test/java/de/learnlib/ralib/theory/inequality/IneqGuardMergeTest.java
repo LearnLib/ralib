@@ -81,11 +81,13 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts1.put(g6, SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> expected1 = new LinkedHashMap<>();
-        expected1.put(g0, SDTLeaf.ACCEPTING);
-        expected1.put(g1, SDTLeaf.ACCEPTING);
+        expected1.put(IntervalGuard.lessOrEqualGuard(s1, r1), SDTLeaf.ACCEPTING);
+//        expected1.put(g0, SDTLeaf.ACCEPTING);
+//        expected1.put(g1, SDTLeaf.ACCEPTING);
         expected1.put(new IntervalGuard(s1, r1, r3), SDTLeaf.REJECTING);
-        expected1.put(g5, SDTLeaf.ACCEPTING);
-        expected1.put(g6, SDTLeaf.ACCEPTING);
+//        expected1.put(g5, SDTLeaf.ACCEPTING);
+//        expected1.put(g6, SDTLeaf.ACCEPTING);
+        expected1.put(IntervalGuard.greaterOrEqualGuard(s1, r3), SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, new ArrayList<DataValue<BigDecimal>>());
 
@@ -103,10 +105,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts2.put(g6, SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> expected2 = new LinkedHashMap<>();
-        expected2.put(new IntervalGuard(s1, null, r2), SDTLeaf.ACCEPTING);
-        expected2.put(g3, SDTLeaf.REJECTING);
-        expected2.put(g4, SDTLeaf.REJECTING);
-        expected2.put(g5, SDTLeaf.REJECTING);
+        expected2.put(IntervalGuard.lessGuard(s1, r2), SDTLeaf.ACCEPTING);
+//        expected2.put(new IntervalGuard(s1, null, r2), SDTLeaf.ACCEPTING);
+//        expected2.put(g3, SDTLeaf.REJECTING);
+//        expected2.put(g4, SDTLeaf.REJECTING);
+//        expected2.put(g5, SDTLeaf.REJECTING);
+        expected2.put(new IntervalGuard(s1, r2, r3, true, true), SDTLeaf.REJECTING);
         expected2.put(g6, SDTLeaf.ACCEPTING);
 
         Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<DataValue<BigDecimal>>());
@@ -127,9 +131,11 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         Map<SDTGuard, SDT> expected3 = new LinkedHashMap<>();
         expected3.put(g0, SDTLeaf.ACCEPTING);
         expected3.put(g1, SDTLeaf.REJECTING);
-        expected3.put(g2, SDTLeaf.ACCEPTING);
-        expected3.put(g3, SDTLeaf.ACCEPTING);
-        expected3.put(new IntervalGuard(s1, r2, null), SDTLeaf.REJECTING);
+//        expected3.put(g2, SDTLeaf.ACCEPTING);
+//        expected3.put(g3, SDTLeaf.ACCEPTING);
+        expected3.put(new IntervalGuard(s1, r1, r2, false, true), SDTLeaf.ACCEPTING);
+//        expected3.put(new IntervalGuard(s1, r2, null), SDTLeaf.REJECTING);
+        expected3.put(IntervalGuard.greaterGuard(s1, r2), SDTLeaf.REJECTING);
 
         Map<SDTGuard, SDT> actual3 = dit.mergeGuards(sdts3, equivClasses, new ArrayList<DataValue<BigDecimal>>());
 
@@ -148,8 +154,9 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Map<SDTGuard, SDT> expected4 = new LinkedHashMap<>();
         expected4.put(g0, SDTLeaf.ACCEPTING);
-        expected4.put(g1, SDTLeaf.REJECTING);
-        expected4.put(g2, SDTLeaf.REJECTING);
+//        expected4.put(g1, SDTLeaf.REJECTING);
+//        expected4.put(g2, SDTLeaf.REJECTING);
+        expected4.put(new IntervalGuard(s1, r1, r2, true, false), SDTLeaf.REJECTING);
         expected4.put(g3, SDTLeaf.ACCEPTING);
         expected4.put(g4, SDTLeaf.REJECTING);
         expected4.put(g5, SDTLeaf.ACCEPTING);
@@ -269,8 +276,9 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         filtered.add(dv6);
 
         Map<SDTGuard, SDT> expected = new LinkedHashMap<>();
-        expected.put(g1, SDTLeaf.ACCEPTING);
-        expected.put(g2, SDTLeaf.ACCEPTING);
+        expected.put(new IntervalGuard(s1, r1, r2, true, false), SDTLeaf.ACCEPTING);
+//        expected.put(g1, SDTLeaf.ACCEPTING);
+//        expected.put(g2, SDTLeaf.ACCEPTING);
         expected.put(g5, SDTLeaf.REJECTING);
 
         Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, filtered);
@@ -331,10 +339,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts.put(g4, sdt3);
 
         Map<SDTGuard, SDT> expected = new LinkedHashMap<>();
-        expected.put(g0, sdt1);
-        expected.put(g1, sdt1);
-        expected.put(g2, sdt2);
-        expected.put(g3, sdt2);
+//        expected.put(g0, sdt1);
+//        expected.put(g1, sdt1);
+        expected.put(IntervalGuard.lessOrEqualGuard(s1, r1), sdt1);
+//        expected.put(g2, sdt2);
+//        expected.put(g3, sdt2);
+        expected.put(new IntervalGuard(s1, r1, r2, false, true), sdt2);
         expected.put(g4, sdt3);
 
         Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, new ArrayList<>());

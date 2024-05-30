@@ -82,10 +82,10 @@ public class SDTTrueGuard extends SDTGuard {
         return hash;
     }
 
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        throw new IllegalStateException("trying to merge true guard");
-    }
+//    @Override
+//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+//        throw new IllegalStateException("trying to merge true guard");
+//    }
 
     @Override
     public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
