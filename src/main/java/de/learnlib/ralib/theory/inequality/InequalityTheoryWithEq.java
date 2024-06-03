@@ -48,12 +48,15 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
+import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
@@ -75,10 +78,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			SymbolicSuffix suffix,
 			SuffixValue suffixValue,
 			Map<DataValue<T>, SymbolicDataValue> potValuation,
+			SuffixValuation suffixValues,
 			Constants consts) {
 		Map<DataValue<T>, SDTGuard> valueGuards = generateEquivClasses(prefix, suffixValue, potValuation, consts);
 		// apply suffix restrictions
-		return filterEquivClasses(valueGuards, prefix, suffix, suffixValue, potValuation, consts);
+		return filterEquivClasses(valueGuards, prefix, suffix, suffixValue, potValuation, suffixValues, consts);
 	}
 
 	private Map<DataValue<T>, SDTGuard> generateEquivClasses(Word<PSymbolInstance> prefix,
@@ -144,17 +148,23 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			SymbolicSuffix suffix,
 			SuffixValue suffixValue,
 			Map<DataValue<T>, SymbolicDataValue> potValuation,
+			SuffixValuation suffixVals,
 			Constants consts) {
-		WordValuation suffixVals = new WordValuation();
-		Iterator<Map.Entry<DataValue<T>, SymbolicDataValue>> it = potValuation
-				.entrySet()
-				.stream()
-				.filter(e -> e.getValue() instanceof SuffixValue)
-				.iterator();
-		while (it.hasNext()) {
-			Map.Entry<DataValue<T>, SymbolicDataValue> e = it.next();
-			suffixVals.put(e.getValue().getId(), e.getKey());
-		}
+//		WordValuation suffixVals = new WordValuation();
+//		Iterator<Map.Entry<DataValue<T>, SymbolicDataValue>> it = potValuation
+//				.entrySet()
+//				.stream()
+//				.filter(e -> e.getValue() instanceof SuffixValue)
+//				.iterator();
+//		while (it.hasNext()) {
+//			Map.Entry<DataValue<T>, SymbolicDataValue> e = it.next();
+//			suffixVals.put(e.getValue().getId(), e.getKey());
+//		}
+//		WordValuation suffixVals = new WordValuation();
+//		suffix.getDataValues()
+//		      .stream()
+//		      .filter(e -> e.getId() < suffixValue.getId())
+//		      .forEach(s -> suffixVals);
 		List<DataValue<T>> equivClasses = new ArrayList<>();
 		equivClasses.addAll(valueGuards.keySet());
 		EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<>(equivClasses, useSuffixOpt);
@@ -189,20 +199,24 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		DataValue<T> first = ecit.next();
 		SDTGuard mergedGuards = equivClasses.get(first);
 		SDT currSdt = sdts.get(mergedGuards);
-		assert currSdt != null;
+//		assert currSdt != null;
 
 		Comparator<DataValue<T>> comparator = getComparator();
 		Iterator<DataValue<T>> filtit = sort(filteredOut).iterator();
 		DataValue<T> smallerDataValue = getSmallerDataValue(first);
 		DataValue<T> filtered = filtit.hasNext() ? filtit.next() : smallerDataValue;
 		boolean lastFilteredOut = comparator.compare(first, filtered) == 0;
+		if (lastFilteredOut) {
+			assert ecit.hasNext();
+			filtered = filtit.hasNext() ? filtit.next() : smallerDataValue;
+		}
 
 		while(ecit.hasNext()) {
 			DataValue<T> next = ecit.next();
 			SDTGuard nextGuard = equivClasses.get(next);
 			SDT nextSdt = sdts.get(nextGuard);
 			boolean thisFilteredOut = comparator.compare(next, filtered) == 0;
-			boolean inequivalentSdts = !currSdt.isEquivalent(nextSdt, new VarMapping<>());
+			boolean inequivalentSdts = thisFilteredOut || (currSdt == null ? false : !currSdt.isEquivalent(nextSdt, new VarMapping<>()));
 			if (thisFilteredOut || inequivalentSdts || lastFilteredOut) {
 				if (!lastFilteredOut) {
 					merged.put(mergedGuards, currSdt);
@@ -224,6 +238,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 		// check for disequality guard (i.e., both s < r and s > r guards are present for some r)
 		merged = checkForDisequality(merged);
+
+		// if only one guard, replace with true guard
+		if (merged.size() == 1) {
+			Map.Entry<SDTGuard, SDT> entry = merged.entrySet().iterator().next();
+			merged = new LinkedHashMap<>();
+			merged.put(new SDTTrueGuard(entry.getKey().getParameter()), entry.getValue());
+		}
 
 		return splitDisjunctions(merged);
 	}
@@ -497,7 +518,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     	Map<DataValue<T>, SymbolicDataValue> pot = getPotential(prefix, suffixValues, consts);
 
         Map<DataValue<T>, SDTGuard> equivClasses = generateEquivClasses(prefix, currentParam, pot, consts);
-        Map<DataValue<T>, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, pot, consts);
+        Map<DataValue<T>, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, pot, suffixValues, consts);
 
         Map<SDTGuard, SDT> children = new LinkedHashMap<>();
         for (Map.Entry<DataValue<T>, SDTGuard> ec : filteredEquivClasses.entrySet()) {
@@ -709,4 +730,75 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     	this.useSuffixOpt = useSuffixOpt;
     }
 
+    @Override
+    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    	DataValue<?> prefixVals[] = DataWords.valsOf(prefix);
+    	DataValue<?> suffixVals[] = DataWords.valsOf(suffix);
+    	DataValue<?> constVals[] = new DataValue<?>[consts.size()];
+    	constVals = consts.values().toArray(constVals);
+    	DataValue<?> priorVals[] = new DataValue<?>[prefixVals.length + constVals.length + suffixValue.getId() - 1];
+    	DataType svType = suffixValue.getType();
+    	DataValue<T> svDataValue = safeCast(suffixVals[suffixValue.getId()-1]);
+    	assert svDataValue != null;
+
+    	System.arraycopy(prefixVals, 0, priorVals, 0, prefixVals.length);
+    	System.arraycopy(constVals, 0, priorVals, prefixVals.length, constVals.length);
+    	System.arraycopy(suffixVals, 0, priorVals, prefixVals.length + constVals.length, suffixValue.getId() - 1);
+
+    	// is suffix value greater than all prior or smaller than all prior?
+    	Comparator<DataValue<T>> comparator = getComparator();
+    	boolean greater = false;
+    	boolean lesser = false;
+    	boolean foundFirst = false;
+    	for (int i = 0; i < priorVals.length; i++) {
+    		if (priorVals[i].getType().equals(svType)) {
+    			DataValue<T> dv = safeCast(priorVals[i]);
+    			assert dv != null;
+    			int comparison = comparator.compare(svDataValue, dv);
+
+    			if (foundFirst) {
+    				if ((greater && comparison < 0) ||
+    						(lesser && comparison > 0) ||
+    						comparison == 0) {
+    					return new UnrestrictedSuffixValue(suffixValue);
+    				}
+    			} else {
+    				if (comparison > 0) {
+    					greater = true;
+    				} else if (comparison < 0) {
+    					lesser = true;
+    				} else {
+    					return new UnrestrictedSuffixValue(suffixValue);
+    				}
+    				foundFirst = true;
+    			}
+    		}
+    	}
+
+    	if (!foundFirst) {
+    		return new GreaterSuffixValue(suffixValue);
+    	}
+
+    	assert (greater && !lesser) || (!greater && lesser);
+    	return greater ? new GreaterSuffixValue(suffixValue) : new LesserSuffixValue(suffixValue);
+    }
+
+    @Override
+    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    	SuffixValue sv = guard.getParameter();
+
+    	if (guard instanceof IntervalGuard) {
+    		IntervalGuard ig = (IntervalGuard) guard;
+    		if (ig.isBiggerGuard()) {
+    			return new GreaterSuffixValue(sv);
+    		} else if (ig.isSmallerGuard()) {
+    			return new LesserSuffixValue(sv);
+    		}
+    	}
+    	SuffixValueRestriction restr = SuffixValueRestriction.genericRestriction(guard, prior);
+    	if (restr instanceof FreshSuffixValue) {
+    		restr = new GreaterSuffixValue(sv);
+    	}
+    	return restr;
+    }
 }

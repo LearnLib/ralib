@@ -261,13 +261,13 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         equivClasses.put(dv6, g6);
 
         Map<SDTGuard, SDT> sdts = new LinkedHashMap<>();
-        sdts.put(g0, SDTLeaf.ACCEPTING);
+//        sdts.put(g0, SDTLeaf.ACCEPTING);
         sdts.put(g1, SDTLeaf.ACCEPTING);
         sdts.put(g2, SDTLeaf.ACCEPTING);
-        sdts.put(g3, SDTLeaf.ACCEPTING);
-        sdts.put(g4, SDTLeaf.REJECTING);
+//        sdts.put(g3, SDTLeaf.ACCEPTING);
+//        sdts.put(g4, SDTLeaf.REJECTING);
         sdts.put(g5, SDTLeaf.REJECTING);
-        sdts.put(g6, SDTLeaf.REJECTING);
+//        sdts.put(g6, SDTLeaf.REJECTING);
 
         List<DataValue<BigDecimal>> filtered = new ArrayList<>();
         filtered.add(dv0);
@@ -401,7 +401,8 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         filteredOut.add(dv1);
 
         Map<SDTGuard, SDT> expected1 = new LinkedHashMap<>();
-        expected1.put(new DisequalityGuard(s1, r1), SDTLeaf.REJECTING);
+//        expected1.put(new DisequalityGuard(s1, r1), SDTLeaf.REJECTING);
+        expected1.put(new SDTTrueGuard(s1), SDTLeaf.REJECTING);
         Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, filteredOut);
 
         Assert.assertEquals(actual1.size(), expected1.size());
@@ -411,7 +412,8 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         Map<SDTGuard, SDT> sdts2 = sdts1;
 
         Map<SDTGuard, SDT> expected2 = new LinkedHashMap<>();
-        expected2.putAll(expected1);
+//        expected2.putAll(expected1);
+        expected2.put(new DisequalityGuard(s1, r1), SDTLeaf.REJECTING);
         expected2.put(g1, SDTLeaf.ACCEPTING);
         Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<>());
 

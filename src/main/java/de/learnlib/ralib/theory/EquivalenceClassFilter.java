@@ -8,10 +8,10 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -29,7 +29,7 @@ public class EquivalenceClassFilter<T> {
 	}
 
 	public List<DataValue<T>> toList(SuffixValueRestriction restr,
-			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation, Constants consts) {
+			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, SuffixValuation valuation, Constants consts) {
 
 		if (!useOptimization)
 			return equivClasses;
@@ -51,7 +51,7 @@ public class EquivalenceClassFilter<T> {
 			DataType[] dts = ps.getPtypes();
 			for (int i = 0; i < dts.length; i++) {
 				SuffixValue sv = svgen.next(dts[i]);
-				DataValue<?> val = valuation.get(sv.getId());
+				DataValue<?> val = valuation.get(sv);
 				if (val != null)
 					mapping.put(sv, val);
 			}

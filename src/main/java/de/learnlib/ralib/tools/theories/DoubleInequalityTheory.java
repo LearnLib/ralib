@@ -33,18 +33,14 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
-import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -54,7 +50,6 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import net.automatalib.word.Word;
 
 /**
  *
@@ -254,22 +249,22 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         return nextValues;
     }
 
-	@Override
-	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix, Constants consts) {
-		return new UnrestrictedSuffixValue(suffixValue);
-	}
+//	@Override
+//	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+//			Word<PSymbolInstance> suffix, Constants consts) {
+//		return new UnrestrictedSuffixValue(suffixValue);
+//	}
 
-	@Override
-	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
-		return new UnrestrictedSuffixValue(guard.getParameter());
-	}
+//	@Override
+//	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+//		return new UnrestrictedSuffixValue(guard.getParameter());
+//	}
 
-	@Override
-	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-		// not yet implemented for inequality theory
-		return false;
-	}
+//	@Override
+//	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+//		// not yet implemented for inequality theory
+//		return false;
+//	}
 
 	@Override
 	protected Comparator<DataValue<BigDecimal>> getComparator() {

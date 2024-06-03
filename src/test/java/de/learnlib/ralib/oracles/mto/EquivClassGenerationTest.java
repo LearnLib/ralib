@@ -12,6 +12,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -87,6 +88,8 @@ public class EquivClassGenerationTest extends RaLibTestSuite {
         potValuation1.put(dv1, s1);
         potValuation1.put(dv3, r1);
         potValuation1.put(dv5, r2);
+        SuffixValuation suffixVals1 = new SuffixValuation();
+        suffixVals1.put(s1, dv1);
 
         Map<DataValue<BigDecimal>, SDTGuard> valueGuardsExpected1 = new LinkedHashMap<>();
         valueGuardsExpected1.put(dv0, new IntervalGuard(s2, null, s1));
@@ -96,7 +99,7 @@ public class EquivClassGenerationTest extends RaLibTestSuite {
         valueGuardsExpected1.put(dv4, new IntervalGuard(s2, r1, r2));
         valueGuardsExpected1.put(dv5, new EqualityGuard(s2, r2));
         valueGuardsExpected1.put(dv6, new IntervalGuard(s2, r2, null));
-        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual1 = dit.equivalenceClasses(prefix1, suffix1, s2, potValuation1, consts);
+        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual1 = dit.equivalenceClasses(prefix1, suffix1, s2, potValuation1, suffixVals1, consts);
 
         Assert.assertEquals(valueGuardsActual1.size(), valueGuardsExpected1.size());
         Assert.assertTrue(valueGuardsActual1.entrySet().containsAll(valueGuardsExpected1.entrySet()));
@@ -109,10 +112,11 @@ public class EquivClassGenerationTest extends RaLibTestSuite {
         restr2.put(s2, new EqualRestriction(s2, s1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(suffixActions2, restr2);
         Map<DataValue<BigDecimal>, SymbolicDataValue> potValuation2 = potValuation1;
+        SuffixValuation suffixVals2 = suffixVals1;
 
         Map<DataValue<BigDecimal>, SDTGuard> valueGuardsExpected2 = new LinkedHashMap<>();
         valueGuardsExpected2.put(dv1, new EqualityGuard(s2, s1));
-        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual2 = dit.equivalenceClasses(prefix2, suffix2, s2, potValuation2, consts);
+        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual2 = dit.equivalenceClasses(prefix2, suffix2, s2, potValuation2, suffixVals2, consts);
 
         Assert.assertEquals(valueGuardsActual2.size(), valueGuardsExpected2.size());
         Assert.assertTrue(valueGuardsActual2.entrySet().containsAll(valueGuardsExpected2.entrySet()));
@@ -122,7 +126,7 @@ public class EquivClassGenerationTest extends RaLibTestSuite {
         Word<ParameterizedSymbol> suffixActions3 = Word.fromSymbols(A);
         SymbolicSuffix suffix3 = new SymbolicSuffix(suffixActions3);
 
-        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual3 = dit.equivalenceClasses(prefix3, suffix3, s1, new LinkedHashMap<>(), consts);
+        Map<DataValue<BigDecimal>, SDTGuard> valueGuardsActual3 = dit.equivalenceClasses(prefix3, suffix3, s1, new LinkedHashMap<>(), new SuffixValuation(), consts);
 
         Assert.assertEquals(valueGuardsActual3.size(), 1);
         Assert.assertTrue(valueGuardsActual3.containsValue(new SDTTrueGuard(s1)));

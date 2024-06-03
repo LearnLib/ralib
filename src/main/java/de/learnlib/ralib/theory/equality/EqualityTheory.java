@@ -53,7 +53,6 @@ import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
@@ -177,7 +176,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
         EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<T>(equivClasses, useNonFreeOptimization);
-        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values, constants);
+        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), suffixValues, constants);
         assert filteredEquivClasses.size() > 0;
 
         // TODO: integrate fresh-value optimization with restrictions
@@ -457,19 +456,19 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     	return SuffixValueRestriction.genericRestriction(guard, prior);
     }
 
-    @Override
-    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
-    		return true;
-    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
-    		return true;
-    	} else if (guard instanceof SDTMultiGuard) {
-    		boolean revealsGuard = false;
-    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
-    			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
-    		}
-    		return revealsGuard;
-    	}
-    	return false;
-    }
+//    @Override
+//    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+//    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
+//    		return true;
+//    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
+//    		return true;
+//    	} else if (guard instanceof SDTMultiGuard) {
+//    		boolean revealsGuard = false;
+//    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
+//    			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
+//    		}
+//    		return revealsGuard;
+//    	}
+//    	return false;
+//    }
 }
