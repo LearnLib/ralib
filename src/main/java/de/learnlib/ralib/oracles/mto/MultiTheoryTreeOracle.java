@@ -97,6 +97,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         this.solver = solver;
     }
 
+    public MultiTheoryTreeOracle(MultiTheoryTreeOracle other) {
+    	this.oracle = other.oracle;
+    	this.teachers = other.teachers;
+    	this.constants = other.constants;
+    	this.solver = other.solver;
+    }
+
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         PIV pir = new PIV();

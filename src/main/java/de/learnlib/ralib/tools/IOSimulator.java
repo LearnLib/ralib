@@ -199,7 +199,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        }
 
         Measurements measurements = new Measurements();
-        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
+//        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
+        MeasuringOracle mto = new MeasuringOracle(ioOracle, teachers, consts, solver, measurements);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;

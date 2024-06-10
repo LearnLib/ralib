@@ -242,9 +242,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		// if only one guard, replace with true guard
 		if (merged.size() == 1) {
 			Map.Entry<SDTGuard, SDT> entry = merged.entrySet().iterator().next();
-			merged = new LinkedHashMap<>();
-			merged.put(new SDTTrueGuard(entry.getKey().getParameter()), entry.getValue());
+			SDTGuard g = entry.getKey();
+			if (g instanceof DisequalityGuard || (g instanceof IntervalGuard && ((IntervalGuard) g).isBiggerGuard())) {
+				merged = new LinkedHashMap<>();
+				merged.put(new SDTTrueGuard(g.getParameter()), entry.getValue());
+			}
 		}
+
+		assert !merged.isEmpty();
 
 		return splitDisjunctions(merged);
 	}
@@ -651,7 +656,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     DataWords.<T>valSet(prefix, type),
                     pval.<T>values(type));
 
-            returnThis = this.getFreshValue(new ArrayList<>(potSet));
+            	returnThis = this.getFreshValue(new ArrayList<>(potSet));
         } else {
             Collection<DataValue<T>> alreadyUsedValues
                     = DataWords.<T>joinValsToSet(
@@ -732,6 +737,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
     @Override
     public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    	int firstActionArity = suffix.size() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
+    	if (suffixValue.getId() <= firstActionArity) {
+    		return new UnrestrictedSuffixValue(suffixValue);
+    	}
+
     	DataValue<?> prefixVals[] = DataWords.valsOf(prefix);
     	DataValue<?> suffixVals[] = DataWords.valsOf(suffix);
     	DataValue<?> constVals[] = new DataValue<?>[consts.size()];
