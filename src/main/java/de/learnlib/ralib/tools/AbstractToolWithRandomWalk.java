@@ -22,6 +22,10 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
+import com.google.gson.Gson;
+
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -134,6 +138,11 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                             ", " + ConstraintSolverFactory.ID_Z3 + ".",
                             ConstraintSolverFactory.ID_SIMPLE, true);
 
+    protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
+            = new ConfigurationOption.StringOption("constants",
+            		"Regular constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...]",
+            		null, true);
+
     protected Random random = null;
 
     protected boolean useCeOptimizers;
@@ -209,5 +218,30 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
+    }
+
+    protected DataValue[] parseDataValues(String gsonDataValueArray, Map<String, DataType> typeMap) {
+    	Gson gson = new Gson();
+    	GsonDataValue[] gDvs = gson.fromJson(gsonDataValueArray, GsonDataValue[].class);
+    	DataValue[] dataValues = new DataValue[gDvs.length];
+    	for (int i = 0; i < gDvs.length; i++) {
+    		DataType type = typeMap.get(gDvs[i].type);
+    		dataValues[i] = gDvs[i].toDataValue(type);
+    	}
+
+    	return dataValues;
+    }
+
+    static class GsonDataValue {
+    	public String type;
+    	public String value;
+
+    	public DataValue toDataValue(DataType type) {
+    		if (type.getName().compareTo(this.type) != 0) {
+    			throw new RuntimeException("Type name mismatch");
+    		}
+        	DataValue dv = new DataValue(type, DataValue.valueOf(value, type.getBase()));
+        	return dv;
+    	}
     }
 }

@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.learnlib.exception.SULException;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
@@ -47,10 +48,17 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private final Map<DataType, Map<DataValue, Object>> buckets = new HashMap<>();
 
+    private final Constants consts;
+
     public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
-        this.sulClass = sulClass;
-        this.methods = methods;
-        this.maxDepth = d;
+        this(sulClass, methods, d, new Constants());
+    }
+
+    public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d, Constants consts) {
+    	this.sulClass = sulClass;
+    	this.methods = methods;
+    	this.maxDepth = d;
+    	this.consts = consts;
     }
 
     @Override
@@ -151,6 +159,12 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     }
 
     private boolean isFresh(DataType t, Object id) {
+        if (consts.values()
+        		.stream()
+        		.filter(d -> d.getType().equals(t) && d.getId().equals(id))
+        		.findAny()
+        		.isPresent())
+        	return false;
         Map<DataValue, Object> map = this.buckets.get(t);
         return map == null || !map.containsValue(id);
     }
