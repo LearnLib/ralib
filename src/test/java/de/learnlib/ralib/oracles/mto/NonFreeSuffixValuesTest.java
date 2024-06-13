@@ -80,6 +80,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
@@ -127,7 +128,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(iget),
                 new PSymbolInstance(oget,d0));
 
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
         String expectedTree = "[r1, r2]-+\n" +
                 "        []-TRUE: s1\n" +
@@ -171,6 +172,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         loader.getDataTypes().stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
@@ -205,7 +207,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(i4, d4, d5, d6, d7),
                 new PSymbolInstance(oyes));
 
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, consts);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, restrictionBuilder);
 
 
         String expectedTree = "[]-+\n" +
@@ -231,6 +233,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
         theory.setUseSuffixOpt(true);
         teachers.put(TINT, theory);
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
         RepeaterSUL sul = new RepeaterSUL(-1, 2);
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
@@ -250,7 +253,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
                 new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
 
-        SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4));
+        SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4), restrictionBuilder);
         Assert.assertTrue(suffix.getFreeValues().isEmpty());
 
         String expectedTree = "[]-+\n" +

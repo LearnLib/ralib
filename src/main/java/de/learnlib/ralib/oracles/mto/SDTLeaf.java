@@ -109,4 +109,9 @@ public class SDTLeaf extends SDT {
     public Set<SymbolicDataValue.Register> getRegisters() {
         return new LinkedHashSet<>();
     }
+
+    @Override
+    public SDT copy() {
+    	return new SDTLeaf(accepting);
+    }
 }
