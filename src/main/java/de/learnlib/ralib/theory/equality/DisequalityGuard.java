@@ -22,6 +22,7 @@ import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -55,7 +56,7 @@ public class DisequalityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-        return new AtomicGuardExpression(
+        return new AtomicGuardExpression<SymbolicDataValue, SuffixValue>(
                 register, Relation.NOT_EQUALS, parameter);
     }
 
@@ -104,31 +105,8 @@ public class DisequalityGuard extends SDTIfGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-//    @Override
-//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        if (other instanceof EqualityGuard) {
-//            if (!(other.equals(this.toDeqGuard()))) {
-//            guards.add(this);
-//                guards.add(other);
-//            }
-//        }
-//        else if (other instanceof DisequalityGuard) {
-//            guards.add(this);
-//            guards.add(other);
-//        }
-//        else {
-////            System.out.println("attempt to merge " + this + " with " + other);
-//            guards.addAll(other.mergeWith(this,  regPotential));
-//
-//        }
-//        return guards;
-//    }
-
 	@Override
 	public SDTGuard copy() {
 		return new DisequalityGuard(this);
 	}
-
-
 }

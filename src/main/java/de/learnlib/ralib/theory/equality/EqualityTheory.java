@@ -455,20 +455,4 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     	// for now, use generic restrictions with equality theory
     	return SuffixValueRestriction.genericRestriction(guard, prior);
     }
-
-//    @Override
-//    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-//    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
-//    		return true;
-//    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
-//    		return true;
-//    	} else if (guard instanceof SDTMultiGuard) {
-//    		boolean revealsGuard = false;
-//    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
-//    			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
-//    		}
-//    		return revealsGuard;
-//    	}
-//    	return false;
-//    }
 }

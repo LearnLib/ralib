@@ -17,14 +17,7 @@ import net.automatalib.word.Word;
 
 public class MeasuringOracle extends MultiTheoryTreeOracle {
 
-//	private final TreeOracle oracle;
-
 	private final Measurements result;
-
-//	public MeasuringOracle(TreeOracle oracle, Measurements m) {
-//		this.oracle = oracle;
-//		this.result = m;
-//	}
 
 	public MeasuringOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants,
             ConstraintSolver solver, Measurements m) {

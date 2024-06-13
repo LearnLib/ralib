@@ -49,8 +49,6 @@ public class GeneratedHypothesesTest extends RaLibTestSuite {
 
         Measurements mes = new Measurements();
 
-//        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
-//              dwOracle, teachers, new Constants(), solver), mes);
         MeasuringOracle mto = new MeasuringOracle(dwOracle, teachers, new Constants(), solver, mes);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);

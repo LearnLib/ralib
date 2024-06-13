@@ -64,34 +64,6 @@ public class IntervalGuard extends SDTGuard {
     	rightClosed = other.rightClosed;
     }
 
-//    public EqualityGuard toEqGuard() {
-//        assert !isIntervalGuard();
-//        SymbolicDataValue r = null;
-//        if (isSmallerGuard()) {
-//            r = rightLimit;
-//        }
-//        else {
-//            r = leftLimit;
-//        }
-//        return new EqualityGuard(this.parameter,r);
-//    }
-
-//    public DisequalityGuard toDeqGuard() {
-//        assert !isIntervalGuard();
-//        SymbolicDataValue r = null;
-//        if (isSmallerGuard()) {
-//            r = rightLimit;
-//        }
-//        else {
-//            r = leftLimit;
-//        }
-//        return new DisequalityGuard(this.parameter,r);
-//    }
-
-//    public IntervalGuard flip() {
-//        return new IntervalGuard(parameter, rightLimit, leftLimit);
-//    }
-
     public boolean isSmallerGuard() {
         return leftLimit == null;
     }
@@ -130,7 +102,12 @@ public class IntervalGuard extends SDTGuard {
         if (rightLimit == null) {
             return "(" + this.getParameter().toString() + (leftClosed ? ">=" : ">") + this.leftLimit.toString() + ")";
         }
-        return "(" + leftLimit.toString() + (leftClosed ? "<=" : "<") + this.getParameter().toString() + (rightClosed ? "<=" : "<") + this.rightLimit.toString() + ")";
+        return "(" + leftLimit.toString() +
+        		(leftClosed ? "<=" : "<") +
+        		this.getParameter().toString() +
+        		(rightClosed ? "<=" : "<") +
+        		this.rightLimit.toString() +
+        		")";
     }
 
     public Set<SymbolicDataValue> getAllRegs() {
@@ -154,184 +131,24 @@ public class IntervalGuard extends SDTGuard {
         return rightLimit;
     }
 
-    // merge bigger with something
-//    private Set<SDTGuard> bMergeIntervals(IntervalGuard other) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        SymbolicDataValue l = this.getLeftReg();
-//        if (other.isBiggerGuard()) {
-//            //          System.out.println("other " + other + " is bigger");
-//            guards.add(this);
-//            guards.add(other);
-//        } else if (other.isSmallerGuard()) {
-////            System.out.println("other " + other + " is smaller");
-////            System.out.println("see if " + l + " equals " + other.getRightReg() + "?");
-//            if (l.equals(other.getRightReg())) {
-////                System.out.println("yes, adding disequalityguard");
-//                guards.add(new DisequalityGuard(this.parameter, l));
-//            } else {
-////                System.out.println("no, merging into interval guard");
-////                guards.add(new IntervalGuard(this.parameter, l, other.getRightReg()));
-//                guards.add(this);
-//                guards.add(other);
-//            }
-//        } else {
-////            System.out.println("other " + other + " is interv");
-//
-//            if (l.equals(other.getRightReg())) {
-//                guards.add(new IntervalGuard(this.parameter, other.getLeftReg(), null));
-//                guards.add(new DisequalityGuard(this.parameter, l));
-//            } else if (l.equals(other.getLeftReg())) {
-//                guards.add(this);
-//            } else {
-//                guards.add(this);
-//                guards.add(other);
-//            }
-//
-//        }
-//        return guards;
-//    }
-
-    // merge smaller with something
-//    private Set<SDTGuard> sMergeIntervals(IntervalGuard other) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        SymbolicDataValue r = this.getRightReg();
-//        if (other.isBiggerGuard()) {
-//            return other.bMergeIntervals(this);
-//        } else if (other.isSmallerGuard()) {
-//            guards.add(this);
-//            guards.add(other);
-//        } else {
-//            if (r.equals(other.getLeftReg())) {
-//                guards.add(new IntervalGuard(this.parameter, null, other.getRightReg()));
-//                guards.add(new DisequalityGuard(this.parameter, r));
-//            } else if (r.equals(other.getRightReg())) {
-//                guards.add(this);
-//            } else {
-//                guards.add(this);
-//                guards.add(other);
-//            }
-//        }
-//        return guards;
-//    }
-
-    // merge interval with something
-//    private Set<SDTGuard> iMergeIntervals(IntervalGuard other) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        SymbolicDataValue l = this.getLeftReg();
-//        SymbolicDataValue r = this.getRightReg();
-//        if (other.isBiggerGuard()) {
-//            return other.bMergeIntervals(this);
-//        } else if (other.isSmallerGuard()) {
-//            return other.sMergeIntervals(this);
-//        } else {
-//            SymbolicDataValue oL = other.getLeftReg();
-//            SymbolicDataValue oR = other.getRightReg();
-//            if (l.equals(oR)) {
-//                if (r.equals(oL)) {
-//                    guards.add(new DisequalityGuard(this.parameter, l));
-//                    guards.add(new DisequalityGuard(this.parameter, r));
-//                } else {
-//                    guards.add(new IntervalGuard(this.parameter, oL, r));
-//                    guards.add(new DisequalityGuard(this.parameter, l));
-//                }
-//            } else {
-//                if (r.equals(oL)) {
-//                    guards.add(new IntervalGuard(this.parameter, l, oR));
-//                    guards.add(new DisequalityGuard(this.parameter, r));
-//                } else {
-//                    guards.add(this);
-//                    guards.add(other);
-//                }
-//            }
-//        }
-//        return guards;
-//    }
-
-//    private Set<SDTGuard> mergeIntervals(IntervalGuard other) {
-////        System.out.println("other i-guard: " + other);
-//        if (this.isBiggerGuard()) {
-////            System.out.println(this + " is bigger, left limit is: " + this.leftLimit);
-//            Set<SDTGuard> gs = this.bMergeIntervals(other);
-////            System.out.println("returningB: " + gs);
-//            return gs;
-//        }
-//        if (this.isSmallerGuard()) {
-////            System.out.println(this + " is smaller, right limit is: " + this.rightLimit);
-//            Set<SDTGuard> gs = this.sMergeIntervals(other);
-////            System.out.println("returningS: " + gs);
-//            return gs;
-//        }
-//
-////        System.out.println("is interv");
-//        return this.iMergeIntervals(other);
-//
-//    }
-
-//    private Set<SDTGuard> mergeWithEquality(EqualityGuard other) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        if (!(other.getRegister().equals(this.leftLimit) || other.getRegister().equals(this.rightLimit))) {
-//            guards.add(this);
-//            guards.add(other);
-//        } else {
-//            guards.add(new SDTOrGuard(this.parameter, this, other));
-//        }
-//        return guards;
-//    }
-
-//    @Override
-//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        if (other instanceof IntervalGuard) {
-//            guards.addAll(this.mergeIntervals((IntervalGuard) other));
-//        } else if (other instanceof DisequalityGuard) {
-//            DisequalityGuard dGuard = (DisequalityGuard) other;
-//            if ((this.isBiggerGuard() && this.leftLimit.equals(dGuard.getRegister()))
-//                    || (this.isSmallerGuard() && this.rightLimit.equals(dGuard.getRegister()))) {
-//
-//                guards.add((DisequalityGuard) other);
-//            }
-//            else {
-//                guards.add(this);
-//                guards.add(other);
-//            }
-//            // special case for equality guards
-//        } else //if (other instanceof EqualityGuard)
-//        {
-//            //return this.mergeWithEquality((EqualityGuard) other);
-//            //}
-//            //else {
-////            System.out.println("guard " + other + " not deq or interval");
-//            guards.add(this);
-//            guards.add(other);
-//        }
-////        System.out.println("merged guards are: " + guards);
-//        return guards;
-//    }
-
     @Override
     public GuardExpression toExpr() {
         if (leftLimit == null) {
-        	return new AtomicGuardExpression(parameter, (rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER), rightLimit);
-//        	if (rightClosed) {
-//        		expr = new Disjunction(expr, new AtomicGuardExpression(parameter, Relation.EQUALS, rightLimit));
-//        	}
-//            return expr;
+        	return new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
+        			(rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER),
+        			rightLimit);
         }
         if (rightLimit == null) {
-        	return new AtomicGuardExpression(parameter, (leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER), leftLimit);
-//        	if (leftClosed) {
-//        		expr = new Disjunction(expr, new AtomicGuardExpression(parameter, Relation.EQUALS, leftLimit));
-//        	}
-//            return expr;
+        	return new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
+        			(leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER),
+        			leftLimit);
         } else {
-            GuardExpression smaller = new AtomicGuardExpression(parameter, (rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER), rightLimit);
-//        	if (rightClosed) {
-//        		smaller = new Disjunction(smaller, new AtomicGuardExpression(parameter, Relation.EQUALS, rightLimit));
-//        	}
-            GuardExpression bigger = new AtomicGuardExpression(parameter, (leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER), leftLimit);
-//        	if (leftClosed) {
-//        		bigger = new Disjunction(bigger, new AtomicGuardExpression(parameter, Relation.EQUALS, leftLimit));
-//        	}
+            GuardExpression smaller = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
+            		(rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER),
+            		rightLimit);
+            GuardExpression bigger = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
+            		(leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER),
+            		leftLimit);
             return new Conjunction(smaller, bigger);
         }
     }
@@ -425,5 +242,4 @@ public class IntervalGuard extends SDTGuard {
     public static IntervalGuard greaterOrEqualGuard(SuffixValue param, SymbolicDataValue r) {
     	return new IntervalGuard(param, r, null, true, false);
     }
-
 }

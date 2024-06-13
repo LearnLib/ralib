@@ -65,19 +65,4 @@ public class SymbolicSuffixRestrictionBuilder {
     	Theory theory = teachers.get(guard.getParameter().getType());
     	return theory.restrictSuffixValue(guard, prior);
     }
-
-//    public boolean sdtPathRevealsRegister(List<SDTGuard> path, SymbolicDataValue[] registers) {
-//    	if (teachers == null)
-//    		return false;
-//    	Set<SymbolicDataValue> revealedRegisters = new LinkedHashSet<>();
-//    	for (SDTGuard guard : path) {
-//    		Theory theory = teachers.get(guard.getParameter().getType());
-//    		for (SymbolicDataValue r : registers) {
-//    			if (theory.guardRevealsRegister(guard, r)) {
-//    				revealedRegisters.add(r);
-//    			}
-//    		}
-//    	}
-//    	return revealedRegisters.size() == registers.length;
-//    }
 }

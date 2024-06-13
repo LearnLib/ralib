@@ -122,9 +122,6 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Measurements m = new Measurements();
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         QueryStatistics stats = new QueryStatistics(m, ioCache);
-//        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-//                ioCache, teachers, new Constants(), jsolv);
-//        MeasuringOracle oracle = new MeasuringOracle(mto, m);
         MeasuringOracle mto = new MeasuringOracle(ioCache, teachers, new Constants(), jsolv, m);
 
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
@@ -133,7 +130,6 @@ public class TestSuffixOptimization extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
         RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
-//        RaStar learner = new RaStar(mto, hypFactory, mlo, consts, OFFER, POLL);
         learner.setSolver(jsolv);
         learner.setStatisticCounter(stats);
         learner.learn();

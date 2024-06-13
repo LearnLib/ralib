@@ -112,7 +112,6 @@ public class RaLibLearningExperimentRunner {
 			logger.log(Level.INFO, "SEED={0}", seed);
 			Random random = new Random(seed);
 			CacheDataWordOracle ioCache = new CacheDataWordOracle(dataOracle);
-//			MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, solver), measures);
 			MeasuringOracle mto = new MeasuringOracle(ioCache, teachers, consts, solver, measures);
 
 			MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);

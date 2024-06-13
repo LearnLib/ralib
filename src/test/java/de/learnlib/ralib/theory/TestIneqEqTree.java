@@ -125,14 +125,9 @@ public class TestIneqEqTree extends RaLibTestSuite {
 
         SDT expected = new SDT(Map.of(
         		new EqualityGuard(s1,r1), new SDT(Map.of(
-//        				new EqualityGuard(s2, r2), new SDT(Map.of(
-//        						new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
-//        						new DisequalityGuard(s3, s2), SDTLeaf.REJECTING)),
-//        				new IntervalGuard(s2, r2, null), new SDT(Map.of(
         				IntervalGuard.greaterGuard(s2, r2), new SDT(Map.of(
         						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
         						new DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
-//        				new IntervalGuard(s2, null, r2), new SDT(Map.of(
         				IntervalGuard.lessOrEqualGuard(s2, r2), new SDT(Map.of(
         						new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
         						new DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
