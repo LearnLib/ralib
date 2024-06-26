@@ -124,7 +124,8 @@ public final class DataWords {
      * @param in
      * @return
      */
-    public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
+    @SafeVarargs
+	public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);

@@ -30,8 +30,9 @@ public class EquivalenceClassFilter<T> {
 	public List<DataValue<T>> toList(SuffixValueRestriction restr,
 			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation) {
 
-		if (!useOptimization)
+		if (!useOptimization) {
 			return equivClasses;
+		}
 
 		List<DataValue<T>> filtered = new ArrayList<>();
 
@@ -51,14 +52,15 @@ public class EquivalenceClassFilter<T> {
 			for (int i = 0; i < dts.length; i++) {
 				SuffixValue sv = svgen.next(dts[i]);
 				DataValue<?> val = valuation.get(sv.getId());
-				if (val != null)
+				if (val != null) {
 					mapping.put(sv, val);
+				}
 			}
 		}
 
 		GuardExpression expr = restr.toGuardExpression(mapping.keySet());
 		for (DataValue<T> ec : equivClasses) {
-			Mapping<SymbolicDataValue, DataValue<?>> ecMapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+			Mapping<SymbolicDataValue, DataValue<?>> ecMapping = new Mapping<>();
 			ecMapping.putAll(mapping);
 			ecMapping.put(restr.getParameter(), ec);
 			if (expr.isSatisfied(ecMapping)) {

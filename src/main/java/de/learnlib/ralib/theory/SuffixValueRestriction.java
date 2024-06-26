@@ -54,19 +54,20 @@ public abstract class SuffixValueRestriction {
 	 * @return
 	 */
 	public static SuffixValueRestriction genericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
-		DataValue[] prefixVals = DataWords.valsOf(prefix);
-		DataValue[] suffixVals = DataWords.valsOf(suffix);
+		DataValue<?>[] prefixVals = DataWords.valsOf(prefix);
+		DataValue<?>[] suffixVals = DataWords.valsOf(suffix);
 		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
 		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
-		DataValue val = suffixVals[sv.getId()-1];
-		int arityFirst = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
+		DataValue<?> val = suffixVals[sv.getId()-1];
+		int firstSymbolArity = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
 
 		boolean unrestricted = false;
 		for (int i = 0; i < prefixVals.length; i++) {
 			DataValue<?> dv = prefixVals[i];
 			DataType dt = prefixTypes[i];
-			if (dt.equals(sv.getType()) && dv.equals(val))
+			if (dt.equals(sv.getType()) && dv.equals(val)) {
 				unrestricted = true;
+			}
 		}
 		if (consts.containsValue(val)) {
 			unrestricted = true;
@@ -76,7 +77,7 @@ public abstract class SuffixValueRestriction {
 		for (int i = 0; i < sv.getId()-1 && !equalsSuffixValue; i++) {
 			DataType dt = suffixTypes[i];
 			if (dt.equals(sv.getType()) && suffixVals[i].equals(val)) {
-				if (sv.getId() <= arityFirst) {
+				if (sv.getId() <= firstSymbolArity) {
 					unrestricted = true;
 				} else {
 					equalsSuffixValue = true;

@@ -44,7 +44,7 @@ public class SymbolicSuffixRestrictionBuilder {
 
 
     public Map<SuffixValue, SuffixValueRestriction> restrictSuffix(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix) {
-    	DataType[] types = DataWords.typesOf(DataWords.actsOf(suffix));
+        DataType[] types = DataWords.typesOf(DataWords.actsOf(suffix));
     	Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
     	SuffixValueGenerator svgen = new SuffixValueGenerator();
     	for (DataType t : types) {
@@ -55,7 +55,7 @@ public class SymbolicSuffixRestrictionBuilder {
     			restr = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
     		} else {
     			// theory-specific restrictions
-    			Theory<?> theory = teachers.get(t);
+                Theory<?> theory = teachers.get(t);
     			restr = theory.restrictSuffixValue(sv, prefix, suffix, consts);
     		}
     		restrictions.put(sv, restr);
@@ -66,7 +66,7 @@ public class SymbolicSuffixRestrictionBuilder {
     public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	if (teachers == null)
     		return SuffixValueRestriction.genericRestriction(guard, prior);
-    	Theory theory = teachers.get(guard.getParameter().getType());
+        Theory<?> theory = teachers.get(guard.getParameter().getType());
     	return theory.restrictSuffixValue(guard, prior);
     }
 
@@ -75,7 +75,7 @@ public class SymbolicSuffixRestrictionBuilder {
     		return false;
     	Set<SymbolicDataValue> revealedRegisters = new LinkedHashSet<>();
     	for (SDTGuard guard : path) {
-    		Theory theory = teachers.get(guard.getParameter().getType());
+            Theory<?> theory = teachers.get(guard.getParameter().getType());
     		for (SymbolicDataValue r : registers) {
     			if (theory.guardRevealsRegister(guard, r)) {
     				revealedRegisters.add(r);

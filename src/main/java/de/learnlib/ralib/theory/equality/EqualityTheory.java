@@ -107,7 +107,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             EqualityGuard eqGuard = e.getKey();
             LOGGER.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTIfGuard> ds = new ArrayList();
+            List<SDTIfGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds.toString());
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
@@ -172,7 +172,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
-        DataValue fresh = getFreshValue(potential);
+        DataValue<T> fresh = getFreshValue(potential);
 
         List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
@@ -342,7 +342,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
 
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues.toString());
         DataType type = param.getType();
         Deque<SDTGuard> guards = new LinkedList<>();
@@ -372,7 +372,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
         }
 
-        Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
+        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
 
         if (!potSet.isEmpty()) {
@@ -380,7 +380,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         } else {
             LOGGER.trace("potSet is empty");
         }
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue<T> fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
         LOGGER.trace("fresh = " + fresh.toString());
         return fresh;
 
@@ -417,7 +417,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (base + a.getArity() > values.size()) {
                 break;
             }
-            DataValue[] vals = new DataValue[a.getArity()];
+            DataValue<?>[] vals = new DataValue[a.getArity()];
             for (int i = 0; i < a.getArity(); i++) {
                 vals[i] = values.get(base + i + 1);
             }
