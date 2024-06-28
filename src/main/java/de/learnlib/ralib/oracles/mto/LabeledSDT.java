@@ -9,6 +9,13 @@ import java.util.Set;
 
 import de.learnlib.ralib.theory.SDTGuard;
 
+/**
+ * Wrapper around an SDT, which labels each node in the SDT with an integer identifier
+ * The purpose of LabeledSDT is to facilitate pruning of branches in an SDT
+ *
+ * @author fredrik
+ *
+ */
 public class LabeledSDT {
 
 	private final int label;
@@ -20,7 +27,6 @@ public class LabeledSDT {
 	public LabeledSDT(int label, SDT sdt) {
 		this.label = label;
 		this.sdt = sdt;
-//		children = new LinkedHashMap<>();
 
 		int currentLabel = label;
 		if (!(sdt instanceof SDTLeaf)) {
@@ -43,7 +49,6 @@ public class LabeledSDT {
 				if (currentLabel != prunedLabel) {
 					children.put(e.getKey(), child);
 				}
-//				currentLabel = child.getMaxLabel() + 1;
 				currentLabel = e.getValue().getMaxLabel() + 1;
 			}
 		}
@@ -105,12 +110,12 @@ public class LabeledSDT {
 		return new SDT(sdtChildren);
 	}
 
-	public LabeledSDT get(int l) {
+	public LabeledSDT getNode(int l) {
 		if (l == label)
 			return this;
 		else {
 			for (LabeledSDT child : children.values()) {
-				LabeledSDT lsdt = child.get(l);
+				LabeledSDT lsdt = child.getNode(l);
 				if (lsdt != null)
 					return lsdt;
 			}

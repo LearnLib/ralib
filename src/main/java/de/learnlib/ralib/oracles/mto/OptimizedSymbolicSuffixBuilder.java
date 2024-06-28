@@ -142,13 +142,13 @@ public class OptimizedSymbolicSuffixBuilder {
         LabeledSDT pruned = lsdt;
         int nodeLabel = node.getLabel();
         for (int label : node.getChildIndices()) {
-            if (pruned.get(nodeLabel).getChildren().size() < 2) {
+            if (pruned.getNode(nodeLabel).getChildren().size() < 2) {
                 break;
             }
             pruned = pruneSDTBranch(pruned, label, registers);
         }
-        for (int label : pruned.get(nodeLabel).getChildIndices()) {
-            LabeledSDT parent = pruned.get(label);
+        for (int label : pruned.getNode(nodeLabel).getChildIndices()) {
+            LabeledSDT parent = pruned.getNode(label);
             if (parent != null) {
                 pruned = pruneSDTNode(pruned, parent, registers);
             }
@@ -157,7 +157,7 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     private LabeledSDT pruneSDTBranch(LabeledSDT lsdt, int label, SymbolicDataValue[] registers) {
-        if (branchContainsRegister(lsdt.get(label), registers) ||
+        if (branchContainsRegister(lsdt.getNode(label), registers) ||
             guardOnRegisters(lsdt.getGuard(label), registers)) {
             return lsdt;
         }
