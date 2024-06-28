@@ -65,6 +65,8 @@ public abstract class SDTIfGuard extends SDTGuard {
     	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
     	if (this.parameter.equals(dv))
     		comparands.add(register);
+    	else if (register.equals(dv))
+    		comparands.add(parameter);
     	return comparands;
     }
 
