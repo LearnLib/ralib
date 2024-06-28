@@ -85,6 +85,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final Map<DataType, Theory> teachers;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private final ConstraintSolver solver;
 
     private static Logger LOGGER = LoggerFactory.getLogger(MultiTheoryTreeOracle.class);
@@ -95,6 +97,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
+        this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(constants, teachers);
     }
 
     @Override
@@ -575,4 +578,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	return teachers;
     }
 
+    @Override
+    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
+    	return restrictionBuilder;
+    }
 }

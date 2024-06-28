@@ -43,7 +43,6 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
@@ -111,11 +110,7 @@ public class RaLambda implements RaLearningAlgorithm {
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
         this.useOldAnalyzer = useOldAnalyzer;
-        if (oracle instanceof MultiTheoryTreeOracle) {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
-        } else {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
-        }
+        this.restrictionBuilder = oracle.getRestrictionBuilder();
         this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
         this.dt = new DT(oracle, ioMode, consts, inputs);
         this.dt.initialize();

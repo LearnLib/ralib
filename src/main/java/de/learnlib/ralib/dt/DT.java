@@ -25,7 +25,6 @@ import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
 import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
@@ -57,10 +56,7 @@ public class DT implements DiscriminationTree {
         this.ioMode = ioMode;
         this.inputs = inputs;
         this.consts = consts;
-        if (oracle instanceof MultiTheoryTreeOracle)
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
-        else
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+        this.restrictionBuilder = oracle.getRestrictionBuilder();
 
         Word<PSymbolInstance> epsilon = Word.epsilon();
         SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -74,10 +70,7 @@ public class DT implements DiscriminationTree {
         this.ioMode = ioMode;
         this.inputs = inputs;
         this.consts = consts;
-        if (oracle instanceof MultiTheoryTreeOracle)
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
-        else
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
+        this.restrictionBuilder = oracle.getRestrictionBuilder();
     }
 
     public DT(DT dt) {
