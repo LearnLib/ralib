@@ -115,11 +115,11 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		TransitionGuard trueGuard = new TransitionGuard();
 
 		// assignments
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> store = new VarMapping<>();
         store.put(r1, p1);
-        VarMapping<Register, SymbolicDataValue> copy = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copy = new VarMapping<>();
         copy.put(r1, r1);
-        VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
         Assignment storeAssign = new Assignment(store);
         Assignment copyAssign = new Assignment(copy);

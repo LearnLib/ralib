@@ -915,7 +915,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     dvRight, prefixValues, currentParam, smValues, piv);
             SymbolicDataValue rsm = sguard.getRightReg();
 //            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
-            smVal.setValue(toVariable(rsm), dvRight.getId());
+            smVal.setValue(toVariable(rsm), dvRight.getValue());
             DataValue<T> smcv = instantiate(
                     sguard, smVal, constants, potential);
             smValues.put(pId, smcv);
@@ -939,7 +939,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     dvLeft, prefixValues, currentParam, bgValues, piv);
             SymbolicDataValue rbg = bguard.getLeftReg();
 
-            bgVal.setValue(toVariable(rbg), dvLeft.getId());
+            bgVal.setValue(toVariable(rbg), dvLeft.getValue());
             DataValue<T> bgcv = instantiate(
                     bguard, bgVal, constants, potential);
             bgValues.put(pId, bgcv);
@@ -976,8 +976,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     SymbolicDataValue rs = intervalGuard.getRightReg();
                     SymbolicDataValue rb = intervalGuard.getLeftReg();
 
-                    val.setValue(toVariable(rs), dvMRight.getId());
-                    val.setValue(toVariable(rb), dvMLeft.getId());
+                    val.setValue(toVariable(rs), dvMRight.getValue());
+                    val.setValue(toVariable(rb), dvMLeft.getValue());
 
                     DataValue<T> cv = instantiate(
                             intervalGuard, val, constants, potential);
@@ -1052,7 +1052,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getType();
         int newDv_i;
-        for (Map.Entry<SymbolicDataValue.Constant, DataValue<?>> entry : constants.entrySet()) {
+        for (Map.Entry<SymbolicDataValue.Constant<?>, DataValue<?>> entry : constants.entrySet()) {
             if (entry.getValue().equals(newDv)) {
                 return new EqualityGuard(currentParam, entry.getKey());
             }
@@ -1209,21 +1209,21 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     DataValue<T> regVal = getRegisterValue(r, piv,
                             prefixValues, constants, pval);
 
-                    val.setValue(toVariable(r), regVal.getId());
+                    val.setValue(toVariable(r), regVal.getValue());
                 }
                 if (!iGuard.isSmallerGuard()) {
                     SymbolicDataValue l = iGuard.getLeftReg();
                     DataValue regVal = getRegisterValue(l, piv,
                             prefixValues, constants, pval);
 
-                    val.setValue(toVariable(l), regVal.getId());
+                    val.setValue(toVariable(l), regVal.getValue());
                 }
                 //instantiate(guard, val, param, constants);
             } else if (guard instanceof SDTIfGuard) {
                 SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
                 DataValue<T> regVal = getRegisterValue(r, piv,
                         prefixValues, constants, pval);
-                val.setValue(toVariable(r), regVal.getId());
+                val.setValue(toVariable(r), regVal.getValue());
             } else if (guard instanceof SDTOrGuard) {
                 SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
 
@@ -1253,7 +1253,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 for (DataValue<T> oldDv : oldDvs) {
                     Valuation newVal = new Valuation();
                     newVal.putAll(val);
-                    newVal.setValue(toVariable( new SuffixValue(param.getType(), param.getId()) ), oldDv.getId());
+                    newVal.setValue(toVariable( new SuffixValue(param.getType(), param.getId()) ), oldDv.getValue());
 //            System.out.println("instantiating " + guard + " with " + newVal);
                     DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
                     if (inst != null) {

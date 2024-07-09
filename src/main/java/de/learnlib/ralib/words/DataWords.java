@@ -237,7 +237,7 @@ public final class DataWords {
 
     public static VarValuation computeVarValuation(ParValuation pars, PIV piv) {
     	VarValuation vars = new VarValuation();
-    	for (Entry<Parameter, DataValue<?>> e : pars.entrySet()) {
+    	for (Entry<Parameter<?>, DataValue<?>> e : pars.entrySet()) {
     		Register r = piv.get(e.getKey());
     		if (r != null)
     			vars.put(r, e.getValue());

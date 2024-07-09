@@ -64,17 +64,17 @@ public class RAEquivalenceTestTest {
 		Parameter pVal = pgen.next(T_INT);
 
 		TransitionGuard eqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
+				new AtomicGuardExpression<>(rVal, Relation.EQUALS, pVal));
 		TransitionGuard neqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
+				new AtomicGuardExpression<>(rVal, Relation.NOT_EQUALS, pVal));
 		TransitionGuard trueGuard = new TransitionGuard();
 
 		// assignments
-		VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeMapping = new VarMapping<>();
 		storeMapping.put(rVal, pVal);
 
 
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copyMapping = new VarMapping<>();
         copyMapping.put(rVal, rVal);
 
 		Assignment storeAssign = new Assignment(storeMapping);

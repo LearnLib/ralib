@@ -41,22 +41,25 @@ public class MappedPrefix implements PrefixContainer {
 		tqrs.putAll(mp.getTQRs());
 	}
 
-	public Set<VarMapping<Parameter, Parameter>> equivalentRenamings(Set<Parameter> params) {
+	public Set<VarMapping<Parameter<?>, Parameter<?>>> equivalentRenamings(Set<Parameter<?>> params) {
 
 		assert memorable.keySet().containsAll(params);
 
 		Parameter[] params_arr = new Parameter[params.size()];
 		params_arr = params.toArray(params_arr);
 		PermutationIterator permutations = new PermutationIterator(params_arr.length);
-		Set<VarMapping<Parameter, Parameter>> renamings = new LinkedHashSet<>();
+		Set<VarMapping<Parameter<?>, Parameter<?>>> renamings = new LinkedHashSet<>();
 
 		LOC: while (permutations.hasNext()) {
 			int[] perm = permutations.next();
-			VarMapping<Parameter, Parameter> paramRenaming = new VarMapping<>();
-			VarMapping<Register, Register> registerRenaming = new VarMapping<>();
+			VarMapping<Parameter<?>, Parameter<?>> paramRenaming = new VarMapping<>();
+			VarMapping<Register<?>, Register<?>> registerRenaming = new VarMapping<>();
 			for (int i = 0; i < params_arr.length; i++) {
 				Parameter po = params_arr[i];
 				Parameter pr = params_arr[perm[i]];
+				if (!po.getType().equals(pr.getType())) {
+					continue LOC;
+				}
 				paramRenaming.put(params_arr[i], params_arr[perm[i]]);
 				registerRenaming.put(memorable.get(po), memorable.get(pr));
 			}
@@ -69,8 +72,8 @@ public class MappedPrefix implements PrefixContainer {
 		return renamings;
 	}
 	void updateMemorable(PIV piv) {
-		for (Entry<Parameter, Register> e : piv.entrySet()) {
-			Register r = memorable.get(e.getKey());
+		for (Entry<Parameter<?>, Register<?>> e : piv.entrySet()) {
+			Register<?> r = memorable.get(e.getKey());
 			if (r == null) {
 				r = regGen.next(e.getKey().getType());
 				memorable.put(e.getKey(), r);

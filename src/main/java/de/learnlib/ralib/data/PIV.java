@@ -26,20 +26,21 @@ import net.automatalib.data.DataType;
 import net.automatalib.data.SymbolicDataValue.Parameter;
 import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.VarMapping;
+import net.automatalib.data.VarMapping.RegMapping;
 
 /**
  * A mapping from parameters to registers.
  *
  * @author falk
  */
-public class PIV extends VarMapping<Parameter, Register> {
+public class PIV extends RegMapping<Parameter<?>> {
 
     public PIV() {
     }
 
     public PIV relabel(VarMapping relabelling) {
         PIV ret = new PIV();
-        for (Map.Entry<Parameter, Register> e : this) {
+        for (Map.Entry<Parameter<?>, Register<?>> e : this) {
             Parameter p = (Parameter) relabelling.get(e.getKey());
             Register r = (Register) relabelling.get(e.getValue());
             ret.put(p == null ? e.getKey() : p, r == null ? e.getValue() : r);
@@ -78,7 +79,7 @@ public class PIV extends VarMapping<Parameter, Register> {
     //FIXME: this method is bogus. There may be more than one value.
     public Parameter getOneKey(Register value) {
         Parameter retKey = null;
-        for (Map.Entry<Parameter,Register> entry : this.entrySet()) {
+        for (Map.Entry<Parameter<?>,Register<?>> entry : this.entrySet()) {
 //            System.out.println("key = " + entry.getKey().toString());
 //            System.out.println("value = " + entry.getValue().toString());
             if (entry.getValue().getId() == value.getId()){
@@ -93,7 +94,7 @@ public class PIV extends VarMapping<Parameter, Register> {
     /**
      * Creates a remapping from registers from this PIV to the supplied PIV.
      */
-    public VarMapping<Register, Register> createRemapping(PIV to) {
+    public VarMapping<Register<?>, Register<?>> createRemapping(PIV to) {
         // there should not be any register with id > n
         for (Register r : to.values()) {
             if (r.getId() > to.size()) {
@@ -101,11 +102,11 @@ public class PIV extends VarMapping<Parameter, Register> {
             }
         }
 
-        VarMapping<Register, Register> map = new VarMapping<>();
+        VarMapping<Register<?>, Register<?>> map = new VarMapping<>();
 
         int id = to.size() + 1;
-        for (Entry<Parameter, Register> e : this) {
-            Register rep = to.get(e.getKey());
+        for (Entry<Parameter<?>, Register<?>> e : this) {
+            Register<?> rep = to.get(e.getKey());
             if (rep == null) {
                 rep = new Register(e.getValue().getType(), id++);
             }

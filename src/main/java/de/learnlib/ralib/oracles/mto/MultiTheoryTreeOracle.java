@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
+import net.automatalib.data.Valuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +112,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Set<Register> regs = sdt.getRegisters();
         PIV piv = new PIV();
 
-        for (Entry<Parameter, Register> e : pir.entrySet()) {
+        for (Entry<Parameter<?>, Register<?>> e : pir.entrySet()) {
             if (regs.contains(e.getValue())) {
                 Register r = e.getValue();
                 rename.put(r, gen.next(r.getType()));
@@ -247,7 +248,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Parameter p = new Parameter(type, i);
 
             // valuation
-            Mapping<SymbolicDataValue, DataValue<?>> valuation = buildValuation(pval, prefix, piv, constants);
+            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = buildValuation(pval, prefix, piv, constants);
 
             // the map may contain no old values for p, in which case we use an empty set
             // (to avoid potential NPE when instantiating guards)
@@ -304,7 +305,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     // conjoins the initial guards of the SDTs producing a map from new refined
     // (initial) guards to the set of guards they originated from
     private Map<SDTGuard, Set<SDTGuard>> getNewRefinedInitialGuards(SDT[] sdts, MultiTheorySDTLogicOracle mlo,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         Map<SDTGuard, Set<SDTGuard>> mergedGroup = new LinkedHashMap<>();
         for (SDT sdt : sdts) {
             Set<SDTGuard> nextGuardGroup = sdt.getChildren().keySet();
@@ -320,7 +321,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     // this is possible in the sense that the guards are not mutually exclusive
     // 2. updating the map
     private Map<SDTGuard, Set<SDTGuard>> combineGroups(Map<SDTGuard, Set<SDTGuard>> mergedHead, Set<SDTGuard> nextGroup,
-            MultiTheorySDTLogicOracle mlo, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            MultiTheorySDTLogicOracle mlo, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         Map<SDTGuard, Set<SDTGuard>> mergedGroup = new LinkedHashMap<>();
         if (mergedHead.isEmpty()) {
             nextGroup.forEach(next -> {
@@ -397,7 +398,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private boolean canBeMerged(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         if (a.equals(b) || a instanceof SDTTrueGuard || b instanceof SDTTrueGuard)
             return true;
 
@@ -412,7 +413,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private boolean refines(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         if (b instanceof SDTTrueGuard)
             return true;
         boolean ref1 = mlo.doesRefine(a.toTG(), new PIV(), b.toTG(), new PIV(), valuation);
@@ -436,9 +437,9 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return children;
     }
 
-    private Mapping<SymbolicDataValue, DataValue<?>> buildValuation(ParValuation parValuation,
+    private Mapping<SymbolicDataValue<?>, DataValue<?>> buildValuation(ParValuation parValuation,
             Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
-        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<SymbolicDataValue, DataValue<?>>();
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = new Mapping<>();
         DataValue<?>[] values = DataWords.valsOf(prefix);
         piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
         parValuation.forEach((param, dv) -> valuation.put(new SuffixValue(param.getType(), param.getId()), dv));
@@ -531,7 +532,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SymbolicDecisionTree sdt, PIV piv) {
-    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<>();
+    	Valuation<SymbolicDataValue<?>, DataValue<?>> mapping = new Valuation<>();
     	mapping.putAll(constants);
 
     	int index = 0;

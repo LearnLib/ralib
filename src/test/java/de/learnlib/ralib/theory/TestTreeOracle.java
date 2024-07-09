@@ -121,7 +121,7 @@ public class TestTreeOracle extends RaLibTestSuite {
             public DataValue getFreshValue(List<DataValue<String>> vals) {
                 DataValue v = vals.get(0);
                 return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
+                        v.getValue().toString() + "_" + vals.size());
             }
 
             @Override
@@ -137,7 +137,7 @@ public class TestTreeOracle extends RaLibTestSuite {
             public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
                 DataValue v = vals.get(0);
                 return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
+                        v.getValue().toString() + "_" + vals.size());
             }
 
             @Override

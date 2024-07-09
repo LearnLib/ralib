@@ -26,6 +26,6 @@ import net.automatalib.data.Valuation;
  * @author falk
  */
 //TODO: check is necessary
-public class SuffixValuation extends Valuation<SuffixValue, DataValue<?>> {
+public class SuffixValuation extends Valuation<SuffixValue<?>, DataValue<?>> {
 
 }

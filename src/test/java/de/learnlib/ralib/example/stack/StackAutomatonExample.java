@@ -56,16 +56,16 @@ public class StackAutomatonExample {
         TransitionGuard trueGuard   = new TransitionGuard();
 
         // assignments
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copyMapping = new VarMapping<>();
         copyMapping.put(rVal1, rVal1);
 
-        VarMapping<Register, SymbolicDataValue> storeMapping1 = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> storeMapping1 = new VarMapping<>();
         storeMapping1.put(rVal1, pVal);
-        VarMapping<Register, SymbolicDataValue> storeMapping2 = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> storeMapping2 = new VarMapping<>();
         storeMapping2.put(rVal1, rVal1);
         storeMapping2.put(rVal2, pVal);
 
-        VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
         Assignment copyAssign   = new Assignment(copyMapping);
         Assignment storeAssign1 = new Assignment(storeMapping1);

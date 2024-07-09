@@ -333,7 +333,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : accBranching.getBranches().entrySet()) {
     		TransitionGuard ag = e.getValue();
-    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue<?>>());
+    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<>());
     		if (eq) {
     			a = e.getKey();
     			break;
@@ -439,7 +439,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private SymbolicDecisionTree makeConsistent(SymbolicDecisionTree sdt, PIV piv, PIV memorable) {
         VarMapping relabeling = new VarMapping();
-        for (Entry<Parameter, Register> e : piv.entrySet()) {
+        for (Entry<Parameter<?>, Register<?>> e : piv.entrySet()) {
             Register r = memorable.get(e.getKey());
             relabeling.put(e.getValue(), r);
         }
@@ -543,7 +543,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     	MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
         PIV memPrefix = prefixMapped.getParsInVars();
 
-        Set<Parameter> paramsIntersect = Sets.intersection(memPrefix.keySet(), memMP.keySet());
+        Set<Parameter<?>> paramsIntersect = Sets.intersection(memPrefix.keySet(), memMP.keySet());
         if (prefixMapped.equivalentRenamings(memPrefix.keySet()).size() < 2)
         	return true;
 //        if (renamingsPrefix.size() < 2)
@@ -566,18 +566,18 @@ public class DTLeaf extends DTNode implements LocationComponent {
         	}
         }
 
-        Set<VarMapping<Parameter, Parameter>> renamingsPrefix = prefixMapped.equivalentRenamings(paramsIntersect);
+        Set<VarMapping<Parameter<?>, Parameter<?>>> renamingsPrefix = prefixMapped.equivalentRenamings(paramsIntersect);
         if (renamingsPrefix.size() < 2)
         	return true;    // there are no equivalent renamings
-        Set<VarMapping<Parameter, Parameter>> renamingsMP = mp.equivalentRenamings(paramsIntersect);
-        Set<VarMapping<Parameter, Parameter>> difference = Sets.difference(renamingsPrefix, renamingsMP);
+        Set<VarMapping<Parameter<?>, Parameter<?>>> renamingsMP = mp.equivalentRenamings(paramsIntersect);
+        Set<VarMapping<Parameter<?>, Parameter<?>>> difference = Sets.difference(renamingsPrefix, renamingsMP);
         if (!difference.isEmpty()) {
         	// there are symmetric parameter mappings in the prefix which are not symmetric in mp
         	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
         		SymbolicDecisionTree sdt = e.getValue().getSdt();
-        		for (VarMapping<Parameter, Parameter> vm : difference) {
-                	VarMapping<Register, Register> renaming = new VarMapping<>();
-                	for (Map.Entry<Parameter, Parameter> paramRenaming : vm.entrySet()) {
+        		for (VarMapping<Parameter<?>, Parameter<?>> vm : difference) {
+                	VarMapping<Register<?>, Register<?>> renaming = new VarMapping<>();
+                	for (Map.Entry<Parameter<?>, Parameter<?>> paramRenaming : vm.entrySet()) {
                 		Register oldRegister = memPrefix.get(paramRenaming.getKey());
                 		Register newRegister = memPrefix.get(paramRenaming.getValue());
                 		renaming.put(oldRegister, newRegister);
@@ -627,7 +627,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         PIV parsInVars_Row = r.getParsInVars();
         VarMapping remapping = dest_c.getRemapping(r);
 
-        for (Entry<Parameter, Register> e : parsInVars_Row) {
+        for (Entry<Parameter<?>, Register<?>> e : parsInVars_Row) {
             // param or register
             Parameter p = e.getKey();
             // remapping is null for prime rows ...

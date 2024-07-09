@@ -54,7 +54,7 @@ final class Cell {
         this.parsInVars = parsInVars;
     }
 
-    Collection<Parameter> getMemorable() {
+    Collection<Parameter<?>> getMemorable() {
         return parsInVars.keySet();
     }
 

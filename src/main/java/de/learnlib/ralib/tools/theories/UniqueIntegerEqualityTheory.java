@@ -25,7 +25,7 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
     public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
         int dv = -1;
         for (DataValue<Integer> d : vals) {
-            dv = Math.max(dv, d.getId());
+            dv = Math.max(dv, d.getValue());
         }
 
         return new DataValue(type, dv + 1);

@@ -90,11 +90,11 @@ public final class LoginAutomatonExample {
         TransitionGuard trueGuard  = new TransitionGuard();
 
         // assignments
-        VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copyMapping = new VarMapping<>();
         copyMapping.put(rUid, rUid);
         copyMapping.put(rPwd, rPwd);
 
-        VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> storeMapping = new VarMapping<>();
         storeMapping.put(rUid, pUid);
         storeMapping.put(rPwd, pPwd);
 

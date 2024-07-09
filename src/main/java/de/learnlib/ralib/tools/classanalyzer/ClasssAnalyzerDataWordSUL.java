@@ -134,7 +134,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
             if (!map.containsKey(v)) {
                 //System.out.println("Put: " + v + " : " + v.getId());
-                map.put(v, v.getId());
+                map.put(v, v.getValue());
             }
         }
     }
@@ -144,7 +144,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         if (map == null || !map.containsKey(d)) {
             //System.out.println(d);
             assert false;
-            return d.getId();
+            return d.getValue();
         }
         //System.out.println("Get: " + d + " : " + map.get(d));
         return map.get(d);
@@ -165,7 +165,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         DataValue v = new DataValue(retType, map.size());
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
-        return new FreshValue(v.getType(), v.getId());
+        return new FreshValue(v.getType(), v.getValue());
     }
 
 }

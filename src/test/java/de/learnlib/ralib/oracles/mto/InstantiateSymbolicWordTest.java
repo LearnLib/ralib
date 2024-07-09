@@ -115,9 +115,9 @@ public class InstantiateSymbolicWordTest {
         TransitionGuard trueGuard = new TransitionGuard();
 
         // assignments
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> store = new VarMapping<>();
         store.put(r1, p1);
-        VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
         Assignment storeAssign = new Assignment(store);
         Assignment noAssign = new Assignment(noMapping);

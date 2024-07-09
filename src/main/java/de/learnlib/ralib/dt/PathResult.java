@@ -41,7 +41,7 @@ public class PathResult {
         // existing cells in his row
         PIV cpv = tqr.getPiv();
         VarMapping relabelling = new VarMapping();
-        for (Map.Entry<SymbolicDataValue.Parameter, SymbolicDataValue.Register> e : cpv.entrySet()) {
+        for (Map.Entry<SymbolicDataValue.Parameter<?>, SymbolicDataValue.Register<?>> e : cpv.entrySet()) {
             SymbolicDataValue.Register r = this.memorable.get(e.getKey());
             if (r == null) {
                 r = regGen.next(e.getKey().getType());

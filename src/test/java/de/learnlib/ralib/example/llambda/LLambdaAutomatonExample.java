@@ -43,7 +43,7 @@ public class LLambdaAutomatonExample {
         TransitionGuard trueGuard   = new TransitionGuard();
 
         // assignments
-        VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
         Assignment noAssign     = new Assignment(noMapping);
 

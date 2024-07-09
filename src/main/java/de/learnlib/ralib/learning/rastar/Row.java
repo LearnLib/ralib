@@ -103,7 +103,7 @@ public class Row implements PrefixContainer {
         // existing cells in his row
         PIV cpv = c.getParsInVars();
         VarMapping relabelling = new VarMapping();
-        for (Entry<Parameter, Register> e : cpv.entrySet()) {
+        for (Entry<Parameter<?>, Register<?>> e : cpv.entrySet()) {
             Register r = this.memorable.get(e.getKey());
             if (r == null) {
                 r = regGen.next(e.getKey().getType());

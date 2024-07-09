@@ -281,7 +281,7 @@ public class OptimizedSymbolicSuffixBuilder {
     private Map<Register, SuffixValue> buildParameterMap(Word<PSymbolInstance> prefix, PIV piv) {
     	int arity = DataWords.paramValLength(prefix);
     	Map<Register, SuffixValue> actionParameters = new LinkedHashMap<>();
-    	for (Map.Entry<Parameter, Register> e : piv.entrySet()) {
+    	for (Map.Entry<Parameter<?>, Register<?>> e : piv.entrySet()) {
     		Parameter p = e.getKey();
     		if (p.getId() > arity) {
     			int actionParameterIndex = p.getId() - arity;
@@ -292,7 +292,7 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     private Parameter getParameter(Register r, PIV piv) {
-    	for (Map.Entry<Parameter, Register> e : piv) {
+    	for (Map.Entry<Parameter<?>, Register<?>> e : piv) {
     		if (e.getValue().equals(r))
     			return e.getKey();
     	}
@@ -341,14 +341,14 @@ public class OptimizedSymbolicSuffixBuilder {
 
         // we relabel SDTs and PIV such that they use different registers
         SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-        VarMapping<Register, Register> relabellingSdt1 = new VarMapping<>();
+        VarMapping<Register<?>, Register<?>> relabellingSdt1 = new VarMapping<>();
         for (Register r : piv1.values()) {
             relabellingSdt1.put(r, rgen.next(r.getType()));
         }
         SDT relSdt1 = (SDT) sdt1.relabel(relabellingSdt1);
         PIV relPiv1 = piv1.relabel(relabellingSdt1);
 
-        VarMapping<Register, Register> relabellingSdt2 = new VarMapping<>();
+        VarMapping<Register<?>, Register<?>> relabellingSdt2 = new VarMapping<>();
         for (Register r : piv2.values()) {
             relabellingSdt2.put(r, rgen.next(r.getType()));
         }
@@ -356,9 +356,9 @@ public class OptimizedSymbolicSuffixBuilder {
         PIV relPiv2 = piv2.relabel(relabellingSdt2);
 
         // we build valuations which we use to determine satisfiable paths
-        Mapping<SymbolicDataValue, DataValue<?>> valuationSdt1 = buildValuation(prefix1, relPiv1, consts);
-        Mapping<SymbolicDataValue, DataValue<?>> valuationSdt2 = buildValuation(prefix2, relPiv2, consts);
-        Mapping<SymbolicDataValue, DataValue<?>> combined = new Mapping<>();
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuationSdt1 = buildValuation(prefix1, relPiv1, consts);
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuationSdt2 = buildValuation(prefix2, relPiv2, consts);
+        Mapping<SymbolicDataValue<?>, DataValue<?>> combined = new Mapping<>();
         combined.putAll(valuationSdt1);
         combined.putAll(valuationSdt2);
         SymbolicSuffix suffix = distinguishingSuffixFromSDTs(prefix1, relSdt1, relPiv1, prefix2, relSdt2, relPiv2, combined, suffixActions, solver);
@@ -367,7 +367,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
     private SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1, PIV piv1,
     		Word<PSymbolInstance> prefix2, SDT sdt2, PIV piv2,
-    		Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
+    		Mapping<SymbolicDataValue<?>, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
     	SymbolicSuffix best = null;
         for (boolean b : new boolean [] {true, false}) {
             // we check for paths
@@ -480,8 +480,8 @@ public class OptimizedSymbolicSuffixBuilder {
         return new Conjunction(expr.toArray(exprArr));
     }
 
-    private Mapping<SymbolicDataValue, DataValue<?>> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
-        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<SymbolicDataValue, DataValue<?>>();
+    private Mapping<SymbolicDataValue<?>, DataValue<?>> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = new Mapping<>();
         DataValue<?>[] values = DataWords.valsOf(prefix);
         piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
         constants.forEach((c, dv) -> valuation.put(c, dv));

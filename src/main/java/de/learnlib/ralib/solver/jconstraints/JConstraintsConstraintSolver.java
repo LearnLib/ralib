@@ -38,7 +38,7 @@ public class JConstraintsConstraintSolver implements ConstraintSolver {
     }
 
     @Override
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue<?>, DataValue<?>> val) {
         Expression<Boolean> jexpr = JContraintsUtil.toExpression(expr, val);
         Result r = solver.isSatisfiable(jexpr);
         return r == Result.SAT;

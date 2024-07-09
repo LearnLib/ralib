@@ -52,7 +52,7 @@ public class TestDistinguishingSuffixOptimization {
 
 		TransitionGuard trueGuard = new TransitionGuard();
 
-		VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
         Assignment noAssign = new Assignment(noMapping);
 
         ra.addTransition(l0, A, new InputTransition(trueGuard, A, l0, l1, noAssign));

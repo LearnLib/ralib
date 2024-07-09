@@ -158,7 +158,7 @@ public class AutomatonBuilder {
 //        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
 //        LOGGER.trace(Category.EVENT, "REMAP: {}", remapping);
 
-        for (Entry<Parameter, Register> e : parsInVars_Row) {
+        for (Entry<Parameter<?>, Register<?>> e : parsInVars_Row) {
             // param or register
             Parameter p = e.getKey();
             // remapping is null for prime rows ...

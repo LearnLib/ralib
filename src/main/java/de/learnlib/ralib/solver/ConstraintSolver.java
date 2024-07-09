@@ -27,6 +27,6 @@ import net.automatalib.data.SymbolicDataValue;
  */
 public interface ConstraintSolver {
 
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val);
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue<?>, DataValue<?>> val);
 
 }

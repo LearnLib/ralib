@@ -71,7 +71,7 @@ public class RepeaterSUL extends DataWordSUL {
 	public PSymbolInstance step(PSymbolInstance in) throws SULException {
         countInputs(1);
         if (in.getBaseSymbol().equals(IPUT)) {
-        	Integer p = (Integer)in.getParameterValues()[0].getId();
+        	Integer p = (Integer)in.getParameterValues()[0].getValue();
         	Integer x = repeater.repeat(p);
         	return createOutputSymbol(x);
         } else {

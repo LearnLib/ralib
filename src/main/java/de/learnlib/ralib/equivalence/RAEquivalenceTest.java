@@ -116,7 +116,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     private boolean compareRegister(
             VarValuation r1, VarValuation r2, Map<Object,Object> vMap) {
 
-        for (Map.Entry<Register,DataValue<?>> entry : r1.entrySet())
+        for (Map.Entry<Register<?>,DataValue<?>> entry : r1.entrySet())
         {
             DataValue v1 = entry.getValue();
             DataValue v2 = r2.get(entry.getKey());
@@ -130,8 +130,8 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             if (n1 || n2)
                 return false;
 
-            Object o1 = vMap.get(v1.getId());
-            if (o1 != null && !o1.equals(v2.getId())) {
+            Object o1 = vMap.get(v1.getValue());
+            if (o1 != null && !o1.equals(v2.getValue())) {
                 return false;
             }
 
@@ -142,7 +142,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                         return false;
                 }
             }
-            vMap.put(v1.getId(), v2.getId());
+            vMap.put(v1.getValue(), v2.getValue());
         }
 
         return true;

@@ -74,19 +74,19 @@ public interface SDTLogicOracle {
      * @return
      */
     boolean doesRefine(TransitionGuard refining, PIV pivRefining,
-            TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+            TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation);
 
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
     boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+			PIV piv2, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation);
 
     /**
      * Returns true if two guards are equivalent (guard1 is true iff guard2 is true)
      */
     boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+            PIV piv2, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation);
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */

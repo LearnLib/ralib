@@ -103,7 +103,7 @@ public class TestUtil {
                 TestUtil.class.getResourceAsStream(resName));
     }
 
-    public static DataType getType(String name, Collection<DataType> dataTypes) {
+    public static DataType getType(String name, Collection<DataType<?>> dataTypes) {
         for (DataType t : dataTypes) {
             if (t.getName().equals(name)) {
                 return t;

@@ -59,8 +59,8 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         super(components, consts);
 
         this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue<?>> c : consts) {
-            reverseConsts.put(c.getValue().getId(), c.getKey());
+        for (Entry<Constant<?>, DataValue<?>> c : consts) {
+            reverseConsts.put(c.getValue().getValue(), c.getKey());
         }
     }
 
@@ -69,8 +69,8 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     	super(components, consts, dt);
 
         this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue<?>> c : consts) {
-            reverseConsts.put(c.getValue().getId(), c.getKey());
+        for (Entry<Constant<?>, DataValue<?>> c : consts) {
+            reverseConsts.put(c.getValue().getValue(), c.getKey());
         }
     }
 
@@ -90,10 +90,10 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         //IfGuard _guard = (IfGuard) guard;
         GuardExpression expr = guard.getCondition();
 
-        VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();
+        VarMapping<Parameter<?>, SymbolicDataValue<?>> outmap = new VarMapping<>();
         analyzeExpression(expr, outmap);
 
-        Set<Parameter> fresh = new LinkedHashSet<>();
+        Set<Parameter<?>> fresh = new LinkedHashSet<>();
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataType t : action.getPtypes()) {
             Parameter p = pgen.next(t);
@@ -109,7 +109,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     }
 
     private void analyzeExpression(GuardExpression expr,
-            VarMapping<Parameter, SymbolicDataValue> outmap) {
+            VarMapping<Parameter<?>, SymbolicDataValue<?>> outmap) {
 
         if (expr instanceof Conjunction) {
             Conjunction pc = (Conjunction) expr;

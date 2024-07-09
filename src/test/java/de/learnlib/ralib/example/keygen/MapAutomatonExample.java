@@ -101,31 +101,31 @@ public final class MapAutomatonExample {
         TransitionGuard trueGuard   = new TransitionGuard();
 
         // assignments
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> store1IMapping = new VarMapping<>();
         store1IMapping.put(rVal1, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> store1OMapping = new VarMapping<>();
         store1OMapping.put(rVal1, rVal1);
         store1OMapping.put(rKey1, pKey);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> store2IMapping = new VarMapping<>();
         store2IMapping.put(rKey1, rKey1);
         store2IMapping.put(rVal1, rVal1);
         store2IMapping.put(rVal2, pVal);
 
-        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store2OMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> store2OMapping = new VarMapping<>();
         store2OMapping.put(rKey1, rKey1);
         store2OMapping.put(rVal1, rVal1);
         store2OMapping.put(rVal2, rVal2);
         store2OMapping.put(rKey2, pKey);
 
-        VarMapping<Register, SymbolicDataValue> copy2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copy2Mapping = new VarMapping<>();
         copy2Mapping.put(rKey1, rKey1);
         copy2Mapping.put(rVal1, rVal1);
         copy2Mapping.put(rKey2, rKey2);
         copy2Mapping.put(rVal2, rVal2);
 
-        VarMapping<Register, SymbolicDataValue> copy1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> copy1Mapping = new VarMapping<>();
         copy1Mapping.put(rKey1, rKey1);
         copy1Mapping.put(rVal1, rVal1);
 

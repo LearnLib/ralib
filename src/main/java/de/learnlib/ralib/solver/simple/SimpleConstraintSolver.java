@@ -41,7 +41,7 @@ public class SimpleConstraintSolver implements ConstraintSolver {
     }
 
     @Override
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue<?>, DataValue<?>> val) {
         List<GuardExpression> conjuncts = new ArrayList<GuardExpression>();
         conjuncts.add(expr);
         SymbolicDataValue[] sdvs = val.keySet().toArray(new SymbolicDataValue[val.size()]);
@@ -49,11 +49,9 @@ public class SimpleConstraintSolver implements ConstraintSolver {
         for (int i = 0; i < sdvs.length; i++) {
             for (int j = i + 1; j < sdvs.length; j++) {
                 if (val.get(sdvs[i]).equals(val.get(sdvs[j]))) {
-                    conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
-                                                                                                  Relation.EQUALS, sdvs[j]));
+                    conjuncts.add(new AtomicGuardExpression<>(sdvs[i], Relation.EQUALS, sdvs[j]));
                 } else {
-                    conjuncts.add(new AtomicGuardExpression<SymbolicDataValue, SymbolicDataValue>(sdvs[i],
-                                                                                                  Relation.NOT_EQUALS, sdvs[j]));
+                    conjuncts.add(new AtomicGuardExpression<>(sdvs[i], Relation.NOT_EQUALS, sdvs[j]));
                 }
             }
         }

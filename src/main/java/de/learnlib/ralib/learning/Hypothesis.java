@@ -119,7 +119,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 		return null;
 	}
 
-	public VarMapping<Register, ? extends SymbolicDataValue> getLastTransitionAssignment(Word<PSymbolInstance> word) {
+	public VarMapping<Register<?>, ? extends SymbolicDataValue<?>> getLastTransitionAssignment(Word<PSymbolInstance> word) {
 		List<Transition> tseq = getTransitions(word);
 		return tseq.get(tseq.size() - 1).getAssignment().getAssignment();
 	}

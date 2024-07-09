@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.automatalib.data.Valuation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,7 +246,7 @@ public class PrefixFinder {
         			parGen.next(dt);
         	}
 
-        	VarMapping<SuffixValue, Parameter> renaming = new VarMapping<>();
+        	VarMapping<SuffixValue<?>, Parameter<?>> renaming = new VarMapping<>();
         	SuffixValueGenerator svGen = new SuffixValueGenerator();
         	for (ParameterizedSymbol ps : symSuffix.getActions()) {
         		for (DataType dt : ps.getPtypes()) {
@@ -257,7 +258,7 @@ public class PrefixFinder {
         	GuardExpression exprR = expr.relabel(renaming);
 
         	ParValuation pars = new ParValuation(path);
-        	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
+        	Valuation<SymbolicDataValue<?>, DataValue<?>> vals = new Valuation<>();
         	vals.putAll(DataWords.computeVarValuation(pars, pivSul));
         	vals.putAll(pars);
         	vals.putAll(consts);

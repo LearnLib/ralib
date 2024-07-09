@@ -131,7 +131,7 @@ public class SimulatorSUL extends DataWordSUL {
             if (!mapping.getOutput().keySet().contains(p)) {
                 List<DataValue> old = computeOld(t, pval);
                 DataValue dv = teachers.get(t).getFreshValue(old);
-                vals[i] = new FreshValue(dv.getType(), dv.getId());
+                vals[i] = new FreshValue(dv.getType(), dv.getValue());
             }
             else {
                 SymbolicDataValue sv = mapping.getOutput().get(p);

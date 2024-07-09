@@ -28,7 +28,7 @@ public class EssentializerTest {
             public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
                 int max = 0;
                 for (DataValue<Integer> i : vals) {
-                    max = Math.max(max, i.getId());
+                    max = Math.max(max, i.getValue());
                 }
                 return new DataValue<Integer>(_t, max + 1);
             }

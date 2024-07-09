@@ -35,6 +35,7 @@ import net.automatalib.data.Mapping;
 import net.automatalib.data.SymbolicDataValue;
 import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.SymbolicDataValue.SuffixValue;
+import net.automatalib.data.Valuation;
 import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -183,8 +184,8 @@ public class SDT implements SymbolicDecisionTree {
         //return false;
     }
 
-    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue<?>> vals, Constants consts) {
-    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+    public boolean isAccepting(Valuation<SymbolicDataValue<?>, DataValue<?>> vals, Constants consts) {
+    	Valuation<SymbolicDataValue<?>, DataValue<?>> mapping = new Valuation<>();
     	mapping.putAll(vals);
     	mapping.putAll(consts);
     	GuardExpression expr = getAcceptingPaths(consts);

@@ -140,19 +140,19 @@ public class TestSymmetry extends RaLibTestSuite {
 				new AtomicGuardExpression(r2, Relation.NOT_EQUALS, p1)));
 
 
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1Mapping = new VarMapping<>();
 		storeR1Mapping.put(r1, p1);
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1R2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1R2Mapping = new VarMapping<>();
 		storeR1R2Mapping.put(r1, p1);
 		storeR1R2Mapping.put(r2, r1);
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> copyMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> copyMapping = new VarMapping<>();
 		copyMapping.put(r1, r1);
 		copyMapping.put(r2, r2);
 
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> forgetMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> forgetMapping = new VarMapping<>();
 		forgetMapping.put(r1, r2);
 
-		VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
 		Assignment storeR1 = new Assignment(storeR1Mapping);
 		Assignment storeR1R2 = new Assignment(storeR1R2Mapping);
@@ -257,16 +257,16 @@ public class TestSymmetry extends RaLibTestSuite {
         				new AtomicGuardExpression(r1, Relation.EQUALS, p1),
         				new AtomicGuardExpression(r2, Relation.EQUALS, p1)));
 
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1Mapping = new VarMapping<>();
         storeR1Mapping.put(r1, p1);
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeR2Mapping = new VarMapping<>();
         storeR2Mapping.put(r2, p1);
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1R2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1R2Mapping = new VarMapping<>();
 		storeR1R2Mapping.put(r2, r1);
         storeR1R2Mapping.put(r1, p1);
-		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> copyMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+		VarMapping<Register<?>, SymbolicDataValue<?>> copyMapping = new VarMapping<>();
         copyMapping.put(r1, r2);
-        VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<Register<?>, SymbolicDataValue<?>> noMapping = new VarMapping<>();
 
         Assignment storeR1 = new Assignment(storeR1Mapping);
         Assignment storeR2 = new Assignment(storeR2Mapping);

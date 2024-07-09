@@ -119,9 +119,10 @@ public class TestEqualityTheory extends RaLibTestSuite {
         Parameter p1 = new Parameter(T_UID, 1);
         Parameter p2 = new Parameter(T_PWD, 2);
 
+        // renaming of SDT has flipped the registers
         PIV testPiv =  new PIV();
-        testPiv.put(p1, new Register(T_UID, 1));
-        testPiv.put(p2, new Register(T_PWD, 2));
+        testPiv.put(p2, new Register(T_PWD, 1));
+        testPiv.put(p1, new Register(T_UID, 2));
 
         Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
 

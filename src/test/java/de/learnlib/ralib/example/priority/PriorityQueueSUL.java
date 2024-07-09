@@ -99,7 +99,7 @@ public class PriorityQueueSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(OFFER)) {
-            Object x = pqueue.offer(i.getParameterValues()[0].getId());
+            Object x = pqueue.offer(i.getParameterValues()[0].getValue());
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(POLL)) {
             Object x = pqueue.poll();

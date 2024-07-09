@@ -78,7 +78,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);
         GuardExpression exprG = guard.getCondition();
 
-        VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = new VarMapping<>();
+        VarMapping<SymbolicDataValue<?>, SymbolicDataValue<?>> gremap = new VarMapping<>();
         for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
             if (sv instanceof Parameter) {
                 gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
@@ -87,7 +87,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         exprG = exprG.relabel(gremap);
 
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+        VarMapping<Register<?>, Register<?>> remap = piv2.createRemapping(piv1);
 
         GuardExpression expr2r = expr2.relabel(remap);
 
@@ -127,7 +127,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     			GuardExpression expr2 = e2.getKey();
     			boolean outcome2 = e2.getValue();
     			if (outcome1 != outcome2) {
-    				VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+    				VarMapping<Register<?>, Register<?>> remap = piv2.createRemapping(piv1);
     				GuardExpression test = new Conjunction(expr1, expr2.relabel(remap));
     				if (solver.isSatisfiable(test, new Mapping<>())) {
     					return expr1;
@@ -139,14 +139,14 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+    public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
 
         LOGGER.trace("refining: {0}", refining);
         LOGGER.trace("refined: {0}", refined);
         LOGGER.trace("pivRefining: {0}", pivRefining);
         LOGGER.trace("pivRefined: {0}", pivRefined);
 
-        VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
+        VarMapping<Register<?>, Register<?>> remap = pivRefined.createRemapping(pivRefining);
 
         GuardExpression exprRefining = refining.getCondition();
         GuardExpression exprRefined = refined.getCondition().relabel(remap);
@@ -154,7 +154,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         // is there any case for which refining is true but refined is false?
         GuardExpression test = new Conjunction(exprRefining, new Negation(exprRefined));
         // it is important to include constants to see that, e.g., c1==p1 refines c2!=p1
-        Mapping<SymbolicDataValue, DataValue<?>> valWithConsts = new Mapping<>();
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valWithConsts = new Mapping<>();
         valWithConsts.putAll(valuation);
         valWithConsts.putAll(consts);
 
@@ -167,13 +167,13 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     @Override
     public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            PIV piv2, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
         LOGGER.trace("piv1: {0}", piv1);
         LOGGER.trace("piv2: {0}", piv2);
 
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+        VarMapping<Register<?>, Register<?>> remap = piv2.createRemapping(piv1);
 
         GuardExpression exprGuard1 = guard1.getCondition();
         GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
@@ -189,13 +189,13 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     @Override
     public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            PIV piv2, Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
         LOGGER.trace("piv1: {0}", piv1);
         LOGGER.trace("piv2: {0}", piv2);
 
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+        VarMapping<Register<?>, Register<?>> remap = piv2.createRemapping(piv1);
 
         GuardExpression exprGuard1 = guard1.getCondition();
         GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
@@ -215,10 +215,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt =  (SDT) sdt;
         assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
             "The height of the tree is not consistent with the number of parameters in the word";
-        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = new Mapping<>();
         valuation.putAll(consts);
         DataValue[] vals = DataWords.valsOf(prefix);
-        for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
+        for (Map.Entry<Parameter<?>, Register<?>> entry : piv.entrySet()) {
              DataValue parVal = vals[entry.getKey().getId()-1];
              valuation.put(entry.getValue(), parVal);
         }
@@ -228,7 +228,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     private boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, int symIndex, SDT sdt,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation) {
         boolean accepts;
         if (symIndex == word.length()) {
             accepts =  sdt.isAccepting();
@@ -238,7 +238,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 accepts = accepts(word, prefix, symIndex + 1, sdt, valuation);
             } else {
                 SDT nextSdt = sdt;
-                Mapping<SymbolicDataValue, DataValue<?>> newValuation = new Mapping<>();
+                Mapping<SymbolicDataValue<?>, DataValue<?>> newValuation = new Mapping<>();
                 newValuation.putAll(valuation);
                 for (int i = 0; i < sym.getBaseSymbol().getArity(); i++) {
                     DataValue value = sym.getParameterValues()[i];

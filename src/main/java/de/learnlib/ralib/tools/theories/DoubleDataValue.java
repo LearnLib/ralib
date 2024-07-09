@@ -13,7 +13,7 @@ public class DoubleDataValue extends DataValue<BigDecimal> {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof DoubleDataValue && id.compareTo(((DoubleDataValue) other).getId()) == 0)
+		if (other instanceof DoubleDataValue && value.compareTo(((DoubleDataValue) other).getValue()) == 0)
 			return true;
 		return super.equals(other);
 	}

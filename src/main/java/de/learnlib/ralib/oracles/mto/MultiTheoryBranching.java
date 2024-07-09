@@ -291,7 +291,7 @@ public class MultiTheoryBranching implements Branching {
     }
 
     private GuardExpression renameSuffixValues(GuardExpression expr) {
-        Set<SymbolicDataValue> svals = expr.getSymbolicDataValues();
+        Set<SymbolicDataValue<?>> svals = expr.getSymbolicDataValues();
         VarMapping vmap = new VarMapping();
         for (SymbolicDataValue sv : svals) {
             if (sv instanceof SuffixValue) {
