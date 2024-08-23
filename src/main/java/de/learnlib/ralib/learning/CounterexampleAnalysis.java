@@ -30,6 +30,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -50,6 +51,8 @@ public class CounterexampleAnalysis {
 
     private final SDTLogicOracle sdtOracle;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private final Map<Word<PSymbolInstance>, LocationComponent> components;
 
     private final Constants consts;
@@ -68,6 +71,7 @@ public class CounterexampleAnalysis {
         this.sdtOracle = sdtOracle;
         this.components = components;
         this.consts = consts;
+        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
     }
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
@@ -77,7 +81,7 @@ public class CounterexampleAnalysis {
 
         Word<PSymbolInstance> prefix = ce.prefix(idx);
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
         return new CEAnalysisResult(prefix, symSuffix);
     }
@@ -91,7 +95,7 @@ public class CounterexampleAnalysis {
             ce.prefix(idx+1));
 
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
-        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+        SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
         TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
         TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);

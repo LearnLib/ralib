@@ -41,6 +41,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -67,13 +68,16 @@ public class Component implements LocationComponent {
 
     private final Constants consts;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Component.class);
 
-    public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts) {
+    public Component(Row primeRow, ObservationTable obs, boolean ioMode, Constants consts, SymbolicSuffixRestrictionBuilder restrictionBuilder) {
         this.primeRow = primeRow;
         this.obs = obs;
         this.ioMode = ioMode;
         this.consts = consts;
+        this.restrictionBuilder = restrictionBuilder;
     }
 
     /**
@@ -153,7 +157,7 @@ public class Component implements LocationComponent {
             }
 
             if (!added) {
-                Component c = new Component(r, obs, ioMode, consts);
+                Component c = new Component(r, obs, ioMode, consts, restrictionBuilder);
                 newComponents.add(c);
             }
         }
@@ -222,7 +226,7 @@ public class Component implements LocationComponent {
             if (!memPrefix.containsKey(p) && p.getId() <= max) {
                 SymbolicSuffix suffix = r.getSuffixForMemorable(p);
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
-                        r.getPrefix(), suffix, consts);
+                        r.getPrefix(), suffix, restrictionBuilder);
 
 //               System.out.println("Found inconsistency. msissing " + p +
 //                        " in mem. of " + prefix);
