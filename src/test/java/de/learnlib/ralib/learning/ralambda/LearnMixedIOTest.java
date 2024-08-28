@@ -18,7 +18,6 @@
  */
 package de.learnlib.ralib.learning.ralambda;
 
-import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
@@ -84,13 +83,15 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
 
         final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
-        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
-            TypedTheory<?> th = new IntegerEqualityTheory(t);
-            th.setUseSuffixOpt(true);
-            teachers.put(t, th);
-        });
-        loader.getDataTypes(BigDecimal.class).stream().forEach((t) -> {
-            TypedTheory<?> th = new DoubleInequalityTheory(t);
+        loader.getDataTypes().stream().forEach((t) -> {
+            TypedTheory th;
+            if (t.getName().equals("int")) {
+                th = new IntegerEqualityTheory();
+            }
+            else {
+                th = new DoubleInequalityTheory();
+            }
+            th.setType(t);
             th.setUseSuffixOpt(true);
             teachers.put(t, th);
         });

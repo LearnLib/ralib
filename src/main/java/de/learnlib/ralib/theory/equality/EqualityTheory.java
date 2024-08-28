@@ -361,7 +361,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             Constants constants, SDTGuard guard, Parameter<T> param, Set<DataValue<T>> oldDvs) {
 
         DataType<T> type = param.getType();
-        List<DataValue<T>> prefixValues = Arrays.asList(DataWords.valsOf(prefix, type));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues.toString());
         Deque<SDTGuard> guards = new LinkedList<>();
         guards.add(guard);
@@ -378,7 +378,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                     Parameter<?> p = piv.getOneKey((Register<?>) ereg);
                     LOGGER.trace("p: " + p.toString());
                     int idx = p.getId();
-                    return prefixValues.get(idx - 1);
+                    return (DataValue<T>) prefixValues.get(idx - 1);
                 } else if (ereg.isSuffixValue()) {
                     Parameter<T> p = new Parameter<>(type, ereg.getId());
                     return pval.get(p);

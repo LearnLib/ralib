@@ -1132,14 +1132,14 @@ public abstract class InequalityTheoryWithEq<T extends BigDecimal> implements Th
     public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
 
     private DataValue<T> getRegisterValue(SymbolicDataValue<T> r, PIV piv,
-            List<DataValue<T>> prefixValues, Constants constants,
+            List<DataValue<?>> prefixValues, Constants constants,
             ParValuation pval) {
         if (r.isRegister()) {
 //            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
             Parameter<?> p = piv.getOneKey((Register<?>) r);
 //            LOGGER.trace("p: " + p.toString());
             int idx = p.getId();
-            return prefixValues.get(idx - 1);
+            return (DataValue<T>) prefixValues.get(idx - 1);
         } else if (r.isSuffixValue()) {
             Parameter<T> p = new Parameter<>(r.getType(), r.getId());
             return pval.get(p);
@@ -1165,7 +1165,7 @@ public abstract class InequalityTheoryWithEq<T extends BigDecimal> implements Th
 
         DataType<T> type = param.getType();
         DataValue<T> returnThis = null;
-        List<DataValue<T>> prefixValues = Arrays.asList(DataWords.valsOf(prefix, type));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
 //        LOGGER.trace("prefix values : " + prefixValues.toString());
 
@@ -1177,7 +1177,7 @@ public abstract class InequalityTheoryWithEq<T extends BigDecimal> implements Th
                 Parameter<?> p = piv.getOneKey((Register<?>) ereg);
 //                LOGGER.trace("p: " + p.toString());
                 int idx = p.getId();
-                returnThis = prefixValues.get(idx - 1);
+                returnThis = (DataValue<T>) prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
                 Parameter<T> p = new Parameter<>(type, ereg.getId());
                 returnThis = pval.get(p);
