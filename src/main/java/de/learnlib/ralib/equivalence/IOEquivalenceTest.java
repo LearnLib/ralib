@@ -31,6 +31,8 @@ import net.automatalib.data.DataType;
 import net.automatalib.data.DataValue;
 import net.automatalib.data.ParValuation;
 import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Constant;
+import net.automatalib.data.SymbolicDataValue.Parameter;
 import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.VarValuation;
 import net.automatalib.data.SymbolicDataValueGenerator;
@@ -141,8 +143,8 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         for (Map.Entry<Register<?>,DataValue<?>> entry : r1.entrySet())
         {
-            DataValue v1 = entry.getValue();
-            DataValue v2 = r2.get(entry.getKey());
+            DataValue<?> v1 = entry.getValue();
+            DataValue<?> v2 = r2.get(entry.getKey());
 
             boolean n1 = (v1 == null);
             boolean n2 = (v2 == null);
@@ -159,7 +161,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             }
 
             if (!v1.equals(v2)) {
-                for (DataValue cv : consts.values())
+                for (DataValue<?> cv : consts.values())
                 {
                     if (v1.equals(cv) || v2.equals(cv))
                         return false;
@@ -186,7 +188,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word w, Word t) {
+        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word<PSymbolInstance> w, Word<PSymbolInstance> t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = new VarValuation(r1);
@@ -205,7 +207,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private final RegisterAutomaton sys1;
     private RegisterAutomaton sys2;
 
-    private final Map<DataType, Theory> teacher;
+    private final Map<DataType<?>, ? extends Theory<?>> teacher;
 
     private final Constants consts;
 
@@ -214,7 +216,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private final boolean checkForEqualParameters;
 
     public IOEquivalenceTest(RegisterAutomaton in1,
-            Map<DataType, Theory> teacher, Constants consts,
+            Map<DataType<?>, ? extends Theory<?>> teacher, Constants consts,
             boolean checkForEqualParameters,
             ParameterizedSymbol ... actions) {
 
@@ -431,12 +433,12 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         // TODO: this should become part of the teacher
         potential.addAll(consts.values());
 
-        List<DataValue[]> valuations = new ArrayList<>();
+        List<DataValue<?>[]> valuations = new ArrayList<>();
         computeValuations(ps, valuations, potential,
                 new ArrayList<DataValue<?>>(),checkForEqualParameters, DataWords.valSet(w));
 
         List<Word<PSymbolInstance>> ret = new ArrayList<>();
-        for (DataValue[] data : valuations) {
+        for (DataValue<?>[] data : valuations) {
             Word<PSymbolInstance> next = w.append(new PSymbolInstance(ps, data));
             ret.add(next);
         }
@@ -444,7 +446,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     }
 
     // FIXME: this work only for the equality case!!!!
-    private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
+    private void computeValuations(ParameterizedSymbol ps, List<DataValue<?>[]> valuations,
             Set<DataValue<?>> potential, List<DataValue<?>> val,
             boolean checkForEqualParameters, Set<DataValue<?>> prefixVals) {
 
@@ -454,36 +456,44 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             return;
         }
 
-        DataType t = ps.getPtypes()[idx];
+        DataType<?> t = ps.getPtypes()[idx];
+        computeValuations(ps, valuations, potential, val, checkForEqualParameters, prefixVals, t);
+    }
 
-        Set<DataValue> next = valSet(potential, t);
-        Set<DataValue> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
+    private <T> void computeValuations(ParameterizedSymbol ps, List<DataValue<?>[]> valuations,
+                                       Set<DataValue<?>> potential, List<DataValue<?>> val,
+                                       boolean checkForEqualParameters, Set<DataValue<?>> prefixVals,
+                                       DataType<T> t) {
+
+        Set<DataValue<T>> next = valSet(potential, t);
+        Set<DataValue<T>> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
         if (checkForEqualParameters) {
             next.addAll(forFresh);
         }
         forFresh.addAll(valSet(prefixVals, t));
-        Theory teach = teacher.get(t);
+        Theory<T> teach = (Theory<T>) teacher.get(t);
         //System.out.println("FOR FRESH: " + Arrays.toString(forFresh.toArray()) + " for " + t);
-        DataValue fresh = teach.getFreshValue(new ArrayList<>(forFresh));
+        DataValue<?> fresh = teach.getFreshValue(new ArrayList<>(forFresh));
         //next.add(fresh);
         List<DataValue<?>> nextValFresh = new ArrayList<>(val);
         nextValFresh.add(fresh);
         computeValuations(ps, valuations, potential,
-                nextValFresh, checkForEqualParameters, prefixVals);
+                          nextValFresh, checkForEqualParameters, prefixVals);
 
-        for (DataValue d : next) {
+        for (DataValue<?> d : next) {
             List<DataValue<?>> nextVal = new ArrayList<>(val);
             nextVal.add(d);
             computeValuations(ps, valuations, potential,
-                    nextVal, checkForEqualParameters, prefixVals);
+                              nextVal, checkForEqualParameters, prefixVals);
         }
+
     }
 
-    private Set<DataValue> valSet(Collection<DataValue<?>> in, DataType t) {
-        Set<DataValue> out = new LinkedHashSet<>();
-        for (DataValue dv : in) {
+    private <T> Set<DataValue<T>> valSet(Collection<DataValue<?>> in, DataType<T> t) {
+        Set<DataValue<T>> out = new LinkedHashSet<>();
+        for (DataValue<?> dv : in) {
                 if (dv.getType().equals(t)) {
-                    out.add(dv);
+                    out.add((DataValue<T>) dv);
                 }
             }
         return out;
@@ -492,42 +502,51 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private PSymbolInstance createOutputSymbol(OutputTransition ot, VarValuation register, VarValuation register2) {
         ParameterizedSymbol ps = ot.getLabel();
         OutputMapping mapping = ot.getOutput();
-        DataValue[] vals = new DataValue[ps.getArity()];
+        DataValue<?>[] vals = new DataValue[ps.getArity()];
         SymbolicDataValueGenerator.ParameterGenerator pgen =
                 new SymbolicDataValueGenerator.ParameterGenerator();
         ParValuation pval = new ParValuation();
         int i = 0;
-        for (DataType t : ps.getPtypes()) {
-            SymbolicDataValue.Parameter p = pgen.next(t);
-            if (!mapping.getOutput().keySet().contains(p)) {
-
-                Set<DataValue<?>> forFresh = new LinkedHashSet<>();
-                forFresh.addAll(register.values());
-                forFresh.addAll(register2.values());
-                List<DataValue> old = computeOld(t, pval, valSet(forFresh, t));
-                vals[i] = teacher.get(t).getFreshValue(old);
-            }
-            else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);
-                if (sv.isRegister()) {
-                    vals[i] = register.get( (Register) sv);
-                }
-                else if (sv.isConstant()) {
-                    vals[i] = consts.get( (SymbolicDataValue.Constant) sv);
-                }
-                else if (sv.isParameter()) {
-                    throw new UnsupportedOperationException("not supported yet.");
-                }
-                else {
-                    throw new IllegalStateException("this case is not supported.");
-                }
-            }
-            assert vals[i] != null;
-            pval.put(p, vals[i]);
+        for (DataType<?> t : ps.getPtypes()) {
+            createOutputSymbol(register, register2, mapping, vals, pgen, pval, i, t);
             i++;
         }
         return new PSymbolInstance(ot.getLabel(), vals);
     }
+
+    private <T> void createOutputSymbol(VarValuation register,
+                                        VarValuation register2,
+                                        OutputMapping mapping,
+                                        DataValue<?>[] vals,
+                                        SymbolicDataValueGenerator.ParameterGenerator pgen,
+                                        ParValuation pval,
+                                        int i,
+                                        DataType<T> t) {
+        Parameter<T> p = pgen.next(t);
+        if (!mapping.getOutput().keySet().contains(p)) {
+
+            Set<DataValue<?>> forFresh = new LinkedHashSet<>();
+            forFresh.addAll(register.values());
+            forFresh.addAll(register2.values());
+            List<DataValue<T>> old = computeOld(t, pval, valSet(forFresh, t));
+            Theory<T> theory = (Theory<T>) teacher.get(t);
+            vals[i] = theory.getFreshValue(old);
+        } else {
+            SymbolicDataValue<?> sv = mapping.getOutput().get(p);
+            if (sv.isRegister()) {
+                vals[i] = register.get((Register<?>) sv);
+            } else if (sv.isConstant()) {
+                vals[i] = consts.get((Constant<?>) sv);
+            } else if (sv.isParameter()) {
+                throw new UnsupportedOperationException("not supported yet.");
+            } else {
+                throw new IllegalStateException("this case is not supported.");
+            }
+        }
+        assert vals[i] != null;
+        pval.put(p, vals[i]);
+    }
+
 
     private OutputTransition getOutputTransition(RALocation loc, VarValuation reg) {
         for (Transition t : loc.getOut()) {
@@ -539,12 +558,12 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         return null;
     }
 
-    private List<DataValue> computeOld(DataType t,
-            ParValuation pval, Set<DataValue> stored) {
-        stored.addAll(consts.values());
-        for (DataValue d : pval.values()){
+    private <T> List<DataValue<T>> computeOld(DataType<T> t,
+            ParValuation pval, Set<DataValue<T>> stored) {
+        stored.addAll(consts.values(t));
+        for (DataValue<?> d : pval.values()){
             if (d.getType().equals(t)) {
-                stored.add(d);
+                stored.add((DataValue<T>) d);
             }
         }
         return new ArrayList<>(stored);

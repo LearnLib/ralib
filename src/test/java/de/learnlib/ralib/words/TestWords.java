@@ -45,13 +45,13 @@ public class TestWords extends RaLibTestSuite {
    @Test
     public void testSymbolicSuffix1() {
 
-        DataType intType = new DataType("int", int.class);
+        DataType<Integer> intType = new DataType<>("int", int.class);
 
         ParameterizedSymbol a = new InputSymbol("a", new DataType[]{intType});
 
-        DataValue<Integer> i1 = new DataValue(intType, 1);
-        DataValue<Integer> i2 = new DataValue(intType, 2);
-        DataValue<Integer> i3 = new DataValue(intType, 3);
+        DataValue<Integer> i1 = new DataValue<>(intType, 1);
+        DataValue<Integer> i2 = new DataValue<>(intType, 2);
+        DataValue<Integer> i3 = new DataValue<>(intType, 3);
 
         PSymbolInstance[] prefixSymbols = new PSymbolInstance[] {
             new PSymbolInstance(a, i1),
@@ -83,22 +83,22 @@ public class TestWords extends RaLibTestSuite {
 
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)));
 
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)));
 
         final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix);
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, symSuffix1);

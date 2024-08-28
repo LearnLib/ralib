@@ -44,7 +44,7 @@ public class SimpleConstraintSolver implements ConstraintSolver {
     public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue<?>, DataValue<?>> val) {
         List<GuardExpression> conjuncts = new ArrayList<GuardExpression>();
         conjuncts.add(expr);
-        SymbolicDataValue[] sdvs = val.keySet().toArray(new SymbolicDataValue[val.size()]);
+        SymbolicDataValue<?>[] sdvs = val.keySet().toArray(new SymbolicDataValue[val.size()]);
 
         for (int i = 0; i < sdvs.length; i++) {
             for (int j = i + 1; j < sdvs.length; j++) {

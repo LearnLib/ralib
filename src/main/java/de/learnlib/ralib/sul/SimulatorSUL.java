@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.automatalib.data.SymbolicDataValueGenerator.ParameterGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class SimulatorSUL extends DataWordSUL {
     private final RegisterAutomaton model;
 
     private final Constants consts;
-    private final Map<DataType, Theory> teachers;
+    private final Map<DataType<?>, ? extends Theory<?>> teachers;
 
     private RALocation loc = null;
     private VarValuation register = null;
@@ -66,7 +67,7 @@ public class SimulatorSUL extends DataWordSUL {
 
     private static Logger LOGGER = LoggerFactory.getLogger(SimulatorSUL.class);
 
-    public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
+    public SimulatorSUL(RegisterAutomaton model, Map<DataType<?>, ? extends Theory<?>> teachers,
             Constants consts) {
         this.model = model;
         this.teachers = teachers;
@@ -121,38 +122,40 @@ public class SimulatorSUL extends DataWordSUL {
     private PSymbolInstance createOutputSymbol(OutputTransition ot) {
         ParameterizedSymbol ps = ot.getLabel();
         OutputMapping mapping = ot.getOutput();
-        DataValue[] vals = new DataValue[ps.getArity()];
+        DataValue<?>[] vals = new DataValue[ps.getArity()];
         SymbolicDataValueGenerator.ParameterGenerator pgen =
                 new SymbolicDataValueGenerator.ParameterGenerator();
         ParValuation pval = new ParValuation();
         int i = 0;
-        for (DataType t : ps.getPtypes()) {
-            Parameter p = pgen.next(t);
-            if (!mapping.getOutput().keySet().contains(p)) {
-                List<DataValue> old = computeOld(t, pval);
-                DataValue dv = teachers.get(t).getFreshValue(old);
-                vals[i] = new FreshValue(dv.getType(), dv.getValue());
-            }
-            else {
-                SymbolicDataValue sv = mapping.getOutput().get(p);
-                if (sv.isRegister()) {
-                    vals[i] = register.get( (Register) sv);
-                }
-                else if (sv.isConstant()) {
-                    vals[i] = consts.get( (Constant) sv);
-                }
-                else if (sv.isParameter()) {
-                    throw new UnsupportedOperationException("not supported yet.");
-                }
-                else {
-                    throw new IllegalStateException("this case is not supported.");
-                }
-            }
-            assert vals[i] != null;
-            pval.put(p, vals[i]);
+        for (DataType<?> t : ps.getPtypes()) {
+            createOutputSymbol(ps, mapping, vals, pgen, pval, t, i);
             i++;
         }
         return new PSymbolInstance(ot.getLabel(), vals);
+    }
+
+    private <T> void createOutputSymbol(ParameterizedSymbol ps, OutputMapping mapping, DataValue<?>[] vals,
+                                        ParameterGenerator pgen, ParValuation pval, DataType<T> t, int i) {
+        Parameter<?> p = pgen.next(t);
+        if (!mapping.getOutput().keySet().contains(p)) {
+            List<DataValue<T>> old = computeOld(t, pval);
+            Theory<T> theory = (Theory<T>) teachers.get(t);
+            DataValue<T> dv = theory.getFreshValue(old);
+            vals[i] = new FreshValue<>(dv.getType(), dv.getValue());
+        } else {
+            SymbolicDataValue<?> sv = mapping.getOutput().get(p);
+            if (sv.isRegister()) {
+                vals[i] = register.get((Register<?>) sv);
+            } else if (sv.isConstant()) {
+                vals[i] = consts.get((Constant<?>) sv);
+            } else if (sv.isParameter()) {
+                throw new UnsupportedOperationException("not supported yet.");
+            } else {
+                throw new IllegalStateException("this case is not supported.");
+            }
+        }
+        assert vals[i] != null;
+        pval.put(p, vals[i]);
     }
 
     private OutputTransition getOutputTransition(RALocation loc, VarValuation reg) {
@@ -165,12 +168,12 @@ public class SimulatorSUL extends DataWordSUL {
         throw new IllegalStateException("No suitable output transition.");
     }
 
-    private List<DataValue> computeOld(DataType t, ParValuation pval) {
-        Set<DataValue> set = new LinkedHashSet<>();
+    private <T> List<DataValue<T>> computeOld(DataType<T> t, ParValuation pval) {
+        Set<DataValue<T>> set = new LinkedHashSet<>();
         set.addAll(DataWords.valSet(prefix, t));
-        for (DataValue d : pval.values()){
+        for (DataValue<?> d : pval.values()){
             if (d.getType().equals(t)) {
-                set.add(d);
+                set.add((DataValue<T>) d);
             }
         }
         return new ArrayList<>(set);

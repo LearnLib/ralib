@@ -84,13 +84,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final Constants constants;
 
-    private final Map<DataType, Theory> teachers;
+    private final Map<DataType<?>, ? extends Theory<?>> teachers;
 
     private final ConstraintSolver solver;
 
     private static Logger LOGGER = LoggerFactory.getLogger(MultiTheoryTreeOracle.class);
 
-    public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants,
+    public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType<?>, ? extends Theory<?>> teachers, Constants constants,
             ConstraintSolver solver) {
         this.oracle = oracle;
         this.teachers = teachers;
@@ -107,16 +107,16 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 //        System.out.println(sdt);
 
         // move registers to 1 ... n
-        VarMapping rename = new VarMapping();
+        VarMapping<Register<?>, Register<?>> rename = new VarMapping<>();
         RegisterGenerator gen = new RegisterGenerator();
-        Set<Register> regs = sdt.getRegisters();
+        Set<Register<?>> regs = sdt.getRegisters();
         PIV piv = new PIV();
 
         for (Entry<Parameter<?>, Register<?>> e : pir.entrySet()) {
             if (regs.contains(e.getValue())) {
-                Register r = e.getValue();
+                Register<?> r = e.getValue();
                 rename.put(r, gen.next(r.getType()));
-                piv.put(e.getKey(), (Register) rename.get(r));
+                piv.put(e.getKey(), (Register<?>) rename.get(r));
             }
         }
 
@@ -148,13 +148,26 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
 
         // OTHERWISE get the first noninstantiated data value in the suffix and its type
-        SymbolicDataValue sd = suffix.getDataValue(values.size() + 1);
+        SuffixValue<?> sd = suffix.getDataValue(values.size() + 1);
 
-        Theory teach = teachers.get(sd.getType());
+        return treeQueryInternal(prefix, suffix, values, pir, constants, suffixValues, sd);
+
+//        Theory<?> teach = teachers.get(sd.getType());
 
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, pir, constants, suffixValues, this);
+//        return teach.treeQuery(prefix, suffix, values, pir, constants, suffixValues, this);
+    }
+
+    private <T> SDT treeQueryInternal(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
+                          Constants constants, SuffixValuation suffixValues, SuffixValue<T> sd) {
+
+        Theory<T> teach = (Theory<T>) teachers.get(sd.getType());
+
+        // make a new tree query for prefix, suffix, prefix valuation, ...
+        // to the correct teacher (given by type of first DV in suffix)
+        return teach.treeQuery(prefix, suffix, values, pir, constants, sd, suffixValues, this);
+
     }
 
     /**
@@ -207,18 +220,24 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             ParValuation pval) {
 
         if (i == ps.getArity() + 1) {
-            return new Node(new Parameter(null, i));
+            return new Node(new Parameter<>(null, i));
         } else {
-            Map<DataValue, Node> nextMap = new LinkedHashMap<>();
-            Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
+            return createFreshNode(i, prefix, ps, piv, pval, ps.getPtypes()[i - 1]);
+        }
+    }
 
-            DataType type = ps.getPtypes()[i - 1];
+    private <T> Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
+                                 ParValuation pval, DataType<T> type) {
+
+            Map<DataValue<?>, Node> nextMap = new LinkedHashMap<>();
+            Map<DataValue<?>, SDTGuard> guardMap = new LinkedHashMap<>();
+
             LOGGER.trace(Category.QUERY, "current type: " + type.getName());
-            Parameter p = new Parameter(type, i);
-            SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, i));
-            Theory teach = teachers.get(type);
+            Parameter<T> p = new Parameter<>(type, i);
+            SDTGuard guard = new SDTTrueGuard(new SuffixValue<>(type, i));
+            Theory<T> teach = (Theory<T>) teachers.get(type);
 
-            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
+            DataValue<?> dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
             ParValuation otherPval = new ParValuation();
             otherPval.putAll(pval);
             otherPval.put(p, dvi);
@@ -227,7 +246,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
             guardMap.put(dvi, guard);
             return new Node(p, nextMap, guardMap);
-        }
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
@@ -237,69 +255,73 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-            Map<Parameter, Set<DataValue>> oldDvMap, SDT... sdts) {
+            Map<Parameter<?>, Set<DataValue<?>>> oldDvMap, SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
-            return new Node(new Parameter(null, i));
+            return new Node(new Parameter<>(null, i));
         } else {
-            // obtain the data type, teacher, parameter
-            DataType type = ps.getPtypes()[i - 1];
-            Theory teach = teachers.get(type);
-            Parameter p = new Parameter(type, i);
-
-            // valuation
-            Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = buildValuation(pval, prefix, piv, constants);
-
-            // the map may contain no old values for p, in which case we use an empty set
-            // (to avoid potential NPE when instantiating guards)
-            Set<DataValue> oldDvs = oldDvMap.getOrDefault(p, Collections.emptySet());
-
-            // initialize maps for next nodes
-            Map<DataValue, Node> nextMap = new LinkedHashMap<>();
-            Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
-
-            MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(constants, solver);
-            // get merged guards mapped to the set of old guards from which they are
-            // generated
-            Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewRefinedInitialGuards(sdts, mlo, valuation);
-            // get old guards mapped to the child SDT they connect to
-            Map<SDTGuard, List<SDT>> nextSDTs = getChildren(sdts);
-
-            for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
-                SDTGuard guard = mergedGuardEntry.getKey();
-                Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
-
-                // first solve using a constraint solver
-                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
-                // if merging of guards is done properly, there should be no case where the
-                // guard cannot be instantiated.
-                assert (dvi != null);
-
-                SDT[] nextLevelSDTs = oldGuards.stream().map(g -> nextSDTs.get(g)).flatMap(g -> g.stream()) // stream
-                                                                                                            // with of
-                                                                                                            // sdt lists
-                                                                                                            // for old
-                                                                                                            // guards
-                        .distinct().toArray(SDT[]::new); // merge and pick distinct elements
-
-                ParValuation otherPval = new ParValuation();
-                otherPval.putAll(pval);
-                otherPval.put(p, dvi);
-
-                nextMap.put(dvi, createNode(i + 1, prefix, ps, piv, otherPval, oldDvMap, nextLevelSDTs));
-                if (guardMap.containsKey(dvi)) {
-                    throw new IllegalStateException(
-                            "Guard instantiated using a dvi that was already used to instantiate a prior guard.");
-                }
-                guardMap.put(dvi, guard);
-            }
-
-            LOGGER.trace(Category.QUERY, "guardMap: " + guardMap.toString());
-            LOGGER.trace(Category.QUERY, "nextMap: " + nextMap.toString());
-            assert !nextMap.isEmpty();
-            assert !guardMap.isEmpty();
-            return new Node(p, nextMap, guardMap);
+            return createNode(i, prefix, ps, piv, pval, oldDvMap, ps.getPtypes()[i - 1], sdts);
         }
+    }
+
+    private <T> Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+                            Map<Parameter<?>, Set<DataValue<?>>> oldDvMap, DataType<T> type, SDT... sdts) {
+        // obtain the data type, teacher, parameter
+        Theory<T> teach = (Theory<T>) teachers.get(type);
+        Parameter<T> p = new Parameter<>(type, i);
+
+        // valuation
+        Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = buildValuation(pval, prefix, piv, constants);
+
+        // the map may contain no old values for p, in which case we use an empty set
+        // (to avoid potential NPE when instantiating guards)
+        Set<DataValue<T>> oldDvs = (Set<DataValue<T>>) (Set<?>) oldDvMap.getOrDefault(p, Collections.emptySet());
+
+        // initialize maps for next nodes
+        Map<DataValue<?>, Node> nextMap = new LinkedHashMap<>();
+        Map<DataValue<?>, SDTGuard> guardMap = new LinkedHashMap<>();
+
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(constants, solver);
+        // get merged guards mapped to the set of old guards from which they are
+        // generated
+        Map<SDTGuard, Set<SDTGuard>> mergedGuards = getNewRefinedInitialGuards(sdts, mlo, valuation);
+        // get old guards mapped to the child SDT they connect to
+        Map<SDTGuard, List<SDT>> nextSDTs = getChildren(sdts);
+
+        for (Map.Entry<SDTGuard, Set<SDTGuard>> mergedGuardEntry : mergedGuards.entrySet()) {
+            SDTGuard guard = mergedGuardEntry.getKey();
+            Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
+
+            // first solve using a constraint solver
+            DataValue<?> dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
+            // if merging of guards is done properly, there should be no case where the
+            // guard cannot be instantiated.
+            assert (dvi != null);
+
+            SDT[] nextLevelSDTs = oldGuards.stream().map(g -> nextSDTs.get(g)).flatMap(g -> g.stream()) // stream
+                                                                                                        // with of
+                                                                                                        // sdt lists
+                                                                                                        // for old
+                                                                                                        // guards
+                    .distinct().toArray(SDT[]::new); // merge and pick distinct elements
+
+            ParValuation otherPval = new ParValuation();
+            otherPval.putAll(pval);
+            otherPval.put(p, dvi);
+
+            nextMap.put(dvi, createNode(i + 1, prefix, ps, piv, otherPval, oldDvMap, nextLevelSDTs));
+            if (guardMap.containsKey(dvi)) {
+                throw new IllegalStateException(
+                        "Guard instantiated using a dvi that was already used to instantiate a prior guard.");
+            }
+            guardMap.put(dvi, guard);
+        }
+
+        LOGGER.trace(Category.QUERY, "guardMap: " + guardMap.toString());
+        LOGGER.trace(Category.QUERY, "nextMap: " + nextMap.toString());
+        assert !nextMap.isEmpty();
+        assert !guardMap.isEmpty();
+        return new Node(p, nextMap, guardMap);
     }
 
     // conjoins the initial guards of the SDTs producing a map from new refined
@@ -442,7 +464,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = new Mapping<>();
         DataValue<?>[] values = DataWords.valsOf(prefix);
         piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
-        parValuation.forEach((param, dv) -> valuation.put(new SuffixValue(param.getType(), param.getId()), dv));
+        parValuation.forEach((param, dv) -> valuation.put(new SuffixValue<>(param.getType(), param.getId()), dv));
         constants.forEach((c, dv) -> valuation.put(c, dv));
         return valuation;
     }
@@ -465,29 +487,37 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         } else {
             ParameterizedSymbol ps = suffix.getActions().getSymbol(aidx);
             if (ps.getArity() == pidx) {
-                DataValue[] vals = pval.values().toArray(new DataValue [] {});
+                DataValue<?>[] vals = pval.values().toArray(new DataValue [] {});
                 PSymbolInstance psi = new PSymbolInstance(ps, vals);
                 Word<PSymbolInstance> newPrefix = prefix.append(psi);
                 instantiate(words, newPrefix, suffix, sdt, piv, aidx+1, 0, new ParValuation(), new ParameterGenerator(), gpval, gpgen);
             } else {
-                Parameter p = pgen.next(ps.getPtypes()[pidx]);
-                Parameter gp = gpgen.next(ps.getPtypes()[pidx]);
-                Theory t = teachers.get(ps.getPtypes()[pidx]);
-                for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
-                    DataValue val = t.instantiate(prefix, ps, piv, gpval, constants, entry.getKey(), p, Collections.emptySet());
-                    ParValuation newPval = new ParValuation();
-                    newPval.putAll(pval);
-                    newPval.put(p, val);
-                    ParValuation newGpval = new ParValuation();
-                    newGpval.putAll(gpval);
-                    newGpval.put(gp, val);
-                    ParameterGenerator newPgen = new ParameterGenerator();
-                    newPgen.set(pgen);
-                    ParameterGenerator newGpgen = new ParameterGenerator();
-                    newGpgen.set(gpgen);
-                    instantiate(words, prefix, suffix, entry.getValue(), piv, aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
-                }
+                DataType<?> type = ps.getPtypes()[pidx];
+                instantiate(words, prefix, suffix, sdt, piv, aidx, pidx, pval, pgen, gpval, gpgen, ps, type);
             }
+        }
+    }
+
+    private <T> void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
+                             SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx,
+                             ParValuation pval, ParameterGenerator pgen, ParValuation gpval, ParameterGenerator gpgen,
+                             ParameterizedSymbol ps, DataType<T> type) {
+        Parameter<T> p = pgen.next(type);
+        Parameter<T> gp = gpgen.next(type);
+        Theory<T> t = (Theory<T>) teachers.get(type);
+        for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
+            DataValue<?> val = t.instantiate(prefix, ps, piv, gpval, constants, entry.getKey(), p, Collections.emptySet());
+            ParValuation newPval = new ParValuation();
+            newPval.putAll(pval);
+            newPval.put(p, val);
+            ParValuation newGpval = new ParValuation();
+            newGpval.putAll(gpval);
+            newGpval.put(gp, val);
+            ParameterGenerator newPgen = new ParameterGenerator();
+            newPgen.set(pgen);
+            ParameterGenerator newGpgen = new ParameterGenerator();
+            newGpgen.set(gpgen);
+            instantiate(words, prefix, suffix, entry.getValue(), piv, aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
         }
     }
 
@@ -502,13 +532,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
 
-        Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+        Map<Parameter<?>, Set<DataValue<?>>> oldDvs = oldBranching.getDVs();
 
         SDT[] casted = new SDT[sdts.length + 1];
         casted[0] = oldBranching.buildFakeSDT();
 
 
-        VarMapping remapping = piv.createRemapping(oldBranching.getPiv());
+        VarMapping<?, ?> remapping = piv.createRemapping(oldBranching.getPiv());
 
         for (int i = 0; i < sdts.length; i++) {
             if (sdts[i] instanceof SDTLeaf) {
@@ -542,10 +572,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     	SuffixValueGenerator svGen = new SuffixValueGenerator();
     	for (PSymbolInstance psi : suffix) {
-    		DataType[] dts = psi.getBaseSymbol().getPtypes();
-    		DataValue[] dvs = psi.getParameterValues();
+    		DataType<?>[] dts = psi.getBaseSymbol().getPtypes();
+    		DataValue<?>[] dvs = psi.getParameterValues();
     		for (int i = 0; i < dts.length; i++) {
-    			SuffixValue sv = svGen.next(dts[i]);
+    			SuffixValue<?> sv = svGen.next(dts[i]);
     			mapping.put(sv, dvs[i]);
     		}
     	}
@@ -558,13 +588,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	GuardExpression expr = _sdt.getAcceptingPaths(constants);
     	if (expr instanceof FalseGuardExpression)
     		return false;
-    	for (SymbolicDataValue sdv : expr.getSymbolicDataValues()) {
+    	for (SymbolicDataValue<?> sdv : expr.getSymbolicDataValues()) {
     		if (sdv instanceof Register && mapping.get(sdv) == null) {
     			Theory teach = teachers.get(sdv.getType());
     			List<DataValue<?>> values = new ArrayList<>();
     			values.addAll(mapping.values());
     			values.addAll(pars.values());
-    			DataValue dv = teach.getFreshValue(values);
+    			DataValue<?> dv = teach.getFreshValue(values);
     			mapping.put(sdv, dv);
     		}
     	}

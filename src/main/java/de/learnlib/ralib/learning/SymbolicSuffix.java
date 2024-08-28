@@ -46,12 +46,12 @@ public class SymbolicSuffix {
     /**
      * symbolic values that may connect to a prefix
      */
-    private final Set<SuffixValue> freeValues;
+    private final Set<SuffixValue<?>> freeValues;
 
     /**
      * Map of positions to data values
      */
-    private final Map<Integer, SuffixValue> dataValues;
+    private final Map<Integer, SuffixValue<?>> dataValues;
 
     /**
      * actions
@@ -68,9 +68,9 @@ public class SymbolicSuffix {
     	dataValues = new LinkedHashMap<>();
     	actions = Word.fromWords(s.actions);
 
-    	for (SuffixValue sv : s.freeValues)
+    	for (SuffixValue<?> sv : s.freeValues)
             freeValues.add(sv.copy());
-    	for (Map.Entry<Integer, SuffixValue> dv : s.dataValues.entrySet())
+    	for (Map.Entry<Integer, SuffixValue<?>> dv : s.dataValues.entrySet())
             dataValues.put(dv.getKey(), dv.getValue().copy());
     }
 
@@ -97,7 +97,7 @@ public class SymbolicSuffix {
         this.dataValues = new LinkedHashMap<>();
         this.freeValues = new LinkedHashSet<>();
 
-        Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
+        Map<DataValue<?>, SuffixValue<?>> groups = new LinkedHashMap<>();
         Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
@@ -109,19 +109,19 @@ public class SymbolicSuffix {
             arityFirst = first.getArity();
         }
 
-        for (DataValue d : DataWords.valsOf(suffix)) {
+        for (DataValue<?> d : DataWords.valsOf(suffix)) {
             if (valsetPrefix.contains(d) || consts.containsValue(d) ||
                     // TODO: this changes with essentialized suffixes (!)
                     // we know that equalities are essential
                     (groups.containsKey(d) && idx <= arityFirst)) {
             //if (valsetPrefix.contains(d) || consts.containsValue(d)) {
-                SuffixValue sym = valgen.next(d.getType());
+                SuffixValue<?> sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
 //                log.trace("adding " + sym.toString() + " at " + idx);
 
             } else {
-                SuffixValue ref = groups.get(d);
+                SuffixValue<?> ref = groups.get(d);
                 if (ref == null) {
                     ref = valgen.next(d.getType());
                     groups.put(d, ref);
@@ -145,8 +145,8 @@ public class SymbolicSuffix {
         SuffixValueGenerator valgen = new SuffixValueGenerator();
         int idx = 1;
         for (ParameterizedSymbol ps : actions) {
-            for (DataType t : ps.getPtypes()) {
-                SuffixValue sv = valgen.next(t);
+            for (DataType<?> t : ps.getPtypes()) {
+                SuffixValue<?> sv = valgen.next(t);
                 this.freeValues.add(sv);
                 this.dataValues.put(idx++, sv);
             }
@@ -170,21 +170,21 @@ public class SymbolicSuffix {
         Word<PSymbolInstance> suffix = prefix.suffix(1);
         prefix = prefix.prefix(prefix.length() - 1);
 
-        Map<DataValue, SuffixValue> groups = new LinkedHashMap<>();
+        Map<DataValue<?>, SuffixValue<?>> groups = new LinkedHashMap<>();
         Set<DataValue<?>> valsetPrefix = DataWords.valSet(prefix);
         int idx = 1;
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
 
-        for (DataValue d : DataWords.valsOf(suffix)) {
+        for (DataValue<?> d : DataWords.valsOf(suffix)) {
             if (valsetPrefix.contains(d) || consts.containsValue(d)) {
-                SuffixValue sym = valgen.next(d.getType());
+                SuffixValue<?> sym = valgen.next(d.getType());
                 this.freeValues.add(sym);
                 this.dataValues.put(idx, sym);
 //                log.trace("adding " + sym.toString() + " at " + idx);
 
             } else {
-                SuffixValue ref = groups.get(d);
+                SuffixValue<?> ref = groups.get(d);
                 if (ref == null) {
                     ref = valgen.next(d.getType());
                     groups.put(d, ref);
@@ -194,10 +194,10 @@ public class SymbolicSuffix {
             idx++;
         }
 
-        Map<SuffixValue, SuffixValue> symValues = new LinkedHashMap<>();
+        Map<SuffixValue<?>, SuffixValue<?>> symValues = new LinkedHashMap<>();
         for (int i=1; i<=DataWords.paramLength(symSuffix.actions); i++) {
-            SuffixValue symValue = symSuffix.getDataValue(i);
-            SuffixValue shifted = symValues.get(symValue);
+            SuffixValue<?> symValue = symSuffix.getDataValue(i);
+            SuffixValue<?> shifted = symValues.get(symValue);
             if (shifted == null) {
                 shifted = valgen.next(symValue.getType());
                 symValues.put(symValue, shifted);
@@ -210,33 +210,33 @@ public class SymbolicSuffix {
     }
 
 
-    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue> dataValues,
-			Set<SuffixValue> freeValues) {
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<Integer, SuffixValue<?>> dataValues,
+			Set<SuffixValue<?>> freeValues) {
     	this.actions = actions;
     	this.dataValues = dataValues;
     	this.freeValues = freeValues;
 	}
 
-    public SymbolicSuffix(SymbolicSuffix suffix, Set<SuffixValue> freeValues) {
+    public SymbolicSuffix(SymbolicSuffix suffix, Set<SuffixValue<?>> freeValues) {
     	this.actions = suffix.actions;
     	this.dataValues = suffix.dataValues;
     	this.freeValues = freeValues;
     }
 
-	public SuffixValue getDataValue(int i) {
+	public SuffixValue<?> getDataValue(int i) {
         return this.dataValues.get(i);
     }
 
-	public Collection<SuffixValue> getDataValues() {
+	public Collection<SuffixValue<?>> getDataValues() {
 		return this.dataValues.values();
 	}
 
-    public Set<SuffixValue> getFreeValues() {
+    public Set<SuffixValue<?>> getFreeValues() {
         return this.freeValues;
     }
 
-    public Set<SuffixValue> getValues() {
-        LinkedHashSet<SuffixValue> suffixValues = new LinkedHashSet<>(dataValues.values());
+    public Set<SuffixValue<?>> getValues() {
+        LinkedHashSet<SuffixValue<?>> suffixValues = new LinkedHashSet<>(dataValues.values());
         return suffixValues;
     }
 
@@ -244,7 +244,7 @@ public class SymbolicSuffix {
         return actions;
     }
 
-    public int getSuffixValueIndex(SuffixValue sv) {
+    public int getSuffixValueIndex(SuffixValue<?> sv) {
     	if (!dataValues.values().contains(sv))
     		return -1;
     	return dataValues.entrySet()
@@ -257,12 +257,12 @@ public class SymbolicSuffix {
 
     public SymbolicSuffix concat(SymbolicSuffix other) {
     	Word<ParameterizedSymbol> actions = this.getActions().concat(other.actions);
-    	Map<Integer, SuffixValue> dataValues = new LinkedHashMap<>(this.dataValues);
-    	Set<SuffixValue> freeValues = new LinkedHashSet<>(this.getFreeValues());
+    	Map<Integer, SuffixValue<?>> dataValues = new LinkedHashMap<>(this.dataValues);
+    	Set<SuffixValue<?>> freeValues = new LinkedHashSet<>(this.getFreeValues());
     	int offset = this.dataValues.size();
 
-    	for (Map.Entry<Integer, SuffixValue> entry : other.dataValues.entrySet()) {
-    		SuffixValue sv = new SuffixValue(entry.getValue().getType(), entry.getValue().getId() + offset);
+    	for (Map.Entry<Integer, SuffixValue<?>> entry : other.dataValues.entrySet()) {
+    		SuffixValue<?> sv = new SuffixValue<>(entry.getValue().getType(), entry.getValue().getId() + offset);
     		dataValues.put(entry.getKey() + offset, sv);
     		if (other.getFreeValues().contains(entry.getValue())) {
     			freeValues.add(sv);
@@ -277,7 +277,7 @@ public class SymbolicSuffix {
     	int score = dataValues.size() - freeValues.size();
     	int index = 2;
     	for (int i = 1; i < dataValues.size(); i++) {
-    		SuffixValue sv = dataValues.get(i+1);
+    		SuffixValue<?> sv = dataValues.get(i+1);
     		if (sv.getId() == index)
     			index++;
     		else
@@ -295,7 +295,7 @@ public class SymbolicSuffix {
         StringJoiner sj = new StringJoiner(" ");
         int pid = 1;
         for (ParameterizedSymbol ps : actions) {
-            SuffixValue[] svalues = new SuffixValue[ps.getArity()];
+            SuffixValue<?>[] svalues = new SuffixValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 svalues[i] = dataValues.get(pid++);
             }

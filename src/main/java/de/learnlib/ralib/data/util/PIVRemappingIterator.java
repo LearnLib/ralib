@@ -21,7 +21,9 @@ import java.util.Map;
 
 import net.automatalib.data.DataType;
 import de.learnlib.ralib.data.PIV;
+import net.automatalib.data.SymbolicDataValue;
 import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.VarMapping;
 
 /**
@@ -29,7 +31,7 @@ import net.automatalib.data.VarMapping;
  *
  * @author falk
  */
-public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarMapping> {
+public class PIVRemappingIterator implements Iterable<VarMapping<?, ?>>, Iterator<VarMapping<?, ?>> {
 
     private final PIV replace;
 
@@ -37,9 +39,9 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
 
     private final PermutationIterator[] iterators;
 
-    private final Parameter[][] replaceParams;
+    private final Parameter<?>[][] replaceParams;
 
-    private final Parameter[][] byParams;
+    private final Parameter<?>[][] byParams;
 
     private boolean init = false;
 
@@ -49,15 +51,15 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
         this.replace = replace;
         this.by = by;
 
-        Map<DataType, Parameter[]> rep_ta = replace.asTypedArrays();
-        Map<DataType, Parameter[]> by_ta = by.asTypedArrays();
+        Map<DataType<?>, Parameter<?>[]> rep_ta = replace.asTypedArrays();
+        Map<DataType<?>, Parameter<?>[]> by_ta = by.asTypedArrays();
 
         iterators = new PermutationIterator[rep_ta.size()];
         replaceParams = new Parameter[rep_ta.size()][];
         byParams = new Parameter[by_ta.size()][];
 
         int idx = 0;
-        for (Map.Entry <DataType, Parameter[]> entry : rep_ta.entrySet()) {
+        for (Map.Entry <DataType<?>, Parameter<?>[]> entry : rep_ta.entrySet()) {
             replaceParams[idx] = entry.getValue();
             byParams[idx] = by_ta.get(entry.getKey());
             iterators[idx] = new PermutationIterator(replaceParams[idx].length);
@@ -67,7 +69,7 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
     }
 
     @Override
-    public Iterator<VarMapping> iterator() {
+    public Iterator<VarMapping<?, ?>> iterator() {
         return this;
     }
 
@@ -86,13 +88,13 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
     }
 
     @Override
-    public VarMapping next() {
+    public VarMapping<?, ?> next() {
         if (!init) {
             init = true;
         } else {
             advance();
         }
-        VarMapping map = createMapping();
+        VarMapping<?, ?> map = createMapping();
         return map;
     }
 
@@ -108,13 +110,13 @@ public class PIVRemappingIterator implements Iterable<VarMapping>, Iterator<VarM
         }
     }
 
-    private VarMapping createMapping() {
-        VarMapping ret = new VarMapping();
+    private VarMapping<?, ?> createMapping() {
+        VarMapping<SymbolicDataValue<?>, SymbolicDataValue<?>> ret = new VarMapping<>();
         for (int idx=0; idx<iterators.length; idx++) {
             int[] permutation = iterators[idx].current();
             for (int pi=0; pi<replaceParams[idx].length; pi++) {
-                Parameter repP = replaceParams[idx][pi];
-                Parameter byP = byParams[idx][permutation[pi]];
+                Parameter<?> repP = replaceParams[idx][pi];
+                Parameter<?> byP = byParams[idx][permutation[pi]];
                 ret.put(repP, byP);
                 ret.put(replace.get(repP), by.get(byP));
             }

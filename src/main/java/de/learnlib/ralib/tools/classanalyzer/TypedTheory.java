@@ -27,7 +27,7 @@ import de.learnlib.ralib.theory.Theory;
  */
 public interface TypedTheory<T> extends Theory<T> {
 
-    public void setType(DataType type);
+    public void setType(DataType<T> type);
 
     public void setUseSuffixOpt(boolean useit);
 

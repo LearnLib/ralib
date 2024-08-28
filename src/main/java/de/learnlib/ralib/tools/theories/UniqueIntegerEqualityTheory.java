@@ -12,12 +12,12 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 
 public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> implements TypedTheory<Integer> {
 
-    private DataType type = null;
+    private DataType<Integer> type = null;
 
     public UniqueIntegerEqualityTheory() {
     }
 
-    public UniqueIntegerEqualityTheory(DataType t) {
+    public UniqueIntegerEqualityTheory(DataType<Integer> t) {
         this.type = t;
     }
 
@@ -28,11 +28,11 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory<Integer> i
             dv = Math.max(dv, d.getValue());
         }
 
-        return new DataValue(type, dv + 1);
+        return new DataValue<>(type, dv + 1);
     }
 
     @Override
-    public void setType(DataType type) {
+    public void setType(DataType<Integer> type) {
         this.type = type;
     }
 

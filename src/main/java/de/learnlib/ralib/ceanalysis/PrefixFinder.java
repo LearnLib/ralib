@@ -131,7 +131,7 @@ public class PrefixFinder {
 					PIVRemappingIterator iterator = new PIVRemappingIterator(
 							uAlphaResult.getPiv(), uPrimeResult.getPiv());
 
-					for (VarMapping m : iterator) {
+					for (VarMapping<?, ?> m : iterator) {
 						if (uAlphaResult.getSdt().isEquivalent(uPrimeResult.getSdt(), m)) {
 							continue LOC_CHECK;
 						}
@@ -242,16 +242,16 @@ public class PrefixFinder {
         for (Word<PSymbolInstance> path : sulPaths.keySet()) {
         	ParameterGenerator parGen = new ParameterGenerator();
         	for (PSymbolInstance psi : prefix) {
-        		for (DataType dt : psi.getBaseSymbol().getPtypes())
+        		for (DataType<?> dt : psi.getBaseSymbol().getPtypes())
         			parGen.next(dt);
         	}
 
         	VarMapping<SuffixValue<?>, Parameter<?>> renaming = new VarMapping<>();
         	SuffixValueGenerator svGen = new SuffixValueGenerator();
         	for (ParameterizedSymbol ps : symSuffix.getActions()) {
-        		for (DataType dt : ps.getPtypes()) {
-        			Parameter p = parGen.next(dt);
-        			SuffixValue sv = svGen.next(dt);
+        		for (DataType<?> dt : ps.getPtypes()) {
+        			Parameter<?> p = parGen.next(dt);
+        			SuffixValue<?> sv = svGen.next(dt);
         			renaming.put(sv, p);
         		}
         	}

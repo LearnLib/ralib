@@ -68,7 +68,7 @@ final class Cell {
      * @param other
      * @return
      */
-    boolean isEquivalentTo(Cell other, VarMapping renaming) {
+    boolean isEquivalentTo(Cell other, VarMapping<?, ?> renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }
@@ -140,7 +140,7 @@ final class Cell {
                 append(this.sdt.toString()).append("\n");
     }
 
-    Cell relabel(VarMapping relabelling) {
+    Cell relabel(VarMapping<?, ?> relabelling) {
         return new Cell(prefix, suffix,
                 sdt.relabel(relabelling),
                 parsInVars.relabel(relabelling));

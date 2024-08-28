@@ -73,8 +73,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -82,8 +82,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, teachers, consts, new SimpleConstraintSolver(),
                 inputs);
 
-        DataType uid = TestUtil.getType("uid", loader.getDataTypes());
-        DataType pwd = TestUtil.getType("pwd", loader.getDataTypes());
+        DataType<Integer> uid = TestUtil.getType("uid", loader.getDataTypes());
+        DataType<Integer> pwd = TestUtil.getType("pwd", loader.getDataTypes());
 
         ParameterizedSymbol reg = new InputSymbol("IRegister", new DataType[] { uid, pwd });
 
@@ -91,8 +91,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
 
         ParameterizedSymbol ok = new OutputSymbol("OOK", new DataType[] {});
 
-        DataValue u = new DataValue(uid, 0);
-        DataValue p = new DataValue(pwd, 0);
+        DataValue<Integer> u = new DataValue<>(uid, 0);
+        DataValue<Integer> p = new DataValue<>(pwd, 0);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(new PSymbolInstance(reg, new DataValue[] { u, p }),
                 new PSymbolInstance(ok, new DataValue[] {}));
@@ -140,7 +140,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
@@ -176,7 +176,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
@@ -208,7 +208,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 

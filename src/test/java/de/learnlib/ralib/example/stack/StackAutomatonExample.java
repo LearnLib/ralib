@@ -19,7 +19,7 @@ import net.automatalib.symbol.impl.InputSymbol;
 
 public class StackAutomatonExample {
 
-    public static final DataType T_INT = new DataType("T_int", Integer.class);
+    public static final DataType<Integer> T_INT = new DataType<>("T_int", Integer.class);
 
     public static final InputSymbol I_PUSH =
             new InputSymbol("push", new DataType[] {T_INT});
@@ -43,16 +43,16 @@ public class StackAutomatonExample {
 
         // registers and parameters
         RegisterGenerator rgen = new RegisterGenerator();
-        Register rVal1 = rgen.next(T_INT);
-        Register rVal2 = rgen.next(T_INT);
+        Register<Integer> rVal1 = rgen.next(T_INT);
+        Register<Integer> rVal2 = rgen.next(T_INT);
         ParameterGenerator pgen = new ParameterGenerator();
-        Parameter pVal = pgen.next(T_INT);
+        Parameter<Integer> pVal = pgen.next(T_INT);
 
         // guards
-        TransitionGuard okGuard1    = new TransitionGuard(new AtomicGuardExpression(rVal1, Relation.EQUALS, pVal));
-        TransitionGuard okGuard2    = new TransitionGuard(new AtomicGuardExpression(rVal2, Relation.EQUALS, pVal));
-        TransitionGuard errorGuard1 = new TransitionGuard(new AtomicGuardExpression(rVal1, Relation.NOT_EQUALS, pVal));
-        TransitionGuard errorGuard2 = new TransitionGuard(new AtomicGuardExpression(rVal2, Relation.NOT_EQUALS, pVal));
+        TransitionGuard okGuard1    = new TransitionGuard(new AtomicGuardExpression<>(rVal1, Relation.EQUALS, pVal));
+        TransitionGuard okGuard2    = new TransitionGuard(new AtomicGuardExpression<>(rVal2, Relation.EQUALS, pVal));
+        TransitionGuard errorGuard1 = new TransitionGuard(new AtomicGuardExpression<>(rVal1, Relation.NOT_EQUALS, pVal));
+        TransitionGuard errorGuard2 = new TransitionGuard(new AtomicGuardExpression<>(rVal2, Relation.NOT_EQUALS, pVal));
         TransitionGuard trueGuard   = new TransitionGuard();
 
         // assignments

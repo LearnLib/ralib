@@ -68,8 +68,8 @@ public class FreshValuesTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, EqualityTheory<Integer>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -83,10 +83,10 @@ public class FreshValuesTest extends RaLibTestSuite {
                 ioFilter, teachers, consts, new SimpleConstraintSolver());
 
         teachers.values().stream().forEach((t) -> {
-            ((EqualityTheory)t).setFreshValues(true, ioCache);
+            t.setFreshValues(true, ioCache);
         });
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
 
         ParameterizedSymbol iput = new InputSymbol(
@@ -104,9 +104,9 @@ public class FreshValuesTest extends RaLibTestSuite {
         ParameterizedSymbol onok = new OutputSymbol(
                 "ONOK", new DataType[] {});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-        DataValue d2 = new DataValue(intType, 2);
+        DataValue<Integer> d0 = new DataValue<>(intType, 0);
+        DataValue<Integer> d1 = new DataValue<>(intType, 1);
+        DataValue<Integer> d2 = new DataValue<>(intType, 2);
 
         // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -115,9 +115,9 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(iget, d2),
                 new PSymbolInstance(onok));
 
-        DataValue d3 = new DataValue(intType, 3);
-        DataValue d4 = new DataValue(intType, 4);
-        DataValue d5 = new DataValue(intType, 5);
+        DataValue<Integer> d3 = new DataValue<>(intType, 3);
+        DataValue<Integer> d4 = new DataValue<>(intType, 4);
+        DataValue<Integer> d5 = new DataValue<>(intType, 5);
 
         // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
         Word<PSymbolInstance> suffix = Word.fromSymbols(

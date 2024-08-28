@@ -53,8 +53,8 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);

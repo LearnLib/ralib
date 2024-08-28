@@ -92,8 +92,8 @@ public class UntypedBranchingTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -101,7 +101,7 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol reg = new InputSymbol(
                 "IRegister", new DataType[] {intType, intType});
@@ -112,8 +112,8 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol ok = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-        DataValue u = new DataValue(intType, 0);
-        DataValue p = new DataValue(intType, 1);
+        DataValue<Integer> u = new DataValue<>(intType, 0);
+        DataValue<Integer> p = new DataValue<>(intType, 1);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(reg, new DataValue[] {u, p}),
@@ -137,12 +137,12 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         ParameterGenerator pgen = new ParameterGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
 
-        Parameter p1 = pgen.next(intType);
-        Parameter p2 = pgen.next(intType);
-        Register r1 = rgen.next(intType);
-        Register r2 = rgen.next(intType);
+        Parameter<Integer> p1 = pgen.next(intType);
+        Parameter<Integer> p2 = pgen.next(intType);
+        Register<Integer> r1 = rgen.next(intType);
+        Register<Integer> r2 = rgen.next(intType);
 
-        VarMapping map = new VarMapping();
+        VarMapping<Register<Integer>, Register<Integer>> map = new VarMapping<>();
         map.put(r1, r2);
         map.put(r2, r1);
 

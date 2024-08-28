@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.automatalib.data.SymbolicDataValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,11 +149,11 @@ public class AutomatonBuilder {
         assert guard!=null;
 
         // assignment
-        VarMapping assignments = new VarMapping();
+        VarMapping<Register<?>, SymbolicDataValue<?>> assignments = new VarMapping<>();
         int max = DataWords.paramLength(DataWords.actsOf(src_id));
         PIV parsInVars_Src = src_c.getPrimePrefix().getParsInVars();
         PIV parsInVars_Row = r.getParsInVars();
-        VarMapping remapping = dest_c.getRemapping(r);
+        VarMapping<?, ?> remapping = dest_c.getRemapping(r);
 
 //        LOGGER.trace(Category.EVENT, "PIV ROW: {}", parsInVars_Row);
 //        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
@@ -160,14 +161,14 @@ public class AutomatonBuilder {
 
         for (Entry<Parameter<?>, Register<?>> e : parsInVars_Row) {
             // param or register
-            Parameter p = e.getKey();
+            Parameter<?> p = e.getKey();
             // remapping is null for prime rows ...
-            Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
+            Register<?> rNew = (remapping == null) ? e.getValue() : (Register<?>) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter<?> pNew = new Parameter<>(p.getType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
-                Register rOld = parsInVars_Src.get(p);
+                Register<?> rOld = parsInVars_Src.get(p);
                 assert rOld != null;
                 assignments.put(rNew, rOld);
             }

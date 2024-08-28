@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.automatalib.data.SymbolicDataValue.Constant;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,7 +54,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     public void extendDistinguishingSuffixTest() {
         BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(2, false));
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
         teachers.put(INT_TYPE, dit);
         ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
@@ -76,23 +77,23 @@ public class OptimizedSymbolicSuffixBuilderTest {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
 
         SuffixValueGenerator svGen = new SuffixValueGenerator();
-        SuffixValue s1 = svGen.next(INT_TYPE);
-        SuffixValue s2 = svGen.next(INT_TYPE);
-        SuffixValue s3 = svGen.next(INT_TYPE);
-        SuffixValue s4 = svGen.next(INT_TYPE);
+        SuffixValue<Integer> s1 = svGen.next(INT_TYPE);
+        SuffixValue<Integer> s2 = svGen.next(INT_TYPE);
+        SuffixValue<Integer> s3 = svGen.next(INT_TYPE);
+        SuffixValue<Integer> s4 = svGen.next(INT_TYPE);
 
         RegisterGenerator rGen = new RegisterGenerator();
-        Register r1 = rGen.next(INT_TYPE);
-        Register r2 = rGen.next(INT_TYPE);
+        Register<Integer> r1 = rGen.next(INT_TYPE);
+        Register<Integer> r2 = rGen.next(INT_TYPE);
 
         ParameterGenerator pGen = new ParameterGenerator();
-        Parameter p1 = pGen.next(INT_TYPE);
-        Parameter p2 = pGen.next(INT_TYPE);
-        Parameter p3 = pGen.next(INT_TYPE);
-        Parameter p4 = pGen.next(INT_TYPE);
+        Parameter<Integer> p1 = pGen.next(INT_TYPE);
+        Parameter<Integer> p2 = pGen.next(INT_TYPE);
+        Parameter<Integer> p3 = pGen.next(INT_TYPE);
+        Parameter<Integer> p4 = pGen.next(INT_TYPE);
 
         ConstantGenerator cGen = new ConstantGenerator();
-        SymbolicDataValue.Constant c1 = cGen.next(INT_TYPE);
+        Constant<Integer> c1 = cGen.next(INT_TYPE);
 
         PIV piv1 = new PIV();
         piv1.put(p1, r1);
@@ -106,59 +107,59 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv5.put(p1, r1);
 
         Constants consts2 = new Constants();
-        consts2.put(c1, new DataValue(INT_TYPE, 2));
+        consts2.put(c1, new DataValue<>(INT_TYPE, 2));
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)));
         Word<PSymbolInstance> word2 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 3)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 4)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 2), new DataValue<>(INT_TYPE, 3)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 3), new DataValue<>(INT_TYPE, 4)));
         Word<PSymbolInstance> word3 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 2)));
         Word<PSymbolInstance> word4 = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 2)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 2)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)));
         Word<PSymbolInstance> word5 = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)));
         Word<PSymbolInstance> word6 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 2), new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 2)));
         Word<PSymbolInstance> word7a = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)),
         		new PSymbolInstance(B));
         Word<PSymbolInstance> word7b = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 2)),
         		new PSymbolInstance(B));
         Word<PSymbolInstance> word8a = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)));
         Word<PSymbolInstance> word8b = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 1)));
         Word<PSymbolInstance> word8c = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue<>(INT_TYPE, 0)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1));
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), consts2);
@@ -265,31 +266,31 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     public void extendSuffixTest() {
 
-        DataType type = new DataType("int", Integer.class);
+        DataType<Integer> type = new DataType<>("int", Integer.class);
         InputSymbol A = new InputSymbol("a", type, type);
         InputSymbol B = new InputSymbol("b", type);
         InputSymbol C = new InputSymbol("c");
         SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        SuffixValue s1 = sgen.next(type);
-        SuffixValue s2 = sgen.next(type);
-        SuffixValue s3 = sgen.next(type);
-        SuffixValue s4 = sgen.next(type);
-        SuffixValue s5 = sgen.next(type);
+        SuffixValue<Integer> s1 = sgen.next(type);
+        SuffixValue<Integer> s2 = sgen.next(type);
+        SuffixValue<Integer> s3 = sgen.next(type);
+        SuffixValue<Integer> s4 = sgen.next(type);
+        SuffixValue<Integer> s5 = sgen.next(type);
 
         RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-        Register r1 = rgen.next(type);
-        Register r2 = rgen.next(type);
-        Register r3 = rgen.next(type);
+        Register<Integer> r1 = rgen.next(type);
+        Register<Integer> r2 = rgen.next(type);
+        Register<Integer> r3 = rgen.next(type);
 
         ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-        Parameter p1 = pgen.next(type);
+        Parameter<Integer> p1 = pgen.next(type);
         pgen.next(type);
-        Parameter p3 = pgen.next(type);
-        Parameter p4 = pgen.next(type);
+        Parameter<Integer> p3 = pgen.next(type);
+        Parameter<Integer> p4 = pgen.next(type);
 
         ConstantGenerator cGen = new ConstantGenerator();
-        SymbolicDataValue.Constant c1 = cGen.next(INT_TYPE);
-        SymbolicDataValue.Constant c2 = cGen.next(INT_TYPE);
+        Constant<Integer> c1 = cGen.next(INT_TYPE);
+        Constant<Integer> c2 = cGen.next(INT_TYPE);
 
         PIV piv1 = new PIV();
         piv1.put(p1, r1);
@@ -299,29 +300,29 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Constants consts1 = new Constants();
         Constants consts2 = new Constants();
-        consts2.put(c1, new DataValue(INT_TYPE, 3));
-        consts2.put(c2, new DataValue(INT_TYPE, 4));
+        consts2.put(c1, new DataValue<>(INT_TYPE, 3));
+        consts2.put(c2, new DataValue<>(INT_TYPE, 4));
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 2)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 2), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(B, new DataValue<>(INT_TYPE, 2)));
         Word<PSymbolInstance> word2 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 4)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 2)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 3), new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(B, new DataValue<>(INT_TYPE, 4)));
         Word<PSymbolInstance> word3 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 5)));
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 0), new DataValue<>(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 1), new DataValue<>(INT_TYPE, 2)),
+        		new PSymbolInstance(A, new DataValue<>(INT_TYPE, 3), new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(B, new DataValue<>(INT_TYPE, 5)));
         Word<PSymbolInstance> word4 = Word.fromSymbols(
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 3)),
+        		new PSymbolInstance(B, new DataValue<>(INT_TYPE, 0)),
+        		new PSymbolInstance(B, new DataValue<>(INT_TYPE, 3)),
         		new PSymbolInstance(C));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(3), consts1);
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), consts1);
@@ -369,20 +370,20 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     public void buildOptimizedSuffixTest() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType<Integer> type = new DataType<>("int",Integer.class);
         InputSymbol a = new InputSymbol("a", type);
         SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        SuffixValue s1 = sgen.next(type);
-        SuffixValue s2 = sgen.next(type);
-        SuffixValue s3 = sgen.next(type);
+        SuffixValue<Integer> s1 = sgen.next(type);
+        SuffixValue<Integer> s2 = sgen.next(type);
+        SuffixValue<Integer> s3 = sgen.next(type);
 
         RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-        Register r1 = rgen.next(type);
-        Register r2 = rgen.next(type);
+        Register<Integer> r1 = rgen.next(type);
+        Register<Integer> r2 = rgen.next(type);
 
         ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-        Parameter p1 = pgen.next(type);
-        Parameter p2 = pgen.next(type);
+        Parameter<Integer> p1 = pgen.next(type);
+        Parameter <Integer>p2 = pgen.next(type);
 
         Constants consts = new Constants();
 
@@ -450,12 +451,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
     @Test
     public void testCoalesce() {
-        DataType type = new DataType("int",Integer.class);
+        DataType<Integer> type = new DataType<>("int",Integer.class);
         InputSymbol a = new InputSymbol("a", type);
 
-        DataValue dv1 = new DataValue(type, 0);
-        DataValue dv2 = new DataValue(type, 1);
-        DataValue dv3 = new DataValue(type, 2);
+        DataValue<Integer> dv1 = new DataValue<>(type, 0);
+        DataValue<Integer> dv2 = new DataValue<>(type, 1);
+        DataValue<Integer> dv3 = new DataValue<>(type, 2);
 
         Constants consts = new Constants();
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);

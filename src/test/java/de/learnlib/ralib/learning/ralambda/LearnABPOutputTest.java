@@ -60,8 +60,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         final Constants consts = loader.getConstants();
 
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
@@ -73,7 +73,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         teachers.values().stream().forEach((t) -> {
-            ((EqualityTheory)t).setFreshValues(true, ioCache);
+            ((EqualityTheory<?>)t).setFreshValues(true, ioCache);
         });
 
         ConstraintSolver solver = new SimpleConstraintSolver();

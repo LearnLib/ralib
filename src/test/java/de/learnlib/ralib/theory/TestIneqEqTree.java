@@ -54,7 +54,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
     @Test
     public void testIneqEqTree() {
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
@@ -68,23 +68,23 @@ public class TestIneqEqTree extends RaLibTestSuite {
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(4.0))),
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(4.0))),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(5.0))),
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(5.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.POLL),
                 new PSymbolInstance(PriorityQueueSUL.OUTPUT,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(6.0))));
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(6.0))));
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(1.0))),
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(1.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(2.0))),
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(2.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK),
                 new PSymbolInstance(PriorityQueueSUL.OFFER,
-                        new DataValue(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(3.0))),
+                        new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE,  BigDecimal.valueOf(3.0))),
                 new PSymbolInstance(PriorityQueueSUL.OK));
 
         // create a symbolic suffix from the concrete suffix
@@ -122,14 +122,14 @@ public class TestIneqEqTree extends RaLibTestSuite {
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
-        Parameter p1 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 1);
-        Parameter p2 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 2);
-        Parameter p3 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 3);
+        Parameter<BigDecimal> p1 = new Parameter<>(PriorityQueueSUL.DOUBLE_TYPE, 1);
+        Parameter<BigDecimal> p2 = new Parameter<>(PriorityQueueSUL.DOUBLE_TYPE, 2);
+        Parameter<BigDecimal> p3 = new Parameter<>(PriorityQueueSUL.DOUBLE_TYPE, 3);
 
         PIV testPiv = new PIV();
-        testPiv.put(p1, new Register(PriorityQueueSUL.DOUBLE_TYPE, 1));
-        testPiv.put(p2, new Register(PriorityQueueSUL.DOUBLE_TYPE, 2));
-        testPiv.put(p3, new Register(PriorityQueueSUL.DOUBLE_TYPE, 3));
+        testPiv.put(p1, new Register<>(PriorityQueueSUL.DOUBLE_TYPE, 1));
+        testPiv.put(p2, new Register<>(PriorityQueueSUL.DOUBLE_TYPE, 2));
+        testPiv.put(p3, new Register<>(PriorityQueueSUL.DOUBLE_TYPE, 3));
 
         Branching b = mto.getInitialBranching(
                 prefix, PriorityQueueSUL.OFFER, testPiv, sdt);

@@ -39,7 +39,7 @@ public class DTBranch {
         PIVRemappingIterator iterator = new PIVRemappingIterator(
                 r.getParsInVars(), urap.getParsInVars());
 
-        for (VarMapping m : iterator) {
+        for (VarMapping<?, ?> m : iterator) {
             if (r.isEquivalentTo(urap, m)) {
                 return true;
             }

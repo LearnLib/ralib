@@ -53,8 +53,8 @@ public class IORandomWalkTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 

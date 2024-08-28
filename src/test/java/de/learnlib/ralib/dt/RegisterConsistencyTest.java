@@ -31,7 +31,7 @@ import net.automatalib.word.Word;
 
 public class RegisterConsistencyTest extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType<Integer> T_INT = new DataType<>("int", Integer.class);
 
 	private static final InputSymbol A =
 			new InputSymbol("a", new DataType[] {T_INT});
@@ -67,16 +67,16 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 	@Test
 	public void testSymmetry() {
 		Word<PSymbolInstance> word = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue<>(T_INT, 0)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> suffixWord = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue<>(T_INT, 0)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> suffixExpected = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 0)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> prefix = word.prefix(2);
 		SymbolicSuffix symSuffixEps = new SymbolicSuffix(Word.epsilon(), Word.epsilon());
 		SymbolicSuffix symSuffixWord = new SymbolicSuffix(word, suffixWord);
@@ -87,12 +87,12 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		ParameterGenerator pgen = new ParameterGenerator();
 		SuffixValueGenerator svgen = new SuffixValueGenerator();
 
-		Parameter p1 = pgen.next(T_INT);
-		Parameter p2 = pgen.next(T_INT);
-		Register r1 = rgen.next(T_INT);
-		Register r2 = rgen.next(T_INT);
-		SuffixValue s1 = svgen.next(T_INT);
-		SuffixValue s2 = svgen.next(T_INT);
+		Parameter<Integer> p1 = pgen.next(T_INT);
+		Parameter<Integer> p2 = pgen.next(T_INT);
+		Register<Integer> r1 = rgen.next(T_INT);
+		Register<Integer> r2 = rgen.next(T_INT);
+		SuffixValue<Integer> s1 = svgen.next(T_INT);
+		SuffixValue<Integer> s2 = svgen.next(T_INT);
 
 		PIV pivWord = new PIV();
 		pivWord.put(p1, r1);

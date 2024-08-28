@@ -20,7 +20,7 @@ public class EssentializerTest {
     @Test
     public void testEssentializerLogin() {
 
-        final DataType _t = new DataType("T", Integer.class);
+        final DataType<Integer> _t = new DataType<>("T", Integer.class);
         final InputSymbol act = new InputSymbol("act", _t);
 
         final EqualityTheory<Integer> theory = new EqualityTheory<Integer>() {
@@ -43,19 +43,19 @@ public class EssentializerTest {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> collection) {
                 for (Query<PSymbolInstance, Boolean> q : collection) {
-                    DataValue[] vals = DataWords.valsOf(q.getInput());
+                    DataValue<?>[] vals = DataWords.valsOf(q.getInput());
                     //System.out.println("MQ: " + q.getInput());
                     q.answer(vals.length == 4 && vals[0].equals(vals[2]) && vals[1].equals(vals[3]));
                 }
             }
         };
 
-        Essentializer e = new Essentializer(theory, oracle, oracle);
+        Essentializer<Integer> e = new Essentializer<>(theory, oracle, oracle);
 
-        DataValue dv1 = new DataValue<Integer>(_t, 1);
-        DataValue dv2 = new DataValue<Integer>(_t, 2);
-        DataValue dv3 = new DataValue<Integer>(_t, 3);
-        DataValue dv4 = new DataValue<Integer>(_t, 4);
+        DataValue<Integer> dv1 = new DataValue<Integer>(_t, 1);
+        DataValue<Integer> dv2 = new DataValue<Integer>(_t, 2);
+        DataValue<Integer> dv3 = new DataValue<Integer>(_t, 3);
+        DataValue<Integer> dv4 = new DataValue<Integer>(_t, 4);
 
         Word<PSymbolInstance> w1 = DataWords.instantiate(
                 Word.fromSymbols(act, act, act, act),

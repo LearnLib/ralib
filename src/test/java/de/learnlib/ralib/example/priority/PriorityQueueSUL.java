@@ -29,8 +29,8 @@ import net.automatalib.symbol.ParameterizedSymbol;
 
 public class PriorityQueueSUL extends DataWordSUL {
 
-    public static final DataType DOUBLE_TYPE =
-            new DataType("DOUBLE", BigDecimal.class);
+    public static final DataType<BigDecimal> DOUBLE_TYPE =
+            new DataType<>("DOUBLE", BigDecimal.class);
 
     public static final ParameterizedSymbol POLL =
             new InputSymbol("poll", new DataType[]{});
@@ -91,7 +91,7 @@ public class PriorityQueueSUL extends DataWordSUL {
             return new PSymbolInstance(NOK);
         } else {
             assert (null != x);
-            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, x));
+            return new PSymbolInstance(OUTPUT, new DataValue<>(DOUBLE_TYPE, BigDecimal.valueOf(Long.parseLong(x.toString()))));
         }
     }
 

@@ -61,7 +61,7 @@ public class LearnPQTest extends RaLibTestSuite {
         DataWordOracle dwOracle =
                 new de.learnlib.ralib.example.priority.PriorityQueueOracle();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 
@@ -81,17 +81,17 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 //                new PSymbolInstance(OFFER,
                 //                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.ONE)));
+                        new DataValue<>(doubleType, BigDecimal.ONE)));
 
-        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery(ce);
+        DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce);
         dwOracle.processQueries(Collections.singleton(ceQuery));
 
         rastar.addCounterexample(ceQuery);

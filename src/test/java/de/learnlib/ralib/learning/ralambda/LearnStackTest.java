@@ -53,7 +53,7 @@ public class LearnStackTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
@@ -77,8 +77,8 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -87,9 +87,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 2)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -107,7 +107,7 @@ public class LearnStackTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
@@ -131,9 +131,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 2)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -142,8 +142,8 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -152,9 +152,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(I_POP, new DataValue<>(T_INT, 1)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
         ralambda.learn();
@@ -180,7 +180,7 @@ public class LearnStackTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
@@ -204,10 +204,10 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_POP, new DataValue(T_INT, 0))
+                new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+                new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+                new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0)),
+                new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0))
                 );
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
@@ -227,7 +227,7 @@ public class LearnStackTest extends RaLibTestSuite {
         DataWordOracle dwOracle = new SimulatorOracle(sul);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);
         theory.setUseSuffixOpt(false);
         teachers.put(T_INT, theory);

@@ -79,9 +79,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         GuardExpression exprG = guard.getCondition();
 
         VarMapping<SymbolicDataValue<?>, SymbolicDataValue<?>> gremap = new VarMapping<>();
-        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
+        for (SymbolicDataValue<?> sv : exprG.getSymbolicDataValues()) {
             if (sv instanceof Parameter) {
-                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
+                gremap.put(sv, new SuffixValue<>(sv.getType(), sv.getId()));
             }
         }
 
@@ -217,9 +217,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             "The height of the tree is not consistent with the number of parameters in the word";
         Mapping<SymbolicDataValue<?>, DataValue<?>> valuation = new Mapping<>();
         valuation.putAll(consts);
-        DataValue[] vals = DataWords.valsOf(prefix);
+        DataValue<?>[] vals = DataWords.valsOf(prefix);
         for (Map.Entry<Parameter<?>, Register<?>> entry : piv.entrySet()) {
-             DataValue parVal = vals[entry.getKey().getId()-1];
+             DataValue<?> parVal = vals[entry.getKey().getId()-1];
              valuation.put(entry.getValue(), parVal);
         }
 
@@ -241,8 +241,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 Mapping<SymbolicDataValue<?>, DataValue<?>> newValuation = new Mapping<>();
                 newValuation.putAll(valuation);
                 for (int i = 0; i < sym.getBaseSymbol().getArity(); i++) {
-                    DataValue value = sym.getParameterValues()[i];
-                    SuffixValue suffixValue = nextSdt.getChildren().keySet().iterator().next().getParameter();
+                    DataValue<?> value = sym.getParameterValues()[i];
+                    SuffixValue<?> suffixValue = nextSdt.getChildren().keySet().iterator().next().getParameter();
                     newValuation.put(suffixValue, value);
                     boolean found = false;
                     for (Map.Entry<SDTGuard, SDT> entry : nextSdt.getChildren().entrySet()) {

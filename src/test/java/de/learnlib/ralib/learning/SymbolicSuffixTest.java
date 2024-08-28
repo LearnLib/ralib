@@ -33,7 +33,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
 
       Constants consts = loader.getConstants();
 
-      DataType intType = TestUtil.getType("int", loader.getDataTypes());
+      DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
       ParameterizedSymbol iput = new InputSymbol(
               "IPut", new DataType[] {intType});
@@ -47,9 +47,9 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       ParameterizedSymbol ook = new OutputSymbol(
               "OOK", new DataType[] {});
 
-      DataValue d0 = new DataValue(intType, 0);
-      DataValue d1 = new DataValue(intType, 1);
-      DataValue d6 = new DataValue(intType, 6);
+      DataValue<Integer> d0 = new DataValue<>(intType, 0);
+      DataValue<Integer> d1 = new DataValue<>(intType, 1);
+      DataValue<Integer> d6 = new DataValue<>(intType, 6);
 
       //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
       Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -79,15 +79,15 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1, consts);
       SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, consts);
 
-      LinkedHashMap<Integer, SuffixValue> dataValues = new LinkedHashMap<Integer, SuffixValue>();
+      LinkedHashMap<Integer, SuffixValue<?>> dataValues = new LinkedHashMap<>();
       for (int i=1; i<=5; i++) {
-    	  dataValues.put(i, new SuffixValue(intType, i));
+    	  dataValues.put(i, new SuffixValue<>(intType, i));
       }
 
-      LinkedHashSet<SuffixValue> freeValues = new LinkedHashSet<>();
-      freeValues.add(new SuffixValue(intType, 2));
-      freeValues.add(new SuffixValue(intType, 3));
-      freeValues.add(new SuffixValue(intType, 5));
+      LinkedHashSet<SuffixValue<?>> freeValues = new LinkedHashSet<>();
+      freeValues.add(new SuffixValue<>(intType, 2));
+      freeValues.add(new SuffixValue<>(intType, 3));
+      freeValues.add(new SuffixValue<>(intType, 5));
 
       Word<ParameterizedSymbol> actions = DataWords.actsOf(suffix1.concat(suffix2));
 

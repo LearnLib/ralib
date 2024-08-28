@@ -57,7 +57,7 @@ public class SDTOrGuard extends SDTMultiGuard {
         return Objects.equals(this.parameter, other.parameter);
     }
 
-    public SDTOrGuard(SuffixValue param, SDTGuard... ifGuards) {
+    public SDTOrGuard(SuffixValue<?> param, SDTGuard... ifGuards) {
         super(param, ConDis.OR, ifGuards);
     }
 
@@ -87,8 +87,8 @@ public class SDTOrGuard extends SDTMultiGuard {
     }
 
     @Override
-    public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+    public SDTGuard relabel(VarMapping<?, ?> relabelling) {
+        SymbolicDataValue.SuffixValue<?> sv = (SymbolicDataValue.SuffixValue<?>) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
 
         List<SDTGuard> gg = new ArrayList<>();
@@ -99,7 +99,7 @@ public class SDTOrGuard extends SDTMultiGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         return other.mergeWith(this, regPotential);
     }
 

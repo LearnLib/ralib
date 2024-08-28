@@ -33,6 +33,7 @@ import net.automatalib.data.Constants;
 import net.automatalib.data.DataValue;
 import net.automatalib.data.Mapping;
 import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
 import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.SymbolicDataValue.SuffixValue;
 import net.automatalib.data.Valuation;
@@ -76,27 +77,27 @@ public class SDT implements SymbolicDecisionTree {
      *
      * @return
      */
-    Set<Register> getRegisters() {
-        Set<Register> registers = new LinkedHashSet<>();
+    Set<Register<?>> getRegisters() {
+        Set<Register<?>> registers = new LinkedHashSet<>();
         this.getVariables().stream().filter((x) -> (x.isRegister())).forEach((x) -> {
-            registers.add((Register) x);
+            registers.add((Register<?>) x);
         });
         return registers;
     }
 
-    public Set<Register> getRegisters(SymbolicDataValue dv) {
-    	Set<Register> registers = new LinkedHashSet<>();
+    public Set<Register<?>> getRegisters(SymbolicDataValue<?> dv) {
+    	Set<Register<?>> registers = new LinkedHashSet<>();
     	if (this instanceof SDTLeaf)
     		return registers;
     	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-    		e.getKey().getComparands(dv).stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); } );
+    		e.getKey().getComparands(dv).stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register<?>)x); } );
     		registers.addAll(e.getValue().getRegisters(dv));
     	}
     	return registers;
     }
 
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
-    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv) {
+    	Set<SymbolicDataValue<?>> comparands = new LinkedHashSet<>();
     	if (this instanceof SDTLeaf)
     		return comparands;
     	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
@@ -109,7 +110,7 @@ public class SDT implements SymbolicDecisionTree {
     	return comparands;
     }
 
-    public Set<SDTGuard> getSDTGuards(SuffixValue sv) {
+    public Set<SDTGuard> getSDTGuards(SuffixValue<?> sv) {
     	Set<SDTGuard> guards = new LinkedHashSet<>();
     	if (this instanceof SDTLeaf)
     		return guards;
@@ -131,20 +132,20 @@ public class SDT implements SymbolicDecisionTree {
         }
     }
 
-    public Set<SymbolicDataValue> getVariables() {
-        Set<SymbolicDataValue> variables = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getVariables() {
+        Set<SymbolicDataValue<?>> variables = new LinkedHashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
             SDTGuard g = e.getKey();
             if (g instanceof SDTIfGuard) {
-                SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
+                SymbolicDataValue<?> r = ((SDTIfGuard) g).getRegister();
                 variables.add(r);
             } else if (g instanceof SDTMultiGuard) {
                 for (SDTGuard ifG : ((SDTMultiGuard) g).getGuards()) {
                     if (ifG instanceof SDTIfGuard) {
-                        SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
+                        SymbolicDataValue<?> ifr = ((SDTIfGuard) ifG).getRegister();
                         variables.add(ifr);
                     } else if (ifG instanceof SDTMultiGuard) {
-                        Set<SymbolicDataValue> rSet = ((SDTMultiGuard) ifG).getAllRegs();
+                        Set<SymbolicDataValue<?>> rSet = ((SDTMultiGuard) ifG).getAllRegs();
                         variables.addAll(rSet);
                     }
                 }
@@ -198,7 +199,7 @@ public class SDT implements SymbolicDecisionTree {
 
     @Override
     public boolean isEquivalent(
-            SymbolicDecisionTree other, VarMapping renaming) {
+            SymbolicDecisionTree other, VarMapping<?, ?> renaming) {
         if (other instanceof SDTLeaf) {
             return false;
         }
@@ -217,7 +218,7 @@ public class SDT implements SymbolicDecisionTree {
             }
             return false;
         }
-        VarMapping eqRenaming = new VarMapping<>();
+        VarMapping<SuffixValue<?>, SymbolicDataValue<?>> eqRenaming = new VarMapping<>();
         for (SDTIfGuard d : ds) {
             eqRenaming.put(d.getParameter(), d.getRegister());
         }
@@ -228,7 +229,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     public SDT relabelUnderEq(List<SDTIfGuard> ds) {
-        VarMapping eqRenaming = new VarMapping<>();
+        VarMapping<SuffixValue<?>, SymbolicDataValue<?>> eqRenaming = new VarMapping<>();
         for (SDTIfGuard d : ds) {
             eqRenaming.put(d.getParameter(), d.getRegister());
         }
@@ -236,7 +237,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     @Override
-    public SymbolicDecisionTree relabel(VarMapping relabelling) {
+    public SymbolicDecisionTree relabel(VarMapping<?, ?> relabelling) {
         //System.out.println("relabeling " + relabelling);
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
@@ -320,18 +321,18 @@ public class SDT implements SymbolicDecisionTree {
     // are matched by name (no remapping)
     private boolean regCanUse(SDT other) {
 
-        Set<Register> otherRegisters = other.getRegisters();
-        Set<Register> thisRegisters = this.getRegisters();
+        Set<Register<?>> otherRegisters = other.getRegisters();
+        Set<Register<?>> thisRegisters = this.getRegisters();
 
         if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
             return true;
         } else {
             Boolean[] regEqArr = new Boolean[thisRegisters.size()];
             Integer i = 0;
-            for (SymbolicDataValue thisReg : thisRegisters) {
+            for (SymbolicDataValue<?> thisReg : thisRegisters) {
                 // if the trees have the same type and size
                 regEqArr[i] = false;
-                for (SymbolicDataValue otherReg : otherRegisters) {
+                for (SymbolicDataValue<?> otherReg : otherRegisters) {
                     if (thisReg.equals(otherReg)) {
                         regEqArr[i] = true;
                         break;

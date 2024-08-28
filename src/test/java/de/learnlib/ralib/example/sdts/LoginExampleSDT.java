@@ -36,9 +36,9 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
 
     private final SymbolicSuffix suffix;
 
-    private final Set<Register> registers;
+    private final Set<Register<?>> registers;
 
-    public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
+    public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register<?>> registers) {
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;
@@ -48,12 +48,12 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     	clazz = other.clazz;
     	suffix = new SymbolicSuffix(other.suffix);
     	registers = new LinkedHashSet<>();
-    	for (Register r : other.registers)
+    	for (Register<?> r : other.registers)
     		registers.add(r.copy());
     }
 
     @Override
-    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
+    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping<?, ?> renaming) {
         if (! other.getClass().equals(this.getClass())) {
             return false;
         }
@@ -65,7 +65,7 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     }
 
     @Override
-    public LoginExampleSDT relabel(VarMapping relabelling) {
+    public LoginExampleSDT relabel(VarMapping<?, ?> relabelling) {
         return this;
     }
 

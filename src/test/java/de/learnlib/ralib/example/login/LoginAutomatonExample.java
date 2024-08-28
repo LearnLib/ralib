@@ -42,8 +42,8 @@ import net.automatalib.symbol.impl.InputSymbol;
  */
 public final class LoginAutomatonExample {
 
-    public static final DataType T_UID = new DataType("T_uid", Integer.class);
-    public static final DataType T_PWD = new DataType("T_pwd", Integer.class);
+    public static final DataType<Integer> T_UID = new DataType<>("T_uid", Integer.class);
+    public static final DataType<Integer> T_PWD = new DataType<>("T_pwd", Integer.class);
 
     public static final InputSymbol I_REGISTER =
             new InputSymbol("register", new DataType[] {T_UID, T_PWD});
@@ -69,21 +69,21 @@ public final class LoginAutomatonExample {
 
         // registers and parameters
         RegisterGenerator rgen = new RegisterGenerator();
-        Register rUid = rgen.next(T_UID);
-        Register rPwd = rgen.next(T_PWD);
+        Register<Integer> rUid = rgen.next(T_UID);
+        Register<Integer> rPwd = rgen.next(T_PWD);
         ParameterGenerator pgen = new ParameterGenerator();
-        Parameter pUid = pgen.next(T_UID);
-        Parameter pPwd = pgen.next(T_PWD);
+        Parameter<Integer> pUid = pgen.next(T_UID);
+        Parameter<Integer> pPwd = pgen.next(T_PWD);
 
         // guards
 
         GuardExpression condition = new Conjunction(
-                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
+                new AtomicGuardExpression<>(rUid, Relation.EQUALS, pUid),
+                new AtomicGuardExpression<>(rPwd, Relation.EQUALS, pPwd));
 
         GuardExpression elseCond = new Disjunction(
-                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
+                new AtomicGuardExpression<>(rUid, Relation.NOT_EQUALS, pUid),
+                new AtomicGuardExpression<>(rPwd, Relation.NOT_EQUALS, pPwd));
 
         TransitionGuard okGuard    = new TransitionGuard(condition);
         TransitionGuard errorGuard = new TransitionGuard(elseCond);

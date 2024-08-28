@@ -28,10 +28,10 @@ import net.automatalib.data.VarMapping;
 
 public abstract class SDTIfGuard extends SDTGuard {
 
-    protected final SymbolicDataValue register;
+    protected final SymbolicDataValue<?> register;
     protected final Relation relation;
 
-    public SymbolicDataValue getRegister() {
+    public SymbolicDataValue<?> getRegister() {
         return this.register;
     }
 
@@ -41,12 +41,12 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        List<SDTGuard> s = new ArrayList();
+        List<SDTGuard> s = new ArrayList<>();
         s.add(this);
         return s;
     }
 
-    public SDTIfGuard(SuffixValue param, SymbolicDataValue reg, Relation rel) {
+    public SDTIfGuard(SuffixValue<?> param, SymbolicDataValue<?> reg, Relation rel) {
         super(param);
         this.relation = rel;
         this.register = reg;
@@ -61,15 +61,15 @@ public abstract class SDTIfGuard extends SDTGuard {
     public abstract SDTIfGuard toDeqGuard();
 
     @Override
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
-    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv) {
+    	Set<SymbolicDataValue<?>> comparands = new LinkedHashSet<>();
     	if (this.parameter.equals(dv))
     		comparands.add(register);
     	return comparands;
     }
 
     @Override
-    public abstract SDTIfGuard relabel(VarMapping relabelling);
+    public abstract SDTIfGuard relabel(VarMapping<?, ?> relabelling);
 
 
 

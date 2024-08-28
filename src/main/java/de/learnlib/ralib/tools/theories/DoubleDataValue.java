@@ -7,7 +7,7 @@ import net.automatalib.data.DataValue;
 
 public class DoubleDataValue extends DataValue<BigDecimal> {
 
-	DoubleDataValue(DataType type, BigDecimal id) {
+	DoubleDataValue(DataType<BigDecimal> type, BigDecimal id) {
 		super(type, id);
 	}
 

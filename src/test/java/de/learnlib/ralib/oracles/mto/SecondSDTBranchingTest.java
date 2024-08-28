@@ -71,8 +71,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -80,7 +80,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[] {intType});
@@ -97,8 +97,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol o481 = new OutputSymbol(
                 "O481", new DataType[] {intType});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue<Integer> d0 = new DataValue<>(intType, 0);
+        DataValue<Integer> d1 = new DataValue<>(intType, 1);
 
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IPRACK[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -126,9 +126,9 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
 
         RegisterGenerator rgen = new RegisterGenerator();
-        Register r1 = rgen.next(intType);
-        Register r2 = rgen.next(intType);
-        VarMapping remap = new VarMapping();
+        Register<Integer> r1 = rgen.next(intType);
+        Register<Integer> r2 = rgen.next(intType);
+        VarMapping<Register<Integer>, Register<Integer>> remap = new VarMapping<>();
         remap.put(r1, r2);
         remap.put(r2, r1);
 

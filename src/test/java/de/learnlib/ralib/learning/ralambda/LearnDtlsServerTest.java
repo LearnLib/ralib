@@ -41,9 +41,9 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-        DataType epoch = loader.getDataTypes().iterator().next();
+        DataType<Integer> epoch = loader.getDataTypes(Integer.class).iterator().next();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(epoch, new IntegerEqualityTheory(epoch));
         SimulatorOracle dwOracle = new SimulatorOracle(model);
 

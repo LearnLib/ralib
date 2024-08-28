@@ -7,6 +7,8 @@ import net.automatalib.data.DataType;
 import net.automatalib.data.DataValue;
 import net.automatalib.data.ParValuation;
 import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Parameter;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,15 +55,13 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
 
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
-                         Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
+                         Constants constants, SuffixValue<T> sv, SuffixValuation suffixValues, SDTConstructor oracle) {
 
         int pId = values.size() + 1;
 
-        SymbolicDataValue.SuffixValue sv = suffix.getDataValue(pId);
-        DataType type = sv.getType();
+        DataType<T> type = sv.getType();
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
-                DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
+        Collection<DataValue<T>> potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type), suffixValues.values(type));
 
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
@@ -69,7 +69,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         SDT sdt;
         Map<SDTGuard, SDT> merged = new HashMap<>();
 
-        DataValue d = getFreshValue(potential);
+        DataValue<T> d = getFreshValue(potential);
         values.put(pId, d);
         WordValuation trueValues = new WordValuation();
         trueValues.putAll(values);
@@ -87,21 +87,20 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
 
     @Override
     // instantiate a parameter with a data value
-    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-                                 Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue<T>> oldDvs) {
+    public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+                                 Constants constants, SDTGuard guard, Parameter<T> param, Set<DataValue<T>> oldDvs) {
 
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues.toString());
-        DataType type = param.getType();
-        Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
-                pval.<T>values(type));
+        DataType<T> type = param.getType();
+        Collection<DataValue<T>> potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type), pval.values(type));
 
         if (!potSet.isEmpty()) {
             LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet.toString());
         } else {
             LOGGER.trace(Category.DATASTRUCTURE, "potSet is empty");
         }
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue<T> fresh = this.getFreshValue(new ArrayList<>(potSet));
         LOGGER.trace(Category.DATASTRUCTURE, "fresh = {}", fresh.toString());
         return fresh;
 

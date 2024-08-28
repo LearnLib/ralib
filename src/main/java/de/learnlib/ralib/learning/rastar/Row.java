@@ -102,9 +102,9 @@ public class Row implements PrefixContainer {
         // make sure that pars-in-vars is consistent with
         // existing cells in his row
         PIV cpv = c.getParsInVars();
-        VarMapping relabelling = new VarMapping();
+        VarMapping<Register<?>, Register<?>> relabelling = new VarMapping<>();
         for (Entry<Parameter<?>, Register<?>> e : cpv.entrySet()) {
-            Register r = this.memorable.get(e.getKey());
+            Register<?> r = this.memorable.get(e.getKey());
             if (r == null) {
                 r = regGen.next(e.getKey().getType());
                 memorable.put(e.getKey(), r);
@@ -115,7 +115,7 @@ public class Row implements PrefixContainer {
         this.cells.put(c.getSuffix(), c.relabel(relabelling));
     }
 
-    SymbolicSuffix getSuffixForMemorable(Parameter p) {
+    SymbolicSuffix getSuffixForMemorable(Parameter<?> p) {
         for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
             if (c.getValue().getParsInVars().containsKey(p)) {
                 return c.getKey();
@@ -154,7 +154,7 @@ public class Row implements PrefixContainer {
      * @param other
      * @return true if rows are equal
      */
-    boolean isEquivalentTo(Row other, VarMapping renaming) {
+    boolean isEquivalentTo(Row other, VarMapping<?, ?> renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }

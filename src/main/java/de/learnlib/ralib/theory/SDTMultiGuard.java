@@ -43,7 +43,7 @@ public abstract class SDTMultiGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        List<SDTGuard> unwrapped = new ArrayList();
+        List<SDTGuard> unwrapped = new ArrayList<>();
         if (isEmpty()) {
             unwrapped.add(asTrueGuard());
         } else if (isSingle()) {
@@ -71,8 +71,8 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return guards.get(0);
     }
 
-    public Set<SymbolicDataValue> getAllRegs() {
-        Set<SymbolicDataValue> allRegs = new LinkedHashSet<SymbolicDataValue>();
+    public Set<SymbolicDataValue<?>> getAllRegs() {
+        Set<SymbolicDataValue<?>> allRegs = new LinkedHashSet<>();
         for (SDTGuard g : guards) {
             if (g instanceof SDTIfGuard) {
                 allRegs.add(((SDTIfGuard)g).getRegister());
@@ -84,7 +84,7 @@ public abstract class SDTMultiGuard extends SDTGuard {
         return allRegs;
     }
 
-    public SDTMultiGuard(SuffixValue param, ConDis condis, SDTGuard... ifGuards) {
+    public SDTMultiGuard(SuffixValue<?> param, ConDis condis, SDTGuard... ifGuards) {
         super(param);
         this.condis = condis;
         this.guards = new ArrayList<>();
@@ -104,8 +104,8 @@ public abstract class SDTMultiGuard extends SDTGuard {
     }
 
     @Override
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
-    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv) {
+    	Set<SymbolicDataValue<?>> comparands = new LinkedHashSet<>();
     	guards.forEach((x) -> comparands.addAll(x.getComparands(dv)));
     	return comparands;
     }

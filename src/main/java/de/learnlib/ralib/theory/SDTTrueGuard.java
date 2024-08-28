@@ -33,7 +33,7 @@ import net.automatalib.data.VarMapping;
  */
 public class SDTTrueGuard extends SDTGuard {
 
-    public SDTTrueGuard(SymbolicDataValue.SuffixValue param) {
+    public SDTTrueGuard(SymbolicDataValue.SuffixValue<?> param) {
         super(param);
     }
 
@@ -48,7 +48,7 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        List<SDTGuard> s = new ArrayList();
+        List<SDTGuard> s = new ArrayList<>();
         s.add(this);
         return s;
     }
@@ -59,7 +59,7 @@ public class SDTTrueGuard extends SDTGuard {
     }
 
     @Override
-    public SDTGuard relabel(VarMapping relabelling) {
+    public SDTGuard relabel(VarMapping<?, ?> relabelling) {
         return this;
     }
 
@@ -83,12 +83,12 @@ public class SDTTrueGuard extends SDTGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         throw new IllegalStateException("trying to merge true guard");
     }
 
     @Override
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
+    public Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv) {
     	return new LinkedHashSet<>();
     }
 

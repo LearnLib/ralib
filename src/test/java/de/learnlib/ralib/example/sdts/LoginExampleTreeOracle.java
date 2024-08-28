@@ -60,8 +60,8 @@ public class LoginExampleTreeOracle implements TreeOracle {
         INIT, REGISTER, LOGIN, ERROR
     };
 
-    private final Register rUid;
-    private final Register rPwd;
+    private final Register<Integer> rUid;
+    private final Register<Integer> rPwd;
 
     public LoginExampleTreeOracle() {
         RegisterGenerator gen = new RegisterGenerator();
@@ -75,11 +75,11 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         if (prefix.length() < 1) {
             return new TreeQueryResult(new PIV(),
-                    new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
+                    new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<>()));
         }
 
-        DataValue uid = null;
-        DataValue pwd = null;
+        DataValue<?> uid = null;
+        DataValue<?> pwd = null;
 
         int idx = 0;
         State state = State.INIT;
@@ -115,7 +115,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
             if (state == State.ERROR) {
                 return new TreeQueryResult(new PIV(),
-                        new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
+                        new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<>()));
             }
 
             idx++;
@@ -149,14 +149,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
         }
 
         return new TreeQueryResult(piv,
-                new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>()));
+                new LoginExampleSDT(clazz, suffix, new LinkedHashSet<>()));
     }
 
 
     private Word<PSymbolInstance> getDefaultExtension(
             Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
 
-        DataValue[] params = new DataValue[ps.getArity()];
+        DataValue<?>[] params = new DataValue[ps.getArity()];
         int base = DataWords.paramLength(DataWords.actsOf(prefix)) + 1;
         for (int i = 0; i < ps.getArity(); i++) {
             params[i] = new DataValue(ps.getPtypes()[i], base + i);
@@ -170,7 +170,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
         Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
-        DataValue[] vals = DataWords.valsOf(prefix);
+        DataValue<?>[] vals = DataWords.valsOf(prefix);
 
         if (sdts.length > 0 && ps.equals(I_LOGIN) && acts.length() == 1 &&
                 acts.firstSymbol().equals(I_REGISTER)) {
@@ -178,17 +178,17 @@ public class LoginExampleTreeOracle implements TreeOracle {
             //System.out.println("+++++ special case");
 
             SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-            SymbolicDataValue.Parameter pUid = pgen.next(T_UID);
-            SymbolicDataValue.Parameter pPwd = pgen.next(T_PWD);
+            SymbolicDataValue.Parameter<Integer> pUid = pgen.next(T_UID);
+            SymbolicDataValue.Parameter<Integer> pPwd = pgen.next(T_PWD);
 
             // guards
         GuardExpression condition = new Conjunction(
-                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
+                new AtomicGuardExpression<>(rUid, Relation.EQUALS, pUid),
+                new AtomicGuardExpression<>(rPwd, Relation.EQUALS, pPwd));
 
         GuardExpression elseCond = new Disjunction(
-                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
+                new AtomicGuardExpression<>(rUid, Relation.NOT_EQUALS, pUid),
+                new AtomicGuardExpression<>(rPwd, Relation.NOT_EQUALS, pPwd));
 
             TransitionGuard ifGuard = new TransitionGuard(condition);
             TransitionGuard elseGuard = new TransitionGuard(elseCond);

@@ -42,7 +42,7 @@ import net.automatalib.word.Word;
 
 public class TestSymmetry extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType<Integer> T_INT = new DataType<>("int", Integer.class);
 
 	private static final InputSymbol A =
 			new InputSymbol("a", new DataType[] {T_INT});
@@ -56,7 +56,7 @@ public class TestSymmetry extends RaLibTestSuite {
 		RegisterAutomaton sul = buildCT2();
 		DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		ConstraintSolver solver = new SimpleConstraintSolver();
@@ -78,9 +78,9 @@ public class TestSymmetry extends RaLibTestSuite {
 		learner.learn();
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 2)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 2)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)));
 
 		learner.addCounterexample(new DefaultQuery<>(ce, true));
 		learner.learn();
@@ -90,12 +90,12 @@ public class TestSymmetry extends RaLibTestSuite {
 		System.out.println(learner.getDT());
 
 		ce = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 2)),
-				new PSymbolInstance(B, new DataValue(T_INT, 3)),
-				new PSymbolInstance(B, new DataValue(T_INT, 4)),
-				new PSymbolInstance(B, new DataValue(T_INT, 2)),
-				new PSymbolInstance(B, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+				new PSymbolInstance(A, new DataValue<>(T_INT, 2)),
+				new PSymbolInstance(B, new DataValue<>(T_INT, 3)),
+				new PSymbolInstance(B, new DataValue<>(T_INT, 4)),
+				new PSymbolInstance(B, new DataValue<>(T_INT, 2)),
+				new PSymbolInstance(B, new DataValue<>(T_INT, 1)));
 
 		System.out.println(sul.accepts(ce));
 		System.out.println(hyp.accepts(ce));
@@ -122,22 +122,22 @@ public class TestSymmetry extends RaLibTestSuite {
 		RALocation l_final = ra.addState(true);
 
 		SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-		SymbolicDataValue.Register r1 = rgen.next(T_INT);
-		SymbolicDataValue.Register r2 = rgen.next(T_INT);
+		SymbolicDataValue.Register<Integer> r1 = rgen.next(T_INT);
+		SymbolicDataValue.Register<Integer> r2 = rgen.next(T_INT);
 		SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-		SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
+		SymbolicDataValue.Parameter<Integer> p1 = pgen.next(T_INT);
 
 		TransitionGuard trueGuard = new TransitionGuard();
-		TransitionGuard equalR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.EQUALS, p1));
-		TransitionGuard notEqualR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1));
+		TransitionGuard equalR1 = new TransitionGuard(new AtomicGuardExpression<>(r1, Relation.EQUALS, p1));
+		TransitionGuard notEqualR1 = new TransitionGuard(new AtomicGuardExpression<>(r1, Relation.NOT_EQUALS, p1));
 
 		TransitionGuard disjunctionGuard = new TransitionGuard(new Disjunction(
-				new AtomicGuardExpression(r1, Relation.EQUALS, p1),
-				new AtomicGuardExpression(r2, Relation.EQUALS, p1)));
+				new AtomicGuardExpression<>(r1, Relation.EQUALS, p1),
+				new AtomicGuardExpression<>(r2, Relation.EQUALS, p1)));
 
 		TransitionGuard elseGuard = new TransitionGuard(new Conjunction(
-				new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1),
-				new AtomicGuardExpression(r2, Relation.NOT_EQUALS, p1)));
+				new AtomicGuardExpression<>(r1, Relation.NOT_EQUALS, p1),
+				new AtomicGuardExpression<>(r2, Relation.NOT_EQUALS, p1)));
 
 
 		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1Mapping = new VarMapping<>();
@@ -196,7 +196,7 @@ public class TestSymmetry extends RaLibTestSuite {
 		RegisterAutomaton sul = buildCT();
 	    DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	    final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
@@ -215,10 +215,10 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(A, new DataValue(T_INT, 2)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(A, new DataValue<>(T_INT, 2)),
+        		new PSymbolInstance(B, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(B, new DataValue<>(T_INT, 2)));
 
         learner.addCounterexample(new DefaultQuery<>(ce, true));
         learner.learn();
@@ -227,10 +227,10 @@ public class TestSymmetry extends RaLibTestSuite {
         System.out.println(learner.getHypothesis().toString());
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 3)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(A, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(B, new DataValue<>(T_INT, 2)),
+        		new PSymbolInstance(B, new DataValue<>(T_INT, 3)),
+        		new PSymbolInstance(B, new DataValue<>(T_INT, 2)));
 
         Assert.assertTrue(hyp.accepts(ce));
 	}
@@ -245,17 +245,17 @@ public class TestSymmetry extends RaLibTestSuite {
 		RALocation l4 = ra.addState(false);
 
 		SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-		SymbolicDataValue.Register r1 = rgen.next(T_INT);
-		SymbolicDataValue.Register r2 = rgen.next(T_INT);
+		SymbolicDataValue.Register<Integer> r1 = rgen.next(T_INT);
+		SymbolicDataValue.Register<Integer> r2 = rgen.next(T_INT);
 		SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-		SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
+		SymbolicDataValue.Parameter<Integer> p1 = pgen.next(T_INT);
 
 		TransitionGuard trueGuard = new TransitionGuard();
-        TransitionGuard equalR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.EQUALS, p1));
-        TransitionGuard notEqualR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1));
+        TransitionGuard equalR1 = new TransitionGuard(new AtomicGuardExpression<>(r1, Relation.EQUALS, p1));
+        TransitionGuard notEqualR1 = new TransitionGuard(new AtomicGuardExpression<>(r1, Relation.NOT_EQUALS, p1));
         TransitionGuard disjunctionGuard = new TransitionGuard(new Disjunction(
-        				new AtomicGuardExpression(r1, Relation.EQUALS, p1),
-        				new AtomicGuardExpression(r2, Relation.EQUALS, p1)));
+        				new AtomicGuardExpression<>(r1, Relation.EQUALS, p1),
+        				new AtomicGuardExpression<>(r2, Relation.EQUALS, p1)));
 
 		VarMapping<Register<?>, SymbolicDataValue<?>> storeR1Mapping = new VarMapping<>();
         storeR1Mapping.put(r1, p1);

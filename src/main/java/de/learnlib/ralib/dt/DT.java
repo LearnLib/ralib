@@ -118,8 +118,8 @@ public class DT implements DiscriminationTree {
         if (paramIndex == symbol.getArity()) {
             return SDTLeaf.REJECTING;
         } else {
-            DataType param = symbol.getPtypes()[paramIndex];
-            SuffixValue s = sgen.next(param);
+            DataType<?> param = symbol.getPtypes()[paramIndex];
+            SuffixValue<?> s = sgen.next(param);
             LinkedHashMap<SDTGuard, SDT> map = new LinkedHashMap<SDTGuard, SDT>();
             map.put(new SDTTrueGuard(s), makeRejectingSDT(symbol, sgen, paramIndex + 1));
             return new SDT(map);

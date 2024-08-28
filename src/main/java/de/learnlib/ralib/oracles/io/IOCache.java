@@ -94,7 +94,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
         PSymbolInstance out = null;
         CacheNode cur = root;
 
-        Map<DataValue, DataValue> replacements = new HashMap<>();
+        Map<DataValue<?>, DataValue<?>> replacements = new HashMap<>();
 
         while (iter.hasNext()) {
 
@@ -104,10 +104,10 @@ public class IOCache extends IOOracle implements DataWordOracle {
                 return Boolean.TRUE;
             }
 
-            DataValue[] dvInRepl = new DataValue[in.getBaseSymbol().getArity()];
+            DataValue<?>[] dvInRepl = new DataValue[in.getBaseSymbol().getArity()];
             for (int i = 0; i < dvInRepl.length; i++) {
-                DataValue d = in.getParameterValues()[i];
-                DataValue r = replacements.get(d);
+                DataValue<?> d = in.getParameterValues()[i];
+                DataValue<?> r = replacements.get(d);
                 if (r == null) {
                     replacements.put(d, d);
                     r = d;
@@ -130,17 +130,17 @@ public class IOCache extends IOOracle implements DataWordOracle {
                 return Boolean.FALSE;
             }
 
-            DataValue[] dvRefRepl = new DataValue[ref.getBaseSymbol().getArity()];
+            DataValue<?>[] dvRefRepl = new DataValue[ref.getBaseSymbol().getArity()];
 
             // process new replacements
             for (int i = 0; i < dvRefRepl.length; i++) {
-                DataValue f = out.getParameterValues()[i];
-                DataValue d = ref.getParameterValues()[i];
+                DataValue<?> f = out.getParameterValues()[i];
+                DataValue<?> d = ref.getParameterValues()[i];
                 if (f instanceof FreshValue) {
                     assert !replacements.containsKey(d);
                     replacements.put(d, f);
                 }
-                DataValue r = replacements.containsKey(d) ? replacements.get(d) : d;
+                DataValue<?> r = replacements.containsKey(d) ? replacements.get(d) : d;
                 dvRefRepl[i] = r;
             }
 

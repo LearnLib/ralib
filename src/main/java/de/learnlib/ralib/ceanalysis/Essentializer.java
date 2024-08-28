@@ -47,7 +47,7 @@ public class Essentializer<T> {
         DataValue[] vals = DataWords.valsOf(in);
 
         IDX: for (int index=vals.length-1; index>=0; index--) {
-            final DataValue v = vals[index];
+            final DataValue<?> v = vals[index];
             final LinkedList<Integer> indices = indexesOf(vals, v);
             // is index unique or first?
             if (indices.size() == 1 || indices.peek() == index) {
@@ -96,7 +96,7 @@ public class Essentializer<T> {
         return sublist.toArray(new Integer[] {});
     }
 
-    private LinkedList<Integer> indexesOf(DataValue[] vals, DataValue v) {
+    private LinkedList<Integer> indexesOf(DataValue<?>[] vals, DataValue<?> v) {
         LinkedList<Integer> list = new LinkedList<>();
         for (int i=0; i< vals.length; i++) {
             if (vals[i].equals(v)) {

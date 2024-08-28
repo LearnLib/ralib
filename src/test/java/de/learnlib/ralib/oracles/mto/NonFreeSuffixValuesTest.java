@@ -74,8 +74,8 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
@@ -85,7 +85,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol iput = new InputSymbol(
                 "IPut", new DataType[] {intType});
@@ -99,9 +99,9 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         ParameterizedSymbol ook = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-        DataValue d6 = new DataValue(intType, 6);
+        DataValue<Integer> d0 = new DataValue<>(intType, 0);
+        DataValue<Integer> d1 = new DataValue<>(intType, 1);
+        DataValue<Integer> d6 = new DataValue<>(intType, 6);
 
         //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -167,8 +167,8 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -176,7 +176,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol i4 = new InputSymbol(
                 "IPalindrome4", new DataType[] {intType, intType, intType, intType});
@@ -184,14 +184,14 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
          ParameterizedSymbol oyes = new OutputSymbol(
                 "OYes", new DataType[] {});
 
-         DataValue d0 = new DataValue(intType, 0);
-         DataValue d1 = new DataValue(intType, 1);
-         DataValue d2 = new DataValue(intType, 2);
-         DataValue d3 = new DataValue(intType, 3);
-         DataValue d4 = new DataValue(intType, 4);
-         DataValue d5 = new DataValue(intType, 5);
-         DataValue d6 = new DataValue(intType, 6);
-         DataValue d7 = new DataValue(intType, 7);
+         DataValue<Integer> d0 = new DataValue<>(intType, 0);
+         DataValue<Integer> d1 = new DataValue<>(intType, 1);
+         DataValue<Integer> d2 = new DataValue<>(intType, 2);
+         DataValue<Integer> d3 = new DataValue<>(intType, 3);
+         DataValue<Integer> d4 = new DataValue<>(intType, 4);
+         DataValue<Integer> d5 = new DataValue<>(intType, 5);
+         DataValue<Integer> d6 = new DataValue<>(intType, 6);
+         DataValue<Integer> d7 = new DataValue<>(intType, 7);
 
         //******
         Word<PSymbolInstance> prefix1 = Word.fromSymbols();
@@ -227,7 +227,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
     public void testNonFreeNonFresh() {
         Constants consts = new Constants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
         theory.setUseSuffixOpt(true);
         teachers.put(TINT, theory);
@@ -243,12 +243,12 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 oracle, teachers, consts, solver);
 
         Word<PSymbolInstance> word = Word.fromSymbols(
-                new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-                new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
-                new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
+                new PSymbolInstance(IPUT, new DataValue<>(TINT, 0)),
+                new PSymbolInstance(OECHO, new DataValue<>(TINT, 0)),
+                new PSymbolInstance(IPUT, new DataValue<>(TINT, 1)),
+                new PSymbolInstance(OECHO, new DataValue<>(TINT, 1)),
+                new PSymbolInstance(IPUT, new DataValue<>(TINT, 2)),
+                new PSymbolInstance(OECHO, new DataValue<>(TINT, 2)));
 
         SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4));
         Assert.assertTrue(suffix.getFreeValues().isEmpty());

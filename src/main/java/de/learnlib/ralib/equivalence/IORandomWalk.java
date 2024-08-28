@@ -61,7 +61,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private final int maxDepth;
     private final boolean seedTransitions;
     private final Constants constants;
-    private final Map<DataType, Theory> teachers;
+    private final Map<DataType<?>, Theory<?>> teachers;
 
     private static Logger LOGGER = LoggerFactory.getLogger(IORandomWalk.class);
 
@@ -86,7 +86,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
      */
     public IORandomWalk(Random rand, DataWordSUL target, boolean uniform,
             double resetProbability, double newDataProbability, long maxRuns, int maxDepth, Constants constants,
-            boolean resetRuns, boolean seedTransitions, Map<DataType, Theory> teachers, ParameterizedSymbol... inputs) {
+            boolean resetRuns, boolean seedTransitions, Map<DataType<?>, Theory<?>> teachers, ParameterizedSymbol... inputs) {
 
         this.resetRuns = resetRuns;
         this.rand = rand;
@@ -131,7 +131,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         }
         // find counterexample ...
         while (runs < maxRuns) {
-            Word ce = run();
+            Word<PSymbolInstance> ce = run();
             if (ce != null) {
                 return new DefaultQuery<>(ce, true);
             }
@@ -183,46 +183,48 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private PSymbolInstance nextDataValues(
             Word<PSymbolInstance> run, ParameterizedSymbol ps) {
 
-        DataValue[] vals = new DataValue[ps.getArity()];
+        DataValue<?>[] vals = new DataValue[ps.getArity()];
 
         int i = 0;
-        for (DataType t : ps.getPtypes()) {
-            Theory teacher = teachers.get(t);
-            // TODO: generics hack?
-            Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
-            for (int j = 0; j < i; j++) {
-                if (vals[j].getType().equals(t)) {
-                    oldSet.add(vals[j]);
-                }
-            }
-            ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
-
-            Set<DataValue<Object>> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
-
-            // TODO: add constants in teacher?
-            newSet.addAll(constants.values(t));
-
-            newSet.removeAll(old);
-            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
-
-            double draw = rand.nextDouble();
-            if (draw <= newDataProbability || old.isEmpty()) {
-                int idx = rand.nextInt(newList.size());
-                vals[i] = newList.get(idx);
-            } else {
-                int idx = rand.nextInt(old.size());
-                vals[i] = old.get(idx);
-            }
-
+        for (DataType<?> t : ps.getPtypes()) {
+            nextDataValues(run, vals, i, t);
             i++;
         }
         return new PSymbolInstance(ps, vals);
     }
 
+    private <T> void nextDataValues(Word<PSymbolInstance> run, DataValue<?>[] vals, int i, DataType<T> t) {
+        Theory<T> teacher = (Theory<T>) teachers.get(t);
+        Set<DataValue<T>> oldSet = DataWords.valSet(run, t);
+        for (int j = 0; j < i; j++) {
+            if (vals[j].getType().equals(t)) {
+                oldSet.add((DataValue<T>) vals[j]);
+            }
+        }
+        ArrayList<DataValue<T>> old = new ArrayList<>(oldSet);
+
+        Set<DataValue<T>> newSet = new HashSet<>(
+                teacher.getAllNextValues(old));
+
+        // TODO: add constants in teacher?
+        newSet.addAll(constants.values(t));
+
+        newSet.removeAll(old);
+        ArrayList<DataValue<T>> newList = new ArrayList<>(newSet);
+
+        double draw = rand.nextDouble();
+        if (draw <= newDataProbability || old.isEmpty()) {
+            int idx = rand.nextInt(newList.size());
+            vals[i] = newList.get(idx);
+        } else {
+            int idx = rand.nextInt(old.size());
+            vals[i] = old.get(idx);
+        }
+    }
+
     private ParameterizedSymbol nextSymbol() {
         ParameterizedSymbol ps = null;
-        Map<DataType, Integer> tCount = new LinkedHashMap<>();
+        Map<DataType<?>, Integer> tCount = new LinkedHashMap<>();
         if (uniform) {
             ps = inputs[rand.nextInt(inputs.length)];
         } else {
@@ -230,7 +232,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
             int[] weights = new int[inputs.length];
             for (int i = 0; i < weights.length; i++) {
                 weights[i] = 1;
-                for (DataType t : inputs[i].getPtypes()) {
+                for (DataType<?> t : inputs[i].getPtypes()) {
                     Integer old = tCount.get(t);
                     if (old == null) {
                         // TODO: what about constants?

@@ -58,7 +58,7 @@ import net.automatalib.word.Word;
 public class IOHandlingTest extends RaLibTestSuite {
 	static class IORAExamples {
 
-		static final DataType ID = new DataType("id", Integer.class);
+		static final DataType<Integer> ID = new DataType<>("id", Integer.class);
 
 		static final OutputSymbol NOK = new OutputSymbol("NOK", new DataType[] {});
 
@@ -85,9 +85,9 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 			// registers and parameters
 			RegisterGenerator rgen = new RegisterGenerator();
-			Register rVal = rgen.next(ID);
+			Register<Integer> rVal = rgen.next(ID);
 			ParameterGenerator pgen = new ParameterGenerator();
-			Parameter pVal = pgen.next(ID);
+			Parameter<Integer> pVal = pgen.next(ID);
 
 			// guards
 			TransitionGuard okGuard = new TransitionGuard(
@@ -147,9 +147,9 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 			// registers and parameters
 			RegisterGenerator rgen = new RegisterGenerator();
-			Register rVal = rgen.next(ID);
+			Register<Integer> rVal = rgen.next(ID);
 			ParameterGenerator pgen = new ParameterGenerator();
-			Parameter pVal = pgen.next(ID);
+			Parameter<Integer> pVal = pgen.next(ID);
 
 			// guards
 			TransitionGuard okGuard = new TransitionGuard(
@@ -200,7 +200,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		Constants consts = new Constants();
 		RegisterAutomaton model = IORAExamples.buildAutomatonWithNoOutputParams();
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(ID, new IntegerEqualityTheory(ID));
 
 		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
@@ -209,7 +209,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		IOFilter ioFilter = new IOFilter(ioCache, IN);
 
 		teachers.values().stream().forEach((t) -> {
-			((EqualityTheory) t).setFreshValues(true, ioCache);
+			((EqualityTheory<?>) t).setFreshValues(true, ioCache);
 		});
 
 		ConstraintSolver solver = new SimpleConstraintSolver();
@@ -227,8 +227,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, 1)), new PSymbolInstance(NOK));
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue<>(ID, 0)),
+				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue<>(ID, 1)), new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
@@ -247,7 +247,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		Constants consts = new Constants();
 		RegisterAutomaton model = IORAExamples.buildAutomatonOutputParam(false);
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(ID, new IntegerEqualityTheory(ID));
 
 		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
@@ -256,7 +256,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		IOFilter ioFilter = new IOFilter(ioCache, IN);
 
 		teachers.values().stream().forEach((t) -> {
-			((EqualityTheory) t).setFreshValues(true, ioCache);
+			((EqualityTheory<?>) t).setFreshValues(true, ioCache);
 		});
 
 		ConstraintSolver solver = new SimpleConstraintSolver();
@@ -277,8 +277,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 //		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
 //				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
 //				new PSymbolInstance(NOK));
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue<>(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue<>(ID, 0)), new PSymbolInstance(IN, new DataValue<>(ID, 1)),
 				new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
@@ -298,7 +298,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		Constants consts = new Constants();
 		RegisterAutomaton model = IORAExamples.buildAutomatonOutputParam(true);
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(ID, new IntegerEqualityTheory(ID));
 
 		DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
@@ -307,7 +307,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		IOFilter ioFilter = new IOFilter(ioCache, IN);
 
 		teachers.values().stream().forEach((t) -> {
-			((EqualityTheory) t).setFreshValues(true, ioCache);
+			((EqualityTheory<?>) t).setFreshValues(true, ioCache);
 		});
 
 		ConstraintSolver solver = new SimpleConstraintSolver();
@@ -325,8 +325,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue<>(ID, 0)),
+				new PSymbolInstance(OUT, new DataValue<>(ID, 1)), new PSymbolInstance(IN, new DataValue<>(ID, 1)),
 				new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));

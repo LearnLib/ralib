@@ -39,7 +39,7 @@ public class RAEquivalenceTestTest {
 		Constants consts = new Constants();
 		RegisterAutomaton sul = AUTOMATON;
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		RAEquivalenceTest test = new RAEquivalenceTest(sul, teachers, consts, true, I_PUSH, I_POP);
@@ -54,14 +54,14 @@ public class RAEquivalenceTestTest {
 		Constants consts = new Constants();
 		RegisterAutomaton sul = AUTOMATON;
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		MutableRegisterAutomaton aut = new MutableRegisterAutomaton(consts);
 		RegisterGenerator rgen = new RegisterGenerator();
-		Register rVal = rgen.next(T_INT);
+		Register<Integer> rVal = rgen.next(T_INT);
 		ParameterGenerator pgen = new ParameterGenerator();
-		Parameter pVal = pgen.next(T_INT);
+		Parameter<Integer> pVal = pgen.next(T_INT);
 
 		TransitionGuard eqGuard = new TransitionGuard(
 				new AtomicGuardExpression<>(rVal, Relation.EQUALS, pVal));

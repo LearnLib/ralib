@@ -65,8 +65,8 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -74,7 +74,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         //ParameterizedSymbol iack = new InputSymbol(
         //        "IAck", new DataType[] {intType});
@@ -91,7 +91,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol oframe = new OutputSymbol(
                 "OFrame", new DataType[] {intType, intType});
 
-        DataValue d2 = new DataValue(intType, 2);
+        DataValue<Integer> d2 = new DataValue<>(intType, 2);
         //DataValue c1 = new DataValue(intType, 0);
 
         //****** ROW:  IIn OOK ISendFrame

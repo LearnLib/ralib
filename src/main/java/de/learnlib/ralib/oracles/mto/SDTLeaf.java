@@ -49,7 +49,7 @@ public class SDTLeaf extends SDT {
 
     @Override
     public boolean isEquivalent(
-            SymbolicDecisionTree other, VarMapping renaming) {
+            SymbolicDecisionTree other, VarMapping<?, ?> renaming) {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
@@ -60,7 +60,7 @@ public class SDTLeaf extends SDT {
             return false;
         }
         else {
-            return this.isEquivalent(other, new VarMapping());
+            return this.isEquivalent(other, new VarMapping<>());
         }
     }
 
@@ -70,7 +70,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    public SymbolicDecisionTree relabel(VarMapping relabeling) {
+    public SymbolicDecisionTree relabel(VarMapping<?, ?> relabeling) {
         return this;
     }
 
@@ -106,7 +106,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    public Set<SymbolicDataValue.Register> getRegisters() {
+    public Set<SymbolicDataValue.Register<?>> getRegisters() {
         return new LinkedHashSet<>();
     }
 }

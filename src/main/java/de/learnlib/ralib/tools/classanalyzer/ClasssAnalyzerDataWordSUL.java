@@ -45,7 +45,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private int depth = 0;
 
-    private final Map<DataType, Map<DataValue, Object>> buckets = new HashMap<>();
+    private final Map<DataType<?>, Map<DataValue<?>, Object>> buckets = new HashMap<>();
 
     public ClasssAnalyzerDataWordSUL(Class<?> sulClass, Map<ParameterizedSymbol, MethodConfig> methods, int d) {
         this.sulClass = sulClass;
@@ -84,7 +84,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         MethodConfig in = methods.get(i.getBaseSymbol());
         Method act = in.getMethod();
 
-        DataValue[] dvs = i.getParameterValues();
+        DataValue<?>[] dvs = i.getParameterValues();
         Object[] params = new Object[dvs.length];
         for (int j = 0; j < dvs.length; j++) {
             params[j] = resolve(dvs[j]);
@@ -115,7 +115,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             return new PSymbolInstance((Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE);
         }
 
-        DataValue retVal = (isFresh(in.getRetType(), ret))
+        DataValue<?> retVal = (isFresh(in.getRetType(), ret))
                 ? registerFreshValue(in.getRetType(), ret)
                 : new DataValue(in.getRetType(), ret);
 
@@ -124,9 +124,9 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     }
 
-    private void updateSeen(DataValue... vals) {
-        for (DataValue v : vals) {
-            Map<DataValue, Object> map = this.buckets.get(v.getType());
+    private void updateSeen(DataValue<?>... vals) {
+        for (DataValue<?> v : vals) {
+            Map<DataValue<?>, Object> map = this.buckets.get(v.getType());
             if (map == null) {
                 map = new HashMap<>();
                 this.buckets.put(v.getType(), map);
@@ -139,8 +139,8 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         }
     }
 
-    private Object resolve(DataValue d) {
-        Map<DataValue, Object> map = this.buckets.get(d.getType());
+    private Object resolve(DataValue<?> d) {
+        Map<DataValue<?>, Object> map = this.buckets.get(d.getType());
         if (map == null || !map.containsKey(d)) {
             //System.out.println(d);
             assert false;
@@ -150,13 +150,13 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         return map.get(d);
     }
 
-    private boolean isFresh(DataType t, Object id) {
-        Map<DataValue, Object> map = this.buckets.get(t);
+    private boolean isFresh(DataType<?> t, Object id) {
+        Map<DataValue<?>, Object> map = this.buckets.get(t);
         return map == null || !map.containsValue(id);
     }
 
-    private DataValue registerFreshValue(DataType retType, Object ret) {
-        Map<DataValue, Object> map = this.buckets.get(retType);
+    private DataValue registerFreshValue(DataType<?> retType, Object ret) {
+        Map<DataValue<?>, Object> map = this.buckets.get(retType);
         if (map == null) {
             map = new HashMap<>();
             this.buckets.put(retType, map);
@@ -165,7 +165,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         DataValue v = new DataValue(retType, map.size());
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
-        return new FreshValue(v.getType(), v.getValue());
+        return new FreshValue<>(v.getType(), v.getValue());
     }
 
 }

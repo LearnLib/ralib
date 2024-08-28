@@ -68,7 +68,7 @@ public class TestUtil {
 
     public static MultiTheoryTreeOracle createMTO(
             DataWordSUL sul, ParameterizedSymbol error,
-            Map<DataType, Theory> teachers, Constants consts,
+            Map<DataType<?>, Theory<?>> teachers, Constants consts,
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
         IOOracle ioOracle = new SULOracle(sul, error);
@@ -77,7 +77,7 @@ public class TestUtil {
 
     public static MultiTheoryTreeOracle createMTO(
             IOOracle ioOracle,
-            Map<DataType, Theory> teachers, Constants consts,
+            Map<DataType<?>, Theory<?>> teachers, Constants consts,
             ConstraintSolver solver, ParameterizedSymbol ... inputs) {
 
         IOCache ioCache = new IOCache(ioOracle);
@@ -93,7 +93,7 @@ public class TestUtil {
     /**
      * Creates an MTO from an RA by simulating it.
      */
-    public static MultiTheoryTreeOracle createSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver) {
+    public static MultiTheoryTreeOracle createSimulatorMTO(RegisterAutomaton regAutomaton, Map<DataType<?>, Theory<?>> teachers, Constants consts, ConstraintSolver solver) {
 	    DataWordOracle hypOracle = new SimulatorOracle(regAutomaton);
 	    return new MultiTheoryTreeOracle(hypOracle, teachers, consts, solver);
     }
@@ -103,10 +103,10 @@ public class TestUtil {
                 TestUtil.class.getResourceAsStream(resName));
     }
 
-    public static DataType getType(String name, Collection<DataType<?>> dataTypes) {
-        for (DataType t : dataTypes) {
+    public static <T> DataType<T> getType(String name, Collection<DataType<?>> dataTypes) {
+        for (DataType<?> t : dataTypes) {
             if (t.getName().equals(name)) {
-                return t;
+                return (DataType<T>) t;
             }
         }
         return null;

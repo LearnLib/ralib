@@ -63,7 +63,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
@@ -87,9 +87,9 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)),
+                        new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
+                        new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)));
 
         PrefixFinder pf = new PrefixFinder(
                 mto,
@@ -109,7 +109,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 		RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
 		DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
@@ -130,14 +130,14 @@ public class PrefixFinderTest extends RaLibTestSuite {
         System.out.println(hyp);
 
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)));
         DTLeaf leaf = ralambda.getDT().getLeaf(shortPrefix);
         leaf.elevatePrefix(ralambda.getDT(), shortPrefix, hyp, slo);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)));
 
         PrefixFinder pf = new PrefixFinder(
                 mto,

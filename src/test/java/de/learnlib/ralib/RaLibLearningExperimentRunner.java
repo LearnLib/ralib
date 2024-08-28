@@ -106,7 +106,7 @@ public class RaLibLearningExperimentRunner {
 	 *
 	 */
 	public Hypothesis run(RaLearningAlgorithmName algorithmName, DataWordOracle dataOracle,
-			Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver,
+			Map<DataType<?>, Theory<?>> teachers, Constants consts, ConstraintSolver solver,
 			ParameterizedSymbol[] actionSymbols) {
 
 		try {

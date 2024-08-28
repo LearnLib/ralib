@@ -35,7 +35,7 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
     public PIVRemappingIteratorTest() {
     }
 
-    private PIV generatePIV(PIV piv, DataType t, int size) {
+    private PIV generatePIV(PIV piv, DataType<?> t, int size) {
 
         ParameterGenerator gen_p = new ParameterGenerator();
         RegisterGenerator gen_r = new RegisterGenerator();
@@ -50,13 +50,13 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
     @Test
     public void testOneType() {
 
-        DataType type1 = new DataType("type1", Integer.class);
+        DataType<Integer> type1 = new DataType<>("type1", Integer.class);
 
         PIV piv1 = generatePIV(new PIV(), type1, 4);
         PIV piv2 = generatePIV(new PIV(), type1, 4);
 
         int count = 0;
-        for (VarMapping unused : new PIVRemappingIterator(piv1, piv2)) {
+        for (VarMapping<?, ?> unused : new PIVRemappingIterator(piv1, piv2)) {
             count++;
         }
 
@@ -66,8 +66,8 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
     @Test
     public void testTwoTypes() {
 
-        DataType type1 = new DataType("type1", Integer.class);
-        DataType type2 = new DataType("type2", Integer.class);
+        DataType<Integer> type1 = new DataType<>("type1", Integer.class);
+        DataType<Integer> type2 = new DataType<>("type2", Integer.class);
 
         PIV piv1 = generatePIV(new PIV(), type1, 2);
         PIV piv2 = generatePIV(new PIV(), type1, 2);
@@ -76,7 +76,7 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
         piv2 = generatePIV(piv2, type2, 2);
 
         int count = 0;
-        for (VarMapping unused : new PIVRemappingIterator(piv1, piv2)) {
+        for (VarMapping<?, ?> unused : new PIVRemappingIterator(piv1, piv2)) {
             count++;
         }
 

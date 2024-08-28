@@ -52,12 +52,12 @@ public final class DataWords {
      * @param t
      * @return
      */
-    public static <T> DataValue<T>[] valsOf(Word<PSymbolInstance> word, DataType t) {
+    public static <T> DataValue<T>[] valsOf(Word<PSymbolInstance> word, DataType<?> t) {
         List<DataValue<T>> vals = new ArrayList<>();
         for (PSymbolInstance psi : word) {
-            for (DataValue d : psi.getParameterValues()) {
+            for (DataValue<?> d : psi.getParameterValues()) {
                 if (d.getType().equals(t)) {
-                    vals.add(d);
+                    vals.add((DataValue<T>) d);
                 }
             }
         }
@@ -70,11 +70,11 @@ public final class DataWords {
      * @param word
      * @return
      */
-    public static DataValue[] valsOf(Word<PSymbolInstance> word) {
-        DataValue[] vals = new DataValue[DataWords.paramLength(actsOf(word))];
+    public static DataValue<?>[] valsOf(Word<PSymbolInstance> word) {
+        DataValue<?>[] vals = new DataValue[DataWords.paramLength(actsOf(word))];
         int i = 0;
         for (PSymbolInstance psi : word) {
-            for (DataValue p : psi.getParameterValues()) {
+            for (DataValue<?> p : psi.getParameterValues()) {
                 vals[i++] = p;
             }
         }
@@ -89,12 +89,12 @@ public final class DataWords {
      * @param t
      * @return
      */
-    public static <T> Set<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType t) {
+    public static <T> Set<DataValue<T>> valSet(Word<PSymbolInstance> word, DataType<T> t) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (PSymbolInstance psi : word) {
-            for (DataValue d : psi.getParameterValues()) {
+            for (DataValue<?> d : psi.getParameterValues()) {
                 if (d.getType().equals(t)) {
-                    vals.add(d);
+                    vals.add((DataValue<T>) d);
                 }
             }
         }
@@ -107,6 +107,7 @@ public final class DataWords {
      * @param in
      * @return
      */
+    @SafeVarargs
     public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (Collection<DataValue<T>> s : in) {
@@ -154,13 +155,13 @@ public final class DataWords {
      */
     public static Word<PSymbolInstance> instantiate(
             Word<ParameterizedSymbol> actions,
-            Map<Integer, ? extends DataValue> dataValues) {
+            Map<Integer, ? extends DataValue<?>> dataValues) {
 
         PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
         int idx = 0;
         int pid = 1;
         for (ParameterizedSymbol ps : actions) {
-            DataValue[] pvalues = new DataValue[ps.getArity()];
+            DataValue<?>[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues.get(pid++);
             }
@@ -178,13 +179,13 @@ public final class DataWords {
      * @return
      */
     public static Word<PSymbolInstance> instantiate(
-            Word<ParameterizedSymbol> actions, DataValue[] dataValues) {
+            Word<ParameterizedSymbol> actions, DataValue<?>[] dataValues) {
 
         PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
         int idx = 0;
         int pid = 1;
         for (ParameterizedSymbol ps : actions) {
-            DataValue[] pvalues = new DataValue[ps.getArity()];
+            DataValue<?>[] pvalues = new DataValue[ps.getArity()];
             for (int i = 0; i < ps.getArity(); i++) {
                 pvalues[i] = dataValues[pid++ -1];
             }
@@ -225,10 +226,10 @@ public final class DataWords {
     	ParameterGenerator pGen = new ParameterGenerator();
     	ParValuation pars = new ParValuation();
     	for (PSymbolInstance psi : word) {
-    		DataType[] dt = psi.getBaseSymbol().getPtypes();
-    		DataValue[] dv = psi.getParameterValues();
+    		DataType<?>[] dt = psi.getBaseSymbol().getPtypes();
+    		DataValue<?>[] dv = psi.getParameterValues();
     		for (int i = 0; i < dt.length; i++) {
-    			Parameter p = pGen.next(dt[i]);
+    			Parameter<?> p = pGen.next(dt[i]);
     			pars.put(p, dv[i]);
     		}
     	}
@@ -238,7 +239,7 @@ public final class DataWords {
     public static VarValuation computeVarValuation(ParValuation pars, PIV piv) {
     	VarValuation vars = new VarValuation();
     	for (Entry<Parameter<?>, DataValue<?>> e : pars.entrySet()) {
-    		Register r = piv.get(e.getKey());
+    		Register<?> r = piv.get(e.getKey());
     		if (r != null)
     			vars.put(r, e.getValue());
     	}

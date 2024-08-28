@@ -48,7 +48,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
@@ -72,9 +72,9 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 0), new DataValue(T_PWD, 0)),
+                        new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 0), new DataValue(T_PWD, 0)));
+                        new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -96,7 +96,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         DataWordOracle dwOracle = new SimulatorOracle(sul);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 

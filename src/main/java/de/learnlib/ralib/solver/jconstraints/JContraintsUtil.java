@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.solver.jconstraints;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,7 +102,7 @@ public class JContraintsUtil {
             Map<SymbolicDataValue<?>, Variable<?>> map) {
 
         if (expr instanceof AtomicGuardExpression) {
-            return toExpression((AtomicGuardExpression) expr, map);
+            return toExpression((AtomicGuardExpression<?, ?>) expr, map);
         } else if (expr instanceof TrueGuardExpression) {
             return ExpressionUtil.TRUE;
         } else if (expr instanceof FalseGuardExpression) {
@@ -123,11 +124,11 @@ public class JContraintsUtil {
     }
 
 
-    public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
+    public static Expression<Boolean> toExpression(AtomicGuardExpression<?, ?> expr,
             Map<SymbolicDataValue<?>, Variable<?>> map) {
 
-        Variable lv = getOrCreate(expr.getLeft(), map);
-        Variable rv = getOrCreate(expr.getRight(), map);
+        Variable<?> lv = getOrCreate(expr.getLeft(), map);
+        Variable<?> rv = getOrCreate(expr.getRight(), map);
 
         switch (expr.getRelation()) {
             case EQUALS:
@@ -147,20 +148,20 @@ public class JContraintsUtil {
 
     private static Variable<?> getOrCreate(SymbolicDataValue<?> dv,
             Map<SymbolicDataValue<?>, Variable<?>> map) {
-        Type jcType = getJCType(dv.getType().getBase());
-        Variable ret = map.get(dv);
+        Type<?> jcType = getJCType(dv.getType().getBase());
+        Variable<?> ret = map.get(dv);
         if (ret == null) {
-            ret = new Variable(jcType, dv.toString());
+            ret = new Variable<>(jcType, dv.toString());
             map.put(dv, ret);
         }
         return ret;
     }
 
-    public static Constant toConstant(DataValue v) {
+    public static Constant<?> toConstant(DataValue<?> v) {
         return new Constant( getJCType(v.getType().getBase()), (v.getValue()));
     }
 
-    public static Variable toVariable(SymbolicDataValue v) {
-        return new Variable(BuiltinTypes.DECIMAL, v.toString());
+    public static Variable<BigDecimal> toVariable(SymbolicDataValue<?> v) {
+        return new Variable<>(BuiltinTypes.DECIMAL, v.toString());
     }
 }

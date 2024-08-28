@@ -42,7 +42,7 @@ public class GeneratedHypothesesTest extends RaLibTestSuite {
         DataWordOracle dwOracle = new SimulatorOracle(sul);
         ConstraintSolver solver = new SimpleConstraintSolver();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);
         theory.setUseSuffixOpt(false);
         teachers.put(T_INT, theory);

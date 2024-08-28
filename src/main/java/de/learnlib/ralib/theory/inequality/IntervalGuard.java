@@ -41,10 +41,10 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
  */
 public class IntervalGuard extends SDTGuard {
 
-    private final SymbolicDataValue leftLimit;
-    private final SymbolicDataValue rightLimit;
+    private final SymbolicDataValue<?> leftLimit;
+    private final SymbolicDataValue<?> rightLimit;
 
-    public IntervalGuard(SuffixValue param, SymbolicDataValue ll, SymbolicDataValue rl) {
+    public IntervalGuard(SuffixValue<?> param, SymbolicDataValue<?> ll, SymbolicDataValue<?> rl) {
         super(param);
         leftLimit = ll;
         rightLimit = rl;
@@ -58,7 +58,7 @@ public class IntervalGuard extends SDTGuard {
 
     public EqualityGuard toEqGuard() {
         assert !isIntervalGuard();
-        SymbolicDataValue r = null;
+        SymbolicDataValue<?> r = null;
         if (isSmallerGuard()) {
             r = rightLimit;
         }
@@ -70,7 +70,7 @@ public class IntervalGuard extends SDTGuard {
 
     public DisequalityGuard toDeqGuard() {
         assert !isIntervalGuard();
-        SymbolicDataValue r = null;
+        SymbolicDataValue<?> r = null;
         if (isSmallerGuard()) {
             r = rightLimit;
         }
@@ -97,8 +97,8 @@ public class IntervalGuard extends SDTGuard {
     }
 
     @Override
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
-    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv) {
+    	Set<SymbolicDataValue<?>> comparands = new LinkedHashSet<>();
     	if (dv.equals(leftLimit))
     		comparands.add(rightLimit);
     	else if (dv.equals(rightLimit))
@@ -117,8 +117,8 @@ public class IntervalGuard extends SDTGuard {
         return "(" + leftLimit.toString() + "<" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
     }
 
-    public Set<SymbolicDataValue> getAllRegs() {
-        Set<SymbolicDataValue> regs = new LinkedHashSet<>();
+    public Set<SymbolicDataValue<?>> getAllRegs() {
+        Set<SymbolicDataValue<?>> regs = new LinkedHashSet<>();
         if (leftLimit != null) {
             regs.add(leftLimit);
         }
@@ -128,12 +128,12 @@ public class IntervalGuard extends SDTGuard {
         return regs;
     }
 
-    public SymbolicDataValue getLeftReg() {
+    public SymbolicDataValue<?> getLeftReg() {
         assert !isSmallerGuard();
         return leftLimit;
     }
 
-    public SymbolicDataValue getRightReg() {
+    public SymbolicDataValue<?> getRightReg() {
         assert !isBiggerGuard();
         return rightLimit;
     }
@@ -141,7 +141,7 @@ public class IntervalGuard extends SDTGuard {
     // merge bigger with something
     private Set<SDTGuard> bMergeIntervals(IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue l = this.getLeftReg();
+        SymbolicDataValue<?> l = this.getLeftReg();
         if (other.isBiggerGuard()) {
             //          System.out.println("other " + other + " is bigger");
             guards.add(this);
@@ -178,7 +178,7 @@ public class IntervalGuard extends SDTGuard {
     // merge smaller with something
     private Set<SDTGuard> sMergeIntervals(IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue r = this.getRightReg();
+        SymbolicDataValue<?> r = this.getRightReg();
         if (other.isBiggerGuard()) {
             return other.bMergeIntervals(this);
         } else if (other.isSmallerGuard()) {
@@ -201,15 +201,15 @@ public class IntervalGuard extends SDTGuard {
     // merge interval with something
     private Set<SDTGuard> iMergeIntervals(IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue l = this.getLeftReg();
-        SymbolicDataValue r = this.getRightReg();
+        SymbolicDataValue<?> l = this.getLeftReg();
+        SymbolicDataValue<?> r = this.getRightReg();
         if (other.isBiggerGuard()) {
             return other.bMergeIntervals(this);
         } else if (other.isSmallerGuard()) {
             return other.sMergeIntervals(this);
         } else {
-            SymbolicDataValue oL = other.getLeftReg();
-            SymbolicDataValue oR = other.getRightReg();
+            SymbolicDataValue<?> oL = other.getLeftReg();
+            SymbolicDataValue<?> oR = other.getRightReg();
             if (l.equals(oR)) {
                 if (r.equals(oL)) {
                     guards.add(new DisequalityGuard(this.parameter, l));
@@ -263,7 +263,7 @@ public class IntervalGuard extends SDTGuard {
 //    }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
         if (other instanceof IntervalGuard) {
             guards.addAll(this.mergeIntervals((IntervalGuard) other));
@@ -295,30 +295,30 @@ public class IntervalGuard extends SDTGuard {
     @Override
     public GuardExpression toExpr() {
         if (leftLimit == null) {
-            return new AtomicGuardExpression(parameter, Relation.SMALLER, rightLimit);
+            return new AtomicGuardExpression<>(parameter, Relation.SMALLER, rightLimit);
         }
         if (rightLimit == null) {
-            return new AtomicGuardExpression(parameter, Relation.BIGGER, leftLimit);
+            return new AtomicGuardExpression<>(parameter, Relation.BIGGER, leftLimit);
         } else {
-            GuardExpression smaller = new AtomicGuardExpression(parameter, Relation.SMALLER, rightLimit);
-            GuardExpression bigger = new AtomicGuardExpression(parameter, Relation.BIGGER, leftLimit);
+            GuardExpression smaller = new AtomicGuardExpression<>(parameter, Relation.SMALLER, rightLimit);
+            GuardExpression bigger = new AtomicGuardExpression<>(parameter, Relation.BIGGER, leftLimit);
             return new Conjunction(smaller, bigger);
         }
     }
 
     @Override
-    public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv
-                = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
-        SymbolicDataValue l = null;
+    public SDTGuard relabel(VarMapping<?, ?> relabelling) {
+        SymbolicDataValue.SuffixValue<?> sv
+                = (SymbolicDataValue.SuffixValue<?>) relabelling.get(parameter);
+        SymbolicDataValue<?> r = null;
+        SymbolicDataValue<?> l = null;
         sv = (sv == null) ? parameter : sv;
 
         if (!isBiggerGuard()) {
             if (rightLimit.isConstant()) {
                 r = rightLimit;
             } else {
-                r = (SymbolicDataValue) relabelling.get(rightLimit);
+                r = relabelling.get(rightLimit);
             }
             r = (r == null) ? rightLimit : r;
         }
@@ -326,7 +326,7 @@ public class IntervalGuard extends SDTGuard {
             if (leftLimit.isConstant()) {
                 l = leftLimit;
             } else {
-                l = (SymbolicDataValue) relabelling.get(leftLimit);
+                l = relabelling.get(leftLimit);
             }
             l = (l == null) ? leftLimit : l;
         }
@@ -364,7 +364,7 @@ public class IntervalGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        return Collections.singletonList((SDTGuard) this);
+        return Collections.singletonList(this);
     }
 
     @Override

@@ -17,7 +17,7 @@ import net.automatalib.word.Word;
  *
  */
 public class BoundedListDataWordOracle implements DataWordOracle {
-    public static final DataType INT_TYPE= new DataType("int", Integer.class);
+    public static final DataType<Integer> INT_TYPE= new DataType<>("int", Integer.class);
 
     public static final InputSymbol PUSH = new InputSymbol("push", new DataType[]{INT_TYPE});
     public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{INT_TYPE, INT_TYPE});

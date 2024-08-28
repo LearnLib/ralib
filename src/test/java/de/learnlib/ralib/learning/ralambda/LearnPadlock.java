@@ -40,7 +40,7 @@ import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class LearnPadlock extends RaLibTestSuite {
-    static final DataType DIGIT = new DataType("id", Integer.class);
+    static final DataType<Integer> DIGIT = new DataType<>("id", Integer.class);
 
     static final InputSymbol IN = new InputSymbol("in", new DataType[] { DIGIT });
 
@@ -56,9 +56,9 @@ public class LearnPadlock extends RaLibTestSuite {
 
         // registers and parameters
         RegisterGenerator rgen = new RegisterGenerator();
-        Register rVal = rgen.next(DIGIT);
+        Register<Integer> rVal = rgen.next(DIGIT);
         ParameterGenerator pgen = new ParameterGenerator();
-        Parameter pVal = pgen.next(DIGIT);
+        Parameter<Integer> pVal = pgen.next(DIGIT);
 
         // guards
         TransitionGuard eqGuard = new TransitionGuard(
@@ -105,7 +105,7 @@ public class LearnPadlock extends RaLibTestSuite {
         RegisterAutomaton sul = buildAutomaton();
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(DIGIT, new IntegerEqualityTheory(DIGIT));
         ConstraintSolver solver = new SimpleConstraintSolver();
 

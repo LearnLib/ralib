@@ -67,7 +67,7 @@ public class LearnPQTest extends RaLibTestSuite {
         DataWordOracle dwOracle =
                 new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 
@@ -88,13 +88,13 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.ONE)));
+                        new DataValue<>(doubleType, BigDecimal.ONE)));
 
         DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce, true);
 
@@ -108,13 +108,13 @@ public class LearnPQTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(OFFER,
-                        new DataValue(doubleType, BigDecimal.valueOf(2.0))),
+                        new DataValue<>(doubleType, BigDecimal.valueOf(2.0))),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.ONE)),
+                        new DataValue<>(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
-                        new DataValue(doubleType, BigDecimal.valueOf(2.0))));
+                        new DataValue<>(doubleType, BigDecimal.valueOf(2.0))));
         DefaultQuery<PSymbolInstance, Boolean> ce2Query = new DefaultQuery<>(ce2, true);
         rastar.addCounterexample(ce2Query);
         rastar.learn();
@@ -131,7 +131,7 @@ public class LearnPQTest extends RaLibTestSuite {
         DataWordOracle dwOracle =
                 new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 

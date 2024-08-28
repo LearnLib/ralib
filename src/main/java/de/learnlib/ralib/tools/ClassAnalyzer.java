@@ -82,7 +82,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             = new ConfigurationOption.IntegerOption("max.depth",
                     "Maximum depth to explore", -1, true);
 
-    private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[]{
+    private static final ConfigurationOption<?>[] OPTIONS = new ConfigurationOption[]{
         OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
         OPTION_TARGET,
@@ -122,11 +122,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IOOracle back;
 
-    private Map<DataType, Theory> teachers;
+    private Map<DataType<?>, Theory<?>> teachers;
 
     private Class<?> target = null;
 
-    private final Map<String, DataType> types = new LinkedHashMap<>();
+    private final Map<String, DataType<?>> types = new LinkedHashMap<>();
 
     private final Map<ParameterizedSymbol, MethodConfig> methods = new LinkedHashMap<>();
 
@@ -182,15 +182,11 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             final Constants consts = new Constants();
 
             // create teachers
-            teachers = new LinkedHashMap<DataType, Theory>();
+            teachers = new LinkedHashMap<>();
             // create teachers
             for (String tName : teacherClasses.keySet()) {
-                DataType t = types.get(tName);
-                TypedTheory theory = teacherClasses.get(t.getName());
-                theory.setType(t);
-                if (this.useSuffixOpt) {
-                    theory.setUseSuffixOpt(this.useSuffixOpt);
-                }
+                DataType<?> t = types.get(tName);
+                TypedTheory<?> theory = super.initializeTheoryForType(t);
                 teachers.put(t, theory);
             }
 
@@ -213,8 +209,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
 
             if (useFresh) {
-                for (Theory t : teachers.values()) {
-                    ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
+                for (Theory<?> t : teachers.values()) {
+                    ((TypedTheory<?>) t).setCheckForFreshOutputs(true, ioCache);
                 }
             }
 
@@ -412,7 +408,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
     @Override
     public String help() {
         StringBuilder sb = new StringBuilder();
-        for (ConfigurationOption o : OPTIONS) {
+        for (ConfigurationOption<?> o : OPTIONS) {
             sb.append(o.toString()).append("\n");
         }
         return sb.toString();

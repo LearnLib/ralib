@@ -25,7 +25,7 @@ import net.automatalib.data.DataValue;
  */
 public class FreshValue<T> extends DataValue<T> {
 
-    public FreshValue(DataType type, T id) {
+    public FreshValue(DataType<T> type, T id) {
         super(type, id);
     }
 

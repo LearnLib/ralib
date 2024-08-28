@@ -5,6 +5,7 @@ import java.util.*;
 
 import de.learnlib.ralib.data.PIV;
 import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.Register;
 import net.automatalib.data.VarMapping;
 import net.automatalib.data.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -40,9 +41,9 @@ public class PathResult {
         // make sure that pars-in-vars is consistent with
         // existing cells in his row
         PIV cpv = tqr.getPiv();
-        VarMapping relabelling = new VarMapping();
+        VarMapping<Register<?>, Register<?>> relabelling = new VarMapping<>();
         for (Map.Entry<SymbolicDataValue.Parameter<?>, SymbolicDataValue.Register<?>> e : cpv.entrySet()) {
-            SymbolicDataValue.Register r = this.memorable.get(e.getKey());
+            SymbolicDataValue.Register<?> r = this.memorable.get(e.getKey());
             if (r == null) {
                 r = regGen.next(e.getKey().getType());
                 memorable.put(e.getKey(), r);
@@ -57,7 +58,7 @@ public class PathResult {
         return this.memorable;
     }
 
-    public boolean isEquivalentTo(PathResult other, VarMapping renaming) {
+    public boolean isEquivalentTo(PathResult other, VarMapping<?, ?> renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }
@@ -87,7 +88,7 @@ public class PathResult {
         return true;
     }
 
-    boolean isEquivalentTo(TreeQueryResult c1, TreeQueryResult c2, VarMapping renaming) {
+    boolean isEquivalentTo(TreeQueryResult c1, TreeQueryResult c2, VarMapping<?, ?> renaming) {
         if (!couldBeEquivalentTo(c1, c2)) {
             return false;
         }

@@ -39,7 +39,7 @@ public class MultiTheorySDTLogicOracleTest {
       Constants consts = new Constants();
       RegisterAutomaton sul = AUTOMATON;
 
-      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+      final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
       teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
       teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 

@@ -65,8 +65,8 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -74,7 +74,7 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
                 "IPRACK", new DataType[]{intType});
@@ -88,8 +88,8 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol o200 = new OutputSymbol(
                 "O200", new DataType[]{intType});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue<Integer> d0 = new DataValue<>(intType, 0);
+        DataValue<Integer> d1 = new DataValue<>(intType, 1);
 
         //****** ROW: IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] IINVITE[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(

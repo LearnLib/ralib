@@ -29,6 +29,7 @@ import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
 import de.learnlib.ralib.tools.config.ConfigurationOption;
 import net.automatalib.common.util.Pair;
+import net.automatalib.data.DataType;
 
 /**
  *
@@ -150,7 +151,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected boolean useFresh = false;
 
-    protected final Map<String, TypedTheory> teacherClasses = new HashMap<>();
+    protected final Map<String, TypedTheory<?>> teacherClasses = new HashMap<>();
 
     protected ConstraintSolver solver;
 
@@ -184,7 +185,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
         String[] parsed = OPTION_TEACHERS.parse(config).split("\\+");
         for (String s : parsed) {
-            Pair<String, TypedTheory> pair = parseTeacherConfig(s);
+            Pair<String, TypedTheory<?>> pair = parseTeacherConfig(s);
             teacherClasses.put(pair.getFirst(), pair.getSecond());
         }
 
@@ -192,13 +193,13 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
                 OPTION_SOLVER.parse(config));
     }
 
-    private Pair<String, TypedTheory> parseTeacherConfig(String config)
+    private Pair<String, TypedTheory<?>> parseTeacherConfig(String config)
             throws ConfigurationException {
         try {
             String[] parts = config.trim().split(":");
             Class<?> cl = Class.forName(parts[1].trim());
 
-            TypedTheory th = (TypedTheory) cl.getDeclaredConstructor().newInstance();
+            TypedTheory<?> th = (TypedTheory<?>) cl.getDeclaredConstructor().newInstance();
             String t = parts[0].trim();
             // Do this later !!!
             // th.setType(t);
@@ -209,5 +210,12 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException ex) {
             throw new ConfigurationException(ex.getMessage());
         }
+    }
+
+    protected <T> TypedTheory<T> initializeTheoryForType(DataType<T> type) {
+        TypedTheory<T> theory = (TypedTheory<T>) teacherClasses.get(type.getName());
+        theory.setType(type);
+        theory.setUseSuffixOpt(this.useSuffixOpt);
+        return theory;
     }
 }

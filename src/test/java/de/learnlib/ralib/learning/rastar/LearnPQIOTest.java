@@ -64,7 +64,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 

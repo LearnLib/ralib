@@ -118,8 +118,8 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         for (Map.Entry<Register<?>,DataValue<?>> entry : r1.entrySet())
         {
-            DataValue v1 = entry.getValue();
-            DataValue v2 = r2.get(entry.getKey());
+            DataValue<?> v1 = entry.getValue();
+            DataValue<?> v2 = r2.get(entry.getKey());
 
             boolean n1 = (v1 == null);
             boolean n2 = (v2 == null);
@@ -136,7 +136,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             }
 
             if (!v1.equals(v2)) {
-                for (DataValue cv : consts.values())
+                for (DataValue<?> cv : consts.values())
                 {
                     if (v1.equals(cv) || v2.equals(cv))
                         return false;
@@ -163,7 +163,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word w, Word t) {
+        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word<PSymbolInstance> w, Word<PSymbolInstance> t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = new VarValuation(r1);
@@ -182,7 +182,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     private final RegisterAutomaton sys1;
     private RegisterAutomaton sys2;
 
-    private final Map<DataType, Theory> teacher;
+    private final Map<DataType<?>, Theory<?>> teacher;
 
     private final Constants consts;
 
@@ -191,7 +191,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     private final boolean checkForEqualParameters;
 
     public RAEquivalenceTest(RegisterAutomaton in1,
-            Map<DataType, Theory> teacher, Constants consts,
+            Map<DataType<?>, Theory<?>> teacher, Constants consts,
             boolean checkForEqualParameters,
             ParameterizedSymbol ... actions) {
 
@@ -371,12 +371,12 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         // TODO: this should become part of the teacher
         potential.addAll(consts.values());
 
-        List<DataValue[]> valuations = new ArrayList<>();
+        List<DataValue<?>[]> valuations = new ArrayList<>();
         computeValuations(ps, valuations, potential,
                 new ArrayList<DataValue<?>>(),checkForEqualParameters);
 
         List<Word<PSymbolInstance>> ret = new ArrayList<>();
-        for (DataValue[] data : valuations) {
+        for (DataValue<?>[] data : valuations) {
             Word<PSymbolInstance> next = w.append(new PSymbolInstance(ps, data));
             ret.add(next);
         }
@@ -384,7 +384,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     }
 
     // FIXME: this work only for the equality case!!!!
-    private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
+    private void computeValuations(ParameterizedSymbol ps, List<DataValue<?>[]> valuations,
             Set<DataValue<?>> potential, List<DataValue<?>> val,
             boolean checkForEqualParameters) {
 
@@ -394,31 +394,37 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             return;
         }
 
-        DataType t = ps.getPtypes()[idx];
+        DataType<?> t = ps.getPtypes()[idx];
+        computeValuations(ps, valuations, potential, val, checkForEqualParameters, t);
+    }
 
-        Set<DataValue> next = valSet(potential, t);
-        Set<DataValue> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
+    private <T> void computeValuations(ParameterizedSymbol ps, List<DataValue<?>[]> valuations,
+                                   Set<DataValue<?>> potential, List<DataValue<?>> val,
+                                   boolean checkForEqualParameters, DataType<T> t) {
+
+        Set<DataValue<T>> next = valSet(potential, t);
+        Set<DataValue<T>> forFresh = new LinkedHashSet<>(Sets.union(next, valSet(val, t)));
         if (checkForEqualParameters) {
             next = forFresh;
         }
-        Theory teach = teacher.get(t);
+        Theory<T> teach = (Theory<T>) teacher.get(t);
         //System.out.println("FOR FRESH: " + Arrays.toString(forFresh.toArray()) + " for " + t);
-        DataValue fresh = teach.getFreshValue(new ArrayList<>(forFresh));
+        DataValue<T> fresh = teach.getFreshValue(new ArrayList<>(forFresh));
         next.add(fresh);
 
-        for (DataValue d : next) {
+        for (DataValue<?> d : next) {
             List<DataValue<?>> nextVal = new ArrayList<>(val);
             nextVal.add(d);
             computeValuations(ps, valuations, potential,
-                    nextVal, checkForEqualParameters);
+                              nextVal, checkForEqualParameters);
         }
     }
 
-    private Set<DataValue> valSet(Collection<DataValue<?>> in, DataType t) {
-        Set<DataValue> out = new LinkedHashSet<>();
-        for (DataValue dv : in) {
+    private <T> Set<DataValue<T>> valSet(Collection<DataValue<?>> in, DataType<T> t) {
+        Set<DataValue<T>> out = new LinkedHashSet<>();
+        for (DataValue<?> dv : in) {
                 if (dv.getType().equals(t)) {
-                    out.add(dv);
+                    out.add((DataValue<T>) dv);
                 }
             }
         return out;

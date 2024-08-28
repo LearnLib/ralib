@@ -30,6 +30,7 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
 import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.symbol.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -76,6 +77,7 @@ public interface Theory<T> {
             WordValuation values,
             PIV piv,
             Constants constants,
+            SuffixValue<T> sv,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
 
@@ -101,9 +103,9 @@ public interface Theory<T> {
      * @param oldDvs
      * @return
      */
-    public DataValue instantiate(Word<PSymbolInstance> prefix,
+    public DataValue<T> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
-            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
+            SDTGuard guard, Parameter<T> param, Set<DataValue<T>> oldDvs);
 
 }

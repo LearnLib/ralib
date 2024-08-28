@@ -47,16 +47,16 @@ public class CellTest extends RaLibTestSuite {
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));
+                    new DataValue<>(T_UID, 2),
+                    new DataValue<>(T_PWD, 2)));
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT));
 
 
@@ -75,7 +75,7 @@ public class CellTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Cell: {0}", c.toString());
 
         Assert.assertTrue(c.couldBeEquivalentTo(c));
-        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
+        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping<>()));
 
     }
 

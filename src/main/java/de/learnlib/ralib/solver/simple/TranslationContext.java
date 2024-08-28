@@ -30,9 +30,9 @@ import net.automatalib.data.SymbolicDataValue;
 
 public class TranslationContext {
 
-	private final Map<SymbolicDataValue,Integer> dvMap = new HashMap<>();
+	private final Map<SymbolicDataValue<?>,Integer> dvMap = new HashMap<>();
 
-	public int getDataValueIndex(SymbolicDataValue dataValue) {
+	public int getDataValueIndex(SymbolicDataValue<?> dataValue) {
 		Integer i = dvMap.get(dataValue);
 		if (i == null) {
 			return -1;
@@ -40,7 +40,7 @@ public class TranslationContext {
 		return i.intValue();
 	}
 
-	public int translateDataValue(SymbolicDataValue dataValue) {
+	public int translateDataValue(SymbolicDataValue<?> dataValue) {
 		Integer i = dvMap.get(dataValue);
 		if (i == null) {
 			i = dvMap.size();

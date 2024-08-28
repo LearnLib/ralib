@@ -32,21 +32,21 @@ import net.automatalib.data.VarMapping;
 public abstract class SDTGuard {
 
     //TODO: this should probably be a special sdtparameter
-    protected final SuffixValue parameter;
+    protected final SuffixValue<?> parameter;
 
     public abstract List<SDTGuard> unwrap();
 
-    public SuffixValue getParameter() {
+    public SuffixValue<?> getParameter() {
         return this.parameter;
     }
 
-    public SDTGuard(SuffixValue param) {
+    public SDTGuard(SuffixValue<?> param) {
 
         this.parameter = param;
 
     }
 
-    public abstract Set<SymbolicDataValue> getComparands(SymbolicDataValue dv);
+    public abstract Set<SymbolicDataValue<?>> getComparands(SymbolicDataValue<?> dv);
 
     public SDTGuard(SDTGuard other) {
     	this.parameter = (SuffixValue) other.parameter.copy();
@@ -58,9 +58,9 @@ public abstract class SDTGuard {
 
     public abstract GuardExpression toExpr();
 
-    public abstract SDTGuard relabel(VarMapping relabelling);
+    public abstract SDTGuard relabel(VarMapping<?, ?> relabelling);
 
-    public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
+    public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential);
 
     public abstract SDTGuard copy();
 

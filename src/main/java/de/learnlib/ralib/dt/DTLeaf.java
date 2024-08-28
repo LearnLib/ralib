@@ -164,7 +164,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     @Override
-    public VarMapping getRemapping(PrefixContainer r) {
+    public VarMapping<?, ?> getRemapping(PrefixContainer r) {
         if (r.getPrefix().equals(this.getAccessSequence()))
             return null;
         MappedPrefix mp = otherPrefixes.get(r.getPrefix());
@@ -438,9 +438,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     private SymbolicDecisionTree makeConsistent(SymbolicDecisionTree sdt, PIV piv, PIV memorable) {
-        VarMapping relabeling = new VarMapping();
+        VarMapping<Register<?>, Register<?>> relabeling = new VarMapping<>();
         for (Entry<Parameter<?>, Register<?>> e : piv.entrySet()) {
-            Register r = memorable.get(e.getKey());
+            Register<?> r = memorable.get(e.getKey());
             relabeling.put(e.getValue(), r);
         }
         return sdt.relabel(relabeling);
@@ -477,7 +477,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
 
-        for (Parameter p : memMP.keySet()) {
+        for (Parameter<?> p : memMP.keySet()) {
         	boolean prefixMissingParam = !memPrefix.containsKey(p) ||
         			               prefixMapped.missingParameter.contains(p);
             if (prefixMissingParam && p.getId() <= max) {
@@ -578,8 +578,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
         		for (VarMapping<Parameter<?>, Parameter<?>> vm : difference) {
                 	VarMapping<Register<?>, Register<?>> renaming = new VarMapping<>();
                 	for (Map.Entry<Parameter<?>, Parameter<?>> paramRenaming : vm.entrySet()) {
-                		Register oldRegister = memPrefix.get(paramRenaming.getKey());
-                		Register newRegister = memPrefix.get(paramRenaming.getValue());
+                		Register<?> oldRegister = memPrefix.get(paramRenaming.getKey());
+                		Register<?> newRegister = memPrefix.get(paramRenaming.getValue());
                 		renaming.put(oldRegister, newRegister);
                 	}
         			if (!sdt.isEquivalent(sdt, renaming)) {
@@ -621,22 +621,22 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     	MappedPrefix r = dest_c.getPrefix(dest_id);
         // assignment
-        VarMapping assignments = new VarMapping();
+        VarMapping<Register<?>, SymbolicDataValue<?>> assignments = new VarMapping<>();
         int max = DataWords.paramLength(DataWords.actsOf(getAccessSequence()));
         PIV parsInVars_Src = getPrimePrefix().getParsInVars();
         PIV parsInVars_Row = r.getParsInVars();
-        VarMapping remapping = dest_c.getRemapping(r);
+        VarMapping<?, ?> remapping = dest_c.getRemapping(r);
 
         for (Entry<Parameter<?>, Register<?>> e : parsInVars_Row) {
             // param or register
-            Parameter p = e.getKey();
+            Parameter<?> p = e.getKey();
             // remapping is null for prime rows ...
-            Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
+            Register<?> rNew = (remapping == null) ? e.getValue() : (Register<?>) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter<?> pNew = new Parameter<>(p.getType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
-                Register rOld = parsInVars_Src.get(p);
+                Register<?> rOld = parsInVars_Src.get(p);
                 assert rOld != null;
                 assignments.put(rNew, rOld);
             }

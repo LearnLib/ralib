@@ -10,8 +10,8 @@ import net.automatalib.symbol.PSymbolInstance;
 import net.automatalib.symbol.ParameterizedSymbol;
 
 public class RepeaterSUL extends DataWordSUL {
-	public static final DataType TINT =
-			new DataType("int", Integer.class);
+	public static final DataType<Integer> TINT =
+			new DataType<>("int", Integer.class);
 
 	public static final ParameterizedSymbol IPUT =
 			new InputSymbol("put", new DataType[] {TINT});

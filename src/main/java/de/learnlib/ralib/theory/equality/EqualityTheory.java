@@ -103,7 +103,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             EqualityGuard eqGuard = e.getKey();
             LOGGER.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTIfGuard> ds = new ArrayList();
+            List<SDTIfGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds.toString());
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
@@ -140,10 +140,10 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             SDTGuard mg = e.getKey();
             if (mg instanceof EqualityGuard) {
                 LOGGER.trace(mg.toString());
-                SymbolicDataValue r = ((EqualityGuard) mg).getRegister();
-                Parameter p = new Parameter(r.getType(), r.getId());
+                SymbolicDataValue<?> r = ((EqualityGuard) mg).getRegister();
+                Parameter<?> p = new Parameter<>(r.getType(), r.getId());
                 if (r instanceof Register) {
-                    ret.put(p, (Register) r);
+                    ret.put(p, (Register<?>) r);
                 }
             }
         }
@@ -153,26 +153,25 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     // process a tree query
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
-            Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
+            Constants constants, SuffixValue<T> sv, SuffixValuation suffixValues, SDTConstructor oracle) {
 
         int pId = values.size() + 1;
 
-        SuffixValue sv = suffix.getDataValue(pId);
-        DataType type = sv.getType();
+//        SuffixValue<?> sv = suffix.getDataValue(pId);
+        DataType<T> type = sv.getType();
 
-        SuffixValue currentParam = new SuffixValue(type, pId);
+        SuffixValue<T> currentParam = new SuffixValue<>(type, pId);
 
         Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
-                DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
+        Collection<DataValue<T>> potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type), suffixValues.values(type));
 
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
         boolean free = suffix.getFreeValues().contains(sv);
         if (!free && useNonFreeOptimization) {
-            DataValue d = suffixValues.get(sv);
+            DataValue<?> d = suffixValues.get(sv);
             SDT sdt;
             Map<SDTGuard, SDT> merged;
 
@@ -201,7 +200,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
                 sdt = oracle.treeQuery(prefix, suffix, equalValues, pir, constants, equalSuffixValues);
                 merged = new LinkedHashMap<SDTGuard, SDT>();
                 int smallest = Collections.min(values.getAllKeys(d));
-                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+                EqualityGuard guard = new EqualityGuard(currentParam, new SuffixValue<>(type, smallest));
                 merged.put(guard, sdt);
             }
 
@@ -226,7 +225,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
                 if (!trace.isEmpty() && trace.lastSymbol().getBaseSymbol().equals(ps)) {
 
-                    DataValue d = trace.lastSymbol().getParameterValues()[idx];
+                    DataValue<?> d = trace.lastSymbol().getParameterValues()[idx];
 
                     if (d instanceof FreshValue) {
                         d = getFreshValue(potential);
@@ -263,11 +262,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
 
         // process each 'if' case
         // prepare by picking up the prefix values
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
         LOGGER.trace("prefix list    " + prefixValues.toString());
 
-        DataValue fresh = getFreshValue(potential);
+        DataValue<?> fresh = getFreshValue(potential);
 
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
         for (DataValue<T> newDv : potential) {
@@ -330,9 +329,9 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     }
 
     // construct equality guard by picking up a data value from the prefix
-    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue> prefixValues, SuffixValue currentParam,
+    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue<?>> prefixValues, SuffixValue<?> currentParam,
             WordValuation ifValues, Constants constants) {
-        DataType type = currentParam.getType();
+        DataType<?> type = currentParam.getType();
         int newDv_i;
         for (Map.Entry <Constant<?>, DataValue<?>> entry : constants.entrySet()) {
             if (entry.getValue().equals(newDv)) {
@@ -342,7 +341,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         if (prefixValues.contains(newDv)) {
             // first index of the data value in the prefixvalues list
             newDv_i = prefixValues.indexOf(newDv) + 1;
-            Register newDv_r = new Register(type, newDv_i);
+            Register<?> newDv_r = new Register<>(type, newDv_i);
             LOGGER.trace("current param = " + currentParam.toString());
             LOGGER.trace("New register = " + newDv_r.toString());
             return new EqualityGuard(currentParam, newDv_r);
@@ -352,18 +351,18 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         else {
 
             int smallest = Collections.min(ifValues.getAllKeys(newDv));
-            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+            return new EqualityGuard(currentParam, new SuffixValue<>(type, smallest));
         }
     }
 
     @Override
     // instantiate a parameter with a data value
-    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-            Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
+    public DataValue<T> instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+            Constants constants, SDTGuard guard, Parameter<T> param, Set<DataValue<T>> oldDvs) {
 
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        DataType<T> type = param.getType();
+        List<DataValue<T>> prefixValues = Arrays.asList(DataWords.valsOf(prefix, type));
         LOGGER.trace("prefix values : " + prefixValues.toString());
-        DataType type = param.getType();
         Deque<SDTGuard> guards = new LinkedList<>();
         guards.add(guard);
 
@@ -372,34 +371,33 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (current instanceof EqualityGuard) {
                 LOGGER.trace("equality guard " + current.toString());
                 EqualityGuard eqGuard = (EqualityGuard) current;
-                SymbolicDataValue ereg = eqGuard.getRegister();
+                SymbolicDataValue<?> ereg = eqGuard.getRegister();
                 if (ereg.isRegister()) {
                     LOGGER.trace("piv: " + piv.toString()
                             + " " + ereg.toString() + " " + param.toString());
-                    Parameter p = piv.getOneKey((Register) ereg);
+                    Parameter<?> p = piv.getOneKey((Register<?>) ereg);
                     LOGGER.trace("p: " + p.toString());
                     int idx = p.getId();
                     return prefixValues.get(idx - 1);
                 } else if (ereg.isSuffixValue()) {
-                    Parameter p = new Parameter(type, ereg.getId());
+                    Parameter<T> p = new Parameter<>(type, ereg.getId());
                     return pval.get(p);
                 } else if (ereg.isConstant()) {
-                    return constants.get((Constant) ereg);
+                    return constants.get((Constant<T>) ereg);
                 }
             } else if (current instanceof SDTAndGuard) {
                 guards.addAll(((SDTAndGuard) current).getGuards());
             }
         }
 
-        Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
-                pval.<T>values(type));
+        Collection<DataValue<T>> potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type), pval.values(type));
 
         if (!potSet.isEmpty()) {
             LOGGER.trace("potSet = " + potSet.toString());
         } else {
             LOGGER.trace("potSet is empty");
         }
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue<T> fresh = this.getFreshValue(new ArrayList<>(potSet));
         LOGGER.trace("fresh = " + fresh.toString());
         return fresh;
 
@@ -436,7 +434,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (base + a.getArity() > values.size()) {
                 break;
             }
-            DataValue[] vals = new DataValue[a.getArity()];
+            DataValue<?>[] vals = new DataValue[a.getArity()];
             for (int i = 0; i < a.getArity(); i++) {
                 vals[i] = values.get(base + i + 1);
             }
@@ -451,13 +449,13 @@ public abstract class EqualityTheory<T> implements Theory<T> {
      * rejecting Leaf. Edges are of type {@link SDTTrueGuard}. Used to shortcut
      * output processing.
      */
-    private SDT makeRejectingBranch(int nextSufIndex, int maxIndex, DataType type) {
+    private SDT makeRejectingBranch(int nextSufIndex, int maxIndex, DataType<?> type) {
         if (nextSufIndex == maxIndex) {
             // map.put(guard, SDTLeaf.REJECTING);
             return SDTLeaf.REJECTING;
         } else {
             Map<SDTGuard, SDT> map = new LinkedHashMap<>();
-            SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue(type, nextSufIndex));
+            SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue<>(type, nextSufIndex));
             map.put(trueGuard, makeRejectingBranch(nextSufIndex + 1, maxIndex, type));
             SDT sdt = new SDT(map);
             return sdt;

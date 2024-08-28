@@ -42,8 +42,8 @@ import net.automatalib.symbol.impl.OutputSymbol;
  */
 public final class MapAutomatonExample {
 
-    public static final DataType T_KEY = new DataType("T_key", Integer.class);
-    public static final DataType T_VAL = new DataType("T_val", Integer.class);
+    public static final DataType<Integer> T_KEY = new DataType<>("T_key", Integer.class);
+    public static final DataType<Integer> T_VAL = new DataType<>("T_val", Integer.class);
 
     public static final InputSymbol I_PUT =
             new InputSymbol("put", new DataType[] {T_VAL});
@@ -81,19 +81,19 @@ public final class MapAutomatonExample {
 
         // registers and parameters
         SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-        SymbolicDataValue.Register rKey1 = rgen.next(T_KEY);
-        SymbolicDataValue.Register rKey2 = rgen.next(T_KEY);
-        SymbolicDataValue.Register rVal1 = rgen.next(T_VAL);
-        SymbolicDataValue.Register rVal2 = rgen.next(T_VAL);
+        SymbolicDataValue.Register<Integer> rKey1 = rgen.next(T_KEY);
+        SymbolicDataValue.Register<Integer> rKey2 = rgen.next(T_KEY);
+        SymbolicDataValue.Register<Integer> rVal1 = rgen.next(T_VAL);
+        SymbolicDataValue.Register<Integer> rVal2 = rgen.next(T_VAL);
         SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-        SymbolicDataValue.Parameter pKey = pgen.next(T_KEY);
+        SymbolicDataValue.Parameter<Integer> pKey = pgen.next(T_KEY);
         pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-        SymbolicDataValue.Parameter pVal = pgen.next(T_VAL);
+        SymbolicDataValue.Parameter<Integer> pVal = pgen.next(T_VAL);
 
         // guards
 
-        GuardExpression condition1 = new AtomicGuardExpression(rKey1, Relation.EQUALS, pKey);
-        GuardExpression condition2 = new AtomicGuardExpression(rKey2, Relation.EQUALS, pKey);
+        GuardExpression condition1 = new AtomicGuardExpression<>(rKey1, Relation.EQUALS, pKey);
+        GuardExpression condition2 = new AtomicGuardExpression<>(rKey2, Relation.EQUALS, pKey);
 
         TransitionGuard get1Guard   = new TransitionGuard(condition1);
         TransitionGuard get2Guard   = new TransitionGuard(condition2);

@@ -27,7 +27,7 @@ import net.automatalib.word.WordBuilder;
  */
 public class RandomWalk implements IOEquivalenceOracle  {
 
-	private Map<DataType, Theory> teachers;
+	private Map<DataType<?>, Theory<?>> teachers;
 	private Random rand;
 	private long maxRuns;
 	private int depth = 10;
@@ -38,7 +38,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 	private Constants consts;
 
 	public RandomWalk(Random rand, DataWordOracle membershipOracle, double resetProbability, double newDataProbability, long maxRuns, int maxDepth,
-			Map<DataType, Theory> teachers, Constants consts,
+			Map<DataType<?>, Theory<?>> teachers, Constants consts,
 			List<ParameterizedSymbol> symbols) {
 		this.rand = rand;
 		this.resetProbability = resetProbability;
@@ -86,40 +86,45 @@ public class RandomWalk implements IOEquivalenceOracle  {
     private PSymbolInstance nextDataValues(
             Word<PSymbolInstance> run, ParameterizedSymbol ps) {
 
-        DataValue[] vals = new DataValue[ps.getArity()];
+        DataValue<?>[] vals = new DataValue[ps.getArity()];
 
         int i = 0;
-        for (DataType t : ps.getPtypes()) {
-            Theory teacher = teachers.get(t);
-            // TODO: generics hack?
-            // TODO: add constants?
-            Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
-            for (int j = 0; j < i; j++) {
-                if (vals[j].getType().equals(t)) {
-                    oldSet.add(vals[j]);
-                }
-            }
-            oldSet.addAll(consts.values(t));
-
-            ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
-
-            Set<DataValue<Object>> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
-
-            newSet.removeAll(old);
-            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
-
-            double draw = rand.nextDouble();
-            if (draw <= freshProbability || old.isEmpty()) {
-                int idx = rand.nextInt(newList.size());
-                vals[i] = newList.get(idx);
-            } else {
-                int idx = rand.nextInt(old.size());
-                vals[i] = old.get(idx);
-            }
-
-            i++;
+        for (DataType<?> t : ps.getPtypes()) {
+			vals[i] = nextDataValue(t, vals, i, run);
+			i++;
         }
         return new PSymbolInstance(ps, vals);
     }
+
+	private <T> DataValue<T> nextDataValue(DataType<T> t, DataValue<?>[] vals, int i,
+			Word<PSymbolInstance> run) {
+
+		Theory<T> teacher = (Theory<T>) teachers.get(t);
+		// TODO: generics hack?
+		// TODO: add constants?
+		Set<DataValue<T>> oldSet = DataWords.valSet(run, t);
+		for (int j = 0; j < i; j++) {
+			if (vals[j].getType().equals(t)) {
+				oldSet.add((DataValue<T>) vals[j]);
+			}
+		}
+		oldSet.addAll(consts.values(t));
+
+		ArrayList<DataValue<T>> old = new ArrayList<>(oldSet);
+
+		Set<DataValue<T>> newSet = new HashSet<>(
+				teacher.getAllNextValues(old));
+
+		newSet.removeAll(old);
+		ArrayList<DataValue<T>> newList = new ArrayList<>(newSet);
+
+		double draw = rand.nextDouble();
+		if (draw <= freshProbability || old.isEmpty()) {
+			int idx = rand.nextInt(newList.size());
+			return newList.get(idx);
+		} else {
+			int idx = rand.nextInt(old.size());
+			return old.get(idx);
+		}
+	}
 }

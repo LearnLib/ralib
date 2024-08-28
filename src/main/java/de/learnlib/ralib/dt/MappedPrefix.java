@@ -24,7 +24,7 @@ public class MappedPrefix implements PrefixContainer {
 	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
-	public final Set<Parameter> missingParameter = new LinkedHashSet<>();
+	public final Set<Parameter<?>> missingParameter = new LinkedHashSet<>();
 
 	public MappedPrefix(Word<PSymbolInstance> prefix) {
 		this.prefix = prefix;
@@ -45,7 +45,7 @@ public class MappedPrefix implements PrefixContainer {
 
 		assert memorable.keySet().containsAll(params);
 
-		Parameter[] params_arr = new Parameter[params.size()];
+		Parameter<?>[] params_arr = new Parameter[params.size()];
 		params_arr = params.toArray(params_arr);
 		PermutationIterator permutations = new PermutationIterator(params_arr.length);
 		Set<VarMapping<Parameter<?>, Parameter<?>>> renamings = new LinkedHashSet<>();
@@ -55,8 +55,8 @@ public class MappedPrefix implements PrefixContainer {
 			VarMapping<Parameter<?>, Parameter<?>> paramRenaming = new VarMapping<>();
 			VarMapping<Register<?>, Register<?>> registerRenaming = new VarMapping<>();
 			for (int i = 0; i < params_arr.length; i++) {
-				Parameter po = params_arr[i];
-				Parameter pr = params_arr[perm[i]];
+				Parameter<?> po = params_arr[i];
+				Parameter<?> pr = params_arr[perm[i]];
 				if (!po.getType().equals(pr.getType())) {
 					continue LOC;
 				}
@@ -116,7 +116,7 @@ public class MappedPrefix implements PrefixContainer {
 		return memorable;
 	}
 
-	SymbolicSuffix getSuffixForMemorable(Parameter p) {
+	SymbolicSuffix getSuffixForMemorable(Parameter<?> p) {
 		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
 			if (e.getValue().getPiv().containsKey(p))
 				return e.getKey();
@@ -124,7 +124,7 @@ public class MappedPrefix implements PrefixContainer {
 		throw new IllegalStateException("This line is not supposed to be reached.");
 	}
 
-	Set<SymbolicSuffix> getAllSuffixesForMemorable(Parameter p) {
+	Set<SymbolicSuffix> getAllSuffixesForMemorable(Parameter<?> p) {
 		Set<SymbolicSuffix> suffixes = new LinkedHashSet<SymbolicSuffix>();
 		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
 			if (e.getValue().getPiv().containsKey(p))

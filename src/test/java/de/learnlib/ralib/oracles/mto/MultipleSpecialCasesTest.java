@@ -63,8 +63,8 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         Constants consts = loader.getConstants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             teachers.put(t, new IntegerEqualityTheory(t));
         });
 
@@ -72,7 +72,7 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
                 teachers, consts, new SimpleConstraintSolver(), inputs);
 
-        DataType intType = TestUtil.getType("int", loader.getDataTypes());
+        DataType<Integer> intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol igc = new InputSymbol(
                 "IGetChallenge", new DataType[] {});
@@ -86,7 +86,7 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
          ParameterizedSymbol ook = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-         DataValue d0 = consts.values().iterator().next();
+         DataValue<?> d0 = consts.values().iterator().next();
 
         //****** IGetChallenge[] OOK[] ICompleteBAC[]
         Word<PSymbolInstance> prefix = Word.fromSymbols(

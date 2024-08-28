@@ -35,7 +35,7 @@ public class TestQueryCount extends RaLibTestSuite {
 	@Test
 	public void testQueryCount() {
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
@@ -65,11 +65,11 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce1 = Word.fromSymbols(
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(PriorityQueueSUL.OK),
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(2))),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(2))),
         		new PSymbolInstance(PriorityQueueSUL.OK),
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(3))),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.valueOf(3))),
         		new PSymbolInstance(PriorityQueueSUL.OK));
 
         DefaultQuery<PSymbolInstance, Boolean> ceQuery = new DefaultQuery<>(ce1, false);
@@ -81,14 +81,14 @@ public class TestQueryCount extends RaLibTestSuite {
         Assert.assertEquals(memQueries1, 2);
 
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(PriorityQueueSUL.OK),
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(PriorityQueueSUL.OK),
         		new PSymbolInstance(PriorityQueueSUL.POLL),
-        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(PriorityQueueSUL.POLL),
-        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)));
+        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)));
 
         ceQuery = new DefaultQuery<>(ce2, true);
 
@@ -99,14 +99,14 @@ public class TestQueryCount extends RaLibTestSuite {
         Assert.assertEquals(memQueries2, 36);
 
         Word<PSymbolInstance> ce3 = Word.fromSymbols(
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(PriorityQueueSUL.OK),
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(PriorityQueueSUL.OK),
-        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(PriorityQueueSUL.NOK),
         		new PSymbolInstance(PriorityQueueSUL.POLL),
-        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)));
+        		new PSymbolInstance(PriorityQueueSUL.OUTPUT, new DataValue<>(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)));
 
         ceQuery = new DefaultQuery<>(ce3, true);
 

@@ -43,7 +43,7 @@ public class SULOracle extends IOOracle {
 
     private static Logger log = LoggerFactory.getLogger(SULOracle.class);
 
-    private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
+    private final Map<DataValue<?>, Set<DataValue<?>>> replacements = new HashMap<>();
 
     public SULOracle(DataWordSUL sul, ParameterizedSymbol error) {
         this.sul = sul;
@@ -84,9 +84,9 @@ public class SULOracle extends IOOracle {
     }
 
     private PSymbolInstance applyReplacements(PSymbolInstance symbol) {
-        DataValue[] vals = new DataValue[symbol.getBaseSymbol().getArity()];
+        DataValue<?>[] vals = new DataValue[symbol.getBaseSymbol().getArity()];
         for (int i = 0; i < symbol.getBaseSymbol().getArity(); i++) {
-            Set<DataValue> set = getOrCreate(symbol.getParameterValues()[i]);
+            Set<DataValue<?>> set = getOrCreate(symbol.getParameterValues()[i]);
             if (set.size() < 1) {
                 vals[i] = symbol.getParameterValues()[i];
             } else {
@@ -99,14 +99,14 @@ public class SULOracle extends IOOracle {
 
     private void updateReplacements(PSymbolInstance outSys) {
         for (int i = 0; i < outSys.getBaseSymbol().getArity(); i++) {
-            Set<DataValue> set = getOrCreate(outSys.getParameterValues()[i]);
+            Set<DataValue<?>> set = getOrCreate(outSys.getParameterValues()[i]);
             set.add(outSys.getParameterValues()[i]);
             assert set.size() <= 1;
         }
     }
 
-    private Set<DataValue> getOrCreate(DataValue key) {
-        Set<DataValue> ret = replacements.get(key);
+    private Set<DataValue<?>> getOrCreate(DataValue<?> key) {
+        Set<DataValue<?>> ret = replacements.get(key);
         if (ret == null) {
             ret = new HashSet<>();
             replacements.put(key, ret);

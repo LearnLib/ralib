@@ -38,19 +38,19 @@ public class PIV extends RegMapping<Parameter<?>> {
     public PIV() {
     }
 
-    public PIV relabel(VarMapping relabelling) {
+    public PIV relabel(VarMapping<?, ?> relabelling) {
         PIV ret = new PIV();
         for (Map.Entry<Parameter<?>, Register<?>> e : this) {
-            Parameter p = (Parameter) relabelling.get(e.getKey());
-            Register r = (Register) relabelling.get(e.getValue());
+            Parameter<?> p = (Parameter<?>) relabelling.get(e.getKey());
+            Register<?> r = (Register<?>) relabelling.get(e.getValue());
             ret.put(p == null ? e.getKey() : p, r == null ? e.getValue() : r);
         }
         return ret;
     }
 
-    public Map<DataType, Integer> typedSize() {
-        Map<DataType, Integer> ret = new LinkedHashMap<>();
-        for (Parameter p : keySet()) {
+    public Map<DataType<?>, Integer> typedSize() {
+        Map<DataType<?>, Integer> ret = new LinkedHashMap<>();
+        for (Parameter<?> p : keySet()) {
             Integer i = ret.get(p.getType());
             i = (i == null) ? 1 : i+1;
             ret.put(p.getType(), i);
@@ -58,10 +58,10 @@ public class PIV extends RegMapping<Parameter<?>> {
         return ret;
     }
 
-    public Map<DataType, Parameter[]> asTypedArrays() {
-        Map<DataType, List<Parameter>> tmp = new LinkedHashMap<>();
-        for (Parameter p : keySet()) {
-            List<Parameter> list = tmp.get(p.getType());
+    public Map<DataType<?>, Parameter<?>[]> asTypedArrays() {
+        Map<DataType<?>, List<Parameter<?>>> tmp = new LinkedHashMap<>();
+        for (Parameter<?> p : keySet()) {
+            List<Parameter<?>> list = tmp.get(p.getType());
             if (list == null) {
                 list = new ArrayList<>();
                 tmp.put(p.getType(), list);
@@ -69,16 +69,16 @@ public class PIV extends RegMapping<Parameter<?>> {
             list.add(p);
         }
 
-        Map<DataType, Parameter[]> ret = new LinkedHashMap<>();
-        for (Map.Entry<DataType, List<Parameter>> e : tmp.entrySet()) {
+        Map<DataType<?>, Parameter<?>[]> ret = new LinkedHashMap<>();
+        for (Map.Entry<DataType<?>, List<Parameter<?>>> e : tmp.entrySet()) {
             ret.put(e.getKey(), e.getValue().toArray(new Parameter[] {}));
         }
         return ret;
     }
 
     //FIXME: this method is bogus. There may be more than one value.
-    public Parameter getOneKey(Register value) {
-        Parameter retKey = null;
+    public Parameter<?> getOneKey(Register<?> value) {
+        Parameter<?> retKey = null;
         for (Map.Entry<Parameter<?>,Register<?>> entry : this.entrySet()) {
 //            System.out.println("key = " + entry.getKey().toString());
 //            System.out.println("value = " + entry.getValue().toString());
@@ -96,7 +96,7 @@ public class PIV extends RegMapping<Parameter<?>> {
      */
     public VarMapping<Register<?>, Register<?>> createRemapping(PIV to) {
         // there should not be any register with id > n
-        for (Register r : to.values()) {
+        for (Register<?> r : to.values()) {
             if (r.getId() > to.size()) {
                 throw new IllegalStateException("there should not be any register with id > n: " + to);
             }
@@ -108,7 +108,7 @@ public class PIV extends RegMapping<Parameter<?>> {
         for (Entry<Parameter<?>, Register<?>> e : this) {
             Register<?> rep = to.get(e.getKey());
             if (rep == null) {
-                rep = new Register(e.getValue().getType(), id++);
+                rep = new Register<>(e.getValue().getType(), id++);
             }
             map.put(e.getValue(), rep);
         }

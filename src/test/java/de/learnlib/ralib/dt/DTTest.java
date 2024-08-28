@@ -35,12 +35,12 @@ public class DTTest {
 
 	private DT buildFullTreePrimesOnly(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_POP, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> prePush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+				new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+				new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 2)));
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -94,7 +94,7 @@ public class DTTest {
 
 	private DT buildSimpleTree(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_POP, new DataValue<>(T_INT, 1)));
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -132,7 +132,7 @@ public class DTTest {
 	      RegisterAutomaton sul = AUTOMATON;
 	      DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	      final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 	      teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	      ConstraintSolver solver = new SimpleConstraintSolver();
@@ -144,29 +144,29 @@ public class DTTest {
 
 	      Word<PSymbolInstance> prePush1Pop1 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH,
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue<>(T_INT, 1)),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 1)));
+	                      new DataValue<>(T_INT, 1)));
 
 	      Word<PSymbolInstance> prePush1Pop2 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH,
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue<>(T_INT, 1)),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 2)));
+	                      new DataValue<>(T_INT, 2)));
 
 	      Word<PSymbolInstance> prePushPushPop = Word.fromSymbols(
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 1)),
+	    				  new DataValue<>(T_INT, 1)),
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 2)),
+	    				  new DataValue<>(T_INT, 2)),
 	    		  new PSymbolInstance(I_POP,
-	    				  new DataValue(T_INT, 2)));
+	    				  new DataValue<>(T_INT, 2)));
 
 	      Word<PSymbolInstance> accessEps = Word.epsilon();
 	      Word<PSymbolInstance> accessPop = Word.fromSymbols(
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_POP, new DataValue<>(T_INT,1)));
 	      Word<PSymbolInstance> accessPush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue<>(T_INT,1)));
 
 	      DTLeaf leafPush1Pop1 = dt.sift(prePush1Pop1, true);
 	      DTLeaf leafPush1Pop2 = dt.sift(prePush1Pop2, true);
@@ -180,10 +180,10 @@ public class DTTest {
 	      dt = buildSimpleTree(mto);
 	      int leavesBeforeDiscovery = dt.getLeaves().size();
 	      Word<PSymbolInstance> prePush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)));
 	      Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+	    		  new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 2)));
 	      DTLeaf newLeaf = dt.sift(prePush, true);
 
 	      Assert.assertEquals(dt.getLeaves().size(), leavesBeforeDiscovery + 1);
@@ -199,7 +199,7 @@ public class DTTest {
 	      RegisterAutomaton sul = AUTOMATON;
 	      DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	      final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 	      teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	      ConstraintSolver solver = new SimpleConstraintSolver();
@@ -214,9 +214,9 @@ public class DTTest {
 	      DTHyp hyp = new DTHyp(consts, dt);
 
 	      Word<PSymbolInstance> prePush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 0)));
 	      Word<PSymbolInstance> prePop = Word.fromSymbols(
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+	    		  new PSymbolInstance(I_POP, new DataValue<>(T_INT, 0)));
 	      Word<PSymbolInstance> eps = Word.epsilon();
 	      SymbolicSuffix suffPop = new SymbolicSuffix(eps, prePop);
 

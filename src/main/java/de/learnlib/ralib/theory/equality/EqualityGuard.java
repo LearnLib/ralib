@@ -37,7 +37,7 @@ import de.learnlib.ralib.theory.SDTOrGuard;
  */
 public class EqualityGuard extends SDTIfGuard {
 
-    public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
+    public EqualityGuard(SuffixValue<?> param, SymbolicDataValue<?> reg) {
         super(param, reg, Relation.EQUALS);
     }
 
@@ -58,16 +58,15 @@ public class EqualityGuard extends SDTIfGuard {
     }
 
     @Override
-    public SDTIfGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv
-                = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
+    public SDTIfGuard relabel(VarMapping<?, ?> relabelling) {
+        SuffixValue<?> sv = (SuffixValue<?>) relabelling.get(parameter);
+        SymbolicDataValue<?> r = null;
         sv = (sv == null) ? parameter : sv;
 
         if (register.isConstant()) {
             return new EqualityGuard(sv, register);
         } else {
-            r = (SymbolicDataValue) relabelling.get(register);
+            r = relabelling.get(register);
         }
         r = (r == null) ? register : r;
         return new EqualityGuard(sv, r);
@@ -109,7 +108,7 @@ public class EqualityGuard extends SDTIfGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
         if (other instanceof DisequalityGuard) {
             if (!(other.equals(this.toDeqGuard()))) {

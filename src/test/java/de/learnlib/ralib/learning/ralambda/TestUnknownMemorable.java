@@ -57,7 +57,7 @@ import net.automatalib.word.Word;
 
 public class TestUnknownMemorable extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType<Integer> T_INT = new DataType<>("int", Integer.class);
 
 	private static final InputSymbol IPUT =
 			new InputSymbol("put", new DataType[] {T_INT});
@@ -102,13 +102,13 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
 		// registers and parameters
 		SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
-		SymbolicDataValue.Register r1 = rgen.next(T_INT);
+		SymbolicDataValue.Register<Integer> r1 = rgen.next(T_INT);
 		SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
-		SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
+		SymbolicDataValue.Parameter<Integer> p1 = pgen.next(T_INT);
 
 		// guards
-		GuardExpression equal = new AtomicGuardExpression(r1, Relation.EQUALS, p1);
-		GuardExpression notEqual = new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1);
+		GuardExpression equal = new AtomicGuardExpression<>(r1, Relation.EQUALS, p1);
+		GuardExpression notEqual = new AtomicGuardExpression<>(r1, Relation.NOT_EQUALS, p1);
 
 		TransitionGuard equalGuard = new TransitionGuard(equal);
 		TransitionGuard notEqualGuard = new TransitionGuard(notEqual);
@@ -185,7 +185,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		ParameterizedSymbol[] actions = { IPUT, IQUERY, IHELLO, OECHO, ONO, OYES, OHELLO, ONOREPLY };
 		Constants consts = new Constants();
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	    final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
@@ -208,25 +208,25 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         ralambda.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 1)),
+        		new PSymbolInstance(IPUT, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(T_INT, 1)),
+        		new PSymbolInstance(OECHO, new DataValue<>(T_INT, 1)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(OYES, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(OYES, new DataValue<>(T_INT, 1)));
         ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
 
         ralambda.learn();
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(T_INT, 0)),
         		new PSymbolInstance(IHELLO),
         		new PSymbolInstance(OHELLO),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(T_INT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(T_INT, 0)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(ONO, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(ONO, new DataValue<>(T_INT, 0)));
         boolean acc = ralambda.getHypothesis().accepts(ce);
         if (!acc) {
         	ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
@@ -254,8 +254,8 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         final Constants consts = loader.getConstants();
 
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
@@ -314,8 +314,8 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         final Constants consts = loader.getConstants();
 
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-        loader.getDataTypes().stream().forEach((t) -> {
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
+        loader.getDataTypes(Integer.class).stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
@@ -407,7 +407,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 			int idx = findMatchingSymbol(action, actionSymbols);
 			if (idx < 0)
 				return null;
-			DataType[] dt = actionSymbols[idx].getPtypes();
+			DataType<?>[] dt = actionSymbols[idx].getPtypes();
 			PSymbolInstance psi = dt.length > 0 ?
 				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], dv[i])) :
 				new PSymbolInstance(actionSymbols[idx]);

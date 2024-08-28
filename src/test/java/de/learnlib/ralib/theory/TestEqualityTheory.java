@@ -60,7 +60,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
 
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
 
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType<?>, Theory<?>> theories = new LinkedHashMap<>();
         theories.put(T_UID, new IntegerEqualityTheory(T_UID));
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
@@ -69,17 +69,17 @@ public class TestEqualityTheory extends RaLibTestSuite {
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)),
                 new PSymbolInstance(I_LOGOUT),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)));
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue<>(T_UID, 1),
+                    new DataValue<>(T_PWD, 1)));
 
 
         // create a symbolic suffix from the concrete suffix
@@ -116,13 +116,13 @@ public class TestEqualityTheory extends RaLibTestSuite {
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
-        Parameter p1 = new Parameter(T_UID, 1);
-        Parameter p2 = new Parameter(T_PWD, 2);
+        Parameter<Integer> p1 = new Parameter<>(T_UID, 1);
+        Parameter<Integer> p2 = new Parameter<>(T_PWD, 2);
 
         // renaming of SDT has flipped the registers
         PIV testPiv =  new PIV();
-        testPiv.put(p2, new Register(T_PWD, 1));
-        testPiv.put(p1, new Register(T_UID, 2));
+        testPiv.put(p2, new Register<>(T_PWD, 1));
+        testPiv.put(p1, new Register<>(T_UID, 2));
 
         Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
 

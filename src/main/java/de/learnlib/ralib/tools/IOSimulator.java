@@ -77,7 +77,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             new ConfigurationOption.BooleanOption("use.eqtest",
                     "Use an eq test for finding counterexamples", Boolean.FALSE, true);
 
-    private static final ConfigurationOption[] OPTIONS = new ConfigurationOption[] {
+    private static final ConfigurationOption<?>[] OPTIONS = new ConfigurationOption[] {
         OPTION_LEARNER,
         OPTION_LOGGING_LEVEL,
         OPTION_TARGET,
@@ -124,7 +124,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
     private Constants consts;
 
-    private final Map<DataType, Theory> teachers = new LinkedHashMap<DataType, Theory>();
+    private final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 
     @Override
     public String description() {
@@ -157,12 +157,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         consts = loader.getConstants();
 
         // create teachers
-        for (final DataType t : loader.getDataTypes()) {
-            TypedTheory theory = teacherClasses.get(t.getName());
-            theory.setType(t);
-            if (this.useSuffixOpt) {
-                theory.setUseSuffixOpt(this.useSuffixOpt);
-            }
+        for (final DataType<?> t : loader.getDataTypes()) {
+            TypedTheory<?> theory = super.initializeTheoryForType(t);
             teachers.put(t, theory);
         }
 
@@ -193,8 +189,8 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        }
 
        if (useFresh) {
-           for (Theory t : teachers.values()) {
-               ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
+           for (Theory<?> t : teachers.values()) {
+               ((TypedTheory<?>) t).setCheckForFreshOutputs(true, ioCache);
            }
        }
 
@@ -375,7 +371,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         System.out.println("Learner: " + rastar.getClass().getSimpleName());
 
-        for (Entry<DataType, Theory> e : teachers.entrySet()) {
+        for (Entry<DataType<?>, Theory<?>> e : teachers.entrySet()) {
             System.out.println("Theory: " + e.getKey() + " -> " + e.getValue().getClass().getName());
         }
 
@@ -424,7 +420,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
     @Override
     public String help() {
         StringBuilder sb = new StringBuilder();
-        for (ConfigurationOption o : OPTIONS) {
+        for (ConfigurationOption<?> o : OPTIONS) {
             sb.append(o.toString()).append("\n");
         }
         return sb.toString();

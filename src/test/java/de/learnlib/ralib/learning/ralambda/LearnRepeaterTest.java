@@ -41,7 +41,7 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 
         Constants consts = new Constants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
         theory.setUseSuffixOpt(true);
         teachers.put(TINT, theory);
@@ -76,12 +76,12 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertNull(repeater.repeat(0));
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)));
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 0)));
 
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
 

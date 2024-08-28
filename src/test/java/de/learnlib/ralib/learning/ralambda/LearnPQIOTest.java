@@ -64,7 +64,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random unused = new Random(seed);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
@@ -86,7 +86,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
     @Test
     public void testPQIODoublePrecisionError() {
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
@@ -99,7 +99,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         Assert.assertTrue(true);
     }
 
-    private Hypothesis learnPQ(long seed, Map<DataType, Theory> teachers, Constants consts, PriorityQueueSUL sul) {
+    private Hypothesis learnPQ(long seed, Map<DataType<?>, Theory<?>> teachers, Constants consts, PriorityQueueSUL sul) {
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
 

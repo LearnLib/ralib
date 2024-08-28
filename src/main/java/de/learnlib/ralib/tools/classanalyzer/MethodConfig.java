@@ -38,9 +38,9 @@ public class MethodConfig {
 
     private final boolean isVoid;
 
-    private final DataType retType;
+    private final DataType<?> retType;
 
-    public MethodConfig(String config, Class<?> clazz, Map<String, DataType> types)
+    public MethodConfig(String config, Class<?> clazz, Map<String, DataType<?>> types)
             throws ClassNotFoundException, NoSuchMethodException {
 
         String methodName = config.substring(0, config.indexOf("(")).trim();
@@ -50,7 +50,7 @@ public class MethodConfig {
         String returnConfig = config.substring(config.indexOf(")")+1).trim();
 
         Class<?>[] pTypes = new Class<?>[paramConfig.length];
-        DataType[] cTypes = new DataType[paramConfig.length];
+        DataType<?>[] cTypes = new DataType[paramConfig.length];
         int idx = 0;
         for (String pc : paramConfig) {
 
@@ -72,7 +72,7 @@ public class MethodConfig {
         else {
             Pair<Class<?>, String> parsed = parseParamConfig(returnConfig);
             assert rType.equals(parsed.getFirst());
-            DataType rtc = getOrCreate(parsed.getSecond(), parsed.getFirst(), types);
+            DataType<?> rtc = getOrCreate(parsed.getSecond(), parsed.getFirst(), types);
             this.output = new OutputSymbol("O_" + methodName, rtc);
             this.isVoid = false;
             this.retType = rtc;
@@ -105,7 +105,7 @@ public class MethodConfig {
         return isVoid;
     }
 
-    public DataType getRetType() {
+    public DataType<?> getRetType() {
         return retType;
     }
 
@@ -123,10 +123,10 @@ public class MethodConfig {
         return Pair.of(cl, parts[1].trim());
     }
 
-    private DataType getOrCreate(String name, Class<?> base, Map<String, DataType> map) {
-        DataType ret = map.get(name);
+    private DataType<?> getOrCreate(String name, Class<?> base, Map<String, DataType<?>> map) {
+        DataType<?> ret = map.get(name);
         if (ret == null) {
-            ret = new DataType(name, base);
+            ret = new DataType<>(name, base);
             map.put(name, ret);
         }
         return ret;

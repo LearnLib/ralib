@@ -52,8 +52,8 @@ public class TestTreeOracle extends RaLibTestSuite {
     public void testTreeOracle() {
 
         // define types
-        final DataType userType = new DataType("userType", String.class);
-        final DataType passType = new DataType("passType", String.class);
+        final DataType<String> userType = new DataType<>("userType", String.class);
+        final DataType<String> passType = new DataType<>("passType", String.class);
 
         // define parameterized symbols
         final ParameterizedSymbol register = new InputSymbol(
@@ -71,13 +71,13 @@ public class TestTreeOracle extends RaLibTestSuite {
         // create prefix: register(falk[userType], secret[passType])
         final Word<PSymbolInstance> prefix = Word.fromLetter(
                 new PSymbolInstance(register,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")));
+                    new DataValue<>(userType, "falk"),
+                    new DataValue<>(passType, "secret")));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(login,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
+                    new DataValue<>(userType, "falk"),
+                    new DataValue<>(passType, "secret"))
                     );
 
         // create a symbolic suffix from the concrete suffix
@@ -94,7 +94,7 @@ public class TestTreeOracle extends RaLibTestSuite {
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
 
                 // given a collection of queries, process each one (with Bool replies)
-                for (Query q : clctn) {
+                for (Query<PSymbolInstance, Boolean> q : clctn) {
                     Word<PSymbolInstance> trace = q.getInput();
 
                     if (trace.length() != 2) {
@@ -105,8 +105,8 @@ public class TestTreeOracle extends RaLibTestSuite {
                     // get the first two symbols in the trace
                     PSymbolInstance a1 = trace.getSymbol(0);
                     PSymbolInstance a2 = trace.getSymbol(1);
-                    DataValue[] a1Params = a1.getParameterValues();
-                    DataValue[] a2Params = a2.getParameterValues();
+                    DataValue<?>[] a1Params = a1.getParameterValues();
+                    DataValue<?>[] a2Params = a2.getParameterValues();
 
                     q.answer( a1.getBaseSymbol().equals(register) &&
                             a2.getBaseSymbol().equals(login) &&
@@ -118,9 +118,9 @@ public class TestTreeOracle extends RaLibTestSuite {
         Theory<String> userTheory = new EqualityTheory<String>() {
 
             @Override
-            public DataValue getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
+            public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
+                DataValue<String> v = vals.get(0);
+                return new DataValue<>(v.getType(),
                         v.getValue().toString() + "_" + vals.size());
             }
 
@@ -135,8 +135,8 @@ public class TestTreeOracle extends RaLibTestSuite {
 
             @Override
             public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
+                DataValue<String> v = vals.get(0);
+                return new DataValue<>(v.getType(),
                         v.getValue().toString() + "_" + vals.size());
             }
 
@@ -147,7 +147,7 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         };
 
-        Map<DataType, Theory> theories = new LinkedHashMap();
+        Map<DataType<?>, Theory<?>> theories = new LinkedHashMap<>();
         theories.put(userType, userTheory);
         theories.put(passType, passTheory);
 

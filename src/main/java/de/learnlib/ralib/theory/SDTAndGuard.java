@@ -87,9 +87,9 @@ public class SDTAndGuard extends SDTMultiGuard {
     }
 
     @Override
-    public SDTGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv
-                = (SymbolicDataValue.SuffixValue) relabelling.get(getParameter());
+    public SDTGuard relabel(VarMapping<?, ?> relabelling) {
+        SymbolicDataValue.SuffixValue<?> sv
+                = (SymbolicDataValue.SuffixValue<?>) relabelling.get(getParameter());
         sv = (sv == null) ? getParameter() : sv;
 
         List<SDTGuard> gg = new ArrayList<>();
@@ -100,7 +100,7 @@ public class SDTAndGuard extends SDTMultiGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

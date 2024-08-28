@@ -42,7 +42,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 
         Constants consts = new Constants();
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(TINT);
         theory.setUseSuffixOpt(true);
         teachers.put(TINT, theory);
@@ -72,12 +72,12 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
-        		new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
-        		new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 1)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 1)),
+        		new PSymbolInstance(IPUT, new DataValue<>(TINT, 2)),
+        		new PSymbolInstance(OECHO, new DataValue<>(TINT, 2)));
 
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
 

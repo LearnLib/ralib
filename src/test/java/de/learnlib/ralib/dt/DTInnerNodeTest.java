@@ -35,7 +35,7 @@ public class DTInnerNodeTest {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
         ConstraintSolver solver = new SimpleConstraintSolver();
@@ -44,19 +44,19 @@ public class DTInnerNodeTest {
             dwOracle, teachers, new Constants(), solver);
 
         Word<PSymbolInstance> p1 = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-            new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+            new PSymbolInstance(I_POP, new DataValue<>(T_INT, 1)));
 
         Word<PSymbolInstance> p2 = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+            new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)),
+            new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 2)));
 
         Word<PSymbolInstance> epsilon = Word.epsilon();
         Word<PSymbolInstance> push = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_PUSH, new DataValue<>(T_INT, 1)));
 
         Word<PSymbolInstance> suffix = Word.fromSymbols(
-            new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_POP, new DataValue<>(T_INT, 1)));
 
         SymbolicSuffix symbSuffix = new SymbolicSuffix(epsilon, suffix);
 

@@ -79,7 +79,7 @@ public class TestDistinguishingSuffixOptimization {
 		RegisterAutomaton sul = buildAutomaton();
 	    DataWordOracle dwOracle = new SimulatorOracle(sul);
 
-	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+	    final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
 
 	    ConstraintSolver solver = new SimpleConstraintSolver();
 

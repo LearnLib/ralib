@@ -25,6 +25,7 @@ import net.automatalib.automaton.ra.guard.impl.AtomicGuardExpression;
 import net.automatalib.automaton.ra.GuardExpression;
 import net.automatalib.automaton.ra.guard.impl.Relation;
 import net.automatalib.data.SymbolicDataValue;
+import net.automatalib.data.SymbolicDataValue.SuffixValue;
 import net.automatalib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
@@ -36,7 +37,7 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 public class DisequalityGuard extends SDTIfGuard {
 
     public DisequalityGuard(
-            SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
+            SuffixValue<?> param, SymbolicDataValue<?> reg) {
         super(param, reg, Relation.NOT_EQUALS);
     }
 
@@ -58,21 +59,20 @@ public class DisequalityGuard extends SDTIfGuard {
 
     @Override
     public GuardExpression toExpr() {
-        return new AtomicGuardExpression(
+        return new AtomicGuardExpression<>(
                 register, Relation.NOT_EQUALS, parameter);
     }
 
     @Override
-    public SDTIfGuard relabel(VarMapping relabelling) {
-        SymbolicDataValue.SuffixValue sv
-                = (SymbolicDataValue.SuffixValue) relabelling.get(parameter);
-        SymbolicDataValue r = null;
+    public SDTIfGuard relabel(VarMapping<?, ?> relabelling) {
+        SuffixValue<?> sv = (SuffixValue<?>) relabelling.get(parameter);
+        SymbolicDataValue<?> r = null;
         sv = (sv == null) ? parameter : sv;
 
         if (register.isConstant()) {
             return new DisequalityGuard(sv, register);
         } else {
-            r = (SymbolicDataValue) relabelling.get(register);
+            r = relabelling.get(register);
         }
         r = (r == null) ? register : r;
         return new DisequalityGuard(sv, r);
@@ -108,7 +108,7 @@ public class DisequalityGuard extends SDTIfGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue<?>> regPotential) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
         if (other instanceof EqualityGuard) {
             if (!(other.equals(this.toDeqGuard()))) {

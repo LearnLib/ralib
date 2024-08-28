@@ -52,7 +52,7 @@ import net.automatalib.word.Word;
  */
 public class IOAutomatonBuilder extends AutomatonBuilder {
 
-    private final Map<Object, Constant> reverseConsts;
+    private final Map<Object, Constant<?>> reverseConsts;
 
     public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts) {
@@ -95,8 +95,8 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
 
         Set<Parameter<?>> fresh = new LinkedHashSet<>();
         ParameterGenerator pgen = new ParameterGenerator();
-        for (DataType t : action.getPtypes()) {
-            Parameter p = pgen.next(t);
+        for (DataType<?> t : action.getPtypes()) {
+            Parameter<?> p = pgen.next(t);
             if (!outmap.containsKey(p)) {
                 fresh.add(p);
             }
@@ -118,25 +118,25 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
             }
         }
         else if (expr instanceof AtomicGuardExpression) {
-            AtomicGuardExpression nbe = (AtomicGuardExpression) expr;
+            AtomicGuardExpression<?, ?> nbe = (AtomicGuardExpression<?, ?>) expr;
             if (nbe.getRelation() == Relation.EQUALS) {
-                SymbolicDataValue left = nbe.getLeft();
-                SymbolicDataValue right = nbe.getRight();
+                SymbolicDataValue<?> left = nbe.getLeft();
+                SymbolicDataValue<?> right = nbe.getRight();
 
-                Parameter p = null;
-                SymbolicDataValue sv = null;
+                Parameter<?> p = null;
+                SymbolicDataValue<?> sv = null;
 
                 if (left instanceof Parameter) {
                     if (right instanceof Parameter) {
                         throw new UnsupportedOperationException("not implemented yet.");
                     }
                     else {
-                        p = (Parameter) left;
+                        p = (Parameter<?>) left;
                         sv = right;
                     }
                 }
                 else {
-                    p = (Parameter) right;
+                    p = (Parameter<?>) right;
                     sv = left;
                 }
 

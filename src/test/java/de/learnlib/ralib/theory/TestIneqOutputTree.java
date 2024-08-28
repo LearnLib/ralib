@@ -51,7 +51,7 @@ import net.automatalib.word.Word;
  */
 public class TestIneqOutputTree extends RaLibTestSuite {
 
-    private final static DataType TYPE = PriorityQueueSUL.DOUBLE_TYPE;
+    private final static DataType<BigDecimal> TYPE = PriorityQueueSUL.DOUBLE_TYPE;
     private final static InputSymbol IN = new InputSymbol("in", TYPE);
     private final static OutputSymbol OUT = new OutputSymbol("out", TYPE);
 
@@ -67,7 +67,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
 
         @Override
         public PSymbolInstance step(PSymbolInstance i) throws SULException {
-            return new PSymbolInstance(OUT, new DataValue(TYPE,
+            return new PSymbolInstance(OUT, new DataValue<>(TYPE,
                     ((BigDecimal)i.getParameterValues()[0].getValue()).add(BigDecimal.ONE)));
         }
 
@@ -76,7 +76,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
     @Test(enabled=false)
     public void testIneqEqTree() {
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        final Map<DataType<?>, Theory<?>> teachers = new LinkedHashMap<>();
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         BiggerSUL sul = new BiggerSUL();
@@ -87,10 +87,10 @@ public class TestIneqOutputTree extends RaLibTestSuite {
                 IN);
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(IN, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
+                new PSymbolInstance(IN, new DataValue<>(TYPE,  BigDecimal.valueOf(1.0))));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(OUT, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
+                new PSymbolInstance(OUT, new DataValue<>(TYPE,  BigDecimal.valueOf(1.0))));
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)

@@ -57,7 +57,7 @@ public class Component implements LocationComponent {
 
     private final Row primeRow;
 
-    private final Map<Row, VarMapping> otherRows = new LinkedHashMap<>();
+    private final Map<Row, VarMapping<?, ?>> otherRows = new LinkedHashMap<>();
 
     private final ObservationTable obs;
 
@@ -134,7 +134,7 @@ public class Component implements LocationComponent {
         }
 
         primeRow.addSuffix(suffix, oracle);
-        Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
+        Map<Row, VarMapping<?, ?>> otherOld = new LinkedHashMap<>(otherRows);
         otherRows.clear();
         List<Component> newComponents = new ArrayList<>();
 
@@ -252,7 +252,7 @@ public class Component implements LocationComponent {
     }
 
     @Override
-    public VarMapping getRemapping(PrefixContainer r) {
+    public VarMapping<?, ?> getRemapping(PrefixContainer r) {
         return this.otherRows.get(r);
     }
 
@@ -301,7 +301,7 @@ public class Component implements LocationComponent {
         }
         sb.append("******** ROWS: ").append("\n");
         this.primeRow.toString(sb);
-        for (Entry<Row, VarMapping> e : otherRows.entrySet()) {
+        for (Entry<Row, VarMapping<?, ?>> e : otherRows.entrySet()) {
             e.getKey().toString(sb);
             sb.append("==== remapping: ").append(e.getValue()).append("\n");
         }

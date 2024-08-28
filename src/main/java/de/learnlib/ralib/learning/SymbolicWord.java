@@ -45,15 +45,15 @@ public class SymbolicWord {
     		ParameterizedSymbol ps = actions.getSymbol(i);
     		PSymbolInstance psi = concreteSuffix.getSymbol(i);
     		int arity = ps.getArity();
-    		DataType[] dts = ps.getPtypes();
-    		DataValue[] dvs = psi.getParameterValues();
+    		DataType<?>[] dts = ps.getPtypes();
+    		DataValue<?>[] dvs = psi.getParameterValues();
 
     		assert psi.getBaseSymbol().getArity() == arity;
     		assert Arrays.deepEquals(psi.getBaseSymbol().getPtypes(), dts);
 
     		for (int j = 0; j < arity; j++ ) {
-    			DataType dt = dts[j];
-    			SuffixValue sv = svGen.next(dt);
+    			DataType<?> dt = dts[j];
+    			SuffixValue<?> sv = svGen.next(dt);
     			vals.put(sv, dvs[j]);
     		}
     	}
