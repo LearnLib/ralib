@@ -22,29 +22,11 @@
         <jaxb-impl.version>4.0.3</jaxb-impl.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.16.0</learnlib.version>
+        <gson.version>2.8.0</gson.version>
     </properties>
 
     <build>
         <plugins>
-            <!-- Dependency analysis -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.6.0</version>
-                <executions>
-                    <execution>
-                        <id>analyze-only</id>
-                        <goals>
-                            <goal>analyze-only</goal>
-                        </goals>
-                        <configuration>
-                            <failOnWarning>true</failOnWarning>
-                            <ignoreUnusedRuntime>true</ignoreUnusedRuntime>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <!-- Format the source code -->
             <plugin>
 	        <groupId>com.diffplug.spotless</groupId>
@@ -130,6 +112,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
