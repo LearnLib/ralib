@@ -134,6 +134,14 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.BooleanOption("export.model",
                     "Export final model to model.xml", Boolean.FALSE, true);
 
+    protected static final ConfigurationOption.BooleanOption OPTION_EXPORT_HYPOTHESES
+            = new ConfigurationOption.BooleanOption("export.model",
+            "Export hypotheses .xml files", Boolean.FALSE, true);
+
+    protected static final ConfigurationOption.StringOption OPTION_OUTPUT_FOLDER
+            = new ConfigurationOption.StringOption("output.folder",
+            "Folder in which exported models are stored.", "{user.dir}", true);
+
     protected static final ConfigurationOption.BooleanOption OPTION_USE_SUFFIXOPT
             = new ConfigurationOption.BooleanOption("use.suffixopt",
                     "Do only use fresh values for non-free suffix values", Boolean.FALSE, true);
@@ -202,6 +210,10 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
 
     protected boolean exportModel = false;
 
+    protected boolean exportHypotheses = false;
+
+    protected String outputDir;
+
     protected boolean useFresh = false;
 
     protected final Map<String, TypedTheory> teacherClasses = new HashMap<>();
@@ -232,6 +244,8 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
         this.useSuffixOpt = OPTION_USE_SUFFIXOPT.parse(config);
         this.timeoutMillis = OPTION_TIMEOUT.parse(config);
         this.exportModel = OPTION_EXPORT_MODEL.parse(config);
+        this.exportHypotheses = OPTION_EXPORT_HYPOTHESES.parse(config);
+        this.outputDir = OPTION_OUTPUT_FOLDER.parse(config);
         this.useFresh = OPTION_USE_FRESH_VALUES.parse(config);
 
         this.learner = OPTION_LEARNER.parse(config);
