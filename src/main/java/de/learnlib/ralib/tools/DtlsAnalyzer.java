@@ -29,6 +29,7 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.ralambda.RaDT;
 import de.learnlib.ralib.learning.ralambda.RaLambda;
@@ -295,66 +296,90 @@ public class DtlsAnalyzer extends AbstractToolWithRandomWalk {
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
         Hypothesis hyp = null;
 
+        QueryStatistics queryStats = rastar.getQueryStatistics();
         int rounds = 0;
-        while (maxRounds < 0 || rounds < maxRounds) {
+        boolean learningSuccessful = false;
+        String reason = null;
+        try {
+	        while (maxRounds < 0 || rounds < maxRounds) {
 
-            rounds++;
-            rastar.learn();
-            hyp = rastar.getHypothesis();
-            System.out.println("HYP:------------------------------------------------");
-            System.out.println(hyp);
-            System.out.println("----------------------------------------------------");
-            if (exportHypotheses) {
-                exportModel(hyp, String.format("hyp-%d", rounds));
-            }
+	            rounds++;
+	            rastar.learn();
+	            hyp = rastar.getHypothesis();
+	            System.out.println("HYP:------------------------------------------------");
+	            System.out.println(hyp);
+	            System.out.println("----------------------------------------------------");
+	            if (exportHypotheses) {
+	                exportModel(hyp, String.format("hyp-%d", rounds));
+	            }
 
-            SimpleProfiler.stop(__LEARN__);
-            SimpleProfiler.start(__EQ__);
-            DefaultQuery<PSymbolInstance, Boolean> ce = null;
+	            SimpleProfiler.stop(__LEARN__);
+	            SimpleProfiler.start(__EQ__);
+	            DefaultQuery<PSymbolInstance, Boolean> ce = null;
 
-            SimpleProfiler.stop(__EQ__);
-            SimpleProfiler.start(__SEARCH__);
-            if (findCounterexamples) {
-                ce = this.randomWalk.findCounterExample(hyp, null);
-            }
+	            SimpleProfiler.stop(__EQ__);
+	            SimpleProfiler.start(__SEARCH__);
+	            if (findCounterexamples) {
+	                ce = this.randomWalk.findCounterExample(hyp, null);
+	                learningSuccessful = true;
+	            }
 
-            SimpleProfiler.stop(__SEARCH__);
-            System.out.println("CE: " + ce);
-            if (ce == null) {
-                break;
-            }
+	            SimpleProfiler.stop(__SEARCH__);
+	            System.out.println("CE: " + ce);
+	            if (ce == null) {
+	                break;
+	            }
 
-            resets = trackingSulTest.getResets();
-            inputs = trackingSulTest.getInputs();
+	            resets = trackingSulTest.getResets();
+	            inputs = trackingSulTest.getInputs();
 
-            SimpleProfiler.start(__LEARN__);
-            ceLengths.add(ce.getInput().length());
+	            SimpleProfiler.start(__LEARN__);
+	            ceLengths.add(ce.getInput().length());
 
-            if (useCeOptimizers) {
-                ce = ceOptLoops.optimizeCE(ce.getInput(), hyp);
-                System.out.println("Shorter CE: " + ce);
-                ce = ceOptAsrep.optimizeCE(ce.getInput(), hyp);
-                System.out.println("New Prefix CE: " + ce);
-                ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
-                System.out.println("Prefix of CE is CE: " + ce);
-            }
+	            if (useCeOptimizers) {
+	            	queryStats.setPhase(QueryStatistics.CE_OPTIMIZE);
+	                ce = ceOptLoops.optimizeCE(ce.getInput(), hyp);
+	                System.out.println("Shorter CE: " + ce);
+	                ce = ceOptAsrep.optimizeCE(ce.getInput(), hyp);
+	                System.out.println("New Prefix CE: " + ce);
+	                ce = ceOptPref.optimizeCE(ce.getInput(), hyp);
+	                System.out.println("Prefix of CE is CE: " + ce);
+	                queryStats.setPhase(QueryStatistics.TESTING);
+	            }
 
-            ceLengthsShortened.add(ce.getInput().length());
+	            ceLengthsShortened.add(ce.getInput().length());
 
-            Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
-            System.out.println("### SYS TRACE: " + sysTrace);
+	            Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
+	            System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
-            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
-            Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
-            System.out.println("### HYP TRACE: " + hypTrace);
+	            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
+	            IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
+	            Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
+	            System.out.println("### HYP TRACE: " + hypTrace);
 
-            assert !hypTrace.equals(sysTrace);
-            rastar.addCounterexample(ce);
+	            assert !hypTrace.equals(sysTrace);
+	            rastar.addCounterexample(ce);
+	        }
+	        if (rounds == maxRounds) {
+	        	reason = "Round limit reached";
+	        }
+        } catch(Exception e) {
+        	System.out.println("Learning aborted due to exception");
+        	System.out.println(e);
+        	if (e instanceof TimeOutException) {
+        		reason = "Time limit reached";
+        	} else {
+        		reason = "Exception " + e.getMessage();
+        	}
         }
 
         System.out.println("=============================== STOP ===============================");
         System.out.println(SimpleProfiler.getResults());
+
+        System.out.println("Learning successful: " + learningSuccessful);
+        if (!learningSuccessful) {
+        	System.out.println("Failure reason: " + reason);
+        }
 
         System.out.println("ce lengths (original): "
                 + Arrays.toString(ceLengths.toArray()));
@@ -398,7 +423,6 @@ public class DtlsAnalyzer extends AbstractToolWithRandomWalk {
         // + sums
         System.out.println("Resets: " + (resets + sulLearn.getResets()));
         System.out.println("Inputs: " + (inputs + sulLearn.getInputs()));
-
     }
 
     private void exportModel(RegisterAutomaton ra, String name) {
