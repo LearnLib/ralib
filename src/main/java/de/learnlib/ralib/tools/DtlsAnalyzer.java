@@ -29,6 +29,8 @@ import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.Measurements;
+import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.ralambda.RaDT;
@@ -190,7 +192,8 @@ public class DtlsAnalyzer extends AbstractToolWithRandomWalk {
                 }
             }
 
-            MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver);
+            Measurements measurements = new Measurements();
+            MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
             MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
             final long timeout = this.timeoutMillis;
@@ -205,8 +208,6 @@ public class DtlsAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            //this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-
             switch (this.learner) {
                 case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
                     this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
@@ -216,11 +217,14 @@ public class DtlsAnalyzer extends AbstractToolWithRandomWalk {
                     ((RaLambda)this.rastar).setSolver(solver);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_RADT:
-                    this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
-                    break;
+                	this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+                	break;
                 default:
                     throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);
             }
+
+            QueryStatistics queryStats = new QueryStatistics(measurements, sulLearn, trackingSulTest);
+            this.rastar.setStatisticCounter(queryStats);
 
             if (findCounterexamples) {
 
