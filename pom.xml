@@ -17,7 +17,7 @@
 
         <!-- Dependency versions appear alphabetically below -->
         <commons-lang.version>3.17.0</commons-lang.version>
-        <guava.version>33.3.0-jre</guava.version>
+        <guava.version>33.3.1-jre</guava.version>
         <jakarta-xml.version>4.0.2</jakarta-xml.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
