@@ -48,7 +48,7 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        List<SDTGuard> s = new ArrayList();
+        List<SDTGuard> s = new ArrayList<>();
         s.add(this);
         return s;
     }
@@ -60,6 +60,9 @@ public class SDTTrueGuard extends SDTGuard {
 
     @Override
     public SDTGuard relabel(VarMapping relabelling) {
+        if (relabelling.containsKey(parameter)) {
+            return new SDTTrueGuard((SymbolicDataValue.SuffixValue) relabelling.get(parameter));
+        }
         return this;
     }
 

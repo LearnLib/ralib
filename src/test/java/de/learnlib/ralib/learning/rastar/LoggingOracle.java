@@ -18,12 +18,14 @@ package de.learnlib.ralib.learning.rastar;
 
 import java.util.Map;
 
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -72,4 +74,8 @@ public class LoggingOracle implements TreeOracle {
     	return treeoracle.instantiate(prefix, suffix, sdt, piv);
     }
 
+    @Override
+    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
+    	return new SymbolicSuffixRestrictionBuilder(new Constants());
+    }
 }

@@ -2,6 +2,7 @@ package de.learnlib.ralib.learning;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -13,6 +14,10 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -32,6 +37,15 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       //logger.log(Level.FINE, "SYS: {0}", model);
 
       Constants consts = loader.getConstants();
+
+      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+      loader.getDataTypes().stream().forEach((t) -> {
+          TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+          theory.setUseSuffixOpt(true);
+          teachers.put(t, theory);
+      });
+
+      SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -76,8 +90,8 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       new PSymbolInstance(iget),
       new PSymbolInstance(oget,d0));
 
-      SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1, consts);
-      SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, consts);
+      SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1, restrictionBuilder);
+      SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, restrictionBuilder);
 
       LinkedHashMap<Integer, SuffixValue> dataValues = new LinkedHashMap<Integer, SuffixValue>();
       for (int i=1; i<=5; i++) {
