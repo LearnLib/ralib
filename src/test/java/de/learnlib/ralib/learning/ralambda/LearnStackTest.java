@@ -60,8 +60,7 @@ public class LearnStackTest extends RaLibTestSuite {
 
         Measurements mes = new Measurements();
 
-        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
-              dwOracle, teachers, new Constants(), solver), mes);
+        MeasuringOracle mto = new MeasuringOracle(dwOracle, teachers, new Constants(), solver, mes);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -263,15 +262,15 @@ public class LearnStackTest extends RaLibTestSuite {
 			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
 			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
-			    "[{TQ: 51, Resets: 1582, Inputs: 0}," +
+			    "[{TQ: 51, Resets: 1589, Inputs: 0}," +
 			    " {TQ: 50, Resets: 12577, Inputs: 0}," +
 			    " {TQ: 63, Resets: 1317, Inputs: 0}," +
-			    " {TQ: 50, Resets: 10633, Inputs: 0}," +
-			    " {TQ: 39, Resets: 10917, Inputs: 0}," +
+			    " {TQ: 50, Resets: 10669, Inputs: 0}," +
+			    " {TQ: 39, Resets: 11088, Inputs: 0}," +
 			    " {TQ: 62, Resets: 1310, Inputs: 0}," +
 			    " {TQ: 60, Resets: 1298, Inputs: 0}," +
 			    " {TQ: 49, Resets: 1207, Inputs: 0}," +
-			    " {TQ: 53, Resets: 11290, Inputs: 0}," +
+			    " {TQ: 53, Resets: 11461, Inputs: 0}," +
 			    " {TQ: 49, Resets: 1301, Inputs: 0}]");
     }
 }
