@@ -21,6 +21,7 @@ import java.util.Map;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -74,5 +75,7 @@ public interface TreeOracle {
 
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
     		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
+
+    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 
 }
