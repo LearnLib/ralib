@@ -19,6 +19,7 @@ package de.learnlib.ralib.words;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.word.Word;
@@ -80,6 +82,23 @@ public final class DataWords {
     }
 
     /**
+     * returns a sequence of all data types in a data word
+     *
+     * @param word
+     * @return
+     */
+    public static DataType[] typesOf(Word<ParameterizedSymbol> word) {
+    	DataType[] types = new DataType[DataWords.paramLength(word)];
+    	int i = 0;
+    	for (ParameterizedSymbol ps : word) {
+    		for (DataType t : ps.getPtypes()) {
+    			types[i++] = t;
+    		}
+    	}
+    	return types;
+    }
+
+    /**
      * returns set of unique data values of some type in a data word.
      *
      * @param <T>
@@ -105,7 +124,8 @@ public final class DataWords {
      * @param in
      * @return
      */
-    public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
+    @SafeVarargs
+	public static <T> Set<DataValue<T>> joinValsToSet(Collection<DataValue<T>> ... in) {
         Set<DataValue<T>> vals = new LinkedHashSet<>();
         for (Collection<DataValue<T>> s : in) {
             vals.addAll(s);
@@ -165,6 +185,22 @@ public final class DataWords {
             symbols[idx++] = new PSymbolInstance(ps, pvalues);
         }
         return Word.fromSymbols(symbols);
+    }
+
+    public static Word<PSymbolInstance> instantiate(
+    		Word<ParameterizedSymbol> actions,
+    		Collection<SuffixValue> suffixValues) {
+    	PSymbolInstance[] symbols = new PSymbolInstance[actions.length()];
+    	int idx = 0;
+    	Iterator<SuffixValue> svit = suffixValues.iterator();
+    	for (ParameterizedSymbol ps : actions) {
+    		DataValue[] pvalues = new DataValue[ps.getArity()];
+    		for (int i = 0; i < ps.getArity(); i++) {
+    			pvalues[i] = svit.next();
+    		}
+    		symbols[idx++] = new PSymbolInstance(ps, pvalues);
+    	}
+    	return Word.fromSymbols(symbols);
     }
 
     /**

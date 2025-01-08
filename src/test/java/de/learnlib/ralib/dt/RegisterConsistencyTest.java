@@ -16,10 +16,14 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
@@ -27,6 +31,7 @@ import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class RegisterConsistencyTest extends RaLibTestSuite {
@@ -38,13 +43,45 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 	private static class DummyDT extends DT {
 
+		private static class DummyOracle implements TreeOracle {
+
+			@Override
+			public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+				return null;
+			}
+
+			@Override
+			public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
+					SymbolicDecisionTree... sdts) {
+				return null;
+			}
+
+			@Override
+			public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current,
+					PIV piv, SymbolicDecisionTree... sdts) {
+				return null;
+			}
+
+			@Override
+			public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
+					SymbolicDecisionTree sdt, PIV piv) {
+				return null;
+			}
+
+			@Override
+			public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
+				return null;
+			}
+
+		}
+
 		private DTLeaf prefixLeaf;
 		private DTLeaf leaf;
 
 		public SymbolicSuffix addedSuffix = null;
 
 		public DummyDT(MappedPrefix word, MappedPrefix prefix) {
-			super(null, false, new Constants(), null);
+			super(new DummyOracle(), false, new Constants(), null);
 			leaf = new DTLeaf(word, null);
 			prefixLeaf = new DTLeaf(prefix, null);
 		}

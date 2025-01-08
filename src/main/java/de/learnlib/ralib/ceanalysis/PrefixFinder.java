@@ -30,6 +30,7 @@ import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -45,6 +46,7 @@ public class PrefixFinder {
 
     private final SDTLogicOracle sdtOracle;
 
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
     //private Map<Word<PSymbolInstance>, LocationComponent> components;
 
     private final Constants consts;
@@ -58,15 +60,14 @@ public class PrefixFinder {
 
     public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
-            //Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts) {
 
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
         this.hypothesis = hypothesis;
         this.sdtOracle = sdtOracle;
-        //this.components = components;
         this.consts = consts;
+        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
     }
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {
@@ -102,7 +103,7 @@ public class PrefixFinder {
 			// check for location counterexample ...
 			//
 			Word<PSymbolInstance> suffix = ce.suffix(ce.length() - nextPrefix.length());
-			SymbolicSuffix symSuffix = new SymbolicSuffix(nextPrefix, suffix, consts);
+			SymbolicSuffix symSuffix = new SymbolicSuffix(nextPrefix, suffix, restrictionBuilder);
 			LOC_CHECK: for (Word<PSymbolInstance> u : hypothesis.possibleAccessSequences(prefix)) {
 				Word<PSymbolInstance> uAlpha = hypothesis.transformTransitionSequence(nextPrefix, u);
 				TreeQueryResult uAlphaResult = sulOracle.treeQuery(uAlpha, symSuffix);
@@ -179,7 +180,7 @@ public class PrefixFinder {
     	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
 
     	Word<PSymbolInstance> suffix = ce.suffix(ce.length() - (idx+1));
-    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
     	Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
     	for (Word<PSymbolInstance> location : locations) {
@@ -217,7 +218,7 @@ public class PrefixFinder {
     	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
 
     	Word<PSymbolInstance> suffix = ce.suffix(ce.length() - (idx+1));
-    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, consts);
+    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
     	Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
     	for (Word<PSymbolInstance> location : locations) {
@@ -264,7 +265,7 @@ public class PrefixFinder {
 
         	if (exprR.isSatisfied(vals)) {
         		candidate = path.prefix(prefix.length() + 1);
-        		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), consts);
+        		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), restrictionBuilder);
         		return new SymbolicWord(candidate, suffix);
         	}
         }
