@@ -102,7 +102,7 @@ public class RaLibLearningExperimentRunner {
 	}
 
 	/**
-	 * Launches a learning experiments for acceptor RAs.
+	 * Launches a learning experiment for acceptor RAs.
 	 *
 	 */
 	public Hypothesis run(RaLearningAlgorithmName algorithmName, DataWordOracle dataOracle,
