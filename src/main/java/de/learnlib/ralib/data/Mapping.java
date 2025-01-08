@@ -94,7 +94,7 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
     }
 
     public Set<K> getAllKeys(V value) {
-        Set<K> retKeySet = new LinkedHashSet();
+        Set<K> retKeySet = new LinkedHashSet<K>();
         for (Map.Entry<K,V> entry : this.entrySet()) {
             //log.trace("key = " + K);
             //log.trace("value = " + entry.getKey().toString());

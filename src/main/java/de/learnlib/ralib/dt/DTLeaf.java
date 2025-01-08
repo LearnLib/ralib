@@ -399,7 +399,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         }
 
         for (MappedPrefix sp : shortPrefixes.get()) {
-            ret = ret & updateBranching(ps, (ShortPrefix) sp, dt);
+            ret &= updateBranching(ps, (ShortPrefix) sp, dt);
         }
 
         branching.put(ps, newB);

@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  *
  * @author falk
- * @param <T>
+ * @param <T>  a type parameter
  */
 public class DataValue<T> {
 
@@ -33,7 +33,6 @@ public class DataValue<T> {
         this.type = type;
         this.id = id;
     }
-
 
     @Override
     public String toString() {
@@ -56,7 +55,7 @@ public class DataValue<T> {
         if (!(obj instanceof DataValue)) {
             return false;
         }
-        final DataValue other = (DataValue) obj;
+        final DataValue<T> other = (DataValue) obj;
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }

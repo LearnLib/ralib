@@ -186,7 +186,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word w, Word t) {
+        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word<PSymbolInstance> w, Word<PSymbolInstance> t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = new VarValuation(r1);
