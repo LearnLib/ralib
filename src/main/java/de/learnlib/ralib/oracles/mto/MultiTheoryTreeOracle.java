@@ -164,7 +164,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     /**
-     * This method computes the initial branching for an SDT. It re-uses existing
+     * This method computes the initial branching for an SDT. It reuses existing
      * valuations where possible.
      *
      */
@@ -498,7 +498,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     /**
-     * This method computes the initial branching for an SDT. It re-uses existing
+     * This method computes the initial branching for an SDT. It reuses existing
      * valuations where possible.
      *
      */
