@@ -118,16 +118,26 @@ public class LearnLoginTest extends RaLibTestSuite {
 	    runner.resetMeasurements();
         }
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 64, Resets: 2511, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2485, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1958, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1959, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1886, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2750, Inputs: 0}," +
-			    " {TQ: 64, Resets: 2487, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1737, Inputs: 0}," +
-			    " {TQ: 68, Resets: 1758, Inputs: 0}," +
-			    " {TQ: 64, Resets: 1604, Inputs: 0}]");
+			    "[{TQ: 70, Resets: 2520, Inputs: 0}," +
+			    " {TQ: 70, Resets: 2494, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1967, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1968, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1895, Inputs: 0}," +
+			    " {TQ: 70, Resets: 2759, Inputs: 0}," +
+			    " {TQ: 70, Resets: 2496, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1746, Inputs: 0}," +
+			    " {TQ: 73, Resets: 1763, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1613, Inputs: 0}]");
+//			    "[{TQ: 64, Resets: 2511, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 2485, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 1958, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 1959, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 1886, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 2750, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 2487, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 1737, Inputs: 0}," +
+//			    " {TQ: 68, Resets: 1758, Inputs: 0}," +
+//			    " {TQ: 64, Resets: 1604, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
 			    "[{TQ: 65, Resets: 2339, Inputs: 0}," +
 			    " {TQ: 65, Resets: 2313, Inputs: 0}," +

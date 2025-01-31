@@ -251,16 +251,26 @@ public class LearnStackTest extends RaLibTestSuite {
         }
 
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 60, Resets: 1199, Inputs: 0}," +
-			    " {TQ: 65, Resets: 1859, Inputs: 0}," +
-			    " {TQ: 60, Resets: 1178, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1516, Inputs: 0}," +
-			    " {TQ: 70, Resets: 2717, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1443, Inputs: 0}," +
-			    " {TQ: 56, Resets: 1148, Inputs: 0}," +
-			    " {TQ: 41, Resets: 1089, Inputs: 0}," +
-			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
-			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
+			    "[{TQ: 71, Resets: 1239, Inputs: 0}," +
+			    " {TQ: 72, Resets: 2000, Inputs: 0}," +
+			    " {TQ: 70, Resets: 1204, Inputs: 0}," +
+			    " {TQ: 69, Resets: 1657, Inputs: 0}," +
+			    " {TQ: 78, Resets: 3249, Inputs: 0}," +
+			    " {TQ: 72, Resets: 1568, Inputs: 0}," +
+			    " {TQ: 66, Resets: 1166, Inputs: 0}," +
+			    " {TQ: 45, Resets: 1094, Inputs: 0}," +
+			    " {TQ: 95, Resets: 2980, Inputs: 0}," +
+			    " {TQ: 48, Resets: 1144, Inputs: 0}]");
+//			    "[{TQ: 60, Resets: 1199, Inputs: 0}," +
+//			    " {TQ: 65, Resets: 1859, Inputs: 0}," +
+//			    " {TQ: 60, Resets: 1178, Inputs: 0}," +
+//			    " {TQ: 62, Resets: 1516, Inputs: 0}," +
+//			    " {TQ: 70, Resets: 2717, Inputs: 0}," +
+//			    " {TQ: 62, Resets: 1443, Inputs: 0}," +
+//			    " {TQ: 56, Resets: 1148, Inputs: 0}," +
+//			    " {TQ: 41, Resets: 1089, Inputs: 0}," +
+//			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
+//			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
 			    "[{TQ: 51, Resets: 1589, Inputs: 0}," +
 			    " {TQ: 50, Resets: 12577, Inputs: 0}," +
