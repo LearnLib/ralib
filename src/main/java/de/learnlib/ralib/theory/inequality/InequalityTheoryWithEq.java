@@ -25,14 +25,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
@@ -43,15 +46,18 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.solver.jconstraints.JContraintsUtil;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
@@ -62,7 +68,9 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -483,6 +491,49 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     public abstract DataValue<T> instantiate(SDTGuard guard, Valuation val,
             Constants constants, Collection<DataValue<T>> alreadyUsedValues);
 
+//    @Override
+//    public DataValue<T> representativeDataValue(Mapping<SymbolicDataValue, DataValue<?>> valuation, SDTGuard guard, DataType type) {
+//    	List<DataValue<T>> potSet = new ArrayList<>();
+//    	for (DataValue<?> dv : valuation.values()) {
+//    		if (dv.getType().equals(type)) {
+//        		potSet.add(safeCast(dv));
+//    		}
+//    	}
+//
+//    	if (guard instanceof EqualityGuard) {
+//    		EqualityGuard eqGuard = (EqualityGuard) guard;
+//    		SymbolicDataValue ereg = eqGuard.getRegister();
+//    		DataValue<?> dv = valuation.get(ereg);
+//    		assert dv.getType().equals(type);
+//    		return safeCast(dv);
+//    	} else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+//    		return getFreshValue(potSet);
+//    	} else {
+//
+//    	}
+//    }
+
+    private Expression<Boolean> instantiateGuard(SDTGuard guard) {
+    	if (guard instanceof SDTMultiGuard) {
+    		SDTMultiGuard mg = (SDTMultiGuard) guard;
+    		List<Expression<Boolean>> eList = new ArrayList<>();
+    		for (SDTGuard g : mg.getGuards()) {
+    			GuardExpression x = g.toExpr();
+    			eList.add(JContraintsUtil.toExpression(x));
+    		}
+
+    		if (guard instanceof SDTAndGuard) {
+    			return ExpressionUtil.and(eList);
+    		} else if (guard instanceof SDTOrGuard) {
+    			return ExpressionUtil.or(eList);
+    		} else {
+    			throw new RuntimeException("Incompatible multiguard");
+    		}
+    	}
+    	GuardExpression x = guard.toExpr();
+    	return JContraintsUtil.toExpression(x);
+    }
+
     @Override
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
@@ -494,7 +545,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             Set<DataValue<T>> oldDvs) {
 
         DataType type = param.getType();
-        DataValue<T> returnThis = null;
+//        DataValue<T> returnThis = null;
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
         if (guard instanceof EqualityGuard) {
@@ -503,75 +554,174 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (ereg.isRegister()) {
                 Parameter p = piv.getOneKey((Register) ereg);
                 int idx = p.getId();
-                returnThis = prefixValues.get(idx - 1);
+                return prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
                 Parameter p = new Parameter(type, ereg.getId());
-                returnThis = (DataValue<T>) pval.get(p);
+                return (DataValue<T>) pval.get(p);
             } else if (ereg.isConstant()) {
-                returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
+                return (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
             }
         } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
-
             Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
                     constants.<T>values(type),
                     DataWords.<T>valSet(prefix, type),
                     pval.<T>values(type));
 
-            returnThis = this.getFreshValue(new ArrayList<>(potSet));
-        } else {
-            Collection<DataValue<T>> alreadyUsedValues
-                    = DataWords.<T>joinValsToSet(
-                            constants.<T>values(type),
-                            DataWords.<T>valSet(prefix, type),
-                            pval.<T>values(type));
-            Valuation val = new Valuation();
-            if (guard instanceof IntervalGuard) {
-                IntervalGuard iGuard = (IntervalGuard) guard;
-                if (!iGuard.isBiggerGuard()) {
-                    SymbolicDataValue r = iGuard.getRightReg();
-                    DataValue<T> regVal = getRegisterValue(r, piv,
-                            prefixValues, constants, pval);
-
-                    val.setValue(toVariable(r), regVal.getId());
-                }
-                if (!iGuard.isSmallerGuard()) {
-                    SymbolicDataValue l = iGuard.getLeftReg();
-                    DataValue regVal = getRegisterValue(l, piv,
-                            prefixValues, constants, pval);
-
-                    val.setValue(toVariable(l), regVal.getId());
-                }
-            } else if (guard instanceof SDTIfGuard) {
-                SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
-                DataValue<T> regVal = getRegisterValue(r, piv,
-                        prefixValues, constants, pval);
-                val.setValue(toVariable(r), regVal.getId());
-            } else if (guard instanceof SDTOrGuard) {
-                SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
-
-                returnThis = instantiate(iGuard, val, constants, alreadyUsedValues);
-            } else if (guard instanceof SDTAndGuard) {
-                assert ((SDTAndGuard) guard).getGuards().stream().allMatch(g -> g instanceof DisequalityGuard);
-                SDTGuard aGuard = ((SDTAndGuard) guard).getGuards().get(0);
-                returnThis = this.instantiate(prefix, ps, piv, pval, constants, aGuard, param, oldDvs);
-            } else {
-                throw new IllegalStateException("only =, != or interval allowed. Got " + guard);
-            }
-            if (!(oldDvs.isEmpty())) {
-                for (DataValue<T> oldDv : oldDvs) {
-                    Valuation newVal = new Valuation();
-                    newVal.putAll(val);
-                    newVal.setValue(toVariable( new SuffixValue(param.getType(), param.getId()) ), oldDv.getId());
-                    DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
-                    if (inst != null) {
-                        return inst;
-                    }
-                }
-            }
-            returnThis = instantiate(guard, val, constants, alreadyUsedValues);
-
+            return getFreshValue(new ArrayList<>(potSet));
         }
-        return returnThis;
+
+        Valuation valuation = new Valuation();
+        Mapping<SymbolicDataValue, DataValue<?>> valueMapping = new Mapping<>();
+        ParameterGenerator pgen = new ParameterGenerator();
+        for (DataValue<?> pv : prefixValues) {
+        	Parameter p = pgen.next(pv.getType());
+        	valuation.setValue(toVariable(p), pv.getId());
+        	valueMapping.put(p, pv);
+        }
+        for (Map.Entry<Constant, DataValue<?>> c : constants.entrySet()) {
+        	DataValue<?> d = (DataValue<?>) c.getValue().getId();
+        	valuation.setValue(toVariable(c.getKey()), d.getId());
+        	valueMapping.put(c.getKey(), d);
+        }
+        for (SymbolicDataValue s : guard.getComparands(guard.getParameter())) {
+        	if (s.isSuffixValue()) {
+        		Parameter p = new Parameter(s.getType(), s.getId());
+        		DataValue<?> dv = pval.get(p);
+        		valuation.setValue(toVariable(s), dv.getId());
+        		valueMapping.put(s, dv);
+        	} else if (s.isRegister()) {
+        		Parameter p = piv.getOneKey((Register)s);
+        		DataValue<?> dv = prefixValues.get(p.getId() - 1);
+        		valuation.setValue(toVariable(s), dv.getId());
+        		valueMapping.put(s, dv);
+        	}
+        }
+        Collection<DataValue<T>> alreadyUsedValues
+        = DataWords.<T>joinValsToSet(
+                constants.<T>values(type),
+                DataWords.<T>valSet(prefix, type),
+                pval.<T>values(type));
+
+        Expression<Boolean> x = instantiateGuard(guard);
+        Set<SymbolicDataValue> expressed = new LinkedHashSet<>();
+        List<Expression<Boolean>> eList = symbolicDataValueExpression(expressed, guard, valuation);
+        eList.add(x);
+        Collection<DataValue<T>> filteredUsedValues = removePotentialEqualities(alreadyUsedValues, guard, valueMapping);
+        DataValue<T> dataValue = instantiate(guard.getParameter(), eList, valuation, filteredUsedValues);
+
+        return dataValue;
+
+//        if (guard instanceof EqualityGuard) {
+//            EqualityGuard eqGuard = (EqualityGuard) guard;
+//            SymbolicDataValue ereg = eqGuard.getRegister();
+//            if (ereg.isRegister()) {
+//                Parameter p = piv.getOneKey((Register) ereg);
+//                int idx = p.getId();
+//                returnThis = prefixValues.get(idx - 1);
+//            } else if (ereg.isSuffixValue()) {
+//                Parameter p = new Parameter(type, ereg.getId());
+//                returnThis = (DataValue<T>) pval.get(p);
+//            } else if (ereg.isConstant()) {
+//                returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
+//            }
+//        } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+//            Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
+//                    constants.<T>values(type),
+//                    DataWords.<T>valSet(prefix, type),
+//                    pval.<T>values(type));
+//
+//            returnThis = this.getFreshValue(new ArrayList<>(potSet));
+//        } else {
+//            Collection<DataValue<T>> alreadyUsedValues
+//                    = DataWords.<T>joinValsToSet(
+//                            constants.<T>values(type),
+//                            DataWords.<T>valSet(prefix, type),
+//                            pval.<T>values(type));
+//            Valuation val = new Valuation();
+//            if (guard instanceof IntervalGuard) {
+//                IntervalGuard iGuard = (IntervalGuard) guard;
+//                if (!iGuard.isBiggerGuard()) {
+//                    SymbolicDataValue r = iGuard.getRightReg();
+//                    DataValue<T> regVal = getRegisterValue(r, piv,
+//                            prefixValues, constants, pval);
+//
+//                    val.setValue(toVariable(r), regVal.getId());
+//                }
+//                if (!iGuard.isSmallerGuard()) {
+//                    SymbolicDataValue l = iGuard.getLeftReg();
+//                    DataValue regVal = getRegisterValue(l, piv,
+//                            prefixValues, constants, pval);
+//
+//                    val.setValue(toVariable(l), regVal.getId());
+//                }
+//            } else if (guard instanceof SDTIfGuard) {
+//                SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
+//                DataValue<T> regVal = getRegisterValue(r, piv,
+//                        prefixValues, constants, pval);
+//                val.setValue(toVariable(r), regVal.getId());
+//            } else if (guard instanceof SDTOrGuard) {
+//                SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
+//
+//                returnThis = instantiate(iGuard, val, constants, alreadyUsedValues);
+//            } else if (guard instanceof SDTAndGuard) {
+//                assert ((SDTAndGuard) guard).getGuards().stream().allMatch(g -> g instanceof DisequalityGuard);
+//                SDTGuard aGuard = ((SDTAndGuard) guard).getGuards().get(0);
+//                returnThis = this.instantiate(prefix, ps, piv, pval, constants, aGuard, param, oldDvs);
+//            } else {
+//                throw new IllegalStateException("only =, != or interval allowed. Got " + guard);
+//            }
+//            if (!(oldDvs.isEmpty())) {
+//                for (DataValue<T> oldDv : oldDvs) {
+//                    Valuation newVal = new Valuation();
+//                    newVal.putAll(val);
+//                    newVal.setValue(toVariable( new SuffixValue(param.getType(), param.getId()) ), oldDv.getId());
+//                    DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
+//                    if (inst != null) {
+//                        return inst;
+//                    }
+//                }
+//            }
+//            returnThis = instantiate(guard, val, constants, alreadyUsedValues);
+//
+//        }
+//        return returnThis;
+    }
+
+    protected abstract List<Expression<Boolean>> symbolicDataValueExpression(Set<SymbolicDataValue> expressed, SDTGuard g, Valuation val);
+
+    protected abstract DataValue<T> instantiate(SuffixValue sp, List<Expression<Boolean>> exprList, Valuation val, Collection<DataValue<T>> alreadyUsedValues);
+
+    private Collection<DataValue<T>> removePotentialEqualities(Collection<DataValue<T>> alreadyUsedValues, SDTGuard guard, Mapping<SymbolicDataValue, DataValue<?>> valueMapping) {
+    	Collection<DataValue<T>> filtered = new ArrayList<>();
+    	filtered.addAll(alreadyUsedValues);
+
+    	if (guard instanceof EqualityGuard) {
+    		SymbolicDataValue s = ((EqualityGuard) guard).getRegister();
+    		DataValue<?> d = valueMapping.get(s);
+    		filtered.remove(d);
+    	} else if (guard instanceof IntervalGuard) {
+    		IntervalGuard ig = (IntervalGuard) guard;
+    		if (ig.isLeftClosed()) {
+    			SymbolicDataValue l = ig.getLeftReg();
+    			if (l != null) {
+    				DataValue<?> d = valueMapping.get(l);
+    				filtered.remove(d);
+    			}
+    		}
+    		if (ig.isRightClosed()) {
+    			SymbolicDataValue r = ig.getRightReg();
+    			if (r != null) {
+    				DataValue<?> d = valueMapping.get(r);
+    				filtered.remove(d);
+    			}
+    		}
+    	} else if (guard instanceof SDTMultiGuard) {
+    		SDTMultiGuard mg = (SDTMultiGuard) guard;
+    		for (SDTGuard g : mg.getGuards()) {
+    			filtered = removePotentialEqualities(filtered, g, valueMapping);
+    		}
+    	}
+    	return filtered;
     }
 
     public void useSuffixOptimization(boolean useSuffixOpt) {

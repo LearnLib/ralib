@@ -33,9 +33,11 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTOrGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
@@ -45,6 +47,7 @@ import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
@@ -134,6 +137,60 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
     @Override
+    protected List<Expression<Boolean>> symbolicDataValueExpression(Set<SymbolicDataValue> expressed, SDTGuard g, Valuation val) {
+    	List<Expression<Boolean>> eList = new ArrayList<>();
+    	if (g instanceof SDTIfGuard) {
+    		SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+    		if (!expressed.contains(si)) {
+    			DataValue<BigDecimal> sdi = new DoubleDataValue(si.getType(), (BigDecimal) val.getValue(toVariable(si)));
+    			gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<>(BuiltinTypes.DECIMAL, (sdi.getId()));
+    			eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(si)));
+    			expressed.add(si);
+    		}
+    	} else if (g instanceof IntervalGuard) {
+    		IntervalGuard iGuard = (IntervalGuard) g;
+    		if (!iGuard.isBiggerGuard()) {
+    			SymbolicDataValue r = iGuard.getRightReg();
+    			if (!expressed.contains(r)) {
+    				DataValue<BigDecimal> ri = new DoubleDataValue(type, (BigDecimal) val.getValue(toVariable(r)));
+    				gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<>(BuiltinTypes.DECIMAL, (ri.getId()));
+    				eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(r)));
+    				expressed.add(r);
+    			}
+    		}
+    		if (!iGuard.isSmallerGuard()) {
+    			SymbolicDataValue l = iGuard.getLeftReg();
+    			if (!expressed.contains(l)) {
+    				DataValue<BigDecimal> li = new DoubleDataValue(type, (BigDecimal) val.getValue(toVariable(l)));
+    				gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> wm = new gov.nasa.jpf.constraints.expressions.Constant<>(BuiltinTypes.DECIMAL, (li.getId()));
+    				eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(l)));
+    				expressed.add(l);
+    			}
+    		}
+    	} else if (g instanceof SDTMultiGuard) {
+    		SDTMultiGuard mGuard = (SDTMultiGuard) g;
+    		for (SDTGuard mg : mGuard.getGuards()) {
+    			eList.addAll(symbolicDataValueExpression(expressed, mg, val));
+    		}
+    	}
+    	return eList;
+    }
+
+//    @Override
+//    public DoubleDataValue representativeDataValue(Mapping<SymbolicDataValue, DataValue<?>> valuation, SDTGuard guard, DataType type) {
+//    	SymbolicDataValue.SuffixValue sv = guard.getParameter();
+//    	Valuation newVal = new Valuation();
+//    	GuardExpression x = guard.toExpr();
+//    	Result res;
+//    	if (guard instanceof EqualityGuard) {
+//    		res = solver.solve(toExpression(x), newVal);
+//    	} else {
+//    		List<Expression<Boolean>> eList = new ArrayList<>();
+//    		eList.add(toExpression(guard.toExpr()));
+//    	}
+//    }
+
+    @Override
     public DoubleDataValue instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<BigDecimal>> alreadyUsedValues) {
         //System.out.println("INSTANTIATING: " + g.toString());
         SymbolicDataValue.SuffixValue sp = g.getParameter();
@@ -190,6 +247,36 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 //                    System.out.println("UNSAT: " + _x + " with " + newVal);
             return null;
         }
+    }
+
+    @Override
+    protected DoubleDataValue instantiate(SuffixValue sp, List<Expression<Boolean>> expList, Valuation val, Collection<DataValue<BigDecimal>> alreadyUsedValues) {
+    	List<Expression<Boolean>> eList = new ArrayList<>();
+    	eList.addAll(expList);
+    	Valuation newVal = new Valuation();
+    	newVal.putAll(val);
+    	Variable<BigDecimal> spVar = toVariable(sp);
+
+    	for (DataValue<BigDecimal> au : alreadyUsedValues) {
+    		gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> w = new gov.nasa.jpf.constraints.expressions.Constant<>(BuiltinTypes.DECIMAL, (au.getId()));
+    		Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, spVar);
+    		eList.add(auExpr);
+    	}
+
+    	if (newVal.containsValueFor(toVariable(sp))) {
+    		DoubleDataValue spDouble = new DoubleDataValue(sp.getType(), (BigDecimal) newVal.getValue(spVar));
+    		gov.nasa.jpf.constraints.expressions.Constant<BigDecimal> spw = new gov.nasa.jpf.constraints.expressions.Constant<>(BuiltinTypes.DECIMAL, (spDouble.getId()));
+    		Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, spVar);
+    	}
+
+    	Expression<Boolean> expr = ExpressionUtil.and(eList);
+    	Result res = solver.solve(expr, newVal);
+
+    	if (res == Result.SAT) {
+    		DoubleDataValue d = new DoubleDataValue(sp.getType(), (BigDecimal)(newVal.getValue(spVar)));
+    		return d;
+    	}
+    	return null;
     }
 
     @Override
