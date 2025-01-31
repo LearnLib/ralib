@@ -123,4 +123,12 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 	List<Transition> tseq = getTransitions(word);
 	return tseq.get(tseq.size() - 1).getAssignment().getAssignment();
     }
+
+    public Set<Word<PSymbolInstance>> getAlphaTransitions(Word<PSymbolInstance> uAlpha) {
+    	throw new RuntimeException("Not implemented for base hypothesis");
+    }
+
+    public Set<Word<PSymbolInstance>> getTransitions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
+    	throw new RuntimeException("Not implemented for base hypothesis");
+    }
 }

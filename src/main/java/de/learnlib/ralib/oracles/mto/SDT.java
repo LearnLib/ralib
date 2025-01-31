@@ -32,7 +32,9 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -236,6 +238,23 @@ public class SDT implements SymbolicDecisionTree {
 //        System.out.println(this + " vs " + deqSDT);
         boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
         return x;
+    }
+
+    public boolean isEquivalentUnderId(SymbolicDecisionTree other, PIV piv, PIV otherPiv) {
+    	VarMapping<Register, Register> renaming = new VarMapping<>();
+    	int freshId = Integer.max(piv.size(), otherPiv.size()) + 1;
+    	for (Map.Entry<Parameter, Register> otherMapping : otherPiv.entrySet()) {
+    		Parameter otherP = otherMapping.getKey();
+    		Register otherR = otherMapping.getValue();
+    		Register r = piv.get(otherP);
+    		if (r == null) {
+    			renaming.put(otherR, new Register(otherR.getType(), freshId));
+    			freshId++;
+    		} else {
+    			renaming.put(otherR, r);
+    		}
+    	}
+    	return isEquivalent(other, renaming);
     }
 
     public SDT relabelUnderEq(List<SDTIfGuard> ds) {

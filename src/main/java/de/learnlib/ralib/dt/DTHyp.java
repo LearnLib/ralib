@@ -148,4 +148,34 @@ public class DTHyp extends Hypothesis {
 		return branching.transformPrefix(word);
 
 	}
+
+	/*
+	 * Get all transitions u.alpha in the same leaf as uAlpha, where alpha is the last symbol of uAlpha
+	 */
+	@Override
+	public Set<Word<PSymbolInstance>> getAlphaTransitions(Word<PSymbolInstance> uAlpha) {
+		DTLeaf uAlphaLeaf = dt.getLeaf(uAlpha);
+		assert uAlphaLeaf != null;
+		ParameterizedSymbol ps = uAlpha.lastSymbol().getBaseSymbol();
+		Word<PSymbolInstance> u = uAlpha.prefix(uAlpha.length() - 1);
+		DTLeaf uLeaf = dt.getLeaf(u);
+		MappedPrefix uMapped = uLeaf.getPrefix(u);
+		Branching branching = uMapped instanceof ShortPrefix ? ((ShortPrefix) uMapped).getBranching(ps) : uLeaf.getBranching(ps);
+		Set<Word<PSymbolInstance>> transitions = new LinkedHashSet<>();
+		for (Word<PSymbolInstance> ua : branching.getBranches().keySet()) {
+			DTLeaf uaLeaf = dt.getLeaf(ua);
+			if (uaLeaf.equals(uAlphaLeaf)) {
+				transitions.add(ua);
+			}
+		}
+		return transitions;
+	}
+
+	@Override
+	public Set<Word<PSymbolInstance>> getTransitions(Word<PSymbolInstance> prefix, ParameterizedSymbol ps) {
+		DTLeaf leaf = dt.getLeaf(prefix);
+		MappedPrefix mp = leaf.getPrefix(prefix);
+		Branching branching = mp instanceof ShortPrefix ? ((ShortPrefix) mp).getBranching(ps) : leaf.getBranching(ps);
+		return branching.getBranches().keySet();
+	}
 }

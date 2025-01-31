@@ -78,6 +78,7 @@ public class SDTTrueGuard extends SDTGuard {
     public int hashCode() {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(this.getClass());
+        hash = 59 * hash + Objects.hashCode(parameter);
 
         return hash;
     }

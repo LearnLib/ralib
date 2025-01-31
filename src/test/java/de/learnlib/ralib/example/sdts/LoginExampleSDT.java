@@ -19,10 +19,13 @@ package de.learnlib.ralib.example.sdts;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTGuard;
 
 /**
  *
@@ -83,5 +86,15 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     public boolean isAccepting() {
         return clazz == SDTClass.ACCEPT;
     }
+
+	@Override
+	public Set<SDTGuard> getSDTGuards(SuffixValue sv) {
+		throw new RuntimeException("Not implemented");
+	}
+
+	@Override
+	public boolean isEquivalentUnderId(SymbolicDecisionTree other, PIV piv, PIV otherPiv) {
+		throw new RuntimeException("Not implemented");
+	}
 
 }

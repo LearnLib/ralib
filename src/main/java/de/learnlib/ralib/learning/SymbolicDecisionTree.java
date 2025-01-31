@@ -17,7 +17,12 @@
 package de.learnlib.ralib.learning;
 
 
+import java.util.Set;
+
+import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.theory.SDTGuard;
 
 /**
  * This interface describes the methods that are needed in a symbolic decision
@@ -35,6 +40,8 @@ public interface SymbolicDecisionTree {
      * @return
      */
     public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
+
+    public boolean isEquivalentUnderId(SymbolicDecisionTree other, PIV piv, PIV otherPiv);
 
     /**
      * apply relabeling to tree and return a renamed tree.
@@ -57,6 +64,9 @@ public interface SymbolicDecisionTree {
      * @return
      */
     public boolean isAccepting();
+
+//    public GuardExpression getGuardExpression(SuffixValue sv);
+    public Set<SDTGuard> getSDTGuards(SuffixValue sv);
 
     public SymbolicDecisionTree copy();
 }
