@@ -22,7 +22,7 @@
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.17.0</learnlib.version>
-        <gson.version>2.11.0</gson.version>
+        <gson.version>2.12.1</gson.version>
     </properties>
 
     <build>
