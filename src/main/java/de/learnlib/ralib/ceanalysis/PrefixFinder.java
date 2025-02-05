@@ -35,6 +35,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
@@ -219,20 +220,21 @@ public class PrefixFinder {
 					boolean pivEqual = uaResult.getPiv().typedSize().equals(uAlphaGPrimeResult.getPiv().typedSize());
 					boolean equivSdts = pivEqual;
 					if (pivEqual) {
-						VarMapping<Register, Register> renaming = new VarMapping<>();
-						int freshRegisterId = Integer.max(uaResult.getPiv().size(), uAlphaGPrimeResult.getPiv().size()) + 1;
-						for (Map.Entry<Parameter, Register> uaMapping : uaResult.getPiv().entrySet()) {
-							Parameter pua = uaMapping.getKey();
-							Register rua = uaMapping.getValue();
-							Register ruAlpha = uAlphaGPrimeResult.getPiv().get(pua);
-							if (ruAlpha == null) {
-								renaming.put(rua, new Register(rua.getType(), freshRegisterId));
-								freshRegisterId++;
-							} else {
-								renaming.put(rua, ruAlpha);
-							}
-						}
-						equivSdts = uAlphaGPrimeResult.getSdt().isEquivalent(uaResult.getSdt(), renaming);
+//						VarMapping<Register, Register> renaming = new VarMapping<>();
+//						int freshRegisterId = Integer.max(uaResult.getPiv().size(), uAlphaGPrimeResult.getPiv().size()) + 1;
+//						for (Map.Entry<Parameter, Register> uaMapping : uaResult.getPiv().entrySet()) {
+//							Parameter pua = uaMapping.getKey();
+//							Register rua = uaMapping.getValue();
+//							Register ruAlpha = uAlphaGPrimeResult.getPiv().get(pua);
+//							if (ruAlpha == null) {
+//								renaming.put(rua, new Register(rua.getType(), freshRegisterId));
+//								freshRegisterId++;
+//							} else {
+//								renaming.put(rua, ruAlpha);
+//							}
+//						}
+//						equivSdts = uAlphaGPrimeResult.getSdt().isEquivalent(uaResult.getSdt(), renaming);
+						equivSdts = uAlphaGPrimeResult.getSdt().isEquivalentUnderId(uaResult.getSdt(), uAlphaGPrimeResult.getPiv(), uaResult.getPiv());
 					}
 					if (!equivSdts) {
 						// check guard of ua does not satisfy g'
@@ -259,8 +261,11 @@ public class PrefixFinder {
 //							Word<PSymbolInstance> uAlphaGPrime = u.append(new PSymbolInstance(extendedSuffix.firstSymbol().getBaseSymbol(), values));
 
 
-							// TODO: THIS SHOULD BE A CONJUNCTION OF g and g', WHERE g IS THE GUARD OF uAlpha
-							candidates[idx] = new SymbolicWord(uAlphaGPrime, symSuffix);
+							// compute conjunction of g and g', and add prefix u.alpha(d_u^{g and g'})
+							TreeQueryResult hypResult = hypOracle.treeQuery(u, extendedSymSuffix);
+							Word<PSymbolInstance> candidate = uAlphaGAndGPrime(guards, uResult.getPiv(), hypResult, u, prefix, nextPrefix);
+							candidates[idx] = new SymbolicWord(candidate, symSuffix);
+//							candidates[idx] = new SymbolicWord(uAlphaGPrime, symSuffix);
 							LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
 							return idx;
 						}
@@ -531,6 +536,67 @@ public class PrefixFinder {
 		}
 
 		return teach.instantiate(u, alpha, uPiv, pars, consts, guard, suffixValueParam, new LinkedHashSet<>());
+	}
+
+	// TODO: come up with a better name for this function
+	private Word<PSymbolInstance> uAlphaGAndGPrime(SDTGuard[] gPrimeGuards, PIV gPrimePiv, TreeQueryResult hypResult, Word<PSymbolInstance> u, Word<PSymbolInstance> prefix, Word<PSymbolInstance> nextPrefix) {
+		VarMapping<Register, Register> renaming = new VarMapping<>();
+		PIV unifiedPiv = new PIV();
+		unifiedPiv.putAll(hypResult.getPiv());
+		int freshId = unifiedPiv.size() + 1;
+		for (Map.Entry<Parameter, Register> gPrimeEntry : gPrimePiv.entrySet()) {
+			Parameter p = gPrimeEntry.getKey();
+			Register r = gPrimeEntry.getValue();
+			Register otherR = unifiedPiv.get(p);
+			if (otherR == null) {
+				otherR = new Register(p.getType(), freshId);
+				freshId++;
+				unifiedPiv.put(p, otherR);
+			}
+			renaming.put(r, otherR);
+		}
+
+		SuffixValueGenerator svgen = new SuffixValueGenerator();
+		PSymbolInstance action = nextPrefix.lastSymbol();
+		DataValue<?>[] actionValues = action.getParameterValues();
+		ParValuation prefixPars = DataWords.computeParValuation(prefix);
+		VarValuation vars = new VarValuation();
+		for (Map.Entry<Parameter, Register> entry : hypResult.getPiv().entrySet()) {
+			Parameter p = entry.getKey();
+			Register r = entry.getValue();
+			DataValue<?> dv = prefixPars.get(p);
+			vars.put(r, dv);
+		}
+		Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<>();
+		mapping.putAll(prefixPars);
+		mapping.putAll(vars);
+		mapping.putAll(consts);
+		for (DataValue<?> av : actionValues) {
+			SuffixValue sv = svgen.next(av.getType());
+			mapping.put(sv, av);
+		}
+
+		ParameterizedSymbol alpha = action.getBaseSymbol();
+		DataType[] types = alpha.getPtypes();
+		DataValue<?>[] dataValues = new DataValue<?>[alpha.getArity()];
+		svgen = new SuffixValueGenerator();
+		Map<Integer, DataValue<?>> prior = new LinkedHashMap<>();
+		for (int i = 0; i < alpha.getArity(); i++) {
+			SuffixValue sv = svgen.next(types[i]);
+			SDTGuard gAndGPrime = null;
+			for (SDTGuard g : hypResult.getSdt().getSDTGuards(sv)) {
+				if (g.toExpr().isSatisfied(mapping)) {
+					gAndGPrime = new SDTAndGuard(sv, g, gPrimeGuards[i].relabel(renaming));
+					break;
+				}
+			}
+			Parameter p = new Parameter(sv.getType(), sv.getId());
+			dataValues[i] = representativeDataValue(gAndGPrime, u, alpha, unifiedPiv, prior);
+			prior.put(i, dataValues[i]);
+		}
+
+		PSymbolInstance psi = new PSymbolInstance(alpha, dataValues);
+		return u.append(psi);
 	}
 
 	private boolean pivEqual(PIV piv1, PIV piv2) {
