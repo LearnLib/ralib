@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
@@ -69,14 +68,12 @@ public class PrefixFinder {
 
     public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
-            //Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts) {
 
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
         this.hypothesis = hypothesis;
         this.sdtOracle = sdtOracle;
-        //this.components = components;
         this.consts = consts;
         // TODO: FIND A BETTER SOLUTION FOR GETTING THE TEACHERS
         if (sulOracle instanceof MultiTheoryTreeOracle) {
@@ -168,6 +165,7 @@ public class PrefixFinder {
 				}
 
 				// check for transition counterexample
+				//
 				ParameterizedSymbol alphaSymbol = extendedSuffix.firstSymbol().getBaseSymbol();
 				int alphaLen = alphaSymbol.getArity();
 				if (alphaLen < 1) {
@@ -175,7 +173,6 @@ public class PrefixFinder {
 				}
 
 				// compute g'
-//				boolean sameGuards = false;
 				TreeQueryResult uResult = sulOracle.treeQuery(u, extendedSymSuffix);
 				storedQueries.put(new SymbolicWord(u, extendedSymSuffix), uResult);
 				SDTGuard[] guards = findGuard(uResult.getSdt(), uResult.getPiv(), u, extendedSymSuffix);
@@ -187,23 +184,11 @@ public class PrefixFinder {
 				DataValue<?>[] dataValues = new DataValue<?>[alphaLen];
 				Map<Integer, DataValue<?>> prior = new LinkedHashMap<>();
 				for (int i = 0; i < alphaLen; i++) {
-//					int id = i + 1;
-//					SuffixValue sv = extendedSymSuffix.getSuffixValue(id);
-//					SDTGuard g = findGuard(sv, uResult.getSdt(), uResult.getPiv(), u, prefix, extendedSuffix.firstSymbol());
-//					if (g == null) {
-//						sameGuards = true;
-//						break;
-//					}
-//					guards[i] = g;
-//					guardExpressions[i] = g.toExpr();
 					guardExpressions[i] = guards[i].toExpr();
 					DataValue<?> rdv = representativeDataValue(guards[i], u, alphaSymbol, uResult.getPiv(), prior);
 					dataValues[i] = representativeDataValue(guards[i], u, alphaSymbol, uResult.getPiv(), prior);
 					prior.put(i, dataValues[i]);
 				}
-//				if (sameGuards) {
-//					continue;
-//				}
 				GuardExpression gPrime = alphaLen > 1 ? new Conjunction(guardExpressions) : guardExpressions[0];
 				PSymbolInstance alpha = new PSymbolInstance(alphaSymbol, dataValues);
 				Word<PSymbolInstance> uAlphaGPrime = u.append(alpha);
@@ -220,20 +205,6 @@ public class PrefixFinder {
 					boolean pivEqual = uaResult.getPiv().typedSize().equals(uAlphaGPrimeResult.getPiv().typedSize());
 					boolean equivSdts = pivEqual;
 					if (pivEqual) {
-//						VarMapping<Register, Register> renaming = new VarMapping<>();
-//						int freshRegisterId = Integer.max(uaResult.getPiv().size(), uAlphaGPrimeResult.getPiv().size()) + 1;
-//						for (Map.Entry<Parameter, Register> uaMapping : uaResult.getPiv().entrySet()) {
-//							Parameter pua = uaMapping.getKey();
-//							Register rua = uaMapping.getValue();
-//							Register ruAlpha = uAlphaGPrimeResult.getPiv().get(pua);
-//							if (ruAlpha == null) {
-//								renaming.put(rua, new Register(rua.getType(), freshRegisterId));
-//								freshRegisterId++;
-//							} else {
-//								renaming.put(rua, ruAlpha);
-//							}
-//						}
-//						equivSdts = uAlphaGPrimeResult.getSdt().isEquivalent(uaResult.getSdt(), renaming);
 						equivSdts = uAlphaGPrimeResult.getSdt().isEquivalentUnderId(uaResult.getSdt(), uAlphaGPrimeResult.getPiv(), uaResult.getPiv());
 					}
 					if (!equivSdts) {
@@ -249,200 +220,23 @@ public class PrefixFinder {
 						}
 
 						if (!gPrime.isSatisfied(uaVars)) {
-							// instantiate prefix
-//							DataType[] types = extendedSuffix.firstSymbol().getBaseSymbol().getPtypes();
-//							DataValue<?>[] values = new DataValue<?>[alphaLen];
-//							for (int i = 0; i < alphaLen; i++) {
-//								Parameter p = new Parameter(types[i], i+1);
-//								Theory teach = teachers.get(types[i]);
-//								DataValue<?> dv = teach.instantiate(u, extendedSuffix.firstSymbol().getBaseSymbol(), uResult.getPiv(), uPars, consts, guards[i], p, new LinkedHashSet<>());
-//								values[i] = dv;
-//							}
-//							Word<PSymbolInstance> uAlphaGPrime = u.append(new PSymbolInstance(extendedSuffix.firstSymbol().getBaseSymbol(), values));
-
-
 							// compute conjunction of g and g', and add prefix u.alpha(d_u^{g and g'})
 							TreeQueryResult hypResult = hypOracle.treeQuery(u, extendedSymSuffix);
 							Word<PSymbolInstance> candidate = uAlphaGAndGPrime(guards, uResult.getPiv(), hypResult, u, prefix, nextPrefix);
 							candidates[idx] = new SymbolicWord(candidate, symSuffix);
-//							candidates[idx] = new SymbolicWord(uAlphaGPrime, symSuffix);
 							LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
 							return idx;
 						}
 					}
 				}
-
-
-//				// TODO: change type of hypothesis to DTHyp
-//				assert hypothesis instanceof DTHyp;
-//
-//				for (Map.Entry<Word<PSymbolInstance>, GuardExpression> transition : ((DTHyp) hypothesis).getAlphaTransitions(uAlpha).entrySet()) {
-//					Word<PSymbolInstance> ua = transition.getKey();
-//					TreeQueryResult uaResult = sulOracle.treeQuery(ua, symSuffix);
-//					storedQueries.put(new SymbolicWord(ua, symSuffix), uaResult);
-//
-//					// compute g'
-//					int alphaLen = extendedSuffix.firstSymbol().getBaseSymbol().getArity();
-//					int uLen = DataWords.paramValLength(u);
-//					DataValue<?>[] uaVals = DataWords.valsOf(ua);
-//					Mapping<SuffixValue, DataValue<?>> alphaVars = new Mapping<>();
-//					SDTGuard[] guards = new SDTGuard[alphaLen];
-//					GuardExpression[] guardExpressions = new GuardExpression[aLen];
-//					for (int i = 0; i < alphaLen; i++) {
-//						SuffixValue sv = extendedSymSuffix.getSuffixValue(i+1);	// indexed from 1
-//						alphaVars.put(sv, uaVals[uLen+i]);
-//						SDTGuard guard = findGuard(sv, uResult.getSdt(), uResult.getPiv(), u, prefix, extendedSuffix.firstSymbol());
-//						assert guard != null;
-//						guards[i] = guard;
-//						guardExpressions[i] = guard.toExpr();
-//					}
-//					GuardExpression gPrime = new Conjunction(guardExpressions);
-//
-//					if (!uaResult.getPiv().typedSize().equals(uAlphaResult.getPiv().typedSize())) {
-//						continue;
-//					}
-//
-//					VarMapping<Register, Register> relabel = new VarMapping<>();
-//					for (Map.Entry<Parameter, Register> uAlphaMapping : uAlphaResult.getPiv().entrySet()) {
-//						Parameter p = uAlphaMapping.getKey();
-//						Register r = uAlphaMapping.getValue();
-//						PIV uaPIV = uaResult.getPiv();
-//						relabel.put(uaPIV.get(p), r);
-//					}
-//					if (!uAlphaResult.getSdt().isEquivalent(uaResult.getSdt(), relabel)) {
-//						TreeQueryResult uResult = sulOracle.treeQuery(u, extendedSymSuffix);
-//						storedQueries.put(new SymbolicWord(u, extendedSymSuffix), uResult);
-//
-////						GuardExpression gPrime = new TrueGuardExpression();
-//
-//
-//
-//						ParValuation pars = DataWords.computeParValuation(u);
-//						VarValuation vars = DataWords.computeVarValuation(pars, uResult.getPiv());
-//						Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
-//						valuation.putAll(vars);
-//						valuation.putAll(alphaVars);
-//						if (!gPrime.isSatisfied(valuation)) {
-//							// returned prefix?
-//							// call Theory.instantiate on each suffix value
-////							candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
-//							LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
-//							return idx;
-//						}
-//					}
-//				}
 			}
-
-			// check for transition counterexample
-			//
-
-
-//			Set<Word<PSymbolInstance>> locs = hypothesis.possibleAccessSequences(prefix);
-//			LOC_CHECK: for (Word<PSymbolInstance> u : locs) {
-//				Word<PSymbolInstance> uAlpha = hypothesis.transformTransitionSequence(nextPrefix, u);
-//				TreeQueryResult uAlphaResult = sulOracle.treeQuery(uAlpha, symSuffix);
-//				storedQueries.put(new SymbolicWord(uAlpha, symSuffix), uAlphaResult);
-//
-//				// check if the word is inequivalent to all access sequences
-//				//
-//				for (Word<PSymbolInstance> uPrime : hypothesis.possibleAccessSequences(nextPrefix)) {
-//					TreeQueryResult uPrimeResult = sulOracle.treeQuery(uPrime, symSuffix);
-//					storedQueries.put(new SymbolicWord(uPrime, symSuffix), uPrimeResult);
-//
-//					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u:  {}", idx, u);
-//					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} ua: {}", idx, uAlpha);
-//					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u': {}", idx, uPrime);
-//					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} v:  {}", idx, symSuffix);
-//
-//					// different piv sizes
-//					//
-//					if (!uPrimeResult.getPiv().typedSize().equals(uAlphaResult.getPiv().typedSize())) {
-//						continue;
-//					}
-//
-//					// remapping
-//					//
-//					PIVRemappingIterator iterator = new PIVRemappingIterator(
-//							uAlphaResult.getPiv(), uPrimeResult.getPiv());
-//
-//					for (VarMapping m : iterator) {
-//						if (uAlphaResult.getSdt().isEquivalent(uPrimeResult.getSdt(), m)) {
-//							continue LOC_CHECK;
-//						}
-//					}
-//
-//				}
-//				// found a counterexample!
-//				candidates[idx] = new SymbolicWord(uAlpha, symSuffix);
-//				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for location");
-//				return idx;
-//			}
-//
-//			// check for transition counterexample ...
-//			//
-//			if (transitionHasCE(ce, idx-1)) {
-//				LOGGER.trace(Category.COUNTEREXAMPLE, "Counterexample for transition");
-//				return idx;
-//			}
 		}
 		throw new RuntimeException("should not reach here");
 	}
 
 	private SDTGuard[] findGuard(SymbolicDecisionTree uSDT, PIV uPIV,Word<PSymbolInstance> u, SymbolicSuffix symSuffix) {
-		// compute SDT guard register renaming
-//		Mapping<Register, DataValue<?>> uAssign = getLastTransitionRegisterValuation(u);
 		ParValuation uPars = DataWords.computeParValuation(u);
 		VarValuation uVars = DataWords.computeVarValuation(uPars, uPIV);
-//		assert uAssign.size() == uVars.size();
-//		if (uAssign.size() == uVars.size()) {
-//			VarMapping<Register, Register> uRenaming = new VarMapping<>();
-//			for (Map.Entry<Register, DataValue<?>> uAssignEntry : uAssign.entrySet()) {
-//				Register uAssignReg = uAssignEntry.getKey();
-//				DataValue<?> uAssignVal = uAssignEntry.getValue();
-//				for (Map.Entry<Register, DataValue<?>> uEntry : uVars.entrySet()) {
-//					Register uReg = uEntry.getKey();
-//					DataValue<?> uVal = uEntry.getValue();
-//					if (uVal.equals(uAssignVal)) {
-//						uRenaming.put(uReg, uAssignReg);
-//					}
-//				}
-//			}
-//			assert uRenaming.size() == uPIV.size();
-//
-//			// get uCE valuation
-//			Mapping<Register, DataValue<?>> uCEAssign = getLastTransitionRegisterValuation(uCE);
-//			int id = sv.getId();
-//			DataValue<?> uCEdv = alpha.getParameterValues()[id-1];
-//
-//			Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
-//			valuation.putAll(uCEAssign);
-//			valuation.put(sv, uCEdv);
-//
-//			// find guard satisfying valuation
-//			for(SDTGuard g : uSDT.getSDTGuards(sv)) {
-//				GuardExpression gx = g.relabel(uRenaming).toExpr();
-//				if (gx.isSatisfied(valuation)) {
-//					return g;
-//				}
-//			}
-//		} else {
-//			Parameter p = new Parameter(sv.getType(), sv.getId());
-//			Theory teach = teachers.get(sv.getType());
-//			for (SDTGuard g : uSDT.getSDTGuards(sv)) {
-//				DataValue<?> dv = teach.instantiate(u, alpha.getBaseSymbol(), uPIV, uPars, consts, g, p, new LinkedHashSet<>());
-//				boolean hasDv = false;
-//				for (Word<PSymbolInstance> a : hypothesis.getTransitions(u, alpha.getBaseSymbol())) {
-//					DataValue<?>[] dvs = a.lastSymbol().getParameterValues();
-//					if (dvs[sv.getId()-1].equals(dv)) {
-//						hasDv = true;
-//						break;
-//					}
-//				}
-//				if (!hasDv) {
-//					return g;
-//				}
-//			}
-//		}
 
 		TreeQueryResult uHypRes = hypOracle.treeQuery(u, symSuffix);
 
@@ -500,23 +294,12 @@ public class PrefixFinder {
         }
 
 		return null;
-
-
-//		DataType[] types = extendedSuffix.firstSymbol().getBaseSymbol().getPtypes();
-//		DataValue<?>[] values = new DataValue<?>[alphaLen];
-//		for (int i = 0; i < alphaLen; i++) {
-//			Parameter p = new Parameter(types[i], i+1);
-//			Theory teach = teachers.get(types[i]);
-//			DataValue<?> dv = teach.instantiate(u, extendedSuffix.firstSymbol().getBaseSymbol(), uResult.getPiv(), uPars, consts, guards[i], p, new LinkedHashSet<>());
-//			values[i] = dv;
-//		}
 	}
 
 	private DataValue<?> representativeDataValue(SDTGuard guard, Word<PSymbolInstance> u, ParameterizedSymbol alpha, PIV uPiv, Map<Integer, DataValue<?>> prior) {
 		DataType type = guard.getParameter().getType();
 		Parameter suffixValueParam = new Parameter(type, guard.getParameter().getId());
 		Theory teach = teachers.get(type);
-//		ParValuation pars = DataWords.computeParValuation(u);
 		ParValuation pars = new ParValuation();
 		ParameterGenerator pgen = new ParameterGenerator();
 		for (PSymbolInstance psi : u) {
@@ -599,91 +382,7 @@ public class PrefixFinder {
 		return u.append(psi);
 	}
 
-	private boolean pivEqual(PIV piv1, PIV piv2) {
-		if (!piv1.typedSize().equals(piv2.typedSize())) {
-			return false;
-		}
-
-
-
-		return true;
-	}
-
-	private Mapping<Register, DataValue<?>> getLastTransitionRegisterValuation(Word<PSymbolInstance> prefix) {
-		DataValue<?>[] dvs = DataWords.valsOf(prefix);
-		if (dvs.length == 0) {
-			return new Mapping<>();
-		}
-		VarMapping<Register, ? extends SymbolicDataValue> assignment = hypothesis.getLastTransitionAssignment(prefix);
-		Mapping<Register, DataValue<?>> valuation = new Mapping<>();
-		for (Map.Entry<Register, ? extends SymbolicDataValue> registerMapping : assignment.entrySet()) {
-			Register r = registerMapping.getKey();
-			SymbolicDataValue sdv = registerMapping.getValue();
-			int index = sdv.getId() - 1;
-			valuation.put(r, dvs[index]);
-		}
-		return valuation;
-	}
-
-//    private Pair<TreeQueryResult, TreeQueryResult> checkForCE(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, Word<PSymbolInstance> transition) {
-//    	SymbolicWord symWord = new SymbolicWord(prefix, suffix);
-//    	TreeQueryResult resHyp = hypOracle.treeQuery(prefix, suffix);
-//    	TreeQueryResult resSul;
-//    	if (storedQueries.containsKey(symWord))
-//    		resSul = storedQueries.get(symWord);
-//    	else {
-//    		resSul = sulOracle.treeQuery(prefix, suffix);
-//    		storedQueries.put(symWord, resSul);
-//    	}
-//
-//        boolean hasCE = sdtOracle.hasCounterexample(prefix,
-//                resHyp.getSdt(), resHyp.getPiv(),
-//                resSul.getSdt(), resSul.getPiv(),
-//                new TransitionGuard(), transition);
-//
-//        return hasCE ? new ImmutablePair<TreeQueryResult, TreeQueryResult>(resHyp, resSul) : null;
-//    }
-
-    private boolean transitionHasCE(Word<PSymbolInstance> ce, int idx) {
-    	if (idx+1 >= ce.length())
-    		return false;
-
-    	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
-
-    	Word<PSymbolInstance> suffix = ce.suffix(ce.length() - (idx+1));
-    	SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
-
-    	Set<Word<PSymbolInstance>> locations = hypothesis.possibleAccessSequences(prefix);
-    	for (Word<PSymbolInstance> location : locations) {
-	        Word<PSymbolInstance> transition = hypothesis.transformTransitionSequence(
-	                ce.prefix(idx+2), location);
-
-    		TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
-    		TreeQueryResult resSul;
-    		SymbolicWord symWord = new SymbolicWord(location, symSuffix);
-    		if (storedQueries.containsKey(symWord))
-    			resSul = storedQueries.get(symWord);
-    		else {
-    			resSul = sulOracle.treeQuery(location, symSuffix);
-    			storedQueries.put(symWord, resSul);
-    		}
-
-    		boolean hasCE = sdtOracle.hasCounterexample(location,
-	                resHyp.getSdt(), resHyp.getPiv(),
-	                resSul.getSdt(), resSul.getPiv(),
-	                new TransitionGuard(), transition);
-
-    		if (hasCE) {
-				SymbolicWord sw = candidate(location, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), ce);
-				// new by falk
-				candidates[idx+1] = sw;
-				return true;
-			}
-    	}
-    	return false;
-    }
-
-    private void storeCandidateCEs(Word<PSymbolInstance> ce, int idx) {
+	private void storeCandidateCEs(Word<PSymbolInstance> ce, int idx) {
     	if (idx+1 >= ce.length())
     		return;
     	Word<PSymbolInstance> prefix = ce.prefix(idx+1);
@@ -700,47 +399,6 @@ public class PrefixFinder {
 
     		candidateCEs.put(symWord, tqr);
     	}
-    }
-
-    private SymbolicWord candidate(Word<PSymbolInstance> prefix,
-            SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
-            SymbolicDecisionTree sdtHyp, PIV pivHyp, Word<PSymbolInstance> ce) {
-    	Word<PSymbolInstance> candidate = null;
-
-    	GuardExpression expr = sdtOracle.getCEGuard(prefix, sdtSul, pivSul, sdtHyp, pivHyp);
-
-        Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
-        for (Word<PSymbolInstance> path : sulPaths.keySet()) {
-        	ParameterGenerator parGen = new ParameterGenerator();
-        	for (PSymbolInstance psi : prefix) {
-        		for (DataType dt : psi.getBaseSymbol().getPtypes())
-        			parGen.next(dt);
-        	}
-
-        	VarMapping<SuffixValue, Parameter> renaming = new VarMapping<>();
-        	SuffixValueGenerator svGen = new SuffixValueGenerator();
-        	for (ParameterizedSymbol ps : symSuffix.getActions()) {
-        		for (DataType dt : ps.getPtypes()) {
-        			Parameter p = parGen.next(dt);
-        			SuffixValue sv = svGen.next(dt);
-        			renaming.put(sv, p);
-        		}
-        	}
-        	GuardExpression exprR = expr.relabel(renaming);
-
-        	ParValuation pars = new ParValuation(path);
-        	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
-        	vals.putAll(DataWords.computeVarValuation(pars, pivSul));
-        	vals.putAll(pars);
-        	vals.putAll(consts);
-
-        	if (exprR.isSatisfied(vals)) {
-        		candidate = path.prefix(prefix.length() + 1);
-        		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), restrictionBuilder);
-        		return new SymbolicWord(candidate, suffix);
-        	}
-        }
-        throw new IllegalStateException("No CE transition found");
     }
 
     public Set<DefaultQuery<PSymbolInstance, Boolean>> getCounterExamples() {
@@ -764,8 +422,4 @@ public class PrefixFinder {
     public void setHypothesis(Hypothesis hyp) {
     	this.hypothesis = hyp;
     }
-
-    //public void setComponents(Map<Word<PSymbolInstance>, LocationComponent> components) {
-    //    this.components = components;
-    //}
 }
