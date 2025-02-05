@@ -76,7 +76,7 @@ import net.automatalib.word.Word;
 /**
  *
  * @author falk
- */
+ * */
 public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final DataWordOracle oracle;
@@ -84,6 +84,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     private final Constants constants;
 
     private final Map<DataType, Theory> teachers;
+
+    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
     private final ConstraintSolver solver;
 
@@ -95,6 +97,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         this.teachers = teachers;
         this.constants = constants;
         this.solver = solver;
+        this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(constants, teachers);
     }
 
     public MultiTheoryTreeOracle(MultiTheoryTreeOracle other) {
@@ -102,6 +105,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	this.teachers = other.teachers;
     	this.constants = other.constants;
     	this.solver = other.solver;
+    	this.restrictionBuilder = other.restrictionBuilder;
     }
 
     @Override
@@ -582,4 +586,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	return teachers;
     }
 
+    @Override
+    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
+    	return restrictionBuilder;
+    }
 }

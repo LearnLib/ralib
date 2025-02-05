@@ -118,7 +118,7 @@ public class LearnPadlock extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers, consts, false, false, true, IN);
         ralambda.setSolver(solver);
 
         ralambda.learn();

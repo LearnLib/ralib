@@ -76,7 +76,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, sul);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+        RaLambda learner = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, sul.getActionSymbols());
         learner.setStatisticCounter(stats);
         learner.setSolver(solver);
 
@@ -122,14 +122,13 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Measurements m = new Measurements();
         JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
         QueryStatistics stats = new QueryStatistics(m, ioCache);
-        MeasuringOracle mto = new MeasuringOracle(ioCache, teachers, new Constants(), jsolv, m);
-
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, jsolv), m);
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
+        RaLambda learner = new RaLambda(mto, hypFactory, mlo, teachers, consts, OFFER, POLL);
         learner.setSolver(jsolv);
         learner.setStatisticCounter(stats);
         learner.learn();
@@ -151,10 +150,8 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 4"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 44, Resets: 432, Inputs: 0}"));
-//        Assert.assertTrue(str.contains("CE Analysis: {TQ: 33, Resets: 339, Inputs: 0}"));
         Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 27, Resets: 815, Inputs: 0}"));
         Assert.assertTrue(str.contains("Other: {TQ: 7, Resets: 7, Inputs: 0}"));
         Assert.assertTrue(str.contains("Total: {TQ: 78, Resets: 1254, Inputs: 0}"));
-//        Assert.assertTrue(str.contains("Total: {TQ: 67, Resets: 1161, Inputs: 0}"));
     }
 }

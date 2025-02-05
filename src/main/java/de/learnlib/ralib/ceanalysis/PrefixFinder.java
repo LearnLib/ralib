@@ -32,7 +32,6 @@ import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -68,6 +67,7 @@ public class PrefixFinder {
 
     public PrefixFinder(TreeOracle sulOracle, TreeOracle hypOracle,
             Hypothesis hypothesis, SDTLogicOracle sdtOracle,
+            Map<DataType, Theory> teachers,
             Constants consts) {
 
         this.sulOracle = sulOracle;
@@ -75,14 +75,8 @@ public class PrefixFinder {
         this.hypothesis = hypothesis;
         this.sdtOracle = sdtOracle;
         this.consts = consts;
-        // TODO: FIND A BETTER SOLUTION FOR GETTING THE TEACHERS
-        if (sulOracle instanceof MultiTheoryTreeOracle) {
-        	this.teachers = ((MultiTheoryTreeOracle)sulOracle).getTeachers();
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
-        } else {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
-        	this.teachers = null;
-        }
+        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
+        this.teachers = teachers;
     }
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {

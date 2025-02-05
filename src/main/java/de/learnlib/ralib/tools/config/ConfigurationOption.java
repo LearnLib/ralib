@@ -19,7 +19,7 @@ package de.learnlib.ralib.tools.config;
 /**
  *
  * @author falk
- * @param <T>
+ * @param <T>  a type parameter
  */
 public abstract class ConfigurationOption<T> {
 

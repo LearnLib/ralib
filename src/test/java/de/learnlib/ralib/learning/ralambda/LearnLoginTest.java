@@ -61,7 +61,7 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers,
                 consts, I_LOGIN, I_LOGOUT, I_REGISTER);
         ralambda.setSolver(solver);
 

@@ -30,7 +30,6 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -72,11 +71,7 @@ public class CounterexampleAnalysis {
         this.sdtOracle = sdtOracle;
         this.components = components;
         this.consts = consts;
-        if (sulOracle instanceof MultiTheoryTreeOracle) {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)sulOracle).getTeachers());
-        } else {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
-        }
+        this.restrictionBuilder = sulOracle.getRestrictionBuilder();
     }
 
     public CEAnalysisResult analyzeCounterexample(Word<PSymbolInstance> ce) {

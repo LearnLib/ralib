@@ -353,4 +353,21 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 		}
 		return null;
 	}
+
+//	@Override
+//	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+//			Word<PSymbolInstance> suffix, Constants consts) {
+//		return new UnrestrictedSuffixValue(suffixValue);
+//	}
+//
+//	@Override
+//	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+//		return new UnrestrictedSuffixValue(guard.getParameter());
+//	}
+
+	@Override
+	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+		// not yet implemented for inequality theory
+		return false;
+	}
 }

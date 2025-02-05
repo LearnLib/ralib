@@ -53,6 +53,7 @@ import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
@@ -106,7 +107,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             EqualityGuard eqGuard = e.getKey();
             LOGGER.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTIfGuard> ds = new ArrayList();
+            List<SDTIfGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds.toString());
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
@@ -171,12 +172,12 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         List<DataValue<T>> potList = new ArrayList<>(potSet);
         List<DataValue<T>> potential = getPotential(potList);
 
-        DataValue fresh = getFreshValue(potential);
+        DataValue<T> fresh = getFreshValue(potential);
 
         List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
         EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<T>(equivClasses, useNonFreeOptimization);
-        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), suffixValues, constants);
+        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
         assert filteredEquivClasses.size() > 0;
 
         // TODO: integrate fresh-value optimization with restrictions
@@ -341,7 +342,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
 
-        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues.toString());
         DataType type = param.getType();
         Deque<SDTGuard> guards = new LinkedList<>();
@@ -371,7 +372,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
         }
 
-        Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
+        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
                 pval.<T>values(type));
 
         if (!potSet.isEmpty()) {
@@ -379,7 +380,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         } else {
             LOGGER.trace("potSet is empty");
         }
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue<T> fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
         LOGGER.trace("fresh = " + fresh.toString());
         return fresh;
 
@@ -416,7 +417,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (base + a.getArity() > values.size()) {
                 break;
             }
-            DataValue[] vals = new DataValue[a.getArity()];
+            DataValue<?>[] vals = new DataValue[a.getArity()];
             for (int i = 0; i < a.getArity(); i++) {
                 vals[i] = values.get(base + i + 1);
             }
@@ -454,5 +455,21 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	// for now, use generic restrictions with equality theory
     	return SuffixValueRestriction.genericRestriction(guard, prior);
+    }
+
+    @Override
+    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
+    		return true;
+    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
+    		return true;
+    	} else if (guard instanceof SDTMultiGuard) {
+    		boolean revealsGuard = false;
+    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
+    			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
+    		}
+    		return revealsGuard;
+    	}
+    	return false;
     }
 }

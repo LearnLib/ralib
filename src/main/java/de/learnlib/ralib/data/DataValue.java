@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  *
  * @author falk
- * @param <T>
+ * @param <T>  a type parameter
  */
 public class DataValue<T> {
 
@@ -33,7 +33,6 @@ public class DataValue<T> {
         this.type = type;
         this.id = id;
     }
-
 
     @Override
     public String toString() {
@@ -56,7 +55,7 @@ public class DataValue<T> {
         if (!(obj instanceof DataValue)) {
             return false;
         }
-        final DataValue other = (DataValue) obj;
+        final DataValue<T> other = (DataValue) obj;
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
@@ -74,5 +73,33 @@ public class DataValue<T> {
         return type;
     }
 
+    public static <P> DataValue<P> valueOf(String strVal, DataType type) {
+    	return new DataValue(type, valueOf(strVal, type.getBase()));
+    }
+
+    public static <P> P valueOf(String strVal, Class<P> cls) {
+    	P realValue = null;
+    	if (Number.class.isAssignableFrom(cls)) {
+    		Object objVal;
+    		try {
+    			objVal = cls.getMethod("valueOf", String.class).invoke(cls, strVal);
+
+    			realValue = cls.cast(objVal);
+    		} catch (Exception e) {
+    			throw new RuntimeException(e);
+    		}
+    	} else {
+    		if (cls.isPrimitive()) {
+    			if (cls.equals(int.class))
+    				return (P) Integer.valueOf(strVal);
+    			else if (cls.equals(double.class))
+    				return (P) Double.valueOf(strVal);
+    			else if (cls.equals(long.class))
+    				return (P) Long.valueOf(strVal);
+    		}
+    		throw new RuntimeException("Cannot deserialize values of the class " + cls);
+    	}
+    	return realValue;
+    }
 
 }

@@ -79,7 +79,7 @@ public class LearnPQTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
 
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
+        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, teachers, consts, OFFER, POLL);
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
@@ -149,7 +149,6 @@ public class LearnPQTest extends RaLibTestSuite {
         }
 
 	// hard-coded results from first seed
-//        Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 71, Resets: 1946, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 79, Resets: 2156, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(rastarCount),   "[{TQ: 71, Resets: 8357, Inputs: 0}]");
     }

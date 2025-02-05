@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -29,10 +28,11 @@ public class EquivalenceClassFilter<T> {
 	}
 
 	public List<DataValue<T>> toList(SuffixValueRestriction restr,
-			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, SuffixValuation valuation, Constants consts) {
+			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation) {
 
-		if (!useOptimization)
+		if (!useOptimization) {
 			return equivClasses;
+		}
 
 		List<DataValue<T>> filtered = new ArrayList<>();
 
@@ -51,17 +51,17 @@ public class EquivalenceClassFilter<T> {
 			DataType[] dts = ps.getPtypes();
 			for (int i = 0; i < dts.length; i++) {
 				SuffixValue sv = svgen.next(dts[i]);
-				DataValue<?> val = valuation.get(sv);
-				if (val != null)
+				DataValue<?> val = valuation.get(sv.getId());
+				if (val != null) {
 					mapping.put(sv, val);
+				}
 			}
 		}
 
 		GuardExpression expr = restr.toGuardExpression(mapping.keySet());
 		for (DataValue<T> ec : equivClasses) {
-			Mapping<SymbolicDataValue, DataValue<?>> ecMapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+			Mapping<SymbolicDataValue, DataValue<?>> ecMapping = new Mapping<>();
 			ecMapping.putAll(mapping);
-			ecMapping.putAll(consts);
 			ecMapping.put(restr.getParameter(), ec);
 			if (expr.isSatisfied(ecMapping)) {
 				filtered.add(ec);

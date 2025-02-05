@@ -58,7 +58,7 @@ public class TestQueryCount extends RaLibTestSuite {
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
         QueryStatistics queryStats = new QueryStatistics(measurements, ioOracle);
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo,
+        RaLambda learner = new RaLambda(mto, hypFactory, mlo, teachers,
                 consts, true, sul.getActionSymbols());
         learner.setStatisticCounter(queryStats);
 

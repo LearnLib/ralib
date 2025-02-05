@@ -115,7 +115,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
 
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo,
+        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, teachers,
                 consts, true, sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,

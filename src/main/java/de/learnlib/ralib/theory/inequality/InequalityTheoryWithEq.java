@@ -88,10 +88,11 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			SuffixValue suffixValue,
 			Map<DataValue<T>, SymbolicDataValue> potValuation,
 			SuffixValuation suffixValues,
-			Constants consts) {
+			Constants consts,
+			WordValuation values) {
 		Map<DataValue<T>, SDTGuard> valueGuards = generateEquivClasses(prefix, suffixValue, potValuation, consts);
 		// apply suffix restrictions
-		return filterEquivClasses(valueGuards, prefix, suffix, suffixValue, potValuation, suffixValues, consts);
+		return filterEquivClasses(valueGuards, prefix, suffix, suffixValue, potValuation, suffixValues, consts, values);
 	}
 
 	private Map<DataValue<T>, SDTGuard> generateEquivClasses(Word<PSymbolInstance> prefix,
@@ -158,11 +159,12 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 			SuffixValue suffixValue,
 			Map<DataValue<T>, SymbolicDataValue> potValuation,
 			SuffixValuation suffixVals,
-			Constants consts) {
+			Constants consts,
+			WordValuation values) {
 		List<DataValue<T>> equivClasses = new ArrayList<>();
 		equivClasses.addAll(valueGuards.keySet());
 		EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<>(equivClasses, useSuffixOpt);
-		List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), suffixVals, consts);
+		List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(suffixValue), prefix, suffix.getActions(), values);
 
 		Map<DataValue<T>, SDTGuard> ret = new LinkedHashMap<>();
 		for (Map.Entry<DataValue<T>, SDTGuard> e : valueGuards.entrySet()) {
@@ -398,7 +400,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     	Map<DataValue<T>, SymbolicDataValue> pot = getPotential(prefix, suffixValues, consts);
 
         Map<DataValue<T>, SDTGuard> equivClasses = generateEquivClasses(prefix, currentParam, pot, consts);
-        Map<DataValue<T>, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, pot, suffixValues, consts);
+        Map<DataValue<T>, SDTGuard> filteredEquivClasses = filterEquivClasses(equivClasses, prefix, suffix, currentParam, pot, suffixValues, consts, values);
 
         Map<SDTGuard, SDT> children = new LinkedHashMap<>();
         for (Map.Entry<DataValue<T>, SDTGuard> ec : filteredEquivClasses.entrySet()) {

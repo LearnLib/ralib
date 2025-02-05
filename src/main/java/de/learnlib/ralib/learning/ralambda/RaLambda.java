@@ -20,6 +20,7 @@ import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -43,11 +44,11 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -76,6 +77,7 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+    private final Map<DataType, Theory> teachers;
     private ConstraintSolver solver = null;
 
     private QueryStatistics queryStats = null;
@@ -84,25 +86,21 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RaLambda.class);
 
-    private boolean useOldAnalyzer;
-
-    private final Map<Word<PSymbolInstance>, Boolean> guardPrefixes = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-
     private PrefixFinder prefixFinder = null;
 
-    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Map<DataType, Theory> teachers, Constants consts,
             boolean ioMode, ParameterizedSymbol... inputs) {
 
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, false, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, teachers, consts, ioMode, false, inputs);
     }
 
-    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Map<DataType, Theory> teachers, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, ParameterizedSymbol... inputs) {
 
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, ioMode, useOldAnalyzer, false, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, teachers, consts, ioMode, useOldAnalyzer, false, inputs);
     }
 
-    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Map<DataType, Theory> teachers, Constants consts,
             boolean ioMode, boolean useOldAnalyzer, boolean thoroughSearch, ParameterizedSymbol... inputs) {
 
         this.ioMode = ioMode;
@@ -110,20 +108,16 @@ public class RaLambda implements RaLearningAlgorithm {
         this.sulOracle = oracle;
         this.sdtLogicOracle = sdtLogicOracle;
         this.hypOracleFactory = hypOracleFactory;
-        this.useOldAnalyzer = useOldAnalyzer;
-        if (oracle instanceof MultiTheoryTreeOracle) {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, ((MultiTheoryTreeOracle)oracle).getTeachers());
-        } else {
-        	this.restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts);
-        }
+        this.restrictionBuilder = oracle.getRestrictionBuilder();
         this.suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
         this.dt = new DT(oracle, ioMode, consts, inputs);
         this.dt.initialize();
+        this.teachers = teachers;
     }
 
-    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Constants consts,
+    public RaLambda(TreeOracle oracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle, Map<DataType, Theory> teachers, Constants consts,
             ParameterizedSymbol... inputs) {
-        this(oracle, hypOracleFactory, sdtLogicOracle, consts, false, false, inputs);
+        this(oracle, hypOracleFactory, sdtLogicOracle, teachers, consts, false, false, inputs);
     }
 
     @Override
@@ -182,7 +176,7 @@ public class RaLambda implements RaLearningAlgorithm {
         if (prefixFinder == null) {
             //Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<Word<PSymbolInstance>, LocationComponent>();
             //components.putAll(dt.getComponents());
-            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, consts);
+            prefixFinder = new PrefixFinder(sulOracle, hypOracle, hyp, sdtLogicOracle, teachers, consts);
         }
 
         boolean foundce = false;
@@ -351,7 +345,6 @@ public class RaLambda implements RaLearningAlgorithm {
     }
 
     private boolean checkGuardConsistency() {
-
     	for (DTLeaf dest_c : dt.getLeaves()) {
     		Collection<Word<PSymbolInstance>> words = new LinkedHashSet<>();
     		words.add(dest_c.getAccessSequence());
@@ -567,7 +560,6 @@ public class RaLambda implements RaLearningAlgorithm {
     }
 
     public void setUseOldAnalyzer(boolean useOldAnalyzer) {
-        this.useOldAnalyzer = useOldAnalyzer;
     }
 
     private Word<PSymbolInstance> branchWithSameGuard(MappedPrefix mp, Branching branching) {

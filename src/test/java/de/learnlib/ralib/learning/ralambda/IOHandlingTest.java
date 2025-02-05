@@ -220,7 +220,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, IN, OK, NOK);
 
 		ralambda.learn();
 
@@ -267,7 +267,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, IN, NOK, OUT);
 
 		ralambda.learn();
 
@@ -318,7 +318,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, IN, NOK, OUT);
 
 		ralambda.learn();
 

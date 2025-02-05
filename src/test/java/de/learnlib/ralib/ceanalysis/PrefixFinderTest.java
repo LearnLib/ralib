@@ -93,7 +93,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                // rastar.getComponents(),
+                teachers,
                 consts
         );
 
@@ -119,7 +119,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers,
         		consts, I_PUSH, I_POP);
 
         ralambda.learn();
@@ -140,7 +140,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                 mto,
                 hypFactory.createTreeOracle(hyp), hyp,
                 slo,
-                // ralambda.getComponents(),
+                teachers,
                 consts
         );
 

@@ -31,6 +31,8 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonExporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -126,6 +128,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private Map<DataType, Theory> teachers;
 
+    private final Constants consts = new Constants();
+
     private Class<?> target = null;
 
     private final Map<String, DataType> types = new LinkedHashMap<>();
@@ -166,11 +170,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
             Integer md = OPTION_MAX_DEPTH.parse(config);
 
-            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md);
-            if (this.timeoutMillis > 0L) {
-                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
-            }
-
             ParameterizedSymbol[] inputSymbols = inList.toArray(new ParameterizedSymbol[]{});
 
             actList.add(SpecialSymbols.ERROR);
@@ -181,7 +180,17 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             actList.add(SpecialSymbols.DEPTH);
             ParameterizedSymbol[] actions = actList.toArray(new ParameterizedSymbol[]{});
 
-            final Constants consts = new Constants();
+            String cstString = OPTION_CONSTANTS.parse(config);
+            if (cstString != null) {
+            	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator();
+            	DataValue<?>[] cstArray = super.parseDataValues(cstString, types);
+            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            }
+
+            sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md, consts);
+            if (this.timeoutMillis > 0L) {
+                this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
+            }
 
             // create teachers
             teachers = new LinkedHashMap<DataType, Theory>();
@@ -235,14 +244,12 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                 }
             };
 
-            //this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
-
             switch (this.learner) {
                 case AbstractToolWithRandomWalk.LEARNER_SLSTAR:
                     this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                    this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+                    this.rastar = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, actions);
                     ((RaLambda)this.rastar).setSolver(solver);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_RADT:
@@ -355,7 +362,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             Word<PSymbolInstance> sysTrace = back.trace(ce.getInput());
             System.out.println("### SYS TRACE: " + sysTrace);
 
-            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, new Constants());
+            SimulatorSUL hypSul = new SimulatorSUL(hyp, teachers, consts);
             IOOracle iosul = new SULOracle(hypSul, SpecialSymbols.ERROR);
             Word<PSymbolInstance> hypTrace = iosul.trace(ce.getInput());
             System.out.println("### HYP TRACE: " + hypTrace);

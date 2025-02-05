@@ -165,7 +165,7 @@ public class RegisterAutomatonImporter {
                         t.getAssignments().getAssign()) {
                     Register left = regMap.get(ass.to);
                     SymbolicDataValue right;
-                    if ( ("__fresh__").equals(ass.value)) {
+                    if ("__fresh__".equals(ass.value)) {
                         freshRegs.add(left);
                         continue;
                     }

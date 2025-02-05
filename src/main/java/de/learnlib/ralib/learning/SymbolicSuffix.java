@@ -130,7 +130,6 @@ public class SymbolicSuffix {
         this.restrictions = new LinkedHashMap<>();
 
         SuffixValueGenerator valgen = new SuffixValueGenerator();
-        int idx = 1;
         for (ParameterizedSymbol ps : actions) {
             for (DataType t : ps.getPtypes()) {
                 SuffixValue sv = valgen.next(t);

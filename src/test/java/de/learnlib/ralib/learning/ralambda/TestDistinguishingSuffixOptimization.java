@@ -91,7 +91,7 @@ public class TestDistinguishingSuffixOptimization {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
+        RaLambda learner = new RaLambda(mto, hypFactory, slo, teachers, consts, false, false, A, B);
         learner.setSolver(solver);
 
         learner.learn();

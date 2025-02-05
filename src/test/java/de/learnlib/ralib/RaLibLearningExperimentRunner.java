@@ -24,6 +24,7 @@ import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.solver.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -101,7 +102,7 @@ public class RaLibLearningExperimentRunner {
 	}
 
 	/**
-	 * Launches a learning experiments for acceptor RAs.
+	 * Launches a learning experiment for acceptor RAs.
 	 *
 	 */
 	public Hypothesis run(RaLearningAlgorithmName algorithmName, DataWordOracle dataOracle,
@@ -112,7 +113,7 @@ public class RaLibLearningExperimentRunner {
 			logger.log(Level.INFO, "SEED={0}", seed);
 			Random random = new Random(seed);
 			CacheDataWordOracle ioCache = new CacheDataWordOracle(dataOracle);
-			MeasuringOracle mto = new MeasuringOracle(ioCache, teachers, consts, solver, measures);
+			MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, solver), measures);
 
 			MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -125,7 +126,7 @@ public class RaLibLearningExperimentRunner {
 				learner = new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 				break;
 			case RALAMBDA:
-				learner = new RaLambda(mto, hypFactory, mlo, consts, ioMode, useOldAnalyzer, actionSymbols);
+				learner = new RaLambda(mto, hypFactory, mlo, teachers, consts, ioMode, useOldAnalyzer, actionSymbols);
 				((RaLambda)learner).setSolver(solver);
 				break;
 			case RADT:

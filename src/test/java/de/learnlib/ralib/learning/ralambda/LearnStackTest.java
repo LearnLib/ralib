@@ -60,7 +60,8 @@ public class LearnStackTest extends RaLibTestSuite {
 
         Measurements mes = new Measurements();
 
-        MeasuringOracle mto = new MeasuringOracle(dwOracle, teachers, new Constants(), solver, mes);
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(
+                dwOracle, teachers, new Constants(), solver), mes);
 
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -68,7 +69,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers, consts, false, false, I_PUSH, I_POP);
         ralambda.setSolver(solver);
 
         ralambda.learn();
@@ -120,7 +121,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers, consts, false, false, I_PUSH, I_POP);
         ralambda.setSolver(solver);
 
         ralambda.learn();
@@ -193,7 +194,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
+        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, teachers, consts, false, false, I_PUSH, I_POP);
         ralambda.setSolver(solver);
 
         ralambda.learn();

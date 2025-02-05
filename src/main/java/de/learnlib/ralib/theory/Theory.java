@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
@@ -112,6 +113,6 @@ public interface Theory<T> {
 
     public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
 
-//    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
+    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
 
 }

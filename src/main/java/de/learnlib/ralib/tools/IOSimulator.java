@@ -199,7 +199,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
        }
 
         Measurements measurements = new Measurements();
-        MeasuringOracle mto = new MeasuringOracle(ioOracle, teachers, consts, solver, measurements);
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
         MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         final long timeout = this.timeoutMillis;
@@ -219,7 +219,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+                this.rastar = new RaLambda(mto, hypFactory, mlo, teachers, consts, true, actions);
                 ((RaLambda)this.rastar).setSolver(solver);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_RADT:
