@@ -300,4 +300,41 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+	@Override
+	public RARun getRun(Word<PSymbolInstance> dw) {
+		int n = dw.length();
+		RALocation[] locs = new RALocation[n+1];
+		VarValuation[] vars = new VarValuation[n+1];
+		PSymbolInstance[] symbols = new PSymbolInstance[n+1];
+
+		locs[0] = getInitialState();
+		vars[0] = new VarValuation();
+
+		for (int i = 0; i < n; i++) {
+			symbols[i] = dw.getSymbol(i);
+			ParValuation pars = new ParValuation(symbols[i]);
+
+			Collection<Transition> candidates = locs[i].getOut(symbols[i].getBaseSymbol());
+			if (candidates == null) {
+				return null;
+			}
+
+			boolean found = false;
+			for (Transition t : candidates) {
+				if (t.isEnabled(vars[i], pars, constants)) {
+					vars[i+1] = t.execute(vars[i], pars, constants);
+					locs[i+1] = t.getDestination();
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) {
+				return null;
+			}
+		}
+
+		return new RARun(locs, vars, symbols);
+	}
+
 }

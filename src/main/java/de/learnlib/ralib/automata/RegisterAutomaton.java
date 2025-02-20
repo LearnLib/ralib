@@ -114,4 +114,6 @@ public abstract class RegisterAutomaton
         }
         return regs;
     }
+
+    public abstract RARun getRun(Word<PSymbolInstance> dw);
 }
