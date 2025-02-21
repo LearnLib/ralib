@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -45,6 +44,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;

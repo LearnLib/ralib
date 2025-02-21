@@ -3,7 +3,6 @@ package de.learnlib.ralib.learning.ralambda;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -19,6 +18,7 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.SimulatorOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;

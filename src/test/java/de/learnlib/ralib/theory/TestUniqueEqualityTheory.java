@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,7 +19,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.UniqueIntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;

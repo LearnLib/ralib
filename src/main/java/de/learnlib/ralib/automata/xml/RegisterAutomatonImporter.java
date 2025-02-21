@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import jakarta.xml.bind.JAXB;
 
 import org.slf4j.Logger;
@@ -58,6 +55,8 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.alphabet.Alphabet;
 import net.automatalib.alphabet.impl.GrowingMapAlphabet;
 

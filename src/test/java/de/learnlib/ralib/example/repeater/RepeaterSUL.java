@@ -1,5 +1,7 @@
 package de.learnlib.ralib.example.repeater;
 
+import java.math.BigDecimal;
+
 import de.learnlib.exception.SULException;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -8,8 +10,6 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-
-import java.math.BigDecimal;
 
 public class RepeaterSUL extends DataWordSUL {
 	public static final DataType TINT =

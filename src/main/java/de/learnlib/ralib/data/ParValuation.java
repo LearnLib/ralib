@@ -20,7 +20,6 @@ import java.util.Iterator;
 
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
-import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.word.Word;
 
 /**

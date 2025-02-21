@@ -16,12 +16,11 @@
  */
 package de.learnlib.ralib.data;
 
-import gov.nasa.jpf.constraints.expressions.Constant;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.types.Type;
-
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import gov.nasa.jpf.constraints.expressions.Constant;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
 /**
  * RaLib extension of SMT constant values that

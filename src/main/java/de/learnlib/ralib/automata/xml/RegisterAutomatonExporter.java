@@ -23,8 +23,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import gov.nasa.jpf.constraints.api.Expression;
 import jakarta.xml.bind.JAXB;
 
 import de.learnlib.ralib.automata.Assignment;
@@ -43,6 +41,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
