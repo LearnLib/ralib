@@ -5,9 +5,11 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -20,8 +22,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -38,25 +39,25 @@ public class DTInnerNodeTest {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
             dwOracle, teachers, new Constants(), solver);
 
         Word<PSymbolInstance> p1 = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-            new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))),
+            new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(1))));
 
         Word<PSymbolInstance> p2 = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+            new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))),
+            new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 
         Word<PSymbolInstance> epsilon = Word.epsilon();
         Word<PSymbolInstance> push = Word.fromSymbols(
-            new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))));
 
         Word<PSymbolInstance> suffix = Word.fromSymbols(
-            new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+            new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(1))));
 
         SymbolicSuffix symbSuffix = new SymbolicSuffix(epsilon, suffix);
 

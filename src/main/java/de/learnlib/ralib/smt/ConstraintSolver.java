@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver;
+package de.learnlib.ralib.smt;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
@@ -27,6 +28,8 @@ import de.learnlib.ralib.data.SymbolicDataValue;
  */
 public interface ConstraintSolver {
 
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val);
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val);
+
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val);
 
 }

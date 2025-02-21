@@ -25,6 +25,7 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.automata.output.OutputTransition;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -121,8 +122,8 @@ public class RAToDot {
 
     private void printInputLabel(Transition t) {
         stringRA.append(t.getLabel());
-        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {
-            stringRA.append("|").append(escapeGuard(t.getGuard()));
+        if (!t.getGuard().equals(ExpressionUtil.TRUE)) {
+            stringRA.append("|").append(escapeGuard(t.toString()));
         }
         if (!t.getAssignment().getAssignment().isEmpty()) {
             stringRA.append("<BR />");
@@ -132,8 +133,8 @@ public class RAToDot {
 
     private void printOutputLabel(OutputTransition t) {
         stringRA.append(t.getLabel());
-        if (!t.getGuard().getCondition().equals(TrueGuardExpression.TRUE)) {
-            stringRA.append("|").append(escapeGuard(t.getGuard()));
+        if (!t.getGuard().equals(ExpressionUtil.TRUE)) {
+            stringRA.append("|").append(escapeGuard(t.toString()));
         }
         if (!t.getOutput().getFreshParameters().isEmpty() ||
                 !t.getOutput().getOutput().isEmpty()) {
@@ -146,7 +147,7 @@ public class RAToDot {
         }
     }
 
-    private String escapeGuard(TransitionGuard g) {
+    private String escapeGuard(String g) {
         return g.toString().replaceAll("&", "&amp;");
     }
 }

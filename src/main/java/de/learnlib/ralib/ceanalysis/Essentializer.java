@@ -27,14 +27,14 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
-public class Essentializer<T> {
+public class Essentializer {
 
-    private final EqualityTheory<T> theory;
+    private final EqualityTheory theory;
 
     private final DataWordOracle sulOracle;
     private final DataWordOracle hypOracle;
 
-    public Essentializer(EqualityTheory<T> theory, DataWordOracle sulOracle, DataWordOracle hypOracle) {
+    public Essentializer(EqualityTheory theory, DataWordOracle sulOracle, DataWordOracle hypOracle) {
         this.theory = theory;
         this.sulOracle = sulOracle;
         this.hypOracle = hypOracle;
@@ -54,7 +54,7 @@ public class Essentializer<T> {
                 continue;
             }
             // can we make index unique
-            DataValue<T> fresh = theory.getFreshValue(Arrays.asList(vals));
+            DataValue fresh = theory.getFreshValue(Arrays.asList(vals));
             vals[index] = fresh;
             Word<PSymbolInstance> instantiated = DataWords.instantiate(acts, vals);
             if(refOutSul == sulOracle.answerQuery(instantiated) &&

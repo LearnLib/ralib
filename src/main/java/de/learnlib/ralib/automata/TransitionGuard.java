@@ -18,16 +18,15 @@ package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.*;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  * Transition Guard.
  *
  * @author falk
  */
+@Deprecated
 public class TransitionGuard {
 
     private final GuardExpression condition;
@@ -51,7 +50,7 @@ public class TransitionGuard {
      * @return
      */
     public boolean isSatisfied(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarMapping val = new VarMapping();
+        Mapping<SymbolicDataValue, DataValue> val = new Mapping<>();
         val.putAll(registers);
         val.putAll(parameters);
         val.putAll(consts);

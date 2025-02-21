@@ -29,6 +29,7 @@ import de.learnlib.ralib.data.VarMapping;
  *
  * @author falk
  */
+@Deprecated
 public abstract class SDTGuard {
 
     //TODO: this should probably be a special sdtparameter
@@ -49,7 +50,7 @@ public abstract class SDTGuard {
     public abstract Set<SymbolicDataValue> getComparands(SymbolicDataValue dv);
 
     public SDTGuard(SDTGuard other) {
-    	this.parameter = (SuffixValue) other.parameter.copy();
+    	this.parameter = (SuffixValue) SymbolicDataValue.copy(other.parameter);
     }
 
     public TransitionGuard toTG() {

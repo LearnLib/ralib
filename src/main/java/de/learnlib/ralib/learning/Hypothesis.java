@@ -35,8 +35,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.common.util.Pair;
 import net.automatalib.word.Word;
 
@@ -109,9 +111,9 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
         VarValuation vars = tvseq.get(tvseq.size()-1).getSecond();
         ParValuation pval = new ParValuation(word.lastSymbol());
 
-	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branching.getBranches().entrySet()) {
+	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branching.getBranches().entrySet()) {
 	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
-		if (e.getValue().isSatisfied(vars, pval, constants)) {
+		if (e.getValue().evaluateSMT(SMTUtils.compose(vars, pval, constants))) {
 		    return e.getKey();
 		}
 	    }

@@ -30,7 +30,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class PriorityQueueSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE =
-            new DataType("DOUBLE", BigDecimal.class);
+            new DataType("DOUBLE");
 
     public static final ParameterizedSymbol POLL =
             new InputSymbol("poll", new DataType[]{});
@@ -91,7 +91,7 @@ public class PriorityQueueSUL extends DataWordSUL {
             return new PSymbolInstance(NOK);
         } else {
             assert (null != x);
-            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, x));
+            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, new BigDecimal(x.toString())));
         }
     }
 
@@ -99,7 +99,7 @@ public class PriorityQueueSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(OFFER)) {
-            Object x = pqueue.offer(i.getParameterValues()[0].getId());
+            Object x = pqueue.offer(i.getParameterValues()[0].getValue());
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(POLL)) {
             Object x = pqueue.poll();

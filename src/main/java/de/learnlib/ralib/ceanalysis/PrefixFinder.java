@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -200,7 +201,7 @@ public class PrefixFinder {
     		boolean hasCE = sdtOracle.hasCounterexample(location,
 	                resHyp.getSdt(), resHyp.getPiv(),
 	                resSul.getSdt(), resSul.getPiv(),
-	                new TransitionGuard(), transition);
+					ExpressionUtil.TRUE, transition);
 
     		if (hasCE) {
 				SymbolicWord sw = candidate(location, symSuffix, resSul.getSdt(), resSul.getPiv(), resHyp.getSdt(), resHyp.getPiv(), ce);
@@ -258,7 +259,7 @@ public class PrefixFinder {
         	GuardExpression exprR = expr.relabel(renaming);
 
         	ParValuation pars = new ParValuation(path);
-        	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
+        	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
         	vals.putAll(DataWords.computeVarValuation(pars, pivSul));
         	vals.putAll(pars);
         	vals.putAll(consts);

@@ -20,10 +20,12 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.IPUT;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.OECHO;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,8 +42,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
+
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -76,7 +78,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
-            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            TypedTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
@@ -84,7 +86,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -100,9 +102,9 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         ParameterizedSymbol ook = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-        DataValue d6 = new DataValue(intType, 6);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+        DataValue d6 = new DataValue(intType, new BigDecimal(6));
 
         //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -176,7 +178,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -186,14 +188,14 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
          ParameterizedSymbol oyes = new OutputSymbol(
                 "OYes", new DataType[] {});
 
-         DataValue d0 = new DataValue(intType, 0);
-         DataValue d1 = new DataValue(intType, 1);
-         DataValue d2 = new DataValue(intType, 2);
-         DataValue d3 = new DataValue(intType, 3);
-         DataValue d4 = new DataValue(intType, 4);
-         DataValue d5 = new DataValue(intType, 5);
-         DataValue d6 = new DataValue(intType, 6);
-         DataValue d7 = new DataValue(intType, 7);
+         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+         DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+         DataValue d2 = new DataValue(intType, new BigDecimal(2));
+         DataValue d3 = new DataValue(intType, new BigDecimal(3));
+         DataValue d4 = new DataValue(intType, new BigDecimal(4));
+         DataValue d5 = new DataValue(intType, new BigDecimal(5));
+         DataValue d6 = new DataValue(intType, new BigDecimal(6));
+         DataValue d7 = new DataValue(intType, new BigDecimal(7));
 
         //******
         Word<PSymbolInstance> prefix1 = Word.fromSymbols();
@@ -240,18 +242,18 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 oracle, teachers, consts, solver);
 
         Word<PSymbolInstance> word = Word.fromSymbols(
-                new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-                new PSymbolInstance(IPUT, new DataValue(TINT, 1)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 1)),
-                new PSymbolInstance(IPUT, new DataValue(TINT, 2)),
-                new PSymbolInstance(OECHO, new DataValue(TINT, 2)));
+                new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+                new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+                new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ONE)),
+                new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ONE)),
+                new PSymbolInstance(IPUT, new DataValue(TINT, new BigDecimal(2) )),
+                new PSymbolInstance(OECHO, new DataValue(TINT, new BigDecimal(2) )));
 
         SymbolicSuffix suffix = new SymbolicSuffix(word.prefix(2), word.suffix(4), restrictionBuilder);
         Assert.assertTrue(suffix.getFreeValues().isEmpty());

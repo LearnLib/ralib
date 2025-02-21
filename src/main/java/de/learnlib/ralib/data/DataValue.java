@@ -16,34 +16,38 @@
  */
 package de.learnlib.ralib.data;
 
+import gov.nasa.jpf.constraints.expressions.Constant;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
+import gov.nasa.jpf.constraints.types.Type;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
+ * RaLib extension of SMT constant values that
+ * retains user-annotated type information
  *
  * @author falk
- * @param <T>  a type parameter
  */
-public class DataValue<T> {
+public class DataValue extends Constant<BigDecimal> {
 
     protected final DataType type;
 
-    protected final T id;
-
-    public DataValue(DataType type, T id) {
+    public DataValue(DataType type, BigDecimal value) {
+        super(BuiltinTypes.DECIMAL, value);
         this.type = type;
-        this.id = id;
     }
 
     @Override
     public String toString() {
-        return id.toString() + "[" + this.type.getName() + "]";
+        return getValue().toString() + "[" + this.type.getName() + "]";
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.type);
-        hash = 97 * hash + Objects.hashCode(this.id);
+        hash = 97 * hash + Objects.hashCode(this.getValue());
         return hash;
     }
 
@@ -55,51 +59,25 @@ public class DataValue<T> {
         if (!(obj instanceof DataValue)) {
             return false;
         }
-        final DataValue<T> other = (DataValue) obj;
+        final DataValue other = (DataValue) obj;
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        if (!Objects.equals(this.id, other.id)) {
+        if (!this.getValue().equals(other.getValue())) {
             return false;
         }
         return true;
     }
 
-    public T getId() {
-        return id;
-    }
-
-    public DataType getType() {
+    public DataType getDataType() {
         return type;
     }
 
-    public static <P> DataValue<P> valueOf(String strVal, DataType type) {
-    	return new DataValue(type, valueOf(strVal, type.getBase()));
+    @Override
+    public BigDecimal getValue() {
+        return super.getValue();
     }
-
-    public static <P> P valueOf(String strVal, Class<P> cls) {
-    	P realValue = null;
-    	if (Number.class.isAssignableFrom(cls)) {
-    		Object objVal;
-    		try {
-    			objVal = cls.getMethod("valueOf", String.class).invoke(cls, strVal);
-
-    			realValue = cls.cast(objVal);
-    		} catch (Exception e) {
-    			throw new RuntimeException(e);
-    		}
-    	} else {
-    		if (cls.isPrimitive()) {
-    			if (cls.equals(int.class))
-    				return (P) Integer.valueOf(strVal);
-    			else if (cls.equals(double.class))
-    				return (P) Double.valueOf(strVal);
-    			else if (cls.equals(long.class))
-    				return (P) Long.valueOf(strVal);
-    		}
-    		throw new RuntimeException("Cannot deserialize values of the class " + cls);
-    	}
-    	return realValue;
+    public static DataValue valueOf(String strVal, DataType type) {
+    	return new DataValue(type, new BigDecimal(strVal));
     }
-
 }

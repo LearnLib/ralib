@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -48,12 +46,14 @@ import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  * Implementation of Symbolic Decision Trees.
  *
  * @author Sofia Cassel
  */
+@Deprecated
 public class SDT implements SymbolicDecisionTree {
 
     private final Map<SDTGuard, SDT> children;
@@ -201,8 +201,8 @@ public class SDT implements SymbolicDecisionTree {
         //return false;
     }
 
-    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue<?>> vals, Constants consts) {
-    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue> vals, Constants consts) {
+    	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<SymbolicDataValue, DataValue>();
     	mapping.putAll(vals);
     	mapping.putAll(consts);
     	GuardExpression expr = getAcceptingPaths(consts);

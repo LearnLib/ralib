@@ -38,11 +38,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**
- *
  * @author falk
- * @param <T>
  */
-public interface Theory<T> {
+public interface Theory {
 
 
     /**
@@ -51,7 +49,7 @@ public interface Theory<T> {
      * @param vals
      * @return a fresh data value of type T
      */
-    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
+    public DataValue getFreshValue(List<DataValue> vals);
 
     /**
      * Implements a tree query for this theory. This tree query
@@ -89,7 +87,7 @@ public interface Theory<T> {
      * @param vals
      * @return
      */
-    public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
+    public Collection<DataValue> getAllNextValues(List<DataValue> vals);
 
     /**
      * TBD
@@ -107,7 +105,7 @@ public interface Theory<T> {
     public DataValue instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv, ParValuation pval,
             Constants constants,
-            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
+            SDTGuard guard, Parameter param, Set<DataValue> oldDvs);
 
     public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 

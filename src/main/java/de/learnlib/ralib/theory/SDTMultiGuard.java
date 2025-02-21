@@ -26,6 +26,7 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 
+@Deprecated
 public abstract class SDTMultiGuard extends SDTGuard {
 
     protected enum ConDis {

@@ -28,6 +28,10 @@ import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -39,7 +43,7 @@ public class ExpressionParser {
     private final String expLine;
     private final Map<String, SymbolicDataValue> pMap;
 
-    private GuardExpression predicate;
+    private Expression<Boolean> predicate;
 
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {
         expLine = exp.trim();
@@ -53,48 +57,48 @@ public class ExpressionParser {
         this.predicate = buildDisjunction(expLine);
     }
 
-    private GuardExpression buildDisjunction(String dis) {
+    private Expression<Boolean> buildDisjunction(String dis) {
         StringTokenizer tok = new StringTokenizer(dis, "||");
         if (tok.countTokens() < 2) {
             return buildConjunction(dis);
         }
-        List<GuardExpression> disjuncts = new ArrayList<>();
+        List<Expression<Boolean>> disjuncts = new ArrayList<>();
         while (tok.hasMoreTokens()) {
             disjuncts.add(buildConjunction(tok.nextToken().trim()));
         }
-        return new Disjunction(disjuncts.toArray(new GuardExpression[] {}));
+        return ExpressionUtil.or(disjuncts.toArray(new Expression[] {}));
     }
 
-    private GuardExpression buildConjunction(String con) {
+    private Expression<Boolean> buildConjunction(String con) {
         StringTokenizer tok = new StringTokenizer(con, "&&");
         if (tok.countTokens() < 2) {
             return buildPredicate(con);
         }
-        List<GuardExpression> conjuncts = new ArrayList<>();
+        List<Expression<Boolean>> conjuncts = new ArrayList<>();
         while (tok.hasMoreTokens()) {
             conjuncts.add(buildPredicate(tok.nextToken().trim()));
         }
-        return new Conjunction(conjuncts.toArray(new GuardExpression[] {}));
+        return ExpressionUtil.and(conjuncts.toArray(new Expression[] {}));
     }
 
-    private GuardExpression buildPredicate(String pred)
+    private Expression<Boolean> buildPredicate(String pred)
     {
 
         pred = pred.replace("!=", "!!");
         if (pred.trim().length() < 1) {
-            return new TrueGuardExpression();
+            return ExpressionUtil.TRUE;
         }
 
-        Relation relation = null;
+        NumericComparator relation = null;
         String[] related = null;
 
         if (pred.contains("==")) {
             related = pred.split("==");
-            relation = Relation.EQUALS;
+            relation = NumericComparator.EQ;
         }
         else if (pred.contains("!!")) {
             related = pred.split("!!");
-            relation = Relation.NOT_EQUALS;
+            relation = NumericComparator.NE;
         }
         else if (pred.contains("<=")) {
         	related = pred.split("<=");
@@ -102,7 +106,7 @@ public class ExpressionParser {
         }
         else if (pred.contains("<")) {
             related = pred.split("<");
-            relation = Relation.SMALLER;
+            relation = NumericComparator.LT;
         }
         else if (pred.contains(">=")) {
         	related = pred.split(">=");
@@ -110,7 +114,7 @@ public class ExpressionParser {
         }
         else if (pred.contains(">")) {
             related = pred.split(">");
-            relation = Relation.BIGGER;
+            relation = NumericComparator.GT;
         }
 
         if (relation == null) {
@@ -120,13 +124,13 @@ public class ExpressionParser {
 
         SymbolicDataValue left = pMap.get(related[0].trim());
         SymbolicDataValue right = pMap.get(related[1].trim());
-        return new AtomicGuardExpression(left, relation, right);
+        return new NumericBooleanExpression(left, relation, right);
     }
 
     /**
      * @return the predicate
      */
-    public GuardExpression getPredicate() {
+    public Expression<Boolean> getPredicate() {
         return predicate;
     }
 

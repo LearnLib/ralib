@@ -37,7 +37,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -68,7 +68,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         @Override
         public PSymbolInstance step(PSymbolInstance i) throws SULException {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
-                    ((BigDecimal)i.getParameterValues()[0].getId()).add(BigDecimal.ONE)));
+                    ((BigDecimal)i.getParameterValues()[0].getValue()).add(BigDecimal.ONE)));
         }
 
     }

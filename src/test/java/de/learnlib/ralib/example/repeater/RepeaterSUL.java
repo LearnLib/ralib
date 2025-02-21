@@ -9,9 +9,11 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
+import java.math.BigDecimal;
+
 public class RepeaterSUL extends DataWordSUL {
 	public static final DataType TINT =
-			new DataType("int", Integer.class);
+			new DataType("int");
 
 	public static final ParameterizedSymbol IPUT =
 			new InputSymbol("put", new DataType[] {TINT});
@@ -64,14 +66,14 @@ public class RepeaterSUL extends DataWordSUL {
 	private PSymbolInstance createOutputSymbol(Integer x) {
 		if (x == null)
 			return new PSymbolInstance(ONOK);
-		return new PSymbolInstance(OECHO, new DataValue<Integer>(TINT, x.intValue()));
+		return new PSymbolInstance(OECHO, new DataValue(TINT, new BigDecimal(x)));
 	}
 
 	@Override
 	public PSymbolInstance step(PSymbolInstance in) throws SULException {
         countInputs(1);
         if (in.getBaseSymbol().equals(IPUT)) {
-        	Integer p = (Integer)in.getParameterValues()[0].getId();
+        	Integer p =in.getParameterValues()[0].getValue().intValue();
         	Integer x = repeater.repeat(p);
         	return createOutputSymbol(x);
         } else {

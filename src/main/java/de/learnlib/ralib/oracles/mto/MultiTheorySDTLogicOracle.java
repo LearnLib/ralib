@@ -18,6 +18,12 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
+import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.Negation;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +31,6 @@ import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.Conjunction;
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -37,7 +42,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -62,7 +67,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     @Override
     public boolean hasCounterexample(Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt1, PIV piv1,
-            SymbolicDecisionTree sdt2, PIV piv2, TransitionGuard guard, Word<PSymbolInstance> rep) {
+            SymbolicDecisionTree sdt2, PIV piv2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
@@ -74,28 +79,29 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
 
-        GuardExpression expr1 = _sdt1.getAcceptingPaths(consts);
-        GuardExpression expr2 = _sdt2.getAcceptingPaths(consts);
-        GuardExpression exprG = guard.getCondition();
+        Expression<Boolean>  expr1 = JContraintsUtil.toExpression(_sdt1.getAcceptingPaths(consts));
+        Expression<Boolean>  expr2 = JContraintsUtil.toExpression(_sdt2.getAcceptingPaths(consts));
+        Expression<Boolean>  exprG = guard;
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = new VarMapping<>();
-        for (SymbolicDataValue sv : exprG.getSymbolicDataValues()) {
+        for (Variable sv : ExpressionUtil.freeVariables(exprG)) {
             if (sv instanceof Parameter) {
-                gremap.put(sv, new SuffixValue(sv.getType(), sv.getId()));
+                Parameter p = (Parameter) sv;
+                gremap.put(p, new SuffixValue( p.getDataType(), p.getId()));
             }
         }
 
-        exprG = exprG.relabel(gremap);
+        exprG = SMTUtils.renameVars(exprG, gremap);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
-        GuardExpression expr2r = expr2.relabel(remap);
+        Expression<Boolean> expr2r = SMTUtils.renameVars(expr2, remap);
 
-        GuardExpression left = new Conjunction(exprG, expr1, new Negation(expr2r));
+        Expression<Boolean> left = ExpressionUtil.and(exprG, expr1, new Negation(expr2r));
 
-        GuardExpression right = new Conjunction(exprG, expr2r, new Negation(expr1));
+        Expression<Boolean> right = ExpressionUtil.and(exprG, expr2r, new Negation(expr1));
 
-        GuardExpression test = new Disjunction(left, right);
+        Expression<Boolean> test = ExpressionUtil.or(left, right);
 
 //        System.out.println("A1:  " + expr1);
 //        System.out.println("A2:  " + expr2);
@@ -139,7 +145,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean doesRefine(TransitionGuard refining, PIV pivRefining, TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+    public boolean doesRefine(Expression<Boolean> refining, PIV pivRefining, Expression<Boolean> refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue> valuation) {
 
         LOGGER.trace("refining: {0}", refining);
         LOGGER.trace("refined: {0}", refined);
@@ -148,13 +154,16 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
-        GuardExpression exprRefining = refining.getCondition();
-        GuardExpression exprRefined = refined.getCondition().relabel(remap);
+        Expression<Boolean> exprRefining = refining;
+        Expression<Boolean> exprRefined = SMTUtils.renameVars(refined, remap);
+
 
         // is there any case for which refining is true but refined is false?
-        GuardExpression test = new Conjunction(exprRefining, new Negation(exprRefined));
+        Expression<Boolean> test = ExpressionUtil.and(
+                exprRefining, new gov.nasa.jpf.constraints.expressions.Negation(exprRefined));
+
         // it is important to include constants to see that, e.g., c1==p1 refines c2!=p1
-        Mapping<SymbolicDataValue, DataValue<?>> valWithConsts = new Mapping<>();
+        Mapping<SymbolicDataValue, DataValue> valWithConsts = new Mapping<>();
         valWithConsts.putAll(valuation);
         valWithConsts.putAll(consts);
 
@@ -166,8 +175,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+    public boolean areMutuallyExclusive(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
+            PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
         LOGGER.trace("piv1: {0}", piv1);
@@ -175,10 +184,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
-        GuardExpression exprGuard1 = guard1.getCondition();
-        GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
+        Expression<Boolean> exprGuard1 = guard1;
+        Expression<Boolean> exprGuard2 = SMTUtils.renameVars(guard2, remap);
 
-        GuardExpression test = new Conjunction(exprGuard1, exprGuard2);
+        Expression<Boolean>  test = ExpressionUtil.and(exprGuard1, exprGuard2);
 
         LOGGER.trace("MAP: " + remap);
         LOGGER.trace("TEST:" + test);
@@ -188,8 +197,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+    public boolean areEquivalent(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
+                                 PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
         LOGGER.trace("piv1: {0}", piv1);
@@ -197,10 +206,12 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
-        GuardExpression exprGuard1 = guard1.getCondition();
-        GuardExpression exprGuard2 = guard2.getCondition().relabel(remap);
-        GuardExpression test = new Disjunction(new Conjunction(exprGuard1, new Negation(exprGuard2)),
-        		                               new Conjunction(new Negation(exprGuard1), exprGuard2));
+        Expression<Boolean> g2relabel = SMTUtils.renameVars(guard2, remap);
+
+        Expression<Boolean> test = ExpressionUtil.or(
+                ExpressionUtil.and(guard1, new gov.nasa.jpf.constraints.expressions.Negation(g2relabel)),
+                ExpressionUtil.and(new gov.nasa.jpf.constraints.expressions.Negation(guard1), g2relabel)
+        );
 
         LOGGER.trace("MAP: " + remap);
         LOGGER.trace("TEST:" + test);
@@ -215,7 +226,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt =  (SDT) sdt;
         assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
             "The height of the tree is not consistent with the number of parameters in the word";
-        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<>();
+        Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
         valuation.putAll(consts);
         DataValue[] vals = DataWords.valsOf(prefix);
         for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
@@ -228,7 +239,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     private boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, int symIndex, SDT sdt,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation) {
+            Mapping<SymbolicDataValue, DataValue> valuation) {
         boolean accepts;
         if (symIndex == word.length()) {
             accepts =  sdt.isAccepting();
@@ -238,7 +249,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 accepts = accepts(word, prefix, symIndex + 1, sdt, valuation);
             } else {
                 SDT nextSdt = sdt;
-                Mapping<SymbolicDataValue, DataValue<?>> newValuation = new Mapping<>();
+                Mapping<SymbolicDataValue, DataValue> newValuation = new Mapping<>();
                 newValuation.putAll(valuation);
                 for (int i = 0; i < sym.getBaseSymbol().getArity(); i++) {
                     DataValue value = sym.getParameterValues()[i];

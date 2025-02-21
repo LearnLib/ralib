@@ -8,6 +8,10 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -63,11 +67,9 @@ public class RAEquivalenceTestTest {
 		ParameterGenerator pgen = new ParameterGenerator();
 		Parameter pVal = pgen.next(T_INT);
 
-		TransitionGuard eqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
-		TransitionGuard neqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> eqGuard = new NumericBooleanExpression(rVal, NumericComparator.EQ, pVal);
+		Expression<Boolean> neqGuard = new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		// assignments
 		VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();

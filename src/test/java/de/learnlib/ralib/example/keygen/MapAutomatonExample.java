@@ -24,7 +24,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
 import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Negation;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
@@ -35,6 +34,11 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.Negation;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -42,8 +46,8 @@ import de.learnlib.ralib.words.OutputSymbol;
  */
 public final class MapAutomatonExample {
 
-    public static final DataType T_KEY = new DataType("T_key", Integer.class);
-    public static final DataType T_VAL = new DataType("T_val", Integer.class);
+    public static final DataType T_KEY = new DataType("T_key");
+    public static final DataType T_VAL = new DataType("T_val");
 
     public static final InputSymbol I_PUT =
             new InputSymbol("put", new DataType[] {T_VAL});
@@ -92,13 +96,13 @@ public final class MapAutomatonExample {
 
         // guards
 
-        GuardExpression condition1 = new AtomicGuardExpression(rKey1, Relation.EQUALS, pKey);
-        GuardExpression condition2 = new AtomicGuardExpression(rKey2, Relation.EQUALS, pKey);
+        Expression<Boolean> condition1 = new NumericBooleanExpression(rKey1, NumericComparator.EQ, pKey);
+        Expression<Boolean> condition2 = new NumericBooleanExpression(rKey2, NumericComparator.EQ, pKey);
 
-        TransitionGuard get1Guard   = new TransitionGuard(condition1);
-        TransitionGuard get2Guard   = new TransitionGuard(condition2);
-        TransitionGuard error1Guard = new TransitionGuard(new Negation(condition1));
-        TransitionGuard trueGuard   = new TransitionGuard();
+        Expression<Boolean> get1Guard   = condition1;
+        Expression<Boolean> get2Guard   = condition2;
+        Expression<Boolean> error1Guard = new Negation(condition1);
+        Expression<Boolean> trueGuard   = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store1IMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();

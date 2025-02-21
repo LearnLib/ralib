@@ -21,6 +21,6 @@ package de.learnlib.ralib.data;
  *
  * @author falk
  */
-public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue<?>> {
+public class Constants extends Mapping<SymbolicDataValue.Constant, DataValue> {
 
 }

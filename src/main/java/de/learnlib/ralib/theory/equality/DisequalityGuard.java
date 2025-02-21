@@ -30,6 +30,7 @@ import de.learnlib.ralib.theory.SDTIfGuard;
  *
  * @author falk
  */
+@Deprecated
 public class DisequalityGuard extends SDTIfGuard {
 
     public DisequalityGuard(

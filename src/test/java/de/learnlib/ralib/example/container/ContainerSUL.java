@@ -1,16 +1,18 @@
 package de.learnlib.ralib.example.container;
 
+import java.math.BigDecimal;
+
 public class ContainerSUL {
 
-	public static final int ERROR = 0;
+	public static final BigDecimal ERROR = BigDecimal.ZERO;
 
-	private Integer val = null;
+	private BigDecimal val = null;
 
-	public void put(Integer val) {
+	public void put(BigDecimal val) {
 		this.val = val;
 	}
 
-	public Integer get() {
+	public BigDecimal get() {
 		return val == null ? ERROR : val;
 	}
 }

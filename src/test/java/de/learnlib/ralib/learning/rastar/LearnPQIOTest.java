@@ -45,7 +45,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -108,6 +108,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
+            //System.out.println(hyp);
 
             DefaultQuery<PSymbolInstance, Boolean> ce
                     = iowalk.findCounterExample(hyp, null);

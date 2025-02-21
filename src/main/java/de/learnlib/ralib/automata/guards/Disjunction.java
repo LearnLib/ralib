@@ -29,6 +29,7 @@ import de.learnlib.ralib.data.VarMapping;
  *
  * @author falk
  */
+@Deprecated
 public class Disjunction extends GuardExpression {
 
     private final GuardExpression[] disjuncts;
@@ -48,7 +49,7 @@ public class Disjunction extends GuardExpression {
     }
 
     @Override
-    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue> val) {
         for (GuardExpression ge : disjuncts) {
             if (ge.isSatisfied(val)) {
                 return true;

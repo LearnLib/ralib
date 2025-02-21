@@ -34,6 +34,7 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
  *
  * @author falk
  */
+@Deprecated
 public class SDTLeaf extends SDT {
 
     public static final SDTLeaf ACCEPTING = new SDTLeaf(true);

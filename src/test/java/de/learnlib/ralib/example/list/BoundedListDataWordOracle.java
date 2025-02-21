@@ -1,5 +1,6 @@
 package de.learnlib.ralib.example.list;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.function.Supplier;
 
@@ -17,7 +18,7 @@ import net.automatalib.word.Word;
  *
  */
 public class BoundedListDataWordOracle implements DataWordOracle {
-    public static final DataType INT_TYPE= new DataType("int", Integer.class);
+    public static final DataType INT_TYPE= new DataType("int");
 
     public static final InputSymbol PUSH = new InputSymbol("push", new DataType[]{INT_TYPE});
     public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{INT_TYPE, INT_TYPE});
@@ -57,21 +58,21 @@ public class BoundedListDataWordOracle implements DataWordOracle {
 
     private boolean accepts(PSymbolInstance symInst, BoundedList list) {
         if (symInst.getBaseSymbol().equals(PUSH)) {
-            list.push( (Integer) symInst.getParameterValues()[0].getId());
+            list.push(  symInst.getParameterValues()[0].getValue() );
             return true;
         } else if (symInst.getBaseSymbol().equals(POP)) {
-            Integer value = list.pop();
-            return symInst.getParameterValues()[0].getId().equals(value);
+            BigDecimal value = list.pop();
+            return symInst.getParameterValues()[0].getValue().equals(value);
         } else if (symInst.getBaseSymbol().equals(INSERT)) {
-            list.insert((Integer) symInst.getParameterValues()[0].getId(), (Integer) symInst.getParameterValues()[1].getId());
+            list.insert( symInst.getParameterValues()[0].getValue(), symInst.getParameterValues()[1].getValue());
             return true;
         } else if (symInst.getBaseSymbol().equals(CONTAINS)) {
-            return list.contains((Integer) symInst.getParameterValues()[0].getId());
+            return list.contains( symInst.getParameterValues()[0].getValue() );
         }
         return false;
     }
 
-    public static DataValue<Integer> dv(int val) {
-        return new DataValue<Integer>(INT_TYPE, val);
+    public static DataValue dv(int val) {
+        return new DataValue(INT_TYPE, new BigDecimal(val));
     }
 }

@@ -18,6 +18,7 @@ package de.learnlib.ralib.learning;
 
 import java.util.Map;
 
+import gov.nasa.jpf.constraints.api.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +127,7 @@ public class CounterexampleAnalysis {
 
         LocationComponent c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+        Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
         boolean hasCE = sdtOracle.hasCounterexample(location,
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()),
@@ -167,9 +168,9 @@ public class CounterexampleAnalysis {
 //            System.out.println(e.getKey() + " -> " + e.getValue());
 //        }
 
-        for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
+        for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
-            for (TransitionGuard guardSul : branchSul.getBranches().values()) {
+            for (Expression<Boolean> guardSul : branchSul.getBranches().values()) {
                 if (sdtOracle.doesRefine(guardHyp, c.getPrimePrefix().getParsInVars(),
                         guardSul, pivSUL, new Mapping<>())) {
                     refines = true;

@@ -20,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.learnlib.ralib.smt.SMTUtils;
+import gov.nasa.jpf.constraints.api.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +134,7 @@ public class AutomatonBuilder {
         Branching b = src_c.getBranching(action);
 //        System.out.println("b.getBranches is  " + b.getBranches().toString());
 //        System.out.println("getting guard for  " + r.getPrefix().toString());
-        TransitionGuard guard = b.getBranches().get(r.getPrefix());
+        Expression<Boolean> guard = b.getBranches().get(r.getPrefix());
         if (guard == null) {
         	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getParsInVars(), b.getBranches(), consts);
         }
@@ -158,13 +160,14 @@ public class AutomatonBuilder {
 //        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
 //        LOGGER.trace(Category.EVENT, "REMAP: {}", remapping);
 
+        //System.out.println(parsInVars_Row);
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register
             Parameter p = e.getKey();
             // remapping is null for prime rows ...
             Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter pNew = new Parameter(p.getDataType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
                 Register rOld = parsInVars_Src.get(p);
@@ -173,6 +176,7 @@ public class AutomatonBuilder {
             }
         }
         Assignment assign = new Assignment(assignments);
+        //System.out.println(assign);
 
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
@@ -183,16 +187,16 @@ public class AutomatonBuilder {
         }
     }
 
-    protected Transition createTransition(ParameterizedSymbol action, TransitionGuard guard,
+    protected Transition createTransition(ParameterizedSymbol action, Expression<Boolean> guard,
             RALocation src_loc, RALocation dest_loc, Assignment assign) {
         return new Transition(action, guard, src_loc, dest_loc, assign);
     }
 
-    public static TransitionGuard findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, TransitionGuard> branches, Constants consts) {
+    public static Expression<Boolean> findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, Expression<Boolean>> branches, Constants consts) {
     	ParValuation pars = new ParValuation(dw);
     	VarValuation vars = DataWords.computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
-    	for (TransitionGuard g : branches.values()) {
-    		if (g.isSatisfied(vars, pars, consts)) {
+    	for (Expression<Boolean> g : branches.values()) {
+    		if (g.evaluateSMT(SMTUtils.compose(vars, pars, consts))) {
     			return g;
     		}
     	}

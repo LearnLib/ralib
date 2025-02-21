@@ -7,6 +7,7 @@ import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.POP;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.PUSH;
 import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.dv;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,9 +34,8 @@ import de.learnlib.ralib.example.list.BoundedList;
 import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.ConstraintSolverFactory;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -113,60 +113,60 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv5.put(p1, r1);
 
         Constants consts2 = new Constants();
-        consts2.put(c1, new DataValue(INT_TYPE, 2));
+        consts2.put(c1, new DataValue(INT_TYPE,new BigDecimal(2)));
         SymbolicSuffixRestrictionBuilder restrictionBuilder2 = new SymbolicSuffixRestrictionBuilder(consts2, teachers);
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)));
         Word<PSymbolInstance> word2 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 3)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 4)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE,new BigDecimal(2)), new DataValue(INT_TYPE,new BigDecimal(3))),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE,new BigDecimal(3)), new DataValue(INT_TYPE,new BigDecimal(4))));
         Word<PSymbolInstance> word3 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE,new BigDecimal(2))));
         Word<PSymbolInstance> word4 = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue(INT_TYPE,new BigDecimal(2))),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE,new BigDecimal(2))),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)));
         Word<PSymbolInstance> word5 = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)));
         Word<PSymbolInstance> word6 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE,new BigDecimal(2)), new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE,new BigDecimal(2))));
         Word<PSymbolInstance> word7a = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)),
         		new PSymbolInstance(B));
         Word<PSymbolInstance> word7b = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
         		new PSymbolInstance(B),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 2)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE,new BigDecimal(2))),
         		new PSymbolInstance(B));
         Word<PSymbolInstance> word8a = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)));
         Word<PSymbolInstance> word8b = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 1)));
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ONE)));
         Word<PSymbolInstance> word8c = Word.fromSymbols(
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(C, new DataValue(INT_TYPE, 0)));
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(C, new DataValue(INT_TYPE, BigDecimal.ZERO)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(1), restrictionBuilder);
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(1), restrictionBuilder);
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(1), restrictionBuilder2);
@@ -281,7 +281,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     public void extendSuffixTest() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
@@ -320,32 +320,32 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Constants consts1 = new Constants();
         Constants consts2 = new Constants();
-        consts2.put(c1, new DataValue(INT_TYPE, 3));
-        consts2.put(c2, new DataValue(INT_TYPE, 4));
+        consts2.put(c1, new DataValue(INT_TYPE,new BigDecimal(3)));
+        consts2.put(c2, new DataValue(INT_TYPE,new BigDecimal(4)));
 
         SymbolicSuffixRestrictionBuilder restrictionBuilder1 = new SymbolicSuffixRestrictionBuilder(consts1, teachers);
         SymbolicSuffixRestrictionBuilder restrictionBuilder2 = new SymbolicSuffixRestrictionBuilder(consts2, teachers);
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 2), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 2)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE,new BigDecimal(2))),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE,new BigDecimal(2)), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(B, new DataValue(INT_TYPE,new BigDecimal(2))));
         Word<PSymbolInstance> word2 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 4)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE, new BigDecimal(2))),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, new BigDecimal(3)), new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(B, new DataValue(INT_TYPE, new BigDecimal(4))));
         Word<PSymbolInstance> word3 = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 0), new DataValue(INT_TYPE, 1)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 1), new DataValue(INT_TYPE, 2)),
-        		new PSymbolInstance(A, new DataValue(INT_TYPE, 3), new DataValue(INT_TYPE, 6)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 5)));
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ZERO), new DataValue(INT_TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE, BigDecimal.ONE), new DataValue(INT_TYPE, new BigDecimal(2))),
+        		new PSymbolInstance(A, new DataValue(INT_TYPE,new BigDecimal(3)), new DataValue(INT_TYPE, new BigDecimal(6))),
+        		new PSymbolInstance(B, new DataValue(INT_TYPE, new BigDecimal(5))));
         Word<PSymbolInstance> word4 = Word.fromSymbols(
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 0)),
-        		new PSymbolInstance(B, new DataValue(INT_TYPE, 3)),
+        		new PSymbolInstance(B, new DataValue(INT_TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(B, new DataValue(INT_TYPE, new BigDecimal(3))),
         		new PSymbolInstance(C));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(3), restrictionBuilder1);
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder1);
@@ -373,7 +373,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1, restrictionBuilder1);
         OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), restrictionBuilder1);
         SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, piv1, suffix1.getActions());
@@ -395,7 +395,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     public void buildOptimizedSuffixTest() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
 
 
@@ -419,9 +419,9 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         Constants consts = new Constants();
 
-        Word<PSymbolInstance> prefix1 = Word.fromSymbols(new PSymbolInstance(a, new DataValue<Integer>(type, 0)));
-        Word<PSymbolInstance> prefix2 = Word.fromSymbols(new PSymbolInstance(a, new DataValue<Integer>(type, 0)),
-                new PSymbolInstance(a, new DataValue<Integer>(type, 1)));
+        Word<PSymbolInstance> prefix1 = Word.fromSymbols(new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)));
+        Word<PSymbolInstance> prefix2 = Word.fromSymbols(new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)),
+                new PSymbolInstance(a, new DataValue(type, BigDecimal.ONE)));
 
         SDT sdt1 = new SDT(Map.of(
                 new EqualityGuard(s1, r1), new SDT(Map.of(
@@ -446,7 +446,8 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv2.put(p2, r1);
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
-        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
+        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a),
+                ConstraintSolverFactory.createZ3ConstraintSolver());
         Map<SuffixValue, SuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
         expectedRestr12.put(s1, new FreshSuffixValue(s1));
         expectedRestr12.put(s2, new EqualRestriction(s2, s1));
@@ -484,7 +485,8 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv4.put(p1, r1);
         piv4.put(p2, r2);
 
-        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a), new SimpleConstraintSolver());
+        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a),
+                ConstraintSolverFactory.createZ3ConstraintSolver());
         Map<SuffixValue, SuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
         expectedRestr34.put(s1, new FreshSuffixValue(s1));
         expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));
@@ -497,7 +499,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
     @Test
     public void extendSuffixRevealingRegistersTest() {
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
         InputSymbol b = new InputSymbol("b", type, type);
 
@@ -524,10 +526,10 @@ public class OptimizedSymbolicSuffixBuilderTest {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
 
         Word<PSymbolInstance> word1 = Word.fromSymbols(
-        		new PSymbolInstance(a, new DataValue(type, 0)),
-        		new PSymbolInstance(a, new DataValue(type, 1)),
-        		new PSymbolInstance(a, new DataValue(type, 2)),
-        		new PSymbolInstance(a, new DataValue(type, 0)));
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ONE)),
+        		new PSymbolInstance(a, new DataValue(type, new BigDecimal(2))),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)));
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(3), restrictionBuilder);
         SDT sdt1 = new SDT(Map.of(
@@ -544,11 +546,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
 
         Word<PSymbolInstance> word2 = Word.fromSymbols(
-        		new PSymbolInstance(a, new DataValue(type, 0)),
-        		new PSymbolInstance(a, new DataValue(type, 1)),
-        		new PSymbolInstance(a, new DataValue(type, 2)),
-        		new PSymbolInstance(a, new DataValue(type, 1)),
-        		new PSymbolInstance(a, new DataValue(type, 0)));
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ONE)),
+        		new PSymbolInstance(a, new DataValue(type, new BigDecimal(2))),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ONE)),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)));
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(3), word2.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder);
         SDT sdt2 = new SDT(Map.of(
@@ -565,10 +567,10 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
 
         Word<PSymbolInstance> word3 = Word.fromSymbols(
-        		new PSymbolInstance(a, new DataValue(type, 0)),
-        		new PSymbolInstance(b, new DataValue(type, 1), new DataValue(type, 2)),
-        		new PSymbolInstance(a, new DataValue(type, 0)),
-        		new PSymbolInstance(a, new DataValue(type, 0)));
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)),
+        		new PSymbolInstance(b, new DataValue(type, BigDecimal.ONE), new DataValue(type, new BigDecimal(2))),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)),
+        		new PSymbolInstance(a, new DataValue(type, BigDecimal.ZERO)));
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder);
         SDT sdt3 = new SDT(Map.of(
@@ -589,7 +591,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     @Test
     private void sdtPruneTest() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
         InputSymbol b = new InputSymbol("b", type, type);
 
@@ -692,12 +694,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     public void testCoalesce() {
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
 
-        DataValue dv1 = new DataValue(type, 0);
-        DataValue dv2 = new DataValue(type, 1);
-        DataValue dv3 = new DataValue(type, 2);
+        DataValue dv1 = new DataValue(type, BigDecimal.ZERO);
+        DataValue dv2 = new DataValue(type, BigDecimal.ONE);
+        DataValue dv3 = new DataValue(type, new BigDecimal(2));
 
         Constants consts = new Constants();
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);

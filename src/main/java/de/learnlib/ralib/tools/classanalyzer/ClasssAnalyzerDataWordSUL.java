@@ -18,6 +18,7 @@ package de.learnlib.ralib.tools.classanalyzer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -123,9 +124,10 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             return new PSymbolInstance((Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE);
         }
 
+        // FIXME: this is broken now, we need to register values and create representative BigDecimals
         DataValue retVal = (isFresh(in.getRetType(), ret))
                 ? registerFreshValue(in.getRetType(), ret)
-                : new DataValue(in.getRetType(), ret);
+                : new DataValue(in.getRetType(), (BigDecimal) ret);
 
         //updateSeen(retVal);
         return new PSymbolInstance(in.getOutput(), retVal);
@@ -134,25 +136,25 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private void updateSeen(DataValue... vals) {
         for (DataValue v : vals) {
-            Map<DataValue, Object> map = this.buckets.get(v.getType());
+            Map<DataValue, Object> map = this.buckets.get(v.getDataType());
             if (map == null) {
                 map = new HashMap<>();
-                this.buckets.put(v.getType(), map);
+                this.buckets.put(v.getDataType(), map);
             }
 
             if (!map.containsKey(v)) {
                 //System.out.println("Put: " + v + " : " + v.getId());
-                map.put(v, v.getId());
+                map.put(v, v.getValue());
             }
         }
     }
 
     private Object resolve(DataValue d) {
-        Map<DataValue, Object> map = this.buckets.get(d.getType());
+        Map<DataValue, Object> map = this.buckets.get(d.getDataType());
         if (map == null || !map.containsKey(d)) {
             //System.out.println(d);
             assert false;
-            return d.getId();
+            return d.getValue();
         }
         //System.out.println("Get: " + d + " : " + map.get(d));
         return map.get(d);
@@ -161,7 +163,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     private boolean isFresh(DataType t, Object id) {
         if (consts.values()
         		.stream()
-        		.filter(d -> d.getType().equals(t) && d.getId().equals(id))
+        		.filter(d -> d.getDataType().equals(t) && d.getValue().equals(id))
         		.findAny()
         		.isPresent())
         	return false;
@@ -176,10 +178,10 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             this.buckets.put(retType, map);
         }
 
-        DataValue v = new DataValue(retType, map.size());
+        DataValue v = new DataValue(retType, new BigDecimal(map.size()));
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
-        return new FreshValue(v.getType(), v.getId());
+        return new FreshValue(v.getDataType(), v.getValue());
     }
 
 }

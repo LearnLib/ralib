@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +38,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -52,8 +55,8 @@ public class TestTreeOracle extends RaLibTestSuite {
     public void testTreeOracle() {
 
         // define types
-        final DataType userType = new DataType("userType", String.class);
-        final DataType passType = new DataType("passType", String.class);
+        final DataType userType = new DataType("userType");
+        final DataType passType = new DataType("passType");
 
         // define parameterized symbols
         final ParameterizedSymbol register = new InputSymbol(
@@ -71,21 +74,21 @@ public class TestTreeOracle extends RaLibTestSuite {
         // create prefix: register(falk[userType], secret[passType])
         final Word<PSymbolInstance> prefix = Word.fromLetter(
                 new PSymbolInstance(register,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")));
+                    new DataValue(userType, BigDecimal.ONE),
+                    new DataValue(passType, BigDecimal.ZERO)));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(login,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
+                    new DataValue(userType, BigDecimal.ONE),
+                    new DataValue(passType, BigDecimal.ZERO))
                     );
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
 
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        //System.out.println("Prefix: " + prefix);
-        //System.out.println("Suffix: " + symSuffix);
+        System.out.println("Prefix: " + prefix);
+        System.out.println("Suffix: " + symSuffix);
 
         // hacked oracle
 
@@ -115,37 +118,8 @@ public class TestTreeOracle extends RaLibTestSuite {
             }
         };
 
-        Theory<String> userTheory = new EqualityTheory<String>() {
-
-            @Override
-            public DataValue getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
-            }
-
-            @Override
-            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-        };
-
-        Theory<String> passTheory = new EqualityTheory<String>() {
-
-            @Override
-            public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
-            }
-
-            @Override
-            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-        };
+        Theory userTheory = new IntegerEqualityTheory(userType);
+        Theory passTheory = new IntegerEqualityTheory(passType);
 
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(userType, userTheory);
@@ -153,7 +127,7 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
                 dwOracle, theories,
-                new Constants(), new SimpleConstraintSolver());
+                new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 

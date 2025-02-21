@@ -26,6 +26,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 
+@Deprecated
 public abstract class SDTIfGuard extends SDTGuard {
 
     protected final SymbolicDataValue register;
@@ -54,7 +55,7 @@ public abstract class SDTIfGuard extends SDTGuard {
 
     public SDTIfGuard(SDTIfGuard other) {
     	super(other);
-    	register = other.register.copy();
+    	register = SymbolicDataValue.copy(other.register);
     	relation = other.relation;
     }
 

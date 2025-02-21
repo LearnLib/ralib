@@ -11,6 +11,8 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.words.InputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class LLambdaAutomatonExample {
 
@@ -40,7 +42,7 @@ public class LLambdaAutomatonExample {
         // registers and parameters
 
         // guards
-        TransitionGuard trueGuard   = new TransitionGuard();
+        Expression<Boolean> trueGuard   = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();

@@ -34,8 +34,8 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "class-analyzer",
             "target=de.learnlib.ralib.example.login.FreshMultiLogin;" +
             "methods=" +
-            "IRegister(java.lang.Integer:uid)java.lang.Integer:pwd+" +
-            "ILogin(java.lang.Integer:uid,java.lang.Integer:pwd)boolean:boolean;" +
+            "IRegister(java.math.BigDecimal:uid)java.math.BigDecimal:pwd+" +
+            "ILogin(java.math.BigDecimal:uid,java.math.BigDecimal:pwd)boolean:boolean;" +
             //"ILogout(java.lang.Integer:int)boolean:boolean+" +
             //"IChangePassword(java.lang.Integer:int,java.lang.Integer:int)boolean:boolean;" +
             "random.seed=6521023071547789;" +
@@ -71,8 +71,8 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
         final String[] options = new String[] {
             "class-analyzer",
             "target=de.learnlib.ralib.example.keygen.KeyGenMap;" +
-            "methods=put(java.lang.Integer:int)java.lang.Integer:int+"
-                + "get(java.lang.Integer:int)java.lang.Integer:int;" +
+            "methods=put(java.math.BigDecimal:int)java.math.BigDecimal:int+"
+                + "get(java.math.BigDecimal:int)java.math.BigDecimal:int;" +
             "random.seed=652102309071547789;" +
             "logging.level=WARNING;" +
             "max.time.millis=600000;" +
@@ -137,8 +137,8 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     	final String[] options = new String[] {
     			"class-analyzer",
     			"target=de.learnlib.ralib.example.container.ContainerSUL;" +
-    			"methods=put(java.lang.Integer:int)void+" +
-    					"get()java.lang.Integer:int;" +
+    			"methods=put(java.math.BigDecimal:int)void+" +
+    					"get()java.math.BigDecimal:int;" +
     			"random.seed=652102309071547789;" +
                 "logging.level=WARNING;" +
                 "max.time.millis=600000;" +

@@ -106,7 +106,7 @@ public class Row implements PrefixContainer {
         for (Entry<Parameter, Register> e : cpv.entrySet()) {
             Register r = this.memorable.get(e.getKey());
             if (r == null) {
-                r = regGen.next(e.getKey().getType());
+                r = regGen.next(e.getKey().getDataType());
                 memorable.put(e.getKey(), r);
             }
             relabelling.put(e.getValue(), r);

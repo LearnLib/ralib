@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import jakarta.xml.bind.JAXB;
 
 import org.slf4j.Logger;
@@ -149,12 +152,12 @@ public class RegisterAutomatonImporter {
 
             // guard
             String gstring = t.getGuard();
-            TransitionGuard p = new TransitionGuard();
+            Expression<Boolean> p = ExpressionUtil.TRUE;
             if (gstring != null) {
                 Map<String, SymbolicDataValue> map = buildValueMap(
                         constMap, regMap, (ps instanceof OutputSymbol) ? new LinkedHashMap<String, Parameter>() : paramMap);
                 ExpressionParser parser = new ExpressionParser(gstring, map);
-                p = new TransitionGuard(parser.getPredicate());
+                p = parser.getPredicate();
             }
 
             // assignment
@@ -286,7 +289,7 @@ public class RegisterAutomatonImporter {
             constMap.put(def.value, c);
             constMap.put(def.name, c);
             LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, c);
-            DataValue dv = new DataValue(type, Integer.parseInt(def.value));
+            DataValue dv = new DataValue(type, new BigDecimal(def.value));
             consts.put(c, dv);
         }
         LOGGER.trace(Category.EVENT, "Loading: {}", consts);
@@ -299,19 +302,7 @@ public class RegisterAutomatonImporter {
             Register r = rgen.next(type);
             regMap.put(def.name, r);
             LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, r);
-            Object o = null;
-            switch (type.getBase().getName()) {
-                case "java.lang.Integer":
-                    o = Integer.parseInt(def.value);
-                    break;
-                case "java.lang.Double":
-                    o = BigDecimal.valueOf(Double.parseDouble(def.value));
-                    break;
-                default:
-                    throw new IllegalStateException(
-                            "Unsupported Register Type: " +
-                                    type.getBase().getName());
-            }
+            BigDecimal o = new BigDecimal(def.value);
             DataValue dv = new DataValue(type, o);
             initialRegs.put(r, dv);
         }
@@ -326,7 +317,7 @@ public class RegisterAutomatonImporter {
         DataType t = typeMap.get(name);
         if (t == null) {
             // TODO: there should be a proper way of specifying java types to be bound
-            t = new DataType(name, isDoubleTempCheck(name) ? Double.class : Integer.class);
+            t = new DataType(name);
             typeMap.put(name, t);
         }
         return t;

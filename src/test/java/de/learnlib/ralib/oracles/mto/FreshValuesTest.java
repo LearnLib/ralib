@@ -16,10 +16,12 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,7 +37,6 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -80,7 +81,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, new SimpleConstraintSolver());
+                ioFilter, teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver());
 
         teachers.values().stream().forEach((t) -> {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
@@ -104,9 +105,9 @@ public class FreshValuesTest extends RaLibTestSuite {
         ParameterizedSymbol onok = new OutputSymbol(
                 "ONOK", new DataType[] {});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-        DataValue d2 = new DataValue(intType, 2);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+        DataValue d2 = new DataValue(intType, new BigDecimal(2));
 
         // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -115,9 +116,9 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(iget, d2),
                 new PSymbolInstance(onok));
 
-        DataValue d3 = new DataValue(intType, 3);
-        DataValue d4 = new DataValue(intType, 4);
-        DataValue d5 = new DataValue(intType, 5);
+        DataValue d3 = new DataValue(intType, new BigDecimal(3));
+        DataValue d4 = new DataValue(intType, new BigDecimal(4));
+        DataValue d5 = new DataValue(intType, new BigDecimal(5));
 
         // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
         Word<PSymbolInstance> suffix = Word.fromSymbols(

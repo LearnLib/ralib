@@ -16,12 +16,15 @@
  */
 package de.learnlib.ralib.data;
 
+import java.util.Optional;
+
 /**
  * A valuation of registers.
  *
  * @author falk
  */
-public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue<?>> {
+@Deprecated
+public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue> {
 
     public VarValuation(VarValuation other) {
         if (other != null) {

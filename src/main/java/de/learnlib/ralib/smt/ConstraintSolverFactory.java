@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 
-package de.learnlib.ralib.solver;
+package de.learnlib.ralib.smt;
 
 import java.util.Properties;
 
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 
 /**
@@ -35,17 +34,11 @@ public class ConstraintSolverFactory {
 
     public static ConstraintSolver createSolver(final String id) {
         switch (id) {
-            case ID_SIMPLE:
-                return createSimpleConstraintSolver();
             case ID_Z3:
                 return createZ3ConstraintSolver();
             default:
                 throw new RuntimeException("Unsupported constraint solver: " + id);
         }
-    }
-
-    public static SimpleConstraintSolver createSimpleConstraintSolver() {
-        return new SimpleConstraintSolver();
     }
 
     public static JConstraintsConstraintSolver createZ3ConstraintSolver() {

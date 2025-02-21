@@ -39,11 +39,17 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -59,8 +65,8 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         super(components, consts);
 
         this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue<?>> c : consts) {
-            reverseConsts.put(c.getValue().getId(), c.getKey());
+        for (Entry<Constant, DataValue> c : consts) {
+            reverseConsts.put(c.getValue().getValue(), c.getKey());
         }
     }
 
@@ -69,15 +75,15 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     	super(components, consts, dt);
 
         this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue<?>> c : consts) {
-            reverseConsts.put(c.getValue().getId(), c.getKey());
+        for (Entry<Constant, DataValue> c : consts) {
+            reverseConsts.put(c.getValue().getValue(), c.getKey());
         }
     }
 
     @Override
     protected Transition createTransition(ParameterizedSymbol action,
-            TransitionGuard guard, RALocation src_loc, RALocation dest_loc,
-            Assignment assign) {
+                                          Expression<Boolean> guard, RALocation src_loc, RALocation dest_loc,
+                                          Assignment assign) {
 
         if (!dest_loc.isAccepting()) {
             return null;
@@ -88,7 +94,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         }
 
         //IfGuard _guard = (IfGuard) guard;
-        GuardExpression expr = guard.getCondition();
+        Expression<Boolean> expr = guard;
 
         VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();
         analyzeExpression(expr, outmap);
@@ -104,24 +110,25 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
 
         OutputMapping outMap = new OutputMapping(fresh, outmap);
 
-        return new OutputTransition(new TransitionGuard(),
+        return new OutputTransition(ExpressionUtil.TRUE,
                 outMap, (OutputSymbol) action, src_loc, dest_loc, assign);
     }
 
-    private void analyzeExpression(GuardExpression expr,
+    private void analyzeExpression(Expression<Boolean> expr,
             VarMapping<Parameter, SymbolicDataValue> outmap) {
 
-        if (expr instanceof Conjunction) {
-            Conjunction pc = (Conjunction) expr;
-            for (GuardExpression e : pc.getConjuncts()) {
-                analyzeExpression(e, outmap);
-            }
+        if (expr instanceof PropositionalCompound) {
+            PropositionalCompound pc = (PropositionalCompound) expr;
+            analyzeExpression(pc.getLeft(), outmap);
+            analyzeExpression(pc.getRight(), outmap);
         }
-        else if (expr instanceof AtomicGuardExpression) {
-            AtomicGuardExpression nbe = (AtomicGuardExpression) expr;
-            if (nbe.getRelation() == Relation.EQUALS) {
-                SymbolicDataValue left = nbe.getLeft();
-                SymbolicDataValue right = nbe.getRight();
+        else if (expr instanceof NumericBooleanExpression) {
+            NumericBooleanExpression nbe = (NumericBooleanExpression) expr;
+            if (nbe.getComparator() == NumericComparator.EQ) {
+                // FIXME: this is unchecked!
+                //System.out.println(expr);
+                SymbolicDataValue left = (SymbolicDataValue) nbe.getLeft();
+                SymbolicDataValue right = (SymbolicDataValue) nbe.getRight();
 
                 Parameter p = null;
                 SymbolicDataValue sv = null;

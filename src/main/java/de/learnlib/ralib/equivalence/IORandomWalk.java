@@ -186,22 +186,22 @@ public class IORandomWalk implements IOEquivalenceOracle {
         for (DataType t : ps.getPtypes()) {
             Theory teacher = teachers.get(t);
             // TODO: generics hack?
-            Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
+            Set<DataValue> oldSet = DataWords.valSet(run, t);
             for (int j = 0; j < i; j++) {
-                if (vals[j].getType().equals(t)) {
+                if (vals[j].getDataType().equals(t)) {
                     oldSet.add(vals[j]);
                 }
             }
-            ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
+            ArrayList<DataValue> old = new ArrayList<>(oldSet);
 
-            Set<DataValue<Object>> newSet = new HashSet<>(
+            Set<DataValue> newSet = new HashSet<>(
                 teacher.getAllNextValues(old));
 
             // TODO: add constants in teacher?
             newSet.addAll(constants.values(t));
 
             newSet.removeAll(old);
-            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
+            ArrayList<DataValue> newList = new ArrayList<>(newSet);
 
             double draw = rand.nextDouble();
             if (draw <= newDataProbability || old.isEmpty()) {
