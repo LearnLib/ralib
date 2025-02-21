@@ -60,24 +60,24 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	private static final DataType T_INT = new DataType("int");
 
 	private static final InputSymbol IPUT =
-			new InputSymbol("put", new DataType[] {T_INT});
+			new InputSymbol("put", T_INT);
 	private static final InputSymbol IQUERY =
-			new InputSymbol("query", new DataType[] {});
+			new InputSymbol("query");
 	private static final InputSymbol IHELLO =
-			new InputSymbol("hello", new DataType[] {});
+			new InputSymbol("hello");
 
 	private static final OutputSymbol OECHO =
-			new OutputSymbol("echo", new DataType[] {T_INT});
+			new OutputSymbol("echo", T_INT);
 	private static final OutputSymbol OYES =
-			new OutputSymbol("yes", new DataType[] {T_INT});
+			new OutputSymbol("yes", T_INT);
 	private static final OutputSymbol ONO =
-			new OutputSymbol("no", new DataType[] {T_INT});
+			new OutputSymbol("no", T_INT);
 	private static final OutputSymbol OHELLO =
-			new OutputSymbol("hello", new DataType[] {});
+			new OutputSymbol("hello");
 	private static final OutputSymbol ONOREPLY =
-			new OutputSymbol("noreply", new DataType[] {});
+			new OutputSymbol("noreply");
 	private static final OutputSymbol ONOK =
-			new OutputSymbol("nok", new DataType[] {});
+			new OutputSymbol("nok");
 
 	private RegisterAutomaton buildAutomaton() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
@@ -191,7 +191,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	    ConstraintSolver solver = new ConstraintSolver();
 
 	    DataWordSUL sul = new SimulatorSUL(ra, teachers, consts);
-        final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[]{});
+        final ParameterizedSymbol ERROR = new OutputSymbol("_io_err");
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 	    IOCache ioCache = new IOCache(ioOracle);

@@ -36,7 +36,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class RaLibLearningExperimentRunner {
 
 	private long seed;
-	private Logger logger;
+	private final Logger logger;
 
 	/**
 	 * RA Learning Algorithm default settings
@@ -150,7 +150,7 @@ public class RaLibLearningExperimentRunner {
 			}
 
 			int check = 0;
-			while (true && check < 100) {
+			while (check < 100) {
 				check++;
 				learner.learn();
 				Hypothesis hyp = learner.getHypothesis();

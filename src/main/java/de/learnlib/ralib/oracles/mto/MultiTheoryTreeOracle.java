@@ -90,7 +90,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     private final ConstraintSolver solver;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(MultiTheoryTreeOracle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiTheoryTreeOracle.class);
 
     public MultiTheoryTreeOracle(DataWordOracle oracle, Map<DataType, Theory> teachers, Constants constants,
             ConstraintSolver solver) {
@@ -297,8 +297,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 guardMap.put(dvi, guard);
             }
 
-            LOGGER.trace(Category.QUERY, "guardMap: " + guardMap.toString());
-            LOGGER.trace(Category.QUERY, "nextMap: " + nextMap.toString());
+            LOGGER.trace(Category.QUERY, "guardMap: " + guardMap);
+            LOGGER.trace(Category.QUERY, "nextMap: " + nextMap);
             assert !nextMap.isEmpty();
             assert !guardMap.isEmpty();
             return new Node(p, nextMap, guardMap);

@@ -53,7 +53,7 @@ public class TestWords extends RaLibTestSuite {
 
         DataType intType = new DataType("int");
 
-        ParameterizedSymbol a = new InputSymbol("a", new DataType[]{intType});
+        ParameterizedSymbol a = new InputSymbol("a", intType);
 
         DataValue i1 = new DataValue(intType, BigDecimal.ONE);
         DataValue i2 = new DataValue(intType, new BigDecimal(2));

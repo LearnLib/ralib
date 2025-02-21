@@ -21,7 +21,7 @@ import net.automatalib.word.Word;
 public class EquivalenceClassFilter {
 
 	private final List<DataValue> equivClasses;
-	private boolean useOptimization;
+	private final boolean useOptimization;
 
 	public EquivalenceClassFilter(List<DataValue> equivClasses, boolean useOptimization) {
 		this.equivClasses = equivClasses;

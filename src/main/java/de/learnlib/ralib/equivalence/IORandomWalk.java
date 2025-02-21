@@ -63,7 +63,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
     private final Constants constants;
     private final Map<DataType, Theory> teachers;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(IORandomWalk.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IORandomWalk.class);
 
     private ParameterizedSymbol error = null;
 
@@ -111,8 +111,7 @@ public class IORandomWalk implements IOEquivalenceOracle {
         }
 
         if (this.seedTransitions) {
-            if ((a instanceof Hypothesis)) {
-                Hypothesis hypothesis = (Hypothesis) a;
+            if ((a instanceof Hypothesis hypothesis)) {
                 seeds = new ArrayList<>();
                 for (Word<PSymbolInstance> u : hypothesis.getTransitionSequences().values()) {
                     if (u.lastSymbol().getBaseSymbol() instanceof OutputSymbol) {

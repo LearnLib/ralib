@@ -25,12 +25,12 @@ import de.learnlib.ralib.tools.config.ConfigurationException;
  */
 public interface RaLibTool {
 
-    public String description();
+    String description();
 
-    public String help();
+    String help();
 
-    public void setup(Configuration config) throws ConfigurationException;
+    void setup(Configuration config) throws ConfigurationException;
 
-    public void run() throws RaLibToolException;
+    void run() throws RaLibToolException;
 
 }

@@ -14,8 +14,8 @@ public class BoundedList {
 	public static final BigDecimal NULL_VALUE = BigDecimal.ZERO;
 
 	private boolean useNull = false;
-	private LinkedList<BigDecimal> list;
-	private int maxCapacity;
+	private final LinkedList<BigDecimal> list;
+	private final int maxCapacity;
 
 	public BoundedList() {
 		this(DEFAULT_MAX_CAPACITY, DEFAULT_USE_NULL);

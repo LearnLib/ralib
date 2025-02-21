@@ -65,9 +65,10 @@ public abstract class SuffixValueRestriction {
 		for (int i = 0; i < prefixVals.length; i++) {
 			DataValue dv = prefixVals[i];
 			DataType dt = prefixTypes[i];
-			if (dt.equals(sv.getDataType()) && dv.equals(val)) {
-				unrestricted = true;
-			}
+            if (dt.equals(sv.getDataType()) && dv.equals(val)) {
+                unrestricted = true;
+                break;
+            }
 		}
 		if (consts.containsValue(val)) {
 			unrestricted = true;

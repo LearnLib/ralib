@@ -56,10 +56,10 @@ import net.automatalib.word.Word;
  */
 public class LoginExampleTreeOracle implements TreeOracle {
 
-    public static enum State {
+    public enum State {
 
         INIT, REGISTER, LOGIN, ERROR
-    };
+    }
 
     private final Register rUid;
     private final Register rPwd;

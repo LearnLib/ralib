@@ -11,7 +11,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class PrefixSet {
-	private Set<MappedPrefix> prefixes;
+	private final Set<MappedPrefix> prefixes;
 
 	public PrefixSet() {
 		prefixes = new LinkedHashSet<MappedPrefix>();

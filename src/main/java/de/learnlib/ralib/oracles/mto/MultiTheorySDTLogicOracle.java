@@ -53,7 +53,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     private final Constants consts;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(MultiTheorySDTLogicOracle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MultiTheorySDTLogicOracle.class);
 
     public MultiTheorySDTLogicOracle(Constants consts, ConstraintSolver solver) {
         this.solver = solver;
@@ -80,8 +80,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = new VarMapping<>();
         for (Variable sv : ExpressionUtil.freeVariables(exprG)) {
-            if (sv instanceof Parameter) {
-                Parameter p = (Parameter) sv;
+            if (sv instanceof Parameter p) {
                 gremap.put(p, new SuffixValue( p.getDataType(), p.getId()));
             }
         }

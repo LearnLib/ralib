@@ -16,14 +16,14 @@ public class RepeaterSUL extends DataWordSUL {
 			new DataType("int");
 
 	public static final ParameterizedSymbol IPUT =
-			new InputSymbol("put", new DataType[] {TINT});
+			new InputSymbol("put", TINT);
 	public static final ParameterizedSymbol OECHO =
-			new OutputSymbol("echo", new DataType[] {TINT});
+			new OutputSymbol("echo", TINT);
 	public static final ParameterizedSymbol ONOK =
-			new OutputSymbol("nok", new DataType[] {});
+			new OutputSymbol("nok");
 
     public static final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err", new DataType[]{});
+            new OutputSymbol("_io_err");
 
     public final ParameterizedSymbol[] getInputSymbols() {
     	return new ParameterizedSymbol[] { IPUT };
@@ -34,8 +34,8 @@ public class RepeaterSUL extends DataWordSUL {
     }
 
     private Repeater repeater;
-    private int max_repeats;
-    private int capacity;
+    private final int max_repeats;
+    private final int capacity;
 
     public RepeaterSUL() {
     	max_repeats = Repeater.MAX_REPEATS;

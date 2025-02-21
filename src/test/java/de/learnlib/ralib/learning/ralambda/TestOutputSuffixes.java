@@ -81,7 +81,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
         radt.learn();
 
-        String ces[] = {"IINVITE[1[int]] O100[1[int]] / true",
+        String[] ces = {"IINVITE[1[int]] O100[1[int]] / true",
         		"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true"};
 
         Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = TestUnknownMemorable.buildSIPCEs(ces, actions);
@@ -93,7 +93,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
 
         Set<ParameterizedSymbol> outputs = Sets.difference(Set.of(actions), Set.of(inputs));
 
-        String wordStr[] = {"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] / true"};
+        String[] wordStr = {"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] / true"};
         ceQueue = TestUnknownMemorable.buildSIPCEs(wordStr, actions);
         Word<PSymbolInstance> word = ceQueue.getFirst().getInput();
 

@@ -36,6 +36,6 @@ public interface TransitionSequenceTransformer<I> {
      * @param word  the input word
      * @return  the word representing the last passed transition
      */
-    public Word<I> transformTransitionSequence(Word<I> word);
+    Word<I> transformTransitionSequence(Word<I> word);
 
 }

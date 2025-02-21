@@ -94,8 +94,8 @@ public class InstantiateSymbolicWordTest {
     public void testInstantiateWithSuffixOpt() {
         MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
 
-        InputSymbol A = new InputSymbol("a", new DataType[] {T_INT});
-        InputSymbol B = new InputSymbol("b", new DataType[] {T_INT});
+        InputSymbol A = new InputSymbol("a", T_INT);
+        InputSymbol B = new InputSymbol("b", T_INT);
 
         RALocation l0 = ra.addInitialState();
         RALocation l1 = ra.addState();

@@ -56,17 +56,13 @@ public class DataValue extends Constant<BigDecimal> {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof DataValue)) {
+        if (!(obj instanceof DataValue other)) {
             return false;
         }
-        final DataValue other = (DataValue) obj;
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        if (!this.getValue().equals(other.getValue())) {
-            return false;
-        }
-        return true;
+        return this.getValue().equals(other.getValue());
     }
 
     public DataType getDataType() {

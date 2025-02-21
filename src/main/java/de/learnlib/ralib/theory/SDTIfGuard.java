@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -30,14 +29,9 @@ import de.learnlib.ralib.data.VarMapping;
 public abstract class SDTIfGuard extends SDTGuard {
 
     protected final SymbolicDataValue register;
-    protected final Relation relation;
 
     public SymbolicDataValue getRegister() {
         return this.register;
-    }
-
-    public Relation getRelation() {
-        return this.relation;
     }
 
     @Override
@@ -47,16 +41,14 @@ public abstract class SDTIfGuard extends SDTGuard {
         return s;
     }
 
-    public SDTIfGuard(SuffixValue param, SymbolicDataValue reg, Relation rel) {
+    protected SDTIfGuard(SuffixValue param, SymbolicDataValue reg) {
         super(param);
-        this.relation = rel;
         this.register = reg;
     }
 
     public SDTIfGuard(SDTIfGuard other) {
     	super(other);
     	register = SymbolicDataValue.copy(other.register);
-    	relation = other.relation;
     }
 
     public abstract SDTIfGuard toDeqGuard();

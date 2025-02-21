@@ -111,13 +111,11 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     private void analyzeExpression(Expression<Boolean> expr,
             VarMapping<Parameter, SymbolicDataValue> outmap) {
 
-        if (expr instanceof PropositionalCompound) {
-            PropositionalCompound pc = (PropositionalCompound) expr;
+        if (expr instanceof PropositionalCompound pc) {
             analyzeExpression(pc.getLeft(), outmap);
             analyzeExpression(pc.getRight(), outmap);
         }
-        else if (expr instanceof NumericBooleanExpression) {
-            NumericBooleanExpression nbe = (NumericBooleanExpression) expr;
+        else if (expr instanceof NumericBooleanExpression nbe) {
             if (nbe.getComparator() == NumericComparator.EQ) {
                 // FIXME: this is unchecked!
                 //System.out.println(expr);

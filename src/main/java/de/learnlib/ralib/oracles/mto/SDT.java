@@ -60,20 +60,6 @@ public class SDT implements SymbolicDecisionTree {
         this.children = children;
     }
 
-//    public Set<SDTGuard> getGuards() {
-//        if (this instanceof SDTLeaf) {
-//            return new LinkedHashSet<>();
-//        }
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        for (Map.Entry<SDTGuard, SDT> e : this.children.entrySet()) {
-//            guards.add(e.getKey());
-//            if (!(e.getValue() instanceof SDTLeaf)) {
-//                guards.addAll(e.getValue().getGuards());
-//            }
-//        }
-//        return guards;
-//    }
-
     /**
      * Returns the registers of this SDT.
      *
@@ -152,8 +138,7 @@ public class SDT implements SymbolicDecisionTree {
                         variables.addAll(rSet);
                     }
                 }
-            } else if (g instanceof IntervalGuard) {
-                IntervalGuard iGuard = (IntervalGuard) g;
+            } else if (g instanceof IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
                     variables.add(iGuard.getRightReg());
                 }
@@ -186,7 +171,7 @@ public class SDT implements SymbolicDecisionTree {
     @Override
     public boolean isAccepting() {
         if (this instanceof SDTLeaf) {
-            return ((SDTLeaf) this).isAccepting();
+            return this.isAccepting();
         } else {
             for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
                 if (!e.getValue().isAccepting()) {
@@ -392,7 +377,7 @@ public class SDT implements SymbolicDecisionTree {
         } else {
             boolean accEq = (thisSdt.isAccepting() == other.isAccepting());
             boolean chiEq = canPairBranches(thisSdt.getChildren(),
-                    ((SDT) other).getChildren());
+                    other.getChildren());
             return accEq && chiEq;
         }
     }
@@ -402,27 +387,6 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     Expression<Boolean> getAcceptingPaths(Constants consts) {
-
-        List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
-        if (paths.isEmpty()) {
-            return ExpressionUtil.FALSE;
-        }
-        Expression<Boolean> dis = null;
-        for (List<SDTGuard> list : paths) {
-            List<Expression<Boolean>> expr = new ArrayList<>();
-            for (SDTGuard g : list) {
-                expr.add(g.toExpr());
-            }
-            Expression<Boolean> con = ExpressionUtil.and(
-                    expr.toArray(new Expression[] {}));
-
-            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
-        }
-
-        return dis;
-    }
-
-    Expression<Boolean> getPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
@@ -476,7 +440,6 @@ public class SDT implements SymbolicDecisionTree {
         return ret;
     }
 
-
     List<List<SDTGuard>> getPaths(boolean accepting) {
         List<List<SDTGuard>> collectedPaths = new ArrayList<List<SDTGuard>>();
         getPaths(accepting, new ArrayList<>(), this, collectedPaths);
@@ -508,24 +471,6 @@ public class SDT implements SymbolicDecisionTree {
         }
 
         return ret;
-    }
-
-    public boolean replaceBranch(SDTGuard guard, SDT from, SDT with) {
-    	for (Map.Entry<SDTGuard, SDT> branch : children.entrySet()) {
-    		if (branch.getKey().equals(guard) && branch.getValue().equals(from)) {
-    			children.put(guard, with);
-    			return true;
-    		} else {
-    			boolean done = branch.getValue().replaceBranch(guard, from, with);
-    			if (done)
-    				return true;
-    		}
-    	}
-    	return false;
-    }
-
-    public static SDT getFinest(SDT... sdts) {
-        return findFinest(0, Arrays.asList(sdts), sdts[0]);
     }
 
     private static SDT findFinest(int i, List<SDT> sdts, SDT curr) {

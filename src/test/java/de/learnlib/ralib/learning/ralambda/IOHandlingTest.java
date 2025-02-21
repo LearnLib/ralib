@@ -62,15 +62,15 @@ public class IOHandlingTest extends RaLibTestSuite {
 
 		static final DataType ID = new DataType("id");
 
-		static final OutputSymbol NOK = new OutputSymbol("NOK", new DataType[] {});
+		static final OutputSymbol NOK = new OutputSymbol("NOK");
 
-		static final OutputSymbol OK = new OutputSymbol("OK", new DataType[] {});
+		static final OutputSymbol OK = new OutputSymbol("OK");
 
-		static final InputSymbol IN = new InputSymbol("in", new DataType[] { ID });
+		static final InputSymbol IN = new InputSymbol("in", ID);
 
-		static final OutputSymbol ERROR = new OutputSymbol("ERROR", new DataType[] {});
+		static final OutputSymbol ERROR = new OutputSymbol("ERROR");
 
-		static final OutputSymbol OUT = new OutputSymbol("OUT", new DataType[] { ID });
+		static final OutputSymbol OUT = new OutputSymbol("OUT", ID);
 
 		private IORAExamples() {
 		}

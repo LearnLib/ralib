@@ -91,19 +91,19 @@ public class FreshValuesTest extends RaLibTestSuite {
 
 
         ParameterizedSymbol iput = new InputSymbol(
-                "IPut", new DataType[] {intType});
+                "IPut", intType);
 
         ParameterizedSymbol iget = new InputSymbol(
-                "IGet", new DataType[] {intType});
+                "IGet", intType);
 
         ParameterizedSymbol oput = new OutputSymbol(
-                "OPut", new DataType[] {intType});
+                "OPut", intType);
 
 //        ParameterizedSymbol oget = new OutputSymbol(
 //                "OGet", new DataType[] {intType});
 
         ParameterizedSymbol onok = new OutputSymbol(
-                "ONOK", new DataType[] {});
+                "ONOK");
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);

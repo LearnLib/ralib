@@ -77,22 +77,22 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", new DataType[] {intType});
+                "IPRACK", intType);
 
         ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[] {intType});
+                "IINVITE", intType);
 
          ParameterizedSymbol inil = new InputSymbol(
-                "Inil", new DataType[] {});
+                "Inil");
 
          ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});
+                "O100", intType);
 
         ParameterizedSymbol o486 = new OutputSymbol(
-                "O486", new DataType[] {intType});
+                "O486", intType);
 
         ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});
+                "O481", intType);
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);

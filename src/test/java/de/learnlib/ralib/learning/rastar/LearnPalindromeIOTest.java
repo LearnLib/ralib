@@ -100,7 +100,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 model, teachers, consts, true, actions);
 
         int check = 0;
-        while (true && check < 10) {
+        while (check < 10) {
 
             check++;
             rastar.learn();
@@ -117,7 +117,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }

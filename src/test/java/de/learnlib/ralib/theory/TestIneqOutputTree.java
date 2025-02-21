@@ -68,7 +68,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         @Override
         public PSymbolInstance step(PSymbolInstance i) throws SULException {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
-                    ((BigDecimal)i.getParameterValues()[0].getValue()).add(BigDecimal.ONE)));
+                    i.getParameterValues()[0].getValue().add(BigDecimal.ONE)));
         }
 
     }

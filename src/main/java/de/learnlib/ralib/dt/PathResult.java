@@ -149,8 +149,7 @@ public class PathResult {
                 }
                 // unmatching suffix
                 if ((prefix.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.getPrefix().length() > 0 && !(prefix.getPrefix().lastSymbol().getBaseSymbol() instanceof InputSymbol
-                        ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
+                        || (prefix.getPrefix().length() > 0 && prefix.getPrefix().lastSymbol().getBaseSymbol() instanceof InputSymbol == s.getActions().firstSymbol() instanceof InputSymbol)) {
                     //log.log(Level.INFO, "Not adding suffix " + s + " to unmatching row " + r.getPrefix());
                     continue;
                 }

@@ -19,9 +19,7 @@ public class SMTUtil {
         Valuation val = new Valuation();
         //System.out.println(Arrays.toString(varVals));
         Arrays.stream(varVals).sequential().flatMap( vv -> vv.entrySet().stream() ).forEach( e -> {
-            if (val.containsValueFor(e.getKey())) {
-                assert false;
-            }
+            assert !val.containsValueFor(e.getKey());
             val.setValue(e.getKey(), e.getValue().getValue());
         });
         return val;

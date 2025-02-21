@@ -75,16 +75,16 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol igc = new InputSymbol(
-                "IGetChallenge", new DataType[] {});
+                "IGetChallenge");
 
         ParameterizedSymbol icb = new InputSymbol(
-                "ICompleteBAC", new DataType[] {});
+                "ICompleteBAC");
 
          ParameterizedSymbol irf = new InputSymbol(
-                "IReadFile", new DataType[] {intType});
+                "IReadFile", intType);
 
          ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
          DataValue d0 = consts.values().iterator().next();
 

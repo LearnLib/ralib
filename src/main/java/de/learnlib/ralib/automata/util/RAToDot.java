@@ -146,6 +146,6 @@ public class RAToDot {
     }
 
     private String escapeGuard(String g) {
-        return g.toString().replaceAll("&", "&amp;");
+        return g.replaceAll("&", "&amp;");
     }
 }

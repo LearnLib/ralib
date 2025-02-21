@@ -141,6 +141,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         return valueGuards;
     }
 
+
     /**
      * Filter out equivalence classes that are to be removed through suffix optimization.
      *
@@ -271,7 +272,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			merged.put(currMerged, currSdt);
 		}
 
-		// check for disequality guard (i.e., both s < r and s > r guards are present for some r)
 		merged = checkForDisequality(merged);
 
 		// if only one guard, replace with true guard
@@ -410,6 +410,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 	}
 
 	private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
+
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
@@ -419,8 +420,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
-            } else if (mg instanceof IntervalGuard) {
-                IntervalGuard iGuard = (IntervalGuard) mg;
+            } else if (mg instanceof IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
                     SymbolicDataValue r = iGuard.getRightReg();
                     Parameter p = new Parameter(r.getDataType(), r.getId());
@@ -584,6 +584,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         if (guard instanceof EqualityGuard) {
             EqualityGuard eqGuard = (EqualityGuard) guard;
+
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg.isRegister()) {
                 Parameter p = piv.getOneKey((Register) ereg);
@@ -591,9 +592,9 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 returnThis = prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
                 Parameter p = new Parameter(type, ereg.getId());
-                returnThis = (DataValue) pval.get(p);
+                returnThis = pval.get(p);
             } else if (ereg.isConstant()) {
-                returnThis = (DataValue) constants.get((SymbolicDataValue.Constant) ereg);
+                returnThis = constants.get((SymbolicDataValue.Constant) ereg);
             }
         } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 

@@ -42,11 +42,11 @@ import net.automatalib.word.Word;
  * @author fredrik
  */
 public class DT implements DiscriminationTree {
-    private DTInnerNode root;
+    private final DTInnerNode root;
 
     private final ParameterizedSymbol[] inputs;
-    private TreeOracle oracle;
-    private boolean ioMode;
+    private final TreeOracle oracle;
+    private final boolean ioMode;
     private final Constants consts;
     private DTLeaf sink = null;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
@@ -145,7 +145,7 @@ public class DT implements DiscriminationTree {
                 leaf = new DTLeaf(oracle);
                 //tqr = mp.computeTQR(suffix, oracle);
                 PathResult r = PathResult.computePathResult(oracle, mp, inner.getSuffixes(), ioMode);
-                assert !mp.getTQRs().keySet().contains(suffix);
+                assert !mp.getTQRs().containsKey(suffix);
                 mp.addTQR(suffix, r.getTQRforSuffix(suffix));
                 leaf.setAccessSequence(mp);
                 DTBranch branch = new DTBranch(leaf, r);
@@ -191,7 +191,7 @@ public class DT implements DiscriminationTree {
         newLeaf.setParent(node);
         PathResult r = PathResult.computePathResult(oracle, mp, node.getSuffixes(), ioMode);
         TreeQueryResult tqr = r.getTQRforSuffix(suffix);
-        assert !mp.getTQRs().keySet().contains(suffix);
+        assert !mp.getTQRs().containsKey(suffix);
         mp.addTQR(suffix, tqr);
 
         DTBranch newBranch = new DTBranch(newLeaf, r);
@@ -200,7 +200,7 @@ public class DT implements DiscriminationTree {
 
         // update old leaf
         boolean removed = leaf.removeShortPrefix(prefix);
-        assert (removed == true); // must not split a prefix that isn't there
+        assert (removed); // must not split a prefix that isn't there
 
         //TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
@@ -233,7 +233,7 @@ public class DT implements DiscriminationTree {
         //TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
         TreeQueryResult tqr = r.getTQRforSuffix(suffix);
-        assert !leaf.getPrimePrefix().getTQRs().keySet().contains(suffix);
+        assert !leaf.getPrimePrefix().getTQRs().containsKey(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr);
 
         DTBranch newBranch = new DTBranch(leaf, r);
@@ -546,7 +546,7 @@ public class DT implements DiscriminationTree {
     private void buildTreeString(StringBuilder builder, DTNode node, String currentIndentation, String indentation,
             String sep) {
         if (node.isLeaf()) {
-            builder.append("\n").append(currentIndentation).append("Leaf: ").append(node.toString());
+            builder.append("\n").append(currentIndentation).append("Leaf: ").append(node);
         } else {
             DTInnerNode inner = (DTInnerNode) node;
             builder.append("\n").append(currentIndentation).append("Inner: ").append(inner.getSuffix());

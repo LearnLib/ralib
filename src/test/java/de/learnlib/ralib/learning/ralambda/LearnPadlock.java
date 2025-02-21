@@ -44,7 +44,7 @@ import net.automatalib.word.Word;
 public class LearnPadlock extends RaLibTestSuite {
     static final DataType DIGIT = new DataType("id");
 
-    static final InputSymbol IN = new InputSymbol("in", new DataType[] { DIGIT });
+    static final InputSymbol IN = new InputSymbol("in", DIGIT);
 
     private static RegisterAutomaton buildAutomaton() {
         MutableRegisterAutomaton ra = new MutableRegisterAutomaton();

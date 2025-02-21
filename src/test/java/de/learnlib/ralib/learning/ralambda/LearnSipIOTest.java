@@ -108,7 +108,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         int check = 0;
-        while (true && check < 100) {
+        while (check < 100) {
             check++;
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
@@ -125,7 +125,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ce = pref.optimizeCE(ce.getInput(), hyp);
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             ralambda.addCounterexample(ce);
         }

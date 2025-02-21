@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -138,7 +137,6 @@ public class IntervalGuard extends SDTGuard {
         return rightLimit;
     }
 
-
     // FIXME: add code for LE / GE
     @Override
     public Expression<Boolean> toExpr() {
@@ -220,7 +218,7 @@ public class IntervalGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        return Collections.singletonList((SDTGuard) this);
+        return Collections.singletonList(this);
     }
 
     @Override

@@ -112,7 +112,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		inputs);
 
         int check = 0;
-        while (true && check < 100) {
+        while (check < 100) {
 
             check++;
             ralambda.learn();
@@ -146,7 +146,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             ralambda.addCounterexample(ce);
         }

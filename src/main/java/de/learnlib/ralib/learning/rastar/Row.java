@@ -83,8 +83,7 @@ public class Row implements PrefixContainer {
             }
             // unmatching suffix
             if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
-                    || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                    ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
+                    || (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == suffix.getActions().firstSymbol() instanceof InputSymbol)) {
                 LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", suffix, getPrefix());
                 return;
             }
@@ -236,8 +235,7 @@ public class Row implements PrefixContainer {
                 }
                 // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                        ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
+                        || (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == s.getActions().firstSymbol() instanceof InputSymbol)) {
                     LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", s, r.getPrefix());
                     continue;
                 }

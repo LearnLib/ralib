@@ -17,6 +17,7 @@
 package de.learnlib.ralib.words;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import de.learnlib.ralib.data.DataValue;
 
@@ -65,7 +66,7 @@ public class PSymbolInstance {
             return false;
         }
         final PSymbolInstance other = (PSymbolInstance) obj;
-        if (this.baseSymbol != other.baseSymbol && (this.baseSymbol == null || !this.baseSymbol.equals(other.baseSymbol))) {
+        if (!Objects.equals(this.baseSymbol, other.baseSymbol)) {
             return false;
         }
         return Arrays.deepEquals(this.parameterValues, other.parameterValues);

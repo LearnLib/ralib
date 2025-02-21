@@ -34,7 +34,7 @@ public interface SymbolicDecisionTree {
      * @param renaming
      * @return
      */
-    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
+    boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming);
 
     /**
      * apply relabeling to tree and return a renamed tree.
@@ -42,7 +42,7 @@ public interface SymbolicDecisionTree {
      * @param relabeling
      * @return
      */
-    public SymbolicDecisionTree relabel(VarMapping relabeling);
+    SymbolicDecisionTree relabel(VarMapping relabeling);
 
 
     /**
@@ -56,7 +56,7 @@ public interface SymbolicDecisionTree {
      *
      * @return
      */
-    public boolean isAccepting();
+    boolean isAccepting();
 
-    public SymbolicDecisionTree copy();
+    SymbolicDecisionTree copy();
 }

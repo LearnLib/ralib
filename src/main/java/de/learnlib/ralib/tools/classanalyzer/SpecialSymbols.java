@@ -52,7 +52,7 @@ public class SpecialSymbols {
             }
             return getClass() == obj.getClass();
         }
-    };
+    }
 
     public static final ErrorSymbol ERROR = new ErrorSymbol(new Exception("__dummy"));
 

@@ -23,10 +23,10 @@ public class StackAutomatonExample {
     public static final DataType T_INT = new DataType("T_int");
 
     public static final InputSymbol I_PUSH =
-            new InputSymbol("push", new DataType[] {T_INT});
+            new InputSymbol("push", T_INT);
 
     public static final InputSymbol I_POP =
-            new InputSymbol("pop", new DataType[] {T_INT});
+            new InputSymbol("pop", T_INT);
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 

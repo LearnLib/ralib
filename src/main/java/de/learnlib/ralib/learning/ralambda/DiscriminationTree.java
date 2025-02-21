@@ -22,7 +22,7 @@ public interface DiscriminationTree {
      * @param add
      * @return the leaf corresponding to prefix
      */
-    public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add);
+    DTLeaf sift(Word<PSymbolInstance> prefix, boolean add);
 
     /**
      * Split a prefix from a leaf node into a new leaf. Adds a new inner node using the suffix as a discriminator.
@@ -31,7 +31,7 @@ public interface DiscriminationTree {
      * @param suffix
      * @param leaf
      */
-    public void split(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, DTLeaf leaf);
+    void split(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, DTLeaf leaf);
 
-    public Map<Word<PSymbolInstance>, LocationComponent> getComponents();
+    Map<Word<PSymbolInstance>, LocationComponent> getComponents();
 }

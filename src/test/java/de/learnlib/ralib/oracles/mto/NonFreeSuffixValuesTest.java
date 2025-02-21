@@ -90,16 +90,16 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol iput = new InputSymbol(
-                "IPut", new DataType[] {intType});
+                "IPut", intType);
 
         ParameterizedSymbol iget = new InputSymbol(
-                "IGet", new DataType[] {});
+                "IGet");
 
         ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", new DataType[] {intType});
+                "OGet", intType);
 
         ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);
@@ -182,10 +182,10 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol i4 = new InputSymbol(
-                "IPalindrome4", new DataType[] {intType, intType, intType, intType});
+                "IPalindrome4", intType, intType, intType, intType);
 
          ParameterizedSymbol oyes = new OutputSymbol(
-                "OYes", new DataType[] {});
+                "OYes");
 
          DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
          DataValue d1 = new DataValue(intType, BigDecimal.ONE);

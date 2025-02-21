@@ -18,7 +18,6 @@ package de.learnlib.ralib.theory.equality;
 
 import java.util.Objects;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -35,7 +34,7 @@ import gov.nasa.jpf.constraints.expressions.NumericComparator;
 public class EqualityGuard extends SDTIfGuard {
 
     public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {
-        super(param, reg, Relation.EQUALS);
+        super(param, reg);
     }
 
     public EqualityGuard(EqualityGuard other) {
@@ -75,7 +74,6 @@ public class EqualityGuard extends SDTIfGuard {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(parameter);
         hash = 59 * hash + Objects.hashCode(register);
-        hash = 59 * hash + Objects.hashCode(relation);
         hash = 59 * hash + Objects.hashCode(getClass());
 
         return hash;
@@ -91,9 +89,6 @@ public class EqualityGuard extends SDTIfGuard {
         }
         final EqualityGuard other = (EqualityGuard) obj;
         if (!Objects.equals(this.register, other.register)) {
-            return false;
-        }
-        if (!Objects.equals(this.relation, other.relation)) {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);

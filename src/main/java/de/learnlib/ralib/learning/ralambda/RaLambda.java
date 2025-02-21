@@ -55,8 +55,8 @@ public class RaLambda implements RaLearningAlgorithm {
 
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
 
-    public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(Word.<PSymbolInstance>epsilon(),
-            Word.<PSymbolInstance>epsilon());
+    public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(Word.epsilon(),
+            Word.epsilon());
 
     private final DT dt;
 
@@ -223,11 +223,8 @@ public class RaLambda implements RaLearningAlgorithm {
 
         boolean consistent = false;
         while (!consistent) {
-        	consistent = true;
 
-        	if (!checkLocationConsistency()) {
-        		consistent = false;
-        	}
+            consistent = checkLocationConsistency();
 
         	if (!checkRegisterClosedness()) {
         		consistent = false;
@@ -266,7 +263,7 @@ public class RaLambda implements RaLearningAlgorithm {
             piv = sp.getParsInVars();
         }
 
-        if (hypBranching.getBranches().keySet().contains(word))
+        if (hypBranching.getBranches().containsKey(word))
         	return false;
 
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
@@ -358,7 +355,7 @@ public class RaLambda implements RaLearningAlgorithm {
                 ShortPrefix sp = (ShortPrefix) src_c.getShortPrefixes().get(src_id);
                 hypBranching = sp.getBranching(word.lastSymbol().getBaseSymbol());
             }
-            if (hypBranching.getBranches().keySet().contains(word)) {
+            if (hypBranching.getBranches().containsKey(word)) {
             	continue;
             }
 
@@ -397,7 +394,7 @@ public class RaLambda implements RaLearningAlgorithm {
 			            			}
 			            			TreeQueryResult testTQR = sulOracle.treeQuery(src_id, testSuffix);
 			            			Branching testBranching = sulOracle.updateBranching(src_id, word.lastSymbol().getBaseSymbol(), hypBranching, testTQR.getPiv(), testTQR.getSdt());
-			            			if (testBranching.getBranches().keySet().contains(word)) {
+			            			if (testBranching.getBranches().containsKey(word)) {
 			            				suffix = testSuffix;
 			            			}
 			            		}

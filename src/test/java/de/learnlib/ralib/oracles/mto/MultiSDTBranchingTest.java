@@ -78,16 +78,16 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", new DataType[]{intType});
+                "IPRACK", intType);
 
         ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[]{intType});
+                "IINVITE", intType);
 
         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[]{intType});
+                "O100", intType);
 
         ParameterizedSymbol o200 = new OutputSymbol(
-                "O200", new DataType[]{intType});
+                "O200", intType);
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);

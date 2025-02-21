@@ -89,5 +89,5 @@ public interface SDTLogicOracle {
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */
-    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
+    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
 }

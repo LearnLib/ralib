@@ -107,7 +107,7 @@ public abstract class EqualityTheory implements Theory {
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
             List<SDTIfGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
-            LOGGER.trace("remapping: " + ds.toString());
+            LOGGER.trace("remapping: " + ds);
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
                 LOGGER.trace("--> not eq.");
                 deqList.add(eqGuard.toDeqGuard());
@@ -234,7 +234,7 @@ public abstract class EqualityTheory implements Theory {
         // prepare by picking up the prefix values
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
-        LOGGER.trace("prefix list    " + prefixValues.toString());
+        LOGGER.trace("prefix list    " + prefixValues);
 
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
         for (DataValue newDv : potential) {
@@ -246,7 +246,7 @@ public abstract class EqualityTheory implements Theory {
 	            ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
 
 	            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
-	            LOGGER.trace("eqGuard is: " + eqGuard.toString());
+	            LOGGER.trace("eqGuard is: " + eqGuard);
 	            diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
 	            // construct the equality guard
 	            // find the data value in the prefix
@@ -277,7 +277,7 @@ public abstract class EqualityTheory implements Theory {
 	        SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, pir, constants, elseSuffixValues);
 
 	        SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[] {})));
-	        LOGGER.trace("diseq guard = " + deqGuard.toString());
+	        LOGGER.trace("diseq guard = " + deqGuard);
 
 	        // merge the guards
 	        merged = mergeGuards(tempKids, deqGuard, elseOracleSdt);
@@ -297,7 +297,7 @@ public abstract class EqualityTheory implements Theory {
 
         LOGGER.trace("temporary guards = " + tempKids.keySet());
         LOGGER.trace("merged guards = " + merged.keySet());
-        LOGGER.trace("merged pivs = " + pir.toString());
+        LOGGER.trace("merged pivs = " + pir);
 
         // clear the temporary map of children
         tempKids.clear();
@@ -325,8 +325,8 @@ public abstract class EqualityTheory implements Theory {
             // first index of the data value in the prefixvalues list
             newDv_i = prefixValues.indexOf(newDv) + 1;
             Register newDv_r = new Register(type, newDv_i);
-            LOGGER.trace("current param = " + currentParam.toString());
-            LOGGER.trace("New register = " + newDv_r.toString());
+            LOGGER.trace("current param = " + currentParam);
+            LOGGER.trace("New register = " + newDv_r);
             return new EqualityGuard(currentParam, newDv_r);
 
         } // if the data value isn't in the prefix,
@@ -344,20 +344,19 @@ public abstract class EqualityTheory implements Theory {
             Constants constants, SDTGuard guard, Parameter param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        LOGGER.trace("prefix values : " + prefixValues.toString());
+        LOGGER.trace("prefix values : " + prefixValues);
         DataType type = param.getDataType();
         Deque<SDTGuard> guards = new LinkedList<>();
         guards.add(guard);
 
         while(!guards.isEmpty()) {
             SDTGuard current = guards.remove();
-            if (current instanceof EqualityGuard) {
-                LOGGER.trace("equality guard " + current.toString());
-                EqualityGuard eqGuard = (EqualityGuard) current;
+            if (current instanceof EqualityGuard eqGuard) {
+                LOGGER.trace("equality guard " + current);
                 SymbolicDataValue ereg = eqGuard.getRegister();
                 if (ereg.isRegister()) {
                     LOGGER.trace("piv: " + piv.toString()
-                            + " " + ereg.toString() + " " + param.toString());
+                            + " " + ereg + " " + param);
                     Parameter p = piv.getOneKey((Register) ereg);
                     LOGGER.trace("p: " + p.toString());
                     int idx = p.getId();
@@ -377,7 +376,7 @@ public abstract class EqualityTheory implements Theory {
                 pval.values(type));
 
         if (!potSet.isEmpty()) {
-            LOGGER.trace("potSet = " + potSet.toString());
+            LOGGER.trace("potSet = " + potSet);
         } else {
             LOGGER.trace("potSet is empty");
         }

@@ -60,7 +60,7 @@ public class AutomatonBuilder {
 
     protected final Constants consts;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AutomatonBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutomatonBuilder.class);
 
     public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
         this.consts = consts;
@@ -143,9 +143,7 @@ public class AutomatonBuilder {
         if (automaton instanceof DTHyp && guard == null)
         	return;
 
-        if (guard == null) {
-        	assert true;
-        }
+        assert true;
         assert guard!=null;
 
         // assignment

@@ -18,7 +18,6 @@ package de.learnlib.ralib.theory.equality;
 
 import java.util.Objects;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -36,7 +35,7 @@ public class DisequalityGuard extends SDTIfGuard {
 
     public DisequalityGuard(
             SymbolicDataValue.SuffixValue param, SymbolicDataValue reg) {
-        super(param, reg, Relation.NOT_EQUALS);
+        super(param, reg);
     }
 
     public DisequalityGuard(DisequalityGuard other) {
@@ -82,7 +81,6 @@ public class DisequalityGuard extends SDTIfGuard {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(this.parameter);
         hash = 59 * hash + Objects.hashCode(this.register);
-        hash = 59 * hash + Objects.hashCode(this.relation);
         hash = 59 * hash + Objects.hashCode(this.getClass());
 
         return hash;
@@ -98,9 +96,6 @@ public class DisequalityGuard extends SDTIfGuard {
         }
         final DisequalityGuard other = (DisequalityGuard) obj;
         if (!Objects.equals(this.register, other.register)) {
-            return false;
-        }
-        if (!Objects.equals(this.relation, other.relation)) {
             return false;
         }
         return Objects.equals(this.parameter, other.parameter);

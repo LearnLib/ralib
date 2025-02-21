@@ -49,7 +49,7 @@ public abstract class SDTGuard {
     public abstract Set<SymbolicDataValue> getComparands(SymbolicDataValue dv);
 
     public SDTGuard(SDTGuard other) {
-    	this.parameter = (SuffixValue) SymbolicDataValue.copy(other.parameter);
+    	this.parameter = SymbolicDataValue.copy(other.parameter);
     }
 
     public abstract Expression<Boolean> toExpr();

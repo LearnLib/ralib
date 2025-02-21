@@ -5,7 +5,7 @@ import de.learnlib.ralib.data.util.PIVRemappingIterator;
 
 public class DTBranch {
 
-    private PathResult urap;
+    private final PathResult urap;
 
     private DTNode child;
 

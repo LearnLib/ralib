@@ -104,7 +104,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         int check = 0;
-        while (true && check < 100) {
+        while (check < 100) {
             check++;
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();

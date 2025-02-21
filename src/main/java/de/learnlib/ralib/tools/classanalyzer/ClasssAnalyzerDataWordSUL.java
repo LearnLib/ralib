@@ -103,8 +103,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
         try {
             ret = act.invoke(sul, params);
         } catch (Throwable ex) {
-            if (ex instanceof InvocationTargetException) {
-                InvocationTargetException iex = (InvocationTargetException) ex;
+            if (ex instanceof InvocationTargetException iex) {
                 return new PSymbolInstance(new SpecialSymbols.ErrorSymbol(
                         iex.getTargetException()));
             } else {
