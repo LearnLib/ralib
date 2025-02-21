@@ -18,13 +18,14 @@ package de.learnlib.ralib.theory.equality;
 
 import java.util.Objects;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 
 /**
  *
@@ -55,9 +56,9 @@ public class DisequalityGuard extends SDTIfGuard {
     }
 
     @Override
-    public GuardExpression toExpr() {
-        return new AtomicGuardExpression(
-                register, Relation.NOT_EQUALS, parameter);
+    public Expression<Boolean> toExpr() {
+        return new NumericBooleanExpression(
+                register, NumericComparator.NE, parameter);
     }
 
     @Override

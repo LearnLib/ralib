@@ -18,7 +18,6 @@ package de.learnlib.ralib.example.sdts;
 
 import java.util.Map;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;

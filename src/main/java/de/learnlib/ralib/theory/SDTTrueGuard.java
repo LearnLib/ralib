@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -55,8 +55,8 @@ public class SDTTrueGuard extends SDTGuard {
     }
 
     @Override
-    public GuardExpression toExpr() {
-        return TrueGuardExpression.TRUE;
+    public Expression<Boolean> toExpr() {
+        return ExpressionUtil.TRUE;
     }
 
     @Override

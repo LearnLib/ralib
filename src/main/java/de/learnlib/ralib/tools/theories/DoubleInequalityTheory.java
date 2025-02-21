@@ -19,7 +19,6 @@
 package de.learnlib.ralib.tools.theories;
 
 import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toExpression;
-import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toVariable;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -28,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -144,15 +142,15 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
         newVal.putAll(val);
-        GuardExpression x = g.toExpr();
+        Expression<Boolean> x = g.toExpr();
         Result res;
         if (g instanceof EqualityGuard) {
             //System.out.println("SOLVING: " + x);
-            res = solver.solve(toExpression(x), newVal);
+            res = solver.solve(x, newVal);
         } else {
             List<Expression<Boolean>> eList = new ArrayList<>();
             // add the guard
-            eList.add(toExpression(g.toExpr()));
+            eList.add(g.toExpr());
             eList.addAll(instantiateGuard(g, val));
             if (g instanceof SDTOrGuard) {
                 // for all registers, pick them up

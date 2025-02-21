@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.smt;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -28,8 +27,6 @@ import gov.nasa.jpf.constraints.api.Expression;
  */
 public interface ConstraintSolver {
 
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val);
-
-    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val);
+    boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val);
 
 }

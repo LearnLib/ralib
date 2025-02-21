@@ -28,23 +28,9 @@ import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
  */
 public class ConstraintSolverFactory {
 
-    public final static String ID_SIMPLE = "simple";
-
-    public final static String ID_Z3 = "z3";
-
-    public static ConstraintSolver createSolver(final String id) {
-        switch (id) {
-            case ID_Z3:
-                return createZ3ConstraintSolver();
-            default:
-                throw new RuntimeException("Unsupported constraint solver: " + id);
-        }
-    }
-
     public static JConstraintsConstraintSolver createZ3ConstraintSolver() {
         return new JConstraintsConstraintSolver(
                 (new NativeZ3SolverProvider()).createSolver(new Properties()));
-                //gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory.createSolver("z3"));
     }
 
 }

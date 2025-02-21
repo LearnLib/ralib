@@ -12,8 +12,11 @@ import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.*;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.DuplicatingVisitor;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 public class SMTUtils {
 
@@ -31,6 +34,15 @@ public class SMTUtils {
 
     public static Constant constantFor(DataValue sv) {
         return new Constant(BuiltinTypes.DECIMAL, sv.getValue());
+    }
+
+    public static Collection<SymbolicDataValue> getSymbolicDataValues(
+            Expression<Boolean> expr) {
+        ArrayList<SymbolicDataValue> list = new ArrayList<>();
+        for (Variable v : ExpressionUtil.freeVariables(expr)) {
+            list.add( (SymbolicDataValue) v);
+        }
+        return list;
     }
 
     public static Expression<Boolean> renameVars(Expression<Boolean> expr,

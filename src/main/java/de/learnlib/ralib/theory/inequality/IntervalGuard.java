@@ -24,14 +24,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.theory.SDTGuard;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -137,25 +138,19 @@ public class IntervalGuard extends SDTGuard {
         return rightLimit;
     }
 
+
+    // FIXME: add code for LE / GE
     @Override
-    public GuardExpression toExpr() {
+    public Expression<Boolean> toExpr() {
         if (leftLimit == null) {
-        	return new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
-        			(rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER),
-        			rightLimit);
+            return new NumericBooleanExpression(parameter, NumericComparator.LT, rightLimit);
         }
         if (rightLimit == null) {
-        	return new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
-        			(leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER),
-        			leftLimit);
+            return new NumericBooleanExpression(parameter, NumericComparator.GT, leftLimit);
         } else {
-            GuardExpression smaller = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
-            		(rightClosed ? Relation.SMALLER_OR_EQUAL : Relation.SMALLER),
-            		rightLimit);
-            GuardExpression bigger = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter,
-            		(leftClosed ? Relation.BIGGER_OR_EQUAL : Relation.BIGGER),
-            		leftLimit);
-            return new Conjunction(smaller, bigger);
+            Expression<Boolean> smaller = new NumericBooleanExpression(parameter, NumericComparator.LT, rightLimit);
+            Expression<Boolean> bigger = new NumericBooleanExpression(parameter, NumericComparator.GT, leftLimit);
+            return ExpressionUtil.and(smaller, bigger);
         }
     }
 

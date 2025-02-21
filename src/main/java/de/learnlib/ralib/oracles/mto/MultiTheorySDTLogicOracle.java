@@ -18,6 +18,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
+import de.learnlib.ralib.smt.ReplacingVarsVisitor;
 import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -27,10 +28,6 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -79,8 +76,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         SDT _sdt1 = (SDT) sdt1;
         SDT _sdt2 = (SDT) sdt2;
 
-        Expression<Boolean>  expr1 = JContraintsUtil.toExpression(_sdt1.getAcceptingPaths(consts));
-        Expression<Boolean>  expr2 = JContraintsUtil.toExpression(_sdt2.getAcceptingPaths(consts));
+        Expression<Boolean>  expr1 = _sdt1.getAcceptingPaths(consts);
+        Expression<Boolean>  expr2 = _sdt2.getAcceptingPaths(consts);
         Expression<Boolean>  exprG = guard;
 
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = new VarMapping<>();
@@ -117,24 +114,24 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
+    public Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
     		SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2) {
 
     	SDT _sdt1 = (SDT) sdt1;
     	SDT _sdt2 = (SDT) sdt2;
 
-    	Map<GuardExpression, Boolean> exprMap1 = _sdt1.getGuardExpressions(consts);
-    	Map<GuardExpression, Boolean> exprMap2 = _sdt2.getGuardExpressions(consts);
+    	Map<Expression<Boolean>, Boolean> exprMap1 = _sdt1.getGuardExpressions(consts);
+    	Map<Expression<Boolean>, Boolean> exprMap2 = _sdt2.getGuardExpressions(consts);
 
-    	for (Map.Entry<GuardExpression, Boolean> e1 : exprMap1.entrySet()) {
-    		GuardExpression expr1 = e1.getKey();
+    	for (Map.Entry<Expression<Boolean>, Boolean> e1 : exprMap1.entrySet()) {
+            Expression<Boolean> expr1 = e1.getKey();
     		boolean outcome1 = e1.getValue();
-    		for (Map.Entry<GuardExpression, Boolean> e2 : exprMap2.entrySet()) {
-    			GuardExpression expr2 = e2.getKey();
+    		for (Map.Entry<Expression<Boolean>, Boolean> e2 : exprMap2.entrySet()) {
+                Expression<Boolean> expr2 = e2.getKey();
     			boolean outcome2 = e2.getValue();
     			if (outcome1 != outcome2) {
     				VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
-    				GuardExpression test = new Conjunction(expr1, expr2.relabel(remap));
+                    Expression<Boolean> test = ExpressionUtil.and(expr1, SMTUtils.renameVars(expr2, remap));
     				if (solver.isSatisfiable(test, new Mapping<>())) {
     					return expr1;
     				}
@@ -257,8 +254,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                     newValuation.put(suffixValue, value);
                     boolean found = false;
                     for (Map.Entry<SDTGuard, SDT> entry : nextSdt.getChildren().entrySet()) {
-                        TransitionGuard guardExpr = entry.getKey().toTG();
-                        if (solver.isSatisfiable(guardExpr.getCondition(), newValuation)) {
+                        Expression<Boolean> guardExpr = entry.getKey().toExpr();
+                        if (solver.isSatisfiable(guardExpr, newValuation)) {
                             nextSdt = entry.getValue();
                             found = true;
                             break;

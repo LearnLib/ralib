@@ -25,10 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.FalseGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -37,6 +33,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
@@ -47,6 +44,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  * Implementation of Symbolic Decision Trees.
@@ -205,8 +203,8 @@ public class SDT implements SymbolicDecisionTree {
     	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<SymbolicDataValue, DataValue>();
     	mapping.putAll(vals);
     	mapping.putAll(consts);
-    	GuardExpression expr = getAcceptingPaths(consts);
-    	return expr.isSatisfied(mapping);
+        Expression<Boolean> expr = getAcceptingPaths(consts);
+    	return expr.evaluateSMT(SMTUtils.compose(mapping));
     }
 
     protected Map<SDTGuard, SDT> getChildren() {
@@ -403,63 +401,63 @@ public class SDT implements SymbolicDecisionTree {
         return this.getChildren().isEmpty();
     }
 
-    GuardExpression getAcceptingPaths(Constants consts) {
+    Expression<Boolean> getAcceptingPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
-            return FalseGuardExpression.FALSE;
+            return ExpressionUtil.FALSE;
         }
-        GuardExpression dis = null;
+        Expression<Boolean> dis = null;
         for (List<SDTGuard> list : paths) {
-            List<GuardExpression> expr = new ArrayList<>();
+            List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr());
             }
-            Conjunction con = new Conjunction(
-                    expr.toArray(new GuardExpression[] {}));
+            Expression<Boolean> con = ExpressionUtil.and(
+                    expr.toArray(new Expression[] {}));
 
-            dis = (dis == null) ? con : new Disjunction(dis, con);
+            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
 
         return dis;
     }
 
-    GuardExpression getPaths(Constants consts) {
+    Expression<Boolean> getPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
-            return FalseGuardExpression.FALSE;
+            return ExpressionUtil.FALSE;
         }
-        GuardExpression dis = null;
+        Expression<Boolean> dis = null;
         for (List<SDTGuard> list : paths) {
-            List<GuardExpression> expr = new ArrayList<>();
+            List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
                 expr.add(g.toExpr());
             }
-            Conjunction con = new Conjunction(
-                    expr.toArray(new GuardExpression[] {}));
+            Expression<Boolean> con = ExpressionUtil.and(
+                    expr.toArray(new Expression[] {}));
 
-            dis = (dis == null) ? con : new Disjunction(dis, con);
+            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
         }
 
         return dis;
     }
 
-    Map<GuardExpression, Boolean> getGuardExpressions(Constants consts) {
-    	Map<GuardExpression, Boolean> expressions = new LinkedHashMap<>();
+    Map<Expression<Boolean>, Boolean> getGuardExpressions(Constants consts) {
+    	Map<Expression<Boolean>, Boolean> expressions = new LinkedHashMap<>();
     	Map<List<SDTGuard>, Boolean> paths = getAllPaths(new ArrayList<SDTGuard>());
     	if (paths.isEmpty()) {
-    		expressions.put(FalseGuardExpression.FALSE, false);
+    		expressions.put(ExpressionUtil.FALSE, false);
     		return expressions;
     	}
     	for (Map.Entry<List<SDTGuard>, Boolean> e : paths.entrySet()) {
     		List<SDTGuard> list = e.getKey();
-    		List<GuardExpression> expr = new ArrayList<>();
+    		List<Expression<Boolean>> expr = new ArrayList<>();
     		for (SDTGuard g : list) {
     			expr.add(g.toExpr());
     		}
-    		Conjunction con = new Conjunction(
-    				expr.toArray(new GuardExpression[] {}));
+            Expression<Boolean> con = ExpressionUtil.and(
+    				expr.toArray(new Expression[] {}));
     		expressions.put(con, e.getValue());
     	}
 

@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -29,6 +27,8 @@ import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
@@ -368,10 +368,10 @@ public class OptimizedSymbolicSuffixBuilder {
             List<List<SDTGuard>> pathsSdt1 = sdt1.getPaths(b);
             List<List<SDTGuard>> pathsSdt2 = sdt2.getPaths(!b);
             for (List<SDTGuard> pathSdt1 : pathsSdt1) {
-                GuardExpression expr1 = toGuardExpression(pathSdt1);
+                Expression<Boolean>  expr1 = toGuardExpression(pathSdt1);
                 for (List<SDTGuard> pathSdt2 : pathsSdt2) {
-                    GuardExpression expr2 = toGuardExpression(pathSdt2);
-                    if (solver.isSatisfiable(new Conjunction(expr1, expr2), valuation)) {
+                    Expression<Boolean>  expr2 = toGuardExpression(pathSdt2);
+                    if (solver.isSatisfiable(ExpressionUtil.and(expr1, expr2), valuation)) {
                         SymbolicSuffix suffix = buildOptimizedSuffix(prefix1, pathSdt1, piv1, prefix2, pathSdt2, piv2, suffixActions);
                         best = pickBest(best, suffix);
                     }
@@ -426,13 +426,13 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
 
-    private GuardExpression toGuardExpression(List<SDTGuard> guards) {
-        List<GuardExpression> expr = new ArrayList<>();
+    private Expression<Boolean> toGuardExpression(List<SDTGuard> guards) {
+        List<Expression<Boolean>> expr = new ArrayList<>();
         for (SDTGuard g : guards) {
             expr.add(g.toExpr());
         }
-        GuardExpression[] exprArr = new GuardExpression[expr.size()];
-        return new Conjunction(expr.toArray(exprArr));
+        Expression<Boolean> [] exprArr = new Expression[expr.size()];
+        return ExpressionUtil.and(expr.toArray(exprArr));
     }
 
     private Mapping<SymbolicDataValue, DataValue> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
