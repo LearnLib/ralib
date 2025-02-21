@@ -16,11 +16,11 @@
  */
 package de.learnlib.ralib.data;
 
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.types.BuiltinTypes;
-
 import java.math.BigDecimal;
 import java.util.Objects;
+
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
 /**
  * Symbolic Data Values (Parameters, registers, etc.).

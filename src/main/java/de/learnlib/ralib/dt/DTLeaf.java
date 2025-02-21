@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
-import gov.nasa.jpf.constraints.api.Expression;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -44,6 +43,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class DTLeaf extends DTNode implements LocationComponent {

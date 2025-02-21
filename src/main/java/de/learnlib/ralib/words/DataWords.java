@@ -19,7 +19,6 @@ package de.learnlib.ralib.words;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.word.Word;
@@ -100,7 +98,7 @@ public final class DataWords {
     /**
      * returns set of unique data values of some type in a data word.
      *
-     * @param 
+     * @param
      * @param word
      * @param t
      * @return
@@ -119,7 +117,7 @@ public final class DataWords {
 
     /**
      *
-     * @param 
+     * @param
      * @param in
      * @return
      */

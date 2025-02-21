@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.data;
 
-import java.util.Optional;
 
 /**
  * A valuation of registers.

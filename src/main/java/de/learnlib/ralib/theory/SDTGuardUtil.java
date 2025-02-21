@@ -1,14 +1,13 @@
 package de.learnlib.ralib.theory;
 
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
-
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import de.learnlib.ralib.theory.equality.EqualityGuard;
+import de.learnlib.ralib.theory.inequality.IntervalGuard;
 
 public class SDTGuardUtil {
 
