@@ -41,8 +41,8 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
  */
 public class IntervalGuard extends SDTGuard {
 
-    private final SymbolicDataValue leftLimit;
-    private final SymbolicDataValue rightLimit;
+    public final SymbolicDataValue leftLimit;
+    public final SymbolicDataValue rightLimit;
 
     public IntervalGuard(SuffixValue param, SymbolicDataValue ll, SymbolicDataValue rl) {
         super(param);
@@ -231,7 +231,7 @@ public class IntervalGuard extends SDTGuard {
         return guards;
     }
 
-    private Set<SDTGuard> mergeIntervals(IntervalGuard other) {
+    public Set<SDTGuard> mergeIntervals(IntervalGuard other) {
 //        System.out.println("other i-guard: " + other);
         if (this.isBiggerGuard()) {
 //            System.out.println(this + " is bigger, left limit is: " + this.leftLimit);
@@ -249,46 +249,6 @@ public class IntervalGuard extends SDTGuard {
 //        System.out.println("is interv");
         return this.iMergeIntervals(other);
 
-    }
-
-//    private Set<SDTGuard> mergeWithEquality(EqualityGuard other) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        if (!(other.getRegister().equals(this.leftLimit) || other.getRegister().equals(this.rightLimit))) {
-//            guards.add(this);
-//            guards.add(other);
-//        } else {
-//            guards.add(new SDTOrGuard(this.parameter, this, other));
-//        }
-//        return guards;
-//    }
-
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        Set<SDTGuard> guards = new LinkedHashSet<>();
-        if (other instanceof IntervalGuard) {
-            guards.addAll(this.mergeIntervals((IntervalGuard) other));
-        } else if (other instanceof DisequalityGuard dGuard) {
-            if ((this.isBiggerGuard() && this.leftLimit.equals(dGuard.getRegister()))
-                    || (this.isSmallerGuard() && this.rightLimit.equals(dGuard.getRegister()))) {
-
-                guards.add(other);
-            }
-            else {
-                guards.add(this);
-                guards.add(other);
-            }
-            // special case for equality guards
-        } else //if (other instanceof EqualityGuard)
-        {
-            //return this.mergeWithEquality((EqualityGuard) other);
-            //}
-            //else {
-//            System.out.println("guard " + other + " not deq or interval");
-            guards.add(this);
-            guards.add(other);
-        }
-//        System.out.println("merged guards are: " + guards);
-        return guards;
     }
 
     @Override

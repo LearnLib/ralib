@@ -41,12 +41,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.SDTAndGuard;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
@@ -172,7 +167,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 //                System.out.println("flipped: " + flipped);
                 if (guards.contains(flipped)) {
                     guards.remove(flipped);
-                    addAllSafely(guards, iGuard.mergeWith(flipped, regPotential), regPotential);
+                    addAllSafely(guards, SDTGuardUtil.mergeWith(iGuard, flipped, regPotential), regPotential);
                     processed = true;
                 }
             }
@@ -266,7 +261,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                         Set<SDTGuard> refSet = new LinkedHashSet<>();
                         refSet.add(target);
                         refSet.add(m);
-                        Set<SDTGuard> mWithTarget = target.mergeWith(m, regPotential);
+                        Set<SDTGuard> mWithTarget = SDTGuardUtil.mergeWith(target, m, regPotential);
 //                        System.out.println("merging: " + target + " + " + m + " --> " + mWithTarget + ", " + refSet.containsAll(mWithTarget));
                         if (!mWithTarget.contains(target)) {
                             prohibited.add(target);

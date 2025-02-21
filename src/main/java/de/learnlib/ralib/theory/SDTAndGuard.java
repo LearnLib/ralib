@@ -100,11 +100,6 @@ public class SDTAndGuard extends SDTMultiGuard {
     }
 
     @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     public SDTAndGuard copy() {
     	return new SDTAndGuard(this);
     }
