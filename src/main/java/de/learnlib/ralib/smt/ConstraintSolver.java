@@ -20,13 +20,21 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
+
+import java.util.Properties;
 
 /**
  *
  * @author falk
  */
-public interface ConstraintSolver {
+public class ConstraintSolver {
 
-    boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val);
+    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver =
+            new NativeZ3SolverProvider().createSolver(new Properties());
 
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+        gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = solver.isSatisfiable( SMTUtil.toExpression(expr, val));
+        return r == gov.nasa.jpf.constraints.api.ConstraintSolver.Result.SAT;
+    }
 }

@@ -1,42 +1,50 @@
-/*
- * Copyright (C) 2014-2015 The LearnLib Contributors
- * This file is part of LearnLib, http://www.learnlib.de/.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package de.learnlib.ralib.smt.jconstraints;
-
-import java.util.HashMap;
-import java.util.Map;
+package de.learnlib.ralib.smt;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.Constant;
-import gov.nasa.jpf.constraints.expressions.LogicalOperator;
-import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
-import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.expressions.*;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
-import gov.nasa.jpf.constraints.types.Type;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
-/**
- *
- * @author falk
- */
-public class JContraintsUtil {
+import java.util.*;
+
+public class SMTUtil {
+
+    public static Valuation compose(Mapping<? extends SymbolicDataValue, DataValue>... varVals) {
+        Valuation val = new Valuation();
+        //System.out.println(Arrays.toString(varVals));
+        Arrays.stream(varVals).sequential().flatMap( vv -> vv.entrySet().stream() ).forEach( e -> {
+            if (val.containsValueFor(e.getKey())) {
+                assert false;
+            }
+            val.setValue(e.getKey(), e.getValue().getValue());
+        });
+        return val;
+    }
+
+    public static Constant constantFor(DataValue sv) {
+        return new Constant(BuiltinTypes.DECIMAL, sv.getValue());
+    }
+
+    public static Collection<SymbolicDataValue> getSymbolicDataValues(
+            Expression<Boolean> expr) {
+        ArrayList<SymbolicDataValue> list = new ArrayList<>();
+        for (Variable v : ExpressionUtil.freeVariables(expr)) {
+            list.add( (SymbolicDataValue) v);
+        }
+        return list;
+    }
+
+    public static Expression<Boolean> renameVars(Expression<Boolean> expr,
+                                              final VarMapping<? extends SymbolicDataValue, ? extends SymbolicDataValue> relabelling) {
+        final ReplacingVarsVisitor replacer = new ReplacingVarsVisitor();
+        return replacer.apply(expr, relabelling);
+    }
 
     public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
@@ -55,7 +63,7 @@ public class JContraintsUtil {
     }
 
     private static Variable getOrCreate(SymbolicDataValue dv,
-            Map<SymbolicDataValue, Variable> map) {
+                                        Map<SymbolicDataValue, Variable> map) {
         Variable ret = map.get(dv);
         if (ret == null) {
             // FIXME: superfluous!

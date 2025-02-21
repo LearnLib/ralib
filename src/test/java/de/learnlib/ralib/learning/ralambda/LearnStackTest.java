@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -57,7 +56,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         Measurements mes = new Measurements();
 
@@ -111,7 +110,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver);
@@ -184,7 +183,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);
@@ -226,7 +225,7 @@ public class LearnStackTest extends RaLibTestSuite {
 	Constants consts = new Constants();
 	RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver =ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver =new ConstraintSolver();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);

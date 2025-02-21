@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -50,7 +51,6 @@ import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -69,7 +69,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers,
                 new Constants(), jsolv,

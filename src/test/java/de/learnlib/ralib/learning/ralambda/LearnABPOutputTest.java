@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -77,7 +76,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
         });
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);

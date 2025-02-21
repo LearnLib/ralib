@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -81,7 +81,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver());
+                ioFilter, teachers, consts, new ConstraintSolver());
 
         teachers.values().stream().forEach((t) -> {
             ((EqualityTheory)t).setFreshValues(true, ioCache);

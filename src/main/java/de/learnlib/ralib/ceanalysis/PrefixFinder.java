@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
@@ -256,7 +256,7 @@ public class PrefixFinder {
         			renaming.put(sv, p);
         		}
         	}
-        	Expression<Boolean> exprR = SMTUtils.renameVars(expr, renaming);
+        	Expression<Boolean> exprR = SMTUtil.renameVars(expr, renaming);
 
         	ParValuation pars = new ParValuation(path);
         	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
@@ -264,7 +264,7 @@ public class PrefixFinder {
         	vals.putAll(pars);
         	vals.putAll(consts);
 
-        	if (exprR.evaluateSMT(SMTUtils.compose(vals))) {
+        	if (exprR.evaluateSMT(SMTUtil.compose(vals))) {
         		candidate = path.prefix(prefix.length() + 1);
         		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), restrictionBuilder);
         		return new SymbolicWord(candidate, suffix);

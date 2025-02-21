@@ -34,7 +34,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -112,7 +112,7 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 
 	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branching.getBranches().entrySet()) {
 	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
-		if (e.getValue().evaluateSMT(SMTUtils.compose(vars, pval, constants))) {
+		if (e.getValue().evaluateSMT(SMTUtil.compose(vars, pval, constants))) {
 		    return e.getKey();
 		}
 	    }

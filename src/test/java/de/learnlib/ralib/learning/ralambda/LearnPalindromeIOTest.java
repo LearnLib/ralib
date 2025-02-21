@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -60,7 +59,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             teachers.put(t, theory);
         });
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);

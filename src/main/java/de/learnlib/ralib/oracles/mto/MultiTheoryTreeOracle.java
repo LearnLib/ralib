@@ -30,8 +30,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.ralib.smt.SMTUtils;
-import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
+import de.learnlib.ralib.smt.SMTUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
@@ -571,7 +570,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         Expression<Boolean> expr = _sdt.getAcceptingPaths(constants);
     	if (expr.equals(ExpressionUtil.FALSE))
     		return false;
-    	for (SymbolicDataValue sdv : SMTUtils.getSymbolicDataValues(expr)) {
+    	for (SymbolicDataValue sdv : SMTUtil.getSymbolicDataValues(expr)) {
     		if (sdv instanceof Register && mapping.get(sdv) == null) {
     			Theory teach = teachers.get(sdv.getDataType());
     			List<DataValue> values = new ArrayList<>();
@@ -582,7 +581,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		}
     	}
 
-    	return expr.evaluateSMT(SMTUtils.compose(mapping));
+    	return expr.evaluateSMT(SMTUtil.compose(mapping));
     }
 
     public Map<DataType, Theory> getTeachers() {

@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,7 +195,7 @@ public class AutomatonBuilder {
     	ParValuation pars = new ParValuation(dw);
     	VarValuation vars = DataWords.computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
     	for (Expression<Boolean> g : branches.values()) {
-    		if (g.evaluateSMT(SMTUtils.compose(vars, pars, consts))) {
+    		if (g.evaluateSMT(SMTUtil.compose(vars, pars, consts))) {
     			return g;
     		}
     	}

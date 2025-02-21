@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
@@ -108,7 +107,7 @@ public class LearnPadlock extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(DIGIT, new IntegerEqualityTheory(DIGIT));
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);

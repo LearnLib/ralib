@@ -11,8 +11,6 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -63,7 +61,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 	IOCache ioCache = new IOCache(ioOracle);
 	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto =
 	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
@@ -120,7 +118,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         teachers.put(doubleType, dit);
 
         Measurements m = new Measurements();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         QueryStatistics stats = new QueryStatistics(m, ioCache);
         MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, jsolv), m);
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
