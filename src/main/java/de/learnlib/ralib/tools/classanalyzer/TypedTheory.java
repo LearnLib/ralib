@@ -23,9 +23,8 @@ import de.learnlib.ralib.theory.Theory;
 /**
  *
  * @author falk
- * @param <T>
  */
-public interface TypedTheory<T> extends Theory<T> {
+public interface TypedTheory extends Theory {
 
     public void setType(DataType type);
 

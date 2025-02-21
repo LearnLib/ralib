@@ -21,9 +21,12 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -43,8 +46,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -66,7 +68,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
@@ -85,9 +87,9 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)),
+                        new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
+                        new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         PrefixFinder pf = new PrefixFinder(
                 mto,
@@ -110,7 +112,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
@@ -127,14 +129,14 @@ public class PrefixFinderTest extends RaLibTestSuite {
         // System.out.println(hyp);
 
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)));
         DTLeaf leaf = ralambda.getDT().getLeaf(shortPrefix);
         leaf.elevatePrefix(ralambda.getDT(), shortPrefix, hyp, slo);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)));
 
         PrefixFinder pf = new PrefixFinder(
                 mto,

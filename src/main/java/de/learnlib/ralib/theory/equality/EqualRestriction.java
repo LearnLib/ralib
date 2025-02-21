@@ -23,12 +23,12 @@ public class EqualRestriction extends SuffixValueRestriction {
 
 	public EqualRestriction(EqualRestriction other) {
 		super(other);
-		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId());
+		equalParam = new SuffixValue(other.equalParam.getDataType(), other.equalParam.getId());
 	}
 
 	public EqualRestriction(EqualRestriction other, int shift) {
 		super(other, shift);
-		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId()+shift);
+		equalParam = new SuffixValue(other.equalParam.getDataType(), other.equalParam.getId()+shift);
 	}
 
 	@Override

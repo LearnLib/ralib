@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import gov.nasa.jpf.constraints.api.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -298,7 +299,7 @@ public class Component implements LocationComponent {
         sb.append("******** BRANCHING: ").append("\n");
         for (Entry<ParameterizedSymbol, Branching> b : branching.entrySet()) {
              sb.append(b.getKey()).append(":\n");
-             for (Entry<Word<PSymbolInstance>, TransitionGuard> e :
+             for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e :
                      b.getValue().getBranches().entrySet()) {
                  sb.append(e.getKey()).append(" -> ").append(e.getValue()).append("\n");
              }

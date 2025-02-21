@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -26,8 +29,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -50,7 +52,7 @@ public class TestDistinguishingSuffixOptimization {
 		RALocation l4 = ra.addState(false);
 		RALocation l5 = ra.addState(true);
 
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         Assignment noAssign = new Assignment(noMapping);
@@ -81,7 +83,7 @@ public class TestDistinguishingSuffixOptimization {
 
 	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+	    ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
 	    MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 

@@ -16,11 +16,13 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -39,7 +41,6 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -78,7 +79,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -97,8 +98,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol o481 = new OutputSymbol(
                 "O481", new DataType[] {intType});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IPRACK[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -147,7 +148,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         String guards = Arrays.toString(b.getBranches().values().toArray());
         logger.log(Level.FINE, "Guards: {0}", guards);
 
-        final String expected = "[(r2==p1), (r2!=p1)]";
+        final String expected = "[('r2' == 'p1'), ('r2' != 'p1')]";
         Assert.assertEquals(guards, expected);
     }
 

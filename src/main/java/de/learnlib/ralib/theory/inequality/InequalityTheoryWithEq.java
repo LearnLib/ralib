@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
+import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toVariable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +60,9 @@ import net.automatalib.word.Word;
 /**
  *
  * @author Sofia Cassel
- * @param<T>
+
  */
-public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
+public abstract class InequalityTheoryWithEq implements Theory {
 
 //    private static final LearnLogger LOGGER
 //            = LearnLogger.getLogger(InequalityTheoryWithEq.class);
@@ -813,7 +813,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             if (mg instanceof SDTIfGuard) {
                 //LOGGER.trace(mg.toString());
                 SymbolicDataValue r = ((SDTIfGuard) mg).getRegister();
-                Parameter p = new Parameter(r.getType(), r.getId());
+                Parameter p = new Parameter(r.getDataType(), r.getId());
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
@@ -821,7 +821,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 IntervalGuard iGuard = (IntervalGuard) mg;
                 if (!iGuard.isBiggerGuard()) {
                     SymbolicDataValue r = iGuard.getRightReg();
-                    Parameter p = new Parameter(r.getType(), r.getId());
+                    Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
                         ret.put(p, (Register) r);
                     }
@@ -829,7 +829,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 }
                 if (!iGuard.isSmallerGuard()) {
                     SymbolicDataValue r = iGuard.getLeftReg();
-                    Parameter p = new Parameter(r.getType(), r.getId());
+                    Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
                         ret.put(p, (Register) r);
                     }
@@ -837,7 +837,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             } else if (mg instanceof SDTOrGuard) {
                 Set<SymbolicDataValue> rSet = ((SDTOrGuard) mg).getAllRegs();
                 for (SymbolicDataValue r : rSet) {
-                    Parameter p = new Parameter(r.getType(), r.getId());
+                    Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
                         ret.put(p, (Register) r);
                     }
@@ -862,7 +862,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         int pId = values.size() + 1;
         List<SymbolicDataValue> regPotential = new ArrayList<>();
         SuffixValue sv = suffix.getDataValue(pId);
-        DataType type = sv.getType();
+        DataType type = sv.getDataType();
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
@@ -870,13 +870,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
         Map<SDTGuard, SDT> tempKids = new LinkedHashMap<>();
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
-                constants.<T>values(type),
-                DataWords.<T>valSet(prefix, type),
-                suffixValues.<T>values(type));
+        Collection<DataValue> potSet = DataWords.joinValsToSet(
+                constants.values(type),
+                DataWords.valSet(prefix, type),
+                suffixValues.values(type));
 
-        List<DataValue<T>> potList = new ArrayList<>(potSet);
-        List<DataValue<T>> potential = getPotential(potList);
+        List<DataValue> potList = new ArrayList<>(potSet);
+        List<DataValue> potential = getPotential(potList);
         // WE ASSUME THE POTENTIAL IS SORTED
 
         int potSize = potential.size();
@@ -885,7 +885,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         if (potential.isEmpty()) {
 //            System.out.println("empty potential");
             WordValuation elseValues = new WordValuation();
-            DataValue<T> fresh = getFreshValue(potential);
+            DataValue fresh = getFreshValue(potential);
             elseValues.putAll(values);
             elseValues.put(pId, fresh);
 
@@ -910,13 +910,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             smSuffixValues.putAll(suffixValues);
 
             Valuation smVal = new Valuation();
-            DataValue<T> dvRight = potential.get(0);
+            DataValue dvRight = potential.get(0);
             IntervalGuard sguard = makeSmallerGuard(
                     dvRight, prefixValues, currentParam, smValues, piv);
             SymbolicDataValue rsm = sguard.getRightReg();
 //            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
-            smVal.setValue(toVariable(rsm), dvRight.getId());
-            DataValue<T> smcv = instantiate(
+            smVal.setValue(rsm, dvRight.getValue());
+            DataValue smcv = instantiate(
                     sguard, smVal, constants, potential);
             smValues.put(pId, smcv);
             smSuffixValues.put(sv, smcv);
@@ -934,13 +934,13 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
             Valuation bgVal = new Valuation();
 
-            DataValue<T> dvLeft = potential.get(potSize - 1);
+            DataValue dvLeft = potential.get(potSize - 1);
             IntervalGuard bguard = makeBiggerGuard(
                     dvLeft, prefixValues, currentParam, bgValues, piv);
             SymbolicDataValue rbg = bguard.getLeftReg();
 
-            bgVal.setValue(toVariable(rbg), dvLeft.getId());
-            DataValue<T> bgcv = instantiate(
+            bgVal.setValue(rbg, dvLeft.getValue());
+            DataValue bgcv = instantiate(
                     bguard, bgVal, constants, potential);
             bgValues.put(pId, bgcv);
             bgSuffixValues.put(sv, bgcv);
@@ -959,8 +959,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     currentSuffixValues.putAll(suffixValues);
                     //SDTGuard guard;
                     Valuation val = new Valuation();
-                    DataValue<T> dvMRight = potential.get(i);
-                    DataValue<T> dvMLeft = potential.get(i - 1);
+                    DataValue dvMRight = potential.get(i);
+                    DataValue dvMLeft = potential.get(i - 1);
 
 //                    IntervalGuard smallerGuard = makeSmallerGuard(
 //                            dvMRight, prefixValues,
@@ -976,10 +976,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                     SymbolicDataValue rs = intervalGuard.getRightReg();
                     SymbolicDataValue rb = intervalGuard.getLeftReg();
 
-                    val.setValue(toVariable(rs), dvMRight.getId());
-                    val.setValue(toVariable(rb), dvMLeft.getId());
+                    val.setValue(rs, dvMRight.getValue());
+                    val.setValue(rb, dvMLeft.getValue());
 
-                    DataValue<T> cv = instantiate(
+                    DataValue cv = instantiate(
                             intervalGuard, val, constants, potential);
                     currentValues.put(pId, cv);
                     currentSuffixValues.put(sv, cv);
@@ -994,7 +994,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 }
             }
 //            System.out.println("eq potential is: " + potential);
-            for (DataValue<T> newDv : potential) {
+            for (DataValue newDv : potential) {
 //                LOGGER.trace(newDv.toString());
 
                 // this is the valuation of the suffixvalues in the suffix
@@ -1047,12 +1047,12 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         return returnSDT;
     }
 
-    private EqualityGuard pickupDataValue(DataValue<T> newDv,
+    private EqualityGuard pickupDataValue(DataValue newDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, Constants constants) {
-        DataType type = currentParam.getType();
+        DataType type = currentParam.getDataType();
         int newDv_i;
-        for (Map.Entry<SymbolicDataValue.Constant, DataValue<?>> entry : constants.entrySet()) {
+        for (Map.Entry<SymbolicDataValue.Constant, DataValue> entry : constants.entrySet()) {
             if (entry.getValue().equals(newDv)) {
                 return new EqualityGuard(currentParam, entry.getKey());
             }
@@ -1070,10 +1070,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    private IntervalGuard makeSmallerGuard(DataValue<T> smallerDv,
+    private IntervalGuard makeSmallerGuard(DataValue smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
-        DataType type = currentParam.getType();
+        DataType type = currentParam.getDataType();
         int newDv_i;
         if (prefixValues.contains(smallerDv)) {
             newDv_i = prefixValues.indexOf(smallerDv) + 1;
@@ -1096,8 +1096,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    private IntervalGuard makeIntervalGuard(DataValue<T> biggerDv,
-            DataValue<T> smallerDv,
+    private IntervalGuard makeIntervalGuard(DataValue biggerDv,
+            DataValue smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
         IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir);
@@ -1105,10 +1105,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         return new IntervalGuard(currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
     }
 
-    private IntervalGuard makeBiggerGuard(DataValue<T> biggerDv,
+    private IntervalGuard makeBiggerGuard(DataValue biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, PIV pir) {
-        DataType type = currentParam.getType();
+        DataType type = currentParam.getDataType();
         int newDv_i;
         if (prefixValues.contains(biggerDv)) {
             newDv_i = prefixValues.indexOf(biggerDv) + 1;
@@ -1131,7 +1131,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
+    public abstract List<DataValue> getPotential(List<DataValue> vals);
 
     private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
             List<DataValue> prefixValues, Constants constants,
@@ -1143,7 +1143,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             int idx = p.getId();
             return prefixValues.get(idx - 1);
         } else if (r.isSuffixValue()) {
-            Parameter p = new Parameter(r.getType(), r.getId());
+            Parameter p = new Parameter(r.getDataType(), r.getId());
             return pval.get(p);
         } else if (r.isConstant()) {
             return constants.get((SymbolicDataValue.Constant) r);
@@ -1152,8 +1152,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
         }
     }
 
-    public abstract DataValue<T> instantiate(SDTGuard guard, Valuation val,
-            Constants constants, Collection<DataValue<T>> alreadyUsedValues);
+    public abstract DataValue instantiate(SDTGuard guard, Valuation val,
+            Constants constants, Collection<DataValue> alreadyUsedValues);
 
     @Override
     public DataValue instantiate(
@@ -1163,10 +1163,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
             Constants constants,
             SDTGuard guard,
             Parameter param,
-            Set<DataValue<T>> oldDvs) {
+            Set<DataValue> oldDvs) {
 
-        DataType type = param.getType();
-        DataValue<T> returnThis = null;
+        DataType type = param.getDataType();
+        DataValue returnThis = null;
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
 
 //        LOGGER.trace("prefix values : " + prefixValues.toString());
@@ -1182,48 +1182,48 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
                 returnThis = prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
                 Parameter p = new Parameter(type, ereg.getId());
-                returnThis = (DataValue<T>) pval.get(p);
+                returnThis = (DataValue) pval.get(p);
             } else if (ereg.isConstant()) {
-                returnThis = (DataValue<T>) constants.get((SymbolicDataValue.Constant) ereg);
+                returnThis = (DataValue) constants.get((SymbolicDataValue.Constant) ereg);
             }
         } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 
-            Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
-                    constants.<T>values(type),
-                    DataWords.<T>valSet(prefix, type),
-                    pval.<T>values(type));
+            Collection<DataValue> potSet = DataWords.joinValsToSet(
+                    constants.values(type),
+                    DataWords.valSet(prefix, type),
+                    pval.values(type));
 
             returnThis = this.getFreshValue(new ArrayList<>(potSet));
         } else {
-            Collection<DataValue<T>> alreadyUsedValues
-                    = DataWords.<T>joinValsToSet(
-                            constants.<T>values(type),
-                            DataWords.<T>valSet(prefix, type),
-                            pval.<T>values(type));
+            Collection<DataValue> alreadyUsedValues
+                    = DataWords.joinValsToSet(
+                            constants.values(type),
+                            DataWords.valSet(prefix, type),
+                            pval.values(type));
             Valuation val = new Valuation();
             //System.out.println("already used = " + alreadyUsedValues);
             if (guard instanceof IntervalGuard) {
                 IntervalGuard iGuard = (IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {
                     SymbolicDataValue r = iGuard.getRightReg();
-                    DataValue<T> regVal = getRegisterValue(r, piv,
+                    DataValue regVal = getRegisterValue(r, piv,
                             prefixValues, constants, pval);
 
-                    val.setValue(toVariable(r), regVal.getId());
+                    val.setValue(r, regVal.getValue());
                 }
                 if (!iGuard.isSmallerGuard()) {
                     SymbolicDataValue l = iGuard.getLeftReg();
                     DataValue regVal = getRegisterValue(l, piv,
                             prefixValues, constants, pval);
 
-                    val.setValue(toVariable(l), regVal.getId());
+                    val.setValue(l, regVal.getValue());
                 }
                 //instantiate(guard, val, param, constants);
             } else if (guard instanceof SDTIfGuard) {
                 SymbolicDataValue r = ((SDTIfGuard) guard).getRegister();
-                DataValue<T> regVal = getRegisterValue(r, piv,
+                DataValue regVal = getRegisterValue(r, piv,
                         prefixValues, constants, pval);
-                val.setValue(toVariable(r), regVal.getId());
+                val.setValue(r, regVal.getValue());
             } else if (guard instanceof SDTOrGuard) {
                 SDTGuard iGuard = ((SDTOrGuard) guard).getGuards().get(0);
 
@@ -1242,7 +1242,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //                        }
 //                    } else if (iGuard instanceof SDTIfGuard) {
 //                        SymbolicDataValue r = ((SDTIfGuard) iGuard).getRegister();
-//                        DataValue<T> regVal = getRegisterValue(r, piv,
+//                        DataValue regVal = getRegisterValue(r, piv,
 //                                prefixValues, constants, pval);
 //                        val.setValue(r.toVariable(), regVal);
 //                    }
@@ -1250,10 +1250,10 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //            }
             if (!(oldDvs.isEmpty())) {
 //                System.out.println("old dvs: " + oldDvs);
-                for (DataValue<T> oldDv : oldDvs) {
+                for (DataValue oldDv : oldDvs) {
                     Valuation newVal = new Valuation();
                     newVal.putAll(val);
-                    newVal.setValue(toVariable( new SuffixValue(param.getType(), param.getId()) ), oldDv.getId());
+                    newVal.setValue( new SuffixValue(param.getDataType(), param.getId()) , oldDv.getValue());
 //            System.out.println("instantiating " + guard + " with " + newVal);
                     DataValue inst = instantiate(guard, newVal, constants, alreadyUsedValues);
                     if (inst != null) {
@@ -1293,22 +1293,22 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //        } else if ((guard instanceof SDTTrueGuard)
 //                || guard instanceof DisequalityGuard) {
 //
-//            Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(
-//                    constants.<T>values(type),
-//                    DataWords.<T>valSet(prefix, type),
-//                    pval.<T>values(type));
+//            Collection<DataValue> potSet = DataWords.joinValsToSet(
+//                    constants.values(type),
+//                    DataWords.valSet(prefix, type),
+//                    pval.values(type));
 //
-//            return this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+//            return this.getFreshValue(new ArrayList<DataValue>(potSet));
 //        } else {
-//            Collection<DataValue<T>> alreadyUsedValues
-//                    = DataWords.<T>joinValsToSet(
-//                            constants.<T>values(type),
-//                            DataWords.<T>valSet(prefix, type),
-//                            pval.<T>values(type));
+//            Collection<DataValue> alreadyUsedValues
+//                    = DataWords.joinValsToSet(
+//                            constants.values(type),
+//                            DataWords.valSet(prefix, type),
+//                            pval.values(type));
 //            Valuation val = new Valuation();
 //            if (guard instanceof SDTIfGuard) {
 //                SymbolicDataValue r = (((SDTIfGuard) guard).getRegister());
-//                DataValue<T> regVal = getRegisterValue(r, piv,
+//                DataValue regVal = getRegisterValue(r, piv,
 //                        prefixValues, constants, pval);
 //
 //                val.setValue(r.toVariable(), regVal);
@@ -1316,7 +1316,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 //            } else if (guard instanceof SDTMultiGuard) {
 //                for (SDTIfGuard ifGuard : ((SDTMultiGuard) guard).getGuards()) {
 //                    SymbolicDataValue r = ifGuard.getRegister();
-//                    DataValue<T> regVal = getRegisterValue(r, piv,
+//                    DataValue regVal = getRegisterValue(r, piv,
 //                            prefixValues, constants, pval);
 //                    val.setValue(r.toVariable(), regVal);
 //                }

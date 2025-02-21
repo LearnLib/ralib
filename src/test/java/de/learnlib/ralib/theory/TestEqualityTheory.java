@@ -23,10 +23,12 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -44,7 +46,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -65,21 +67,21 @@ public class TestEqualityTheory extends RaLibTestSuite {
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), new SimpleConstraintSolver());
+                oracle, theories, new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
 
         // create a symbolic suffix from the concrete suffix

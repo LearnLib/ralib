@@ -64,11 +64,9 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**
- *
  * @author falk and sofia
- * @param <T>
  */
-public abstract class EqualityTheory<T> implements Theory<T> {
+public abstract class EqualityTheory implements Theory {
 
     protected boolean useNonFreeOptimization;
 
@@ -91,7 +89,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         this(false);
     }
 
-    public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
+    public List<DataValue> getPotential(List<DataValue> vals) {
         return vals;
     }
 
@@ -145,7 +143,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (mg instanceof EqualityGuard) {
                 LOGGER.trace(mg.toString());
                 SymbolicDataValue r = ((EqualityGuard) mg).getRegister();
-                Parameter p = new Parameter(r.getType(), r.getId());
+                Parameter p = new Parameter(r.getDataType(), r.getId());
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
@@ -162,22 +160,22 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         int pId = values.size() + 1;
 
         SuffixValue currentParam = suffix.getSuffixValue(pId);
-        DataType type = currentParam.getType();
+        DataType type = currentParam.getDataType();
 
         Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
-                DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
+        Collection<DataValue> potSet = DataWords.joinValsToSet(constants.values(type),
+                DataWords.valSet(prefix, type), suffixValues.values(type));
 
-        List<DataValue<T>> potList = new ArrayList<>(potSet);
-        List<DataValue<T>> potential = getPotential(potList);
+        List<DataValue> potList = new ArrayList<>(potSet);
+        List<DataValue> potential = getPotential(potList);
 
-        DataValue<T> fresh = getFreshValue(potential);
+        DataValue fresh = getFreshValue(potential);
 
-        List<DataValue<T>> equivClasses = new ArrayList<>(potSet);
+        List<DataValue> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
-        EquivalenceClassFilter<T> eqcFilter = new EquivalenceClassFilter<T>(equivClasses, useNonFreeOptimization);
-        List<DataValue<T>> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
+        EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useNonFreeOptimization);
+        List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
         assert filteredEquivClasses.size() > 0;
 
         // TODO: integrate fresh-value optimization with restrictions
@@ -236,7 +234,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
         LOGGER.trace("prefix list    " + prefixValues.toString());
 
         List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
-        for (DataValue<T> newDv : potential) {
+        for (DataValue newDv : potential) {
         	if (filteredEquivClasses.contains(newDv)) {
 	            LOGGER.trace(newDv.toString());
 
@@ -311,11 +309,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     }
 
     // construct equality guard by picking up a data value from the prefix
-    private EqualityGuard pickupDataValue(DataValue<T> newDv, List<DataValue> prefixValues, SuffixValue currentParam,
+    private EqualityGuard pickupDataValue(DataValue newDv, List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, Constants constants) {
-        DataType type = currentParam.getType();
+        DataType type = currentParam.getDataType();
         int newDv_i;
-        for (Map.Entry <Constant, DataValue<?>> entry : constants.entrySet()) {
+        for (Map.Entry <Constant, DataValue> entry : constants.entrySet()) {
             if (entry.getValue().equals(newDv)) {
                 return new EqualityGuard(currentParam, entry.getKey());
             }
@@ -340,11 +338,11 @@ public abstract class EqualityTheory<T> implements Theory<T> {
     @Override
     // instantiate a parameter with a data value
     public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-            Constants constants, SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs) {
+            Constants constants, SDTGuard guard, Parameter param, Set<DataValue> oldDvs) {
 
-        List<DataValue<?>> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
+        List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace("prefix values : " + prefixValues.toString());
-        DataType type = param.getType();
+        DataType type = param.getDataType();
         Deque<SDTGuard> guards = new LinkedList<>();
         guards.add(guard);
 
@@ -372,15 +370,15 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             }
         }
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
-                pval.<T>values(type));
+        Collection<DataValue> potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type),
+                pval.values(type));
 
         if (!potSet.isEmpty()) {
             LOGGER.trace("potSet = " + potSet.toString());
         } else {
             LOGGER.trace("potSet is empty");
         }
-        DataValue<T> fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue fresh = this.getFreshValue(new ArrayList<DataValue>(potSet));
         LOGGER.trace("fresh = " + fresh.toString());
         return fresh;
 
@@ -417,7 +415,7 @@ public abstract class EqualityTheory<T> implements Theory<T> {
             if (base + a.getArity() > values.size()) {
                 break;
             }
-            DataValue<?>[] vals = new DataValue[a.getArity()];
+            DataValue[] vals = new DataValue[a.getArity()];
             for (int i = 0; i < a.getArity(); i++) {
                 vals[i] = values.get(base + i + 1);
             }

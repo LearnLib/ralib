@@ -35,10 +35,12 @@ package de.learnlib.ralib.oracles.mto;
  * MA 02110-1301  USA
  */
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -59,7 +61,7 @@ import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -99,7 +101,7 @@ public class UntypedBranchingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -112,8 +114,8 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         ParameterizedSymbol ok = new OutputSymbol(
                 "OOK", new DataType[] {});
 
-        DataValue u = new DataValue(intType, 0);
-        DataValue p = new DataValue(intType, 1);
+        DataValue u = new DataValue(intType, BigDecimal.ZERO);
+        DataValue p = new DataValue(intType, BigDecimal.ONE);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(reg, new DataValue[] {u, p}),

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.example.keygen;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,22 +28,22 @@ import java.util.TreeSet;
  */
 public class KeyGenMap {
 
-    private final Set<Integer> known = new TreeSet<>();
+    private final Set<BigDecimal> known = new TreeSet<>();
 
-    private final Map<Integer,Integer> objects = new HashMap<>();
+    private final Map<BigDecimal,BigDecimal> objects = new HashMap<>();
 
-    public Integer put(Integer o) {
+    public BigDecimal put(BigDecimal o) {
         known.add(o);
         if (objects.size() > 0) {
             throw new IllegalStateException();
         }
-        Integer newKey = known.size();
+        BigDecimal newKey = new BigDecimal(known.size());
         known.add(newKey);
         objects.put(newKey, o);
         return newKey;
     }
 
-    public Integer get(Integer o) {
+    public BigDecimal get(BigDecimal o) {
         known.add(o);
         return objects.get(o);
     }

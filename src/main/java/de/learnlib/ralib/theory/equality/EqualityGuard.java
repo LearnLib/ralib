@@ -35,6 +35,7 @@ import de.learnlib.ralib.theory.SDTOrGuard;
  *
  * @author falk
  */
+@Deprecated
 public class EqualityGuard extends SDTIfGuard {
 
     public EqualityGuard(SuffixValue param, SymbolicDataValue reg) {

@@ -72,7 +72,7 @@ public class MappedPrefix implements PrefixContainer {
 		for (Entry<Parameter, Register> e : piv.entrySet()) {
 			Register r = memorable.get(e.getKey());
 			if (r == null) {
-				r = regGen.next(e.getKey().getType());
+				r = regGen.next(e.getKey().getDataType());
 				memorable.put(e.getKey(), r);
 			}
 		}

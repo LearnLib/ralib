@@ -19,7 +19,9 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  * Register Automaton transitions have input symbols, and assignments.
@@ -30,7 +32,7 @@ public class Transition {
 
     protected final ParameterizedSymbol label;
 
-    protected final TransitionGuard guard;
+    protected final Expression<Boolean> guard;
 
     protected final RALocation source;
 
@@ -38,7 +40,7 @@ public class Transition {
 
     protected final Assignment assignment;
 
-    public Transition(ParameterizedSymbol label, TransitionGuard guard,
+    public Transition(ParameterizedSymbol label, Expression<Boolean> guard,
             RALocation source, RALocation destination, Assignment assignment) {
         this.label = label;
         this.guard = guard;
@@ -48,7 +50,7 @@ public class Transition {
     }
 
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
-        return guard.isSatisfied(registers, parameters, consts);
+        return guard.evaluateSMT(SMTUtils.compose(registers, parameters, consts));
     }
 
     public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
@@ -86,7 +88,7 @@ public class Transition {
     /**
      * @return the guard
      */
-    public TransitionGuard getGuard() {
+    public Expression<Boolean> getGuard() {
         return guard;
     }
 

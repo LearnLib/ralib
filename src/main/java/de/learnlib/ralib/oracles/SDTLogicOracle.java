@@ -25,6 +25,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -58,7 +59,7 @@ public interface SDTLogicOracle {
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
             SymbolicDecisionTree sdt1, PIV piv1,
             SymbolicDecisionTree sdt2, PIV piv2,
-            TransitionGuard guard, Word<PSymbolInstance> rep);
+                              Expression<Boolean> guard, Word<PSymbolInstance> rep);
 
     GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
     		SymbolicDecisionTree sdt1, PIV piv1,
@@ -73,20 +74,20 @@ public interface SDTLogicOracle {
      * @param pivRefined
      * @return
      */
-    boolean doesRefine(TransitionGuard refining, PIV pivRefining,
-            TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean doesRefine(Expression<Boolean> refining, PIV pivRefining,
+                       Expression<Boolean> refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
-    boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean areMutuallyExclusive(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
+			PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are equivalent (guard1 is true iff guard2 is true)
      */
-    boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean areEquivalent(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
+                          PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation);
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */

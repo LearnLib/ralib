@@ -29,6 +29,7 @@ import de.learnlib.ralib.data.VarMapping;
  * @param <Left>
  * @param <Right>
  */
+@Deprecated
 public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends SymbolicDataValue> extends GuardExpression {
 
     private final Left left;
@@ -44,7 +45,7 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
     }
 
     @Override
-    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue> val) {
 
         DataValue lv = val.get(left);
         DataValue rv = val.get(right);
@@ -107,12 +108,12 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
     }
 
     private boolean numCompare(DataValue l, DataValue r, Relation relation) {
-        if (!l.getType().equals(r.getType())) {
+        if (!l.getDataType().equals(r.getDataType())) {
             return false;
         }
 
-        Comparable lc = (Comparable) l.getId();
-        int result = lc.compareTo(r.getId());
+        Comparable lc = (Comparable) l.getValue();
+        int result = lc.compareTo(r.getValue());
         switch (relation) {
             case SMALLER:
                 return result < 0;

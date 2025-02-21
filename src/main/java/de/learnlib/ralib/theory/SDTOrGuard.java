@@ -28,6 +28,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 
+@Deprecated
 public class SDTOrGuard extends SDTMultiGuard {
 
     @Override

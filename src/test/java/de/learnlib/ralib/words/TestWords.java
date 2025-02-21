@@ -22,6 +22,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,13 +51,13 @@ public class TestWords extends RaLibTestSuite {
    @Test
     public void testSymbolicSuffix1() {
 
-        DataType intType = new DataType("int", int.class);
+        DataType intType = new DataType("int");
 
         ParameterizedSymbol a = new InputSymbol("a", new DataType[]{intType});
 
-        DataValue<Integer> i1 = new DataValue(intType, 1);
-        DataValue<Integer> i2 = new DataValue(intType, 2);
-        DataValue<Integer> i3 = new DataValue(intType, 3);
+        DataValue i1 = new DataValue(intType, BigDecimal.ONE);
+        DataValue i2 = new DataValue(intType, new BigDecimal(2));
+        DataValue i3 = new DataValue(intType, new BigDecimal(3));
 
         PSymbolInstance[] prefixSymbols = new PSymbolInstance[] {
             new PSymbolInstance(a, i1),
@@ -97,22 +98,22 @@ public class TestWords extends RaLibTestSuite {
 
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix);
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, symSuffix1);
@@ -123,8 +124,8 @@ public class TestWords extends RaLibTestSuite {
         logger.log(Level.FINE, "Sym. Suffix 1: {0}", symSuffix1);
         logger.log(Level.FINE, "Sym. Suffix 2: {0}", symSuffix2);
 
-        String expected1 = "((login[s1, s2]))[Unrestricted(s1), Unrestricted(s2)]";
-        String expected2 = "((logout[] login[s1, s2]))[Unrestricted(s1), Unrestricted(s2)]";
+        String expected1 = "((?login[T_uid, T_pwd]))[Unrestricted(s1), Unrestricted(s2)]";
+        String expected2 = "((?logout[] ?login[T_uid, T_pwd]))[Unrestricted(s1), Unrestricted(s2)]";
 
         Assert.assertEquals(symSuffix1.toString(), expected1);
         Assert.assertEquals(symSuffix2.toString(), expected2);

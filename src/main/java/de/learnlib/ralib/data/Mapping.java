@@ -31,7 +31,8 @@ import java.util.Set;
  * @param <K>
  * @param <V>
  */
-public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
+@Deprecated
+public class Mapping<K, V extends DataValue> extends LinkedHashMap<K, V>
         implements Iterable<Map.Entry<K, V>> {
 
     /**
@@ -41,11 +42,11 @@ public class Mapping<K, V extends DataValue<?>> extends LinkedHashMap<K, V>
      * @param type the type
      * @return
      */
-    public <T> Collection<DataValue<T>> values(DataType type) {
-        List<DataValue<T>> list = new ArrayList<>();
-        for (DataValue<?> v : values()) {
+    public <T> Collection<DataValue> values(DataType type) {
+        List<DataValue> list = new ArrayList<>();
+        for (DataValue v : values()) {
             if (v.type.equals(type)) {
-                list.add((DataValue<T>) v);
+                list.add(v);
             }
         }
         return list;

@@ -44,7 +44,7 @@ public class PathResult {
         for (Map.Entry<SymbolicDataValue.Parameter, SymbolicDataValue.Register> e : cpv.entrySet()) {
             SymbolicDataValue.Register r = this.memorable.get(e.getKey());
             if (r == null) {
-                r = regGen.next(e.getKey().getType());
+                r = regGen.next(e.getKey().getDataType());
                 memorable.put(e.getKey(), r);
             }
             relabelling.put(e.getValue(), r);

@@ -32,8 +32,8 @@ public class SymbolicWord {
 		return suffix;
 	}
 
-	public Mapping<SymbolicDataValue, DataValue<?>> computeValuation(Word<PSymbolInstance> concreteSuffix, PIV piv) {
-    	Mapping<SymbolicDataValue, DataValue<?>> vals = new Mapping<>();
+	public Mapping<SymbolicDataValue, DataValue> computeValuation(Word<PSymbolInstance> concreteSuffix, PIV piv) {
+    	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
 
     	SuffixValueGenerator svGen = new SuffixValueGenerator();
     	Word<ParameterizedSymbol> actions = suffix.getActions();

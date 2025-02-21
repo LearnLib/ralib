@@ -12,8 +12,10 @@ import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class DTHyp extends Hypothesis {
@@ -79,7 +81,7 @@ public class DTHyp extends Hypothesis {
 
             ParValuation pars = new ParValuation(psi);
 
-            Map<Word<PSymbolInstance>, TransitionGuard> candidates =
+            Map<Word<PSymbolInstance>, Expression<Boolean>> candidates =
             		current.getBranching(psi.getBaseSymbol()).getBranches();
 
             if (candidates == null) {
@@ -87,9 +89,9 @@ public class DTHyp extends Hypothesis {
             }
 
             boolean found = false;
-            for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : candidates.entrySet()) {
-            	TransitionGuard g = e.getValue();
-            	if (g.isSatisfied(vars, pars, this.constants)) {
+            for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : candidates.entrySet()) {
+				Expression<Boolean> g = e.getValue();
+            	if (g.evaluateSMT(SMTUtils.compose(vars, pars, this.constants))) {
             		Word<PSymbolInstance> w = e.getKey();
             		vars = current.getAssignment(w, dt.getLeaf(w)).compute(vars, pars, this.constants);
             		current = dt.getLeaf(w);

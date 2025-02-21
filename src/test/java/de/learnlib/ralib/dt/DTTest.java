@@ -5,9 +5,11 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -24,8 +26,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -35,12 +36,12 @@ public class DTTest {
 
 	private DT buildFullTreePrimesOnly(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(1))));
 		Word<PSymbolInstance> prePush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))));
 		Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-				new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))),
+				new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -94,7 +95,7 @@ public class DTTest {
 
 	private DT buildSimpleTree(TreeOracle oracle) {
 		Word<PSymbolInstance> prePop = Word.fromSymbols(
-				new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+				new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(1))));
 		Word<PSymbolInstance> epsilon = Word.epsilon();
 
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
@@ -135,7 +136,7 @@ public class DTTest {
 	      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	      teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	      ConstraintSolver solver = new SimpleConstraintSolver();
+	      ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
 	      MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
@@ -144,29 +145,29 @@ public class DTTest {
 
 	      Word<PSymbolInstance> prePush1Pop1 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH,
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue(T_INT, new BigDecimal(1))),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 1)));
+	                      new DataValue(T_INT, new BigDecimal(1))));
 
 	      Word<PSymbolInstance> prePush1Pop2 = Word.fromSymbols(
 	              new PSymbolInstance(I_PUSH,
-	                      new DataValue(T_INT, 1)),
+	                      new DataValue(T_INT, new BigDecimal(1))),
 	              new PSymbolInstance(I_POP,
-	                      new DataValue(T_INT, 2)));
+	                      new DataValue(T_INT, new BigDecimal(2))));
 
 	      Word<PSymbolInstance> prePushPushPop = Word.fromSymbols(
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 1)),
+	    				  new DataValue(T_INT, new BigDecimal(1))),
 	    		  new PSymbolInstance(I_PUSH,
-	    				  new DataValue(T_INT, 2)),
+	    				  new DataValue(T_INT, new BigDecimal(2))),
 	    		  new PSymbolInstance(I_POP,
-	    				  new DataValue(T_INT, 2)));
+	    				  new DataValue(T_INT, new BigDecimal(2))));
 
 	      Word<PSymbolInstance> accessEps = Word.epsilon();
 	      Word<PSymbolInstance> accessPop = Word.fromSymbols(
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT,new BigDecimal(1))));
 	      Word<PSymbolInstance> accessPush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,1)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT,new BigDecimal(1))));
 
 	      DTLeaf leafPush1Pop1 = dt.sift(prePush1Pop1, true);
 	      DTLeaf leafPush1Pop2 = dt.sift(prePush1Pop2, true);
@@ -180,10 +181,10 @@ public class DTTest {
 	      dt = buildSimpleTree(mto);
 	      int leavesBeforeDiscovery = dt.getLeaves().size();
 	      Word<PSymbolInstance> prePush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))));
 	      Word<PSymbolInstance> prePushPush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(1))),
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 	      DTLeaf newLeaf = dt.sift(prePush, true);
 
 	      Assert.assertEquals(dt.getLeaves().size(), leavesBeforeDiscovery + 1);
@@ -202,7 +203,7 @@ public class DTTest {
 	      final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	      teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	      ConstraintSolver solver = new SimpleConstraintSolver();
+	      ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
 	      MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
@@ -214,9 +215,9 @@ public class DTTest {
 	      DTHyp hyp = new DTHyp(consts, dt);
 
 	      Word<PSymbolInstance> prePush = Word.fromSymbols(
-	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+	    		  new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(0))));
 	      Word<PSymbolInstance> prePop = Word.fromSymbols(
-	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+	    		  new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(0))));
 	      Word<PSymbolInstance> eps = Word.epsilon();
 	      SymbolicSuffix suffPop = new SymbolicSuffix(eps, prePop);
 

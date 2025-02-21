@@ -27,6 +27,7 @@ import de.learnlib.ralib.data.VarMapping;
  *
  * @author falk
  */
+@Deprecated
 public class Negation extends GuardExpression {
 
     private final GuardExpression negated;
@@ -46,7 +47,7 @@ public class Negation extends GuardExpression {
     }
 
     @Override
-    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue> val) {
         return !negated.isSatisfied(val);
     }
 

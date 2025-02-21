@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -10,6 +11,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,8 +48,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -57,7 +62,7 @@ import net.automatalib.word.Word;
 
 public class TestUnknownMemorable extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType T_INT = new DataType("int");
 
 	private static final InputSymbol IPUT =
 			new InputSymbol("put", new DataType[] {T_INT});
@@ -107,12 +112,12 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
 		// guards
-		GuardExpression equal = new AtomicGuardExpression(r1, Relation.EQUALS, p1);
-		GuardExpression notEqual = new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1);
+		Expression<Boolean> equal = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+		Expression<Boolean> notEqual = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
 
-		TransitionGuard equalGuard = new TransitionGuard(equal);
-		TransitionGuard notEqualGuard = new TransitionGuard(notEqual);
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> equalGuard = equal;
+		Expression<Boolean> notEqualGuard = notEqual;
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		// assignments
 		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
@@ -188,7 +193,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+	    ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
 	    DataWordSUL sul = new SimulatorSUL(ra, teachers, consts);
         final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[]{});
@@ -208,25 +213,25 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         ralambda.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 1)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(OYES, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(OYES, new DataValue(T_INT, BigDecimal.ONE)));
         ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
 
         ralambda.learn();
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(IHELLO),
         		new PSymbolInstance(OHELLO),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(ONO, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(ONO, new DataValue(T_INT, BigDecimal.ZERO)));
         boolean acc = ralambda.getHypothesis().accepts(ce);
         if (!acc) {
         	ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
@@ -266,7 +271,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -326,7 +331,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -409,7 +414,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 				return null;
 			DataType[] dt = actionSymbols[idx].getPtypes();
 			PSymbolInstance psi = dt.length > 0 ?
-				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], dv[i])) :
+				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], new BigDecimal(dv[i]))) :
 				new PSymbolInstance(actionSymbols[idx]);
 			ce = ce.append(psi);
 		}

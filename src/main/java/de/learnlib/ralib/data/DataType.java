@@ -30,14 +30,8 @@ public final class DataType {
      */
     final String name;
 
-    /**
-     * base type
-     */
-    final Class base;
-
-    public DataType(String name, Class base) {
+    public DataType(String name) {
         this.name = name;
-        this.base = base;
     }
 
     @Override
@@ -66,7 +60,4 @@ public final class DataType {
         return name;
     }
 
-    public Class getBase() {
-        return base;
-    }
 }

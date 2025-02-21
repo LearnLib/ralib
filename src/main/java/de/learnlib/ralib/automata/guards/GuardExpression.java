@@ -29,11 +29,12 @@ import de.learnlib.ralib.data.VarMapping;
  * @author falk
  *
  */
+@Deprecated
 public abstract class GuardExpression {
 
     public abstract GuardExpression relabel(VarMapping relabelling);
 
-    public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val);
+    public abstract boolean isSatisfied(Mapping<SymbolicDataValue, DataValue> val);
 
     public Set<SymbolicDataValue> getSymbolicDataValues() {
         Set<SymbolicDataValue> set = new LinkedHashSet<>();

@@ -5,6 +5,7 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,8 +38,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -56,7 +57,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         Measurements mes = new Measurements();
 
@@ -77,8 +78,8 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -87,9 +88,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -110,7 +111,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver);
@@ -131,9 +132,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -142,8 +143,8 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -152,9 +153,9 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ONE)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
         ralambda.learn();
@@ -183,7 +184,7 @@ public class LearnStackTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);
@@ -204,10 +205,10 @@ public class LearnStackTest extends RaLibTestSuite {
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_POP, new DataValue(T_INT, 0)),
-                new PSymbolInstance(I_POP, new DataValue(T_INT, 0))
+                new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+                new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+                new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)),
+                new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO))
                 );
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
@@ -225,7 +226,7 @@ public class LearnStackTest extends RaLibTestSuite {
 	Constants consts = new Constants();
 	RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver =ConstraintSolverFactory.createZ3ConstraintSolver();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);

@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.tools;
 
-import static de.learnlib.ralib.tools.AbstractToolWithRandomWalk.OPTION_LOGGING_LEVEL;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -183,8 +181,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             String cstString = OPTION_CONSTANTS.parse(config);
             if (cstString != null) {
             	final SymbolicDataValueGenerator.ConstantGenerator cgen = new SymbolicDataValueGenerator.ConstantGenerator();
-            	DataValue<?>[] cstArray = super.parseDataValues(cstString, types);
-            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getType()), c));
+            	DataValue[] cstArray = super.parseDataValues(cstString, types);
+            	Arrays.stream(cstArray).forEach(c -> consts.put(cgen.next(c.getDataType()), c));
             }
 
             sulLearn = new ClasssAnalyzerDataWordSUL(target, methods, md, consts);

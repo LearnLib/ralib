@@ -42,12 +42,14 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  * Implementation of Symbolic Decision Trees.
  *
  * @author Sofia Cassel
  */
+@Deprecated
 public class SDT implements SymbolicDecisionTree {
 
     private final Map<SDTGuard, SDT> children;
@@ -184,8 +186,8 @@ public class SDT implements SymbolicDecisionTree {
         //return false;
     }
 
-    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue<?>> vals, Constants consts) {
-    	Mapping<SymbolicDataValue, DataValue<?>> mapping = new Mapping<SymbolicDataValue, DataValue<?>>();
+    public boolean isAccepting(Mapping<SymbolicDataValue, DataValue> vals, Constants consts) {
+    	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<SymbolicDataValue, DataValue>();
     	mapping.putAll(vals);
     	mapping.putAll(consts);
     	GuardExpression expr = getAcceptingPaths(consts);

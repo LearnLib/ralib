@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver.jconstraints;
+package de.learnlib.ralib.smt.jconstraints;
 
 import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.solver.*;
+import de.learnlib.ralib.smt.*;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 
@@ -38,9 +38,15 @@ public class JConstraintsConstraintSolver implements ConstraintSolver {
     }
 
     @Override
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val) {
         Expression<Boolean> jexpr = JContraintsUtil.toExpression(expr, val);
         Result r = solver.isSatisfiable(jexpr);
+        return r == Result.SAT;
+    }
+
+    @Override
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+        Result r = solver.isSatisfiable( JContraintsUtil.toExpression(expr, val));
         return r == Result.SAT;
     }
 

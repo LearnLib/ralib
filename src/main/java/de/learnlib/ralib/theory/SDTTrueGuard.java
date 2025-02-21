@@ -31,6 +31,7 @@ import de.learnlib.ralib.data.VarMapping;
  *
  * @author Stealth
  */
+@Deprecated
 public class SDTTrueGuard extends SDTGuard {
 
     public SDTTrueGuard(SymbolicDataValue.SuffixValue param) {

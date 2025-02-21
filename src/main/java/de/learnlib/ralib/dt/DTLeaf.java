@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
+import gov.nasa.jpf.constraints.api.Expression;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -323,17 +324,17 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     static public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching wordBranching, PIV wordPIV, Branching accBranching, PIV accPIV, SDTLogicOracle oracle) {
     	Word<PSymbolInstance> a = null;
-    	TransitionGuard g = null;
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : wordBranching.getBranches().entrySet()) {
+        Expression<Boolean> g = null;
+    	for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e : wordBranching.getBranches().entrySet()) {
     		if (e.getKey().equals(word)) {
     			g = e.getValue();
     			break;
     		}
     	}
 
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : accBranching.getBranches().entrySet()) {
-    		TransitionGuard ag = e.getValue();
-    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue<?>>());
+    	for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e : accBranching.getBranches().entrySet()) {
+            Expression<Boolean> ag = e.getValue();
+    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue>());
     		if (eq) {
     			a = e.getKey();
     			break;
@@ -635,7 +636,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             // remapping is null for prime rows ...
             Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter pNew = new Parameter(p.getDataType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
                 Register rOld = parsInVars_Src.get(p);

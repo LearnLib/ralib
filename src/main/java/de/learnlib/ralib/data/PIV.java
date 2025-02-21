@@ -48,9 +48,9 @@ public class PIV extends VarMapping<Parameter, Register> {
     public Map<DataType, Integer> typedSize() {
         Map<DataType, Integer> ret = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
-            Integer i = ret.get(p.getType());
+            Integer i = ret.get(p.getDataType());
             i = (i == null) ? 1 : i+1;
-            ret.put(p.getType(), i);
+            ret.put(p.getDataType(), i);
         }
         return ret;
     }
@@ -58,10 +58,10 @@ public class PIV extends VarMapping<Parameter, Register> {
     public Map<DataType, Parameter[]> asTypedArrays() {
         Map<DataType, List<Parameter>> tmp = new LinkedHashMap<>();
         for (Parameter p : keySet()) {
-            List<Parameter> list = tmp.get(p.getType());
+            List<Parameter> list = tmp.get(p.getDataType());
             if (list == null) {
                 list = new ArrayList<>();
-                tmp.put(p.getType(), list);
+                tmp.put(p.getDataType(), list);
             }
             list.add(p);
         }
@@ -79,7 +79,7 @@ public class PIV extends VarMapping<Parameter, Register> {
         for (Map.Entry<Parameter,Register> entry : this.entrySet()) {
 //            System.out.println("key = " + entry.getKey().toString());
 //            System.out.println("value = " + entry.getValue().toString());
-            if (entry.getValue().getId().equals(value.getId())){
+            if (entry.getValue().getId() == value.getId()){
 //                System.out.println(entry.getValue().toString() + " equals " + value.toString());
                 retKey = entry.getKey();
                 break;
@@ -105,7 +105,7 @@ public class PIV extends VarMapping<Parameter, Register> {
         for (Entry<Parameter, Register> e : this) {
             Register rep = to.get(e.getKey());
             if (rep == null) {
-                rep = new Register(e.getValue().getType(), id++);
+                rep = new Register(e.getValue().getDataType(), id++);
             }
             map.put(e.getValue(), rep);
         }

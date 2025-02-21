@@ -20,6 +20,7 @@ import java.util.Iterator;
 
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.word.Word;
 
 /**
@@ -27,7 +28,8 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue<?>> {
+@Deprecated
+public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue> {
 
     public ParValuation() {
 
@@ -36,7 +38,7 @@ public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue
     public ParValuation(PSymbolInstance psi) {
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataValue dv : psi.getParameterValues()) {
-            this.put(pgen.next(dv.getType()), dv);
+            this.put(pgen.next(dv.getDataType()), dv);
         }
     }
 
@@ -46,7 +48,7 @@ public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue
     	while (it.hasNext()) {
     		PSymbolInstance psi = it.next();
     		for (DataValue dv : psi.getParameterValues()) {
-    			put(pgen.next(dv.getType()), dv);
+    			put(pgen.next(dv.getDataType()), dv);
     		}
     	}
     }

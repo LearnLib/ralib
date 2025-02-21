@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.automata.guards;
 
+@Deprecated
 public enum Relation {
 
     SMALLER("<"),

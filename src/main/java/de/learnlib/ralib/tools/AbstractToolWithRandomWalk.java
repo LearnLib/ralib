@@ -17,6 +17,7 @@
 package de.learnlib.ralib.tools;
 
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -26,8 +27,8 @@ import com.google.gson.Gson;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -132,12 +133,6 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             = new ConfigurationOption.StringOption("teachers",
                     "Teachers. Format: type:class + type:class + ...", null, false);
 
-    protected static final ConfigurationOption.StringOption OPTION_SOLVER
-            = new  ConfigurationOption.StringOption("solver",
-                    "Constraints Solver. Options: " + ConstraintSolverFactory.ID_SIMPLE +
-                            ", " + ConstraintSolverFactory.ID_Z3 + ".",
-                            ConstraintSolverFactory.ID_SIMPLE, true);
-
     protected static final ConfigurationOption.StringOption OPTION_CONSTANTS
             = new ConfigurationOption.StringOption("constants",
             		"Regular constants of form [{\"type\":typeA,\"value\":\"valueA\"}, ...]",
@@ -197,8 +192,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             teacherClasses.put(pair.getFirst(), pair.getSecond());
         }
 
-        this.solver = ConstraintSolverFactory.createSolver(
-                OPTION_SOLVER.parse(config));
+        this.solver = ConstraintSolverFactory.createZ3ConstraintSolver();
     }
 
     private Pair<String, TypedTheory> parseTeacherConfig(String config)
@@ -240,7 +234,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
     		if (type.getName().compareTo(this.type) != 0) {
     			throw new RuntimeException("Type name mismatch");
     		}
-        	DataValue dv = new DataValue(type, DataValue.valueOf(value, type.getBase()));
+        	DataValue dv = new DataValue(type, new BigDecimal(value));
         	return dv;
     	}
     }

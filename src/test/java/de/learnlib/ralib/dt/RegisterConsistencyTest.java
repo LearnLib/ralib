@@ -1,5 +1,6 @@
 package de.learnlib.ralib.dt;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import org.testng.Assert;
@@ -36,7 +37,7 @@ import net.automatalib.word.Word;
 
 public class RegisterConsistencyTest extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType T_INT = new DataType("int");
 
 	private static final InputSymbol A =
 			new InputSymbol("a", new DataType[] {T_INT});
@@ -104,16 +105,16 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 	@Test
 	public void testSymmetry() {
 		Word<PSymbolInstance> word = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ZERO)),
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)));
 		Word<PSymbolInstance> suffixWord = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ZERO)),
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)));
 		Word<PSymbolInstance> suffixExpected = Word.fromSymbols(
-				new PSymbolInstance(A, new DataValue(T_INT, 1)),
-				new PSymbolInstance(A, new DataValue(T_INT, 0)),
-				new PSymbolInstance(A, new DataValue(T_INT, 1)));
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ZERO)),
+				new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)));
 		Word<PSymbolInstance> prefix = word.prefix(2);
 		SymbolicSuffix symSuffixEps = new SymbolicSuffix(Word.epsilon(), Word.epsilon());
 		SymbolicSuffix symSuffixWord = new SymbolicSuffix(word, suffixWord);

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -74,8 +75,8 @@ public class OutputTest extends RaLibTestSuite {
         ParameterizedSymbol o100 = new OutputSymbol(
                 "O100", new DataType[] {intType});
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
         Word<PSymbolInstance> test1 = Word.fromSymbols(
                 new PSymbolInstance(inv, new DataValue[] {d0}),

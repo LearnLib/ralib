@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver.jconstraints;
+package de.learnlib.ralib.smt.jconstraints;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,17 +77,24 @@ public class JContraintsUtil {
         }
     }
 
-    public static Expression<Boolean> toExpression(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public static Expression<Boolean> toExpression(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         Expression<Boolean> guardExpr = toExpression(expr, map);
         Expression<Boolean> valExpr = toExpression(val, map);
         return ExpressionUtil.and(guardExpr, valExpr);
     }
 
-    public static Expression<Boolean> toExpression(Mapping<SymbolicDataValue, DataValue<?>> val, Map<SymbolicDataValue, Variable> map) {
+    public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+        Map<SymbolicDataValue, Variable> map = new HashMap<>();
+        //Expression<Boolean> guardExpr = toExpression(expr, map);
+        Expression<Boolean> valExpr = toExpression(val, map);
+        return ExpressionUtil.and(expr, valExpr);
+    }
+
+    public static Expression<Boolean> toExpression(Mapping<SymbolicDataValue, DataValue> val, Map<SymbolicDataValue, Variable> map) {
         Expression<Boolean>[] elems = new Expression[val.size()];
         int i = 0;
-        for (Map.Entry<SymbolicDataValue, DataValue<?>> entry : val.entrySet()) {
+        for (Map.Entry<SymbolicDataValue, DataValue> entry : val.entrySet()) {
             elems[i++] = new NumericBooleanExpression(getOrCreate(entry.getKey(), map), NumericComparator.EQ, toConstant(entry.getValue()));
         }
         return ExpressionUtil.and(elems);
@@ -147,17 +154,17 @@ public class JContraintsUtil {
 
     private static Variable getOrCreate(SymbolicDataValue dv,
             Map<SymbolicDataValue, Variable> map) {
-        Type jcType = getJCType(dv.getType().getBase());
         Variable ret = map.get(dv);
         if (ret == null) {
-            ret = new Variable(jcType, dv.toString());
+            // FIXME: superfluous!
+            ret = dv;
             map.put(dv, ret);
         }
         return ret;
     }
 
     public static Constant toConstant(DataValue v) {
-        return new Constant( getJCType(v.getType().getBase()), (v.getId()));
+        return new Constant( BuiltinTypes.DECIMAL, (v.getValue()));
     }
 
     public static Variable toVariable(DataValue v) {

@@ -22,6 +22,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.logging.Level;
 
 import org.testng.Assert;
@@ -50,18 +51,18 @@ public class LoginAutomatonTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> test2 = Word.epsilon();
         test2 = test2.append(new PSymbolInstance(I_REGISTER, new DataValue[] {
-                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+                new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, new BigDecimal(2) )}));
         test2 = test2.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
-                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+                new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, new BigDecimal(2) )}));
 
         logger.log(Level.FINE, "test2: {0}", test2);
         Assert.assertTrue(ra.accepts(test2));
 
         Word<PSymbolInstance> test3 = Word.epsilon();
         test3 = test3.append(new PSymbolInstance(I_REGISTER, new DataValue[] {
-                new DataValue(T_UID, 1), new DataValue(T_PWD, 2)}));
+                new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, new BigDecimal(2) )}));
         test3 = test3.append(new PSymbolInstance(I_LOGIN, new DataValue[] {
-                new DataValue(T_UID, 1), new DataValue(T_PWD, 3)}));
+                new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, new BigDecimal(3) )}));
 
         logger.log(Level.FINE, "test3: {0}", test3);
         Assert.assertFalse(ra.accepts(test3));

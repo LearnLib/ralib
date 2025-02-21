@@ -116,7 +116,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     private boolean compareRegister(
             VarValuation r1, VarValuation r2, Map<Object,Object> vMap) {
 
-        for (Map.Entry<Register,DataValue<?>> entry : r1.entrySet())
+        for (Map.Entry<Register,DataValue> entry : r1.entrySet())
         {
             DataValue v1 = entry.getValue();
             DataValue v2 = r2.get(entry.getKey());
@@ -130,8 +130,8 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             if (n1 || n2)
                 return false;
 
-            Object o1 = vMap.get(v1.getId());
-            if (o1 != null && !o1.equals(v2.getId())) {
+            Object o1 = vMap.get(v1.getValue());
+            if (o1 != null && !o1.equals(v2.getValue())) {
                 return false;
             }
 
@@ -142,7 +142,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                         return false;
                 }
             }
-            vMap.put(v1.getId(), v2.getId());
+            vMap.put(v1.getValue(), v2.getValue());
         }
 
         return true;
@@ -363,7 +363,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             ParameterizedSymbol ps, VarValuation r1,
             boolean checkForEqualParameters) {
 
-        Set<DataValue<?>> potential = new LinkedHashSet<>();
+        Set<DataValue> potential = new LinkedHashSet<>();
         potential.addAll(r1.values());
         //  this is maybe ok during learning
         //potential.addAll(r2.values());
@@ -373,7 +373,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         List<DataValue[]> valuations = new ArrayList<>();
         computeValuations(ps, valuations, potential,
-                new ArrayList<DataValue<?>>(),checkForEqualParameters);
+                new ArrayList<DataValue>(),checkForEqualParameters);
 
         List<Word<PSymbolInstance>> ret = new ArrayList<>();
         for (DataValue[] data : valuations) {
@@ -385,7 +385,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
     // FIXME: this work only for the equality case!!!!
     private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
-            Set<DataValue<?>> potential, List<DataValue<?>> val,
+            Set<DataValue> potential, List<DataValue> val,
             boolean checkForEqualParameters) {
 
         int idx = val.size();
@@ -407,17 +407,17 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         next.add(fresh);
 
         for (DataValue d : next) {
-            List<DataValue<?>> nextVal = new ArrayList<>(val);
+            List<DataValue> nextVal = new ArrayList<>(val);
             nextVal.add(d);
             computeValuations(ps, valuations, potential,
                     nextVal, checkForEqualParameters);
         }
     }
 
-    private Set<DataValue> valSet(Collection<DataValue<?>> in, DataType t) {
+    private Set<DataValue> valSet(Collection<DataValue> in, DataType t) {
         Set<DataValue> out = new LinkedHashSet<>();
         for (DataValue dv : in) {
-                if (dv.getType().equals(t)) {
+                if (dv.getDataType().equals(t)) {
                     out.add(dv);
                 }
             }

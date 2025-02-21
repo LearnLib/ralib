@@ -27,6 +27,7 @@ import de.learnlib.ralib.data.VarMapping;
  *
  * @author falk
  */
+@Deprecated
 public class FalseGuardExpression extends GuardExpression {
 
     public static final FalseGuardExpression FALSE = new FalseGuardExpression();
@@ -37,7 +38,7 @@ public class FalseGuardExpression extends GuardExpression {
     }
 
     @Override
-    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue<?>> val) {
+    public boolean isSatisfied(Mapping<SymbolicDataValue, DataValue> val) {
         return true;
     }
 

@@ -28,8 +28,8 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -61,7 +61,7 @@ public class LearnBoundedListTest {
     private Hypothesis learnBoundedListDWOracle(int size, boolean useNull, Word<PSymbolInstance>[] ces) {
         Constants consts = new Constants();
         if (useNull) {
-            consts.put(new Constant(INT_TYPE, 1), new DataValue<>(INT_TYPE, BoundedList.NULL_VALUE));
+            consts.put(new Constant(INT_TYPE, 1), new DataValue(INT_TYPE, BoundedList.NULL_VALUE));
         }
 
         BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(size, useNull));

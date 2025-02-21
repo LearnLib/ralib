@@ -2,10 +2,12 @@ package de.learnlib.ralib.theory;
 
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.*;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -18,7 +20,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+
 import de.learnlib.ralib.tools.theories.UniqueIntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -35,21 +37,21 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
         theories.put(T_PWD, new UniqueIntegerEqualityTheory(T_PWD));
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), new SimpleConstraintSolver());
+                oracle, theories, new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 1),
-                        new DataValue(T_PWD, 1)),
+                        new DataValue(T_UID, BigDecimal.ONE),
+                        new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 2),
-                        new DataValue(T_PWD, 2)));
+                        new DataValue(T_UID, new BigDecimal(2)),
+                        new DataValue(T_PWD, new BigDecimal(2))));
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 1),
-                        new DataValue(T_PWD, 1)));
+                        new DataValue(T_UID, BigDecimal.ONE),
+                        new DataValue(T_PWD, BigDecimal.ONE)));
 
 
         // create a symbolic suffix from the concrete suffix

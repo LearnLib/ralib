@@ -17,6 +17,7 @@
 package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.words.InputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
@@ -24,7 +25,7 @@ import de.learnlib.ralib.words.InputSymbol;
  */
 public class InputTransition extends Transition {
 
-    public InputTransition(TransitionGuard guard, InputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
+    public InputTransition(Expression<Boolean> guard, InputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
         super(label, guard, source, destination, assignment);
     }
 

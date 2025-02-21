@@ -25,11 +25,11 @@ public abstract class SuffixValueRestriction {
 	}
 
 	public SuffixValueRestriction(SuffixValueRestriction other) {
-		parameter = new SuffixValue(other.parameter.getType(), other.parameter.getId());
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId());
 	}
 
 	public SuffixValueRestriction(SuffixValueRestriction other, int shift) {
-		parameter = new SuffixValue(other.parameter.getType(), other.parameter.getId()+shift);
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId()+shift);
 	}
 
 	public SuffixValue getParameter() {
@@ -54,18 +54,18 @@ public abstract class SuffixValueRestriction {
 	 * @return
 	 */
 	public static SuffixValueRestriction genericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
-		DataValue<?>[] prefixVals = DataWords.valsOf(prefix);
-		DataValue<?>[] suffixVals = DataWords.valsOf(suffix);
+		DataValue[] prefixVals = DataWords.valsOf(prefix);
+		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
 		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
-		DataValue<?> val = suffixVals[sv.getId()-1];
+		DataValue val = suffixVals[sv.getId()-1];
 		int firstSymbolArity = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
 
 		boolean unrestricted = false;
 		for (int i = 0; i < prefixVals.length; i++) {
-			DataValue<?> dv = prefixVals[i];
+			DataValue dv = prefixVals[i];
 			DataType dt = prefixTypes[i];
-			if (dt.equals(sv.getType()) && dv.equals(val)) {
+			if (dt.equals(sv.getDataType()) && dv.equals(val)) {
 				unrestricted = true;
 			}
 		}
@@ -76,7 +76,7 @@ public abstract class SuffixValueRestriction {
 		int equalSV = -1;
 		for (int i = 0; i < sv.getId()-1 && !equalsSuffixValue; i++) {
 			DataType dt = suffixTypes[i];
-			if (dt.equals(sv.getType()) && suffixVals[i].equals(val)) {
+			if (dt.equals(sv.getDataType()) && suffixVals[i].equals(val)) {
 				if (sv.getId() <= firstSymbolArity) {
 					unrestricted = true;
 				} else {
@@ -88,7 +88,7 @@ public abstract class SuffixValueRestriction {
 
 		// case equal to previous suffix value
 		if (equalsSuffixValue && !unrestricted) {
-			SuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getType(), equalSV+1));
+			SuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getDataType(), equalSV+1));
 			return restr;
 		}
 		// case fresh
