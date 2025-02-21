@@ -1,14 +1,11 @@
 package de.learnlib.ralib.theory;
 
-import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toVariable;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,7 +19,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -44,7 +40,7 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
         dit.setUseSuffixOpt(false);
         teachers.put(type, dit);
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
         EqCRecordingOracle oracle = new EqCRecordingOracle();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 oracle, teachers, new Constants(), solver);
@@ -80,7 +76,7 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
 		dit.setUseSuffixOpt(false);
 		teachers.put(type, dit);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         EqCRecordingOracle oracle = new EqCRecordingOracle();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
         		oracle, teachers, new Constants(), jsolv);

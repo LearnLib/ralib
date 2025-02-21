@@ -13,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -44,7 +43,7 @@ public class MultiTheorySDTLogicOracleTest {
       teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
       teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-      ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+      ConstraintSolver solver = new ConstraintSolver();
 
       SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 

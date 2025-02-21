@@ -28,8 +28,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.smt.SMTUtils;
-import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -278,7 +277,7 @@ public class MultiTheoryBranching implements Branching {
     	Word<PSymbolInstance> prefix = null;
     	for (Map.Entry<Word<PSymbolInstance>,  Expression<Boolean>> e : branches.entrySet()) {
             Expression<Boolean> g = e.getValue();
-    		if (g.evaluateSMT(SMTUtils.compose(vars, vals, constants))) {
+    		if (g.evaluateSMT(SMTUtil.compose(vars, vals, constants))) {
     			prefix = e.getKey();
     			break;
     		}
@@ -288,14 +287,14 @@ public class MultiTheoryBranching implements Branching {
     }
 
     private Expression<Boolean>  renameSuffixValues(Expression<Boolean>  expr) {
-        Collection<SymbolicDataValue> svals = SMTUtils.getSymbolicDataValues(expr);
+        Collection<SymbolicDataValue> svals = SMTUtil.getSymbolicDataValues(expr);
         VarMapping vmap = new VarMapping();
         for (SymbolicDataValue sv : svals) {
             if (sv instanceof SuffixValue) {
                 vmap.put(sv, new Parameter(sv.getDataType(), sv.getId()));
             }
         }
-        return SMTUtils.renameVars(expr, vmap);
+        return SMTUtil.renameVars(expr, vmap);
     }
 
     @Override

@@ -8,7 +8,6 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -40,7 +39,7 @@ public class GeneratedHypothesesTest extends RaLibTestSuite {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);

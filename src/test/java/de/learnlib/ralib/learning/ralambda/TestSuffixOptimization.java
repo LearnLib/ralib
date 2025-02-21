@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,7 +52,7 @@ public class TestSuffixOptimization extends RaLibTestSuite {
 	IOCache ioCache = new IOCache(ioOracle);
 	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto =
 	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);

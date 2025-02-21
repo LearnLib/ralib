@@ -20,11 +20,10 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -39,7 +38,6 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 
-import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -127,7 +125,7 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
                 dwOracle, theories,
-                new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
+                new Constants(), new ConstraintSolver());
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
@@ -56,7 +55,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+	ConstraintSolver solver = new ConstraintSolver();
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
@@ -192,7 +191,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+	ConstraintSolver solver = new ConstraintSolver();
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 

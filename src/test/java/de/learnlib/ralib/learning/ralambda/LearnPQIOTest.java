@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -45,7 +46,6 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -103,7 +103,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
         logger.log(Level.FINE, "SEED={0}", seed);
         final Random random = new Random(seed);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(

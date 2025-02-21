@@ -18,8 +18,6 @@
  */
 package de.learnlib.ralib.tools.theories;
 
-import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toExpression;
-
 import java.math.BigDecimal;
 import java.util.*;
 

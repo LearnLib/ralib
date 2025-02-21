@@ -33,7 +33,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
@@ -189,7 +189,7 @@ public class SDT implements SymbolicDecisionTree {
     	mapping.putAll(vals);
     	mapping.putAll(consts);
         Expression<Boolean> expr = getAcceptingPaths(consts);
-    	return expr.evaluateSMT(SMTUtils.compose(mapping));
+    	return expr.evaluateSMT(SMTUtil.compose(mapping));
     }
 
     protected Map<SDTGuard, SDT> getChildren() {

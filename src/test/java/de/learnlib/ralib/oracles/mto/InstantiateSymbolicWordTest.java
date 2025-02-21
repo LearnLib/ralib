@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
@@ -51,7 +50,7 @@ public class InstantiateSymbolicWordTest {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
@@ -142,7 +141,7 @@ public class InstantiateSymbolicWordTest {
         DataWordOracle dwOracle = new SimulatorOracle(ra);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-              dwOracle, teachers, new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
+              dwOracle, teachers, new Constants(), new ConstraintSolver());
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
               new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ZERO)),

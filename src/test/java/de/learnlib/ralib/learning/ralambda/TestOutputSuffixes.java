@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -69,7 +68,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);

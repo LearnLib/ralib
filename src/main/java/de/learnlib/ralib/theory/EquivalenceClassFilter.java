@@ -12,7 +12,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -67,7 +67,7 @@ public class EquivalenceClassFilter {
 			ecMapping.putAll(mapping);
 			ecMapping.put(restr.getParameter(), ec);
 			//System.out.println(" -- " + expr + "  - " + ecMapping);
-			if (expr.evaluateSMT(SMTUtils.compose(ecMapping))) {
+			if (expr.evaluateSMT(SMTUtil.compose(ecMapping))) {
 				filtered.add(ec);
 			}
 		}

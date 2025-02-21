@@ -25,8 +25,6 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -68,7 +66,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
@@ -112,7 +110,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);

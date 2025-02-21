@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
@@ -213,7 +212,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
@@ -260,7 +259,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
@@ -311,7 +310,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);

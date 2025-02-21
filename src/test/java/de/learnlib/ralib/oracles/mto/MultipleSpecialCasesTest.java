@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -70,7 +70,7 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 

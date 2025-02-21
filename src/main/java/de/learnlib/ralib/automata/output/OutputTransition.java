@@ -29,7 +29,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.OutputSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
@@ -57,7 +57,7 @@ public class OutputTransition extends Transition {
 
     public boolean canBeEnabled(VarValuation registers, Constants consts) {
         // FIXME: this is not in general safe to do!! (We assume the guard to not have parameters)
-        return this.guard.evaluateSMT(SMTUtils.compose(registers, new ParValuation(), consts));
+        return this.guard.evaluateSMT(SMTUtil.compose(registers, new ParValuation(), consts));
     }
 
     @Override

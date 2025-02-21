@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
@@ -189,7 +188,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	    ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+	    ConstraintSolver solver = new ConstraintSolver();
 
 	    DataWordSUL sul = new SimulatorSUL(ra, teachers, consts);
         final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[]{});
@@ -267,7 +266,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -327,7 +326,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);

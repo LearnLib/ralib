@@ -28,7 +28,6 @@ import com.google.gson.Gson;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import de.learnlib.ralib.tools.config.Configuration;
 import de.learnlib.ralib.tools.config.ConfigurationException;
@@ -192,7 +191,7 @@ public abstract class AbstractToolWithRandomWalk implements RaLibTool {
             teacherClasses.put(pair.getFirst(), pair.getSecond());
         }
 
-        this.solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        this.solver = new ConstraintSolver();
     }
 
     private Pair<String, TypedTheory> parseTeacherConfig(String config)

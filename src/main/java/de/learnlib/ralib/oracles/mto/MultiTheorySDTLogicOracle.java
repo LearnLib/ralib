@@ -18,9 +18,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
-import de.learnlib.ralib.smt.ReplacingVarsVisitor;
-import de.learnlib.ralib.smt.SMTUtils;
-import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
+import de.learnlib.ralib.smt.SMTUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.Negation;
@@ -88,11 +86,11 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             }
         }
 
-        exprG = SMTUtils.renameVars(exprG, gremap);
+        exprG = SMTUtil.renameVars(exprG, gremap);
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
-        Expression<Boolean> expr2r = SMTUtils.renameVars(expr2, remap);
+        Expression<Boolean> expr2r = SMTUtil.renameVars(expr2, remap);
 
         Expression<Boolean> left = ExpressionUtil.and(exprG, expr1, new Negation(expr2r));
 
@@ -131,7 +129,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     			boolean outcome2 = e2.getValue();
     			if (outcome1 != outcome2) {
     				VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
-                    Expression<Boolean> test = ExpressionUtil.and(expr1, SMTUtils.renameVars(expr2, remap));
+                    Expression<Boolean> test = ExpressionUtil.and(expr1, SMTUtil.renameVars(expr2, remap));
     				if (solver.isSatisfiable(test, new Mapping<>())) {
     					return expr1;
     				}
@@ -152,7 +150,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
         Expression<Boolean> exprRefining = refining;
-        Expression<Boolean> exprRefined = SMTUtils.renameVars(refined, remap);
+        Expression<Boolean> exprRefined = SMTUtil.renameVars(refined, remap);
 
 
         // is there any case for which refining is true but refined is false?
@@ -182,7 +180,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         Expression<Boolean> exprGuard1 = guard1;
-        Expression<Boolean> exprGuard2 = SMTUtils.renameVars(guard2, remap);
+        Expression<Boolean> exprGuard2 = SMTUtil.renameVars(guard2, remap);
 
         Expression<Boolean>  test = ExpressionUtil.and(exprGuard1, exprGuard2);
 
@@ -203,7 +201,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
-        Expression<Boolean> g2relabel = SMTUtils.renameVars(guard2, remap);
+        Expression<Boolean> g2relabel = SMTUtil.renameVars(guard2, remap);
 
         Expression<Boolean> test = ExpressionUtil.or(
                 ExpressionUtil.and(guard1, new gov.nasa.jpf.constraints.expressions.Negation(g2relabel)),

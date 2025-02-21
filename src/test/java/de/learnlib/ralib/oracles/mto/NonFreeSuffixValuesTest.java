@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -86,7 +85,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -178,7 +177,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, ConstraintSolverFactory.createZ3ConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -242,7 +241,7 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 oracle, teachers, consts, solver);

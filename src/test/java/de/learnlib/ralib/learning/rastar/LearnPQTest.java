@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,7 +43,6 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.smt.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -65,7 +65,7 @@ public class LearnPQTest extends RaLibTestSuite {
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), jsolv);
 

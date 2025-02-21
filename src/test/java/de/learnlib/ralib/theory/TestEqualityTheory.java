@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -67,7 +67,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), ConstraintSolverFactory.createZ3ConstraintSolver());
+                oracle, theories, new Constants(), new ConstraintSolver());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,

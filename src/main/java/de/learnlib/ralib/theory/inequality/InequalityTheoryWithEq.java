@@ -16,8 +16,6 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
-import static de.learnlib.ralib.smt.jconstraints.JContraintsUtil.toVariable;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

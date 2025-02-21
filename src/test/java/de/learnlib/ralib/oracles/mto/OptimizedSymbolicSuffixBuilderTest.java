@@ -35,7 +35,6 @@ import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.smt.ConstraintSolverFactory;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -61,7 +60,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
         teachers.put(INT_TYPE, dit);
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
         Constants consts = new Constants();
@@ -373,7 +372,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder1 = new OptimizedSymbolicSuffixBuilder(consts1, restrictionBuilder1);
         OptimizedSymbolicSuffixBuilder builder2 = new OptimizedSymbolicSuffixBuilder(consts2, restrictionBuilder2);
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(4), restrictionBuilder1);
         SymbolicSuffix actual1 = builder1.extendSuffix(word1.prefix(2), sdtPath1, piv1, suffix1.getActions());
@@ -447,7 +446,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, piv1, prefix2, sdt2, piv2, Word.fromSymbols(a, a, a),
-                ConstraintSolverFactory.createZ3ConstraintSolver());
+                new ConstraintSolver());
         Map<SuffixValue, SuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
         expectedRestr12.put(s1, new FreshSuffixValue(s1));
         expectedRestr12.put(s2, new EqualRestriction(s2, s1));
@@ -486,7 +485,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         piv4.put(p2, r2);
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, piv3, prefix4, sdt4, piv4,  Word.fromSymbols(a, a, a),
-                ConstraintSolverFactory.createZ3ConstraintSolver());
+                new ConstraintSolver());
         Map<SuffixValue, SuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
         expectedRestr34.put(s1, new FreshSuffixValue(s1));
         expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));

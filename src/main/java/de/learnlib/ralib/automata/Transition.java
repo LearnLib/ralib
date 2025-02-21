@@ -19,7 +19,7 @@ package de.learnlib.ralib.automata;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
-import de.learnlib.ralib.smt.SMTUtils;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 
@@ -50,7 +50,7 @@ public class Transition {
     }
 
     public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
-        return guard.evaluateSMT(SMTUtils.compose(registers, parameters, consts));
+        return guard.evaluateSMT(SMTUtil.compose(registers, parameters, consts));
     }
 
     public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
