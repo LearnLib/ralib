@@ -16,16 +16,8 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -45,7 +37,6 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
-import org.apache.commons.math3.analysis.function.Exp;
 
 /**
  *
@@ -244,13 +235,13 @@ public class MultiTheoryBranching implements Branching {
                 new ArrayList<Node>());
 
         for (Map.Entry <DataValue[], List<SDTGuard>> entry : tempMap.entrySet()) {
-            List<GuardExpression> gExpr = new ArrayList<>();
+            List<Expression<Boolean> > gExpr = new ArrayList<>();
             List<SDTGuard> gList = entry.getValue();
             for (SDTGuard g : gList) {
                 gExpr.add(renameSuffixValues(g.toExpr()));
             }
             Expression<Boolean> tg = ExpressionUtil.and(
-                    gExpr.stream().map(g -> JContraintsUtil.toExpression(g)).toList().toArray(new Expression[]{})
+                    gExpr.stream().toList().toArray(new Expression[]{})
             );
             assert tg != null;
 
@@ -296,15 +287,15 @@ public class MultiTheoryBranching implements Branching {
     	return prefix;
     }
 
-    private GuardExpression renameSuffixValues(GuardExpression expr) {
-        Set<SymbolicDataValue> svals = expr.getSymbolicDataValues();
+    private Expression<Boolean>  renameSuffixValues(Expression<Boolean>  expr) {
+        Collection<SymbolicDataValue> svals = SMTUtils.getSymbolicDataValues(expr);
         VarMapping vmap = new VarMapping();
         for (SymbolicDataValue sv : svals) {
             if (sv instanceof SuffixValue) {
                 vmap.put(sv, new Parameter(sv.getDataType(), sv.getId()));
             }
         }
-        return expr.relabel(vmap);
+        return SMTUtils.renameVars(expr, vmap);
     }
 
     @Override

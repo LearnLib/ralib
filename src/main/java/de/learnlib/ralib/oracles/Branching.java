@@ -18,7 +18,6 @@ package de.learnlib.ralib.oracles;
 
 import java.util.Map;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;

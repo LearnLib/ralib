@@ -505,7 +505,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 forFresh.addAll(register.values());
                 forFresh.addAll(register2.values());
                 List<DataValue> old = computeOld(t, pval, valSet(forFresh, t));
-                System.out.println("OLD:" + Arrays.toString(old.toArray()));
+                //System.out.println("OLD:" + Arrays.toString(old.toArray()));
                 vals[i] = teacher.get(t).getFreshValue(old);
             }
             else {

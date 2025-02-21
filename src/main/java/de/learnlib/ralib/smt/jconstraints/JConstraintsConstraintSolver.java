@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.smt.jconstraints;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -35,13 +34,6 @@ public class JConstraintsConstraintSolver implements ConstraintSolver {
     public JConstraintsConstraintSolver(
             gov.nasa.jpf.constraints.api.ConstraintSolver solver) {
         this.solver = solver;
-    }
-
-    @Override
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val) {
-        Expression<Boolean> jexpr = JContraintsUtil.toExpression(expr, val);
-        Result r = solver.isSatisfiable(jexpr);
-        return r == Result.SAT;
     }
 
     @Override

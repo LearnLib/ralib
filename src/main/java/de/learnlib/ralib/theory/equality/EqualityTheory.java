@@ -174,6 +174,9 @@ public abstract class EqualityTheory implements Theory {
 
         List<DataValue> equivClasses = new ArrayList<>(potSet);
         equivClasses.add(fresh);
+        //System.out.println(" prefix: " + prefix);
+        //System.out.println(" potential: " + potential);
+        //System.out.println(" eqs " + Arrays.toString(equivClasses.toArray()));
         EquivalenceClassFilter eqcFilter = new EquivalenceClassFilter(equivClasses, useNonFreeOptimization);
         List<DataValue> filteredEquivClasses = eqcFilter.toList(suffix.getRestriction(currentParam), prefix, suffix.getActions(), values);
         assert filteredEquivClasses.size() > 0;

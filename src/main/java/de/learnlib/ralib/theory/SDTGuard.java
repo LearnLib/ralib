@@ -19,11 +19,10 @@ package de.learnlib.ralib.theory;
 import java.util.List;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
@@ -53,11 +52,7 @@ public abstract class SDTGuard {
     	this.parameter = (SuffixValue) SymbolicDataValue.copy(other.parameter);
     }
 
-    public TransitionGuard toTG() {
-        return new TransitionGuard(this.toExpr());
-    }
-
-    public abstract GuardExpression toExpr();
+    public abstract Expression<Boolean> toExpr();
 
     public abstract SDTGuard relabel(VarMapping relabelling);
 

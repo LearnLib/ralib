@@ -30,15 +30,15 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.smt.jconstraints.JContraintsUtil;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.guards.FalseGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -107,8 +107,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         PIV pir = new PIV();
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), pir, constants, new SuffixValuation());
 
-//        System.out.println(prefix + " . " + suffix);
-//        System.out.println(sdt);
+        //System.out.println(prefix + " . " + suffix);
+        //System.out.println(sdt);
 
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
@@ -417,16 +417,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (b instanceof EqualityGuard)
             if (a.equals(((EqualityGuard) b).toDeqGuard()))
                 return false;
-        return !mlo.areMutuallyExclusive(JContraintsUtil.toExpression(a.toExpr()), new PIV(),
-                JContraintsUtil.toExpression(b.toExpr()), new PIV(), valuation);
+        return !mlo.areMutuallyExclusive(a.toExpr(), new PIV(), b.toExpr(), new PIV(), valuation);
     }
 
     private boolean refines(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
             Mapping<SymbolicDataValue, DataValue> valuation) {
         if (b instanceof SDTTrueGuard)
             return true;
-        boolean ref1 = mlo.doesRefine(JContraintsUtil.toExpression(a.toExpr()), new PIV(),
-                JContraintsUtil.toExpression(b.toExpr()), new PIV(), valuation);
+        boolean ref1 = mlo.doesRefine(a.toExpr(), new PIV(), b.toExpr(), new PIV(), valuation);
         return ref1;
     }
 
@@ -570,10 +568,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	mapping.putAll(vars);
 
     	SDT _sdt = (SDT)sdt;
-    	GuardExpression expr = _sdt.getAcceptingPaths(constants);
-    	if (expr instanceof FalseGuardExpression)
+        Expression<Boolean> expr = _sdt.getAcceptingPaths(constants);
+    	if (expr.equals(ExpressionUtil.FALSE))
     		return false;
-    	for (SymbolicDataValue sdv : expr.getSymbolicDataValues()) {
+    	for (SymbolicDataValue sdv : SMTUtils.getSymbolicDataValues(expr)) {
     		if (sdv instanceof Register && mapping.get(sdv) == null) {
     			Theory teach = teachers.get(sdv.getDataType());
     			List<DataValue> values = new ArrayList<>();
@@ -584,7 +582,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		}
     	}
 
-    	return expr.isSatisfied(mapping);
+    	return expr.evaluateSMT(SMTUtils.compose(mapping));
     }
 
     public Map<DataType, Theory> getTeachers() {

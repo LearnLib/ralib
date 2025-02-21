@@ -21,12 +21,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 @Deprecated
 public class SDTOrGuard extends SDTMultiGuard {
@@ -66,8 +65,8 @@ public class SDTOrGuard extends SDTMultiGuard {
     	super(other);
     }
 
-    private List<GuardExpression> toExprList() {
-        List<GuardExpression> exprs = new ArrayList<>();
+    private List<Expression<Boolean> > toExprList() {
+        List<Expression<Boolean> > exprs = new ArrayList<>();
         for (SDTGuard guard : this.guards) {
             exprs.add(guard.toExpr());
         }
@@ -75,15 +74,15 @@ public class SDTOrGuard extends SDTMultiGuard {
     }
 
     @Override
-    public GuardExpression toExpr() {
-        List<GuardExpression> thisList = this.toExprList();
+    public Expression<Boolean> toExpr() {
+        List<Expression<Boolean>> thisList = this.toExprList();
         if (thisList.isEmpty()) {
-            return TrueGuardExpression.TRUE;
+            return ExpressionUtil.TRUE;
         }
         if (thisList.size() == 1) {
             return thisList.get(0);
         } else {
-            return new Disjunction(thisList.toArray(new GuardExpression[]{}));
+            return ExpressionUtil.or(thisList.toArray(new Expression[]{}));
         }
     }
 

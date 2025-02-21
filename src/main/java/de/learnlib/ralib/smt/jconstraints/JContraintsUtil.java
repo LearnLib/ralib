@@ -19,13 +19,6 @@ package de.learnlib.ralib.smt.jconstraints;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.FalseGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Negation;
-import de.learnlib.ralib.automata.guards.TrueGuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -45,45 +38,6 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
  */
 public class JContraintsUtil {
 
-    public static Type<?> getJCType(Class<?> cls) {
-        if (cls == Integer.class)  {
-            return BuiltinTypes.SINT32;
-        } else if (cls == Float.class) {
-            return BuiltinTypes.DECIMAL;
-        } else if (cls == Long.class) {
-            return BuiltinTypes.DECIMAL;
-        } else {
-            return BuiltinTypes.DECIMAL;
-        }
-    }
-
-    public static Expression<Boolean> toExpression(
-            LogicalOperator op,
-            Map<SymbolicDataValue, Variable> map,
-            GuardExpression... expr) {
-
-        Expression<Boolean>[] elems = new Expression[expr.length];
-        int i = 0;
-        for (GuardExpression e : expr) {
-            elems[i++] = toExpression(e, map);
-        }
-        switch (op) {
-            case AND:
-                return ExpressionUtil.and(elems);
-            case OR:
-                return ExpressionUtil.or(elems);
-            default:
-                throw new RuntimeException("Unsupported Operator: " + op);
-        }
-    }
-
-    public static Expression<Boolean> toExpression(GuardExpression expr, Mapping<SymbolicDataValue, DataValue> val) {
-        Map<SymbolicDataValue, Variable> map = new HashMap<>();
-        Expression<Boolean> guardExpr = toExpression(expr, map);
-        Expression<Boolean> valExpr = toExpression(val, map);
-        return ExpressionUtil.and(guardExpr, valExpr);
-    }
-
     public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         //Expression<Boolean> guardExpr = toExpression(expr, map);
@@ -98,58 +52,6 @@ public class JContraintsUtil {
             elems[i++] = new NumericBooleanExpression(getOrCreate(entry.getKey(), map), NumericComparator.EQ, toConstant(entry.getValue()));
         }
         return ExpressionUtil.and(elems);
-    }
-
-    public static Expression<Boolean> toExpression(GuardExpression expr) {
-        return toExpression(expr, new HashMap<>());
-    }
-
-    public static Expression<Boolean> toExpression(GuardExpression expr,
-            Map<SymbolicDataValue, Variable> map) {
-
-        if (expr instanceof AtomicGuardExpression) {
-            return toExpression((AtomicGuardExpression) expr, map);
-        } else if (expr instanceof TrueGuardExpression) {
-            return ExpressionUtil.TRUE;
-        } else if (expr instanceof FalseGuardExpression) {
-            return ExpressionUtil.FALSE;
-        } else if (expr instanceof Conjunction) {
-            Conjunction con = (Conjunction) expr;
-            return toExpression(LogicalOperator.AND, map, con.getConjuncts());
-        } else if (expr instanceof Disjunction) {
-            Disjunction dis = (Disjunction) expr;
-            return toExpression(LogicalOperator.OR, map, dis.getDisjuncts());
-        } else if (expr instanceof Negation) {
-            Negation neg = (Negation) expr;
-            return new gov.nasa.jpf.constraints.expressions.Negation(
-                    toExpression(neg.getNegated(), map));
-        }
-
-        throw new RuntimeException("Unsupported Guard Expression: "
-                + expr.getClass().getName());
-    }
-
-
-    public static Expression<Boolean> toExpression(AtomicGuardExpression expr,
-            Map<SymbolicDataValue, Variable> map) {
-
-        Variable lv = getOrCreate(expr.getLeft(), map);
-        Variable rv = getOrCreate(expr.getRight(), map);
-
-        switch (expr.getRelation()) {
-            case EQUALS:
-                return new NumericBooleanExpression(lv, NumericComparator.EQ, rv);
-            case NOT_EQUALS:
-                return new NumericBooleanExpression(lv, NumericComparator.NE, rv);
-            case SMALLER:
-                return new NumericBooleanExpression(lv, NumericComparator.LT, rv);
-            case BIGGER:
-                return new NumericBooleanExpression(lv, NumericComparator.GT, rv);
-
-            default:
-                throw new UnsupportedOperationException(
-                        "Relation " + expr.getRelation() + " is not supported in guards");
-        }
     }
 
     private static Variable getOrCreate(SymbolicDataValue dv,

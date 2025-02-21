@@ -17,8 +17,6 @@
 package de.learnlib.ralib.oracles;
 
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
@@ -61,7 +59,7 @@ public interface SDTLogicOracle {
             SymbolicDecisionTree sdt2, PIV piv2,
                               Expression<Boolean> guard, Word<PSymbolInstance> rep);
 
-    GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
+    Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
     		SymbolicDecisionTree sdt1, PIV piv1,
     		SymbolicDecisionTree sdt2, PIV piv2);
 

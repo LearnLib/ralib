@@ -3,7 +3,6 @@ package de.learnlib.ralib.theory;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -13,11 +12,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.smt.SMTUtils;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
-public class EquivalenceClassFilter<T> {
+public class EquivalenceClassFilter {
 
 	private final List<DataValue> equivClasses;
 	private boolean useOptimization;
@@ -44,7 +45,9 @@ public class EquivalenceClassFilter<T> {
 			DataValue[] dvs = psi.getParameterValues();
 			for (int i = 0; i < dvs.length; i++) {
 				Parameter p = pgen.next(dts[i]);
-				mapping.put(p, dvs[i]);
+				if (restr.parameter.getDataType().equals(dts[i])) {
+					mapping.put(p, dvs[i]);
+				}
 			}
 		}
 		for (ParameterizedSymbol ps : suffix) {
@@ -52,18 +55,19 @@ public class EquivalenceClassFilter<T> {
 			for (int i = 0; i < dts.length; i++) {
 				SuffixValue sv = svgen.next(dts[i]);
 				DataValue val = valuation.get(sv.getId());
-				if (val != null) {
+				if (val != null && val.getDataType().equals(restr.parameter.getDataType())) {
 					mapping.put(sv, val);
 				}
 			}
 		}
 
-		GuardExpression expr = restr.toGuardExpression(mapping.keySet());
+		Expression<Boolean> expr = restr.toGuardExpression(mapping.keySet());
 		for (DataValue ec : equivClasses) {
 			Mapping<SymbolicDataValue, DataValue> ecMapping = new Mapping<>();
 			ecMapping.putAll(mapping);
 			ecMapping.put(restr.getParameter(), ec);
-			if (expr.isSatisfied(ecMapping)) {
+			//System.out.println(" -- " + expr + "  - " + ecMapping);
+			if (expr.evaluateSMT(SMTUtils.compose(ecMapping))) {
 				filtered.add(ec);
 			}
 		}

@@ -5,14 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.smt.SMTUtils;
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -237,7 +237,7 @@ public class PrefixFinder {
             SymbolicDecisionTree sdtHyp, PIV pivHyp, Word<PSymbolInstance> ce) {
     	Word<PSymbolInstance> candidate = null;
 
-    	GuardExpression expr = sdtOracle.getCEGuard(prefix, sdtSul, pivSul, sdtHyp, pivHyp);
+    	Expression<Boolean> expr = sdtOracle.getCEGuard(prefix, sdtSul, pivSul, sdtHyp, pivHyp);
 
         Map<Word<PSymbolInstance>, Boolean> sulPaths = sulOracle.instantiate(prefix, symSuffix, sdtSul, pivSul);
         for (Word<PSymbolInstance> path : sulPaths.keySet()) {
@@ -256,7 +256,7 @@ public class PrefixFinder {
         			renaming.put(sv, p);
         		}
         	}
-        	GuardExpression exprR = expr.relabel(renaming);
+        	Expression<Boolean> exprR = SMTUtils.renameVars(expr, renaming);
 
         	ParValuation pars = new ParValuation(path);
         	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
@@ -264,7 +264,7 @@ public class PrefixFinder {
         	vals.putAll(pars);
         	vals.putAll(consts);
 
-        	if (exprR.isSatisfied(vals)) {
+        	if (exprR.evaluateSMT(SMTUtils.compose(vals))) {
         		candidate = path.prefix(prefix.length() + 1);
         		SymbolicSuffix suffix = new SymbolicSuffix(candidate, ce.suffix(symSuffix.length() - 1), restrictionBuilder);
         		return new SymbolicWord(candidate, suffix);
