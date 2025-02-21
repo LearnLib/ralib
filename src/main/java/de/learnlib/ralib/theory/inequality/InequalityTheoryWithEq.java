@@ -55,6 +55,8 @@ import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
+import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
@@ -140,7 +142,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         return valueGuards;
     }
-
 
     /**
      * Filter out equivalence classes that are to be removed through suffix optimization.

@@ -73,46 +73,6 @@ public class SDT implements SymbolicDecisionTree {
         return registers;
     }
 
-    public Set<Register> getRegisters(SymbolicDataValue dv) {
-    	Set<Register> registers = new LinkedHashSet<>();
-    	if (this instanceof SDTLeaf)
-    		return registers;
-    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-    		e.getKey().getComparands(dv).stream().filter((x) -> (x.isRegister())).forEach((x) -> { registers.add((Register)x); } );
-    		registers.addAll(e.getValue().getRegisters(dv));
-    	}
-    	return registers;
-    }
-
-    public Set<SymbolicDataValue> getComparands(SymbolicDataValue dv) {
-    	Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
-    	if (this instanceof SDTLeaf)
-    		return comparands;
-    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-    		SDTGuard g = e.getKey();
-    		Set<SymbolicDataValue> guardComparands = g.getComparands(dv);
-    		if (!guardComparands.isEmpty()) {
-    			comparands.addAll(guardComparands);
-    		}
-    		comparands.addAll(e.getValue().getComparands(dv));
-    	}
-    	return comparands;
-    }
-
-    public Set<SDTGuard> getSDTGuards(SuffixValue sv) {
-    	Set<SDTGuard> guards = new LinkedHashSet<>();
-    	if (this instanceof SDTLeaf)
-    		return guards;
-    	for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-    		SDTGuard guard = e.getKey();
-    		if (guard.getParameter().equals(sv)) {
-    			guards.add(guard);
-    		}
-    		guards.addAll(e.getValue().getSDTGuards(sv));
-    	}
-    	return guards;
-    }
-
     public int getHeight() {
         if (this instanceof SDTLeaf || children.size() == 0) {
             return 0;
