@@ -40,7 +40,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 	private static final DataType T_INT = new DataType("int");
 
 	private static final InputSymbol A =
-			new InputSymbol("a", new DataType[] {T_INT});
+			new InputSymbol("a", T_INT);
 
 	private static class DummyDT extends DT {
 
@@ -76,8 +76,8 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 		}
 
-		private DTLeaf prefixLeaf;
-		private DTLeaf leaf;
+		private final DTLeaf prefixLeaf;
+		private final DTLeaf leaf;
 
 		public SymbolicSuffix addedSuffix = null;
 
@@ -168,7 +168,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 		boolean consistent = leafWord.checkRegisterConsistency(dt, consts, null);
 		Assert.assertFalse(consistent);
-		Assert.assertTrue(symSuffixExpected.getActions().equals(dt.addedSuffix.getActions()));
+        Assert.assertEquals(dt.addedSuffix.getActions(), symSuffixExpected.getActions());
 	}
 
 }

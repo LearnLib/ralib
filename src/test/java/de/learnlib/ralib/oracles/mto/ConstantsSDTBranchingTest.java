@@ -82,16 +82,16 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         //        "IAck", new DataType[] {intType});
 
         ParameterizedSymbol iin = new InputSymbol(
-                "IIn", new DataType[] {intType});
+                "IIn", intType);
 
         ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
         ParameterizedSymbol isend = new InputSymbol(
-                "ISendFrame", new DataType[] {});
+                "ISendFrame");
 
         ParameterizedSymbol oframe = new OutputSymbol(
-                "OFrame", new DataType[] {intType, intType});
+                "OFrame", intType, intType);
 
         DataValue d2 = new DataValue(intType, new BigDecimal(2));
         //DataValue c1 = new DataValue(intType, BigDecimal.ZERO);

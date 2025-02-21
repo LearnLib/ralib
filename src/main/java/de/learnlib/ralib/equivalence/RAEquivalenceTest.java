@@ -16,14 +16,7 @@
  */
 package de.learnlib.ralib.equivalence;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.common.collect.Sets;
 
@@ -84,13 +77,10 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                 return false;
             }
             final Tuple other = (Tuple) obj;
-            if (this.sys1loc != other.sys1loc && (this.sys1loc == null || !this.sys1loc.equals(other.sys1loc))) {
+            if (!Objects.equals(this.sys1loc, other.sys1loc)) {
                 return false;
             }
-            if (this.sys2loc != other.sys2loc && (this.sys2loc == null || !this.sys2loc.equals(other.sys2loc))) {
-                return false;
-            }
-            return true;
+            return Objects.equals(this.sys2loc, other.sys2loc);
         }
 
     }

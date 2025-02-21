@@ -44,13 +44,13 @@ public final class LoginAutomatonExample {
     public static final DataType T_PWD = new DataType("T_pwd");
 
     public static final InputSymbol I_REGISTER =
-            new InputSymbol("register", new DataType[] {T_UID, T_PWD});
+            new InputSymbol("register", T_UID, T_PWD);
 
     public static final InputSymbol I_LOGIN =
-            new InputSymbol("login", new DataType[] {T_UID, T_PWD});
+            new InputSymbol("login", T_UID, T_PWD);
 
     public static final InputSymbol I_LOGOUT =
-            new InputSymbol("logout", new DataType[] {});
+            new InputSymbol("logout");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 

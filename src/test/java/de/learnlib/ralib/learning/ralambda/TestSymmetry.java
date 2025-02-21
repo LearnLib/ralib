@@ -43,8 +43,8 @@ public class TestSymmetry extends RaLibTestSuite {
 
     private static final DataType T_INT = new DataType("int");
 
-    private static final InputSymbol A = new InputSymbol("a", new DataType[] {T_INT});
-    private static final InputSymbol B = new InputSymbol("b", new DataType[] {T_INT});
+    private static final InputSymbol A = new InputSymbol("a", T_INT);
+    private static final InputSymbol B = new InputSymbol("b", T_INT);
 
     @Test
     public void learnSymmetryExampleCT2() {

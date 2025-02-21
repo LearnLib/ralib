@@ -165,9 +165,8 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 guards.remove(oGuard);
                 processed = true;
             }
-        } else if (guard instanceof IntervalGuard) {
+        } else if (guard instanceof IntervalGuard iGuard) {
 //            System.out.println("guard is intervalguard");
-            IntervalGuard iGuard = (IntervalGuard) guard;
             if (!iGuard.isIntervalGuard()) {
                 IntervalGuard flipped = iGuard.flip();
 //                System.out.println("flipped: " + flipped);
@@ -177,13 +176,12 @@ public abstract class InequalityTheoryWithEq implements Theory {
                     processed = true;
                 }
             }
-        } else if (guard instanceof SDTOrGuard) {
+        } else if (guard instanceof SDTOrGuard oGuard) {
 //            System.out.println("found or guard");
-            SDTOrGuard oGuard = (SDTOrGuard) guard;
             addAllSafely(guards, oGuard.getGuards(), regPotential);
         }
 
-        if (processed == false) {
+        if (!processed) {
             guards.add(guard);
         }
 //        System.out.println("added safely: " + guard + " to " + guards);
@@ -191,9 +189,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     private void removeProhibited(Collection<SDTGuard> guards, Collection<SDTGuard> prohibited) {
         for (SDTGuard p : prohibited) {
-            if (guards.contains(p)) {
-                guards.remove(p);
-            }
+            guards.remove(p);
         }
         //System.out.println("guards after removing " + prohibited + " :: " + guards);
     }
@@ -247,10 +243,9 @@ public abstract class InequalityTheoryWithEq implements Theory {
                             prohibited.add(target);
                             processed = true;
                         }
-                    } else if (target instanceof IntervalGuard) {
+                    } else if (target instanceof IntervalGuard iGuard) {
 //                        System.out.println(target + " is iGuard");
                         // if it is an interval guard, check if the set contains flipped
-                        IntervalGuard iGuard = (IntervalGuard) target;
                         if (!iGuard.isIntervalGuard()) {
                             IntervalGuard flipped = iGuard.flip();
 //                            System.out.println("flipped: " + flipped);
@@ -540,8 +535,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 //newParMap.put(newHeadList, newSDT);
 
             }
-            if (refGuard instanceof IntervalGuard && !merged) {
-                IntervalGuard iRefGuard = (IntervalGuard) refGuard;
+            if (refGuard instanceof IntervalGuard iRefGuard && !merged) {
                 if (!iRefGuard.isIntervalGuard()) {
                     EqualityGuard eqGuard = iRefGuard.toEqGuard();
                     if (newHeadList.contains(eqGuard)) {
@@ -654,7 +648,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     private SDT getJoinedSDT(EqualityGuard guard, SDT deqSDT, SDT eqSDT) {
         //boolean canJoin = false;
 
-        EqualityGuard eqGuard = (EqualityGuard) guard;
+        EqualityGuard eqGuard = guard;
         List<SDTIfGuard> ds = new ArrayList();
         ds.add(eqGuard);
 //        System.out.println("checking if T" + deqSDT + " is eq to O" + eqSDT + " under " + eqGuard);
@@ -815,8 +809,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
-            } else if (mg instanceof IntervalGuard) {
-                IntervalGuard iGuard = (IntervalGuard) mg;
+            } else if (mg instanceof IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
                     SymbolicDataValue r = iGuard.getRightReg();
                     Parameter p = new Parameter(r.getDataType(), r.getId());
@@ -1169,8 +1162,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
 //        LOGGER.trace("prefix values : " + prefixValues.toString());
 
-        if (guard instanceof EqualityGuard) {
-            EqualityGuard eqGuard = (EqualityGuard) guard;
+        if (guard instanceof EqualityGuard eqGuard) {
             SymbolicDataValue ereg = eqGuard.getRegister();
             if (ereg.isRegister()) {
 //                LOGGER.trace("piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
@@ -1180,9 +1172,9 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 returnThis = prefixValues.get(idx - 1);
             } else if (ereg.isSuffixValue()) {
                 Parameter p = new Parameter(type, ereg.getId());
-                returnThis = (DataValue) pval.get(p);
+                returnThis = pval.get(p);
             } else if (ereg.isConstant()) {
-                returnThis = (DataValue) constants.get((SymbolicDataValue.Constant) ereg);
+                returnThis = constants.get((SymbolicDataValue.Constant) ereg);
             }
         } else if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
 

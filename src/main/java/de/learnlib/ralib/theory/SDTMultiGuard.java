@@ -120,7 +120,7 @@ public abstract class SDTMultiGuard extends SDTGuard {
         if (this.guards.isEmpty()) {
             return p + "empty";
         }
-        return p + this.guards.toString();
+        return p + this.guards;
     }
 
 }

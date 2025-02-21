@@ -20,13 +20,13 @@ import net.automatalib.word.Word;
 public class BoundedListDataWordOracle implements DataWordOracle {
     public static final DataType INT_TYPE= new DataType("int");
 
-    public static final InputSymbol PUSH = new InputSymbol("push", new DataType[]{INT_TYPE});
-    public static final InputSymbol INSERT = new InputSymbol("insert", new DataType[]{INT_TYPE, INT_TYPE});
-    public static final InputSymbol POP = new InputSymbol("pop", new DataType[]{INT_TYPE});
-    public static final InputSymbol CONTAINS = new InputSymbol("contains", new DataType[]{INT_TYPE});
+    public static final InputSymbol PUSH = new InputSymbol("push", INT_TYPE);
+    public static final InputSymbol INSERT = new InputSymbol("insert", INT_TYPE, INT_TYPE);
+    public static final InputSymbol POP = new InputSymbol("pop", INT_TYPE);
+    public static final InputSymbol CONTAINS = new InputSymbol("contains", INT_TYPE);
 
 
-    private Supplier<BoundedList> factory;
+    private final Supplier<BoundedList> factory;
 
     public BoundedListDataWordOracle(Supplier<BoundedList> factory) {
         this.factory = factory;

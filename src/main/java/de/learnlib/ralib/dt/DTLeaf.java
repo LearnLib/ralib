@@ -418,7 +418,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 ret = false;
             }
         }
-        sp.putBranching(ps, newB);;
+        sp.putBranching(ps, newB);
         return ret;
     }
 
@@ -496,7 +496,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             			continue;
             		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
-            		if (tqr.getPiv().keySet().contains(p)) {
+            		if (tqr.getPiv().containsKey(p)) {
             			dt.addSuffix(newSuffix, prefixLeaf);
             			mp.missingParameter.remove(p);
             			return false;

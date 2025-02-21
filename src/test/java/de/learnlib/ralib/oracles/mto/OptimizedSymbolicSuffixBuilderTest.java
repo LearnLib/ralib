@@ -271,7 +271,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
             Word<PSymbolInstance> sub = word.prefix(word.length() - suffixLength);
             Word<PSymbolInstance> prefix = word.prefix(sub.length()+1);
             SymbolicSuffix expected = new SymbolicSuffix(sub, suffix);
-            actual = builder.extendSuffix(prefix, (SDT) tqr.getSdt(), (PIV) tqr.getPiv(), actual);
+            actual = builder.extendSuffix(prefix, (SDT) tqr.getSdt(), tqr.getPiv(), actual);
             Assert.assertEquals(actual, expected);
             tqr = mto.treeQuery(sub, expected);
         }

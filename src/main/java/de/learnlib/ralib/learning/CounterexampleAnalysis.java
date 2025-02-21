@@ -57,7 +57,7 @@ public class CounterexampleAnalysis {
 
     private final Constants consts;
 
-    private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
+    private enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 

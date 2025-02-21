@@ -31,7 +31,7 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
  */
 public class LoginExampleSDT implements SymbolicDecisionTree {
 
-    public static enum SDTClass {ACCEPT, REJECT, LOGIN};
+    public enum SDTClass {ACCEPT, REJECT, LOGIN}
 
     private final SDTClass clazz;
 

@@ -27,15 +27,15 @@ import net.automatalib.word.WordBuilder;
  */
 public class RandomWalk implements IOEquivalenceOracle  {
 
-	private Map<DataType, Theory> teachers;
-	private Random rand;
-	private long maxRuns;
+	private final Map<DataType, Theory> teachers;
+	private final Random rand;
+	private final long maxRuns;
 	private int depth = 10;
 	private double resetProbability = 0.1;
 	private double freshProbability = 0.5;
-	private List<ParameterizedSymbol> symbols;
-	private DataWordOracle wordOracle;
-	private Constants consts;
+	private final List<ParameterizedSymbol> symbols;
+	private final DataWordOracle wordOracle;
+	private final Constants consts;
 
 	public RandomWalk(Random rand, DataWordOracle membershipOracle, double resetProbability, double newDataProbability, long maxRuns, int maxDepth,
 			Map<DataType, Theory> teachers, Constants consts,

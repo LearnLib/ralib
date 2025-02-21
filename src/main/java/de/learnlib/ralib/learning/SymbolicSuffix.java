@@ -16,12 +16,7 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -297,13 +292,10 @@ public class SymbolicSuffix {
             return false;
         }
         final SymbolicSuffix other = (SymbolicSuffix) obj;
-        if (this.restrictions != other.restrictions && (this.restrictions == null || !this.restrictions.equals(other.restrictions))) {
+        if (!Objects.equals(this.restrictions, other.restrictions)) {
         	return false;
         }
-        if (this.actions != other.actions && (this.actions == null || !this.actions.equals(other.actions))) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.actions, other.actions);
     }
 
     @Override

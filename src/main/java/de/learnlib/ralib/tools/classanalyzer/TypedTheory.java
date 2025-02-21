@@ -26,9 +26,9 @@ import de.learnlib.ralib.theory.Theory;
  */
 public interface TypedTheory extends Theory {
 
-    public void setType(DataType type);
+    void setType(DataType type);
 
-    public void setUseSuffixOpt(boolean useit);
+    void setUseSuffixOpt(boolean useit);
 
-    public void setCheckForFreshOutputs(boolean doit, IOOracle oracle);
+    void setCheckForFreshOutputs(boolean doit, IOOracle oracle);
 }

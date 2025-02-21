@@ -39,7 +39,7 @@ public class PQWrapper extends java.util.PriorityQueue {
 
     @Override
     public boolean offer(Object e) {
-        return (this.size() < capacity) ? super.offer(e) : false;
+        return this.size() < capacity && super.offer(e);
     }
 
 }

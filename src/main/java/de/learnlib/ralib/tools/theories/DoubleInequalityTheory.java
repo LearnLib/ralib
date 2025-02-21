@@ -106,17 +106,16 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             // pick up the register
             SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
             // get the register value from the valuation
-            DataValue sdi = new DataValue(type, (BigDecimal) val.getValue(si));
+            DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
             gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getValue()));
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
 
-        } else if (g instanceof IntervalGuard) {
-            IntervalGuard iGuard = (IntervalGuard) g;
+        } else if (g instanceof IntervalGuard iGuard) {
             if (!iGuard.isBiggerGuard()) {
                 SymbolicDataValue r = iGuard.getRightReg();
-                DataValue ri = new DataValue(type, (BigDecimal) val.getValue(r));
+                DataValue ri = new DataValue(type, val.getValue(r));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getValue()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r));
@@ -124,7 +123,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             }
             if (!iGuard.isSmallerGuard()) {
                 SymbolicDataValue l = iGuard.getLeftReg();
-                DataValue li = new DataValue(type, (BigDecimal) val.getValue(l));
+                DataValue li = new DataValue(type, val.getValue(l));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getValue()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l));
@@ -167,7 +166,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             }
 
             if (newVal.containsValueFor(sp)) {
-                DataValue spDouble = new DataValue(type, (BigDecimal)newVal.getValue(sp));
+                DataValue spDouble = new DataValue(type, newVal.getValue(sp));
                 gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (spDouble.getValue()));
                 Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp);
                 eList.add(spExpr);
@@ -184,7 +183,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
         if (res == Result.SAT) {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
-            DataValue d = new DataValue(type, (BigDecimal)(newVal.getValue(sp)));
+            DataValue d = new DataValue(type, newVal.getValue(sp));
             //System.out.println("return d: " + d.toString());
             return d;//new DataValue<Double>(doubleType, d);
         } else {

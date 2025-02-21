@@ -36,10 +36,10 @@ public final class PriorityQueueOracle implements DataWordOracle {
 
     public static final DataType doubleType = new DataType("DOUBLE");
 
-    public static final InputSymbol POLL = new InputSymbol("poll", new DataType[]{doubleType});
-    public static final InputSymbol OFFER = new InputSymbol("offer", new DataType[]{doubleType});
+    public static final InputSymbol POLL = new InputSymbol("poll", doubleType);
+    public static final InputSymbol OFFER = new InputSymbol("offer", doubleType);
 
-    private int capacity;
+    private final int capacity;
 
     public PriorityQueueOracle(int capacity) {
         this.capacity = capacity;
@@ -64,7 +64,7 @@ public final class PriorityQueueOracle implements DataWordOracle {
                     answer[i] = false;
                     //try {
                         PSymbolInstance psi = query.getInput().getSymbol(i);
-                        DataValue d = (DataValue) psi.getParameterValues()[0];
+                        DataValue d = psi.getParameterValues()[0];
                         if (psi.getBaseSymbol().equals(OFFER) && queue.size() < capacity) {
                             queue.offer(d.getValue());
                             answer[i] = true;

@@ -42,26 +42,26 @@ public abstract class SymbolicDataValueGenerator {
         public SymbolicDataValue.Parameter next(DataType type) {
             return new SymbolicDataValue.Parameter(type, id++);
         }
-    };
+    }
 
     public static final class RegisterGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.Register next(DataType type) {
             return new SymbolicDataValue.Register(type, id++);
         }
-    };
+    }
 
     public static final class SuffixValueGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.SuffixValue next(DataType type) {
             return new SymbolicDataValue.SuffixValue(type, id++);
         }
-    };
+    }
 
     public static final class ConstantGenerator extends SymbolicDataValueGenerator {
         @Override
         public SymbolicDataValue.Constant next(DataType type) {
             return new SymbolicDataValue.Constant(type, id++);
         }
-    };
+    }
 }

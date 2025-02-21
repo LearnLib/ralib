@@ -16,10 +16,10 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 public class LLambdaAutomatonExample {
 
     public static final InputSymbol A =
-            new InputSymbol("a", new DataType[] {});
+            new InputSymbol("a");
 
     public static final InputSymbol B =
-            new InputSymbol("b", new DataType[] {});
+            new InputSymbol("b");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 

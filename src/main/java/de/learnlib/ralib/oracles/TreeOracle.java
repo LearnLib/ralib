@@ -43,7 +43,7 @@ public interface TreeOracle {
      * @param suffix
      * @return
      */
-    public TreeQueryResult treeQuery(
+    TreeQueryResult treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix);
 
     /**
@@ -55,8 +55,8 @@ public interface TreeOracle {
      * @param sdts
      * @return
      */
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
+    Branching getInitialBranching(Word<PSymbolInstance> prefix,
+                                  ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts);
 
     /**
      * Updates and extends an existing Branching
@@ -69,13 +69,13 @@ public interface TreeOracle {
      * @param sdts
      * @return
      */
-    public Branching updateBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree ... sdts);
+    Branching updateBranching(Word<PSymbolInstance> prefix,
+                              ParameterizedSymbol ps, Branching current,
+                              PIV piv, SymbolicDecisionTree... sdts);
 
-    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
+    Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+                                                    SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
 
-    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
+    SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 
 }

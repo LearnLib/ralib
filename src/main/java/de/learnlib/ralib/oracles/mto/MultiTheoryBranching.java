@@ -118,7 +118,7 @@ public class MultiTheoryBranching implements Branching {
             }
             return SDTLeaf.REJECTING;
         }
-    };
+    }
 
     private final Word<PSymbolInstance> prefix;
 
@@ -126,11 +126,11 @@ public class MultiTheoryBranching implements Branching {
 
     private final Node node;
 
-    private PIV piv;
+    private final PIV piv;
 
-    private Constants constants;
+    private final Constants constants;
 
-    private ParValuation pval;
+    private final ParValuation pval;
 
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
             ParValuation pval, Constants constants, SDT... sdts) {
@@ -224,7 +224,7 @@ public class MultiTheoryBranching implements Branching {
 
         if (this.action.getArity() == 0) {
             // System.out.println("arity 0");
-            PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
+            PSymbolInstance psi = new PSymbolInstance(action);
             branches.put(prefix.append(psi), ExpressionUtil.TRUE);
             return branches;
         }

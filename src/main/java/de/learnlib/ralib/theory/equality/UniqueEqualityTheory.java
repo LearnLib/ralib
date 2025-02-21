@@ -86,13 +86,13 @@ public abstract class UniqueEqualityTheory implements Theory {
                                  Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues.toString());
+        LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues);
         DataType type = param.getDataType();
         Collection potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type),
                 pval.values(type));
 
         if (!potSet.isEmpty()) {
-            LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet.toString());
+            LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet);
         } else {
             LOGGER.trace(Category.DATASTRUCTURE, "potSet is empty");
         }

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -113,9 +112,9 @@ public class IntervalGuard extends SDTGuard {
             return "(" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
         }
         if (rightLimit == null) {
-            return "(" + this.getParameter().toString() + ">" + this.leftLimit.toString() + ")";
+            return "(" + this.getParameter().toString() + ">" + this.leftLimit + ")";
         }
-        return "(" + leftLimit.toString() + "<" + this.getParameter().toString() + "<" + this.rightLimit.toString() + ")";
+        return "(" + leftLimit + "<" + this.getParameter().toString() + "<" + this.rightLimit + ")";
     }
 
     public Set<SymbolicDataValue> getAllRegs() {
@@ -268,12 +267,11 @@ public class IntervalGuard extends SDTGuard {
         Set<SDTGuard> guards = new LinkedHashSet<>();
         if (other instanceof IntervalGuard) {
             guards.addAll(this.mergeIntervals((IntervalGuard) other));
-        } else if (other instanceof DisequalityGuard) {
-            DisequalityGuard dGuard = (DisequalityGuard) other;
+        } else if (other instanceof DisequalityGuard dGuard) {
             if ((this.isBiggerGuard() && this.leftLimit.equals(dGuard.getRegister()))
                     || (this.isSmallerGuard() && this.rightLimit.equals(dGuard.getRegister()))) {
 
-                guards.add((DisequalityGuard) other);
+                guards.add(other);
             }
             else {
                 guards.add(this);
@@ -365,7 +363,7 @@ public class IntervalGuard extends SDTGuard {
 
     @Override
     public List<SDTGuard> unwrap() {
-        return Collections.singletonList((SDTGuard) this);
+        return Collections.singletonList(this);
     }
 
     @Override

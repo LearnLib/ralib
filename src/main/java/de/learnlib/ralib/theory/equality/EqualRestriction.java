@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.FreshSuffixValue;
@@ -68,9 +67,8 @@ public class EqualRestriction extends SuffixValueRestriction {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof EqualRestriction))
+		if (!(obj instanceof EqualRestriction other))
 			return false;
-		EqualRestriction other = (EqualRestriction)obj;
 		return super.equals(obj) && equalParam.equals(other.equalParam);
 	}
 

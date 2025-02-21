@@ -58,10 +58,10 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         // define parameterized symbols
         final ParameterizedSymbol register = new InputSymbol(
-                "register", new DataType[] {userType, passType});
+                "register", userType, passType);
 
         final ParameterizedSymbol login = new InputSymbol(
-                "login", new DataType[] {userType, passType});
+                "login", userType, passType);
 
         //final ParameterizedSymbol change = new InputSymbol(
         //        "change", new DataType[] {passType});

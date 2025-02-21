@@ -46,19 +46,19 @@ public final class MapAutomatonExample {
     public static final DataType T_VAL = new DataType("T_val");
 
     public static final InputSymbol I_PUT =
-            new InputSymbol("put", new DataType[] {T_VAL});
+            new InputSymbol("put", T_VAL);
 
     public static final InputSymbol I_GET =
-            new InputSymbol("get", new DataType[] {T_KEY});
+            new InputSymbol("get", T_KEY);
 
     public static final OutputSymbol O_PUT =
-            new OutputSymbol("o_p", new DataType[] {T_KEY});
+            new OutputSymbol("o_p", T_KEY);
 
     public static final OutputSymbol O_GET =
-            new OutputSymbol("o_g", new DataType[] {T_VAL});
+            new OutputSymbol("o_g", T_VAL);
 
     public static final OutputSymbol O_NULL =
-            new OutputSymbol("null", new DataType[] {});
+            new OutputSymbol("null");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 

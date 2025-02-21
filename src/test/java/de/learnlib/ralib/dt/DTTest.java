@@ -172,9 +172,9 @@ public class DTTest {
 	      DTLeaf leafPush1Pop2 = dt.sift(prePush1Pop2, true);
 	      DTLeaf leafPushPushPop = dt.sift(prePushPushPop, true);
 
-	      Assert.assertTrue(leafPush1Pop1.getAccessSequence().equals(accessEps));
-	      Assert.assertTrue(leafPush1Pop2.getAccessSequence().equals(accessPop));
-	      Assert.assertTrue(leafPushPushPop.getAccessSequence().equals(accessPush));
+        Assert.assertEquals(accessEps, leafPush1Pop1.getAccessSequence());
+        Assert.assertEquals(accessPop, leafPush1Pop2.getAccessSequence());
+        Assert.assertEquals(accessPush, leafPushPushPop.getAccessSequence());
 
 	      // test en passant discovery
 	      dt = buildSimpleTree(mto);
@@ -227,10 +227,10 @@ public class DTTest {
 
 	      // assert new leaf added for PUSH(0)
 	      DTLeaf leafPush = dt.getLeaf(prePush);
-	      Assert.assertTrue(leafPush.getAccessSequence().equals(prePush));
+        Assert.assertEquals(prePush, leafPush.getAccessSequence());
 
 	      // assert epsilon and push(0) are both children of inner node pop
-	      Assert.assertTrue(leafEps.getParent().getSuffix().equals(suffPop));
-	      Assert.assertTrue(leafPush.getParent().getSuffix().equals(suffPop));
+        Assert.assertEquals(suffPop, leafEps.getParent().getSuffix());
+        Assert.assertEquals(suffPop, leafPush.getParent().getSuffix());
 	}
 }

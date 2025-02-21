@@ -11,8 +11,8 @@ import net.automatalib.word.Word;
  */
 public class CachingSUL extends DataWordSUL{
 
-    private DataWordSUL sul;
-    private IOCache cache;
+    private final DataWordSUL sul;
+    private final IOCache cache;
     private Word<PSymbolInstance> trace;
     private boolean answerFromCache = false;
 

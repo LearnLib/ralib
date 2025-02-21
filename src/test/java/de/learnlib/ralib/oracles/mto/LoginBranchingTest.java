@@ -85,20 +85,20 @@ public class LoginBranchingTest extends RaLibTestSuite {
         DataType uid = TestUtil.getType("uid", loader.getDataTypes());
         DataType pwd = TestUtil.getType("pwd", loader.getDataTypes());
 
-        ParameterizedSymbol reg = new InputSymbol("IRegister", new DataType[] { uid, pwd });
+        ParameterizedSymbol reg = new InputSymbol("IRegister", uid, pwd);
 
-        ParameterizedSymbol log = new InputSymbol("ILogin", new DataType[] { uid, pwd });
+        ParameterizedSymbol log = new InputSymbol("ILogin", uid, pwd);
 
-        ParameterizedSymbol ok = new OutputSymbol("OOK", new DataType[] {});
+        ParameterizedSymbol ok = new OutputSymbol("OOK");
 
         DataValue u = new DataValue(uid, BigDecimal.ZERO);
         DataValue p = new DataValue(pwd, BigDecimal.ZERO);
 
-        Word<PSymbolInstance> prefix = Word.fromSymbols(new PSymbolInstance(reg, new DataValue[] { u, p }),
-                new PSymbolInstance(ok, new DataValue[] {}));
+        Word<PSymbolInstance> prefix = Word.fromSymbols(new PSymbolInstance(reg, u, p),
+                new PSymbolInstance(ok));
 
-        Word<PSymbolInstance> suffix = Word.fromSymbols(new PSymbolInstance(log, new DataValue[] { u, p }),
-                new PSymbolInstance(ok, new DataValue[] {}));
+        Word<PSymbolInstance> suffix = Word.fromSymbols(new PSymbolInstance(log, u, p),
+                new PSymbolInstance(ok));
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 

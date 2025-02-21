@@ -34,7 +34,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public abstract class RaLibTestSuite {
 
     protected final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err", new DataType[]{});
+            new OutputSymbol("_io_err");
 
     protected static final Logger logger = Logger.getLogger("UnitTest");
 

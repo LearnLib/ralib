@@ -28,7 +28,7 @@ import net.automatalib.word.Word;
  */
 public interface Branching {
 
-    public Map<Word<PSymbolInstance>, Expression<Boolean>> getBranches();
+    Map<Word<PSymbolInstance>, Expression<Boolean>> getBranches();
 
-    public Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> prefix);
+    Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> prefix);
 }

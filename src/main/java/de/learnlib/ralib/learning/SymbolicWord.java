@@ -16,8 +16,8 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SymbolicWord {
-	private Word<PSymbolInstance> prefix;
-	private SymbolicSuffix suffix;
+	private final Word<PSymbolInstance> prefix;
+	private final SymbolicSuffix suffix;
 
 	public SymbolicWord(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 		this.prefix = prefix;
@@ -74,10 +74,8 @@ public class SymbolicWord {
 		if (!prefix.equals(other.getPrefix()))
 			return false;
 //		if (!other.getSuffix().getActions().equals(suffix.getActions()))
-		if (!other.getSuffix().equals(suffix))
-			return false;
-		return true;
-	}
+        return other.getSuffix().equals(suffix);
+    }
 
 	@Override
 	public int hashCode() {

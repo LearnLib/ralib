@@ -35,21 +35,21 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
         public Parameter(DataType dataType, int id) {
             super(dataType, id, "p" + id);
         }
-    };
+    }
 
     public static final class Register extends SymbolicDataValue {
 
         public Register(DataType dataType, int id) {
             super(dataType, id, "r" + id);
         }
-    };
+    }
 
     public static final class Constant extends SymbolicDataValue {
 
         public Constant(DataType dataType, int id) {
             super(dataType, id, "c" + id);
         }
-    };
+    }
 
     /*
      * a parameter in a suffix: we should replace those by v_i
@@ -59,7 +59,7 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
         public SuffixValue(DataType dataType, int id) {
             super(dataType, id, "s" + id);
         }
-    };
+    }
 
     final DataType type;
 
@@ -110,10 +110,7 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
 
     @Override

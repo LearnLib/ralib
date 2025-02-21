@@ -107,13 +107,10 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 return false;
             }
             final Tuple other = (Tuple) obj;
-            if (this.sys1loc != other.sys1loc && (this.sys1loc == null || !this.sys1loc.equals(other.sys1loc))) {
+            if (!Objects.equals(this.sys1loc, other.sys1loc)) {
                 return false;
             }
-            if (this.sys2loc != other.sys2loc && (this.sys2loc == null || !this.sys2loc.equals(other.sys2loc))) {
-                return false;
-            }
-            return true;
+            return Objects.equals(this.sys2loc, other.sys2loc);
         }
 
     }
@@ -499,7 +496,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         int i = 0;
         for (DataType t : ps.getPtypes()) {
             SymbolicDataValue.Parameter p = pgen.next(t);
-            if (!mapping.getOutput().keySet().contains(p)) {
+            if (!mapping.getOutput().containsKey(p)) {
 
                 Set<DataValue> forFresh = new LinkedHashSet<>();
                 forFresh.addAll(register.values());
