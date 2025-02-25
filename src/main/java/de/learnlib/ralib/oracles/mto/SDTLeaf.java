@@ -27,7 +27,6 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 
 /**
  * Leaf implementation of an SDT.
@@ -75,7 +74,7 @@ public class SDTLeaf extends SDT {
         return this;
     }
 
-    public SDT relabelUnderEq(EqualityGuard e) {
+    public SDT relabelUnderEq(SDTGuard.EqualityGuard e) {
         return this;
     }
 

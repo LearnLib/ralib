@@ -33,11 +33,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.theory.*;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -80,27 +76,28 @@ public class SDT implements SymbolicDecisionTree {
         Set<SymbolicDataValue> variables = new LinkedHashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
             SDTGuard g = e.getKey();
-            if (g instanceof SDTIfGuard) {
-                SymbolicDataValue r = ((SDTIfGuard) g).getRegister();
+            if (g instanceof SDTGuard.EqualityGuard eg) {
+                SymbolicDataValue r = eg.register();
                 variables.add(r);
-            } else if (g instanceof SDTMultiGuard) {
-                for (SDTGuard ifG : ((SDTMultiGuard) g).getGuards()) {
-                    if (ifG instanceof SDTIfGuard) {
-                        SymbolicDataValue ifr = ((SDTIfGuard) ifG).getRegister();
-                        variables.add(ifr);
-                    } else if (ifG instanceof SDTMultiGuard) {
-                        Set<SymbolicDataValue> rSet = ((SDTMultiGuard) ifG).getAllRegs();
-                        variables.addAll(rSet);
-                    }
+            } else if (g instanceof SDTGuard.DisequalityGuard dg) {
+                SymbolicDataValue r = dg.register();
+                variables.add(r);
+            } else if (g instanceof SDTGuard.SDTAndGuard ag) {
+                for (SDTGuard ifG : ag.conjuncts()) {
+                    variables.addAll(ifG.getRegisters());
                 }
-            } else if (g instanceof IntervalGuard iGuard) {
+            } else if (g instanceof SDTGuard.SDTOrGuard og) {
+                for (SDTGuard ifG : og.disjuncts()) {
+                    variables.addAll(ifG.getRegisters());
+                }
+            } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
-                    variables.add(iGuard.getRightReg());
+                    variables.add(iGuard.rightLimit());
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    variables.add(iGuard.getLeftReg());
+                    variables.add(iGuard.leftLimit());
                 }
-            } else if (!(g instanceof SDTTrueGuard)) {
+            } else if (!(g instanceof SDTGuard.SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");
             }
             SDT child = e.getValue();
@@ -114,14 +111,12 @@ public class SDT implements SymbolicDecisionTree {
 
     @Override
     public boolean isAccepting() {
-        if (this instanceof SDTLeaf) {
-            return this.isAccepting();
-        } else {
+
             for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
                 if (!e.getValue().isAccepting()) {
                     return false;
                 }
-            }
+
         }
 
         return true;
@@ -154,7 +149,7 @@ public class SDT implements SymbolicDecisionTree {
     }
 
     public boolean isEquivalentUnder(
-            SymbolicDecisionTree deqSDT, List<SDTIfGuard> ds) {
+            SymbolicDecisionTree deqSDT, List<SDTGuard.EqualityGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
                 return (this.isAccepting() == deqSDT.isAccepting());
@@ -162,8 +157,8 @@ public class SDT implements SymbolicDecisionTree {
             return false;
         }
         VarMapping eqRenaming = new VarMapping<>();
-        for (SDTIfGuard d : ds) {
-            eqRenaming.put(d.getParameter(), d.getRegister());
+        for (SDTGuard.EqualityGuard d : ds) {
+            eqRenaming.put(d.parameter(), d.register());
         }
 //        System.out.println(eqRenaming);
 //        System.out.println(this + " vs " + deqSDT);
@@ -171,10 +166,10 @@ public class SDT implements SymbolicDecisionTree {
         return x;
     }
 
-    public SDT relabelUnderEq(List<SDTIfGuard> ds) {
+    public SDT relabelUnderEq(List<SDTGuard.EqualityGuard> ds) {
         VarMapping eqRenaming = new VarMapping<>();
-        for (SDTIfGuard d : ds) {
-            eqRenaming.put(d.getParameter(), d.getRegister());
+        for (SDTGuard.EqualityGuard d : ds) {
+            eqRenaming.put(d.parameter(), d.register());
         }
         return (SDT) this.relabel(eqRenaming);
     }
@@ -190,7 +185,7 @@ public class SDT implements SymbolicDecisionTree {
         Map<SDTGuard, SDT> reChildren = new LinkedHashMap<>();
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
-                reChildren.put(e.getKey().relabel(relabelling),
+                reChildren.put(SDTGuard.relabel(e.getKey(), relabelling),
                     (SDT) e.getValue().relabel(relabelling));
             }
         SDT relabelled = new SDT(reChildren);
@@ -289,6 +284,7 @@ public class SDT implements SymbolicDecisionTree {
     private boolean hasPair(
             SDTGuard thisGuard, SDT thisSdt, Map<SDTGuard, SDT> otherBranches) {
         for (Map.Entry<SDTGuard, SDT> otherB : otherBranches.entrySet()) {
+            // FIXME: this should be done semantically!
             if (thisGuard.equals(otherB.getKey())) {
                 if (thisSdt.canUse(otherB.getValue())) {
                     return true;
@@ -340,7 +336,7 @@ public class SDT implements SymbolicDecisionTree {
         for (List<SDTGuard> list : paths) {
             List<Expression<Boolean>> expr = new ArrayList<>();
             for (SDTGuard g : list) {
-                expr.add(g.toExpr());
+                expr.add(SDTGuard.toExpr(g));
             }
             Expression<Boolean> con = ExpressionUtil.and(
                     expr.toArray(new Expression[] {}));
@@ -362,7 +358,7 @@ public class SDT implements SymbolicDecisionTree {
     		List<SDTGuard> list = e.getKey();
     		List<Expression<Boolean>> expr = new ArrayList<>();
     		for (SDTGuard g : list) {
-    			expr.add(g.toExpr());
+    			expr.add(SDTGuard.toExpr(g));
     		}
             Expression<Boolean> con = ExpressionUtil.and(
     				expr.toArray(new Expression[] {}));
@@ -436,7 +432,7 @@ public class SDT implements SymbolicDecisionTree {
 		Map<SDTGuard, SDT> cc = new LinkedHashMap<>();
 		if (children != null) {
 			for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-				cc.put(e.getKey().copy(), e.getValue().copy());
+				cc.put(SDTGuard.copy(e.getKey()), e.getValue().copy());
 			}
 		}
 		return new SDT(cc);

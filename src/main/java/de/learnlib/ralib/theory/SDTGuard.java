@@ -16,46 +16,294 @@
  */
 package de.learnlib.ralib.theory;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
  * @author falk
  */
-@Deprecated
-public abstract class SDTGuard {
+public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.EqualityGuard, SDTGuard.IntervalGuard, SDTGuard.SDTAndGuard, SDTGuard.SDTOrGuard, SDTGuard.SDTTrueGuard {
 
-    //TODO: this should probably be a special sdtparameter
-    protected final SuffixValue parameter;
+    record SDTTrueGuard(SymbolicDataValue.SuffixValue parameter) implements SDTGuard {
+        @Override
+        public String toString() {
+            return "TRUE: " + parameter;
+        }
 
-    public abstract List<SDTGuard> unwrap();
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
 
-    public SuffixValue getParameter() {
-        return this.parameter;
+        @Override
+        public Set<SymbolicDataValue> getRegisters() { return Set.of(); }
     }
 
-    public SDTGuard(SuffixValue param) {
+    record EqualityGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue register) implements SDTGuard {
+        @Override
+        public String toString() {
+            return "(" + parameter + "=" + register + ")";
+        }
 
-        this.parameter = param;
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
 
+        @Override
+        public Set<SymbolicDataValue> getRegisters() { return Set.of(register); }
     }
 
-    public abstract Set<SymbolicDataValue> getComparands(SymbolicDataValue dv);
+    record DisequalityGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue register) implements SDTGuard {
+        @Override
+        public String toString() {
+            return "(" + parameter + "!=" +register + ")";
+        }
 
-    public SDTGuard(SDTGuard other) {
-    	this.parameter = SymbolicDataValue.copy(other.parameter);
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
+
+        @Override
+        public Set<SymbolicDataValue> getRegisters() { return Set.of(register); }
     }
 
-    public abstract Expression<Boolean> toExpr();
+    record IntervalGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue leftLimit, SymbolicDataValue rightLimit) implements SDTGuard {
+        @Override
+        public String toString() {
+            // TODO: align second case and make one statement
+            if (leftLimit == null) return "(" + parameter + "<" + this.rightLimit.toString() + ")";
+            if (rightLimit == null) return "(" + parameter + ">" + this.leftLimit + ")";
+            return "(" + leftLimit + "<" + parameter + "<" + this.rightLimit + ")";
+        }
 
-    public abstract SDTGuard relabel(VarMapping relabelling);
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
 
-    public abstract SDTGuard copy();
+        @Override
+        public Set<SymbolicDataValue> getRegisters() {
+            Set<SymbolicDataValue> regs = new LinkedHashSet<>();
+            if (leftLimit != null) regs.add(leftLimit);
+            if (rightLimit != null) regs.add(rightLimit);
+            return regs;
+        }
 
+        public boolean isSmallerGuard() {
+            return leftLimit == null;
+        }
+
+        public boolean isBiggerGuard() {
+            return rightLimit == null;
+        }
+
+        public boolean isIntervalGuard() { return (leftLimit != null && rightLimit != null); }
+    }
+
+    record SDTAndGuard(SymbolicDataValue.SuffixValue parameter, List<SDTGuard> conjuncts) implements SDTGuard {
+        @Override
+        public String toString() {
+            String p = "ANDCOMPOUND: " + parameter;
+            if (conjuncts.isEmpty()) {
+                return p + "empty";
+            }
+            return p + conjuncts;
+        }
+
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
+
+        @Override
+        public Set<SymbolicDataValue> getRegisters() {
+            Set<SymbolicDataValue> ret = new HashSet<>();
+            conjuncts.stream().forEach( x -> ret.addAll(x.getRegisters() ));
+            return ret;
+        }
+
+        // FIXME: And guards rely on a set representation for equals and hash code, that seems wrong
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SDTAndGuard that = (SDTAndGuard) o;
+            return Objects.equals(parameter, that.parameter) &&
+                    Objects.equals(new HashSet<>(conjuncts), new HashSet<>(that.conjuncts));
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(parameter, new HashSet<>(conjuncts));
+        }
+    }
+
+    record SDTOrGuard(SymbolicDataValue.SuffixValue parameter, List<SDTGuard> disjuncts) implements SDTGuard {
+        @Override
+        public String toString() {
+            String p = "ORCOMPOUND: " + parameter;
+            if (disjuncts.isEmpty()) {
+                return p + "empty";
+            }
+            return p + disjuncts;
+        }
+
+        @Override
+        public SuffixValue getParameter() {return this.parameter; }
+
+        @Override
+        public Set<SymbolicDataValue> getRegisters() {
+            Set<SymbolicDataValue> ret = new HashSet<>();
+            disjuncts.stream().forEach( x -> ret.addAll(x.getRegisters() ));
+            return ret;
+        }
+
+        @Override
+        public List<SDTGuard> disjuncts() {
+            return disjuncts;
+        }
+
+        // FIXME: Or guards rely on a set representation for equals and hash code, that seems wrong
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            SDTOrGuard that = (SDTOrGuard) o;
+            return Objects.equals(parameter, that.parameter) &&
+                    Objects.equals(new HashSet<>(disjuncts), new HashSet<>(that.disjuncts));
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(parameter, new HashSet<>(disjuncts));
+        }
+    }
+
+    SuffixValue getParameter();
+
+    Set<SymbolicDataValue> getRegisters();
+
+    static Set<SymbolicDataValue> getComparands(SDTGuard in, SymbolicDataValue dv) {
+        Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+        switch (in) {
+            case SDTGuard.EqualityGuard g:
+                if (g.parameter.equals(dv)) comparands.add(g.register);
+                if (g.register.equals(dv)) comparands.add(g.parameter);
+                return comparands;
+            case SDTGuard.DisequalityGuard g:
+                if (g.parameter.equals(dv)) comparands.add(g.register);
+                if (g.register.equals(dv)) comparands.add(g.parameter);
+                return comparands;
+            case SDTGuard.IntervalGuard g:
+                // FIXME: this was copied from original class but does not seem to make any sense
+                if (dv.equals(g.leftLimit)) comparands.add(g.rightLimit);
+                if (dv.equals(g.rightLimit)) comparands.add(g.leftLimit);
+                return comparands;
+            case SDTGuard.SDTAndGuard g:
+                g.conjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
+                return comparands;
+            case SDTGuard.SDTOrGuard g:
+                g.disjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
+                return comparands;
+            case SDTGuard.SDTTrueGuard g:
+                return comparands;
+        }
+    }
+
+    // TODO: previously parameters and registers were copied but that is not necessary?
+    static SDTGuard copy(SDTGuard in) {
+        switch (in) {
+            case SDTGuard.EqualityGuard g:
+                return new SDTGuard.EqualityGuard(g.parameter, g.register);
+            case SDTGuard.DisequalityGuard g:
+                return new SDTGuard.DisequalityGuard(g.parameter, g.register);
+            case SDTGuard.IntervalGuard g:
+                return new SDTGuard.IntervalGuard(g.parameter, g.leftLimit, g.rightLimit);
+            case SDTGuard.SDTAndGuard g:
+                return new SDTGuard.SDTAndGuard(g.parameter,
+                        g.conjuncts.stream().map( x -> copy(x)).toList());
+            case SDTGuard.SDTOrGuard g:
+                return new SDTGuard.SDTOrGuard(g.parameter,
+                        g.disjuncts.stream().map( x -> copy(x)).toList());
+            case SDTGuard.SDTTrueGuard g:
+                return new SDTGuard.SDTTrueGuard(g.parameter);
+        }
+    }
+
+    private static <T extends SymbolicDataValue> T newValueIfExists(VarMapping relabelling, T oldValue) {
+        if (oldValue == null || oldValue.isConstant()) return oldValue;
+        T newValue = (T) relabelling.get(oldValue);
+        return newValue != null ? newValue : oldValue;
+    }
+
+    static SDTGuard relabel(SDTGuard in, VarMapping remap) {
+        switch (in) {
+            case SDTGuard.EqualityGuard g:
+                return new SDTGuard.EqualityGuard(newValueIfExists(remap, g.parameter),
+                        newValueIfExists(remap, g.register));
+            case SDTGuard.DisequalityGuard g:
+                return new SDTGuard.DisequalityGuard(newValueIfExists(remap, g.parameter),
+                        newValueIfExists(remap, g.register));
+            case SDTGuard.IntervalGuard g:
+                return new SDTGuard.IntervalGuard(newValueIfExists(remap, g.parameter),
+                        newValueIfExists(remap, g.leftLimit), newValueIfExists(remap, g.rightLimit));
+            case SDTGuard.SDTAndGuard g:
+                return new SDTGuard.SDTAndGuard(newValueIfExists(remap, g.parameter),
+                        g.conjuncts.stream().map(ig -> relabel(ig, remap)).toList());
+            case SDTGuard.SDTOrGuard g:
+                return new SDTGuard.SDTOrGuard(newValueIfExists(remap, g.parameter),
+                        g.disjuncts.stream().map(ig -> relabel(ig, remap)).toList());
+            case SDTGuard.SDTTrueGuard g:
+                return new SDTGuard.SDTTrueGuard(newValueIfExists(remap, g.parameter));
+        }
+    }
+
+    static Expression<Boolean> toExpr(SDTGuard in) {
+        switch (in) {
+            case SDTGuard.EqualityGuard g:
+                return new NumericBooleanExpression(g.register, NumericComparator.EQ, g.parameter);
+            case SDTGuard.DisequalityGuard g:
+                return new NumericBooleanExpression(g.register, NumericComparator.NE, g.parameter);
+            case SDTGuard.IntervalGuard g:
+                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit);
+                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit);
+                Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit);
+                Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit);
+                return ExpressionUtil.and(smaller, bigger);
+            case SDTGuard.SDTAndGuard g:
+                List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
+                if (andList.isEmpty()) return ExpressionUtil.TRUE;
+                if (andList.size() == 1) return andList.get(0);
+                return ExpressionUtil.and(andList.toArray(new Expression[]{}));
+            case SDTGuard.SDTOrGuard g:
+                List<Expression<Boolean>> orList = g.disjuncts.stream().map( x -> toExpr(x)).toList();
+                if (orList.isEmpty()) return ExpressionUtil.TRUE;
+                if (orList.size() == 1) return orList.get(0);
+                return ExpressionUtil.or(orList.toArray(new Expression[]{}));
+            case SDTGuard.SDTTrueGuard g:
+                return ExpressionUtil.TRUE;
+        }
+    }
+
+    static SDTGuard toDeqGuard(SDTGuard in) {
+        switch (in) {
+            case SDTGuard.EqualityGuard g:
+                return new SDTGuard.DisequalityGuard(g.parameter, g.register);
+            case SDTGuard.DisequalityGuard g:
+                return new SDTGuard.EqualityGuard(g.parameter, g.register);
+            case SDTGuard.IntervalGuard g:
+                // FIXME: copied from old implementation but does not seem to make sense
+                assert !g.isIntervalGuard();
+                SymbolicDataValue r = g.isSmallerGuard() ? g.rightLimit : g.leftLimit;
+                return new DisequalityGuard(g.parameter,r);
+            case SDTGuard.SDTAndGuard g:
+                throw new RuntimeException("not refactored yet");
+            case SDTGuard.SDTOrGuard g:
+                throw new RuntimeException("not refactored yet");
+            case SDTGuard.SDTTrueGuard g:
+                throw new RuntimeException("not refactored yet");
+        }
+    }
 }

@@ -12,7 +12,6 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -74,7 +73,7 @@ public abstract class UniqueEqualityTheory implements Theory {
         sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
         LOGGER.trace(Category.QUERY, " single deq SDT : {}", sdt.toString());
 
-        merged.put(new SDTTrueGuard(sv), sdt);
+        merged.put(new SDTGuard.SDTTrueGuard(sv), sdt);
 
         SDT returnSDT = new SDT(merged);
         return returnSDT;

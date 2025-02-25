@@ -30,7 +30,6 @@ import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -126,7 +125,7 @@ public class DT implements DiscriminationTree {
             DataType param = symbol.getPtypes()[paramIndex];
             SuffixValue s = sgen.next(param);
             LinkedHashMap<SDTGuard, SDT> map = new LinkedHashMap<SDTGuard, SDT>();
-            map.put(new SDTTrueGuard(s), makeRejectingSDT(symbol, sgen, paramIndex + 1));
+            map.put(new SDTGuard.SDTTrueGuard(s), makeRejectingSDT(symbol, sgen, paramIndex + 1));
             return new SDT(map);
         }
     }

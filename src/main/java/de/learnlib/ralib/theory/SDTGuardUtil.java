@@ -1,27 +1,25 @@
 package de.learnlib.ralib.theory;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.data.VarMapping;
 
 public class SDTGuardUtil {
 
+    // this is only used by inequality theory and very old code that does not make
+    // sense to me. Not even sure what merge means in this case?
+    @Deprecated
     public static Set<SDTGuard> mergeWith(SDTGuard thisGuard, SDTGuard other,
                                           List<SymbolicDataValue> regPotential) {
 
-        if (thisGuard instanceof IntervalGuard) {
-            IntervalGuard intervalGuard = (IntervalGuard) thisGuard;
+        if (thisGuard instanceof SDTGuard.IntervalGuard intervalGuard) {
             Set<SDTGuard> guards = new LinkedHashSet<>();
-            if (other instanceof IntervalGuard) {
-                guards.addAll(intervalGuard.mergeIntervals((IntervalGuard) other));
-            } else if (other instanceof DisequalityGuard dGuard) {
-                if ((intervalGuard.isBiggerGuard() && intervalGuard.leftLimit.equals(dGuard.getRegister()))
-                        || (intervalGuard.isSmallerGuard() && intervalGuard.rightLimit.equals(dGuard.getRegister()))) {
+            if (other instanceof SDTGuard.IntervalGuard) {
+                guards.addAll(IntervalGuardUtil.mergeIntervals(intervalGuard, (SDTGuard.IntervalGuard) other));
+            } else if (other instanceof SDTGuard.DisequalityGuard dGuard) {
+                if ((intervalGuard.isBiggerGuard() && intervalGuard.leftLimit().equals(dGuard.register()))
+                        || (intervalGuard.isSmallerGuard() && intervalGuard.rightLimit().equals(dGuard.register()))) {
 
                     guards.add(other);
                 }
@@ -37,16 +35,15 @@ public class SDTGuardUtil {
             return guards;
         }
 
-        if (thisGuard instanceof DisequalityGuard) {
-            DisequalityGuard disequalityGuard = (DisequalityGuard) thisGuard;
+        if (thisGuard instanceof SDTGuard.DisequalityGuard disequalityGuard) {
             Set<SDTGuard> guards = new LinkedHashSet<>();
-            if (other instanceof EqualityGuard) {
-                if (!(other.equals(disequalityGuard.toDeqGuard()))) {
+            if (other instanceof SDTGuard.EqualityGuard) {
+                if (!(other.equals(SDTGuard.toDeqGuard(disequalityGuard)))) {
                     guards.add(disequalityGuard);
                     guards.add(other);
                 }
             }
-            else if (other instanceof DisequalityGuard) {
+            else if (other instanceof SDTGuard.DisequalityGuard) {
                 guards.add(disequalityGuard);
                 guards.add(other);
             }
@@ -56,21 +53,20 @@ public class SDTGuardUtil {
             return guards;
         }
 
-        if (thisGuard instanceof EqualityGuard) {
-            EqualityGuard equalityGuard = (EqualityGuard) thisGuard;
+        if (thisGuard instanceof SDTGuard.EqualityGuard equalityGuard) {
             Set<SDTGuard> guards = new LinkedHashSet<>();
-            if (other instanceof DisequalityGuard) {
-                if (!(other.equals(equalityGuard.toDeqGuard()))) {
+            if (other instanceof SDTGuard.DisequalityGuard) {
+                if (!(other.equals(SDTGuard.toDeqGuard(equalityGuard)))) {
                     guards.add(equalityGuard);
                     guards.add(other);
                 }
-            } else if (other instanceof EqualityGuard) {
+            } else if (other instanceof SDTGuard.EqualityGuard) {
                 if (!(equalityGuard.equals(other))) {
                     guards.add(other);
                 }
                 guards.add(equalityGuard);
-            } else if (other instanceof SDTOrGuard) {
-                for (SDTGuard s : ((SDTOrGuard)other).getGuards()) {
+            } else if (other instanceof SDTGuard.SDTOrGuard orGuard) {
+                for (SDTGuard s : orGuard.disjuncts()) {
                     guards.addAll(mergeWith(equalityGuard, s, regPotential));
                 }
             }else {
@@ -81,11 +77,10 @@ public class SDTGuardUtil {
             return guards;
         }
 
-        if (thisGuard instanceof SDTOrGuard) {
+        if (thisGuard instanceof SDTGuard.SDTOrGuard) {
             return mergeWith(other, thisGuard, regPotential);
         }
 
         throw new RuntimeException("this should not happen");
     }
-
 }

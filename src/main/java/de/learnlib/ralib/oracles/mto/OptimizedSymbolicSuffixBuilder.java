@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTGuardUtil;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
@@ -123,7 +124,7 @@ public class OptimizedSymbolicSuffixBuilder {
             SuffixValue oldSV = guard.getParameter();
             SuffixValue newSV = new SuffixValue(oldSV.getDataType(), oldSV.getId()+actionArity);
             renaming.put(oldSV, newSV);
-            SDTGuard renamedGuard = guard.relabel(renaming);
+            SDTGuard renamedGuard = SDTGuard.relabel(guard, renaming);
             SuffixValueRestriction restr = restrictionBuilder.restrictSuffixValue(renamedGuard, restrictions);
             restrictions.put(newSV, restr);
         }
@@ -179,7 +180,7 @@ public class OptimizedSymbolicSuffixBuilder {
         for (Map.Entry<SDTGuard, LabeledSDT> e : node.getChildren().entrySet()) {
             SDTGuard guard = e.getKey();
             LabeledSDT child = e.getValue();
-            Set<SymbolicDataValue> comparands = guard.getComparands(guard.getParameter());
+            Set<SymbolicDataValue> comparands = SDTGuard.getComparands(guard,guard.getParameter());
             for (SymbolicDataValue sdv : registers) {
                 if (comparands.contains(sdv)) {
                     return true;
@@ -195,7 +196,7 @@ public class OptimizedSymbolicSuffixBuilder {
     private boolean guardOnRegisters(SDTGuard guard, SymbolicDataValue[] registers) {
         SuffixValue sv = guard.getParameter();
         for (SymbolicDataValue r : registers) {
-            if (guard.getComparands(sv).contains(r)) {
+            if (SDTGuard.getComparands(guard, sv).contains(r)) {
             return true;
             }
         }
@@ -228,7 +229,7 @@ public class OptimizedSymbolicSuffixBuilder {
         for (Map.Entry<SDTGuard, SDT> branch : children.entrySet()) {
             SDTGuard guard = branch.getKey();
             SDT s = branch.getValue();
-            if (guard.getComparands(guard.getParameter()).contains(register)) {
+            if (SDTGuard.getComparands(guard, guard.getParameter()).contains(register)) {
                 guards.add(guard);
             } else {
                 boolean revealed = sdtRevealsRegister(s, register);
@@ -274,7 +275,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
         Map<SDTGuard, SDT> childrenWithRegister = new LinkedHashMap<>();
         for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
-            if (!e.getKey().getComparands(register).isEmpty()) {
+            if (!SDTGuard.getComparands(e.getKey(), register).isEmpty()) {
             childrenWithRegister.put(e.getKey(), e.getValue());
             }
         }
@@ -429,7 +430,7 @@ public class OptimizedSymbolicSuffixBuilder {
     private Expression<Boolean> toGuardExpression(List<SDTGuard> guards) {
         List<Expression<Boolean>> expr = new ArrayList<>();
         for (SDTGuard g : guards) {
-            expr.add(g.toExpr());
+            expr.add(SDTGuard.toExpr(g));
         }
         Expression<Boolean> [] exprArr = new Expression[expr.size()];
         return ExpressionUtil.and(expr.toArray(exprArr));
