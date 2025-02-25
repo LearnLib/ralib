@@ -22,7 +22,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTGuardUtil;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
