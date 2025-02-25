@@ -31,11 +31,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
@@ -102,9 +98,9 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
     private List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
         List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
-        if (g instanceof SDTIfGuard) {
+        if (g instanceof SDTGuard.EqualityGuard eualityGuard) {
             // pick up the register
-            SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+            SymbolicDataValue si = eualityGuard.register();
             // get the register value from the valuation
             DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
@@ -112,9 +108,21 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             // add the constant equivalence expression to the list
             eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
 
-        } else if (g instanceof IntervalGuard iGuard) {
+        } else if (g instanceof SDTGuard.DisequalityGuard disequalityGuard) {
+            // pick up the register
+            SymbolicDataValue si = disequalityGuard.register();
+            // get the register value from the valuation
+            DataValue sdi = new DataValue(type, val.getValue(si));
+            // add the register value as a constant
+            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getValue()));
+            // add the constant equivalence expression to the list
+            eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
+            throw new RuntimeException("this seems to be wrong ...");
+
+        } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
             if (!iGuard.isBiggerGuard()) {
-                SymbolicDataValue r = iGuard.getRightReg();
+                SymbolicDataValue r = iGuard.rightLimit();
+                assert r != null;
                 DataValue ri = new DataValue(type, val.getValue(r));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getValue()));
                 // add the constant equivalence expression to the list
@@ -122,7 +130,8 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
             }
             if (!iGuard.isSmallerGuard()) {
-                SymbolicDataValue l = iGuard.getLeftReg();
+                SymbolicDataValue l = iGuard.leftLimit();
+                assert l != null;
                 DataValue li = new DataValue(type, val.getValue(l));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getValue()));
                 // add the constant equivalence expression to the list
@@ -139,20 +148,20 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
         newVal.putAll(val);
-        Expression<Boolean> x = g.toExpr();
+        Expression<Boolean> x = SDTGuard.toExpr(g);
         Result res;
-        if (g instanceof EqualityGuard) {
+        if (g instanceof SDTGuard.EqualityGuard) {
             //System.out.println("SOLVING: " + x);
             res = solver.solve(x, newVal);
         } else {
             List<Expression<Boolean>> eList = new ArrayList<>();
             // add the guard
-            eList.add(g.toExpr());
+            eList.add(SDTGuard.toExpr(g));
             eList.addAll(instantiateGuard(g, val));
-            if (g instanceof SDTOrGuard) {
+            if (g instanceof SDTGuard.SDTOrGuard og) {
                 // for all registers, pick them up
-                for (SDTGuard subg : ((SDTOrGuard) g).getGuards()) {
-                    if (!(subg instanceof EqualityGuard)) {
+                for (SDTGuard subg : og.disjuncts()) {
+                    if (!(subg instanceof SDTGuard.EqualityGuard)) {
                         eList.addAll(instantiateGuard(subg, val));
                     }
                 }
@@ -250,19 +259,19 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
     }
 
 	@Override
-	protected Comparator<DataValue<BigDecimal>> getComparator() {
-		return new Comparator<DataValue<BigDecimal>>() {
+	protected Comparator<DataValue> getComparator() {
+		return new Comparator<DataValue>() {
 			@Override
-			public int compare(DataValue<BigDecimal> d1, DataValue<BigDecimal> d2) {
-				return d1.getId().compareTo(d2.getId());
+			public int compare(DataValue d1, DataValue d2) {
+				return d1.getValue().compareTo(d2.getValue());
 			}
 		};
 	}
 
 	@Override
-	protected DataValue<BigDecimal> safeCast(DataValue<?> dv) {
-		if (dv.getId() instanceof BigDecimal) {
-			return new DataValue<BigDecimal>(dv.getType(), (BigDecimal) dv.getId());
+	protected DataValue safeCast(DataValue dv) {
+		if (dv.getValue() instanceof BigDecimal) {
+			return new DataValue(dv.getDataType(), (BigDecimal) dv.getValue());
 		}
 		return null;
 	}

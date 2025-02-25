@@ -61,11 +61,8 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -218,7 +215,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             DataType type = ps.getPtypes()[i - 1];
             LOGGER.trace(Category.QUERY, "current type: " + type.getName());
             Parameter p = new Parameter(type, i);
-            SDTGuard guard = new SDTTrueGuard(new SuffixValue(type, i));
+            SDTGuard guard = new SDTGuard.SDTTrueGuard(new SuffixValue(type, i));
             Theory teach = teachers.get(type);
 
             DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
@@ -376,54 +373,55 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (guard1.equals(guard2))
             return guard1;
 
-        if (guard1 instanceof SDTTrueGuard) {
+        if (guard1 instanceof SDTGuard.SDTTrueGuard) {
             return guard2;
         }
 
-        if (guard2 instanceof SDTTrueGuard) {
+        if (guard2 instanceof SDTGuard.SDTTrueGuard) {
             return guard1;
         }
 
-        if (guard1 instanceof SDTAndGuard && guard2 instanceof SDTAndGuard) {
-            List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTAndGuard) guard1).getGuards());
-            guards.addAll(((SDTAndGuard) guard2).getGuards());
-            return new SDTAndGuard(guard1.getParameter(), guards.toArray(new SDTGuard[] {}));
+        if (guard1 instanceof SDTGuard.SDTAndGuard && guard2 instanceof SDTGuard.SDTAndGuard) {
+            List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTGuard.SDTAndGuard) guard1).conjuncts());
+            guards.addAll(((SDTGuard.SDTAndGuard) guard2).conjuncts());
+            return new SDTGuard.SDTAndGuard(guard1.getParameter(), guards);
         }
 
-        if (guard1 instanceof SDTAndGuard || guard2 instanceof SDTAndGuard) {
-            SDTAndGuard andGuard = guard1 instanceof SDTAndGuard ? (SDTAndGuard) guard1 : (SDTAndGuard) guard2;
-            SDTGuard otherGuard = guard2 instanceof SDTAndGuard ? guard1 : guard2;
-            SDTGuard[] conjuncts = andGuard.getGuards().toArray(new SDTGuard[andGuard.getGuards().size() + 1]);
-            conjuncts[conjuncts.length - 1] = otherGuard;
-            return new SDTAndGuard(guard1.getParameter(), conjuncts);
+        if (guard1 instanceof SDTGuard.SDTAndGuard || guard2 instanceof SDTGuard.SDTAndGuard) {
+            SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard ?
+                    (SDTGuard.SDTAndGuard) guard1 : (SDTGuard.SDTAndGuard) guard2;
+            SDTGuard otherGuard = guard2 instanceof SDTGuard.SDTAndGuard ? guard1 : guard2;
+            List<SDTGuard> conjuncts = andGuard.conjuncts();
+            conjuncts.add(otherGuard);
+            return new SDTGuard.SDTAndGuard(guard1.getParameter(), conjuncts);
         }
-        return new SDTAndGuard(guard1.getParameter(), guard1, guard2);
+        return new SDTGuard.SDTAndGuard(guard1.getParameter(), List.of(guard1, guard2));
     }
 
     private boolean canBeMerged(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
             Mapping<SymbolicDataValue, DataValue> valuation) {
-        if (a.equals(b) || a instanceof SDTTrueGuard || b instanceof SDTTrueGuard)
+        if (a.equals(b) || a instanceof SDTGuard.SDTTrueGuard || b instanceof SDTGuard.SDTTrueGuard)
             return true;
 
         // FIXME: Falk added this to prevent and of two equals
-        if (a instanceof EqualityGuard && b instanceof EqualityGuard)
+        if (a instanceof SDTGuard.EqualityGuard && b instanceof SDTGuard.EqualityGuard)
             return false;
 
         // some quick answers, implemented for compatibility with older theories.
-        if (a instanceof EqualityGuard)
-            if (b.equals(((EqualityGuard) a).toDeqGuard()))
+        if (a instanceof SDTGuard.EqualityGuard)
+            if (b.equals( SDTGuard.toDeqGuard(a) ))
                 return false;
-        if (b instanceof EqualityGuard)
-            if (a.equals(((EqualityGuard) b).toDeqGuard()))
+        if (b instanceof SDTGuard.EqualityGuard)
+            if (a.equals( SDTGuard.toDeqGuard(b) ))
                 return false;
-        return !mlo.areMutuallyExclusive(a.toExpr(), new PIV(), b.toExpr(), new PIV(), valuation);
+        return !mlo.areMutuallyExclusive(SDTGuard.toExpr(a), new PIV(), SDTGuard.toExpr(b), new PIV(), valuation);
     }
 
     private boolean refines(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
             Mapping<SymbolicDataValue, DataValue> valuation) {
-        if (b instanceof SDTTrueGuard)
+        if (b instanceof SDTGuard.SDTTrueGuard)
             return true;
-        boolean ref1 = mlo.doesRefine(a.toExpr(), new PIV(), b.toExpr(), new PIV(), valuation);
+        boolean ref1 = mlo.doesRefine(SDTGuard.toExpr(a), new PIV(), SDTGuard.toExpr(b), new PIV(), valuation);
         return ref1;
     }
 

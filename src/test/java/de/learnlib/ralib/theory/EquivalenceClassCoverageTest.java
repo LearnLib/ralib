@@ -19,7 +19,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -344,7 +343,7 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
 		SuffixValue s1 = sgen.next(t);
 		SuffixValue s2 = sgen.next(t);
 		SuffixValue s3 = sgen.next(t);
-		SDTGuard ig = new IntervalGuard(s3, s1, s2);
+		SDTGuard ig = new SDTGuard.IntervalGuard(s3, s1, s2);
 		Valuation vals1 = new Valuation();
 		vals1.setValue(s1, d1.getValue());
 		vals1.setValue(s2, d2.getValue());

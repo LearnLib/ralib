@@ -9,9 +9,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -122,11 +120,11 @@ public abstract class SuffixValueRestriction {
 	public static SuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	SuffixValue suffixValue = guard.getParameter();
     	// case fresh
-    	if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+    	if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
     		return new FreshSuffixValue(suffixValue);
     	// case equal to previous suffix value
-    	} else if (guard instanceof EqualityGuard) {
-    		SymbolicDataValue param = ((EqualityGuard) guard).getRegister();
+    	} else if (guard instanceof SDTGuard.EqualityGuard) {
+    		SymbolicDataValue param = ((SDTGuard.EqualityGuard) guard).register();
     		if (param instanceof SuffixValue) {
     			SuffixValueRestriction restr = prior.get(param);
     			if (restr instanceof FreshSuffixValue) {

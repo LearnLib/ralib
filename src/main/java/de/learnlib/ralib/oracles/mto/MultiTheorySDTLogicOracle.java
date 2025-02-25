@@ -251,7 +251,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                     newValuation.put(suffixValue, value);
                     boolean found = false;
                     for (Map.Entry<SDTGuard, SDT> entry : nextSdt.getChildren().entrySet()) {
-                        Expression<Boolean> guardExpr = entry.getKey().toExpr();
+                        Expression<Boolean> guardExpr = SDTGuard.toExpr(entry.getKey());
                         if (solver.isSatisfiable(guardExpr, newValuation)) {
                             nextSdt = entry.getValue();
                             found = true;

@@ -1,8 +1,10 @@
 package de.learnlib.ralib.dt;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
+import de.learnlib.ralib.theory.SDTGuard;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -25,11 +27,6 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
-import de.learnlib.ralib.theory.SDTAndGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -142,14 +139,14 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 		SDT sdtEps = SDTLeaf.ACCEPTING;
 		SDT sdtPrefix = new SDT(Map.of(
-				new SDTOrGuard(s1, new EqualityGuard(s1, r1), new EqualityGuard(s1, r2)), SDTLeaf.ACCEPTING,
-				new SDTAndGuard(s1, new DisequalityGuard(s1, r1), new DisequalityGuard(s1, r2)), SDTLeaf.REJECTING));
+				new SDTGuard.SDTOrGuard(s1, List.of(new SDTGuard.EqualityGuard(s1, r1), new SDTGuard.EqualityGuard(s1, r2))), SDTLeaf.ACCEPTING,
+				new SDTGuard.SDTAndGuard(s1, List.of(new SDTGuard.DisequalityGuard(s1, r1), new SDTGuard.DisequalityGuard(s1, r2))), SDTLeaf.REJECTING));
 		SDT sdtWord = new SDT(Map.of(
-				new EqualityGuard(s1, r1), new SDT(Map.of(
-						new EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
-						new DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
-				new DisequalityGuard(s1, r1), new SDT(Map.of(
-						new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+			new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+				new SDTGuard.EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
+				new SDTGuard.DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
+			new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
 
 		TreeQueryResult tqrEps = new TreeQueryResult(new PIV(), sdtEps);
 		TreeQueryResult tqrPrefix = new TreeQueryResult(pivPrefix, sdtPrefix);

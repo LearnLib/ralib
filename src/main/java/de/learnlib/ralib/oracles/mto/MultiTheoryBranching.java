@@ -237,7 +237,7 @@ public class MultiTheoryBranching implements Branching {
             List<Expression<Boolean> > gExpr = new ArrayList<>();
             List<SDTGuard> gList = entry.getValue();
             for (SDTGuard g : gList) {
-                gExpr.add(renameSuffixValues(g.toExpr()));
+                gExpr.add(renameSuffixValues(SDTGuard.toExpr(g)));
             }
             Expression<Boolean> tg = ExpressionUtil.and(
                     gExpr.stream().toList().toArray(new Expression[]{})

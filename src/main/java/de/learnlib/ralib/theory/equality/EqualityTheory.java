@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.theory.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,14 +50,6 @@ import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.EquivalenceClassFilter;
-import de.learnlib.ralib.theory.SDTAndGuard;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTMultiGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -95,22 +88,22 @@ public abstract class EqualityTheory implements Theory {
 
     // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT. Base case: always add the 'else' guard first.
-    private Map<SDTGuard, SDT> mergeGuards(Map<EqualityGuard, SDT> eqs, SDTAndGuard deqGuard, SDT deqSdt) {
+    private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard.EqualityGuard, SDT> eqs, SDTGuard.SDTAndGuard deqGuard, SDT deqSdt) {
 
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
-        List<DisequalityGuard> deqList = new ArrayList<>();
-        List<EqualityGuard> eqList = new ArrayList<>();
-        for (Map.Entry<EqualityGuard, SDT> e : eqs.entrySet()) {
+        List<SDTGuard> deqList = new ArrayList<>();
+        List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
+        for (Map.Entry<SDTGuard.EqualityGuard, SDT> e : eqs.entrySet()) {
             SDT eqSdt = e.getValue();
-            EqualityGuard eqGuard = e.getKey();
+            SDTGuard.EqualityGuard eqGuard = e.getKey();
             LOGGER.trace("comparing guards: " + eqGuard.toString() + " to " + deqGuard.toString()
                     + "\nSDT    : " + eqSdt.toString() + "\nto SDT : " + deqSdt.toString());
-            List<SDTIfGuard> ds = new ArrayList<>();
+            List<SDTGuard.EqualityGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds);
             if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
                 LOGGER.trace("--> not eq.");
-                deqList.add(eqGuard.toDeqGuard());
+                deqList.add(SDTGuard.toDeqGuard(eqGuard));
                 eqList.add(eqGuard);
             } else {
                 LOGGER.trace("--> equivalent");
@@ -118,16 +111,16 @@ public abstract class EqualityTheory implements Theory {
 
         }
         if (eqList.isEmpty()) {
-            retMap.put(new SDTTrueGuard(deqGuard.getParameter()), deqSdt);
+            retMap.put(new SDTGuard.SDTTrueGuard(deqGuard.getParameter()), deqSdt);
         } else if (eqList.size() == 1) {
-            EqualityGuard q = eqList.get(0);
+            SDTGuard.EqualityGuard q = eqList.get(0);
             retMap.put(q, eqs.get(q));
-            retMap.put(q.toDeqGuard(), deqSdt);
+            retMap.put(SDTGuard.toDeqGuard(q), deqSdt);
         } else if (eqList.size() > 1) {
-            for (EqualityGuard q : eqList) {
+            for (SDTGuard.EqualityGuard q : eqList) {
                 retMap.put(q, eqs.get(q));
             }
-            retMap.put(new SDTAndGuard(deqGuard.getParameter(), deqList.toArray(new SDTIfGuard[] {})), deqSdt);
+            retMap.put(new SDTGuard.SDTAndGuard(deqGuard.getParameter(), deqList), deqSdt);
         }
         assert !retMap.isEmpty();
 
@@ -140,9 +133,10 @@ public abstract class EqualityTheory implements Theory {
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
-            if (mg instanceof EqualityGuard) {
+            if (mg instanceof SDTGuard.EqualityGuard eg) {
                 LOGGER.trace(mg.toString());
-                SymbolicDataValue r = ((EqualityGuard) mg).getRegister();
+                SymbolicDataValue r = eg.register();
+                // FIXME: why create new parameter?
                 Parameter p = new Parameter(r.getDataType(), r.getId());
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
@@ -162,7 +156,7 @@ public abstract class EqualityTheory implements Theory {
         SuffixValue currentParam = suffix.getSuffixValue(pId);
         DataType type = currentParam.getDataType();
 
-        Map<EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
+        Map<SDTGuard.EqualityGuard, SDT> tempKids = new LinkedHashMap<>();
 
         Collection<DataValue> potSet = DataWords.joinValsToSet(constants.values(type),
                 DataWords.valSet(prefix, type), suffixValues.values(type));
@@ -209,7 +203,7 @@ public abstract class EqualityTheory implements Theory {
 
                         LOGGER.trace(" single deq SDT : " + sdt.toString());
 
-                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, new SDTAndGuard(currentParam), sdt);
+                        Map<SDTGuard, SDT> merged = mergeGuards(tempKids, new SDTGuard.SDTAndGuard(currentParam, List.of()), sdt);
 
                         LOGGER.trace("temporary guards = " + tempKids.keySet());
                         LOGGER.trace("merged guards = " + merged.keySet());
@@ -220,7 +214,7 @@ public abstract class EqualityTheory implements Theory {
                 } else {
                     int maxSufIndex = DataWords.paramLength(suffix.getActions()) + 1;
                     SDT rejSdt = makeRejectingBranch(currentParam.getId() + 1, maxSufIndex, type);
-                    SDTTrueGuard trueGuard = new SDTTrueGuard(currentParam);
+                    SDTGuard.SDTTrueGuard trueGuard = new SDTGuard.SDTTrueGuard(currentParam);
                     Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
                     merged.put(trueGuard, rejSdt);
                     return new SDT(merged);
@@ -236,7 +230,7 @@ public abstract class EqualityTheory implements Theory {
 
         LOGGER.trace("prefix list    " + prefixValues);
 
-        List<DisequalityGuard> diseqList = new ArrayList<DisequalityGuard>();
+        List<SDTGuard> diseqList = new ArrayList<>();
         for (DataValue newDv : potential) {
         	if (filteredEquivClasses.contains(newDv)) {
 	            LOGGER.trace(newDv.toString());
@@ -245,9 +239,9 @@ public abstract class EqualityTheory implements Theory {
 	            SuffixValuation ifSuffixValues = new SuffixValuation();
 	            ifSuffixValues.putAll(suffixValues); // copy the suffix valuation
 
-	            EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
+	            SDTGuard.EqualityGuard eqGuard = pickupDataValue(newDv, prefixValues, currentParam, values, constants);
 	            LOGGER.trace("eqGuard is: " + eqGuard);
-	            diseqList.add(new DisequalityGuard(currentParam, eqGuard.getRegister()));
+	            diseqList.add(new SDTGuard.DisequalityGuard(currentParam, eqGuard.register()));
 	            // construct the equality guard
 	            // find the data value in the prefix
 	            // this is the valuation of the positions in the suffix
@@ -276,7 +270,7 @@ public abstract class EqualityTheory implements Theory {
 
 	        SDT elseOracleSdt = oracle.treeQuery(prefix, suffix, elseValues, pir, constants, elseSuffixValues);
 
-	        SDTAndGuard deqGuard = new SDTAndGuard(currentParam, (diseqList.toArray(new DisequalityGuard[] {})));
+	        SDTGuard.SDTAndGuard deqGuard = new SDTGuard.SDTAndGuard(currentParam, diseqList);
 	        LOGGER.trace("diseq guard = " + deqGuard);
 
 	        // merge the guards
@@ -286,8 +280,8 @@ public abstract class EqualityTheory implements Theory {
         	// TODO: add  support for multiple equalities with same outcome
         	assert tempKids.size() == 1;
 
-        	Iterator<Map.Entry<EqualityGuard, SDT>> it = tempKids.entrySet().iterator();
-        	Map.Entry<EqualityGuard, SDT> e = it.next();
+        	Iterator<Map.Entry<SDTGuard.EqualityGuard, SDT>> it = tempKids.entrySet().iterator();
+        	Map.Entry<SDTGuard.EqualityGuard, SDT> e = it.next();
         	merged = new LinkedHashMap<SDTGuard, SDT>();
         	merged.put(e.getKey(), e.getValue());
         }
@@ -312,13 +306,13 @@ public abstract class EqualityTheory implements Theory {
     }
 
     // construct equality guard by picking up a data value from the prefix
-    private EqualityGuard pickupDataValue(DataValue newDv, List<DataValue> prefixValues, SuffixValue currentParam,
+    private SDTGuard.EqualityGuard pickupDataValue(DataValue newDv, List<DataValue> prefixValues, SuffixValue currentParam,
             WordValuation ifValues, Constants constants) {
         DataType type = currentParam.getDataType();
         int newDv_i;
         for (Map.Entry <Constant, DataValue> entry : constants.entrySet()) {
             if (entry.getValue().equals(newDv)) {
-                return new EqualityGuard(currentParam, entry.getKey());
+                return new SDTGuard.EqualityGuard(currentParam, entry.getKey());
             }
         }
         if (prefixValues.contains(newDv)) {
@@ -327,14 +321,14 @@ public abstract class EqualityTheory implements Theory {
             Register newDv_r = new Register(type, newDv_i);
             LOGGER.trace("current param = " + currentParam);
             LOGGER.trace("New register = " + newDv_r);
-            return new EqualityGuard(currentParam, newDv_r);
+            return new SDTGuard.EqualityGuard(currentParam, newDv_r);
 
         } // if the data value isn't in the prefix,
             // it is somewhere earlier in the suffix
         else {
 
             int smallest = Collections.min(ifValues.getAllKeys(newDv));
-            return new EqualityGuard(currentParam, new SuffixValue(type, smallest));
+            return new SDTGuard.EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
     }
 
@@ -351,9 +345,9 @@ public abstract class EqualityTheory implements Theory {
 
         while(!guards.isEmpty()) {
             SDTGuard current = guards.remove();
-            if (current instanceof EqualityGuard eqGuard) {
+            if (current instanceof SDTGuard.EqualityGuard eqGuard) {
                 LOGGER.trace("equality guard " + current);
-                SymbolicDataValue ereg = eqGuard.getRegister();
+                SymbolicDataValue ereg = eqGuard.register();
                 if (ereg.isRegister()) {
                     LOGGER.trace("piv: " + piv.toString()
                             + " " + ereg + " " + param);
@@ -367,8 +361,8 @@ public abstract class EqualityTheory implements Theory {
                 } else if (ereg.isConstant()) {
                     return constants.get((Constant) ereg);
                 }
-            } else if (current instanceof SDTAndGuard) {
-                guards.addAll(((SDTAndGuard) current).getGuards());
+            } else if (current instanceof SDTGuard.SDTAndGuard) {
+                guards.addAll(((SDTGuard.SDTAndGuard) current).conjuncts());
             }
         }
 
@@ -438,7 +432,7 @@ public abstract class EqualityTheory implements Theory {
             return SDTLeaf.REJECTING;
         } else {
             Map<SDTGuard, SDT> map = new LinkedHashMap<>();
-            SDTTrueGuard trueGuard = new SDTTrueGuard(new SuffixValue(type, nextSufIndex));
+            SDTGuard.SDTTrueGuard trueGuard = new SDTGuard.SDTTrueGuard(new SuffixValue(type, nextSufIndex));
             map.put(trueGuard, makeRejectingBranch(nextSufIndex + 1, maxIndex, type));
             SDT sdt = new SDT(map);
             return sdt;
@@ -459,17 +453,22 @@ public abstract class EqualityTheory implements Theory {
 
     @Override
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-    	if (guard instanceof EqualityGuard && ((EqualityGuard) guard).getRegister().equals(register)) {
+    	if (guard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) guard).register().equals(register)) {
     		return true;
-    	} else if (guard instanceof DisequalityGuard && ((DisequalityGuard)guard).getRegister().equals(register)) {
+    	} else if (guard instanceof SDTGuard.DisequalityGuard && ((SDTGuard.DisequalityGuard)guard).register().equals(register)) {
     		return true;
-    	} else if (guard instanceof SDTMultiGuard) {
+    	} else if (guard instanceof SDTGuard.SDTAndGuard ag) {
     		boolean revealsGuard = false;
-    		for (SDTGuard g : ((SDTMultiGuard)guard).getGuards()) {
+    		for (SDTGuard g : ag.conjuncts()) {
     			revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
     		}
     		return revealsGuard;
-    	}
-    	return false;
+        } else if (guard instanceof SDTGuard.SDTOrGuard og) {
+            boolean revealsGuard = false;
+            for (SDTGuard g : og.disjuncts()) {
+                revealsGuard = revealsGuard || this.guardRevealsRegister(g, register);
+            }
+            return revealsGuard;
+        }    	return false;
     }
 }

@@ -36,16 +36,11 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SDTAndGuard;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -176,46 +171,46 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix8 = new SymbolicSuffix(word8a.prefix(2), word8a.suffix(1), restrictionBuilder);
 
         SDT sdt1 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+        		new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
         SDT sdt2 = new SDT(Map.of(
-        		new SDTOrGuard(s1, new EqualityGuard(s1, r1), new EqualityGuard(s1, r2)), new SDT(Map.of(
-        				new SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
-        		new SDTAndGuard(s1, new DisequalityGuard(s1, r1), new DisequalityGuard(s1, r2)), new SDT(Map.of(
-        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+        		new SDTGuard.SDTOrGuard(s1, List.of(new SDTGuard.EqualityGuard(s1, r1), new SDTGuard.EqualityGuard(s1, r2))), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
+        		new SDTGuard.SDTAndGuard(s1, List.of(new SDTGuard.DisequalityGuard(s1, r1), new SDTGuard.DisequalityGuard(s1, r2))), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
         SDT sdt3 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, c1), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s2, c1), SDTLeaf.REJECTING)),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new SDTTrueGuard(s2), SDTLeaf.REJECTING))));
+        		new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, c1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, c1), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
         SDT sdt4 = new SDT(Map.of(
-        		new SDTTrueGuard(s1), new SDT(Map.of(
-        				new EqualityGuard(s2, s1), new SDT(Map.of(
-        						new EqualityGuard(s3, r1), new SDT(Map.of(
-        								new EqualityGuard(s4, r1), SDTLeaf.ACCEPTING,
-        								new DisequalityGuard(s4, r1), SDTLeaf.REJECTING)),
-        						new DisequalityGuard(s3, r1), new SDT(Map.of(
-        								new SDTTrueGuard(s4), SDTLeaf.REJECTING)))),
-        				new DisequalityGuard(s2, s1), new SDT(Map.of(
-        						new SDTTrueGuard(s3), new SDT(Map.of(
-        								new SDTTrueGuard(s4), SDTLeaf.REJECTING))))))));
+        		new SDTGuard.SDTTrueGuard(s1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, s1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, r1), new SDT(Map.of(
+        								new SDTGuard.EqualityGuard(s4, r1), SDTLeaf.ACCEPTING,
+        								new SDTGuard.DisequalityGuard(s4, r1), SDTLeaf.REJECTING)),
+        						new SDTGuard.DisequalityGuard(s3, r1), new SDT(Map.of(
+        								new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING)))),
+        				new SDTGuard.DisequalityGuard(s2, s1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), new SDT(Map.of(
+        								new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING))))))));
         SDT sdt5 = new SDT(Map.of(
-        		new SDTTrueGuard(s1), new SDT(Map.of(
-        				new EqualityGuard(s2, s1), new SDT(Map.of(
-        						new EqualityGuard(s3, r1), new SDT(Map.of(
-        								new SDTTrueGuard(s4), SDTLeaf.REJECTING)),
-        						new DisequalityGuard(s3, r1), new SDT(Map.of(
-        								new EqualityGuard(s4, s3), SDTLeaf.ACCEPTING,
-        								new DisequalityGuard(s4, s3), SDTLeaf.REJECTING))))))));
+        		new SDTGuard.SDTTrueGuard(s1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, s1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, r1), new SDT(Map.of(
+        								new SDTGuard.SDTTrueGuard(s4), SDTLeaf.REJECTING)),
+        						new SDTGuard.DisequalityGuard(s3, r1), new SDT(Map.of(
+        								new SDTGuard.EqualityGuard(s4, s3), SDTLeaf.ACCEPTING,
+        								new SDTGuard.DisequalityGuard(s4, s3), SDTLeaf.REJECTING))))))));
         SDT sdt6 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), SDTLeaf.ACCEPTING,
-        		new DisequalityGuard(s1, r1), SDTLeaf.REJECTING));
+        		new SDTGuard.EqualityGuard(s1, r1), SDTLeaf.ACCEPTING,
+        		new SDTGuard.DisequalityGuard(s1, r1), SDTLeaf.REJECTING));
         SDT sdt7 = new SDT(Map.of(
-        		new SDTTrueGuard(s1), SDTLeaf.REJECTING));
+        		new SDTGuard.SDTTrueGuard(s1), SDTLeaf.REJECTING));
 
         SymbolicSuffix expected1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(2), restrictionBuilder);
         SymbolicSuffix actual1 = builder.extendSuffix(word1.prefix(2), sdt1, piv1, suffix1);
@@ -352,21 +347,21 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix4 = new SymbolicSuffix(word4.prefix(2), word4.suffix(1), restrictionBuilder2);
 
         List<SDTGuard> sdtPath1 = new ArrayList<>();
-        sdtPath1.add(new EqualityGuard(s1, r1));
-        sdtPath1.add(new EqualityGuard(s2, r2));
-        sdtPath1.add(new EqualityGuard(s3, r3));
-        sdtPath1.add(new EqualityGuard(s4, s1));
-        sdtPath1.add(new EqualityGuard(s5, s3));
+        sdtPath1.add(new SDTGuard.EqualityGuard(s1, r1));
+        sdtPath1.add(new SDTGuard.EqualityGuard(s2, r2));
+        sdtPath1.add(new SDTGuard.EqualityGuard(s3, r3));
+        sdtPath1.add(new SDTGuard.EqualityGuard(s4, s1));
+        sdtPath1.add(new SDTGuard.EqualityGuard(s5, s3));
         List<SDTGuard> sdtPath2 = new ArrayList<>();
-        sdtPath2.add(new DisequalityGuard(s1, r1));
-        sdtPath2.add(new DisequalityGuard(s2, r2));
-        sdtPath2.add(new DisequalityGuard(s3, r3));
-        sdtPath2.add(new DisequalityGuard(s4, s1));
-        sdtPath2.add(new DisequalityGuard(s5, s3));
+        sdtPath2.add(new SDTGuard.DisequalityGuard(s1, r1));
+        sdtPath2.add(new SDTGuard.DisequalityGuard(s2, r2));
+        sdtPath2.add(new SDTGuard.DisequalityGuard(s3, r3));
+        sdtPath2.add(new SDTGuard.DisequalityGuard(s4, s1));
+        sdtPath2.add(new SDTGuard.DisequalityGuard(s5, s3));
         List<SDTGuard> sdtPath3 = new ArrayList<>();
-        sdtPath3.add(new EqualityGuard(s1, c1));
-        sdtPath3.add(new DisequalityGuard(s2, c2));
-        sdtPath3.add(new SDTTrueGuard(s3));
+        sdtPath3.add(new SDTGuard.EqualityGuard(s1, c1));
+        sdtPath3.add(new SDTGuard.DisequalityGuard(s2, c2));
+        sdtPath3.add(new SDTGuard.SDTTrueGuard(s3));
         List<List<SDTGuard>> sdtPaths4 = SDTLeaf.ACCEPTING.getPaths(true);
         List<SDTGuard> sdtPath4 = sdtPaths4.get(0);
 
@@ -423,21 +418,21 @@ public class OptimizedSymbolicSuffixBuilderTest {
                 new PSymbolInstance(a, new DataValue(type, BigDecimal.ONE)));
 
         SDT sdt1 = new SDT(Map.of(
-                new EqualityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
-                                new DisequalityGuard(s3, s2), SDTLeaf.REJECTING
+                new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
+                                new SDTGuard.DisequalityGuard(s3, s2), SDTLeaf.REJECTING
                                 )))),
-                new DisequalityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
+                new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
         SDT sdt2 = new SDT(Map.of(
-                new EqualityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new SDTTrueGuard(s3), SDTLeaf.ACCEPTING)))),
-                new DisequalityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
+                new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)))),
+                new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
 
         PIV piv1 = new PIV();
         piv1.put(p1, r1);
@@ -459,24 +454,24 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Word<PSymbolInstance> prefix3 = prefix1;
         Word<PSymbolInstance> prefix4 = prefix2;
         SDT sdt3 = new SDT(Map.of(
-                new EqualityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
-                                new DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
-                new DisequalityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+                new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
+                                new SDTGuard.DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
+                new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
 
         SDT sdt4 = new SDT(Map.of(
-                new EqualityGuard(s1, r1), new SDT(Map.of(
-                        new EqualityGuard(s2, r2), new SDT(Map.of(
-                                new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING)),
-                        new DisequalityGuard(s2, r2), new SDT(Map.of(
-                                new EqualityGuard(s3, s2), SDTLeaf.REJECTING)))),
-                new DisequalityGuard(s1, r1), new SDT(Map.of(
-                        new SDTTrueGuard(s2), new SDT(Map.of(
-                                new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+                new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.EqualityGuard(s2, r2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING)),
+                        new SDTGuard.DisequalityGuard(s2, r2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.REJECTING)))),
+                new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
         PIV piv3 = new PIV();
         piv3.put(p1, r1);
@@ -532,11 +527,11 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(3), restrictionBuilder);
         SDT sdt1 = new SDT(Map.of(
-        		new EqualityGuard(s1, r2), new SDT(Map.of(
-        				new SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
-        		new DisequalityGuard(s1, r2), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), SDTLeaf.REJECTING,
-        				new DisequalityGuard(s2, r1), SDTLeaf.ACCEPTING))));
+        		new SDTGuard.EqualityGuard(s1, r2), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
+        		new SDTGuard.DisequalityGuard(s1, r2), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), SDTLeaf.REJECTING,
+        				new SDTGuard.DisequalityGuard(s2, r1), SDTLeaf.ACCEPTING))));
         PIV piv1 = new PIV();
         piv1.put(p1, r1);
         piv1.put(p2, r2);
@@ -553,12 +548,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(3), word2.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder);
         SDT sdt2 = new SDT(Map.of(
-        		new EqualityGuard(s1, r2), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s2, r1), SDTLeaf.REJECTING)),
-        		new DisequalityGuard(s1, r2), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), SDTLeaf.REJECTING,
-        				new DisequalityGuard(s2, r1), SDTLeaf.ACCEPTING))));
+        		new SDTGuard.EqualityGuard(s1, r2), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, r1), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, r2), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), SDTLeaf.REJECTING,
+        				new SDTGuard.DisequalityGuard(s2, r1), SDTLeaf.ACCEPTING))));
         PIV piv2 = new PIV();
         piv2.putAll(piv1);
         SymbolicSuffix actualSuffix2 = builder.extendSuffix(word2.prefix(2), sdt2, piv2, suffix2, r1, r2);
@@ -573,12 +568,12 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(2), restrictionBuilder);
         SymbolicSuffix expectedSuffix3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder);
         SDT sdt3 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r3), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s2, r3), SDTLeaf.REJECTING))));
+        		new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r2), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, r2), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r3), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, r3), SDTLeaf.REJECTING))));
         PIV piv3 = new PIV();
         piv3.put(p1, r1);
         piv3.put(p2, r2);
@@ -618,58 +613,58 @@ public class OptimizedSymbolicSuffixBuilderTest {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
 
         SDT subSDT1 = new SDT(Map.of(
-        		new EqualityGuard(s2, r1), new SDT(Map.of(
-        				new SDTTrueGuard(s3), SDTLeaf.ACCEPTING)),
-        		new DisequalityGuard(s2, r1), new SDT(Map.of(
-        				new EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
+        		new SDTGuard.EqualityGuard(s2, r1), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)),
+        		new SDTGuard.DisequalityGuard(s2, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
         SDT subSDT2 = new SDT(Map.of(
-        		new SDTTrueGuard(s2), new SDT(Map.of(
-        				new EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
-        				new DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
+        		new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s3, r1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s3, r1), SDTLeaf.REJECTING))));
         SDT subSDT3 = new SDT(Map.of(
-        		new SDTTrueGuard(s2), new SDT(Map.of(
-        				new SDTTrueGuard(s3), SDTLeaf.REJECTING))));
+        		new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))));
 
         SDT sdt1 = new SDT(Map.of(
-        		new EqualityGuard(s1, r2), subSDT1,
-        		new DisequalityGuard(s1, r2), subSDT2));
+        		new SDTGuard.EqualityGuard(s1, r2), subSDT1,
+        		new SDTGuard.DisequalityGuard(s1, r2), subSDT2));
         SDT sdt2 = new SDT(Map.of(
-        		new EqualityGuard(s1, r2), subSDT1,
-        		new DisequalityGuard(s1, r2), subSDT3));
+        		new SDTGuard.EqualityGuard(s1, r2), subSDT1,
+        		new SDTGuard.DisequalityGuard(s1, r2), subSDT3));
         Map<SDTGuard, SDT> branches2 = new LinkedHashMap<>();
         for (Map.Entry<SDTGuard, SDT> e : sdt2.getChildren().entrySet()) {
-        	if (e.getKey() instanceof EqualityGuard)
+        	if (e.getKey() instanceof SDTGuard.EqualityGuard)
         		branches2.put(e.getKey(), e.getValue());
         }
 
         SDT sdt3 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), new SDT(Map.of(
-        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
-        						new DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
-        				new DisequalityGuard(s2, r1), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), new SDT(Map.of(
-        						new EqualityGuard(s3, r2), SDTLeaf.REJECTING,
-        						new DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
-        				new DisequalityGuard(s2, r1), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+        		new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
+        						new SDTGuard.DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
+        				new SDTGuard.DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, r2), SDTLeaf.REJECTING,
+        						new SDTGuard.DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
         SDT expected1 = sdt1;
         SDT expected2 = new SDT(branches2);
         SDT expected3 = new SDT(Map.of(
-        		new EqualityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), new SDT(Map.of(
-        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING)),
-        				new DisequalityGuard(s2, r1), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new EqualityGuard(s2, r1), new SDT(Map.of(
-        						new DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
-        				new DisequalityGuard(s2, r1), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+        		new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.DisequalityGuard(s3, r2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, r1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
         SDT actual1 = builder.pruneSDT(sdt1, new SymbolicDataValue[] {r1});
         SDT actual2 = builder.pruneSDT(sdt2, new SymbolicDataValue[] {r1});
