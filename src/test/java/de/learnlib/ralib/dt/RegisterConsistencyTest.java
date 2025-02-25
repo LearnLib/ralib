@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import de.learnlib.ralib.theory.SDTGuard;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -27,6 +26,7 @@ import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;

@@ -3,7 +3,6 @@ package de.learnlib.ralib.theory;
 import java.util.*;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
 
 public class SDTGuardUtil {
 
