@@ -1,16 +1,19 @@
 package de.learnlib.ralib.dt;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -19,10 +22,38 @@ import net.automatalib.word.Word;
 public class DTHyp extends Hypothesis {
 
 	private final DT dt;
+	private final Map<RALocation, DTLeaf> leaves;
 
 	public DTHyp(Constants consts, DT dt) {
 		super(consts);
 		this.dt = dt;
+		leaves = new LinkedHashMap<>();
+	}
+
+	public RALocation addState(Boolean sp, LocationComponent leaf) {
+		RALocation loc = super.addState(sp);
+		assert leaf instanceof DTLeaf;
+		leaves.put(loc, (DTLeaf) leaf);
+		return loc;
+	}
+
+	public RALocation addState(LocationComponent leaf) {
+		return addState(true, leaf);
+	}
+
+	public RALocation addInitialState(Boolean sp, LocationComponent leaf) {
+		RALocation loc = super.addInitialState(sp);
+		assert leaf instanceof DTLeaf;
+		leaves.put(loc, (DTLeaf) leaf);
+		return loc;
+	}
+
+	public RALocation addInitialState(LocationComponent leaf) {
+		return addInitialState(true, leaf);
+	}
+
+	public DTLeaf getLeaf(RALocation loc) {
+		return leaves.get(loc);
 	}
 
 	@Override

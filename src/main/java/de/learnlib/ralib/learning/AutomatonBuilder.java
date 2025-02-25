@@ -83,16 +83,20 @@ public class AutomatonBuilder {
     private void computeLocations() {
     	LocationComponent c = components.get(RaStar.EMPTY_PREFIX);
         LOGGER.debug(Category.EVENT, "{0}", c);
-        RALocation loc = this.automaton.addInitialState(c.isAccepting());
-        this.locations.put(RaStar.EMPTY_PREFIX, loc);
-        this.automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
+        RALocation loc = automaton instanceof DTHyp ?
+        		((DTHyp) automaton).addInitialState(c.isAccepting(), c) :
+        		automaton.addInitialState(c.isAccepting());
+        locations.put(RaStar.EMPTY_PREFIX, loc);
+        automaton.setAccessSequence(loc, RaStar.EMPTY_PREFIX);
 
         for (Entry<Word<PSymbolInstance>, LocationComponent> e : this.components.entrySet()) {
             if (!e.getKey().equals(RaStar.EMPTY_PREFIX)) {
                 LOGGER.debug(Category.EVENT, "{0}", e.getValue());
-                loc = this.automaton.addState(e.getValue().isAccepting());
-                this.locations.put(e.getKey(), loc);
-                this.automaton.setAccessSequence(loc, e.getKey());
+                loc = automaton instanceof DTHyp ?
+                		((DTHyp) automaton).addState(e.getValue().isAccepting(), c) :
+                		automaton.addState(e.getValue().isAccepting());
+                locations.put(e.getKey(), loc);
+                automaton.setAccessSequence(loc, e.getKey());
             }
         }
     }
