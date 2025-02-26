@@ -20,7 +20,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class MappedPrefix implements PrefixContainer {
-	private Word<PSymbolInstance> prefix;
+	private final Word<PSymbolInstance> prefix;
 	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
 	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
@@ -72,7 +72,7 @@ public class MappedPrefix implements PrefixContainer {
 		for (Entry<Parameter, Register> e : piv.entrySet()) {
 			Register r = memorable.get(e.getKey());
 			if (r == null) {
-				r = regGen.next(e.getKey().getType());
+				r = regGen.next(e.getKey().getDataType());
 				memorable.put(e.getKey(), r);
 			}
 		}
@@ -105,7 +105,7 @@ public class MappedPrefix implements PrefixContainer {
 
 	@Override
 	public String toString() {
-		return "{" + prefix.toString() + ", " + memorable.toString() + "}";
+		return "{" + prefix.toString() + ", " + memorable + "}";
 	}
 
 	@Override

@@ -64,7 +64,7 @@ public class SimulatorSUL extends DataWordSUL {
     private VarValuation register = null;
     private Word<PSymbolInstance> prefix = null;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SimulatorSUL.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorSUL.class);
 
     public SimulatorSUL(RegisterAutomaton model, Map<DataType, Theory> teachers,
             Constants consts) {
@@ -91,7 +91,7 @@ public class SimulatorSUL extends DataWordSUL {
     @Override
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
-        LOGGER.trace(Category.EVENT, "step: {0} from {1} with regs {2}", new Object[] {i, loc, register});
+        LOGGER.trace(Category.EVENT, "step: {0} from {1} with regs {2}", i, loc, register);
         prefix = prefix.append(i);
 
         boolean found = false;
@@ -128,10 +128,10 @@ public class SimulatorSUL extends DataWordSUL {
         int i = 0;
         for (DataType t : ps.getPtypes()) {
             Parameter p = pgen.next(t);
-            if (!mapping.getOutput().keySet().contains(p)) {
+            if (!mapping.getOutput().containsKey(p)) {
                 List<DataValue> old = computeOld(t, pval);
                 DataValue dv = teachers.get(t).getFreshValue(old);
-                vals[i] = new FreshValue(dv.getType(), dv.getId());
+                vals[i] = new FreshValue(dv.getDataType(), dv.getValue());
             }
             else {
                 SymbolicDataValue sv = mapping.getOutput().get(p);
@@ -169,7 +169,7 @@ public class SimulatorSUL extends DataWordSUL {
         Set<DataValue> set = new LinkedHashSet<>();
         set.addAll(DataWords.valSet(prefix, t));
         for (DataValue d : pval.values()){
-            if (d.getType().equals(t)) {
+            if (d.getDataType().equals(t)) {
                 set.add(d);
             }
         }

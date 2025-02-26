@@ -10,9 +10,9 @@ import de.learnlib.ralib.oracles.TreeOracle;
 
 public class DTInnerNode extends DTNode {
 
-	private SymbolicSuffix suffix;
+	private final SymbolicSuffix suffix;
 
-	private Set<DTBranch> branches;
+	private final Set<DTBranch> branches;
 
 	public DTInnerNode(SymbolicSuffix suffix) {
 		super();

@@ -22,6 +22,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,8 +44,7 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -79,26 +79,26 @@ public class LoginBranchingTest extends RaLibTestSuite {
         });
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, teachers, consts, new SimpleConstraintSolver(),
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR, teachers, consts, new ConstraintSolver(),
                 inputs);
 
         DataType uid = TestUtil.getType("uid", loader.getDataTypes());
         DataType pwd = TestUtil.getType("pwd", loader.getDataTypes());
 
-        ParameterizedSymbol reg = new InputSymbol("IRegister", new DataType[] { uid, pwd });
+        ParameterizedSymbol reg = new InputSymbol("IRegister", uid, pwd);
 
-        ParameterizedSymbol log = new InputSymbol("ILogin", new DataType[] { uid, pwd });
+        ParameterizedSymbol log = new InputSymbol("ILogin", uid, pwd);
 
-        ParameterizedSymbol ok = new OutputSymbol("OOK", new DataType[] {});
+        ParameterizedSymbol ok = new OutputSymbol("OOK");
 
-        DataValue u = new DataValue(uid, 0);
-        DataValue p = new DataValue(pwd, 0);
+        DataValue u = new DataValue(uid, BigDecimal.ZERO);
+        DataValue p = new DataValue(pwd, BigDecimal.ZERO);
 
-        Word<PSymbolInstance> prefix = Word.fromSymbols(new PSymbolInstance(reg, new DataValue[] { u, p }),
-                new PSymbolInstance(ok, new DataValue[] {}));
+        Word<PSymbolInstance> prefix = Word.fromSymbols(new PSymbolInstance(reg, u, p),
+                new PSymbolInstance(ok));
 
-        Word<PSymbolInstance> suffix = Word.fromSymbols(new PSymbolInstance(log, new DataValue[] { u, p }),
-                new PSymbolInstance(ok, new DataValue[] {}));
+        Word<PSymbolInstance> suffix = Word.fromSymbols(new PSymbolInstance(log, u, p),
+                new PSymbolInstance(ok));
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
@@ -144,20 +144,20 @@ public class LoginBranchingTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
         Word<PSymbolInstance> prefix = Word
-                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)));
+                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
-                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
-                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)),
-                        new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
+                        new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 
@@ -180,20 +180,20 @@ public class LoginBranchingTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
         Word<PSymbolInstance> prefix = Word
-                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)));
+                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
-                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
-                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)),
-                        new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
+                        new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 
@@ -212,20 +212,20 @@ public class LoginBranchingTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
         Word<PSymbolInstance> prefix = Word
-                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)));
+                .fromLetter(new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
-                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
-                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1)),
-                        new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 1))));
+                Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
+                        new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 

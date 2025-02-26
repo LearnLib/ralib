@@ -39,8 +39,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -75,12 +74,12 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
-            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            TypedTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
@@ -101,7 +100,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
                 model, teachers, consts, true, actions);
 
         int check = 0;
-        while (true && check < 10) {
+        while (check < 10) {
 
             check++;
             rastar.learn();
@@ -118,7 +117,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }

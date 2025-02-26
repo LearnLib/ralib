@@ -44,7 +44,7 @@ public class IOFilter extends QueryCounter implements DataWordOracle {
 
     private final DataWordOracle back;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(IOFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IOFilter.class);
 
     public IOFilter(DataWordOracle back, ParameterizedSymbol ... inputs) {
         this.inputs = new LinkedHashSet<>(Arrays.asList(inputs));

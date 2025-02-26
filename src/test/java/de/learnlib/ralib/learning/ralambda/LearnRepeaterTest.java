@@ -4,6 +4,7 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.IPUT;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.OECHO;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,8 +28,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -52,7 +52,7 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 	IOCache ioCache = new IOCache(ioOracle);
 	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto =
 	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
@@ -77,12 +77,12 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertNull(repeater.repeat(0));
 
         Word<PSymbolInstance> ce =
-	    Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-			     new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-			     new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)));
+	    Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)));
 
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
 

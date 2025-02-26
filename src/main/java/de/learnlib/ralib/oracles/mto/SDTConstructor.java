@@ -21,6 +21,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
@@ -30,7 +31,7 @@ import net.automatalib.word.Word;
  */
 public interface SDTConstructor {
 
-    public SDT treeQuery(
+    SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             WordValuation values, PIV piv,
             Constants constants, SuffixValuation suffixValues);

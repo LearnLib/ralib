@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -37,15 +36,16 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -118,7 +118,7 @@ public class Component implements LocationComponent {
                 continue;
             }
 
-            SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+            SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
                     getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
 
@@ -178,7 +178,7 @@ public class Component implements LocationComponent {
 
     private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
         Branching b = branching.get(ps);
-        SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+        SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
         Branching newB = oracle.updateBranching(getAccessSequence(), ps, b,
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;
@@ -298,7 +298,7 @@ public class Component implements LocationComponent {
         sb.append("******** BRANCHING: ").append("\n");
         for (Entry<ParameterizedSymbol, Branching> b : branching.entrySet()) {
              sb.append(b.getKey()).append(":\n");
-             for (Entry<Word<PSymbolInstance>, TransitionGuard> e :
+             for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e :
                      b.getValue().getBranches().entrySet()) {
                  sb.append(e.getKey()).append(" -> ").append(e.getValue()).append("\n");
              }

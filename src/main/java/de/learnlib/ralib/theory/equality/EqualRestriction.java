@@ -4,14 +4,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 
 public class EqualRestriction extends SuffixValueRestriction {
 	private final SuffixValue equalParam;
@@ -23,19 +23,19 @@ public class EqualRestriction extends SuffixValueRestriction {
 
 	public EqualRestriction(EqualRestriction other) {
 		super(other);
-		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId());
+		equalParam = new SuffixValue(other.equalParam.getDataType(), other.equalParam.getId());
 	}
 
 	public EqualRestriction(EqualRestriction other, int shift) {
 		super(other, shift);
-		equalParam = new SuffixValue(other.equalParam.getType(), other.equalParam.getId()+shift);
+		equalParam = new SuffixValue(other.equalParam.getDataType(), other.equalParam.getId()+shift);
 	}
 
 	@Override
-	public GuardExpression toGuardExpression(Set<SymbolicDataValue> vals) {
+	public Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals) {
 		assert vals.contains(equalParam);
 
-		return new AtomicGuardExpression<SuffixValue, SuffixValue>(parameter, Relation.EQUALS, equalParam);
+		return new NumericBooleanExpression(parameter, NumericComparator.EQ, equalParam);
 	}
 
 	@Override
@@ -67,9 +67,8 @@ public class EqualRestriction extends SuffixValueRestriction {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof EqualRestriction))
+		if (!(obj instanceof EqualRestriction other))
 			return false;
-		EqualRestriction other = (EqualRestriction)obj;
 		return super.equals(obj) && equalParam.equals(other.equalParam);
 	}
 

@@ -62,7 +62,7 @@ public abstract class ConfigurationOption<T> {
 
     @Override
     public String toString() {
-        return "" + this.key +  (optional ? "(optional)" : "") + ": " + this.description +
+        return this.key +  (optional ? "(optional)" : "") + ": " + this.description +
                 (optional ? ", default: " + this.defaultValue : "");
     }
 
@@ -84,7 +84,7 @@ public abstract class ConfigurationOption<T> {
             }
 
             String value = c.getProperty(getKey());
-            return !value.toLowerCase().equals("false");
+            return !value.equalsIgnoreCase("false");
         }
     }
 

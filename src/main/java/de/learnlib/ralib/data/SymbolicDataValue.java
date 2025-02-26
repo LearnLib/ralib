@@ -16,90 +16,86 @@
  */
 package de.learnlib.ralib.data;
 
+import java.math.BigDecimal;
 import java.util.Objects;
+
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
 /**
  * Symbolic Data Values (Parameters, registers, etc.).
  *
  * @author falk
  */
-public abstract class SymbolicDataValue extends DataValue<Integer> {
+@Deprecated
+public abstract class SymbolicDataValue extends Variable<BigDecimal> {
 
     public static final class Parameter extends SymbolicDataValue {
 
         public Parameter(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "p" + id);
         }
-
-        public boolean equals(Parameter other) {
-            return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
-        }
-
-        @Override
-        public SymbolicDataValue.Parameter copy() {
-        	return new SymbolicDataValue.Parameter(type, id);
-        }
-    };
+    }
 
     public static final class Register extends SymbolicDataValue {
 
         public Register(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "r" + id);
         }
-
-        @Override
-        public SymbolicDataValue.Register copy() {
-        	return new SymbolicDataValue.Register(type, id);
-        }
-    };
+    }
 
     public static final class Constant extends SymbolicDataValue {
 
         public Constant(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "c" + id);
         }
+    }
 
-        @Override
-        public SymbolicDataValue.Constant copy() {
-        	return new SymbolicDataValue.Constant(type, id);
-        }
-    };
-
+    /*
+     * a parameter in a suffix: we should replace those by v_i
+     */
     public static final class SuffixValue extends SymbolicDataValue {
 
         public SuffixValue(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "s" + id);
         }
-
-        @Override
-        public SymbolicDataValue.SuffixValue copy() {
-        	return new SymbolicDataValue.SuffixValue(type, id);
-        }
-    };
-
-    private SymbolicDataValue(DataType dataType, int id) {
-        super(dataType, id);
     }
 
-    public String toStringWithType() {
-        return this.toString() + ":" + this.type.getName();
+    final DataType type;
+
+    final int id;
+
+    // TODO: id needed?
+    private SymbolicDataValue(DataType dataType, int id, String name) {
+        super(BuiltinTypes.DECIMAL, name);
+        this.type = dataType;
+        this.id = id;
     }
 
-    public abstract SymbolicDataValue copy();
+    public DataType getDataType() {
+        return this.type;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public static <T extends SymbolicDataValue> T copy(T orig) {
+        if (orig.isParameter()) {
+            return (T) new Parameter(orig.type, orig.id);
+        } else if (orig.isRegister()) {
+            return (T) new Register(orig.type, orig.id);
+        } else if (orig.isConstant()) {
+            return (T) new Constant(orig.type, orig.id);
+        } else if (orig.isSuffixValue()) {
+            return (T) new SuffixValue(orig.type, orig.id);
+        }
+        throw new RuntimeException("should not be reachable.");
+    }
 
     @Override
     public String toString() {
-        String s = "";
-        if (this.isParameter()) {
-            s += "p";
-        } else if (this.isRegister()) {
-            s += "r";
-        } else if (this.isSuffixValue()) {
-            s += "s";
-        } else if (this.isConstant()) {
-            s += "c";
-        }
-        return s + this.id;
+        return getName();
     }
 
     @Override
@@ -114,10 +110,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
 
     @Override

@@ -32,9 +32,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -83,8 +83,7 @@ public class Row implements PrefixContainer {
             }
             // unmatching suffix
             if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
-                    || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                    ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
+                    || (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == suffix.getActions().firstSymbol() instanceof InputSymbol)) {
                 LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", suffix, getPrefix());
                 return;
             }
@@ -106,7 +105,7 @@ public class Row implements PrefixContainer {
         for (Entry<Parameter, Register> e : cpv.entrySet()) {
             Register r = this.memorable.get(e.getKey());
             if (r == null) {
-                r = regGen.next(e.getKey().getType());
+                r = regGen.next(e.getKey().getDataType());
                 memorable.put(e.getKey(), r);
             }
             relabelling.put(e.getValue(), r);
@@ -125,8 +124,8 @@ public class Row implements PrefixContainer {
         throw new IllegalStateException("This line is not supposed to be reached.");
     }
 
-    SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
-        List<SymbolicDecisionTree> sdts = new ArrayList<>();
+    SDT[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
+        List<SDT> sdts = new ArrayList<>();
         for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
             Word<ParameterizedSymbol> acts = c.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
@@ -134,7 +133,7 @@ public class Row implements PrefixContainer {
                 sdts.add(c.getValue().getSDT());
             }
         }
-        return sdts.toArray(new SymbolicDecisionTree[]{});
+        return sdts.toArray(new SDT[]{});
     }
 
     @Override
@@ -236,8 +235,7 @@ public class Row implements PrefixContainer {
                 }
                 // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                        ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
+                        || (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == s.getActions().firstSymbol() instanceof InputSymbol)) {
                     LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", s, r.getPrefix());
                     continue;
                 }

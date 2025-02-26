@@ -16,16 +16,13 @@
  */
 package de.learnlib.ralib.automata;
 
+import java.util.List;
 import java.util.Map.Entry;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 
 /**
  * A parallel assignment for registers.
@@ -41,7 +38,13 @@ public class Assignment {
     }
 
     public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarValuation val = new VarValuation(registers);
+        VarValuation val = new VarValuation();
+        List<String> rNames = assignment.keySet().stream().map(k -> k.getName()).toList();
+        for (Entry<Register, DataValue> e : registers.entrySet()) {
+            if (!rNames.contains(e.getKey().getName())) {
+                val.put(e.getKey(), e.getValue());
+            }
+        }
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
             SymbolicDataValue valp = e.getValue();
             if (valp.isRegister()) {

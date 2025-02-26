@@ -17,7 +17,7 @@
 package de.learnlib.ralib.oracles;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 
 /**
  * Container for result of tree queries.
@@ -28,11 +28,11 @@ public class TreeQueryResult {
 
     private final PIV piv;
 
-    private final SymbolicDecisionTree sdt;
+    private final SDT sdt;
 
     public TreeQueryResult(
             PIV piv,
-            SymbolicDecisionTree sdt) {
+            SDT sdt) {
 
         this.piv = piv;
         this.sdt = sdt;
@@ -48,7 +48,7 @@ public class TreeQueryResult {
     /**
      * @return the sdt
      */
-    public SymbolicDecisionTree getSdt() {
+    public SDT getSdt() {
         //System.out.println("getSdt() " + sdt);
         return sdt;
     }

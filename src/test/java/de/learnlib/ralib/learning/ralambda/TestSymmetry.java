@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,11 +14,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -32,20 +28,23 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class TestSymmetry extends RaLibTestSuite {
 
-    private static final DataType T_INT = new DataType("int", Integer.class);
+    private static final DataType T_INT = new DataType("int");
 
-    private static final InputSymbol A = new InputSymbol("a", new DataType[] {T_INT});
-    private static final InputSymbol B = new InputSymbol("b", new DataType[] {T_INT});
+    private static final InputSymbol A = new InputSymbol("a", T_INT);
+    private static final InputSymbol B = new InputSymbol("b", T_INT);
 
     @Test
     public void learnSymmetryExampleCT2() {
@@ -56,7 +55,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	ConstraintSolver solver = new SimpleConstraintSolver();
+	ConstraintSolver solver = new ConstraintSolver();
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
@@ -74,9 +73,9 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.learn();
 
 	Word<PSymbolInstance> ce =
-	    Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, 1)),
-			     new PSymbolInstance(A, new DataValue(T_INT, 2)),
-			     new PSymbolInstance(A, new DataValue(T_INT, 1)));
+	    Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+			     new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2) )),
+			     new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)));
 	learner.addCounterexample(new DefaultQuery<>(ce, true));
 	learner.learn();
 
@@ -84,12 +83,12 @@ public class TestSymmetry extends RaLibTestSuite {
 	// System.out.println(hyp.toString());
 	// System.out.println(learner.getDT());
 
-	ce = Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, 1)),
-			      new PSymbolInstance(A, new DataValue(T_INT, 2)),
-			      new PSymbolInstance(B, new DataValue(T_INT, 3)),
-			      new PSymbolInstance(B, new DataValue(T_INT, 4)),
-			      new PSymbolInstance(B, new DataValue(T_INT, 2)),
-			      new PSymbolInstance(B, new DataValue(T_INT, 1)));
+	ce = Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+			      new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2))),
+			      new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(3) )),
+			      new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(4))),
+			      new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))),
+			      new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)));
 
 	Assert.assertTrue(sul.accepts(ce));
 	Assert.assertFalse(hyp.accepts(ce));
@@ -121,19 +120,17 @@ public class TestSymmetry extends RaLibTestSuite {
 	SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
 	SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
-	TransitionGuard trueGuard = new TransitionGuard();
-	TransitionGuard equalR1 =
-	    new TransitionGuard(new AtomicGuardExpression(r1, Relation.EQUALS, p1));
-	TransitionGuard notEqualR1 =
-	    new TransitionGuard(new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1));
+	Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
+		Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+		Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
 
-	TransitionGuard disjunctionGuard =
-	    new TransitionGuard(new Disjunction(new AtomicGuardExpression(r1, Relation.EQUALS, p1),
-						new AtomicGuardExpression(r2, Relation.EQUALS, p1)));
+		Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
+				new NumericBooleanExpression(r1, NumericComparator.EQ, p1),
+				new NumericBooleanExpression(r2, NumericComparator.EQ, p1));
 
-	TransitionGuard elseGuard =
-	    new TransitionGuard(new Conjunction(new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1),
-						new AtomicGuardExpression(r2, Relation.NOT_EQUALS, p1)));
+		Expression<Boolean> elseGuard = ExpressionUtil.and(
+				new NumericBooleanExpression(r1, NumericComparator.NE, p1),
+				new NumericBooleanExpression(r2, NumericComparator.NE, p1));
 
 
 	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
@@ -194,7 +191,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	ConstraintSolver solver = new SimpleConstraintSolver();
+	ConstraintSolver solver = new ConstraintSolver();
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
@@ -210,10 +207,10 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(A, new DataValue(T_INT, 2)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2))),
+        		new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
 
         learner.addCounterexample(new DefaultQuery<>(ce, true));
         learner.learn();
@@ -222,10 +219,10 @@ public class TestSymmetry extends RaLibTestSuite {
         // System.out.println(learner.getHypothesis().toString());
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 3)),
-        		new PSymbolInstance(B, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))),
+        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(3))),
+        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
 
         Assert.assertTrue(hyp.accepts(ce));
     }
@@ -245,12 +242,12 @@ public class TestSymmetry extends RaLibTestSuite {
 	SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
 	SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
-	TransitionGuard trueGuard = new TransitionGuard();
-        TransitionGuard equalR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.EQUALS, p1));
-        TransitionGuard notEqualR1 = new TransitionGuard(new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1));
-        TransitionGuard disjunctionGuard = new TransitionGuard(new Disjunction(
-        				new AtomicGuardExpression(r1, Relation.EQUALS, p1),
-        				new AtomicGuardExpression(r2, Relation.EQUALS, p1)));
+	Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
+		Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+		Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
+		Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
+        				new NumericBooleanExpression(r1, NumericComparator.EQ, p1),
+        				new NumericBooleanExpression(r2, NumericComparator.EQ, p1));
 
 	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         storeR1Mapping.put(r1, p1);

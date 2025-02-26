@@ -21,7 +21,6 @@ import java.util.Map.Entry;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.ParValuation;
@@ -30,7 +29,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.OutputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  * Output transitions are a convenient way of
@@ -42,20 +44,20 @@ public class OutputTransition extends Transition {
 
     private final OutputMapping output;
 
-    public OutputTransition(TransitionGuard guard, OutputMapping output,
-            OutputSymbol label, RALocation source, RALocation destination,
-            Assignment assignment) {
+    public OutputTransition(Expression<Boolean> guard, OutputMapping output,
+                            OutputSymbol label, RALocation source, RALocation destination,
+                            Assignment assignment) {
         super(label, guard, source, destination, assignment);
         this.output = output;
     }
 
     public OutputTransition(OutputMapping output, OutputSymbol label, RALocation source, RALocation destination, Assignment assignment) {
-        this( new TransitionGuard(), output, label, source, destination, assignment);
+        this(ExpressionUtil.TRUE, output, label, source, destination, assignment);
     }
 
     public boolean canBeEnabled(VarValuation registers, Constants consts) {
         // FIXME: this is not in general safe to do!! (We assume the guard to not have parameters)
-        return this.guard.isSatisfied(registers, new ParValuation(), consts);
+        return this.guard.evaluateSMT(SMTUtil.compose(registers, new ParValuation(), consts));
     }
 
     @Override
@@ -67,7 +69,7 @@ public class OutputTransition extends Transition {
             if (registers.containsValue(pval) || consts.containsValue(pval)) {
                 return false;
             }
-            for (Entry<Parameter, DataValue<?>> e : parameters) {
+            for (Entry<Parameter, DataValue> e : parameters) {
                 if (!p.equals(e.getKey()) && pval.equals(e.getValue())) {
                     return false;
                 }

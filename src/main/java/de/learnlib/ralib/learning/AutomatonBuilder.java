@@ -27,7 +27,6 @@ import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParValuation;
@@ -39,9 +38,11 @@ import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -59,7 +60,7 @@ public class AutomatonBuilder {
 
     protected final Constants consts;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AutomatonBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AutomatonBuilder.class);
 
     public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts) {
         this.consts = consts;
@@ -132,7 +133,7 @@ public class AutomatonBuilder {
         Branching b = src_c.getBranching(action);
 //        System.out.println("b.getBranches is  " + b.getBranches().toString());
 //        System.out.println("getting guard for  " + r.getPrefix().toString());
-        TransitionGuard guard = b.getBranches().get(r.getPrefix());
+        Expression<Boolean> guard = b.getBranches().get(r.getPrefix());
         if (guard == null) {
         	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getParsInVars(), b.getBranches(), consts);
         }
@@ -142,9 +143,7 @@ public class AutomatonBuilder {
         if (automaton instanceof DTHyp && guard == null)
         	return;
 
-        if (guard == null) {
-        	assert true;
-        }
+        assert true;
         assert guard!=null;
 
         // assignment
@@ -158,13 +157,14 @@ public class AutomatonBuilder {
 //        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
 //        LOGGER.trace(Category.EVENT, "REMAP: {}", remapping);
 
+        //System.out.println(parsInVars_Row);
         for (Entry<Parameter, Register> e : parsInVars_Row) {
             // param or register
             Parameter p = e.getKey();
             // remapping is null for prime rows ...
             Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter pNew = new Parameter(p.getDataType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
                 Register rOld = parsInVars_Src.get(p);
@@ -173,6 +173,7 @@ public class AutomatonBuilder {
             }
         }
         Assignment assign = new Assignment(assignments);
+        //System.out.println(assign);
 
         // create transition
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
@@ -183,16 +184,16 @@ public class AutomatonBuilder {
         }
     }
 
-    protected Transition createTransition(ParameterizedSymbol action, TransitionGuard guard,
+    protected Transition createTransition(ParameterizedSymbol action, Expression<Boolean> guard,
             RALocation src_loc, RALocation dest_loc, Assignment assign) {
         return new Transition(action, guard, src_loc, dest_loc, assign);
     }
 
-    public static TransitionGuard findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, TransitionGuard> branches, Constants consts) {
+    public static Expression<Boolean> findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, Expression<Boolean>> branches, Constants consts) {
     	ParValuation pars = new ParValuation(dw);
     	VarValuation vars = DataWords.computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
-    	for (TransitionGuard g : branches.values()) {
-    		if (g.isSatisfied(vars, pars, consts)) {
+    	for (Expression<Boolean> g : branches.values()) {
+    		if (g.evaluateSMT(SMTUtil.compose(vars, pars, consts))) {
     			return g;
     		}
     	}

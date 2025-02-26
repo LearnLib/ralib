@@ -28,7 +28,7 @@ public class CachingSULTest {
         IOCache ioCache = new IOCache(ioOracle);
         CachingSUL cachingSul = new CachingSUL(sul, ioCache);
         cachingSul.pre();
-        PSymbolInstance ok = cachingSul.step(new PSymbolInstance(OFFER, new DataValue<BigDecimal>(DOUBLE_TYPE, new BigDecimal(1))));
+        PSymbolInstance ok = cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
         PSymbolInstance out = cachingSul.step(new PSymbolInstance(POLL));
         cachingSul.post();
         Assert.assertEquals(ok.getBaseSymbol(), OK);
@@ -46,7 +46,7 @@ public class CachingSULTest {
 
 
         cachingSul.pre();
-        cachingSul.step(new PSymbolInstance(OFFER, new DataValue<BigDecimal>(DOUBLE_TYPE, new BigDecimal(1))));
+        cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
         cachingSul.step(new PSymbolInstance(POLL));
         cachingSul.post();
 
@@ -54,7 +54,7 @@ public class CachingSULTest {
         Assert.assertEquals(sul.getResets(), 1);
 
         cachingSul.pre();
-        cachingSul.step(new PSymbolInstance(OFFER, new DataValue<BigDecimal>(DOUBLE_TYPE, new BigDecimal(1))));
+        cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
         cachingSul.step(new PSymbolInstance(POLL));
         cachingSul.post();
 
