@@ -209,6 +209,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 return comparands;
             case SDTGuard.SDTTrueGuard g:
                 return comparands;
+            default:	// needed only for Java 17?
+                throw new RuntimeException("should not be reachable");
         }
     }
 
@@ -229,6 +231,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                         g.disjuncts.stream().map( x -> copy(x)).toList());
             case SDTGuard.SDTTrueGuard g:
                 return new SDTGuard.SDTTrueGuard(g.parameter);
+            default:	// needed only for Java 17?
+                throw new RuntimeException("should not be reachable");
         }
     }
 
@@ -257,6 +261,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                         g.disjuncts.stream().map(ig -> relabel(ig, remap)).toList());
             case SDTGuard.SDTTrueGuard g:
                 return new SDTGuard.SDTTrueGuard(newValueIfExists(remap, g.parameter));
+            default:	// needed only for Java 17?
+                throw new RuntimeException("should not be reachable");
         }
     }
 
@@ -284,6 +290,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 return ExpressionUtil.or(orList.toArray(new Expression[]{}));
             case SDTGuard.SDTTrueGuard g:
                 return ExpressionUtil.TRUE;
+            default:	// needed only for Java 17?
+                throw new RuntimeException("should not be reachable");
         }
     }
 
@@ -304,6 +312,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 throw new RuntimeException("not refactored yet");
             case SDTGuard.SDTTrueGuard g:
                 throw new RuntimeException("not refactored yet");
+            default:	// needed only for Java 17?
+                throw new RuntimeException("should not be reachable");
         }
     }
 }
