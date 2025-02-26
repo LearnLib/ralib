@@ -124,6 +124,8 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
     private IOOracle back;
 
+    private Hypothesis hyp = null;
+
     private Map<DataType, Theory> teachers;
 
     private final Constants consts = new Constants();
@@ -312,7 +314,6 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
 
         ArrayList<Integer> ceLengths = new ArrayList<>();
         ArrayList<Integer> ceLengthsShortened = new ArrayList<>();
-        Hypothesis hyp = null;
 
         int rounds = 0;
         while (maxRounds < 0 || rounds < maxRounds) {
@@ -423,5 +424,9 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
             sb.append(o.toString()).append("\n");
         }
         return sb.toString();
+    }
+
+    public Hypothesis getHypothesis() {
+        return hyp;
     }
 }

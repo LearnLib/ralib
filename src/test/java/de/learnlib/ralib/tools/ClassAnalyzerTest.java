@@ -16,10 +16,24 @@
  */
 package de.learnlib.ralib.tools;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.TestUtil;
+import de.learnlib.ralib.automata.RegisterAutomaton;
+import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.equivalence.IOEquivalenceTest;
+import de.learnlib.ralib.theory.Theory;
+import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
  *
@@ -93,7 +107,33 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
+
+            RegisterAutomaton hyp = ((ClassAnalyzer) cl.getTool()).getHypothesis();
+
+            RegisterAutomatonImporter loader = TestUtil.getLoader(
+                    "/de/learnlib/ralib/automata/xml/classanalyzer1.xml");
+
+            ParameterizedSymbol[] actions = loader.getActions().toArray(
+                    new ParameterizedSymbol[]{});
+
+            final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+            loader.getDataTypes().stream().forEach((t) -> {
+                IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+                theory.setUseSuffixOpt(true);
+                teachers.put(t, theory);
+            });
+
+            IOEquivalenceTest check = new IOEquivalenceTest(
+                    loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
+
+            DefaultQuery<PSymbolInstance, Boolean> ce = check.findCounterExample(hyp, null);
+
+            Assert.assertTrue(ce.toString().contains("__ERR"));
+            Assert.assertEquals(hyp.getInputStates().size(), 3);
+            Assert.assertEquals(hyp.getInputTransitions().size(), 7);
+
         } catch (Throwable t) {
+            t.printStackTrace();
             Assert.fail(t.getClass().getName());
         }
     }
@@ -126,6 +166,28 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             ConsoleClient cl = new ConsoleClient(options);
             int ret = cl.run();
             Assert.assertEquals(ret, 0);
+
+            RegisterAutomaton hyp = ((ClassAnalyzer) cl.getTool()).getHypothesis();
+
+            RegisterAutomatonImporter loader = TestUtil.getLoader(
+                    "/de/learnlib/ralib/automata/xml/classanalyzer2.xml");
+
+            ParameterizedSymbol[] actions = loader.getActions().toArray(
+                    new ParameterizedSymbol[]{});
+
+            final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+            loader.getDataTypes().stream().forEach((t) -> {
+                DoubleInequalityTheory theory = new DoubleInequalityTheory(t);
+                theory.setUseSuffixOpt(true);
+                teachers.put(t, theory);
+            });
+
+            IOEquivalenceTest check = new IOEquivalenceTest(
+                    loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
+
+            boolean equiv = check.findCounterExample(hyp, null) == null;
+            Assert.assertTrue(equiv);
+
         } catch (Throwable t) {
             Assert.fail(t.getClass().getName());
         }
@@ -161,6 +223,28 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     		ConsoleClient cl = new ConsoleClient(options);
     		int ret = cl.run();
     		Assert.assertEquals(ret, 0);
+
+            RegisterAutomaton hyp = ((ClassAnalyzer) cl.getTool()).getHypothesis();
+
+            RegisterAutomatonImporter loader = TestUtil.getLoader(
+                    "/de/learnlib/ralib/automata/xml/classanalyzer3.xml");
+
+            ParameterizedSymbol[] actions = loader.getActions().toArray(
+                    new ParameterizedSymbol[]{});
+
+            final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+            loader.getDataTypes().stream().forEach((t) -> {
+                IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
+                theory.setUseSuffixOpt(true);
+                teachers.put(t, theory);
+            });
+
+            IOEquivalenceTest check = new IOEquivalenceTest(
+                    loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
+
+            boolean equiv = check.findCounterExample(hyp, null) == null;
+             Assert.assertTrue(equiv);
+
     	} catch (Throwable t) {
     		Assert.fail(t.getClass().getName());
     	}
