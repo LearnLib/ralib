@@ -9,9 +9,9 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class Measurements {
-	public int treeQueries = 0;
-	public long resets = 0;
-	public long inputs = 0;
+	protected int treeQueries = 0;
+	protected long resets = 0;
+	protected long inputs = 0;
 	public final Map<SymbolicWord, Integer> treeQueryWords = new LinkedHashMap<SymbolicWord, Integer>();
 	public final Collection<Word<PSymbolInstance>> ces = new LinkedHashSet<Word<PSymbolInstance>>();
 
@@ -30,6 +30,10 @@ public class Measurements {
 		resets = 0;
 		treeQueryWords.clear();
 		ces.clear();
+	}
+
+	public void setResets(long num) {
+		resets = num;
 	}
 
 	@Override
