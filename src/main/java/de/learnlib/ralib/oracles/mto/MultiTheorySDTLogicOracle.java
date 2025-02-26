@@ -18,7 +18,6 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
-import de.learnlib.ralib.theory.SDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +30,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
