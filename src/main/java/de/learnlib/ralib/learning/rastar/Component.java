@@ -36,7 +36,7 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -118,7 +118,7 @@ public class Component implements LocationComponent {
                 continue;
             }
 
-            SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+            SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
                     getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
 
@@ -178,7 +178,7 @@ public class Component implements LocationComponent {
 
     private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
         Branching b = branching.get(ps);
-        SymbolicDecisionTree[] sdts = primeRow.getSDTsForInitialSymbol(ps);
+        SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
         Branching newB = oracle.updateBranching(getAccessSequence(), ps, b,
                 primeRow.getParsInVars(), sdts);
         boolean ret = true;

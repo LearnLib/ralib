@@ -30,6 +30,8 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.Sets;
 
+import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.SDTLeaf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +54,7 @@ import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -104,7 +106,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), pir, constants, new SuffixValuation());
 
         //System.out.println(prefix + " . " + suffix);
-        //System.out.println(sdt);
+        //System.out.println;
 
         // move registers to 1 ... n
         VarMapping rename = new VarMapping();
@@ -164,7 +166,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
      */
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            SymbolicDecisionTree... sdts) {
+            SDT... sdts) {
 
         LOGGER.info(Category.QUERY, "computing initial branching for {0} after {1}", new Object[] { ps, prefix });
 
@@ -176,7 +178,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             if (sdts[i] instanceof SDTLeaf) {
                 casted[i] = (SDTLeaf) sdts[i];
             } else {
-                casted[i] = (SDT) sdts[i];
+                casted[i] =  sdts[i];
             }
         }
 
@@ -454,10 +456,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            SymbolicDecisionTree sdt, PIV piv) {
+            SDT sdt, PIV piv) {
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-        instantiate(words, prefix, suffix, (SDT) sdt, piv, 0, 0,
+        instantiate(words, prefix, suffix,  sdt, piv, 0, 0,
                 new ParValuation(), new ParameterGenerator(), new ParValuation(), new ParameterGenerator());
         return words;
     }
@@ -503,10 +505,10 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
      */
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current, PIV piv,
-            SymbolicDecisionTree... sdts) {
+            SDT... sdts) {
 
         //System.out.println(current);
-        //for (SymbolicDecisionTree s: sdts) {
+        //for (SDT s: sdts) {
         //    System.out.println(s);
         //}
 
@@ -524,7 +526,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             if (sdts[i] instanceof SDTLeaf) {
                 casted[i + 1] = (SDTLeaf) sdts[i];
             } else {
-                casted[i + 1] = (SDT) sdts[i].relabel(remapping);
+                casted[i + 1] =  sdts[i].relabel(remapping);
             }
         }
 
@@ -541,7 +543,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return fluff;
     }
 
-    public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SymbolicDecisionTree sdt, PIV piv) {
+    public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SDT sdt, PIV piv) {
     	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
     	mapping.putAll(constants);
 
@@ -564,7 +566,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	VarValuation vars = DataWords.computeVarValuation(pars, piv);
     	mapping.putAll(vars);
 
-    	SDT _sdt = (SDT)sdt;
+    	SDT _sdt = sdt;
         Expression<Boolean> expr = _sdt.getAcceptingPaths(constants);
     	if (expr.equals(ExpressionUtil.FALSE))
     		return false;

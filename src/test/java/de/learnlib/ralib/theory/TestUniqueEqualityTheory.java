@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -60,7 +59,7 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res.getSdt();
 
         String expectedTree = "[]-+\n" +
                 "  []-TRUE: s1\n" +

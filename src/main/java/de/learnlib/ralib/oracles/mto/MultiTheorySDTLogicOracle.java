@@ -18,6 +18,7 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
+import de.learnlib.ralib.theory.SDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
@@ -61,8 +62,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean hasCounterexample(Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt1, PIV piv1,
-            SymbolicDecisionTree sdt2, PIV piv2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
+    public boolean hasCounterexample(Word<PSymbolInstance> prefix, SDT sdt1, PIV piv1,
+            SDT sdt2, PIV piv2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
@@ -71,8 +72,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         LOGGER.trace("SDT2: {0}", sdt2);
         LOGGER.trace("Guard: {0}", guard);
 
-        SDT _sdt1 = (SDT) sdt1;
-        SDT _sdt2 = (SDT) sdt2;
+        SDT _sdt1 =  sdt1;
+        SDT _sdt2 =  sdt2;
 
         Expression<Boolean>  expr1 = _sdt1.getAcceptingPaths(consts);
         Expression<Boolean>  expr2 = _sdt2.getAcceptingPaths(consts);
@@ -112,10 +113,10 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     @Override
     public Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
-    		SymbolicDecisionTree sdt1, PIV piv1, SymbolicDecisionTree sdt2, PIV piv2) {
+    		SDT sdt1, PIV piv1, SDT sdt2, PIV piv2) {
 
-    	SDT _sdt1 = (SDT) sdt1;
-    	SDT _sdt2 = (SDT) sdt2;
+    	SDT _sdt1 =  sdt1;
+    	SDT _sdt2 =  sdt2;
 
     	Map<Expression<Boolean>, Boolean> exprMap1 = _sdt1.getGuardExpressions(consts);
     	Map<Expression<Boolean>, Boolean> exprMap2 = _sdt2.getGuardExpressions(consts);
@@ -215,9 +216,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv) {
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt, PIV piv) {
         assert prefix.isPrefixOf(word) : "invalid prefix";
-        SDT _sdt =  (SDT) sdt;
+        SDT _sdt =   sdt;
         assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
             "The height of the tree is not consistent with the number of parameters in the word";
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();

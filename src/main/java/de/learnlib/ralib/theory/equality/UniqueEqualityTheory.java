@@ -9,7 +9,7 @@ import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;

@@ -21,7 +21,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
@@ -55,13 +55,13 @@ public interface SDTLogicOracle {
      * @return
      */
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
-            SymbolicDecisionTree sdt1, PIV piv1,
-            SymbolicDecisionTree sdt2, PIV piv2,
+            SDT sdt1, PIV piv1,
+            SDT sdt2, PIV piv2,
                               Expression<Boolean> guard, Word<PSymbolInstance> rep);
 
     Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
-    		SymbolicDecisionTree sdt1, PIV piv1,
-    		SymbolicDecisionTree sdt2, PIV piv2);
+    		SDT sdt1, PIV piv1,
+    		SDT sdt2, PIV piv2);
 
     /**
      * checks if one guard refine another guard.
@@ -89,5 +89,5 @@ public interface SDTLogicOracle {
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */
-    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
+    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt, PIV piv);
 }

@@ -18,6 +18,7 @@ package de.learnlib.ralib.learning;
 
 import java.util.Map;
 
+import de.learnlib.ralib.theory.SDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,7 +153,7 @@ public class CounterexampleAnalysis {
     }
 
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL) {
+                                          ParameterizedSymbol action, SDT sdtSUL, PIV pivSUL) {
 
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
         LocationComponent c = components.get(prefix);

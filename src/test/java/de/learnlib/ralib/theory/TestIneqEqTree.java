@@ -40,7 +40,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -103,7 +102,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res.getSdt();
 
         SuffixValueGenerator sgen = new SuffixValueGenerator();
         RegisterGenerator rgen = new RegisterGenerator();

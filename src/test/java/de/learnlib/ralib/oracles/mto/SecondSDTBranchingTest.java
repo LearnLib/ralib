@@ -36,7 +36,7 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -134,8 +134,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         remap.put(r2, r1);
 
         PIV piv = tqr2.getPiv();
-        SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
-        SymbolicDecisionTree sdt2 = tqr2.getSdt();
+        SDT sdt1 = tqr1.getSdt().relabel(remap);
+        SDT sdt2 = tqr2.getSdt();
 
         logger.log(Level.FINE, "PIV: {0}", piv);
         logger.log(Level.FINE, "SDT1: {0}", sdt1);

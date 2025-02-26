@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.theory.SDT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,8 +234,8 @@ public class PrefixFinder {
     }
 
     private SymbolicWord candidate(Word<PSymbolInstance> prefix,
-            SymbolicSuffix symSuffix, SymbolicDecisionTree sdtSul, PIV pivSul,
-            SymbolicDecisionTree sdtHyp, PIV pivHyp, Word<PSymbolInstance> ce) {
+                                   SymbolicSuffix symSuffix, SDT sdtSul, PIV pivSul,
+                                   SDT sdtHyp, PIV pivHyp, Word<PSymbolInstance> ce) {
     	Word<PSymbolInstance> candidate = null;
 
     	Expression<Boolean> expr = sdtOracle.getCEGuard(prefix, sdtSul, pivSul, sdtHyp, pivHyp);

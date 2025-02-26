@@ -21,7 +21,7 @@ import java.util.Collection;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -41,13 +41,13 @@ final class Cell {
 
     private final SymbolicSuffix suffix;
 
-    private final SymbolicDecisionTree sdt;
+    private final SDT sdt;
 
     private final PIV parsInVars;
 
 //    private static Logger LOGGER = LoggerFactory.getLogger(Cell.class);
 
-    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV parsInVars) {
+    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SDT sdt, PIV parsInVars) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.sdt = sdt;
@@ -124,7 +124,7 @@ final class Cell {
         return this.prefix;
     }
 
-    SymbolicDecisionTree getSDT() {
+    SDT getSDT() {
         return this.sdt;
     }
 

@@ -32,7 +32,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.words.InputSymbol;
@@ -124,8 +124,8 @@ public class Row implements PrefixContainer {
         throw new IllegalStateException("This line is not supposed to be reached.");
     }
 
-    SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
-        List<SymbolicDecisionTree> sdts = new ArrayList<>();
+    SDT[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
+        List<SDT> sdts = new ArrayList<>();
         for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
             Word<ParameterizedSymbol> acts = c.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
@@ -133,7 +133,7 @@ public class Row implements PrefixContainer {
                 sdts.add(c.getValue().getSDT());
             }
         }
-        return sdts.toArray(new SymbolicDecisionTree[]{});
+        return sdts.toArray(new SDT[]{});
     }
 
     @Override

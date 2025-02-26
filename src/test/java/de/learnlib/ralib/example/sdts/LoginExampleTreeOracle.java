@@ -35,7 +35,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.example.sdts.LoginExampleSDT.SDTClass;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -167,7 +167,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
+            ParameterizedSymbol ps, PIV piv, SDT... sdts) {
 
         Map<Word<PSymbolInstance>, Expression<Boolean>> branches = new LinkedHashMap<Word<PSymbolInstance>, Expression<Boolean>>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
@@ -212,14 +212,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree... sdts) {
+            PIV piv, SDT... sdts) {
 
         return getInitialBranching(prefix, ps, piv, sdts);
     }
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    		SymbolicSuffix suffix, SDT sdt, PIV piv) {
     	throw new UnsupportedOperationException("Not implemented");
     }
 
