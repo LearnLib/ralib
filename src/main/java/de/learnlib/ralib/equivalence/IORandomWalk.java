@@ -153,15 +153,12 @@ public class IORandomWalk implements IOEquivalenceOracle {
             PSymbolInstance next = nextInput(run);
             depth++;
             out = target.step(next);
-
             run = run.append(next).append(out);
-
             if (!hyp.accepts(run)) {
                 LOGGER.debug(Category.COUNTEREXAMPLE, "Run with CE: {0}", run);
                 target.post();
                 return run;
             }
-
         } while (rand.nextDouble() > resetProbability && depth < maxDepth &&
                 !out.getBaseSymbol().equals(error));
 
