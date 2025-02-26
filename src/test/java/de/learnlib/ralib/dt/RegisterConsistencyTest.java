@@ -81,7 +81,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		public SymbolicSuffix addedSuffix = null;
 
 		public DummyDT(MappedPrefix word, MappedPrefix prefix) {
-			super(new DummyOracle(), false, new Constants(), null);
+			super(new DummyOracle(), false, new Constants(), (ParameterizedSymbol[])null);
 			leaf = new DTLeaf(word, null);
 			prefixLeaf = new DTLeaf(prefix, null);
 		}
