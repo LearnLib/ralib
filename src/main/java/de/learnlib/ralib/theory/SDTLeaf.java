@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.oracles.mto;
+package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,15 +25,12 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
-import de.learnlib.ralib.theory.SDTGuard;
 
 /**
  * Leaf implementation of an SDT.
  *
  * @author falk
  */
-@Deprecated
 public class SDTLeaf extends SDT {
 
     public static final SDTLeaf ACCEPTING = new SDTLeaf(true);
@@ -42,14 +39,14 @@ public class SDTLeaf extends SDT {
 
     private final boolean accepting;
 
-    private SDTLeaf(boolean accepting) {
+    protected SDTLeaf(boolean accepting) {
         super(null);
         this.accepting = accepting;
     }
 
     @Override
     public boolean isEquivalent(
-            SymbolicDecisionTree other, VarMapping renaming) {
+            SDT other, VarMapping renaming) {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
@@ -70,7 +67,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    public SymbolicDecisionTree relabel(VarMapping relabeling) {
+    public SDT relabel(VarMapping relabeling) {
         return this;
     }
 
@@ -99,7 +96,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
+    public Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
     	Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
     	ret.put(path, this.isAccepting());
     	return ret;

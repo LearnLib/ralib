@@ -22,14 +22,15 @@ import java.util.Set;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.theory.SDTLeaf;
 
 /**
  *
  * @author falk
  */
-public class LoginExampleSDT implements SymbolicDecisionTree {
+public class LoginExampleSDT extends SDTLeaf {
 
     public enum SDTClass {ACCEPT, REJECT, LOGIN}
 
@@ -40,12 +41,14 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     private final Set<Register> registers;
 
     public LoginExampleSDT(SDTClass clazz, SymbolicSuffix suffix, Set<Register> registers) {
+        super(true);
         this.clazz = clazz;
         this.suffix = suffix;
         this.registers = registers;
     }
 
     public LoginExampleSDT(LoginExampleSDT other) {
+        super(other.isAccepting());
     	clazz = other.clazz;
     	suffix = new SymbolicSuffix(other.suffix);
     	registers = new LinkedHashSet<>();
@@ -54,7 +57,7 @@ public class LoginExampleSDT implements SymbolicDecisionTree {
     }
 
     @Override
-    public boolean isEquivalent(SymbolicDecisionTree other, VarMapping renaming) {
+    public boolean isEquivalent(SDT other, VarMapping renaming) {
         if (! other.getClass().equals(this.getClass())) {
             return false;
         }

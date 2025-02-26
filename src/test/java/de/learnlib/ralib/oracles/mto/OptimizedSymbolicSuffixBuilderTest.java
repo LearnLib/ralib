@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.theory.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -35,11 +36,6 @@ import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -266,7 +262,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
             Word<PSymbolInstance> sub = word.prefix(word.length() - suffixLength);
             Word<PSymbolInstance> prefix = word.prefix(sub.length()+1);
             SymbolicSuffix expected = new SymbolicSuffix(sub, suffix);
-            actual = builder.extendSuffix(prefix, (SDT) tqr.getSdt(), tqr.getPiv(), actual);
+            actual = builder.extendSuffix(prefix,  tqr.getSdt(), tqr.getPiv(), actual);
             Assert.assertEquals(actual, expected);
             tqr = mto.treeQuery(sub, expected);
         }

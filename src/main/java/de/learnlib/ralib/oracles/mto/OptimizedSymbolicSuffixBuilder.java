@@ -21,9 +21,7 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
+import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -339,14 +337,14 @@ public class OptimizedSymbolicSuffixBuilder {
         for (Register r : piv1.values()) {
             relabellingSdt1.put(r, rgen.next(r.getDataType()));
         }
-        SDT relSdt1 = (SDT) sdt1.relabel(relabellingSdt1);
+        SDT relSdt1 =  sdt1.relabel(relabellingSdt1);
         PIV relPiv1 = piv1.relabel(relabellingSdt1);
 
         VarMapping<Register, Register> relabellingSdt2 = new VarMapping<>();
         for (Register r : piv2.values()) {
             relabellingSdt2.put(r, rgen.next(r.getDataType()));
         }
-        SDT relSdt2 = (SDT) sdt2.relabel(relabellingSdt2);
+        SDT relSdt2 =  sdt2.relabel(relabellingSdt2);
         PIV relPiv2 = piv2.relabel(relabellingSdt2);
 
         // we build valuations which we use to determine satisfiable paths

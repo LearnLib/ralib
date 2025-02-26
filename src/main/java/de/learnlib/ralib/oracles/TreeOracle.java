@@ -19,7 +19,7 @@ package de.learnlib.ralib.oracles;
 import java.util.Map;
 
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -35,7 +35,7 @@ import net.automatalib.word.Word;
 public interface TreeOracle {
 
     /**
-     * performs a tree query, returning a SymbolicDecisionTree
+     * performs a tree query, returning a SDT
      * an an Assignment of registers of this tree with parameters
      * of the prefix.
      *
@@ -47,7 +47,7 @@ public interface TreeOracle {
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix);
 
     /**
-     * Computes a Branching from a set of SymbolicDecisionTrees.
+     * Computes a Branching from a set of SDTs.
      *
      * @param prefix
      * @param ps
@@ -56,11 +56,11 @@ public interface TreeOracle {
      * @return
      */
     Branching getInitialBranching(Word<PSymbolInstance> prefix,
-                                  ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts);
+                                  ParameterizedSymbol ps, PIV piv, SDT... sdts);
 
     /**
      * Updates and extends an existing Branching
-     * from a set of SymbolicDecisionTrees.
+     * from a set of SDTs.
      *
      * @param prefix
      * @param ps
@@ -71,10 +71,10 @@ public interface TreeOracle {
      */
     Branching updateBranching(Word<PSymbolInstance> prefix,
                               ParameterizedSymbol ps, Branching current,
-                              PIV piv, SymbolicDecisionTree... sdts);
+                              PIV piv, SDT... sdts);
 
     Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-                                                    SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
+                                                    SymbolicSuffix suffix, SDT sdt, PIV piv);
 
     SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 

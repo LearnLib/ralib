@@ -35,7 +35,6 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -94,7 +93,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res.getSdt();
 
         final String expectedTree = "[r2, r1]-+\n" +
 "        []-(s1!=r2)\n" +

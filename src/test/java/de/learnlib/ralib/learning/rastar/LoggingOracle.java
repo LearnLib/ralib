@@ -20,7 +20,7 @@ import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
@@ -50,7 +50,7 @@ public class LoggingOracle implements TreeOracle {
 
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts) {
+            ParameterizedSymbol ps, PIV piv, SDT ... sdts) {
 
         //System.out.println("QUERY (initial branching): " + prefix + " and " + ps);
         return treeoracle.getInitialBranching(prefix, ps, piv, sdts);
@@ -59,7 +59,7 @@ public class LoggingOracle implements TreeOracle {
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree ... sdts) {
+            PIV piv, SDT ... sdts) {
 
         //System.out.println("QUERY (update branching): " + prefix +
         //        " and " + ps + " with " + sdts.length + " sdts");
@@ -70,7 +70,7 @@ public class LoggingOracle implements TreeOracle {
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    		SymbolicSuffix suffix, SDT sdt, PIV piv) {
     	return treeoracle.instantiate(prefix, suffix, sdt, piv);
     }
 

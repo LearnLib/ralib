@@ -18,13 +18,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTLeaf;
+import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.SDTLeaf;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.words.InputSymbol;
@@ -50,19 +50,19 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 			@Override
 			public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-					SymbolicDecisionTree... sdts) {
+					SDT... sdts) {
 				return null;
 			}
 
 			@Override
 			public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current,
-					PIV piv, SymbolicDecisionTree... sdts) {
+					PIV piv, SDT... sdts) {
 				return null;
 			}
 
 			@Override
 			public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-					SymbolicDecisionTree sdt, PIV piv) {
+					SDT sdt, PIV piv) {
 				return null;
 			}
 

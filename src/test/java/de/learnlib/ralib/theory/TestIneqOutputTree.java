@@ -33,7 +33,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -99,7 +98,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res.getSdt();
 
         final String expectedTree = "[r1]-+\n" +
 "    []-(s1<r1)\n" +

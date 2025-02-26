@@ -38,7 +38,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -90,7 +89,7 @@ public class TestEqualityTheory extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res.getSdt();
 
         String expectedTree = "[r2, r1]-+\n" +
 "        []-(s1=r2)\n" +

@@ -34,7 +34,7 @@ import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
@@ -43,7 +43,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -387,7 +387,7 @@ public class RaLambda implements RaLearningAlgorithm {
 			            			SymbolicSuffix testSuffix;
 			            			if (suffixBuilder != null && tqr.getSdt() instanceof SDT) {
 			            				Register[] differentlyMapped = differentlyMappedRegisters(tqr.getPiv(), otherTQR.getPiv());
-			            				testSuffix = suffixBuilder.extendSuffix(word, (SDT)tqr.getSdt(), tqr.getPiv(), s, differentlyMapped);
+			            				testSuffix = suffixBuilder.extendSuffix(word, tqr.getSdt(), tqr.getPiv(), s, differentlyMapped);
 			            			} else {
 			            				testSuffix = new SymbolicSuffix(word.prefix(word.length()-1), word.suffix(1), restrictionBuilder);
 			            				testSuffix = testSuffix.concat(s);
@@ -434,12 +434,12 @@ public class RaLambda implements RaLearningAlgorithm {
 
     	assert tqrA != null && tqrB != null;
 
-        SymbolicDecisionTree sdtA = tqrA.getSdt();
-        SymbolicDecisionTree sdtB = tqrB.getSdt();
+        SDT sdtA = tqrA.getSdt();
+        SDT sdtB = tqrB.getSdt();
 
         if (suffixBuilder != null && solver != null && sdtA instanceof SDT && sdtB instanceof SDT) {
-//    		return suffixBuilder.extendDistinguishingSuffix(wa, (SDT)sdtA, tqrA.getPiv(), wb, (SDT)sdtB, tqrB.getPiv(), v);
-          	SymbolicSuffix suffix = suffixBuilder.distinguishingSuffixFromSDTs(wa, (SDT) sdtA, tqrA.getPiv(), wb, (SDT) sdtB, tqrB.getPiv(), v.getActions(), solver);
+//    		return suffixBuilder.extendDistinguishingSuffix(wa, sdtA, tqrA.getPiv(), wb, sdtB, tqrB.getPiv(), v);
+          	SymbolicSuffix suffix = suffixBuilder.distinguishingSuffixFromSDTs(wa,  sdtA, tqrA.getPiv(), wb,  sdtB, tqrB.getPiv(), v.getActions(), solver);
            	return suffix;
         }
 

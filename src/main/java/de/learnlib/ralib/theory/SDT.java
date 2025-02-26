@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.oracles.mto;
+package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,9 +31,7 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.theory.*;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -42,8 +40,7 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
  *
  * @author Sofia Cassel
  */
-@Deprecated
-public class SDT implements SymbolicDecisionTree {
+public class SDT {
 
     private final Map<SDTGuard, SDT> children;
 
@@ -56,7 +53,7 @@ public class SDT implements SymbolicDecisionTree {
      *
      * @return
      */
-    Set<Register> getRegisters() {
+    public Set<Register> getRegisters() {
         Set<Register> registers = new LinkedHashSet<>();
         this.getVariables().stream().filter((x) -> (x.isRegister())).forEach((x) -> {
             registers.add((Register) x);
@@ -109,7 +106,6 @@ public class SDT implements SymbolicDecisionTree {
         return variables;
     }
 
-    @Override
     public boolean isAccepting() {
 
             for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
@@ -131,25 +127,24 @@ public class SDT implements SymbolicDecisionTree {
     	return expr.evaluateSMT(SMTUtil.compose(mapping));
     }
 
-    protected Map<SDTGuard, SDT> getChildren() {
+    public Map<SDTGuard, SDT> getChildren() {
         return this.children;
     }
 
-    @Override
     public boolean isEquivalent(
-            SymbolicDecisionTree other, VarMapping renaming) {
+            SDT other, VarMapping renaming) {
         if (other instanceof SDTLeaf) {
             return false;
         }
-        SDT otherSDT = (SDT) other;
-        SDT otherRelabeled = (SDT) otherSDT.relabel(renaming);
+        SDT otherSDT =  other;
+        SDT otherRelabeled =  otherSDT.relabel(renaming);
         boolean regEq = this.regCanUse(otherRelabeled) && otherRelabeled.regCanUse(this);
         return regEq && this.canUse(otherRelabeled)
                 && otherRelabeled.canUse(this);
     }
 
     public boolean isEquivalentUnder(
-            SymbolicDecisionTree deqSDT, List<SDTGuard.EqualityGuard> ds) {
+            SDT deqSDT, List<SDTGuard.EqualityGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
                 return (this.isAccepting() == deqSDT.isAccepting());
@@ -162,7 +157,7 @@ public class SDT implements SymbolicDecisionTree {
         }
 //        System.out.println(eqRenaming);
 //        System.out.println(this + " vs " + deqSDT);
-        boolean x = this.canUse((SDT) deqSDT.relabel(eqRenaming));
+        boolean x = this.canUse( deqSDT.relabel(eqRenaming));
         return x;
     }
 
@@ -171,11 +166,10 @@ public class SDT implements SymbolicDecisionTree {
         for (SDTGuard.EqualityGuard d : ds) {
             eqRenaming.put(d.parameter(), d.register());
         }
-        return (SDT) this.relabel(eqRenaming);
+        return  this.relabel(eqRenaming);
     }
 
-    @Override
-    public SymbolicDecisionTree relabel(VarMapping relabelling) {
+    public SDT relabel(VarMapping relabelling) {
         //System.out.println("relabeling " + relabelling);
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
@@ -186,7 +180,7 @@ public class SDT implements SymbolicDecisionTree {
         // for each of the kids
         for (Entry<SDTGuard, SDT> e : thisSdt.children.entrySet()) {
                 reChildren.put(SDTGuard.relabel(e.getKey(), relabelling),
-                    (SDT) e.getValue().relabel(relabelling));
+                     e.getValue().relabel(relabelling));
             }
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
@@ -326,7 +320,7 @@ public class SDT implements SymbolicDecisionTree {
         return this.getChildren().isEmpty();
     }
 
-    Expression<Boolean> getAcceptingPaths(Constants consts) {
+    public Expression<Boolean> getAcceptingPaths(Constants consts) {
 
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
@@ -347,7 +341,7 @@ public class SDT implements SymbolicDecisionTree {
         return dis;
     }
 
-    Map<Expression<Boolean>, Boolean> getGuardExpressions(Constants consts) {
+    public Map<Expression<Boolean>, Boolean> getGuardExpressions(Constants consts) {
     	Map<Expression<Boolean>, Boolean> expressions = new LinkedHashMap<>();
     	Map<List<SDTGuard>, Boolean> paths = getAllPaths(new ArrayList<SDTGuard>());
     	if (paths.isEmpty()) {
@@ -380,7 +374,7 @@ public class SDT implements SymbolicDecisionTree {
         return ret;
     }
 
-    List<List<SDTGuard>> getPaths(boolean accepting) {
+    public List<List<SDTGuard>> getPaths(boolean accepting) {
         List<List<SDTGuard>> collectedPaths = new ArrayList<List<SDTGuard>>();
         getPaths(accepting, new ArrayList<>(), this, collectedPaths);
         return collectedPaths;
@@ -401,7 +395,7 @@ public class SDT implements SymbolicDecisionTree {
         }
     }
 
-    Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
+    public Map<List<SDTGuard>, Boolean> getAllPaths(List<SDTGuard> path) {
         Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
         for (Entry<SDTGuard, SDT> e : this.children.entrySet()) {
             List<SDTGuard> nextPath = new ArrayList<>(path);
@@ -427,7 +421,6 @@ public class SDT implements SymbolicDecisionTree {
         }
     }
 
-	@Override
 	public SDT copy() {
 		Map<SDTGuard, SDT> cc = new LinkedHashMap<>();
 		if (children != null) {
