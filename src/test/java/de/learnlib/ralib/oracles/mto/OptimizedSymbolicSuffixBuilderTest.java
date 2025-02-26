@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.theory.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -36,6 +35,7 @@ import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
