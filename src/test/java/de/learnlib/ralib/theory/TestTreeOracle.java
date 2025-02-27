@@ -84,8 +84,8 @@ public class TestTreeOracle extends RaLibTestSuite {
         // symbolic data values: s1, s2 (userType, passType)
 
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-        System.out.println("Prefix: " + prefix);
-        System.out.println("Suffix: " + symSuffix);
+        //System.out.println("Prefix: " + prefix);
+        //System.out.println("Suffix: " + symSuffix);
 
         // hacked oracle
 
