@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -32,7 +33,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -70,30 +71,30 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", new DataType[] {intType});
+                "IPRACK", intType);
 
         ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[] {intType});
+                "IINVITE", intType);
 
          ParameterizedSymbol inil = new InputSymbol(
-                "Inil", new DataType[] {});
+                "Inil");
 
          ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});
+                "O100", intType);
 
         ParameterizedSymbol o486 = new OutputSymbol(
-                "O486", new DataType[] {intType});
+                "O486", intType);
 
         ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});
+                "O481", intType);
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
 
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IINVITE[1[int]] O100[1[int]]

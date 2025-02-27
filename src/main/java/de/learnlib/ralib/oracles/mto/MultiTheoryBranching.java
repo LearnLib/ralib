@@ -16,16 +16,8 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -36,10 +28,15 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTLeaf;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -123,7 +120,7 @@ public class MultiTheoryBranching implements Branching {
             }
             return SDTLeaf.REJECTING;
         }
-    };
+    }
 
     private final Word<PSymbolInstance> prefix;
 
@@ -131,11 +128,11 @@ public class MultiTheoryBranching implements Branching {
 
     private final Node node;
 
-    private PIV piv;
+    private final PIV piv;
 
-    private Constants constants;
+    private final Constants constants;
 
-    private ParValuation pval;
+    private final ParValuation pval;
 
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
             ParValuation pval, Constants constants, SDT... sdts) {
@@ -223,15 +220,14 @@ public class MultiTheoryBranching implements Branching {
     }
 
     @Override
-    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+    public Map<Word<PSymbolInstance>, Expression<Boolean>> getBranches() {
 
-        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<>();
+        Map<Word<PSymbolInstance>, Expression<Boolean>> branches = new LinkedHashMap<>();
 
         if (this.action.getArity() == 0) {
             // System.out.println("arity 0");
-            TransitionGuard tg = new TransitionGuard();
-            PSymbolInstance psi = new PSymbolInstance(action, new DataValue[0]);
-            branches.put(prefix.append(psi), tg);
+            PSymbolInstance psi = new PSymbolInstance(action);
+            branches.put(prefix.append(psi), ExpressionUtil.TRUE);
             return branches;
         }
 
@@ -240,12 +236,14 @@ public class MultiTheoryBranching implements Branching {
                 new ArrayList<Node>());
 
         for (Map.Entry <DataValue[], List<SDTGuard>> entry : tempMap.entrySet()) {
-            List<GuardExpression> gExpr = new ArrayList<>();
+            List<Expression<Boolean> > gExpr = new ArrayList<>();
             List<SDTGuard> gList = entry.getValue();
             for (SDTGuard g : gList) {
-                gExpr.add(renameSuffixValues(g.toExpr()));
+                gExpr.add(renameSuffixValues(SDTGuard.toExpr(g)));
             }
-            TransitionGuard tg = new TransitionGuard(new Conjunction(gExpr.toArray(new GuardExpression[] {})));
+            Expression<Boolean> tg = ExpressionUtil.and(
+                    gExpr.stream().toList().toArray(new Expression[]{})
+            );
             assert tg != null;
 
             Word<PSymbolInstance> branch = prefix.append(new PSymbolInstance(action, entry.getKey()));
@@ -272,16 +270,16 @@ public class MultiTheoryBranching implements Branching {
     	for (int i=0; i<paramSet.size(); i++) {
     		DataValue dv = dwParamValues[params[i].getId()-1];
     		SuffixValue s = params[i];
-    		Parameter p = new Parameter(s.getType(), s.getId());
+    		Parameter p = new Parameter(s.getDataType(), s.getId());
     		vals.put(p, dv);
     	}
     	VarValuation vars = DataWords.computeVarValuation(new ParValuation(getPrefix()), getPiv());
-    	Map<Word<PSymbolInstance>, TransitionGuard> branches = getBranches();
+    	Map<Word<PSymbolInstance>, Expression<Boolean>> branches = getBranches();
 
     	Word<PSymbolInstance> prefix = null;
-    	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branches.entrySet()) {
-    		TransitionGuard g = e.getValue();
-    		if (g.isSatisfied(vars, vals, constants)) {
+    	for (Map.Entry<Word<PSymbolInstance>,  Expression<Boolean>> e : branches.entrySet()) {
+            Expression<Boolean> g = e.getValue();
+    		if (g.evaluateSMT(SMTUtil.compose(vars, vals, constants))) {
     			prefix = e.getKey();
     			break;
     		}
@@ -290,15 +288,15 @@ public class MultiTheoryBranching implements Branching {
     	return prefix;
     }
 
-    private GuardExpression renameSuffixValues(GuardExpression expr) {
-        Set<SymbolicDataValue> svals = expr.getSymbolicDataValues();
+    private Expression<Boolean>  renameSuffixValues(Expression<Boolean>  expr) {
+        Collection<SymbolicDataValue> svals = SMTUtil.getSymbolicDataValues(expr);
         VarMapping vmap = new VarMapping();
         for (SymbolicDataValue sv : svals) {
             if (sv instanceof SuffixValue) {
-                vmap.put(sv, new Parameter(sv.getType(), sv.getId()));
+                vmap.put(sv, new Parameter(sv.getDataType(), sv.getId()));
             }
         }
-        return expr.relabel(vmap);
+        return SMTUtil.renameVars(expr, vmap);
     }
 
     @Override

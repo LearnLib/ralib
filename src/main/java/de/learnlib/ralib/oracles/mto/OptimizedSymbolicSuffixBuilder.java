@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -22,13 +20,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
-import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class OptimizedSymbolicSuffixBuilder {
@@ -115,15 +113,15 @@ public class OptimizedSymbolicSuffixBuilder {
             Parameter p = e.getKey();
             Register r = e.getValue();
             if (p.getId() > subArity) {
-                SuffixValue sv = new SuffixValue(p.getType(), p.getId()-subArity);
+                SuffixValue sv = new SuffixValue(p.getDataType(), p.getId()-subArity);
                 renaming.put(r, sv);
             }
         }
         for (SDTGuard guard : sdtPath) {
             SuffixValue oldSV = guard.getParameter();
-            SuffixValue newSV = new SuffixValue(oldSV.getType(), oldSV.getId()+actionArity);
+            SuffixValue newSV = new SuffixValue(oldSV.getDataType(), oldSV.getId()+actionArity);
             renaming.put(oldSV, newSV);
-            SDTGuard renamedGuard = guard.relabel(renaming);
+            SDTGuard renamedGuard = SDTGuard.relabel(guard, renaming);
             SuffixValueRestriction restr = restrictionBuilder.restrictSuffixValue(renamedGuard, restrictions);
             restrictions.put(newSV, restr);
         }
@@ -179,7 +177,7 @@ public class OptimizedSymbolicSuffixBuilder {
         for (Map.Entry<SDTGuard, LabeledSDT> e : node.getChildren().entrySet()) {
             SDTGuard guard = e.getKey();
             LabeledSDT child = e.getValue();
-            Set<SymbolicDataValue> comparands = guard.getComparands(guard.getParameter());
+            Set<SymbolicDataValue> comparands = SDTGuard.getComparands(guard,guard.getParameter());
             for (SymbolicDataValue sdv : registers) {
                 if (comparands.contains(sdv)) {
                     return true;
@@ -195,7 +193,7 @@ public class OptimizedSymbolicSuffixBuilder {
     private boolean guardOnRegisters(SDTGuard guard, SymbolicDataValue[] registers) {
         SuffixValue sv = guard.getParameter();
         for (SymbolicDataValue r : registers) {
-            if (guard.getComparands(sv).contains(r)) {
+            if (SDTGuard.getComparands(guard, sv).contains(r)) {
             return true;
             }
         }
@@ -228,7 +226,7 @@ public class OptimizedSymbolicSuffixBuilder {
         for (Map.Entry<SDTGuard, SDT> branch : children.entrySet()) {
             SDTGuard guard = branch.getKey();
             SDT s = branch.getValue();
-            if (guard.getComparands(guard.getParameter()).contains(register)) {
+            if (SDTGuard.getComparands(guard, guard.getParameter()).contains(register)) {
                 guards.add(guard);
             } else {
                 boolean revealed = sdtRevealsRegister(s, register);
@@ -274,7 +272,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
         Map<SDTGuard, SDT> childrenWithRegister = new LinkedHashMap<>();
         for (Map.Entry<SDTGuard, SDT> e : sdt.getChildren().entrySet()) {
-            if (!e.getKey().getComparands(register).isEmpty()) {
+            if (!SDTGuard.getComparands(e.getKey(), register).isEmpty()) {
             childrenWithRegister.put(e.getKey(), e.getValue());
             }
         }
@@ -337,22 +335,22 @@ public class OptimizedSymbolicSuffixBuilder {
         SymbolicDataValueGenerator.RegisterGenerator rgen = new SymbolicDataValueGenerator.RegisterGenerator();
         VarMapping<Register, Register> relabellingSdt1 = new VarMapping<>();
         for (Register r : piv1.values()) {
-            relabellingSdt1.put(r, rgen.next(r.getType()));
+            relabellingSdt1.put(r, rgen.next(r.getDataType()));
         }
-        SDT relSdt1 = (SDT) sdt1.relabel(relabellingSdt1);
+        SDT relSdt1 =  sdt1.relabel(relabellingSdt1);
         PIV relPiv1 = piv1.relabel(relabellingSdt1);
 
         VarMapping<Register, Register> relabellingSdt2 = new VarMapping<>();
         for (Register r : piv2.values()) {
-            relabellingSdt2.put(r, rgen.next(r.getType()));
+            relabellingSdt2.put(r, rgen.next(r.getDataType()));
         }
-        SDT relSdt2 = (SDT) sdt2.relabel(relabellingSdt2);
+        SDT relSdt2 =  sdt2.relabel(relabellingSdt2);
         PIV relPiv2 = piv2.relabel(relabellingSdt2);
 
         // we build valuations which we use to determine satisfiable paths
-        Mapping<SymbolicDataValue, DataValue<?>> valuationSdt1 = buildValuation(prefix1, relPiv1, consts);
-        Mapping<SymbolicDataValue, DataValue<?>> valuationSdt2 = buildValuation(prefix2, relPiv2, consts);
-        Mapping<SymbolicDataValue, DataValue<?>> combined = new Mapping<>();
+        Mapping<SymbolicDataValue, DataValue> valuationSdt1 = buildValuation(prefix1, relPiv1, consts);
+        Mapping<SymbolicDataValue, DataValue> valuationSdt2 = buildValuation(prefix2, relPiv2, consts);
+        Mapping<SymbolicDataValue, DataValue> combined = new Mapping<>();
         combined.putAll(valuationSdt1);
         combined.putAll(valuationSdt2);
         SymbolicSuffix suffix = distinguishingSuffixFromSDTs(prefix1, relSdt1, relPiv1, prefix2, relSdt2, relPiv2, combined, suffixActions, solver);
@@ -361,17 +359,17 @@ public class OptimizedSymbolicSuffixBuilder {
 
     private SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1, PIV piv1,
             Word<PSymbolInstance> prefix2, SDT sdt2, PIV piv2,
-            Mapping<SymbolicDataValue, DataValue<?>> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
+            Mapping<SymbolicDataValue, DataValue> valuation, Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
         SymbolicSuffix best = null;
         for (boolean b : new boolean [] {true, false}) {
             // we check for paths
             List<List<SDTGuard>> pathsSdt1 = sdt1.getPaths(b);
             List<List<SDTGuard>> pathsSdt2 = sdt2.getPaths(!b);
             for (List<SDTGuard> pathSdt1 : pathsSdt1) {
-                GuardExpression expr1 = toGuardExpression(pathSdt1);
+                Expression<Boolean>  expr1 = toGuardExpression(pathSdt1);
                 for (List<SDTGuard> pathSdt2 : pathsSdt2) {
-                    GuardExpression expr2 = toGuardExpression(pathSdt2);
-                    if (solver.isSatisfiable(new Conjunction(expr1, expr2), valuation)) {
+                    Expression<Boolean>  expr2 = toGuardExpression(pathSdt2);
+                    if (solver.isSatisfiable(ExpressionUtil.and(expr1, expr2), valuation)) {
                         SymbolicSuffix suffix = buildOptimizedSuffix(prefix1, pathSdt1, piv1, prefix2, pathSdt2, piv2, suffixActions);
                         best = pickBest(best, suffix);
                     }
@@ -398,7 +396,7 @@ public class OptimizedSymbolicSuffixBuilder {
 
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
         for (int i=0; i<DataWords.paramLength(suffix1.getActions()); i++) {
-            DataType type = suffix1.getDataValue(i+1).getType();
+            DataType type = suffix1.getDataValue(i+1).getDataType();
             SuffixValue sv = sgen.next(type);
             SuffixValueRestriction restr1 = suffix1.getRestriction(sv);
             SuffixValueRestriction restr2 = suffix2.getRestriction(sv);
@@ -426,18 +424,18 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
 
-    private GuardExpression toGuardExpression(List<SDTGuard> guards) {
-        List<GuardExpression> expr = new ArrayList<>();
+    private Expression<Boolean> toGuardExpression(List<SDTGuard> guards) {
+        List<Expression<Boolean>> expr = new ArrayList<>();
         for (SDTGuard g : guards) {
-            expr.add(g.toExpr());
+            expr.add(SDTGuard.toExpr(g));
         }
-        GuardExpression[] exprArr = new GuardExpression[expr.size()];
-        return new Conjunction(expr.toArray(exprArr));
+        Expression<Boolean> [] exprArr = new Expression[expr.size()];
+        return ExpressionUtil.and(expr.toArray(exprArr));
     }
 
-    private Mapping<SymbolicDataValue, DataValue<?>> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
-        Mapping<SymbolicDataValue, DataValue<?>> valuation = new Mapping<SymbolicDataValue, DataValue<?>>();
-        DataValue<?>[] values = DataWords.valsOf(prefix);
+    private Mapping<SymbolicDataValue, DataValue> buildValuation(Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
+        Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
+        DataValue[] values = DataWords.valsOf(prefix);
         piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
         constants.forEach((c, dv) -> valuation.put(c, dv));
         return valuation;

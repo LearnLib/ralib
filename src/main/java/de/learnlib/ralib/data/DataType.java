@@ -30,14 +30,8 @@ public final class DataType {
      */
     final String name;
 
-    /**
-     * base type
-     */
-    final Class base;
-
-    public DataType(String name, Class base) {
+    public DataType(String name) {
         this.name = name;
-        this.base = base;
     }
 
     @Override
@@ -56,17 +50,11 @@ public final class DataType {
             return false;
         }
         final DataType other = (DataType) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     public String getName() {
         return name;
     }
 
-    public Class getBase() {
-        return base;
-    }
 }

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,13 +36,13 @@ import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -78,27 +79,27 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", new DataType[] {intType});
+                "IPRACK", intType);
 
         ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[] {intType});
+                "IINVITE", intType);
 
         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});
+                "O100", intType);
 
         ParameterizedSymbol o200 = new OutputSymbol(
-                "O200", new DataType[] {intType});
+                "O200", intType);
 
         ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});
+                "O481", intType);
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IPRACK[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -133,8 +134,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         remap.put(r2, r1);
 
         PIV piv = tqr2.getPiv();
-        SymbolicDecisionTree sdt1 = tqr1.getSdt().relabel(remap);
-        SymbolicDecisionTree sdt2 = tqr2.getSdt();
+        SDT sdt1 = tqr1.getSdt().relabel(remap);
+        SDT sdt2 = tqr2.getSdt();
 
         logger.log(Level.FINE, "PIV: {0}", piv);
         logger.log(Level.FINE, "SDT1: {0}", sdt1);
@@ -147,7 +148,7 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         String guards = Arrays.toString(b.getBranches().values().toArray());
         logger.log(Level.FINE, "Guards: {0}", guards);
 
-        final String expected = "[(r2==p1), (r2!=p1)]";
+        final String expected = "[('r2' == 'p1'), ('r2' != 'p1')]";
         Assert.assertEquals(guards, expected);
     }
 

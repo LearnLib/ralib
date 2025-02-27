@@ -19,7 +19,7 @@ import net.automatalib.word.Word;
  */
 public class CacheDataWordOracle extends QueryCounter implements DataWordOracle {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(CacheDataWordOracle.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CacheDataWordOracle.class);
 
 	private static class CacheNode {
 		final Map<PSymbolInstance, CacheNode> next = new LinkedHashMap<>();
@@ -27,7 +27,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 	}
 
 	private final CacheNode root = new CacheNode();
-	private DataWordOracle oracle;
+	private final DataWordOracle oracle;
 
 	public CacheDataWordOracle(DataWordOracle oracle) {
 		this.oracle = oracle;

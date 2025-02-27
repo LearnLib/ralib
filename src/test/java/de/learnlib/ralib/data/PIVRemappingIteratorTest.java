@@ -48,7 +48,7 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
     @Test
     public void testOneType() {
 
-        DataType type1 = new DataType("type1", Integer.class);
+        DataType type1 = new DataType("type1");
 
         PIV piv1 = generatePIV(new PIV(), type1, 4);
         PIV piv2 = generatePIV(new PIV(), type1, 4);
@@ -64,8 +64,8 @@ public class PIVRemappingIteratorTest extends RaLibTestSuite {
     @Test
     public void testTwoTypes() {
 
-        DataType type1 = new DataType("type1", Integer.class);
-        DataType type2 = new DataType("type2", Integer.class);
+        DataType type1 = new DataType("type1");
+        DataType type2 = new DataType("type2");
 
         PIV piv1 = generatePIV(new PIV(), type1, 2);
         PIV piv2 = generatePIV(new PIV(), type1, 2);

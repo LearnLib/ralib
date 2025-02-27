@@ -32,7 +32,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -70,21 +70,21 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol igc = new InputSymbol(
-                "IGetChallenge", new DataType[] {});
+                "IGetChallenge");
 
         ParameterizedSymbol icb = new InputSymbol(
-                "ICompleteBAC", new DataType[] {});
+                "ICompleteBAC");
 
          ParameterizedSymbol irf = new InputSymbol(
-                "IReadFile", new DataType[] {intType});
+                "IReadFile", intType);
 
          ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
          DataValue d0 = consts.values().iterator().next();
 

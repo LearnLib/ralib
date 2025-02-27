@@ -26,8 +26,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -68,7 +67,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -81,7 +80,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
         radt.learn();
 
-        String ces[] = {"IINVITE[1[int]] O100[1[int]] / true",
+        String[] ces = {"IINVITE[1[int]] O100[1[int]] / true",
         		"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true"};
 
         Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = TestUnknownMemorable.buildSIPCEs(ces, actions);
@@ -93,7 +92,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
 
         Set<ParameterizedSymbol> outputs = Sets.difference(Set.of(actions), Set.of(inputs));
 
-        String wordStr[] = {"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] / true"};
+        String[] wordStr = {"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] / true"};
         ceQueue = TestUnknownMemorable.buildSIPCEs(wordStr, actions);
         Word<PSymbolInstance> word = ceQueue.getFirst().getInput();
 

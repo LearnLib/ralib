@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
@@ -34,7 +33,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public abstract class RaLibTestSuite {
 
     protected final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err", new DataType[]{});
+            new OutputSymbol("_io_err");
 
     protected static final Logger logger = Logger.getLogger("UnitTest");
 

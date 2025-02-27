@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="I_get">
+                <param type="int" name="p1"/>
+            </symbol>
+            <symbol name="I_put">
+                <param type="int" name="p1"/>
+            </symbol>
+        </inputs>
+        <outputs>
+            <symbol name="O_put">
+                <param type="int" name="p1"/>
+            </symbol>
+            <symbol name="O_get">
+                <param type="int" name="p1"/>
+            </symbol>
+            <symbol name="NULL"/>
+            <symbol name="__ERR"/>
+        </outputs>
+    </alphabet>
+    <constants/>
+    <globals>
+        <variable type="int" name="r2">0</variable>
+        <variable type="int" name="r1">0</variable>
+        <variable type="int" name="tmp_int_1">0</variable>
+    </globals>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+        <location name="l6"/>
+        <location name="l7"/>
+        <location name="l8"/>
+        <location name="l9"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l1" symbol="I_put">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l0" to="l4" symbol="I_get">
+            <assignments/>
+        </transition>
+        <transition from="l1" to="l5" symbol="O_put" params="r2">
+            <assignments>
+                <assign to="r2">__fresh__</assign>
+            </assignments>
+        </transition>
+        <transition from="l4" to="l0" symbol="NULL">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l6" symbol="I_put">
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l8" symbol="I_get">
+            <guard>r2 == p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l5" to="l9" symbol="I_get">
+            <guard>r2 != p1</guard>
+            <assignments/>
+        </transition>
+        <transition from="l6" to="l7" symbol="__ERR">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l6" symbol="I_put">
+            <assignments/>
+        </transition>
+        <transition from="l7" to="l6" symbol="I_get">
+            <assignments/>
+        </transition>
+        <transition from="l8" to="l5" symbol="O_get" params="tmp_int_1">
+            <assignments>
+                <assign to="tmp_int_1">r1</assign>
+            </assignments>
+        </transition>
+        <transition from="l9" to="l5" symbol="NULL">
+            <assignments/>
+        </transition>
+    </transitions>
+</register-automaton>

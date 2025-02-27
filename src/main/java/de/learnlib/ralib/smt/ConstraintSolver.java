@@ -14,19 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.learnlib.ralib.solver;
+package de.learnlib.ralib.smt;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
+import java.util.Properties;
+
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 
 /**
  *
  * @author falk
  */
-public interface ConstraintSolver {
+public class ConstraintSolver {
 
-    public boolean isSatisfiable(GuardExpression expr, Mapping<SymbolicDataValue, DataValue<?>> val);
+    private final gov.nasa.jpf.constraints.api.ConstraintSolver solver =
+            new NativeZ3SolverProvider().createSolver(new Properties());
 
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+        gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = solver.isSatisfiable( SMTUtil.toExpression(expr, val));
+        return r == gov.nasa.jpf.constraints.api.ConstraintSolver.Result.SAT;
+    }
 }

@@ -9,17 +9,16 @@ import de.learnlib.logging.Category;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
-public abstract class UniqueEqualityTheory<T> implements Theory<T> {
+public abstract class UniqueEqualityTheory implements Theory {
 
     // protected boolean useNonFreeOptimization;
 
@@ -42,7 +41,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         this(false);
     }
 
-    public List<DataValue<T>> getPotential(List<DataValue<T>> vals) {
+    public List<DataValue> getPotential(List<DataValue> vals) {
         return vals;
     }
 
@@ -53,13 +52,13 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         int pId = values.size() + 1;
 
         SymbolicDataValue.SuffixValue sv = suffix.getDataValue(pId);
-        DataType type = sv.getType();
+        DataType type = sv.getDataType();
 
-        Collection<DataValue<T>> potSet = DataWords.<T>joinValsToSet(constants.<T>values(type),
-                DataWords.<T>valSet(prefix, type), suffixValues.<T>values(type));
+        Collection<DataValue> potSet = DataWords.joinValsToSet(constants.values(type),
+                DataWords.valSet(prefix, type), suffixValues.values(type));
 
-        List<DataValue<T>> potList = new ArrayList<>(potSet);
-        List<DataValue<T>> potential = getPotential(potList);
+        List<DataValue> potList = new ArrayList<>(potSet);
+        List<DataValue> potential = getPotential(potList);
 
         SDT sdt;
         Map<SDTGuard, SDT> merged = new HashMap<>();
@@ -74,7 +73,7 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
         sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
         LOGGER.trace(Category.QUERY, " single deq SDT : {}", sdt.toString());
 
-        merged.put(new SDTTrueGuard(sv), sdt);
+        merged.put(new SDTGuard.SDTTrueGuard(sv), sdt);
 
         SDT returnSDT = new SDT(merged);
         return returnSDT;
@@ -83,20 +82,20 @@ public abstract class UniqueEqualityTheory<T> implements Theory<T> {
     @Override
     // instantiate a parameter with a data value
     public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
-                                 Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue<T>> oldDvs) {
+                                 Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
-        LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues.toString());
-        DataType type = param.getType();
-        Collection potSet = DataWords.<T>joinValsToSet(constants.<T>values(type), DataWords.<T>valSet(prefix, type),
-                pval.<T>values(type));
+        LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues);
+        DataType type = param.getDataType();
+        Collection potSet = DataWords.joinValsToSet(constants.values(type), DataWords.valSet(prefix, type),
+                pval.values(type));
 
         if (!potSet.isEmpty()) {
-            LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet.toString());
+            LOGGER.trace(Category.DATASTRUCTURE, "potSet = {}", potSet);
         } else {
             LOGGER.trace(Category.DATASTRUCTURE, "potSet is empty");
         }
-        DataValue fresh = this.getFreshValue(new ArrayList<DataValue<T>>(potSet));
+        DataValue fresh = this.getFreshValue(new ArrayList<DataValue>(potSet));
         LOGGER.trace(Category.DATASTRUCTURE, "fresh = {}", fresh.toString());
         return fresh;
 

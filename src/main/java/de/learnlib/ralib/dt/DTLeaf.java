@@ -18,7 +18,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -30,7 +29,6 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -39,11 +37,12 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SDT;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class DTLeaf extends DTNode implements LocationComponent {
@@ -281,11 +280,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
         boolean input = DTLeaf.isInput(mp.getPrefix().lastSymbol().getBaseSymbol());
         for (ParameterizedSymbol ps : dt.getInputs()) {
 
-            SymbolicDecisionTree[] sdtsP = this.getSDTsForInitialSymbol(mp, ps);
+            SDT[] sdtsP = this.getSDTsForInitialSymbol(mp, ps);
             Branching prefixBranching = oracle.getInitialBranching(mp.getPrefix(), ps, mp.getParsInVars(), sdtsP);
             mp.putBranching(ps, prefixBranching);
 
-            SymbolicDecisionTree[] sdtsAS = this.getSDTsForInitialSymbol(this.getPrimePrefix(), ps);
+            SDT[] sdtsAS = this.getSDTsForInitialSymbol(this.getPrimePrefix(), ps);
             Branching accessBranching = oracle.getInitialBranching(getAccessSequence(), ps, this.access.getParsInVars(),
                     sdtsAS);
 
@@ -323,17 +322,17 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     static public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching wordBranching, PIV wordPIV, Branching accBranching, PIV accPIV, SDTLogicOracle oracle) {
     	Word<PSymbolInstance> a = null;
-    	TransitionGuard g = null;
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : wordBranching.getBranches().entrySet()) {
+        Expression<Boolean> g = null;
+    	for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e : wordBranching.getBranches().entrySet()) {
     		if (e.getKey().equals(word)) {
     			g = e.getValue();
     			break;
     		}
     	}
 
-    	for (Entry<Word<PSymbolInstance>, TransitionGuard> e : accBranching.getBranches().entrySet()) {
-    		TransitionGuard ag = e.getValue();
-    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue<?>>());
+    	for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e : accBranching.getBranches().entrySet()) {
+            Expression<Boolean> ag = e.getValue();
+    		boolean eq = oracle.areEquivalent(g, accPIV, ag, accPIV, new Mapping<SymbolicDataValue, DataValue>());
     		if (eq) {
     			a = e.getKey();
     			break;
@@ -360,7 +359,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         boolean input = isInputComponent();
         for (ParameterizedSymbol ps : inputs) {
 
-            SymbolicDecisionTree[] sdts = this.getSDTsForInitialSymbol(ps);
+            SDT[] sdts = this.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(getAccessSequence(), ps, access.getParsInVars(), sdts);
             branching.put(ps, b);
             for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
@@ -387,7 +386,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private boolean updateBranching(ParameterizedSymbol ps, DiscriminationTree dt) {
         Branching b = branching.get(ps);
-        SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(ps);
+        SDT[] sdts = getSDTsForInitialSymbol(ps);
         Branching newB = oracle.updateBranching(access.getPrefix(), ps, b, access.getParsInVars(), sdts);
         boolean ret = true;
 
@@ -408,7 +407,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
 
     private boolean updateBranching(ParameterizedSymbol ps, ShortPrefix sp, DiscriminationTree dt) {
     	Branching b = sp.getBranching(ps);
-        SymbolicDecisionTree[] sdts = getSDTsForInitialSymbol(sp, ps);
+        SDT[] sdts = getSDTsForInitialSymbol(sp, ps);
         Branching newB = oracle.updateBranching(sp.getPrefix(), ps, b, sp.getParsInVars(), sdts);
         boolean ret = true;
 
@@ -418,26 +417,26 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 ret = false;
             }
         }
-        sp.putBranching(ps, newB);;
+        sp.putBranching(ps, newB);
         return ret;
     }
 
-    private SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol p) {
+    private SDT[] getSDTsForInitialSymbol(ParameterizedSymbol p) {
         return getSDTsForInitialSymbol(this.getPrimePrefix(), p);
     }
 
-    private SymbolicDecisionTree[] getSDTsForInitialSymbol(MappedPrefix mp, ParameterizedSymbol p) {
-        List<SymbolicDecisionTree> sdts = new ArrayList<>();
+    private SDT[] getSDTsForInitialSymbol(MappedPrefix mp, ParameterizedSymbol p) {
+        List<SDT> sdts = new ArrayList<>();
         for (Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
             Word<ParameterizedSymbol> acts = e.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(p)) {
                 sdts.add(makeConsistent(e.getValue().getSdt(), e.getValue().getPiv(), mp.getParsInVars()));
             }
         }
-        return sdts.toArray(new SymbolicDecisionTree[] {});
+        return sdts.toArray(new SDT[] {});
     }
 
-    private SymbolicDecisionTree makeConsistent(SymbolicDecisionTree sdt, PIV piv, PIV memorable) {
+    private SDT makeConsistent(SDT sdt, PIV piv, PIV memorable) {
         VarMapping relabeling = new VarMapping();
         for (Entry<Parameter, Register> e : piv.entrySet()) {
             Register r = memorable.get(e.getKey());
@@ -486,17 +485,17 @@ public class DTLeaf extends DTNode implements LocationComponent {
             	assert !suffixes.isEmpty();
             	for (SymbolicSuffix suffix : suffixes) {
             		TreeQueryResult suffixTQR = mp.getTQRs().get(suffix);
-            		SymbolicDecisionTree sdt = suffixTQR.getSdt();
+            		SDT sdt = suffixTQR.getSdt();
             		// suffixBuilder == null ==> suffix.isOptimizedGeneric()
             		assert suffixBuilder != null || suffix.isOptimizationGeneric() : "Optimized with restriction builder, but no restriction builder provided";
             		SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
-            				suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, suffixTQR.getPiv(), suffix, suffixTQR.getPiv().get(p)) :
+            				suffixBuilder.extendSuffix(mp.getPrefix(), sdt, suffixTQR.getPiv(), suffix, suffixTQR.getPiv().get(p)) :
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
             		if (prefixSuffixes.contains(newSuffix))
             			continue;
             		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
-            		if (tqr.getPiv().keySet().contains(p)) {
+            		if (tqr.getPiv().containsKey(p)) {
             			dt.addSuffix(newSuffix, prefixLeaf);
             			mp.missingParameter.remove(p);
             			return false;
@@ -556,9 +555,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
         	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
         		PIV piv = e.getValue().getPiv();
         		if (!Sets.intersection(piv.keySet(), paramsIntersect).isEmpty()) {
-        			SymbolicDecisionTree sdt = e.getValue().getSdt();
+        			SDT sdt = e.getValue().getSdt();
         			SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
-        					suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, piv, e.getKey()) :
+        					suffixBuilder.extendSuffix(mp.getPrefix(), sdt, piv, e.getKey()) :
         					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
         			if (!prefixMapped.getTQRs().containsKey(newSuffix)) {
         				dt.addSuffix(newSuffix, prefixLeaf);
@@ -576,7 +575,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         if (!difference.isEmpty()) {
         	// there are symmetric parameter mappings in the prefix which are not symmetric in mp
         	for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : mp.getTQRs().entrySet()) {
-        		SymbolicDecisionTree sdt = e.getValue().getSdt();
+        		SDT sdt = e.getValue().getSdt();
         		for (VarMapping<Parameter, Parameter> vm : difference) {
                 	VarMapping<Register, Register> renaming = new VarMapping<>();
                 	for (Map.Entry<Parameter, Parameter> paramRenaming : vm.entrySet()) {
@@ -586,7 +585,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
                 	}
         			if (!sdt.isEquivalent(sdt, renaming)) {
         				SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
-            					suffixBuilder.extendSuffix(mp.getPrefix(), (SDT)sdt, e.getValue().getPiv(), e.getKey()) :
+            					suffixBuilder.extendSuffix(mp.getPrefix(), sdt, e.getValue().getPiv(), e.getKey()) :
             					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
             			dt.addSuffix(newSuffix, prefixLeaf);
             			return false;
@@ -635,7 +634,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
             // remapping is null for prime rows ...
             Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
             if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getType(), p.getId() - max);
+                Parameter pNew = new Parameter(p.getDataType(), p.getId() - max);
                 assignments.put(rNew, pNew);
             } else {
                 Register rOld = parsInVars_Src.get(p);

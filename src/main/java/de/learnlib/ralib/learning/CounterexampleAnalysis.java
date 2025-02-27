@@ -21,7 +21,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
@@ -31,8 +30,10 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -57,7 +58,7 @@ public class CounterexampleAnalysis {
 
     private final Constants consts;
 
-    private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
+    private enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 
@@ -126,7 +127,7 @@ public class CounterexampleAnalysis {
 
         LocationComponent c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+        Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
         boolean hasCE = sdtOracle.hasCounterexample(location,
                 resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()),
@@ -152,7 +153,7 @@ public class CounterexampleAnalysis {
     }
 
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL) {
+                                          ParameterizedSymbol action, SDT sdtSUL, PIV pivSUL) {
 
         Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
         LocationComponent c = components.get(prefix);
@@ -167,9 +168,9 @@ public class CounterexampleAnalysis {
 //            System.out.println(e.getKey() + " -> " + e.getValue());
 //        }
 
-        for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
+        for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
-            for (TransitionGuard guardSul : branchSul.getBranches().values()) {
+            for (Expression<Boolean> guardSul : branchSul.getBranches().values()) {
                 if (sdtOracle.doesRefine(guardHyp, c.getPrimePrefix().getParsInVars(),
                         guardSul, pivSUL, new Mapping<>())) {
                     refines = true;

@@ -5,9 +5,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -16,16 +13,20 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class StackAutomatonExample {
 
-    public static final DataType T_INT = new DataType("T_int", Integer.class);
+    public static final DataType T_INT = new DataType("T_int");
 
     public static final InputSymbol I_PUSH =
-            new InputSymbol("push", new DataType[] {T_INT});
+            new InputSymbol("push", T_INT);
 
     public static final InputSymbol I_POP =
-            new InputSymbol("pop", new DataType[] {T_INT});
+            new InputSymbol("pop", T_INT);
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 
@@ -49,11 +50,11 @@ public class StackAutomatonExample {
         Parameter pVal = pgen.next(T_INT);
 
         // guards
-        TransitionGuard okGuard1    = new TransitionGuard(new AtomicGuardExpression(rVal1, Relation.EQUALS, pVal));
-        TransitionGuard okGuard2    = new TransitionGuard(new AtomicGuardExpression(rVal2, Relation.EQUALS, pVal));
-        TransitionGuard errorGuard1 = new TransitionGuard(new AtomicGuardExpression(rVal1, Relation.NOT_EQUALS, pVal));
-        TransitionGuard errorGuard2 = new TransitionGuard(new AtomicGuardExpression(rVal2, Relation.NOT_EQUALS, pVal));
-        TransitionGuard trueGuard   = new TransitionGuard();
+        Expression<Boolean> okGuard1    = new NumericBooleanExpression(rVal1, NumericComparator.EQ, pVal);
+        Expression<Boolean> okGuard2    = new NumericBooleanExpression(rVal2, NumericComparator.EQ, pVal);
+        Expression<Boolean> errorGuard1 = new NumericBooleanExpression(rVal1, NumericComparator.NE, pVal);
+        Expression<Boolean> errorGuard2 = new NumericBooleanExpression(rVal2, NumericComparator.NE, pVal);
+        Expression<Boolean> trueGuard   = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();

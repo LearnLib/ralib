@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.tools.theories;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +31,7 @@ import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
  *
  * @author falk
  */
-public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements TypedTheory<Integer> {
+public class IntegerEqualityTheory  extends EqualityTheory implements TypedTheory {
 
 
     private DataType type = null;
@@ -43,13 +44,13 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     }
 
     @Override
-    public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-        int dv = -1;
-        for (DataValue<Integer> d : vals) {
-            dv = Math.max(dv, d.getId());
+    public DataValue getFreshValue(List<DataValue> vals) {
+        BigDecimal dv = new BigDecimal("-1");
+        for (DataValue d : vals) {
+            dv = dv.max(d.getValue());
         }
 
-        return new DataValue(type, dv + 1);
+        return new DataValue(type, BigDecimal.ONE.add(dv));
     }
 
     @Override
@@ -68,12 +69,9 @@ public class IntegerEqualityTheory  extends EqualityTheory<Integer> implements T
     }
 
     @Override
-    public Collection<DataValue<Integer>> getAllNextValues(
-            List<DataValue<Integer>> vals) {
-
+    public Collection<DataValue> getAllNextValues(List<DataValue> vals) {
         // TODO: add constants ...
-
-        ArrayList<DataValue<Integer>> ret = new ArrayList<>(vals);
+        ArrayList<DataValue> ret = new ArrayList<>(vals);
         ret.add(getFreshValue(vals));
         return ret;
     }

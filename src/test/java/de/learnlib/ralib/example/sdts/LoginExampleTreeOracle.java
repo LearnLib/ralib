@@ -22,16 +22,11 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
@@ -40,15 +35,19 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.example.sdts.LoginExampleSDT.SDTClass;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -57,10 +56,10 @@ import net.automatalib.word.Word;
  */
 public class LoginExampleTreeOracle implements TreeOracle {
 
-    public static enum State {
+    public enum State {
 
         INIT, REGISTER, LOGIN, ERROR
-    };
+    }
 
     private final Register rUid;
     private final Register rPwd;
@@ -161,16 +160,16 @@ public class LoginExampleTreeOracle implements TreeOracle {
         DataValue[] params = new DataValue[ps.getArity()];
         int base = DataWords.paramLength(DataWords.actsOf(prefix)) + 1;
         for (int i = 0; i < ps.getArity(); i++) {
-            params[i] = new DataValue(ps.getPtypes()[i], base + i);
+            params[i] = new DataValue(ps.getPtypes()[i], new BigDecimal(base + i));
         }
         return prefix.append(new PSymbolInstance(ps, params));
     }
 
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree... sdts) {
+            ParameterizedSymbol ps, PIV piv, SDT... sdts) {
 
-        Map<Word<PSymbolInstance>, TransitionGuard> branches = new LinkedHashMap<Word<PSymbolInstance>, TransitionGuard>();
+        Map<Word<PSymbolInstance>, Expression<Boolean>> branches = new LinkedHashMap<Word<PSymbolInstance>, Expression<Boolean>>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
         DataValue[] vals = DataWords.valsOf(prefix);
 
@@ -184,23 +183,25 @@ public class LoginExampleTreeOracle implements TreeOracle {
             SymbolicDataValue.Parameter pPwd = pgen.next(T_PWD);
 
             // guards
-        GuardExpression condition = new Conjunction(
-                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
+            Expression<Boolean> condition = ExpressionUtil.and(
+                new NumericBooleanExpression(rUid, NumericComparator.EQ, pUid),
+                new NumericBooleanExpression(rPwd, NumericComparator.EQ, pPwd)
+            );
 
-        GuardExpression elseCond = new Disjunction(
-                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
+            Expression<Boolean> elseCond = ExpressionUtil.or(
+                new NumericBooleanExpression(rUid, NumericComparator.NE, pUid),
+                new NumericBooleanExpression(rPwd, NumericComparator.NE, pPwd)
+            );
 
-            TransitionGuard ifGuard = new TransitionGuard(condition);
-            TransitionGuard elseGuard = new TransitionGuard(elseCond);
+            Expression<Boolean> ifGuard = condition;
+            Expression<Boolean> elseGuard = elseCond;
 
             branches.put(getDefaultExtension(prefix, ps), elseGuard);
             branches.put(prefix.append(new PSymbolInstance(ps, vals)), ifGuard);
 
         } else {
 
-            TransitionGuard guard = new TransitionGuard();
+            Expression<Boolean> guard = ExpressionUtil.TRUE;
             branches.put(getDefaultExtension(prefix, ps), guard);
 
         }
@@ -211,14 +212,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree... sdts) {
+            PIV piv, SDT... sdts) {
 
         return getInitialBranching(prefix, ps, piv, sdts);
     }
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
+    		SymbolicSuffix suffix, SDT sdt, PIV piv) {
     	throw new UnsupportedOperationException("Not implemented");
     }
 
