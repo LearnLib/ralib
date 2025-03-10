@@ -25,12 +25,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDTGuard;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
@@ -473,5 +476,86 @@ public class SDT {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Returns a bijection b such that b and bi agree on the registers in the intersection
+	 * of their domains and such that sdt1 and sdt2 are equivalent under b.
+	 * Returns null if no such bijection can be found.
+	 *
+	 * @param sdt1
+	 * @param sdt2
+	 * @param bi
+	 * @param solver
+	 * @return
+	 */
+	public static Bijection equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection bi, ConstraintSolver solver) {
+		sdt1 = sdt1.relabel(bi.toVarMapping());
+		Set<Register> regs1 = sdt1.getRegisters();
+		Set<Register> regs2 = sdt2.getRegisters();
+
+		if (regs1.size() != regs2.size()) {
+			return null;
+		}
+
+		if (regs1.containsAll(regs2)) {
+			return sdt1.isEquivalent(sdt2, solver) ? bi : null;
+		}
+
+		Set<Register> replace = new LinkedHashSet<>(regs1);
+		replace.removeAll(bi.values());
+		Set<Register> by = new LinkedHashSet<>(regs2);
+		by.removeAll(bi.values());
+
+		RemappingIterator it = new RemappingIterator(replace, by);
+		while (it.hasNext()) {
+			Bijection vars = it.next();
+			if (sdt2.isEquivalent(sdt1.relabel(vars.toVarMapping()), solver)) {
+				Bijection b = new Bijection();
+				b.putAll(bi);
+				b.putAll(vars);
+				return b;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns a bijection b such that sdt1 and sdt2 are semantically equivalent under b
+	 *
+	 * @param sdt1
+	 * @param sdt2
+	 * @param solver
+	 * @return
+	 */
+	public static Bijection equivalentUnderBijection(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
+		return equivalentUnderBijection(sdt1, sdt2, new Bijection(), solver);
+	}
+
+	/**
+	 * Returns true if sdt1 and sdt2 are semantically equivalent
+	 *
+	 * @param sdt1
+	 * @param sdt2
+	 * @param solver
+	 * @return
+	 */
+	public static boolean equivalentUnderId(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
+		return sdt1.isEquivalent(sdt2, solver);
+	}
+
+	/**
+	 * Returns the set of registers of used by the sdts
+	 *
+	 * @param sdts
+	 * @return
+	 */
+	public static Set<Register> registersOf(SDT ... sdts) {
+		Set<Register> regs = new LinkedHashSet<>();
+		for (SDT sdt : sdts) {
+			regs.addAll(sdt.getRegisters());
+		}
+		return regs;
 	}
 }
