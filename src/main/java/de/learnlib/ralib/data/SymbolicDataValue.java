@@ -27,8 +27,8 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
  *
  * @author falk
  */
-@Deprecated
-public abstract class SymbolicDataValue extends Variable<BigDecimal> {
+public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> implements TypedValue permits
+        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue {
 
     public static final class Parameter extends SymbolicDataValue {
 
@@ -52,8 +52,9 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
     }
 
     /*
-     * a parameter in a suffix: we should replace those by v_i
+     * a parameter in a suffix:
      */
+    // todo: we should replace those by v_i
     public static final class SuffixValue extends SymbolicDataValue {
 
         public SuffixValue(DataType dataType, int id) {
@@ -65,32 +66,19 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
 
     final int id;
 
-    // TODO: id needed?
     private SymbolicDataValue(DataType dataType, int id, String name) {
         super(BuiltinTypes.DECIMAL, name);
         this.type = dataType;
         this.id = id;
     }
 
+    @Override
     public DataType getDataType() {
         return this.type;
     }
 
     public int getId() {
         return this.id;
-    }
-
-    public static <T extends SymbolicDataValue> T copy(T orig) {
-        if (orig.isParameter()) {
-            return (T) new Parameter(orig.type, orig.id);
-        } else if (orig.isRegister()) {
-            return (T) new Register(orig.type, orig.id);
-        } else if (orig.isConstant()) {
-            return (T) new Constant(orig.type, orig.id);
-        } else if (orig.isSuffixValue()) {
-            return (T) new SuffixValue(orig.type, orig.id);
-        }
-        throw new RuntimeException("should not be reachable.");
     }
 
     @Override
@@ -137,4 +125,5 @@ public abstract class SymbolicDataValue extends Variable<BigDecimal> {
     public boolean isSuffixValue() {
         return this.getClass().equals(SuffixValue.class);
     }
+
 }

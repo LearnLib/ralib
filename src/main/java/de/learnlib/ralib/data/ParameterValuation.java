@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.data;
 
-import java.util.Iterator;
 
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -27,28 +26,25 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-@Deprecated
-public class ParValuation extends Mapping<SymbolicDataValue.Parameter, DataValue> {
+public class ParameterValuation extends Mapping<SymbolicDataValue.Parameter, DataValue> {
 
-    public ParValuation() {
-
-    }
-
-    public ParValuation(PSymbolInstance psi) {
+    public static ParameterValuation fromPSymbolInstance(PSymbolInstance psi) {
+        ParameterValuation val = new ParameterValuation();
         ParameterGenerator pgen = new ParameterGenerator();
         for (DataValue dv : psi.getParameterValues()) {
-            this.put(pgen.next(dv.getDataType()), dv);
+            val.put(pgen.next(dv.getDataType()), dv);
         }
+        return val;
     }
 
-    public ParValuation(Word<PSymbolInstance> dw) {
-    	ParameterGenerator pgen = new ParameterGenerator();
-    	Iterator<PSymbolInstance> it = dw.iterator();
-    	while (it.hasNext()) {
-    		PSymbolInstance psi = it.next();
-    		for (DataValue dv : psi.getParameterValues()) {
-    			put(pgen.next(dv.getDataType()), dv);
-    		}
-    	}
+    public static ParameterValuation fromPSymbolWord(Word<PSymbolInstance> dw) {
+        ParameterValuation val = new ParameterValuation();
+        ParameterGenerator pgen = new ParameterGenerator();
+        for (PSymbolInstance psi : dw) {
+            for (DataValue dv : psi.getParameterValues()) {
+                val.put(pgen.next(dv.getDataType()), dv);
+            }
+        }
+        return val;
     }
 }

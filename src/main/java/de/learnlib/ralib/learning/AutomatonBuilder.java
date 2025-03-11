@@ -29,11 +29,11 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -190,8 +190,8 @@ public class AutomatonBuilder {
     }
 
     public static Expression<Boolean> findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, Expression<Boolean>> branches, Constants consts) {
-    	ParValuation pars = new ParValuation(dw);
-    	VarValuation vars = DataWords.computeVarValuation(new ParValuation(dw.prefix(dw.length() - 1)), piv);
+    	ParameterValuation pars = ParameterValuation.fromPSymbolWord(dw);
+    	RegisterValuation vars = DataWords.computeRegisterValuation(ParameterValuation.fromPSymbolWord(dw.prefix(dw.length() - 1)), piv);
     	for (Expression<Boolean> g : branches.values()) {
     		if (g.evaluateSMT(SMTUtil.compose(vars, pars, consts))) {
     			return g;

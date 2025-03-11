@@ -16,22 +16,6 @@
  */
 package de.learnlib.ralib.data;
 
-
-/**
- * A valuation of registers.
- *
- * @author falk
- */
-@Deprecated
-public class VarValuation extends Mapping<SymbolicDataValue.Register, DataValue> {
-
-    public VarValuation(VarValuation other) {
-        if (other != null) {
-            putAll(other);
-        }
-    }
-
-    public VarValuation() {
-    }
-
+public interface TypedValue {
+    DataType getDataType();
 }

@@ -36,7 +36,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.FreshValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
@@ -327,14 +327,14 @@ public abstract class EqualityTheory implements Theory {
             // it is somewhere earlier in the suffix
         else {
 
-            int smallest = Collections.min(ifValues.getAllKeys(newDv));
+            int smallest = Collections.min(ifValues.getAllKeysForValue(newDv));
             return new SDTGuard.EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
     }
 
     @Override
     // instantiate a parameter with a data value
-    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
             Constants constants, SDTGuard guard, Parameter param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));

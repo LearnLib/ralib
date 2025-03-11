@@ -81,7 +81,7 @@ public abstract class UniqueEqualityTheory implements Theory {
 
     @Override
     // instantiate a parameter with a data value
-    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
                                  Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));

@@ -21,12 +21,12 @@ import java.util.*;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDT;
@@ -132,10 +132,10 @@ public class MultiTheoryBranching implements Branching {
 
     private final Constants constants;
 
-    private final ParValuation pval;
+    private final ParameterValuation pval;
 
     public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
-            ParValuation pval, Constants constants, SDT... sdts) {
+            ParameterValuation pval, Constants constants, SDT... sdts) {
         this.prefix = prefix;
         this.action = action;
         this.node = node;
@@ -163,7 +163,7 @@ public class MultiTheoryBranching implements Branching {
         return node.buildFakeSDT();
     }
 
-    public ParValuation getPval() {
+    public ParameterValuation getPval() {
         return pval;
     }
 
@@ -266,14 +266,14 @@ public class MultiTheoryBranching implements Branching {
     	DataValue[] dwParamValues = dw.lastSymbol().getParameterValues();
     	SuffixValue[] params = new SuffixValue[paramSet.size()];
     	paramSet.toArray(params);
-    	ParValuation vals = new ParValuation();
+    	ParameterValuation vals = new ParameterValuation();
     	for (int i=0; i<paramSet.size(); i++) {
     		DataValue dv = dwParamValues[params[i].getId()-1];
     		SuffixValue s = params[i];
     		Parameter p = new Parameter(s.getDataType(), s.getId());
     		vals.put(p, dv);
     	}
-    	VarValuation vars = DataWords.computeVarValuation(new ParValuation(getPrefix()), getPiv());
+    	RegisterValuation vars = DataWords.computeRegisterValuation(ParameterValuation.fromPSymbolWord(getPrefix()), getPiv());
     	Map<Word<PSymbolInstance>, Expression<Boolean>> branches = getBranches();
 
     	Word<PSymbolInstance> prefix = null;

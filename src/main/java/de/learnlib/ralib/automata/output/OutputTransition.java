@@ -23,12 +23,12 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.OutputSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -55,13 +55,13 @@ public class OutputTransition extends Transition {
         this(ExpressionUtil.TRUE, output, label, source, destination, assignment);
     }
 
-    public boolean canBeEnabled(VarValuation registers, Constants consts) {
+    public boolean canBeEnabled(RegisterValuation registers, Constants consts) {
         // FIXME: this is not in general safe to do!! (We assume the guard to not have parameters)
-        return this.guard.evaluateSMT(SMTUtil.compose(registers, new ParValuation(), consts));
+        return this.guard.evaluateSMT(SMTUtil.compose(registers, new ParameterValuation(), consts));
     }
 
     @Override
-    public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
+    public boolean isEnabled(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
 
         // check freshness of parameters ...
         for (Parameter p : output.getFreshParameters()) {

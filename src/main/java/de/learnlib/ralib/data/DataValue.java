@@ -28,7 +28,7 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
  *
  * @author falk
  */
-public class DataValue extends Constant<BigDecimal> {
+public class DataValue extends Constant<BigDecimal> implements TypedValue {
 
     protected final DataType type;
 
@@ -64,6 +64,7 @@ public class DataValue extends Constant<BigDecimal> {
         return this.getValue().equals(other.getValue());
     }
 
+    @Override
     public DataType getDataType() {
         return type;
     }

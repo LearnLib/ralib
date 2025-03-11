@@ -40,14 +40,14 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
@@ -181,7 +181,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             }
         }
 
-        MultiTheoryBranching mtb = this.getInitialBranching(prefix, ps, piv, new ParValuation(), casted);
+        MultiTheoryBranching mtb = this.getInitialBranching(prefix, ps, piv, new ParameterValuation(), casted);
 
         LOGGER.trace(Category.QUERY, mtb.toString());
 
@@ -190,7 +190,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     // get the initial branching for the symbol ps after prefix given a certain tree
     private MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            ParValuation pval, SDT... sdts) {
+            ParameterValuation pval, SDT... sdts) {
         Node n;
 
         if (sdts.length == 0) {
@@ -205,7 +205,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     }
 
     private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            ParValuation pval) {
+            ParameterValuation pval) {
 
         if (i == ps.getArity() + 1) {
             return new Node(new Parameter(null, i));
@@ -220,7 +220,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
             Theory teach = teachers.get(type);
 
             DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
-            ParValuation otherPval = new ParValuation();
+            ParameterValuation otherPval = new ParameterValuation();
             otherPval.putAll(pval);
             otherPval.put(p, dvi);
 
@@ -231,13 +231,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         }
     }
 
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
             SDT... sdts) {
         Node n = createNode(i, prefix, ps, piv, pval, new LinkedHashMap<>(), sdts);
         return n;
     }
 
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParValuation pval,
+    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
             Map<Parameter, Set<DataValue>> oldDvMap, SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
@@ -283,7 +283,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                                                                                                             // guards
                         .distinct().toArray(SDT[]::new); // merge and pick distinct elements
 
-                ParValuation otherPval = new ParValuation();
+                ParameterValuation otherPval = new ParameterValuation();
                 otherPval.putAll(pval);
                 otherPval.put(p, dvi);
 
@@ -443,12 +443,12 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return children;
     }
 
-    private Mapping<SymbolicDataValue, DataValue> buildValuation(ParValuation parValuation,
+    private Mapping<SymbolicDataValue, DataValue> buildValuation(ParameterValuation ParameterValuation,
             Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
         DataValue[] values = DataWords.valsOf(prefix);
         piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
-        parValuation.forEach((param, dv) -> valuation.put(new SuffixValue(param.getDataType(), param.getId()), dv));
+        ParameterValuation.forEach((param, dv) -> valuation.put(new SuffixValue(param.getDataType(), param.getId()), dv));
         constants.forEach((c, dv) -> valuation.put(c, dv));
         return valuation;
     }
@@ -459,13 +459,13 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
         instantiate(words, prefix, suffix,  sdt, piv, 0, 0,
-                new ParValuation(), new ParameterGenerator(), new ParValuation(), new ParameterGenerator());
+                new ParameterValuation(), new ParameterGenerator(), new ParameterValuation(), new ParameterGenerator());
         return words;
     }
 
     private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx,
-            ParValuation pval, ParameterGenerator pgen, ParValuation gpval, ParameterGenerator gpgen) {
+            ParameterValuation pval, ParameterGenerator pgen, ParameterValuation gpval, ParameterGenerator gpgen) {
         if (aidx == suffix.getActions().length()) {
             words.put(prefix, sdt.isAccepting());
         } else {
@@ -474,17 +474,17 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 DataValue[] vals = pval.values().toArray(new DataValue [] {});
                 PSymbolInstance psi = new PSymbolInstance(ps, vals);
                 Word<PSymbolInstance> newPrefix = prefix.append(psi);
-                instantiate(words, newPrefix, suffix, sdt, piv, aidx+1, 0, new ParValuation(), new ParameterGenerator(), gpval, gpgen);
+                instantiate(words, newPrefix, suffix, sdt, piv, aidx+1, 0, new ParameterValuation(), new ParameterGenerator(), gpval, gpgen);
             } else {
                 Parameter p = pgen.next(ps.getPtypes()[pidx]);
                 Parameter gp = gpgen.next(ps.getPtypes()[pidx]);
                 Theory t = teachers.get(ps.getPtypes()[pidx]);
                 for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
                     DataValue val = t.instantiate(prefix, ps, piv, gpval, constants, entry.getKey(), p, Collections.emptySet());
-                    ParValuation newPval = new ParValuation();
+                    ParameterValuation newPval = new ParameterValuation();
                     newPval.putAll(pval);
                     newPval.put(p, val);
-                    ParValuation newGpval = new ParValuation();
+                    ParameterValuation newGpval = new ParameterValuation();
                     newGpval.putAll(gpval);
                     newGpval.put(gp, val);
                     ParameterGenerator newPgen = new ParameterGenerator();
@@ -534,7 +534,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         newPiv.putAll(oldBranching.getPiv());
         newPiv.putAll(relabeledPiv);
 
-        ParValuation pval = new ParValuation();
+        ParameterValuation pval = new ParameterValuation();
 
         Node n = createNode(1, prefix, ps, newPiv, pval, oldDvs, casted);
 
@@ -561,8 +561,8 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     		}
     	}
 
-    	ParValuation pars = DataWords.computeParValuation(prefix);
-    	VarValuation vars = DataWords.computeVarValuation(pars, piv);
+    	ParameterValuation pars = DataWords.computeParameterValuation(prefix);
+    	RegisterValuation vars = DataWords.computeRegisterValuation(pars, piv);
     	mapping.putAll(vars);
 
     	SDT _sdt = sdt;

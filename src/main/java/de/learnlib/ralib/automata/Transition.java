@@ -17,8 +17,8 @@
 package de.learnlib.ralib.automata;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -49,11 +49,11 @@ public class Transition {
         this.assignment = assignment;
     }
 
-    public boolean isEnabled(VarValuation registers, ParValuation parameters, Constants consts) {
+    public boolean isEnabled(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
         return guard.evaluateSMT(SMTUtil.compose(registers, parameters, consts));
     }
 
-    public VarValuation execute(VarValuation registers, ParValuation parameters, Constants consts) {
+    public RegisterValuation execute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
         return this.getAssignment().compute(registers, parameters, consts);
     }
 

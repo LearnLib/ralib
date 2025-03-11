@@ -542,14 +542,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     protected abstract DataValue safeCast(DataValue val);
 
-
     public abstract List<DataValue> getPotential(List<DataValue> vals);
 
     public abstract NativeZ3Solver getSolver();
 
     private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
             List<DataValue> prefixValues, Constants constants,
-            ParValuation pval) {
+            ParameterValuation pval) {
         if (r.isRegister()) {
             Parameter p = piv.getOneKey((Register) r);
             int idx = p.getId();
@@ -571,7 +570,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv,
-            ParValuation pval,
+            ParameterValuation pval,
             Constants constants,
             SDTGuard guard,
             Parameter param,

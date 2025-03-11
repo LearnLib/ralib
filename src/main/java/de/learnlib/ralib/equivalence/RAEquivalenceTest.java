@@ -27,9 +27,9 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -50,14 +50,14 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         RALocation sys1loc;
         RALocation sys2loc;
-        VarValuation sys1reg;
-        VarValuation sys2reg;
+        RegisterValuation sys1reg;
+        RegisterValuation sys2reg;
 
-        public Tuple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2) {
+        public Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
             sys1loc = l1;
             sys2loc = l2;
-            sys1reg = new VarValuation(r1);
-            sys2reg = new VarValuation(r2);
+            sys1reg = RegisterValuation.copyOf(r1);
+            sys2reg = RegisterValuation.copyOf(r2);
         }
 
         @Override
@@ -104,7 +104,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
     }
 
     private boolean compareRegister(
-            VarValuation r1, VarValuation r2, Map<Object,Object> vMap) {
+            RegisterValuation r1, RegisterValuation r2, Map<Object,Object> vMap) {
 
         for (Map.Entry<Register,DataValue> entry : r1.entrySet())
         {
@@ -148,16 +148,16 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
         RALocation sys1loc;
         RALocation sys2loc;
-        VarValuation sys1reg;
-        VarValuation sys2reg;
+        RegisterValuation sys1reg;
+        RegisterValuation sys2reg;
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, VarValuation r1, VarValuation r2, Word w, Word t) {
+        public Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word w, Word t) {
             sys1loc = l1;
             sys2loc = l2;
-            sys1reg = new VarValuation(r1);
-            sys2reg = new VarValuation(r2);
+            sys1reg = RegisterValuation.copyOf(r1);
+            sys2reg = RegisterValuation.copyOf(r2);
             as = w;
             trace = t;
         }
@@ -287,7 +287,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         return null;
     }
 
-//    private static boolean hasDoubles(VarValuation r) {
+//    private static boolean hasDoubles(RegisterValuation r) {
 //        return false;
 
 //        Set<Object> s = new LinkedHashSet<>();
@@ -306,10 +306,10 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 //    }
 
     private void executeStep(Triple in, PSymbolInstance psi, Triple out) {
-        out.sys1reg = new VarValuation(in.sys1reg);
-        out.sys2reg = new VarValuation(in.sys2reg);
+        out.sys1reg = RegisterValuation.copyOf(in.sys1reg);
+        out.sys2reg = RegisterValuation.copyOf(in.sys2reg);
 
-        ParValuation pval = new ParValuation(psi);
+        ParameterValuation pval = ParameterValuation.fromPSymbolInstance(psi);
 
         // first sys input
         RALocation loc1 = null;
@@ -350,7 +350,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
 
 
     private List<Word<PSymbolInstance>> getNext(Word<PSymbolInstance> w,
-            ParameterizedSymbol ps, VarValuation r1,
+            ParameterizedSymbol ps, RegisterValuation r1,
             boolean checkForEqualParameters) {
 
         Set<DataValue> potential = new LinkedHashSet<>();
