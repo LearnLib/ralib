@@ -25,34 +25,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+
 /**
  *
  * @author falk
  * @param <K>
  * @param <V>
  */
-@Deprecated
-public class Mapping<K, V extends DataValue> extends LinkedHashMap<K, V>
+public class Mapping<K, V extends TypedValue> extends LinkedHashMap<K, V>
         implements Iterable<Map.Entry<K, V>> {
 
     /**
      * returns the contained values of some type.
      *
-     * @param <T>
      * @param type the type
-     * @return
+     * @return all values of type
      */
-    public <T> Collection<DataValue> values(DataType type) {
-        List<DataValue> list = new ArrayList<>();
-        for (DataValue v : values()) {
-            if (v.type.equals(type)) {
+    public Collection<V> values(DataType type) {
+        List<V> list = new ArrayList<>();
+        for (V v : values()) {
+            if (v.getDataType().equals(type)) {
                 list.add(v);
             }
         }
         return list;
     }
 
-    @Override
+    @NonNull @Override
     public Iterator<Map.Entry<K, V>> iterator() {
         return this.entrySet().iterator();
     }
@@ -75,15 +75,6 @@ public class Mapping<K, V extends DataValue> extends LinkedHashMap<K, V>
         return hash * this.entrySet().hashCode();
     }
 
-//    @Override
-//    public V get(Object key) {
-//        V v = super.get(key);
-//        if (v == null) {
-//            throw new IllegalStateException();
-//        }
-//        return v;
-//    }
-
     public String toString(String map) {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -94,13 +85,10 @@ public class Mapping<K, V extends DataValue> extends LinkedHashMap<K, V>
         return sb.toString();
     }
 
-    public Set<K> getAllKeys(V value) {
+    public Set<K> getAllKeysForValue(V value) {
         Set<K> retKeySet = new LinkedHashSet<K>();
         for (Map.Entry<K,V> entry : this.entrySet()) {
-            //log.trace("key = " + K);
-            //log.trace("value = " + entry.getKey().toString());
             if (entry.getValue().equals(value)){
-                //log.trace(entry.getKey().toString() + " equals " + value.toString());
                 retKeySet.add(entry.getKey());
             }
         }
@@ -111,4 +99,5 @@ public class Mapping<K, V extends DataValue> extends LinkedHashMap<K, V>
     public String toString() {
         return toString(">");
     }
+
 }

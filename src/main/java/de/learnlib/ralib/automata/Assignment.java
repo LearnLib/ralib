@@ -37,8 +37,8 @@ public class Assignment {
         this.assignment = assignment;
     }
 
-    public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarValuation val = new VarValuation();
+    public RegisterValuation compute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
+        RegisterValuation val = new RegisterValuation();
         List<String> rNames = assignment.keySet().stream().map(k -> k.getName()).toList();
         for (Entry<Register, DataValue> e : registers.entrySet()) {
             if (!rNames.contains(e.getKey().getName())) {

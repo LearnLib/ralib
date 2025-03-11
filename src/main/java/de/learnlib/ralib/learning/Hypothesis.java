@@ -28,11 +28,11 @@ import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -106,9 +106,9 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
 	ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
-        List<Pair<Transition, VarValuation>> tvseq = getTransitionsAndValuations(word);
-        VarValuation vars = tvseq.get(tvseq.size()-1).getSecond();
-        ParValuation pval = new ParValuation(word.lastSymbol());
+        List<Pair<Transition, RegisterValuation>> tvseq = getTransitionsAndValuations(word);
+        RegisterValuation vars = tvseq.get(tvseq.size()-1).getSecond();
+        ParameterValuation pval = ParameterValuation.fromPSymbolInstance(word.lastSymbol());
 
 	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branching.getBranches().entrySet()) {
 	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {

@@ -18,14 +18,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.automata.Assignment;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;

@@ -43,12 +43,12 @@ import de.learnlib.ralib.automata.xml.RegisterAutomaton.Transitions.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
@@ -76,7 +76,7 @@ public class RegisterAutomatonImporter {
     // TRUE input locations, FALSE output locations
     private final Map<String, Boolean> locationTypeMap = new LinkedHashMap<>();
 
-    private final VarValuation initialRegs = new VarValuation();
+    private final RegisterValuation initialRegs = new RegisterValuation();
     private final Constants consts = new Constants();
 
     private MutableRegisterAutomaton iora;

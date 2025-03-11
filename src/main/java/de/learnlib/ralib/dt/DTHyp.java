@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.SMTUtil;
@@ -73,12 +73,12 @@ public class DTHyp extends Hypothesis {
 	}
 
     protected List<Word<PSymbolInstance>> getDTTransitions(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation(getInitialRegisters());
+        RegisterValuation vars = RegisterValuation.copyOf(getInitialRegisters());
         DTLeaf current = dt.getLeaf(Word.epsilon());
         List<Word<PSymbolInstance>> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
 
-            ParValuation pars = new ParValuation(psi);
+            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(psi);
 
             Map<Word<PSymbolInstance>, Expression<Boolean>> candidates =
             		current.getBranching(psi.getBaseSymbol()).getBranches();

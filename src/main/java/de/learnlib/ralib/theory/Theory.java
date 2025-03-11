@@ -24,7 +24,7 @@ import java.util.Set;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -102,7 +102,7 @@ public interface Theory {
      * @return
      */
     DataValue instantiate(Word<PSymbolInstance> prefix,
-                          ParameterizedSymbol ps, PIV piv, ParValuation pval,
+                          ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
                           Constants constants,
                           SDTGuard guard, Parameter param, Set<DataValue> oldDvs);
 

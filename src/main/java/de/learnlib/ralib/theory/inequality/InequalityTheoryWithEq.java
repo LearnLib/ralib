@@ -30,7 +30,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -757,7 +757,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
-            int smallest = Collections.min(ifValues.getAllKeys(newDv));
+            int smallest = Collections.min(ifValues.getAllKeysForValue(newDv));
             return new SDTGuard.EqualityGuard(currentParam, new SuffixValue(type, smallest));
         }
     }
@@ -781,7 +781,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
-            int smallest = Collections.min(ifValues.getAllKeys(smallerDv));
+            int smallest = Collections.min(ifValues.getAllKeysForValue(smallerDv));
             SDTGuard.IntervalGuard sg = new SDTGuard.IntervalGuard(
                     currentParam, null, new SuffixValue(type, smallest));
             return sg;
@@ -816,7 +816,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
-            int smallest = Collections.min(ifValues.getAllKeys(biggerDv));
+            int smallest = Collections.min(ifValues.getAllKeysForValue(biggerDv));
             SDTGuard.IntervalGuard bg = new SDTGuard.IntervalGuard(
                     currentParam, new SuffixValue(type, smallest), null);
             return bg;
@@ -827,7 +827,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
             List<DataValue> prefixValues, Constants constants,
-            ParValuation pval) {
+            ParameterValuation pval) {
         if (r.isRegister()) {
 //            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
             Parameter p = piv.getOneKey((Register) r);
@@ -851,7 +851,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, PIV piv,
-            ParValuation pval,
+            ParameterValuation pval,
             Constants constants,
             SDTGuard guard,
             Parameter param,

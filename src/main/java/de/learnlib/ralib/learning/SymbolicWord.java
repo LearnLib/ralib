@@ -6,9 +6,9 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -58,7 +58,7 @@ public class SymbolicWord {
     		}
     	}
 
-    	VarValuation vars = DataWords.computeVarValuation(DataWords.computeParValuation(prefix), piv);
+    	RegisterValuation vars = DataWords.computeRegisterValuation(DataWords.computeParameterValuation(prefix), piv);
     	vals.putAll(vars);
 
     	return vals;

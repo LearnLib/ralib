@@ -15,7 +15,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -259,9 +259,9 @@ public class PrefixFinder {
         	}
         	Expression<Boolean> exprR = SMTUtil.renameVars(expr, renaming);
 
-        	ParValuation pars = new ParValuation(path);
+        	ParameterValuation pars = ParameterValuation.fromPSymbolWord(path);
         	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
-        	vals.putAll(DataWords.computeVarValuation(pars, pivSul));
+        	vals.putAll(DataWords.computeRegisterValuation(pars, pivSul));
         	vals.putAll(pars);
         	vals.putAll(consts);
 

@@ -16,10 +16,20 @@
  */
 package de.learnlib.ralib.data;
 
+
 /**
+ * A valuation of registers.
  *
  * @author falk
  */
-public class SuffixValuation extends Mapping<SymbolicDataValue.SuffixValue, DataValue> {
+public class RegisterValuation extends Mapping<SymbolicDataValue.Register, DataValue> {
+
+    public static RegisterValuation copyOf(RegisterValuation other) {
+        RegisterValuation copy = new RegisterValuation();
+        if (other != null) {
+            copy.putAll(other);
+        }
+        return copy;
+    }
 
 }
