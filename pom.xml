@@ -16,6 +16,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <!-- Dependency versions appear alphabetically below -->
+        <checker-qual.version>3.49.1</checker-qual.version>
         <commons-lang.version>3.17.0</commons-lang.version>
         <guava.version>33.4.0-jre</guava.version>
         <jakarta-xml.version>4.0.2</jakarta-xml.version>
@@ -163,6 +164,12 @@
                 <version>${jaxb-runtime.version}</version>
 	        <scope>runtime</scope>
             </dependency>
+             <!-- checker framework -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker-qual.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -216,6 +223,10 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
