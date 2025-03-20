@@ -2,13 +2,10 @@ package de.learnlib.ralib.data.util;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.TypedValue;
-import de.learnlib.ralib.data.VarMapping;
 
 public class RemappingIterator<T extends TypedValue> implements Iterable<Bijection<T>>, Iterator<Bijection<T>> {
 

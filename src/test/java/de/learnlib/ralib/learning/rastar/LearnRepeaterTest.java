@@ -1,5 +1,14 @@
 package de.learnlib.ralib.learning.rastar;
 
+import static de.learnlib.ralib.example.repeater.RepeaterSUL.*;
+
+import java.math.BigDecimal;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.automata.RegisterAutomaton;
@@ -10,7 +19,6 @@ import de.learnlib.ralib.example.repeater.Repeater;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.QueryStatistics;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
@@ -24,14 +32,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import java.math.BigDecimal;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static de.learnlib.ralib.example.repeater.RepeaterSUL.*;
 
 public class LearnRepeaterTest extends RaLibTestSuite {
 

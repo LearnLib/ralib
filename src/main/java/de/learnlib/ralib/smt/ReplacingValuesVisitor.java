@@ -1,13 +1,12 @@
 package de.learnlib.ralib.smt;
 
-import de.learnlib.ralib.data.*;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.Constant;
-import gov.nasa.jpf.constraints.util.DuplicatingVisitor;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import de.learnlib.ralib.data.*;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.Constant;
+import gov.nasa.jpf.constraints.util.DuplicatingVisitor;
 
 public class ReplacingValuesVisitor extends
         DuplicatingVisitor<Map<? extends Constant<?>, ? extends Expression<?>>> {
@@ -21,6 +20,11 @@ public class ReplacingValuesVisitor extends
     public <T> Expression<T> apply(Expression<T> expr, Mapping<? extends Constant<?>, ? extends SDTGuardElement> rename) {
         Map<Constant<?>, Expression<?>> map = new HashMap<>();
         rename.forEach((k, v) -> map.put( k, v.asExpression() ));
+        return visit(expr, map).requireAs(expr.getType());
+    }
+
+    public <T> Expression<T> applyRegs(Expression<T> expr, Mapping<? extends Constant<?>, SymbolicDataValue.Register> rename) {
+        Map<Constant<?>, Expression<?>> map = new HashMap<>(rename);
         return visit(expr, map).requireAs(expr.getType());
     }
 

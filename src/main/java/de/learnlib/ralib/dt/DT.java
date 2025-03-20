@@ -12,9 +12,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import de.learnlib.ralib.data.Bijection;
 import org.apache.commons.lang3.tuple.Pair;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -83,6 +83,7 @@ public class DT implements DiscriminationTree {
 
     @Override
     public DTLeaf sift(Word<PSymbolInstance> prefix, boolean add) {
+        //System.out.println("SIFT: " + prefix + ", add: " + add);
         DTLeaf leaf = getLeaf(prefix);
         if (leaf != null) {
             return leaf;
@@ -145,6 +146,7 @@ public class DT implements DiscriminationTree {
                 PathResult r = PathResult.computePathResult(oracle, mp, inner.getSuffixes(), ioMode);
                 assert !mp.getTQRs().containsKey(suffix);
                 mp.addTQR(suffix, r.getSDTforSuffix(suffix));
+                mp.updateRemapping(Bijection.identity(mp.memorableValues()));
                 leaf.setAccessSequence(mp);
                 DTBranch branch = new DTBranch(leaf, r);
                 inner.addBranch(branch);
@@ -192,6 +194,7 @@ public class DT implements DiscriminationTree {
         SDT tqr = r.getSDTforSuffix(suffix);
         assert !mp.getTQRs().containsKey(suffix);
         mp.addTQR(suffix, tqr);
+        mp.updateRemapping(Bijection.identity(mp.memorableValues()));
 
         DTBranch newBranch = new DTBranch(newLeaf, r);
         node.addBranch(newBranch);
@@ -205,6 +208,7 @@ public class DT implements DiscriminationTree {
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
         SDT tqr2 = r2.getSDTforSuffix(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr2);
+        leaf.getPrimePrefix().updateRemapping(Bijection.identity(leaf.getPrimePrefix().memorableValues()));
         //        assert !tqr.getSdt().isEquivalent(tqr2.getSdt(), new VarMapping<>());
         DTBranch b = new DTBranch(leaf, r2);
         leaf.setParent(node);
@@ -234,6 +238,7 @@ public class DT implements DiscriminationTree {
         SDT tqr = r.getSDTforSuffix(suffix);
         assert !leaf.getPrimePrefix().getTQRs().containsKey(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr);
+        leaf.getPrimePrefix().updateRemapping(Bijection.identity(leaf.getPrimePrefix().memorableValues()));
 
         DTBranch newBranch = new DTBranch(leaf, r);
         node.addBranch(newBranch);

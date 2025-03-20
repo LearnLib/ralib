@@ -1,15 +1,15 @@
 package de.learnlib.ralib.theory;
 
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.RegisterAssignment;
 import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Memorables {
 

@@ -2,11 +2,11 @@ package de.learnlib.ralib.dt;
 
 import java.util.*;
 
-import de.learnlib.ralib.data.Bijection;
-import de.learnlib.ralib.data.DataValue;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 
