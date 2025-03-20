@@ -1,18 +1,6 @@
 package de.learnlib.ralib.learning;
 
-import java.util.Arrays;
-
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.RegisterValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SymbolicWord {
@@ -32,7 +20,8 @@ public class SymbolicWord {
 		return suffix;
 	}
 
-	public Mapping<SymbolicDataValue, DataValue> computeValuation(Word<PSymbolInstance> concreteSuffix, PIV piv) {
+	/*
+	public Mapping<SymbolicDataValue, DataValue> computeValuation(Word<PSymbolInstance> concreteSuffix) {
     	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
 
     	SuffixValueGenerator svGen = new SuffixValueGenerator();
@@ -62,7 +51,7 @@ public class SymbolicWord {
     	vals.putAll(vars);
 
     	return vals;
-	}
+	}*/
 
 	@Override
 	public boolean equals(Object obj) {

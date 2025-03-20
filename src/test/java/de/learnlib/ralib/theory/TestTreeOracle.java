@@ -128,17 +128,17 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
 
-        String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1=r2)\n" +
-"         |    []-(s2=r1)\n" +
-"         |     |    [Leaf+]\n" +
-"         |     +-(s2!=r1)\n" +
-"         |          [Leaf-]\n" +
-"         +-(s1!=r2)\n" +
-"              []-TRUE: s2\n" +
-"                    [Leaf-]\n";
+        String expectedTree = "[r1, r2]-+\n" +
+                "        []-(s1=1[userType])\n" +
+                "         |    []-(s2=0[passType])\n" +
+                "         |     |    [Leaf+]\n" +
+                "         |     +-(s2!=0[passType])\n" +
+                "         |          [Leaf-]\n" +
+                "         +-(s1!=1[userType])\n" +
+                "              []-TRUE: s2\n" +
+                "                    [Leaf-]\n";
 
-        String tree = res.getSdt().toString();
+        String tree = res.sdt().toString();
         Assert.assertEquals(tree, expectedTree);
 
         logger.log(Level.FINE, "final SDT: \n{0}", tree);

@@ -2,7 +2,6 @@ package de.learnlib.ralib.learning;
 
 import java.util.Map;
 
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
@@ -35,21 +34,20 @@ public class MeasuringOracle implements TreeOracle {
 	}
 
 	@Override
-	public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-			SDT... sdts) {
-		return oracle.getInitialBranching(prefix, ps, piv, sdts);
+	public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SDT... sdts) {
+		return oracle.getInitialBranching(prefix, ps, sdts);
 	}
 
 	@Override
-	public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current, PIV piv,
+	public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current,
 			SDT... sdts) {
-		return oracle.updateBranching(prefix, ps, current, piv, sdts);
+		return oracle.updateBranching(prefix, ps, current, sdts);
 	}
 
 	@Override
 	public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-			SDT sdt, PIV piv) {
-		return oracle.instantiate(prefix, suffix, sdt, piv);
+			SDT sdt) {
+		return oracle.instantiate(prefix, suffix, sdt);
 	}
 
 	@Override

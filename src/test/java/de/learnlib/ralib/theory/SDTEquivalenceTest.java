@@ -1,7 +1,9 @@
 package de.learnlib.ralib.theory;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
+import de.learnlib.ralib.data.DataValue;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -22,8 +24,8 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 
 		SuffixValue s1 = new SuffixValue(DT, 1);
 		SuffixValue s2 = new SuffixValue(DT, 2);
-		Register r1 = new Register(DT, 1);
-		Register r2 = new Register(DT, 2);
+		DataValue r1 = new DataValue(DT, BigDecimal.ONE);
+        DataValue r2 = new DataValue(DT, BigDecimal.valueOf(2.0));
 
 		SDT sdt1 = new SDT(Map.of(
 				new SDTGuard.EqualityGuard(s1, r1), SDTLeaf.ACCEPTING,
@@ -68,10 +70,10 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 
 		SuffixValue s1 = new SuffixValue(DT, 1);
 		SuffixValue s2 = new SuffixValue(DT, 2);
-		Register r1 = new Register(DT, 1);
-		Register r2 = new Register(DT, 2);
-		Register r3 = new Register(DT, 3);
-		Register r4 = new Register(DT, 4);
+        DataValue r1 = new DataValue(DT, BigDecimal.valueOf(1.0));
+        DataValue r2 = new DataValue(DT, BigDecimal.valueOf(2.0));
+        DataValue r3 = new DataValue(DT, BigDecimal.valueOf(3.0));
+        DataValue r4 = new DataValue(DT, BigDecimal.valueOf(4.0));
 
 		SDT sdt1 = new SDT(Map.of(
 				new SDTGuard.EqualityGuard(s1, r1), new SDT(Map.of(
@@ -88,26 +90,29 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 						new SDTGuard.EqualityGuard(s2, r4), SDTLeaf.REJECTING,
 						new SDTGuard.DisequalityGuard(s2, r4), SDTLeaf.ACCEPTING))));
 
-		Bijection bijection1 = new Bijection();
+		Bijection<DataValue> bijection1 = new Bijection<>();
 		bijection1.put(r1, r3);
 		bijection1.put(r2, r4);
-		Bijection bijection2 = new Bijection();
+		Bijection<DataValue> bijection2 = new Bijection<>();
 		bijection2.put(r1, r3);
 
-		Bijection bi1 = SDT.equivalentUnderBijection(sdt1, sdt2, solver);
-		Bijection bi2 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection1, solver);
-		Bijection bi3 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection2, solver);
+		Bijection<DataValue> bi1 = SDT.equivalentUnderBijection(sdt1, sdt2, solver);
+		Bijection<DataValue> bi2 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection1, solver);
+		Bijection<DataValue> bi3 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection2, solver);
 
 		Assert.assertEquals(bi1.size(), 2);
 		Assert.assertEquals(bi1.size(), 2);
-		Assert.assertTrue(bi1.get(r1).equals(r3));
+        Assert.assertEquals(r3, bi1.get(r1));
 
+        assert bi2 != null;
+        Assert.assertEquals(bi2.size(), 2);
 		Assert.assertEquals(bi2.size(), 2);
-		Assert.assertEquals(bi2.size(), 2);
-		Assert.assertTrue(bi2.get(r1).equals(r3));
+        Assert.assertEquals(r3, bi2.get(r1));
 
+        assert bi3 != null;
+        Assert.assertEquals(bi3.size(), 2);
 		Assert.assertEquals(bi3.size(), 2);
-		Assert.assertEquals(bi3.size(), 2);
-		Assert.assertTrue(bi3.get(r1).equals(r3));
+        Assert.assertEquals(r3, bi3.get(r1));
 	}
+
 }

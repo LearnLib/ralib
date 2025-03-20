@@ -46,7 +46,7 @@ public abstract class UniqueEqualityTheory implements Theory {
     }
 
     @Override
-    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
                          Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
 
         int pId = values.size() + 1;
@@ -70,7 +70,7 @@ public abstract class UniqueEqualityTheory implements Theory {
         SuffixValuation trueSuffixValues = new SuffixValuation();
         trueSuffixValues.putAll(suffixValues);
         trueSuffixValues.put(sv, d);
-        sdt = oracle.treeQuery(prefix, suffix, trueValues, pir, constants, trueSuffixValues);
+        sdt = oracle.treeQuery(prefix, suffix, trueValues, constants, trueSuffixValues);
         LOGGER.trace(Category.QUERY, " single deq SDT : {}", sdt.toString());
 
         merged.put(new SDTGuard.SDTTrueGuard(sv), sdt);
@@ -81,8 +81,8 @@ public abstract class UniqueEqualityTheory implements Theory {
 
     @Override
     // instantiate a parameter with a data value
-    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
-                                 Constants constants, SDTGuard guard, SymbolicDataValue.Parameter param, Set<DataValue> oldDvs) {
+    public DataValue instantiate(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
+                                 Constants constants, SDTGuard guard, SymbolicDataValue.SuffixValue param, Set<DataValue> oldDvs) {
 
         List<DataValue> prefixValues = Arrays.asList(DataWords.valsOf(prefix));
         LOGGER.trace(Category.QUERY, "prefix values : {}", prefixValues);

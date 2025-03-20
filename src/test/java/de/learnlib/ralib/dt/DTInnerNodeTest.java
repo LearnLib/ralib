@@ -9,14 +9,11 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -61,17 +58,18 @@ public class DTInnerNodeTest {
         SymbolicSuffix symbSuffix = new SymbolicSuffix(epsilon, suffix);
 
         DTInnerNode node = new DTInnerNode(symbSuffix);
-        DTLeaf child1 = new DTLeaf(new MappedPrefix(epsilon, new PIV()), mto);
-        DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new PIV()), mto);
+        DTLeaf child1 = new DTLeaf(new MappedPrefix(epsilon, new Bijection<>()), mto);
+        DTLeaf child2 = new DTLeaf(new MappedPrefix(push, new Bijection<>()), mto);
 
-        PathResult r1 = PathResult.computePathResult(mto, new MappedPrefix(epsilon, new PIV()), node.getSuffixes(), false);
-        PathResult r2 = PathResult.computePathResult(mto, new MappedPrefix(push, new PIV()), node.getSuffixes(), false);
+        PathResult r1 = PathResult.computePathResult(mto, new MappedPrefix(epsilon, new Bijection<>()), node.getSuffixes(), false);
+        PathResult r2 = PathResult.computePathResult(mto, new MappedPrefix(push, new Bijection<>()), node.getSuffixes(), false);
+
 
         node.addBranch(new DTBranch(child1, r1));
         node.addBranch(new DTBranch(child2, r2));
 
-        DTNode test1 = node.sift(new MappedPrefix(p1, new PIV()), mto, false).getKey();
-        DTNode test2 = node.sift(new MappedPrefix(p2, new PIV()), mto, false).getKey();
+        DTNode test1 = node.sift(new MappedPrefix(p1, new Bijection<>()), mto, false).getKey();
+        DTNode test2 = node.sift(new MappedPrefix(p2, new Bijection<>()), mto, false).getKey();
 
         Assert.assertEquals(test1, child1);
         Assert.assertEquals(test2, child2);

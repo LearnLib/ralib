@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.oracles;
 
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.theory.SDT;
 
 /**
@@ -24,31 +23,14 @@ import de.learnlib.ralib.theory.SDT;
  *
  * @author falk
  */
-public class TreeQueryResult {
-
-    private final PIV piv;
-
-    private final SDT sdt;
-
-    public TreeQueryResult(
-            PIV piv,
-            SDT sdt) {
-
-        this.piv = piv;
-        this.sdt = sdt;
-    }
-
-    /**
-     * @return the piv
-     */
-    public PIV getPiv() {
-        return piv;
-    }
+// FIXME: remove this class and use SDT directly
+public record TreeQueryResult(SDT sdt) {
 
     /**
      * @return the sdt
      */
-    public SDT getSdt() {
+    @Override
+    public SDT sdt() {
         //System.out.println("getSdt() " + sdt);
         return sdt;
     }
@@ -56,7 +38,7 @@ public class TreeQueryResult {
 
     @Override
     public String toString() {
-        return "TQR[" + piv + ", " + sdt + "]";
+        return "TQR[" + sdt + "]";
     }
 
 }

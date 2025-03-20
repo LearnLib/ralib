@@ -9,14 +9,11 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import de.learnlib.ralib.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
@@ -56,17 +53,17 @@ public class DTTest {
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 		DTInnerNode nodePush = new DTInnerNode(suffPush);
 
-		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new PIV()), nodeEps.getSuffixes(), false);
-		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodePop.getSuffixes(), false);
-		PathResult rPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new PIV()), nodePush.getSuffixes(), false);
-		PathResult rPushPush = PathResult.computePathResult(oracle, new MappedPrefix(prePushPush, new PIV()), nodePush.getSuffixes(), false);
-		PathResult rInnerPop = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodeEps.getSuffixes(), false);
-		PathResult rInnerPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new PIV()), nodePop.getSuffixes(), false);
+		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new Bijection<>()), nodeEps.getSuffixes(), false);
+		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new Bijection<>()), nodePop.getSuffixes(), false);
+		PathResult rPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new Bijection<>()), nodePush.getSuffixes(), false);
+		PathResult rPushPush = PathResult.computePathResult(oracle, new MappedPrefix(prePushPush, new Bijection<>()), nodePush.getSuffixes(), false);
+		PathResult rInnerPop = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new Bijection<>()), nodeEps.getSuffixes(), false);
+		PathResult rInnerPush = PathResult.computePathResult(oracle, new MappedPrefix(prePush, new Bijection<>()), nodePop.getSuffixes(), false);
 
-		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
-		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);
-		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, tqrPush.getPiv()), oracle);
-		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, tqrPushPush.getPiv()), oracle);
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, new Bijection<>()), oracle);
+		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, new Bijection<>()), oracle);
+		DTLeaf leafPush = new DTLeaf(new MappedPrefix(prePush, new Bijection<>()), oracle);
+		DTLeaf leafPushPush = new DTLeaf(new MappedPrefix(prePushPush, new Bijection<>()), oracle);
 		leafPop.setParent(nodeEps);
 		leafEps.setParent(nodePop);
 		leafPush.setParent(nodePush);
@@ -79,8 +76,8 @@ public class DTTest {
 		DTBranch brInnerPush = new DTBranch(nodePush, rInnerPush);
 		DTBranch brInnerPop = new DTBranch(nodePop, rInnerPop);
 
-		leafPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePush, suffPop));
-		leafPushPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePushPush, suffPop));
+		leafPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePush, suffPop).sdt());
+		leafPushPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePushPush, suffPop).sdt());
 
 		nodeEps.addBranch(brPop);
 		nodeEps.addBranch(brInnerPop);
@@ -106,12 +103,12 @@ public class DTTest {
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
 
-		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new PIV()), nodeEps.getSuffixes(), false);
-		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodePop.getSuffixes(), false);
-		PathResult rInnerPop= PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new PIV()), nodeEps.getSuffixes(), false);
+		PathResult rPop = PathResult.computePathResult(oracle, new MappedPrefix(prePop, new Bijection<>()), nodeEps.getSuffixes(), false);
+		PathResult rEps = PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new Bijection<>()), nodePop.getSuffixes(), false);
+		PathResult rInnerPop= PathResult.computePathResult(oracle, new MappedPrefix(epsilon, new Bijection<>()), nodeEps.getSuffixes(), false);
 
-		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, tqrPop.getPiv()), oracle);
-		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, tqrEps.getPiv()), oracle);
+		DTLeaf leafPop = new DTLeaf(new MappedPrefix(prePop, new Bijection<>()), oracle);
+		DTLeaf leafEps = new DTLeaf(new MappedPrefix(epsilon, new Bijection<>()), oracle);
 		leafPop.setParent(nodeEps);
 		leafEps.setParent(nodePop);
 

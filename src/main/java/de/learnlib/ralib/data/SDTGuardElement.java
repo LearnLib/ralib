@@ -1,0 +1,24 @@
+package de.learnlib.ralib.data;
+
+import gov.nasa.jpf.constraints.api.Expression;
+
+import java.math.BigDecimal;
+
+public interface SDTGuardElement extends TypedValue {
+
+    static boolean isConstant(SDTGuardElement e) {
+        return e.getClass().equals(SymbolicDataValue.Constant.class);
+    }
+
+    static boolean isDataValue(SDTGuardElement e) {
+        return e.getClass().equals(DataValue.class);
+    }
+
+    static boolean isSuffixValue(SDTGuardElement e) {
+        return e.getClass().equals(SymbolicDataValue.SuffixValue.class);
+    }
+
+    Expression<BigDecimal> asExpression();
+
+
+}

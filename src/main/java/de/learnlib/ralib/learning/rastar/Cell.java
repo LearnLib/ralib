@@ -16,19 +16,18 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.Collection;
-
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
 
 /**
  * A cell of an observation table.
@@ -43,23 +42,10 @@ final class Cell {
 
     private final SDT sdt;
 
-    private final PIV parsInVars;
-
-//    private static Logger LOGGER = LoggerFactory.getLogger(Cell.class);
-
-    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SDT sdt, PIV parsInVars) {
+    private Cell(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, SDT sdt) {
         this.prefix = prefix;
         this.suffix = suffix;
         this.sdt = sdt;
-        this.parsInVars = parsInVars;
-    }
-
-    Collection<Parameter> getMemorable() {
-        return parsInVars.keySet();
-    }
-
-    PIV getParsInVars() {
-        return parsInVars;
     }
 
     /**
@@ -68,14 +54,14 @@ final class Cell {
      * @param other
      * @return
      */
-    boolean isEquivalentTo(Cell other, VarMapping renaming) {
+    boolean isEquivalentTo(Cell other, SDTRelabeling renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }
 
         boolean check = this.suffix.equals(other.suffix) &&
-                this.parsInVars.relabel(renaming).equals(other.parsInVars) &&
-                this.sdt.isEquivalent(other.sdt, renaming);
+                Memorables.relabel(this.getMemorableValues(), renaming).equals(other.getMemorableValues()) &&
+                other.sdt.isEquivalent(this.sdt, renaming);
 //        LOGGER.trace(this.sdt + "\nVS\n" + other.sdt + "\n");
 //        LOGGER.trace(this.suffix + "    " + other.suffix);
 //        LOGGER.trace(this.suffix.equals(other.suffix) + " " + this.parsInVars.relabel(renaming).equals(other.parsInVars) + " " + this.sdt.isEquivalent(other.sdt, renaming));
@@ -90,7 +76,7 @@ final class Cell {
      * @return
      */
     boolean couldBeEquivalentTo(Cell other) {
-        return this.parsInVars.typedSize().equals(other.parsInVars.typedSize());
+        return Memorables.typedSize(this.getMemorableValues()).equals(Memorables.typedSize(other.getMemorableValues()));
         //TODO: call preliminary checks on SDTs
     }
 
@@ -102,17 +88,11 @@ final class Cell {
      * @param suffix
      * @return
      */
-    static Cell computeCell(TreeOracle oracle,
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-       //System.out.println("START: computecell for " + prefix.toString() + "   .    " + suffix.toString());
+    static Cell computeCell(TreeOracle oracle, Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+        //System.out.println("START: computecell for " + prefix.toString() + "   .    " + suffix.toString());
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
-        Cell c = new Cell(prefix, suffix, tqr.getSdt(), tqr.getPiv());
-       //System.out.println("END: computecell " + c.toString());
-        //LOGGER.debug("computeCell ...... {0}", c);
-
-        //System.out.println(c);
-//        assert tqr.getPiv().size() <= 2;
-
+        Cell c = new Cell(prefix, suffix, tqr.sdt());
+        //System.out.println("END: computecell " + c.toString());
         return c;
     }
 
@@ -128,22 +108,17 @@ final class Cell {
         return this.sdt;
     }
 
+    List<DataValue> getMemorableValues() {
+        return this.sdt.getDataValues();
+    }
+
     @Override
     public String toString() {
-        return "Cell: " + this.prefix + " / " + this.suffix + " : " + this.parsInVars +
-                "\n" + this.sdt.toString();
+        return "Cell: " + this.prefix + " / " + this.suffix + " :\n" + this.sdt;
     }
 
     void toString(StringBuilder sb) {
-        sb.append("**** Cell: ").append(this.suffix).append(" : ").
-                append(this.parsInVars).append("\n").
-                append(this.sdt.toString()).append("\n");
-    }
-
-    Cell relabel(VarMapping relabelling) {
-        return new Cell(prefix, suffix,
-                sdt.relabel(relabelling),
-                parsInVars.relabel(relabelling));
+        sb.append("**** Cell: ").append(this.suffix).append(" : ").append(this.sdt).append("\n");
     }
 
     boolean isAccepting() {

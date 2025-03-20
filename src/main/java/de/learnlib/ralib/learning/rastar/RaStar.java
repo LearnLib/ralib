@@ -126,7 +126,7 @@ public class RaStar implements RaLearningAlgorithm {
             hyp = ab.toRegisterAutomaton();
 
             //FIXME: the default logging appender cannot log models and data structures
-            //System.out.println(hyp.toString());
+            System.out.println(hyp.toString());
             LOGGER.info(Category.MODEL, "{}", hyp);
 
         } while (analyzeCounterExample());

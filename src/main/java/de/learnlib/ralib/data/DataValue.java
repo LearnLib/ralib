@@ -19,6 +19,7 @@ package de.learnlib.ralib.data;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.Constant;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
@@ -28,7 +29,8 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
  *
  * @author falk
  */
-public class DataValue extends Constant<BigDecimal> implements TypedValue {
+public class DataValue extends Constant<BigDecimal> implements
+        TypedValue, SDTGuardElement, Comparable<DataValue> {
 
     protected final DataType type;
 
@@ -75,5 +77,16 @@ public class DataValue extends Constant<BigDecimal> implements TypedValue {
     }
     public static DataValue valueOf(String strVal, DataType type) {
     	return new DataValue(type, new BigDecimal(strVal));
+    }
+
+    @Override
+    public Expression<BigDecimal> asExpression() {
+        return this;
+    }
+
+    @Override
+    public int compareTo(DataValue o) {
+        int tc = this.type.compareTo(o.type);
+        return tc != 0 ? tc : this.getValue().compareTo(o.getValue());
     }
 }

@@ -137,31 +137,30 @@ public class FreshValuesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
-        String tree = tqr.getSdt().toString();
+        String tree = tqr.sdt().toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
 
 
         final String expectedTree = "[r1]-+\n" +
-"    []-(s1=r1)\n" +
-"     |    []-TRUE: s2\n" +
-"     |          []-TRUE: s3\n" +
-"     |                []-TRUE: s4\n" +
-"     |                      []-TRUE: s5\n" +
-"     |                            [Leaf-]\n" +
-"     +-(s1!=r1)\n" +
-"          []-TRUE: s2\n" +
-"                []-TRUE: s3\n" +
-"                      []-(s4=r1)\n" +
-"                       |    []-TRUE: s5\n" +
-"                       |          [Leaf-]\n" +
-"                       +-(s4=s3)\n" +
-"                       |    []-TRUE: s5\n" +
-"                       |          [Leaf-]\n" +
-"                       +-ANDCOMPOUND: s4[(s4!=r1), (s4!=s3)]\n" +
-"                            []-TRUE: s5\n" +
-"                                  [Leaf+]\n";
+                "    []-(s1=1[int])\n" +
+                "     |    []-TRUE: s2\n" +
+                "     |          []-TRUE: s3\n" +
+                "     |                []-TRUE: s4\n" +
+                "     |                      []-TRUE: s5\n" +
+                "     |                            [Leaf-]\n" +
+                "     +-(s1!=1[int])\n" +
+                "          []-TRUE: s2\n" +
+                "                []-TRUE: s3\n" +
+                "                      []-(s4=1[int])\n" +
+                "                       |    []-TRUE: s5\n" +
+                "                       |          [Leaf-]\n" +
+                "                       +-(s4=s3)\n" +
+                "                       |    []-TRUE: s5\n" +
+                "                       |          [Leaf-]\n" +
+                "                       +-ANDCOMPOUND: s4[(s4!=1[int]), (s4!=s3)]\n" +
+                "                            []-TRUE: s5\n" +
+                "                                  [Leaf+]\n";
 
         Assert.assertEquals(tree, expectedTree);
     }

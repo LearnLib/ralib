@@ -1,81 +1,55 @@
 package de.learnlib.ralib.dt;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PermutationIterator;
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
 public class MappedPrefix implements PrefixContainer {
+
 	private final Word<PSymbolInstance> prefix;
-	private final PIV memorable = new PIV();
 	private final RegisterGenerator regGen = new RegisterGenerator();
-	private final Map<SymbolicSuffix, TreeQueryResult> tqrs = new LinkedHashMap<SymbolicSuffix, TreeQueryResult>();
-	public final Set<Parameter> missingParameter = new LinkedHashSet<>();
 
-	public MappedPrefix(Word<PSymbolInstance> prefix) {
+	private Bijection<DataValue> remapping;
+	private final Map<SymbolicSuffix, SDT> tqrs = new LinkedHashMap<SymbolicSuffix, SDT>();
+	public final Set<DataValue> missingParameter = new LinkedHashSet<>();
+
+	public MappedPrefix(Word<PSymbolInstance> prefix, Bijection<DataValue> remapping) {
 		this.prefix = prefix;
+		this.remapping = remapping;
 	}
 
-	public MappedPrefix(Word<PSymbolInstance> prefix, PIV piv) {
-		this.prefix = prefix;
-		updateMemorable(piv);
-	}
-
-	MappedPrefix(MappedPrefix mp) {
+	MappedPrefix(MappedPrefix mp, Bijection<DataValue> remapping) {
 		this.prefix = mp.getPrefix();
-		updateMemorable(mp.getParsInVars());
 		tqrs.putAll(mp.getTQRs());
+		this.remapping = remapping;
 	}
 
-	public Set<VarMapping<Parameter, Parameter>> equivalentRenamings(Set<Parameter> params) {
+	public Set<Bijection<DataValue>> equivalentRenamings(Set<DataValue> params) {
 
-		assert memorable.keySet().containsAll(params);
+		assert new HashSet<>(memorableValues()).containsAll(params);
 
-		Parameter[] params_arr = new Parameter[params.size()];
-		params_arr = params.toArray(params_arr);
-		PermutationIterator permutations = new PermutationIterator(params_arr.length);
-		Set<VarMapping<Parameter, Parameter>> renamings = new LinkedHashSet<>();
-
-		LOC: while (permutations.hasNext()) {
-			int[] perm = permutations.next();
-			VarMapping<Parameter, Parameter> paramRenaming = new VarMapping<>();
-			VarMapping<Register, Register> registerRenaming = new VarMapping<>();
-			for (int i = 0; i < params_arr.length; i++) {
-				Parameter po = params_arr[i];
-				Parameter pr = params_arr[perm[i]];
-				paramRenaming.put(params_arr[i], params_arr[perm[i]]);
-				registerRenaming.put(memorable.get(po), memorable.get(pr));
-			}
-			for (TreeQueryResult tqr : tqrs.values()) {
-				if (!tqr.getSdt().isEquivalent(tqr.getSdt(), registerRenaming))
+		Set<Bijection<DataValue>> renamings = new LinkedHashSet<>();
+		RemappingIterator<DataValue> iter = new RemappingIterator<>(params, params);
+		LOC: for (Bijection<DataValue> b : iter) {
+			for (SDT tqr : tqrs.values()) {
+				if (!tqr.isEquivalent(tqr, b))
 					continue LOC;
 			}
-			renamings.add(paramRenaming);
+			renamings.add(b);
 		}
+
 		return renamings;
-	}
-	void updateMemorable(PIV piv) {
-		for (Entry<Parameter, Register> e : piv.entrySet()) {
-			Register r = memorable.get(e.getKey());
-			if (r == null) {
-				r = regGen.next(e.getKey().getDataType());
-				memorable.put(e.getKey(), r);
-			}
-		}
 	}
 
 	/*
@@ -84,17 +58,17 @@ public class MappedPrefix implements PrefixContainer {
 	 */
 	TreeQueryResult computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
         TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
-	    addTQR(suffix, tqr);
+	    addTQR(suffix, tqr.sdt());
 	    return tqr;
 	}
 
-	void addTQR(SymbolicSuffix s, TreeQueryResult tqr) {
+	void addTQR(SymbolicSuffix s, SDT tqr) {
 	    if (tqrs.containsKey(s) || tqr == null) return;
 		tqrs.put(s, tqr);
-		updateMemorable(tqr.getPiv());
+		//updateMemorable(tqr.getPiv());
 	}
 
-	public Map<SymbolicSuffix, TreeQueryResult> getTQRs() {
+	public Map<SymbolicSuffix, SDT> getTQRs() {
 		return tqrs;
 	}
 
@@ -103,30 +77,52 @@ public class MappedPrefix implements PrefixContainer {
 		return this.prefix;
 	}
 
+	public Bijection<DataValue> getRemapping() {
+		return remapping;
+	}
+
+	public void updateRemapping(Bijection<DataValue> remapping) {
+		this.remapping = remapping;
+	}
+
+	public List<DataValue> memorableValues() {
+		return this.tqrs.values().stream()
+				.flatMap(sdt -> sdt.getDataValues().stream())
+				.distinct()
+				.sorted()
+				.toList();
+	}
+
+	@Override
+	public RegisterAssignment getAssignment() {
+		RegisterAssignment ra = new RegisterAssignment();
+		SymbolicDataValueGenerator.RegisterGenerator regGen =
+				new SymbolicDataValueGenerator.RegisterGenerator();
+
+		this.memorableValues().forEach(
+				dv -> ra.put(dv, regGen.next(dv.getDataType()))
+		);
+
+		return ra;
+	}
+
 	@Override
 	public String toString() {
-		return "{" + prefix.toString() + ", " + memorable + "}";
+		return "{" + prefix.toString() + ", " + Arrays.toString(memorableValues().toArray()) + "}";
 	}
 
-	@Override
-	public PIV getParsInVars() {
-		return memorable;
+	SymbolicSuffix getSuffixForMemorable(DataValue d) {
+		return tqrs.entrySet().stream()
+				.filter(e -> e.getValue().getDataValues().contains(d))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("This line is not supposed to be reached."))
+				.getKey();
 	}
 
-	SymbolicSuffix getSuffixForMemorable(Parameter p) {
-		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
-			if (e.getValue().getPiv().containsKey(p))
-				return e.getKey();
-		}
-		throw new IllegalStateException("This line is not supposed to be reached.");
-	}
-
-	Set<SymbolicSuffix> getAllSuffixesForMemorable(Parameter p) {
-		Set<SymbolicSuffix> suffixes = new LinkedHashSet<SymbolicSuffix>();
-		for (Entry<SymbolicSuffix, TreeQueryResult> e : tqrs.entrySet()) {
-			if (e.getValue().getPiv().containsKey(p))
-				suffixes.add(e.getKey());
-		}
-		return suffixes;
+	List<SymbolicSuffix> getAllSuffixesForMemorable(DataValue d) {
+		return tqrs.entrySet().stream()
+				.filter(e -> e.getValue().getDataValues().contains(d))
+				.map(Entry::getKey)
+				.toList();
 	}
 }

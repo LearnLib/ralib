@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,17 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.*;
@@ -46,6 +40,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
 import net.automatalib.word.Word;
 
 /**
@@ -498,21 +493,21 @@ public abstract class InequalityTheoryWithEq implements Theory {
         //System.out.println("-----------------------------------\n" + partitionedMap + "\n-----------------------PARTITIONING-------------------\n" + retMap + "\n---------------------------------");
         return retMap;
     }
-
+    /*
     private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
             if (mg instanceof SDTGuard.EqualityGuard || mg instanceof SDTGuard.DisequalityGuard) {
                 //LOGGER.trace(mg.toString());
-                SymbolicDataValue r = mg.getRegisters().stream().iterator().next();
+                SymbolicDataValue r = (SymbolicDataValue) mg.getRegisters().stream().iterator().next();
                 Parameter p = new Parameter(r.getDataType(), r.getId());
                 if (r instanceof Register) {
                     ret.put(p, (Register) r);
                 }
             } else if (mg instanceof SDTGuard.IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
-                    SymbolicDataValue r = iGuard.rightLimit();
+                    SymbolicDataValue r = (SymbolicDataValue) iGuard.rightLimit();
                     Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
                         ret.put(p, (Register) r);
@@ -520,14 +515,16 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    SymbolicDataValue r = iGuard.leftLimit();
+                    SymbolicDataValue r = (SymbolicDataValue) iGuard.leftLimit();
                     Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
                         ret.put(p, (Register) r);
                     }
                 }
             } else if (mg instanceof SDTGuard.SDTOrGuard) {
-                Set<SymbolicDataValue> rSet = ((SDTGuard.SDTOrGuard) mg).getRegisters();
+                // FIXME: this is incorrect now
+                Set<SymbolicDataValue> rSet = new LinkedHashSet<>();
+                //((SDTGuard.SDTOrGuard) mg).getRegisters();
                 for (SymbolicDataValue r : rSet) {
                     Parameter p = new Parameter(r.getDataType(), r.getId());
                     if (r instanceof Register) {
@@ -540,13 +537,12 @@ public abstract class InequalityTheoryWithEq implements Theory {
         }
         return ret;
     }
-
+    */
     @Override
     public SDT treeQuery(
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
-            PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle) {
@@ -587,7 +583,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
             elseSuffixValues.put(sv, fresh);
 
             SDT elseOracleSdt = oracle.treeQuery(
-                    prefix, suffix, elseValues, piv,
+                    prefix, suffix, elseValues,
                     constants, elseSuffixValues);
             tempKids.put(new SDTGuard.SDTTrueGuard(currentParam), elseOracleSdt);
         } // process each '<' case
@@ -604,17 +600,19 @@ public abstract class InequalityTheoryWithEq implements Theory {
             Valuation smVal = new Valuation();
             DataValue dvRight = potential.get(0);
             SDTGuard.IntervalGuard sguard = makeSmallerGuard(
-                    dvRight, prefixValues, currentParam, smValues, piv);
-            SymbolicDataValue rsm = sguard.rightLimit();
+                    dvRight, prefixValues, currentParam, smValues);
+            SDTGuardElement rsm = sguard.rightLimit();
 //            System.out.println("setting valuation, symDV: " + rsm.toVariable() + " dvright: " + dvRight);
-            smVal.setValue(rsm, dvRight.getValue());
+            if (SDTGuardElement.isSuffixValue(rsm) || SDTGuardElement.isConstant(rsm)) {
+                smVal.setValue( (Variable) rsm, dvRight.getValue());
+            }
             DataValue smcv = instantiate(
                     sguard, smVal, constants, potential);
             smValues.put(pId, smcv);
             smSuffixValues.put(sv, smcv);
 
             SDT smoracleSdt = oracle.treeQuery(
-                    prefix, suffix, smValues, piv, constants, smSuffixValues);
+                    prefix, suffix, smValues, constants, smSuffixValues);
 
             tempKids.put(sguard, smoracleSdt);
 
@@ -628,17 +626,18 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
             DataValue dvLeft = potential.get(potSize - 1);
             SDTGuard.IntervalGuard bguard = makeBiggerGuard(
-                    dvLeft, prefixValues, currentParam, bgValues, piv);
-            SymbolicDataValue rbg = bguard.leftLimit();
-
-            bgVal.setValue(rbg, dvLeft.getValue());
+                    dvLeft, prefixValues, currentParam, bgValues);
+            SDTGuardElement rbg = bguard.leftLimit();
+            if (SDTGuardElement.isSuffixValue(rbg) || SDTGuardElement.isConstant(rbg)) {
+                bgVal.setValue( (SymbolicDataValue) rbg, dvLeft.getValue());
+            }
             DataValue bgcv = instantiate(
                     bguard, bgVal, constants, potential);
             bgValues.put(pId, bgcv);
             bgSuffixValues.put(sv, bgcv);
 
             SDT bgoracleSdt = oracle.treeQuery(
-                    prefix, suffix, bgValues, piv, constants, bgSuffixValues);
+                    prefix, suffix, bgValues, constants, bgSuffixValues);
 
             tempKids.put(bguard, bgoracleSdt);
 
@@ -661,15 +660,20 @@ public abstract class InequalityTheoryWithEq implements Theory {
 //                            dvMLeft, prefixValues, currentParam,
 //                            currentValues, piv);
                     SDTGuard.IntervalGuard intervalGuard = makeIntervalGuard(
-                            dvMLeft, dvMRight, prefixValues, currentParam, currentValues, piv);
+                            dvMLeft, dvMRight, prefixValues, currentParam, currentValues);
 
 //                    IntervalGuard guard = new IntervalGuard(
 //                            currentParam, biggerGuard.getLeftReg(), smallerGuard.getRightReg());
-                    SymbolicDataValue rs = intervalGuard.rightLimit();
-                    SymbolicDataValue rb = intervalGuard.leftLimit();
-
-                    val.setValue(rs, dvMRight.getValue());
-                    val.setValue(rb, dvMLeft.getValue());
+                    SDTGuardElement rs = intervalGuard.rightLimit();
+                    SDTGuardElement rb = intervalGuard.leftLimit();
+                    if (SDTGuardElement.isSuffixValue(rb) || SDTGuardElement.isConstant(rb)) {
+                        val.setValue( (SymbolicDataValue) rb, dvMLeft.getValue());
+                        regPotential.add( (SymbolicDataValue) rb);
+                    }
+                    if (SDTGuardElement.isSuffixValue(rs) || SDTGuardElement.isConstant(rs)) {
+                        val.setValue( (SymbolicDataValue) rs, dvMRight.getValue());
+                        regPotential.add( (SymbolicDataValue) rs);
+                    }
 
                     DataValue cv = instantiate(
                             intervalGuard, val, constants, potential);
@@ -677,12 +681,12 @@ public abstract class InequalityTheoryWithEq implements Theory {
                     currentSuffixValues.put(sv, cv);
 
                     SDT oracleSdt = oracle.treeQuery(
-                            prefix, suffix, currentValues, piv,
+                            prefix, suffix, currentValues,
                             constants, currentSuffixValues);
 
                     tempKids.put(intervalGuard, oracleSdt);
-                    regPotential.add(i - 1, rb);
-                    regPotential.add(i, rs);
+
+
                 }
             }
 //            System.out.println("eq potential is: " + potential);
@@ -703,7 +707,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 ifValues.putAll(values);
                 ifValues.put(pId, newDv);
                 SDT eqOracleSdt = oracle.treeQuery(
-                        prefix, suffix, ifValues, piv, constants, ifSuffixValues);
+                        prefix, suffix, ifValues, constants, ifSuffixValues);
 
                 tempKids.put(eqGuard, eqOracleSdt);
             }
@@ -717,7 +721,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         assert !merged.keySet().isEmpty();
 
 //        System.out.println("MERGED = " + merged);
-        piv.putAll(keepMem(merged));
+        //piv.putAll(keepMem(merged));
 
 //        LOGGER.trace("temporary guards = " + tempKids.keySet());
 //        LOGGER.trace("merged guards = " + merged.keySet());
@@ -753,7 +757,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
             // first index of the data value in the prefixvalues list
             newDv_i = prefixValues.indexOf(newDv) + 1;
             Register newDv_r = new Register(type, newDv_i);
-            return new SDTGuard.EqualityGuard(currentParam, newDv_r);
+            return new SDTGuard.EqualityGuard(currentParam, newDv);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
@@ -764,20 +768,15 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     private SDTGuard.IntervalGuard makeSmallerGuard(DataValue smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
+            WordValuation ifValues) {
         DataType type = currentParam.getDataType();
         int newDv_i;
         if (prefixValues.contains(smallerDv)) {
             newDv_i = prefixValues.indexOf(smallerDv) + 1;
             SymbolicDataValue.Parameter newDv_p
                     = new SymbolicDataValue.Parameter(type, newDv_i);
-            Register newDv_r;
-            if (pir.containsKey(newDv_p)) {
-                newDv_r = pir.get(newDv_p);
-            } else {
-                newDv_r = new Register(type, newDv_i);
-            }
-            return new SDTGuard.IntervalGuard(currentParam, null, newDv_r);
+
+            return new SDTGuard.IntervalGuard(currentParam, null, smallerDv);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
@@ -791,28 +790,23 @@ public abstract class InequalityTheoryWithEq implements Theory {
     private SDTGuard.IntervalGuard makeIntervalGuard(DataValue biggerDv,
             DataValue smallerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
-        SDTGuard.IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues, pir);
-        SDTGuard.IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues, pir);
+            WordValuation ifValues) {
+        SDTGuard.IntervalGuard smallerGuard = makeSmallerGuard(smallerDv, prefixValues, currentParam, ifValues);
+        SDTGuard.IntervalGuard biggerGuard = makeBiggerGuard(biggerDv, prefixValues, currentParam, ifValues);
         return new SDTGuard.IntervalGuard(currentParam, biggerGuard.leftLimit(), smallerGuard.rightLimit());
     }
 
     private SDTGuard.IntervalGuard makeBiggerGuard(DataValue biggerDv,
             List<DataValue> prefixValues, SuffixValue currentParam,
-            WordValuation ifValues, PIV pir) {
+            WordValuation ifValues) {
         DataType type = currentParam.getDataType();
         int newDv_i;
         if (prefixValues.contains(biggerDv)) {
             newDv_i = prefixValues.indexOf(biggerDv) + 1;
             SymbolicDataValue.Parameter newDv_p
                     = new SymbolicDataValue.Parameter(type, newDv_i);
-            Register newDv_r;
-            if (pir.containsKey(newDv_p)) {
-                newDv_r = pir.get(newDv_p);
-            } else {
-                newDv_r = new Register(type, newDv_i);
-            }
-            return new SDTGuard.IntervalGuard(currentParam, newDv_r, null);
+
+            return new SDTGuard.IntervalGuard(currentParam, biggerDv, null);
 
         } // if the data value isn't in the prefix, it is somewhere earlier in the suffix
         else {
@@ -825,19 +819,17 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     public abstract List<DataValue> getPotential(List<DataValue> vals);
 
-    private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
+    private DataValue getRegisterValue(SDTGuardElement r,
             List<DataValue> prefixValues, Constants constants,
-            ParameterValuation pval) {
-        if (r.isRegister()) {
+            SuffixValuation pval) {
+        if (SDTGuardElement.isDataValue(r)) {
 //            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
-            Parameter p = piv.getOneKey((Register) r);
 //            LOGGER.trace("p: " + p.toString());
-            int idx = p.getId();
-            return prefixValues.get(idx - 1);
-        } else if (r.isSuffixValue()) {
-            Parameter p = new Parameter(r.getDataType(), r.getId());
+            return (DataValue) r;
+        } else if (SDTGuardElement.isSuffixValue(r)) {
+            Parameter p = new Parameter(r.getDataType(), ((SuffixValue)r).getId());
             return pval.get(p);
-        } else if (r.isConstant()) {
+        } else if (SDTGuardElement.isConstant(r)) {
             return constants.get((SymbolicDataValue.Constant) r);
         } else {
             throw new IllegalStateException("this can't possibly happen");
@@ -850,11 +842,11 @@ public abstract class InequalityTheoryWithEq implements Theory {
     @Override
     public DataValue instantiate(
             Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv,
-            ParameterValuation pval,
+            ParameterizedSymbol ps,
+            SuffixValuation pval,
             Constants constants,
             SDTGuard guard,
-            Parameter param,
+            SuffixValue param,
             Set<DataValue> oldDvs) {
 
         DataType type = param.getDataType();
@@ -864,17 +856,15 @@ public abstract class InequalityTheoryWithEq implements Theory {
 //        LOGGER.trace("prefix values : " + prefixValues.toString());
 
         if (guard instanceof SDTGuard.EqualityGuard eqGuard) {
-            SymbolicDataValue ereg = eqGuard.register();
-            if (ereg.isRegister()) {
+            SDTGuardElement ereg = eqGuard.register();
+            if (SDTGuardElement.isDataValue(ereg)) {
 //                LOGGER.trace("piv: " + piv.toString() + " " + ereg.toString() + " " + param.toString());
-                Parameter p = piv.getOneKey((Register) ereg);
 //                LOGGER.trace("p: " + p.toString());
-                int idx = p.getId();
-                returnThis = prefixValues.get(idx - 1);
-            } else if (ereg.isSuffixValue()) {
-                Parameter p = new Parameter(type, ereg.getId());
+                returnThis = (DataValue) ereg;
+            } else if (SDTGuardElement.isSuffixValue(ereg)) {
+                Parameter p = new Parameter(type, ((SuffixValue)ereg).getId());
                 returnThis = pval.get(p);
-            } else if (ereg.isConstant()) {
+            } else if (SDTGuardElement.isConstant(ereg)) {
                 returnThis = constants.get((SymbolicDataValue.Constant) ereg);
             }
         } else if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
@@ -896,26 +886,25 @@ public abstract class InequalityTheoryWithEq implements Theory {
             if (guard instanceof SDTGuard.IntervalGuard) {
                 SDTGuard.IntervalGuard iGuard = (SDTGuard.IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {
-                    SymbolicDataValue r = iGuard.rightLimit();
-                    DataValue regVal = getRegisterValue(r, piv,
-                            prefixValues, constants, pval);
-
-                    val.setValue(r, regVal.getValue());
+                    SDTGuardElement r = iGuard.rightLimit();
+                    if (SDTGuardElement.isSuffixValue(r) || SDTGuardElement.isConstant(r)) {
+                        DataValue regVal = getRegisterValue(r, prefixValues, constants, pval);
+                        val.setValue( (Variable) r, regVal.getValue());
+                    }
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    SymbolicDataValue l = iGuard.leftLimit();
-                    DataValue regVal = getRegisterValue(l, piv,
-                            prefixValues, constants, pval);
-
-                    val.setValue(l, regVal.getValue());
+                    SDTGuardElement l =  iGuard.leftLimit();
+                    if (SDTGuardElement.isSuffixValue(l) || SDTGuardElement.isConstant(l)) {
+                        DataValue regVal = getRegisterValue(l, prefixValues, constants, pval);
+                        val.setValue( (Variable) l, regVal.getValue());
+                    }
                 }
                 //instantiate(guard, val, param, constants);
             } else if (guard instanceof SDTGuard.EqualityGuard || guard instanceof SDTGuard.DisequalityGuard) {
                 // FIXME: hacky way of getting register
-                SymbolicDataValue r = guard.getRegisters().stream().iterator().next();
-                DataValue regVal = getRegisterValue(r, piv,
-                        prefixValues, constants, pval);
-                val.setValue(r, regVal.getValue());
+                SDTGuardElement r = guard.getRegisters().stream().iterator().next();
+                DataValue regVal = getRegisterValue(r, prefixValues, constants, pval);
+                val.setValue( (Variable) r, regVal.getValue());
             } else if (guard instanceof SDTGuard.SDTOrGuard) {
                 SDTGuard iGuard = ((SDTGuard.SDTOrGuard) guard).disjuncts().get(0);
 
@@ -923,8 +912,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
             } else if (guard instanceof SDTGuard.SDTAndGuard) {
                 assert ((SDTGuard.SDTAndGuard) guard).conjuncts().stream().allMatch(g -> g instanceof SDTGuard.DisequalityGuard);
                 SDTGuard aGuard = ((SDTGuard.SDTAndGuard) guard).conjuncts().get(0);
-
-
 
                 returnThis = instantiate(aGuard, val, constants, alreadyUsedValues);
             } else {

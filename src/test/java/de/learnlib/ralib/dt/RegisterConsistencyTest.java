@@ -4,16 +4,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import de.learnlib.ralib.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
@@ -48,20 +44,20 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 			}
 
 			@Override
-			public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
+			public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps,
 					SDT... sdts) {
 				return null;
 			}
 
 			@Override
 			public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current,
-					PIV piv, SDT... sdts) {
+					SDT... sdts) {
 				return null;
 			}
 
 			@Override
 			public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-					SDT sdt, PIV piv) {
+					SDT sdt) {
 				return null;
 			}
 
@@ -123,16 +119,10 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 		Parameter p1 = pgen.next(T_INT);
 		Parameter p2 = pgen.next(T_INT);
-		Register r1 = rgen.next(T_INT);
-		Register r2 = rgen.next(T_INT);
+		DataValue r1 = new DataValue(T_INT, BigDecimal.ZERO); //rgen.next(T_INT);
+		DataValue r2 = new DataValue(T_INT, BigDecimal.ONE); // rgen.next(T_INT);
 		SuffixValue s1 = svgen.next(T_INT);
 		SuffixValue s2 = svgen.next(T_INT);
-
-		PIV pivWord = new PIV();
-		pivWord.put(p1, r1);
-		pivWord.put(p2, r2);
-		PIV pivPrefix = new PIV();
-		pivPrefix.putAll(pivWord);
 
 		Constants consts = new Constants();
 
@@ -147,17 +137,17 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 			new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
 				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
 
-		TreeQueryResult tqrEps = new TreeQueryResult(new PIV(), sdtEps);
-		TreeQueryResult tqrPrefix = new TreeQueryResult(pivPrefix, sdtPrefix);
-		TreeQueryResult tqrWord = new TreeQueryResult(pivWord, sdtWord);
+		TreeQueryResult tqrEps = new TreeQueryResult(sdtEps);
+		TreeQueryResult tqrPrefix = new TreeQueryResult(sdtPrefix);
+		TreeQueryResult tqrWord = new TreeQueryResult( sdtWord);
 
-		MappedPrefix mpWord = new MappedPrefix(word, pivWord);
-		MappedPrefix mpPrefix = new MappedPrefix(prefix, pivPrefix);
+		MappedPrefix mpWord = new MappedPrefix(word, Bijection.identity(sdtWord.getDataValues()));
+		MappedPrefix mpPrefix = new MappedPrefix(prefix, Bijection.identity(sdtPrefix.getDataValues()));
 
-		mpWord.addTQR(new SymbolicSuffix(Word.epsilon(), Word.epsilon()), tqrEps);
-		mpWord.addTQR(symSuffixWord, tqrWord);
-		mpPrefix.addTQR(symSuffixEps, tqrEps);
-		mpPrefix.addTQR(symSuffixPrefix, tqrPrefix);
+		mpWord.addTQR(new SymbolicSuffix(Word.epsilon(), Word.epsilon()), tqrEps.sdt());
+		mpWord.addTQR(symSuffixWord, tqrWord.sdt());
+		mpPrefix.addTQR(symSuffixEps, tqrEps.sdt());
+		mpPrefix.addTQR(symSuffixPrefix, tqrPrefix.sdt());
 
 		DummyDT dt = new DummyDT(mpWord, mpPrefix);
 		DTLeaf leafWord = dt.getLeaf(word);

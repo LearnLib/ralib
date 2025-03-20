@@ -18,7 +18,6 @@ package de.learnlib.ralib.oracles;
 
 import java.util.Map;
 
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
@@ -51,12 +50,11 @@ public interface TreeOracle {
      *
      * @param prefix
      * @param ps
-     * @param piv
      * @param sdts
      * @return
      */
     Branching getInitialBranching(Word<PSymbolInstance> prefix,
-                                  ParameterizedSymbol ps, PIV piv, SDT... sdts);
+                                  ParameterizedSymbol ps, SDT... sdts);
 
     /**
      * Updates and extends an existing Branching
@@ -65,16 +63,14 @@ public interface TreeOracle {
      * @param prefix
      * @param ps
      * @param current
-     * @param piv
      * @param sdts
      * @return
      */
     Branching updateBranching(Word<PSymbolInstance> prefix,
-                              ParameterizedSymbol ps, Branching current,
-                              PIV piv, SDT... sdts);
+                              ParameterizedSymbol ps, Branching current, SDT... sdts);
 
     Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-                                                    SymbolicSuffix suffix, SDT sdt, PIV piv);
+                                                    SymbolicSuffix suffix, SDT sdt);
 
     SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 

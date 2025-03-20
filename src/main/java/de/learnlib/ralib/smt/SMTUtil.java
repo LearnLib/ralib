@@ -2,10 +2,7 @@ package de.learnlib.ralib.smt;
 
 import java.util.*;
 
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.*;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
@@ -42,6 +39,13 @@ public class SMTUtil {
                                               final VarMapping<? extends SymbolicDataValue, ? extends SymbolicDataValue> relabelling) {
         final ReplacingVarsVisitor replacer = new ReplacingVarsVisitor();
         return replacer.apply(expr, relabelling);
+    }
+
+    public static Expression<Boolean> renameVals(Expression<Boolean> expr, Bijection<DataValue> renaming) {
+        final ReplacingValuesVisitor replacer = new ReplacingValuesVisitor();
+        Mapping<DataValue, DataValue> map = new Mapping<>();
+        map.putAll(renaming);
+        return replacer.apply(expr, map);
     }
 
     public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {

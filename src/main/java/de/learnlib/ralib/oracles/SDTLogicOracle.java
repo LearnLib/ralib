@@ -17,10 +17,7 @@
 package de.learnlib.ralib.oracles;
 
 
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -47,47 +44,48 @@ public interface SDTLogicOracle {
      *
      * @param prefix
      * @param sdt1
-     * @param piv1
      * @param sdt2
-     * @param piv2
      * @param guard
      * @param rep
      * @return
      */
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
-            SDT sdt1, PIV piv1,
-            SDT sdt2, PIV piv2,
-                              Expression<Boolean> guard, Word<PSymbolInstance> rep);
+            SDT sdt1, SDT sdt2, Expression<Boolean> guard, Word<PSymbolInstance> rep);
 
-    Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
-    		SDT sdt1, PIV piv1,
-    		SDT sdt2, PIV piv2);
+    /**
+     *
+     * @param prefix
+     * @param sdt1
+     * @param sdt2
+     * @return
+     */
+    // TODO: write documentation
+    Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix, SDT sdt1, SDT sdt2);
 
     /**
      * checks if one guard refine another guard.
      *
      * @param refining
-     * @param pivRefining
      * @param refined
-     * @param pivRefined
      * @return
      */
-    boolean doesRefine(Expression<Boolean> refining, PIV pivRefining,
-                       Expression<Boolean> refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue> valuation);
+    boolean doesRefine(Expression<Boolean> refining, Expression<Boolean> refined,
+                       Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
-    boolean areMutuallyExclusive(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
-			PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation);
+    boolean areMutuallyExclusive(Expression<Boolean> guard1, Expression<Boolean> guard2,
+			Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are equivalent (guard1 is true iff guard2 is true)
      */
-    boolean areEquivalent(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
-                          PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation);
+    boolean areEquivalent(Expression<Boolean> guard1, Bijection<DataValue> remapping, Expression<Boolean> guard2,
+                          Mapping<SymbolicDataValue, DataValue> valuation);
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */
-    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt, PIV piv);
+    // FIXME: this method is only used by tests, mayybe it can go?
+    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt);
 }

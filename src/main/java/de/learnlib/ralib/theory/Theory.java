@@ -23,11 +23,8 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -62,7 +59,6 @@ public interface Theory {
      * @param prefix prefix word.
      * @param suffix suffix word.
      * @param values found values for complete word (pos -> dv)
-     * @param piv memorable data values of the prefix (dv <-> itr)
      * @param constants
      * @param suffixValues map of already instantiated suffix
      * data values (sv -> dv)
@@ -74,7 +70,6 @@ public interface Theory {
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
-            PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
             SDTConstructor oracle);
@@ -93,7 +88,6 @@ public interface Theory {
      *
      * @param prefix
      * @param ps
-     * @param piv
      * @param pval
      * @param constants
      * @param guard
@@ -102,9 +96,9 @@ public interface Theory {
      * @return
      */
     DataValue instantiate(Word<PSymbolInstance> prefix,
-                          ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
+                          ParameterizedSymbol ps, SuffixValuation pval,
                           Constants constants,
-                          SDTGuard guard, Parameter param, Set<DataValue> oldDvs);
+                          SDTGuard guard, SuffixValue param, Set<DataValue> oldDvs);
 
     SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 

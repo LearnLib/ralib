@@ -116,25 +116,24 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        String tree = tqr.getSdt().toString();
+        String tree = tqr.sdt().toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}",tree);
 
         final String expectedTree = "[r1, r2]-+\n" +
-"        []-(s1=r1)\n" +
-"         |    []-(s2=r2)\n" +
-"         |     |    []-TRUE: s3\n" +
-"         |     |          [Leaf-]\n" +
-"         |     +-(s2!=r2)\n" +
-"         |          []-(s3=s2)\n" +
-"         |           |    [Leaf+]\n" +
-"         |           +-(s3!=s2)\n" +
-"         |                [Leaf-]\n" +
-"         +-(s1!=r1)\n" +
-"              []-TRUE: s2\n" +
-"                    []-TRUE: s3\n" +
-"                          [Leaf-]\n";
+                "        []-(s1=1[int])\n" +
+                "         |    []-(s2=0[int])\n" +
+                "         |     |    []-TRUE: s3\n" +
+                "         |     |          [Leaf-]\n" +
+                "         |     +-(s2!=0[int])\n" +
+                "         |          []-(s3=s2)\n" +
+                "         |           |    [Leaf+]\n" +
+                "         |           +-(s3!=s2)\n" +
+                "         |                [Leaf-]\n" +
+                "         +-(s1!=1[int])\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-TRUE: s3\n" +
+                "                          [Leaf-]\n";
 
         Assert.assertEquals(tree, expectedTree);
     }

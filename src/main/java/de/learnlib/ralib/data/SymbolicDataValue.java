@@ -19,6 +19,7 @@ package de.learnlib.ralib.data;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
@@ -30,6 +31,9 @@ import gov.nasa.jpf.constraints.types.BuiltinTypes;
 public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> implements TypedValue permits
         SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue {
 
+    /**
+     * a data parameter of an action
+     */
     public static final class Parameter extends SymbolicDataValue {
 
         public Parameter(DataType dataType, int id) {
@@ -37,6 +41,9 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
         }
     }
 
+    /**
+     * a register in a register automaton
+     */
     public static final class Register extends SymbolicDataValue {
 
         public Register(DataType dataType, int id) {
@@ -44,21 +51,34 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
         }
     }
 
-    public static final class Constant extends SymbolicDataValue {
+    /**
+     * a named constant in some theory
+     */
+    public static final class Constant extends SymbolicDataValue implements SDTGuardElement {
 
         public Constant(DataType dataType, int id) {
             super(dataType, id, "c" + id);
         }
+
+        @Override
+        public Expression<BigDecimal> asExpression() {
+            return this;
+        }
     }
 
-    /*
-     * a parameter in a suffix:
+    /**
+     * a parameter in a suffix or SDT guard
      */
     // todo: we should replace those by v_i
-    public static final class SuffixValue extends SymbolicDataValue {
+    public static final class SuffixValue extends SymbolicDataValue implements SDTGuardElement {
 
         public SuffixValue(DataType dataType, int id) {
             super(dataType, id, "s" + id);
+        }
+
+        @Override
+        public Expression<BigDecimal> asExpression() {
+            return this;
         }
     }
 

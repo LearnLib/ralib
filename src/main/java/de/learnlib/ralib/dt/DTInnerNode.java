@@ -2,6 +2,8 @@ package de.learnlib.ralib.dt;
 
 import java.util.*;
 
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -39,11 +41,13 @@ public class DTInnerNode extends DTNode {
 	protected Pair<DTNode, PathResult> sift(MappedPrefix prefix, TreeOracle oracle, boolean ioMode) {
 		PathResult r = PathResult.computePathResult(oracle, prefix, getSuffixes(), ioMode);
 		for (DTBranch b : branches) {
-			if (b.matches(r)) {
+			Bijection<DataValue> remapping = b.matches(r);
+			if (remapping != null) {
+				r.setRemapping(remapping);
 				return new ImmutablePair<DTNode, PathResult>(b.getChild(), r);
 			}
 		}
-
+		r.setRemapping(Bijection.identity(r.memorableValues()));
 		return null;
 	}
 

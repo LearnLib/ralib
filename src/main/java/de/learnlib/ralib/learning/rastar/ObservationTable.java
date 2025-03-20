@@ -135,7 +135,7 @@ class ObservationTable {
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
         LOGGER.info(Category.EVENT, "Adding suffix to obs: {}", suffix);
-//        System.out.println("Adding suffix to obs: " + suffix);
+        System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);
@@ -157,7 +157,7 @@ class ObservationTable {
 
     private void processNewComponent() {
         Component c = newComponents.poll();
-        //System.out.println("Adding component to obs: " + c);
+        System.out.println("Adding component to obs: " + c);
         components.put(c.getAccessSequence(), c);
         c.start(oracle, inputs);
     }

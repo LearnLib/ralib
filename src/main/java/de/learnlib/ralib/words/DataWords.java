@@ -22,16 +22,12 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.word.Word;
 
@@ -250,16 +246,4 @@ public final class DataWords {
     	return pars;
     }
 
-    public static RegisterValuation computeRegisterValuation(ParameterValuation pars, PIV piv) {
-    	RegisterValuation vars = new RegisterValuation();
-    	for (Entry<Parameter, DataValue> e : pars.entrySet()) {
-    		Register r = piv.get(e.getKey());
-    		if (r != null)
-    			vars.put(r, e.getValue());
-    	}
-    	return vars;
-    }
-
-    private DataWords() {
-    }
 }

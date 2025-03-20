@@ -4,10 +4,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.words.DataWords;
@@ -124,7 +121,7 @@ public abstract class SuffixValueRestriction {
     		return new FreshSuffixValue(suffixValue);
     	// case equal to previous suffix value
     	} else if (guard instanceof SDTGuard.EqualityGuard) {
-    		SymbolicDataValue param = ((SDTGuard.EqualityGuard) guard).register();
+    		SDTGuardElement param = ((SDTGuard.EqualityGuard) guard).register();
     		if (param instanceof SuffixValue) {
     			SuffixValueRestriction restr = prior.get(param);
     			if (restr instanceof FreshSuffixValue) {

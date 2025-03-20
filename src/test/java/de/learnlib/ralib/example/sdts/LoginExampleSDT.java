@@ -19,6 +19,7 @@ package de.learnlib.ralib.example.sdts;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -55,7 +56,7 @@ public class LoginExampleSDT extends SDTLeaf {
     }
 
     @Override
-    public boolean isEquivalent(SDT other, VarMapping renaming) {
+    public boolean isEquivalent(SDT other, SDTRelabeling renaming) {
         if (! other.getClass().equals(this.getClass())) {
             return false;
         }
@@ -67,7 +68,7 @@ public class LoginExampleSDT extends SDTLeaf {
     }
 
     @Override
-    public LoginExampleSDT relabel(VarMapping relabelling) {
+    public LoginExampleSDT relabel(SDTRelabeling relabelling) {
         return this;
     }
 

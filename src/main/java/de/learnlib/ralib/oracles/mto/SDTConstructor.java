@@ -17,7 +17,6 @@
 package de.learnlib.ralib.oracles.mto;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -33,6 +32,6 @@ public interface SDTConstructor {
 
     SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            WordValuation values, PIV piv,
+            WordValuation values,
             Constants constants, SuffixValuation suffixValues);
 }

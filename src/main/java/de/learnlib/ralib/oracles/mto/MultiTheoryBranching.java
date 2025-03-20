@@ -20,7 +20,6 @@ import java.util.*;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -29,10 +28,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTLeaf;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -49,16 +48,16 @@ public class MultiTheoryBranching implements Branching {
 
         private final boolean isLeaf;
 
-        private final Parameter parameter;
+        private final SuffixValue parameter;
         private final Map<DataValue, Node> next = new LinkedHashMap<>();
         private final Map<DataValue, SDTGuard> guards = new LinkedHashMap<>();
 
-        public Node(Parameter parameter) {
+        public Node(SuffixValue parameter) {
             this.parameter = parameter;
             this.isLeaf = true;
         }
 
-        public Node(Parameter parameter, Map<DataValue, Node> next, Map<DataValue, SDTGuard> guards) {
+        public Node(SuffixValue parameter, Map<DataValue, Node> next, Map<DataValue, SDTGuard> guards) {
             this.parameter = parameter;
             this.next.putAll(next);
             this.guards.putAll(guards);
@@ -87,8 +86,8 @@ public class MultiTheoryBranching implements Branching {
             }
         }
 
-        protected Map<Parameter, Set<DataValue>> collectDVs() {
-            Map<Parameter, Set<DataValue>> dvs = new LinkedHashMap();
+        protected Map<SuffixValue, Set<DataValue>> collectDVs() {
+            Map<SuffixValue, Set<DataValue>> dvs = new LinkedHashMap();
             if (!(this.next.keySet()).isEmpty()) {
                 dvs.put(this.parameter, this.next.keySet());
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
@@ -98,8 +97,8 @@ public class MultiTheoryBranching implements Branching {
             return dvs;
         }
 
-        protected Map<Parameter, Set<SDTGuard>> collectGuards() {
-            Map<Parameter, Set<SDTGuard>> guards = new LinkedHashMap();
+        protected Map<SuffixValue, Set<SDTGuard>> collectGuards() {
+            Map<SuffixValue, Set<SDTGuard>> guards = new LinkedHashMap();
             if (!(this.next.keySet()).isEmpty()) {
                 guards.put(this.parameter, new LinkedHashSet<SDTGuard>(this.guards.values()));
                 for (Map.Entry<DataValue, Node> e : this.next.entrySet()) {
@@ -128,47 +127,33 @@ public class MultiTheoryBranching implements Branching {
 
     private final Node node;
 
-    private final PIV piv;
-
     private final Constants constants;
 
-    private final ParameterValuation pval;
+    private final SDT[] sdts;
 
-    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action, Node node, PIV piv,
-            ParameterValuation pval, Constants constants, SDT... sdts) {
+    public MultiTheoryBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol action,
+                                Node node, Constants constants, SDT... sdts) {
         this.prefix = prefix;
         this.action = action;
         this.node = node;
-        this.piv = new PIV();
         this.constants = constants;
-        if (piv != null) {
-            this.piv.putAll(piv);
-        }
-        this.pval = pval;
+        this.sdts = sdts;
     }
 
     public Word<PSymbolInstance> getPrefix() {
         return prefix;
     }
 
-    public Map<Parameter, Set<DataValue>> getDVs() {
+    public Map<SuffixValue, Set<DataValue>> getDVs() {
         return this.node.collectDVs();
     }
 
-    public Map<Parameter, Set<SDTGuard>> getParamGuards() {
+    public Map<SuffixValue, Set<SDTGuard>> getParamGuards() {
         return node.collectGuards();
     }
 
     public SDT buildFakeSDT() {
         return node.buildFakeSDT();
-    }
-
-    public ParameterValuation getPval() {
-        return pval;
-    }
-
-    public PIV getPiv() {
-        return piv;
     }
 
     public Set<SDTGuard> getGuards() {
@@ -273,7 +258,7 @@ public class MultiTheoryBranching implements Branching {
     		Parameter p = new Parameter(s.getDataType(), s.getId());
     		vals.put(p, dv);
     	}
-    	RegisterValuation vars = DataWords.computeRegisterValuation(ParameterValuation.fromPSymbolWord(getPrefix()), getPiv());
+    	RegisterValuation vars = Memorables.getAssignment(this.sdts).registerValuation();
     	Map<Word<PSymbolInstance>, Expression<Boolean>> branches = getBranches();
 
     	Word<PSymbolInstance> prefix = null;

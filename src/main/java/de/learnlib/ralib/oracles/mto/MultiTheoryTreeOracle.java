@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,19 +38,11 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -59,7 +50,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTLeaf;
@@ -67,8 +57,6 @@ import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.common.util.Pair;
 import net.automatalib.word.Word;
 
@@ -101,34 +89,12 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
-        PIV pir = new PIV();
-        SDT sdt = treeQuery(prefix, suffix, new WordValuation(), pir, constants, new SuffixValuation());
-
-        //System.out.println(prefix + " . " + suffix);
-        //System.out.println;
-
-        // move registers to 1 ... n
-        VarMapping rename = new VarMapping();
-        RegisterGenerator gen = new RegisterGenerator();
-        Set<Register> regs = sdt.getRegisters();
-        PIV piv = new PIV();
-
-        for (Entry<Parameter, Register> e : pir.entrySet()) {
-            if (regs.contains(e.getValue())) {
-                Register r = e.getValue();
-                rename.put(r, gen.next(r.getDataType()));
-                piv.put(e.getKey(), (Register) rename.get(r));
-            }
-        }
-
-        TreeQueryResult tqr = new TreeQueryResult(piv, sdt.relabel(rename));
-        LOGGER.debug(Category.QUERY, "PIV: {}", piv);
-
-        return tqr;
+        SDT sdt = treeQuery(prefix, suffix, new WordValuation(), constants, new SuffixValuation());
+        return new TreeQueryResult(sdt);
     }
 
     @Override
-    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values, PIV pir,
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
             Constants constants, SuffixValuation suffixValues) {
 
 //        System.out.println("prefix = " + prefix + "   suffix = " + suffix + "    values = " + values);
@@ -155,7 +121,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         // make a new tree query for prefix, suffix, prefix valuation, ...
         // to the correct teacher (given by type of first DV in suffix)
-        return teach.treeQuery(prefix, suffix, values, pir, constants, suffixValues, this);
+        return teach.treeQuery(prefix, suffix, values, constants, suffixValues, this);
     }
 
     /**
@@ -164,92 +130,69 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
      *
      */
     @Override
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            SDT... sdts) {
+    public Branching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SDT... sdts) {
 
         LOGGER.info(Category.QUERY, "computing initial branching for {0} after {1}", new Object[] { ps, prefix });
 
-        // TODO: check if this casting can be avoided by proper use of generics
-        // TODO: the problem seems to be
-        // System.out.println("using " + sdts.length + " SDTs");
-        SDT[] casted = new SDT[sdts.length];
-        for (int i = 0; i < casted.length; i++) {
-            if (sdts[i] instanceof SDTLeaf) {
-                casted[i] = (SDTLeaf) sdts[i];
-            } else {
-                casted[i] =  sdts[i];
-            }
-        }
+        MultiTheoryBranching mtb;
+        Node n;
 
-        MultiTheoryBranching mtb = this.getInitialBranching(prefix, ps, piv, new ParameterValuation(), casted);
+        if (sdts.length == 0) {
+            n = createFreshNode(1, prefix, ps, new SuffixValuation());
+            mtb = new MultiTheoryBranching(prefix, ps, n, constants, sdts);
+        } else {
+            n = createNode(1, prefix, ps, new SuffixValuation(), new LinkedHashMap<>(), sdts);
+            MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, constants, sdts);
+            mtb = fluff;
+        }
 
         LOGGER.trace(Category.QUERY, mtb.toString());
 
         return mtb;
     }
 
-    // get the initial branching for the symbol ps after prefix given a certain tree
-    private MultiTheoryBranching getInitialBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            ParameterValuation pval, SDT... sdts) {
-        Node n;
-
-        if (sdts.length == 0) {
-            n = createFreshNode(1, prefix, ps, piv, pval);
-            return new MultiTheoryBranching(prefix, ps, n, piv, pval, constants, sdts);
-        } else {
-            n = createNode(1, prefix, ps, piv, pval, sdts);
-            MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, piv, pval, constants, sdts);
-            return fluff;
-        }
-
-    }
-
-    private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv,
-            ParameterValuation pval) {
+    private Node createFreshNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval) {
 
         if (i == ps.getArity() + 1) {
-            return new Node(new Parameter(null, i));
+            return new Node(new SuffixValue(null, i));
         } else {
             Map<DataValue, Node> nextMap = new LinkedHashMap<>();
             Map<DataValue, SDTGuard> guardMap = new LinkedHashMap<>();
 
             DataType type = ps.getPtypes()[i - 1];
             LOGGER.trace(Category.QUERY, "current type: " + type.getName());
-            Parameter p = new Parameter(type, i);
+            SuffixValue p = new SuffixValue(type, i);
             SDTGuard guard = new SDTGuard.SDTTrueGuard(new SuffixValue(type, i));
             Theory teach = teachers.get(type);
+            DataValue dvi = teach.instantiate(prefix, ps, pval, constants, guard, p, new LinkedHashSet<>());
+            pval.put(p, dvi);
 
-            DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, new LinkedHashSet<>());
-            ParameterValuation otherPval = new ParameterValuation();
-            otherPval.putAll(pval);
-            otherPval.put(p, dvi);
-
-            nextMap.put(dvi, createFreshNode(i + 1, prefix, ps, piv, otherPval));
+            nextMap.put(dvi, createFreshNode(i + 1, prefix, ps, pval));
 
             guardMap.put(dvi, guard);
             return new Node(p, nextMap, guardMap);
         }
     }
 
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
+    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
             SDT... sdts) {
-        Node n = createNode(i, prefix, ps, piv, pval, new LinkedHashMap<>(), sdts);
+        Node n = createNode(i, prefix, ps, pval, new LinkedHashMap<>(), sdts);
         return n;
     }
 
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, PIV piv, ParameterValuation pval,
-            Map<Parameter, Set<DataValue>> oldDvMap, SDT... sdts) {
+    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
+            Map<SuffixValue, Set<DataValue>> oldDvMap, SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
-            return new Node(new Parameter(null, i));
+            return new Node(new SuffixValue(null, i));
         } else {
             // obtain the data type, teacher, parameter
             DataType type = ps.getPtypes()[i - 1];
             Theory teach = teachers.get(type);
-            Parameter p = new Parameter(type, i);
+            SuffixValue p = new SuffixValue(type, i);
 
             // valuation
-            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, prefix, piv, constants);
+            Mapping<SymbolicDataValue, DataValue> valuation = buildValuation(pval, prefix, constants);
 
             // the map may contain no old values for p, in which case we use an empty set
             // (to avoid potential NPE when instantiating guards)
@@ -271,7 +214,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 Set<SDTGuard> oldGuards = mergedGuardEntry.getValue();
 
                 // first solve using a constraint solver
-                DataValue dvi = teach.instantiate(prefix, ps, piv, pval, constants, guard, p, oldDvs);
+                DataValue dvi = teach.instantiate(prefix, ps, pval, constants, guard, p, oldDvs);
                 // if merging of guards is done properly, there should be no case where the
                 // guard cannot be instantiated.
                 assert (dvi != null);
@@ -283,11 +226,11 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                                                                                                             // guards
                         .distinct().toArray(SDT[]::new); // merge and pick distinct elements
 
-                ParameterValuation otherPval = new ParameterValuation();
+                SuffixValuation otherPval = new SuffixValuation();
                 otherPval.putAll(pval);
                 otherPval.put(p, dvi);
 
-                nextMap.put(dvi, createNode(i + 1, prefix, ps, piv, otherPval, oldDvMap, nextLevelSDTs));
+                nextMap.put(dvi, createNode(i + 1, prefix, ps, otherPval, oldDvMap, nextLevelSDTs));
                 if (guardMap.containsKey(dvi)) {
                     throw new IllegalStateException(
                             "Guard instantiated using a dvi that was already used to instantiate a prior guard.");
@@ -415,14 +358,14 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         if (b instanceof SDTGuard.EqualityGuard)
             if (a.equals( SDTGuard.toDeqGuard(b) ))
                 return false;
-        return !mlo.areMutuallyExclusive(SDTGuard.toExpr(a), new PIV(), SDTGuard.toExpr(b), new PIV(), valuation);
+        return !mlo.areMutuallyExclusive(SDTGuard.toExpr(a), SDTGuard.toExpr(b), valuation);
     }
 
     private boolean refines(SDTGuard a, SDTGuard b, MultiTheorySDTLogicOracle mlo,
             Mapping<SymbolicDataValue, DataValue> valuation) {
         if (b instanceof SDTGuard.SDTTrueGuard)
             return true;
-        boolean ref1 = mlo.doesRefine(SDTGuard.toExpr(a), new PIV(), SDTGuard.toExpr(b), new PIV(), valuation);
+        boolean ref1 = mlo.doesRefine(SDTGuard.toExpr(a), SDTGuard.toExpr(b), valuation);
         return ref1;
     }
 
@@ -443,29 +386,29 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return children;
     }
 
-    private Mapping<SymbolicDataValue, DataValue> buildValuation(ParameterValuation ParameterValuation,
-            Word<PSymbolInstance> prefix, PIV piv, Constants constants) {
+    private Mapping<SymbolicDataValue, DataValue> buildValuation(SuffixValuation suffixValuation,
+            Word<PSymbolInstance> prefix, Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
-        DataValue[] values = DataWords.valsOf(prefix);
-        piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
-        ParameterValuation.forEach((param, dv) -> valuation.put(new SuffixValue(param.getDataType(), param.getId()), dv));
-        constants.forEach((c, dv) -> valuation.put(c, dv));
+        //DataValue[] values = DataWords.valsOf(prefix);
+        //piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
+        valuation.putAll(suffixValuation);
+        valuation.putAll(constants);
         return valuation;
     }
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
-            SDT sdt, PIV piv) {
+            SDT sdt) {
         assert (sdt instanceof SDT);
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
-        instantiate(words, prefix, suffix,  sdt, piv, 0, 0,
-                new ParameterValuation(), new ParameterGenerator(), new ParameterValuation(), new ParameterGenerator());
+        instantiate(words, prefix, suffix,  sdt, 0, 0,
+                new SuffixValuation(), new ParameterGenerator(), new SuffixValuation(), new ParameterGenerator());
         return words;
     }
 
     private void instantiate(Map<Word<PSymbolInstance>, Boolean> words, Word<PSymbolInstance> prefix,
-            SymbolicSuffix suffix, SDT sdt, PIV piv, int aidx, int pidx,
-            ParameterValuation pval, ParameterGenerator pgen, ParameterValuation gpval, ParameterGenerator gpgen) {
+            SymbolicSuffix suffix, SDT sdt, int aidx, int pidx,
+                             SuffixValuation pval, ParameterGenerator pgen, SuffixValuation gpval, ParameterGenerator gpgen) {
         if (aidx == suffix.getActions().length()) {
             words.put(prefix, sdt.isAccepting());
         } else {
@@ -474,24 +417,24 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
                 DataValue[] vals = pval.values().toArray(new DataValue [] {});
                 PSymbolInstance psi = new PSymbolInstance(ps, vals);
                 Word<PSymbolInstance> newPrefix = prefix.append(psi);
-                instantiate(words, newPrefix, suffix, sdt, piv, aidx+1, 0, new ParameterValuation(), new ParameterGenerator(), gpval, gpgen);
+                instantiate(words, newPrefix, suffix, sdt, aidx+1, 0, new SuffixValuation(), new ParameterGenerator(), gpval, gpgen);
             } else {
-                Parameter p = pgen.next(ps.getPtypes()[pidx]);
-                Parameter gp = gpgen.next(ps.getPtypes()[pidx]);
+                SuffixValue p = new SuffixValue(ps.getPtypes()[pidx], pgen.next(ps.getPtypes()[pidx]).getId());
+                SuffixValue gp = new SuffixValue( ps.getPtypes()[pidx], gpgen.next(ps.getPtypes()[pidx]).getId() );
                 Theory t = teachers.get(ps.getPtypes()[pidx]);
                 for (Map.Entry<SDTGuard, SDT> entry : sdt.getChildren().entrySet()) {
-                    DataValue val = t.instantiate(prefix, ps, piv, gpval, constants, entry.getKey(), p, Collections.emptySet());
-                    ParameterValuation newPval = new ParameterValuation();
+                    DataValue val = t.instantiate(prefix, ps, gpval, constants, entry.getKey(), p, Collections.emptySet());
+                    SuffixValuation newPval = new SuffixValuation();
                     newPval.putAll(pval);
                     newPval.put(p, val);
-                    ParameterValuation newGpval = new ParameterValuation();
+                    SuffixValuation newGpval = new SuffixValuation();
                     newGpval.putAll(gpval);
                     newGpval.put(gp, val);
                     ParameterGenerator newPgen = new ParameterGenerator();
                     newPgen.set(pgen);
                     ParameterGenerator newGpgen = new ParameterGenerator();
                     newGpgen.set(gpgen);
-                    instantiate(words, prefix, suffix, entry.getValue(), piv, aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
+                    instantiate(words, prefix, suffix, entry.getValue(), aidx, pidx+1, newPval, newPgen, newGpval, newGpgen);
                 }
             }
         }
@@ -503,7 +446,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
      *
      */
     @Override
-    public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current, PIV piv,
+    public Branching updateBranching(Word<PSymbolInstance> prefix, ParameterizedSymbol ps, Branching current,
             SDT... sdts) {
 
         //System.out.println(current);
@@ -513,35 +456,29 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
 
-        Map<Parameter, Set<DataValue>> oldDvs = oldBranching.getDVs();
+        Map<SuffixValue, Set<DataValue>> oldDvs = oldBranching.getDVs();
 
         SDT[] casted = new SDT[sdts.length + 1];
         casted[0] = oldBranching.buildFakeSDT();
 
 
-        VarMapping remapping = piv.createRemapping(oldBranching.getPiv());
-
+        //VarMapping remapping = piv.createRemapping(oldBranching.getPiv());
+        // todo: this can be cleaned up
         for (int i = 0; i < sdts.length; i++) {
             if (sdts[i] instanceof SDTLeaf) {
                 casted[i + 1] = (SDTLeaf) sdts[i];
             } else {
-                casted[i + 1] =  sdts[i].relabel(remapping);
+                casted[i + 1] =  sdts[i];
             }
         }
 
-        PIV relabeledPiv = piv.relabel(remapping);
-        PIV newPiv = new PIV();
-        newPiv.putAll(oldBranching.getPiv());
-        newPiv.putAll(relabeledPiv);
+        Node n = createNode(1, prefix, ps, new SuffixValuation(),oldDvs, casted);
 
-        ParameterValuation pval = new ParameterValuation();
-
-        Node n = createNode(1, prefix, ps, newPiv, pval, oldDvs, casted);
-
-        MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, newPiv, pval, constants, casted);
+        MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, constants, casted);
         return fluff;
     }
 
+    /*
     public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SDT sdt, PIV piv) {
     	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
     	mapping.putAll(constants);
@@ -581,7 +518,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     	}
 
     	return expr.evaluateSMT(SMTUtil.compose(mapping));
-    }
+    }*/
 
     public Map<DataType, Theory> getTeachers() {
     	return teachers;

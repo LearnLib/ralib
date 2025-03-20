@@ -106,9 +106,8 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        String tree = tqr.getSdt().toString();
+        String tree = tqr.sdt().toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
 
         String expectedTree = "[]-+\n" +

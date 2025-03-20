@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.VarMapping;
 
@@ -46,7 +48,7 @@ public class SDTLeaf extends SDT {
 
     @Override
     public boolean isEquivalent(
-            SDT other, VarMapping renaming) {
+            SDT other, SDTRelabeling renaming) {
         return (getClass() == other.getClass() &&
                 isAccepting() == other.isAccepting());
     }
@@ -57,7 +59,7 @@ public class SDTLeaf extends SDT {
             return false;
         }
         else {
-            return this.isEquivalent(other, new VarMapping());
+            return this.isEquivalent(other, new SDTRelabeling());
         }
     }
 
@@ -67,7 +69,7 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    public SDT relabel(VarMapping relabeling) {
+    public SDT relabel(SDTRelabeling relabeling) {
         return this;
     }
 
@@ -110,5 +112,10 @@ public class SDTLeaf extends SDT {
     @Override
     public SDT copy() {
     	return new SDTLeaf(accepting);
+    }
+
+    @Override
+    public Set<SDTGuardElement> getVariables() {
+        return new LinkedHashSet<>();
     }
 }

@@ -1,28 +1,33 @@
 package de.learnlib.ralib.data;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 
-public class Bijection implements Map<Register, Register> {
+public class Bijection<T extends TypedValue> implements Map<T, T> {
 
-	private final Map<Register, Register> injection;
-	private final Map<Register, Register> surjection;
+	private final Map<T, T> injection;
+	private final Map<T, T> surjection;
 
 	public Bijection() {
 		injection = new LinkedHashMap<>();
 		surjection = new LinkedHashMap<>();
 	}
 
-	public Bijection(Map<Register, Register> map) {
+	public Bijection(Map<T, T> map) {
 		this();
 		putAll(injection, surjection, map);
 	}
 
-	@Override
+    public static Bijection<DataValue> identity(List<DataValue> dataValues) {
+		Bijection<DataValue> bij = new Bijection<>();
+		for (DataValue dv : dataValues) {
+			bij.put(dv, dv);
+		}
+		return bij;
+    }
+
+    @Override
 	public int size() {
 		return injection.size();
 	}
@@ -43,13 +48,13 @@ public class Bijection implements Map<Register, Register> {
 	}
 
 	@Override
-	public Register get(Object key) {
+	public T get(Object key) {
 		return injection.get(key);
 	}
 
 	@Override
-	public Register remove(Object key) {
-		Register val = get(key);
+	public T remove(Object key) {
+		T val = get(key);
 		injection.remove(key);
 		surjection.remove(val);
 		return val;
@@ -62,18 +67,18 @@ public class Bijection implements Map<Register, Register> {
 	}
 
 	@Override
-	public Set<Register> keySet() {
+	public Set<T> keySet() {
 		return new LinkedHashSet<>(injection.keySet());
 	}
 
 	@Override
-	public Set<Entry<Register, Register>> entrySet() {
+	public Set<Entry<T, T>> entrySet() {
 		return new LinkedHashSet<>(injection.entrySet());
 	}
 
 	@Override
-	public Register put(Register key, Register value) {
-		Register existingVal = injection.get(key);
+	public T put(T key, T value) {
+		T existingVal = injection.get(key);
 		if (existingVal != null && !existingVal.equals(value)) {
 			remove(key);
 		}
@@ -83,27 +88,27 @@ public class Bijection implements Map<Register, Register> {
 	}
 
 	@Override
-	public void putAll(Map<? extends Register, ? extends Register> map) {
+	public void putAll(Map<? extends T, ? extends T> map) {
 		Bijection.putAll(injection, surjection, map);
 	}
 
 	@Override
-	public Set<Register> values() {
+	public Set<T> values() {
 		return new LinkedHashSet<>(injection.values());
 	}
 
-	public Bijection inverse() {
-		Bijection bi = new Bijection();
-		for (Map.Entry<Register, Register> e : injection.entrySet()) {
+	public Bijection<T> inverse() {
+		Bijection<T> bi = new Bijection<>();
+		for (Map.Entry<T, T> e : injection.entrySet()) {
 			bi.put(e.getValue(), e.getKey());
 		}
 		return bi;
 	}
 
-	public Bijection compose(Bijection other) {
-		Bijection composition = new Bijection();
-		for (Map.Entry<Register, Register> entry : entrySet()) {
-			Register val = other.get(entry.getValue());
+	public Bijection<T> compose(Bijection<T> other) {
+		Bijection<T> composition = new Bijection<>();
+		for (Map.Entry<T, T> entry : entrySet()) {
+			T val = other.get(entry.getValue());
 			if (val == null) {
 				throw new IllegalArgumentException("Registers mismatch");
 			}
@@ -112,8 +117,8 @@ public class Bijection implements Map<Register, Register> {
 		return composition;
 	}
 
-	public VarMapping<Register, Register> toVarMapping() {
-		VarMapping<Register, Register> vars = new VarMapping<>();
+	public Mapping<T, T> toVarMapping() {
+		Mapping<T, T> vars = new Mapping<>();
 		vars.putAll(injection);
 		return vars;
 	}
@@ -122,18 +127,18 @@ public class Bijection implements Map<Register, Register> {
 		return injection.toString();
 	}
 
-	private static void putAll(Map<Register, Register> in,
-			Map<Register, Register> sur,
-			Map<? extends Register, ? extends Register> map) {
-		Set<Register> values = new LinkedHashSet<>(map.values());
+	private static  <U extends TypedValue>  void putAll(Map<U, U> in,
+			Map<U, U> sur,
+			Map<? extends U, ? extends U> map) {
+		Set<U> values = new LinkedHashSet<>(map.values());
 		if (map.keySet().size() != values.size()) {
 			throw new IllegalArgumentException("Mismatched size of keyset and valueset");
 		}
-		for (Map.Entry<? extends Register, ? extends Register> e : map.entrySet()) {
-			Register key = e.getKey();
-			Register val = e.getValue();
+		for (Map.Entry<? extends U, ? extends U> e : map.entrySet()) {
+			U key = e.getKey();
+			U val = e.getValue();
 
-			Register existingVal = in.get(key);
+			U existingVal = in.get(key);
 			if (existingVal != null && !existingVal.equals(val)) {
 				sur.remove(val);
 			}
