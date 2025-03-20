@@ -86,6 +86,6 @@ public interface SDTLogicOracle {
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */
-    // FIXME: this method is only used by tests, mayybe it can go?
+    // FIXME: this method is only used by tests, maybe it can go?
     boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt);
 }
