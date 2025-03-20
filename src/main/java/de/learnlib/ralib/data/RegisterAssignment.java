@@ -4,11 +4,10 @@ package de.learnlib.ralib.data;
 import java.util.Map;
 
 /**
- * A register assigment models which data values
+ * A register assignment models which data values
  * of a prefix are stored in which registers.
  */
 public class RegisterAssignment extends Mapping<DataValue, SymbolicDataValue.Register> {
-
 
     public RegisterValuation registerValuation() {
         RegisterValuation vars = new RegisterValuation();
