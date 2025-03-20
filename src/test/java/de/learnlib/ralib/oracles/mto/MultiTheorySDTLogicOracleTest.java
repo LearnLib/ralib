@@ -60,7 +60,7 @@ public class MultiTheorySDTLogicOracleTest {
       Word<PSymbolInstance> suffix = acceptedWord.suffix(acceptedWord.length() - prefix.length());
       SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
       TreeQueryResult query = sulTreeOracle.treeQuery(prefix, symSuffix);
-      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query.getSdt(), query.getPiv()));
+      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query.sdt()));
       List<Word<PSymbolInstance>> rejectedSuffixes = Arrays.asList(
               Word.fromSymbols(
                       new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ZERO)),
@@ -73,7 +73,7 @@ public class MultiTheorySDTLogicOracleTest {
 
       for (Word<PSymbolInstance> rejectedSuffix : rejectedSuffixes) {
           Word<PSymbolInstance> rejectedWord = prefix.concat(rejectedSuffix);
-          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.getSdt(), query.getPiv()));
+          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.sdt()));
       }
   }
 }

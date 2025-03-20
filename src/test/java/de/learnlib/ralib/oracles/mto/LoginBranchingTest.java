@@ -38,7 +38,6 @@ import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -107,13 +106,12 @@ public class LoginBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Sym. Suffix: {0}", symSuffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
+        logger.log(Level.FINE, "SDT: {0}", tqr.sdt());
 
         // initial branching bug
         // Regression: Why does the last word in the set have a password val. of 2
 
-        Branching bug1 = mto.getInitialBranching(prefix, log, tqr.getPiv(), tqr.getSdt());
+        Branching bug1 = mto.getInitialBranching(prefix, log, tqr.sdt());
         final String expectedKeyset = "[IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 0[pwd]],"
                 + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 1[pwd]],"
                 + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[1[uid], 1[pwd]]]";
@@ -124,8 +122,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
         // updated branching bug
         // Regression: This keyset has only one word, there should be three.
 
-        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());
-        bug2 = mto.updateBranching(prefix, log, bug2, tqr.getPiv(), tqr.getSdt());
+        Branching bug2 = mto.getInitialBranching(prefix, log);
+        bug2 = mto.updateBranching(prefix, log, bug2, tqr.sdt());
         String keyset2 = Arrays.toString(bug2.getBranches().keySet().toArray());
         Assert.assertEquals(keyset2, expectedKeyset);
 
@@ -161,9 +159,9 @@ public class LoginBranchingTest extends RaLibTestSuite {
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 
-        Branching initial = mto.getInitialBranching(prefix, I_LOGIN, new PIV());
-        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.getPiv(), tqr1.getSdt());
-        Branching actual = mto.updateBranching(prefix, I_LOGIN, finer, tqr1.getPiv(), tqr2.getSdt());
+        Branching initial = mto.getInitialBranching(prefix, I_LOGIN);
+        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.sdt());
+        Branching actual = mto.updateBranching(prefix, I_LOGIN, finer, tqr2.sdt());
         Assert.assertEquals(actual.getBranches().toString(), finer.getBranches().toString());
     }
 
@@ -197,9 +195,9 @@ public class LoginBranchingTest extends RaLibTestSuite {
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 
-        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.getPiv(), tqr1.getSdt(), tqr2.getSdt());
-        Branching initial = mto.getInitialBranching(prefix, I_LOGIN, new PIV());
-        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.getPiv(), tqr1.getSdt());
+        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.sdt(), tqr2.sdt());
+        Branching initial = mto.getInitialBranching(prefix, I_LOGIN);
+        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.sdt());
         Assert.assertEquals(initialFiner.getBranches().toString(), finer.getBranches().toString());
     }
 
@@ -229,8 +227,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
 
         TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
 
-        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.getPiv(), tqr1.getSdt(), tqr2.getSdt());
-        Branching update = mto.updateBranching(prefix, I_LOGIN, initialFiner, tqr1.getPiv());
+        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.sdt(), tqr2.sdt());
+        Branching update = mto.updateBranching(prefix, I_LOGIN, initialFiner);
         Assert.assertEquals(update.getBranches().toString(), initialFiner.getBranches().toString());
     }
 

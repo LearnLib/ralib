@@ -110,12 +110,11 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
+        logger.log(Level.FINE, "SDT: {0}", tqr.sdt());
 
-        final String expected = "[(('r1' == 'p1') && ('c1' == 'p2')), (('r1' == 'p1') && ('c1' != 'p2')), (('r1' != 'p1') && true)]";
+        final String expected = "[((2 == 'p1') && ('c1' == 'p2')), ((2 == 'p1') && ('c1' != 'p2')), ((2 != 'p1') && true)]";
 
-        Branching b = mto.getInitialBranching(prefix, oframe, tqr.getPiv(), tqr.getSdt());
+        Branching b = mto.getInitialBranching(prefix, oframe, tqr.sdt());
         String bString = Arrays.toString(b.getBranches().values().toArray());
 
         Assert.assertEquals(b.getBranches().size(), 3);

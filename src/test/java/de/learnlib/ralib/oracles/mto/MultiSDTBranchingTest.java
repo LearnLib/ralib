@@ -129,27 +129,25 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
         TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
 
-        logger.log(Level.FINE, "PIV 1: {0}", tqr1.getPiv());
-        logger.log(Level.FINE, "SDT 1: {0}", tqr1.getSdt());
-        logger.log(Level.FINE, "PIV 2: {0}", tqr2.getPiv());
-        logger.log(Level.FINE, "SDT 2: {0}", tqr2.getSdt());
+        logger.log(Level.FINE, "SDT 1: {0}", tqr1.sdt());
+        logger.log(Level.FINE, "SDT 2: {0}", tqr2.sdt());
 
-        Branching b1 = mto.getInitialBranching(prefix, o100, tqr1.getPiv(), tqr1.getSdt());
+        Branching b1 = mto.getInitialBranching(prefix, o100, tqr1.sdt());
         logger.log(Level.FINE, "B.1 initial: {0}",
                 Arrays.toString(b1.getBranches().values().toArray()));
         Assert.assertEquals(b1.getBranches().size(), 2);
 
-        b1 = mto.updateBranching(prefix, o100, b1, tqr1.getPiv(), tqr1.getSdt(), tqr2.getSdt());
+        b1 = mto.updateBranching(prefix, o100, b1, tqr1.sdt(), tqr2.sdt());
         logger.log(Level.FINE, "B.1 updated: {0}",
                 Arrays.toString(b1.getBranches().values().toArray()));
         Assert.assertEquals(b1.getBranches().size(), 2);
 
-        Branching b2 = mto.getInitialBranching(prefix, o100, tqr2.getPiv(), tqr2.getSdt());
+        Branching b2 = mto.getInitialBranching(prefix, o100, tqr2.sdt());
         logger.log(Level.FINE, "B.2 initial: {0}",
                 Arrays.toString(b2.getBranches().values().toArray()));
         Assert.assertEquals(b2.getBranches().size(), 1);
 
-        b2 = mto.updateBranching(prefix, o100, b2, tqr1.getPiv(), tqr2.getSdt(), tqr1.getSdt());
+        b2 = mto.updateBranching(prefix, o100, b2, tqr2.sdt(), tqr1.sdt());
         logger.log(Level.FINE, "B.2 updated: {0}",
                 Arrays.toString(b2.getBranches().values().toArray()));
         Assert.assertEquals(b2.getBranches().size(), 2);

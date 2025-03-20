@@ -29,7 +29,6 @@ import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
@@ -75,7 +74,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
-            return new TreeQueryResult(new PIV(),
+            return new TreeQueryResult(
                     new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
         }
 
@@ -115,7 +114,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
             }
 
             if (state == State.ERROR) {
-                return new TreeQueryResult(new PIV(),
+                return new TreeQueryResult(
                         new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
             }
 
@@ -141,15 +140,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
                 break;
         }
 
-        PIV piv = new PIV();
-        SymbolicDataValueGenerator.ParameterGenerator pgen =
-                new SymbolicDataValueGenerator.ParameterGenerator();
-        if (uid != null && clazz == SDTClass.LOGIN) {
-            piv.put(pgen.next(T_UID), rUid);
-            piv.put(pgen.next(T_PWD), rPwd);
-        }
-
-        return new TreeQueryResult(piv,
+        return new TreeQueryResult(
                 new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>()));
     }
 
@@ -167,7 +158,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
 
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SDT... sdts) {
+            ParameterizedSymbol ps, SDT... sdts) {
 
         Map<Word<PSymbolInstance>, Expression<Boolean>> branches = new LinkedHashMap<Word<PSymbolInstance>, Expression<Boolean>>();
         Word<ParameterizedSymbol> acts = DataWords.actsOf(prefix);
@@ -212,14 +203,14 @@ public class LoginExampleTreeOracle implements TreeOracle {
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
-            PIV piv, SDT... sdts) {
+            SDT... sdts) {
 
-        return getInitialBranching(prefix, ps, piv, sdts);
+        return getInitialBranching(prefix, ps, sdts);
     }
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SDT sdt, PIV piv) {
+    		SymbolicSuffix suffix, SDT sdt) {
     	throw new UnsupportedOperationException("Not implemented");
     }
 

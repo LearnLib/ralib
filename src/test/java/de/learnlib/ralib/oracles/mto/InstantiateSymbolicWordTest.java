@@ -64,7 +64,7 @@ public class InstantiateSymbolicWordTest {
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symbSuffix);
 
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr.getSdt(), tqr.getPiv());
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr.sdt());
 
         Word<PSymbolInstance> p1 = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
@@ -151,7 +151,7 @@ public class InstantiateSymbolicWordTest {
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr.getSdt(), tqr.getPiv());
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr.sdt());
 
         Assert.assertEquals(words.size(), 1);
 

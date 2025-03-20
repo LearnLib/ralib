@@ -59,7 +59,7 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
-        SDT sdt = res.getSdt();
+        SDT sdt = res.sdt();
 
         String expectedTree = "[]-+\n" +
                 "  []-TRUE: s1\n" +
@@ -72,14 +72,7 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
-        SymbolicDataValue.Parameter p1 = new SymbolicDataValue.Parameter(T_UID, 1);
-        SymbolicDataValue.Parameter p2 = new SymbolicDataValue.Parameter(T_PWD, 2);
-
-        PIV testPiv =  new PIV();
-        testPiv.put(p1, new SymbolicDataValue.Register(T_UID, 1));
-        testPiv.put(p2, new SymbolicDataValue.Register(T_PWD, 2));
-
-        Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
+        Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, sdt);
 
         Assert.assertEquals(b.getBranches().size(), 1);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());

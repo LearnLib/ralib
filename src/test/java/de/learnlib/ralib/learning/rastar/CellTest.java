@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.data.SDTRelabeling;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -72,11 +73,11 @@ public class CellTest extends RaLibTestSuite {
 
         Cell c = Cell.computeCell(oracle, prefix, symSuffix);
 
-        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));
+        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorableValues().toArray()));
         logger.log(Level.FINE, "Cell: {0}", c.toString());
 
         Assert.assertTrue(c.couldBeEquivalentTo(c));
-        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
+        Assert.assertTrue(c.isEquivalentTo(c, new SDTRelabeling()));
 
     }
 

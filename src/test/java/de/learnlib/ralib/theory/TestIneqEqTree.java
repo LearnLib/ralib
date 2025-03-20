@@ -102,24 +102,29 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SDT sdt = res.getSdt();
+        SDT sdt = res.sdt();
 
-        SuffixValueGenerator sgen = new SuffixValueGenerator();
-        RegisterGenerator rgen = new RegisterGenerator();
-        ParameterGenerator pgen = new ParameterGenerator();
-        SuffixValue s1 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        SuffixValue s2 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        SuffixValue s3 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Register r1 = rgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Register r2 = rgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Parameter p1 = pgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Parameter p2 = pgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        PIV piv = new PIV();
-        piv.put(p1, r1);
-        piv.put(p2, r2);
-        VarMapping<Register, Register> renaming = new VarMapping<>();
-        renaming.put(r1, res.getPiv().get(p1));
-        renaming.put(r2, res.getPiv().get(p2));
+        final String expectedTree = "[r1, r2]-+\n" +
+                "        []-(s1!=1.0[DOUBLE])\n" +
+                "         |    []-TRUE: s2\n" +
+                "         |          []-TRUE: s3\n" +
+                "         |                [Leaf-]\n" +
+                "         +-(s1=1.0[DOUBLE])\n" +
+                "              []-(s2=2.0[DOUBLE])\n" +
+                "               |    []-(s3!=s2)\n" +
+                "               |     |    [Leaf-]\n" +
+                "               |     +-(s3=s2)\n" +
+                "               |          [Leaf+]\n" +
+                "               +-(s2<2.0[DOUBLE])\n" +
+                "               |    []-(s3!=s2)\n" +
+                "               |     |    [Leaf-]\n" +
+                "               |     +-(s3=s2)\n" +
+                "               |          [Leaf+]\n" +
+                "               +-(s2>2.0[DOUBLE])\n" +
+                "                    []-(s3!=2.0[DOUBLE])\n" +
+                "                     |    [Leaf-]\n" +
+                "                     +-(s3=2.0[DOUBLE])\n" +
+                "                          [Leaf+]\n";
 
         SDT expected = new SDT(Map.of(
         		new EqualityGuard(s1,r1), new SDT(Map.of(
@@ -133,19 +138,8 @@ public class TestIneqEqTree extends RaLibTestSuite {
         				new SDTTrueGuard(s2), new SDT(Map.of(
         						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
-        Assert.assertTrue(sdt.isEquivalent(expected, renaming));
-
-        p1 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 1);
-        p2 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 2);
-        Parameter p3 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 3);
-
-        PIV testPiv = new PIV();
-        testPiv.put(p1, new Register(PriorityQueueSUL.DOUBLE_TYPE, 1));
-        testPiv.put(p2, new Register(PriorityQueueSUL.DOUBLE_TYPE, 2));
-        testPiv.put(p3, new Register(PriorityQueueSUL.DOUBLE_TYPE, 3));
-
         Branching b = mto.getInitialBranching(
-                prefix, PriorityQueueSUL.OFFER, testPiv, sdt);
+                prefix, PriorityQueueSUL.OFFER, sdt);
 
         Assert.assertEquals(b.getBranches().size(), 2);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());

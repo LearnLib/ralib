@@ -21,6 +21,8 @@ package de.learnlib.ralib.tools.theories;
 import java.math.BigDecimal;
 import java.util.*;
 
+import de.learnlib.ralib.data.*;
+import gov.nasa.jpf.constraints.api.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
@@ -100,7 +103,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
         List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
         if (g instanceof SDTGuard.EqualityGuard eualityGuard) {
             // pick up the register
-            SymbolicDataValue si = eualityGuard.register();
+            SymbolicDataValue si = (SymbolicDataValue) eualityGuard.register();
             // get the register value from the valuation
             DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
@@ -110,7 +113,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
         } else if (g instanceof SDTGuard.DisequalityGuard disequalityGuard) {
             // pick up the register
-            SymbolicDataValue si = disequalityGuard.register();
+            SymbolicDataValue si = (SymbolicDataValue) disequalityGuard.register();
             // get the register value from the valuation
             DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
@@ -121,21 +124,23 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
         } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
             if (!iGuard.isBiggerGuard()) {
-                SymbolicDataValue r = iGuard.rightLimit();
+                SDTGuardElement r =  iGuard.rightLimit();
                 assert r != null;
-                DataValue ri = new DataValue(type, val.getValue(r));
+                DataValue ri = (r instanceof DataValue) ? (DataValue) r :
+                        new DataValue(type, (BigDecimal) val.getValue( (Variable) r));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getValue()));
                 // add the constant equivalence expression to the list
-                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r));
+                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r.asExpression()));
 
             }
             if (!iGuard.isSmallerGuard()) {
-                SymbolicDataValue l = iGuard.leftLimit();
+                SDTGuardElement l = iGuard.leftLimit();
                 assert l != null;
-                DataValue li = new DataValue(type, val.getValue(l));
+                DataValue li = (l instanceof DataValue) ? (DataValue) l :
+                        new DataValue(type, (BigDecimal) val.getValue( (Variable) l));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getValue()));
                 // add the constant equivalence expression to the list
-                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l));
+                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l.asExpression()));
 
             }
         }
@@ -182,7 +187,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             }
 
             Expression<Boolean> _x = ExpressionUtil.and(eList);
-//                    System.out.println("SOLVING: " + _x + " with " + newVal);
+                    //System.out.println("SOLVING: " + _x + " with " + newVal);
             res = solver.solve(_x, newVal);
 //                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
         }

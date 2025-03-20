@@ -21,6 +21,7 @@ package de.learnlib.ralib.theory;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
@@ -32,7 +33,7 @@ final public class IntervalGuardUtil  {
     // FIXME: g method should have a better name
     public static SDTGuard.EqualityGuard toEqGuard(SDTGuard.IntervalGuard g) {
         assert !g.isIntervalGuard();
-        SymbolicDataValue r = null;
+        SDTGuardElement r = null;
         if (g.isSmallerGuard()) {
             r = g.rightLimit();
         }
@@ -45,7 +46,7 @@ final public class IntervalGuardUtil  {
     // FIXME: g method should have a better name
     public SDTGuard.DisequalityGuard toDeqGuard(SDTGuard.IntervalGuard g) {
         assert !g.isIntervalGuard();
-        SymbolicDataValue r = null;
+        SDTGuardElement r = null;
         if (g.isSmallerGuard()) {
             r = g.rightLimit();
         }
@@ -64,7 +65,7 @@ final public class IntervalGuardUtil  {
     // merge bigger with something
     private static Set<SDTGuard> bMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue l = g.leftLimit();
+        SDTGuardElement l = g.leftLimit();
         if (other.isBiggerGuard()) {
             //          System.out.println("other " + other + " is bigger");
             guards.add(g);
@@ -101,7 +102,7 @@ final public class IntervalGuardUtil  {
     // merge smaller with something
     private static Set<SDTGuard> sMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue r = g.rightLimit();
+        SDTGuardElement r = g.rightLimit();
         if (other.isBiggerGuard()) {
             return bMergeIntervals(other, g);
         } else if (other.isSmallerGuard()) {
@@ -124,15 +125,15 @@ final public class IntervalGuardUtil  {
     // merge interval with something
     private static Set<SDTGuard> iMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SymbolicDataValue l = g.leftLimit();
-        SymbolicDataValue r = g.rightLimit();
+        SDTGuardElement l = g.leftLimit();
+        SDTGuardElement r = g.rightLimit();
         if (other.isBiggerGuard()) {
             return bMergeIntervals(other, g);
         } else if (other.isSmallerGuard()) {
             return sMergeIntervals(other, g);
         } else {
-            SymbolicDataValue oL = other.leftLimit();
-            SymbolicDataValue oR = other.rightLimit();
+            SDTGuardElement oL = other.leftLimit();
+            SDTGuardElement oR = other.rightLimit();
             if (l.equals(oR)) {
                 if (r.equals(oL)) {
                     guards.add(new SDTGuard.DisequalityGuard(g.parameter(), l));

@@ -133,18 +133,18 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         String expectedTree = "[r1, r2]-+\n" +
                 "        []-TRUE: s1\n" +
                 "              []-TRUE: s2\n" +
-                "                    []-(s3=r1)\n" +
-                "                     |    []-(s4=r2)\n" +
+                "                    []-(s3=0[int])\n" +
+                "                     |    []-(s4=1[int])\n" +
                 "                     |     |    []-(s5=s1)\n" +
                 "                     |     |          []-(s6=s2)\n" +
                 "                     |     |           |    [Leaf+]\n" +
                 "                     |     |           +-(s6!=s2)\n" +
                 "                     |     |                [Leaf-]\n" +
-                "                     |     +-(s4!=r2)\n" +
+                "                     |     +-(s4!=1[int])\n" +
                 "                     |          []-(s5=s1)\n" +
                 "                     |                []-TRUE: s6\n" +
                 "                     |                      [Leaf-]\n" +
-                "                     +-(s3!=r1)\n" +
+                "                     +-(s3!=0[int])\n" +
                 "                          []-TRUE: s4\n" +
                 "                                []-(s5=s1)\n" +
                 "                                      []-TRUE: s6\n" +
@@ -271,9 +271,8 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", suffix);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, suffix);
-        String tree = tqr.getSdt().toString();
+        String tree = tqr.sdt().toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}",tree);
 
         Assert.assertEquals(tree, expectedTree);

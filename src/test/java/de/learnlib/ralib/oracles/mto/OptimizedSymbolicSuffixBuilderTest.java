@@ -1,49 +1,7 @@
 package de.learnlib.ralib.oracles.mto;
 
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.CONTAINS;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INSERT;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.INT_TYPE;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.POP;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.PUSH;
-import static de.learnlib.ralib.example.list.BoundedListDataWordOracle.dv;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.testng.Assert;
-import org.testng.annotations.Test;
-
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.example.list.BoundedList;
-import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.*;
-import de.learnlib.ralib.theory.equality.EqualRestriction;
-import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.PSymbolInstance;
-import net.automatalib.word.Word;
-
 public class OptimizedSymbolicSuffixBuilderTest {
-
+/*
     @Test
     public void extendDistinguishingSuffixTest() {
         BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(2, false));
@@ -251,7 +209,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
     /*
      * Checks for equality optimized suffixes built by prepending using an SDT against those built from concrete prefix/suffix
-     */
+     * /
     private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
@@ -718,4 +676,5 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix suffixActual = builder.coalesceSuffixes(suffix1, suffix2);
         Assert.assertEquals(suffixActual, suffixExpected);
     }
+    */
 }

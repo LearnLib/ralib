@@ -16,24 +16,15 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.util.RemappingIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -58,7 +49,7 @@ public class Component implements LocationComponent {
 
     private final Row primeRow;
 
-    private final Map<Row, VarMapping> otherRows = new LinkedHashMap<>();
+    private final Map<Row, Bijection<DataValue>> otherRows = new LinkedHashMap<>();
 
     private final ObservationTable obs;
 
@@ -97,11 +88,11 @@ public class Component implements LocationComponent {
             return false;
         }
 
-        PIVRemappingIterator iterator = new PIVRemappingIterator(
-                r.getParsInVars(), primeRow.getParsInVars());
+        RemappingIterator<DataValue> iterator = new RemappingIterator<>(
+                r.memorableValues(), primeRow.memorableValues());
 
-        for (VarMapping m : iterator) {
-            if (r.isEquivalentTo(primeRow, m)) {
+        for (Bijection<DataValue> m : iterator) {
+            if (r.isEquivalentTo(primeRow,  SDTRelabeling.fromBijection(m))) {
                 this.otherRows.put(r, m);
                 return true;
             }
@@ -120,7 +111,7 @@ public class Component implements LocationComponent {
 
             SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
             Branching b = oracle.getInitialBranching(
-                    getAccessSequence(), ps, primeRow.getParsInVars(), sdts);
+                    getAccessSequence(), ps, sdts);
 
             branching.put(ps, b);
             for (Word<PSymbolInstance> prefix : b.getBranches().keySet()) {
@@ -138,7 +129,7 @@ public class Component implements LocationComponent {
         }
 
         primeRow.addSuffix(suffix, oracle);
-        Map<Row, VarMapping> otherOld = new LinkedHashMap<>(otherRows);
+        Map<Row, Bijection<DataValue>> otherOld = new LinkedHashMap<>(otherRows);
         otherRows.clear();
         List<Component> newComponents = new ArrayList<>();
 
@@ -179,8 +170,7 @@ public class Component implements LocationComponent {
     private boolean updateBranching(ParameterizedSymbol ps, TreeOracle oracle) {
         Branching b = branching.get(ps);
         SDT[] sdts = primeRow.getSDTsForInitialSymbol(ps);
-        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b,
-                primeRow.getParsInVars(), sdts);
+        Branching newB = oracle.updateBranching(getAccessSequence(), ps, b, sdts);
         boolean ret = true;
 
         LOGGER.trace(Category.DATASTRUCTURE, "OLD: {}", Arrays.toString(b.getBranches().keySet().toArray()));
@@ -214,17 +204,19 @@ public class Component implements LocationComponent {
         }
 
         Word<PSymbolInstance> prefix = r.getPrefix().prefix(r.getPrefix().length() -1);
+        Set<DataValue> curData = DataWords.valSet(r.getPrefix().suffix(1));
+
         Row prefixRow = obs.getComponents().get(prefix).primeRow;
 
-        PIV memPrefix = prefixRow.getParsInVars();
-        PIV memRow = r.getParsInVars();
+        List<DataValue> memPrefix = prefixRow.memorableValues();
+        List<DataValue> memRow = r.memorableValues();
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
 
-        for (Parameter p : memRow.keySet()) {
-            // p is used by next but not stored by this and is from this word
-            if (!memPrefix.containsKey(p) && p.getId() <= max) {
-                SymbolicSuffix suffix = r.getSuffixForMemorable(p);
+        for (DataValue d : memRow) {
+            // d is used by next but not stored by this and is from this word
+            if (!memPrefix.contains(d) && !curData.contains(d)) {
+                SymbolicSuffix suffix = r.getSuffixForMemorable(d);
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
                         r.getPrefix(), suffix, restrictionBuilder);
 
@@ -256,8 +248,12 @@ public class Component implements LocationComponent {
     }
 
     @Override
-    public VarMapping getRemapping(PrefixContainer r) {
-        return this.otherRows.get(r);
+    public Bijection<DataValue> getRemapping(PrefixContainer r) {
+        Row row = (Row) r;
+        if (r == primeRow) {
+            return Bijection.identity(row.memorableValues());
+        }
+        return this.otherRows.get( row );
     }
 
     public Row getPrimeRow() {
@@ -284,13 +280,13 @@ public class Component implements LocationComponent {
     @Override
     public String toString() {
         return primeRow.getPrefix().toString() + " " +
-                primeRow.getParsInVars() + " " +
+                primeRow.getAssignment() + " " +
                 Arrays.toString(this.otherRows.keySet().toArray());
     }
 
     void toString(StringBuilder sb) {
         sb.append("********** COMPONENT: ").append(getAccessSequence()).append("\n");
-        sb.append("PIV: ").append(this.primeRow.getParsInVars()).append("\n");
+        sb.append("PIV: ").append(this.primeRow.getAssignment()).append("\n");
         sb.append("******** PREFIXES: ").append("\n");
         for (Row r : getOtherRows()) {
             sb.append(r.getPrefix()).append("\n");
@@ -305,7 +301,7 @@ public class Component implements LocationComponent {
         }
         sb.append("******** ROWS: ").append("\n");
         this.primeRow.toString(sb);
-        for (Entry<Row, VarMapping> e : otherRows.entrySet()) {
+        for (Entry<Row, Bijection<DataValue>> e : otherRows.entrySet()) {
             e.getKey().toString(sb);
             sb.append("==== remapping: ").append(e.getValue()).append("\n");
         }

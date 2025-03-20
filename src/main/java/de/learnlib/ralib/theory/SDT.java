@@ -16,23 +16,13 @@
  */
 package de.learnlib.ralib.theory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
-import de.learnlib.ralib.data.Bijection;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -42,6 +32,7 @@ import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import net.automatalib.word.Word;
 
 /**
  * Implementation of Symbolic Decision Trees.
@@ -61,12 +52,33 @@ public class SDT {
      *
      * @return
      */
+    // fixme: SDTs cannot have registers anymore, this should probably be data values!
     public Set<Register> getRegisters() {
-        Set<Register> registers = new LinkedHashSet<>();
-        this.getVariables().stream().filter((x) -> (x.isRegister())).forEach((x) -> {
-            registers.add((Register) x);
+        Set<DataValue> temp = new LinkedHashSet<>();
+        this.getVariables().stream().filter(SDTGuardElement::isDataValue).forEach((x) -> {
+            temp.add((DataValue) x);
         });
+
+        DataValue[] prefixValue = temp.toArray(new DataValue[] {});
+        Arrays.sort(prefixValue);
+
+        Set<Register> registers = new LinkedHashSet<>();
+        SymbolicDataValueGenerator.RegisterGenerator regGen =
+                new SymbolicDataValueGenerator.RegisterGenerator();
+        for (DataValue dv : prefixValue) {
+            registers.add(regGen.next(dv.getDataType()));
+        }
+
         return registers;
+    }
+
+    public List<DataValue> getDataValues() {
+        return getVariables().stream()
+                .filter(SDTGuardElement::isDataValue)
+                .map( d -> (DataValue) d )
+                .distinct()
+                .sorted()
+                .toList();
     }
 
     public int getHeight() {
@@ -77,15 +89,15 @@ public class SDT {
         }
     }
 
-    public Set<SymbolicDataValue> getVariables() {
-        Set<SymbolicDataValue> variables = new LinkedHashSet<>();
+    public Set<SDTGuardElement> getVariables() {
+        Set<SDTGuardElement> variables = new LinkedHashSet<>();
         for (Entry<SDTGuard, SDT> e : children.entrySet()) {
             SDTGuard g = e.getKey();
             if (g instanceof SDTGuard.EqualityGuard eg) {
-                SymbolicDataValue r = eg.register();
+                SDTGuardElement r = eg.register();
                 variables.add(r);
             } else if (g instanceof SDTGuard.DisequalityGuard dg) {
-                SymbolicDataValue r = dg.register();
+                SDTGuardElement r = dg.register();
                 variables.add(r);
             } else if (g instanceof SDTGuard.SDTAndGuard ag) {
                 for (SDTGuard ifG : ag.conjuncts()) {
@@ -152,7 +164,16 @@ public class SDT {
     }
 
     public boolean isEquivalent(
-            SDT other, VarMapping renaming) {
+            SDT other, Bijection<DataValue> renaming) {
+        SDT otherSDT =  other;
+
+        SDTRelabeling relabelling = new SDTRelabeling();
+        relabelling.putAll(renaming);
+        return isEquivalent(otherSDT, relabelling);
+    }
+
+    public boolean isEquivalent(
+            SDT other, SDTRelabeling renaming) {
         if (other instanceof SDTLeaf) {
             return false;
         }
@@ -171,7 +192,7 @@ public class SDT {
             }
             return false;
         }
-        VarMapping eqRenaming = new VarMapping<>();
+        SDTRelabeling eqRenaming = new SDTRelabeling();
         for (SDTGuard.EqualityGuard d : ds) {
             eqRenaming.put(d.parameter(), d.register());
         }
@@ -182,14 +203,14 @@ public class SDT {
     }
 
     public SDT relabelUnderEq(List<SDTGuard.EqualityGuard> ds) {
-        VarMapping eqRenaming = new VarMapping<>();
+        SDTRelabeling eqRenaming = new SDTRelabeling();
         for (SDTGuard.EqualityGuard d : ds) {
             eqRenaming.put(d.parameter(), d.register());
         }
         return  this.relabel(eqRenaming);
     }
 
-    public SDT relabel(VarMapping relabelling) {
+    public SDT relabel(SDTRelabeling relabelling) {
         //System.out.println("relabeling " + relabelling);
         SDT thisSdt = this;
         if (relabelling.isEmpty()) {
@@ -346,19 +367,11 @@ public class SDT {
         if (paths.isEmpty()) {
             return ExpressionUtil.FALSE;
         }
-        Expression<Boolean> dis = null;
-        for (List<SDTGuard> list : paths) {
-            List<Expression<Boolean>> expr = new ArrayList<>();
-            for (SDTGuard g : list) {
-                expr.add(SDTGuard.toExpr(g));
-            }
-            Expression<Boolean> con = ExpressionUtil.and(
-                    expr.toArray(new Expression[] {}));
-
-            dis = (dis == null) ? con : ExpressionUtil.or(dis, con);
-        }
-
-        return dis;
+        return ExpressionUtil.or(
+                paths.stream().map(p -> ExpressionUtil.and(p.stream()
+                        .map(SDTGuard::toExpr)
+                        .toArray(Expression[]::new)))
+                        .toArray(Expression[]::new));
     }
 
     public Map<Expression<Boolean>, Boolean> getGuardExpressions(Constants consts) {
@@ -489,29 +502,29 @@ public class SDT {
 	 * @param solver
 	 * @return
 	 */
-	public static Bijection equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection bi, ConstraintSolver solver) {
-		sdt1 = sdt1.relabel(bi.toVarMapping());
-		Set<Register> regs1 = sdt1.getRegisters();
-		Set<Register> regs2 = sdt2.getRegisters();
+	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection<DataValue> bi, ConstraintSolver solver) {
+		sdt1 = sdt1.relabel(SDTRelabeling.fromBijection(bi));
+		List<DataValue> regs1 = sdt1.getDataValues();
+        List<DataValue> regs2 = sdt2.getDataValues();
 
 		if (regs1.size() != regs2.size()) {
 			return null;
 		}
 
-		if (regs1.containsAll(regs2)) {
+		if (new HashSet<>(regs1).containsAll(regs2)) {
 			return sdt1.isEquivalent(sdt2, solver) ? bi : null;
 		}
 
-		Set<Register> replace = new LinkedHashSet<>(regs1);
+		Set<DataValue> replace = new LinkedHashSet<>(regs1);
 		replace.removeAll(bi.values());
-		Set<Register> by = new LinkedHashSet<>(regs2);
+		Set<DataValue> by = new LinkedHashSet<>(regs2);
 		by.removeAll(bi.values());
 
-		RemappingIterator it = new RemappingIterator(replace, by);
+		RemappingIterator<DataValue> it = new RemappingIterator<>(replace, by);
 		while (it.hasNext()) {
-			Bijection vars = it.next();
-			if (sdt2.isEquivalent(sdt1.relabel(vars.toVarMapping()), solver)) {
-				Bijection b = new Bijection();
+			Bijection<DataValue> vars = it.next();
+			if (sdt2.isEquivalent(sdt1.relabel(SDTRelabeling.fromBijection(vars)), solver)) {
+				Bijection<DataValue> b = new Bijection<>();
 				b.putAll(bi);
 				b.putAll(vars);
 				return b;
@@ -529,8 +542,8 @@ public class SDT {
 	 * @param solver
 	 * @return
 	 */
-	public static Bijection equivalentUnderBijection(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
-		return equivalentUnderBijection(sdt1, sdt2, new Bijection(), solver);
+	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
+		return equivalentUnderBijection(sdt1, sdt2, new Bijection<>(), solver);
 	}
 
 	/**

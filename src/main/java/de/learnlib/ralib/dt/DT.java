@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import de.learnlib.ralib.data.Bijection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.LocationComponent;
@@ -24,7 +24,6 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
 import de.learnlib.ralib.learning.ralambda.RaLambda;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
@@ -88,7 +87,7 @@ public class DT implements DiscriminationTree {
         if (leaf != null) {
             return leaf;
         }
-        MappedPrefix mp = new MappedPrefix(prefix, new PIV());
+        MappedPrefix mp = new MappedPrefix(prefix, new Bijection<>());
         DTLeaf result = sift(mp, root, add);
         return result;
     }
@@ -96,7 +95,7 @@ public class DT implements DiscriminationTree {
     public void initialize() {
         if (ioMode) {
             DTInnerNode parent = root;
-            MappedPrefix epsilon = new MappedPrefix(RaLambda.EMPTY_PREFIX, new PIV());
+            MappedPrefix epsilon = new MappedPrefix(RaLambda.EMPTY_PREFIX, new Bijection<>());
             for (ParameterizedSymbol symbol : inputs) {
                 if (symbol instanceof OutputSymbol) {
                     DTInnerNode outputNode = new DTInnerNode(new SymbolicSuffix(symbol));
@@ -145,7 +144,7 @@ public class DT implements DiscriminationTree {
                 //tqr = mp.computeTQR(suffix, oracle);
                 PathResult r = PathResult.computePathResult(oracle, mp, inner.getSuffixes(), ioMode);
                 assert !mp.getTQRs().containsKey(suffix);
-                mp.addTQR(suffix, r.getTQRforSuffix(suffix));
+                mp.addTQR(suffix, r.getSDTforSuffix(suffix));
                 leaf.setAccessSequence(mp);
                 DTBranch branch = new DTBranch(leaf, r);
                 inner.addBranch(branch);
@@ -154,8 +153,9 @@ public class DT implements DiscriminationTree {
                 leaf.updateBranching(this);
                 return leaf;
             }
-            TreeQueryResult tqr = siftRes.getValue().getTQRforSuffix(suffix);
+            SDT tqr = siftRes.getValue().getSDTforSuffix(suffix);
             mp.addTQR(suffix, tqr);
+            mp.updateRemapping(siftRes.getValue().getRemapping());
             if (!siftRes.getKey().isLeaf()) {
                 inner = (DTInnerNode) siftRes.getKey();
             } else {
@@ -189,7 +189,7 @@ public class DT implements DiscriminationTree {
         DTLeaf newLeaf = new DTLeaf(mp, oracle);
         newLeaf.setParent(node);
         PathResult r = PathResult.computePathResult(oracle, mp, node.getSuffixes(), ioMode);
-        TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        SDT tqr = r.getSDTforSuffix(suffix);
         assert !mp.getTQRs().containsKey(suffix);
         mp.addTQR(suffix, tqr);
 
@@ -203,7 +203,7 @@ public class DT implements DiscriminationTree {
 
         //TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
-        TreeQueryResult tqr2 = r2.getTQRforSuffix(suffix);
+        SDT tqr2 = r2.getSDTforSuffix(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr2);
         //        assert !tqr.getSdt().isEquivalent(tqr2.getSdt(), new VarMapping<>());
         DTBranch b = new DTBranch(leaf, r2);
@@ -231,7 +231,7 @@ public class DT implements DiscriminationTree {
 
         //TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
-        TreeQueryResult tqr = r.getTQRforSuffix(suffix);
+        SDT tqr = r.getSDTforSuffix(suffix);
         assert !leaf.getPrimePrefix().getTQRs().containsKey(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr);
 
@@ -287,7 +287,7 @@ public class DT implements DiscriminationTree {
     public boolean checkIOSuffixes() {
     	if (ioMode) {
     		for (DTBranch b : root.getBranches()) {
-    			if (b.getUrap().getTQRforSuffix(root.getSuffix()).getSdt().isAccepting())
+    			if (b.getUrap().getSDTforSuffix(root.getSuffix()).isAccepting())
     				return checkIOSuffixes(b.getChild());
     		}
     		throw new java.lang.RuntimeException("No accepting child of root");

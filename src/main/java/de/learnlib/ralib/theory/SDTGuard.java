@@ -18,6 +18,8 @@ package de.learnlib.ralib.theory;
 
 import java.util.*;
 
+import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.VarMapping;
@@ -42,10 +44,10 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() { return Set.of(); }
+        public Set<SDTGuardElement> getRegisters() { return Set.of(); }
     }
 
-    record EqualityGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue register) implements SDTGuard {
+    record EqualityGuard(SymbolicDataValue.SuffixValue parameter, SDTGuardElement register) implements SDTGuard {
         @Override
         public String toString() {
             return "(" + parameter + "=" + register + ")";
@@ -55,10 +57,10 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() { return Set.of(register); }
+        public Set<SDTGuardElement> getRegisters() { return Set.of(register); }
     }
 
-    record DisequalityGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue register) implements SDTGuard {
+    record DisequalityGuard(SymbolicDataValue.SuffixValue parameter, SDTGuardElement register) implements SDTGuard {
         @Override
         public String toString() {
             return "(" + parameter + "!=" +register + ")";
@@ -68,10 +70,10 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() { return Set.of(register); }
+        public Set<SDTGuardElement> getRegisters() { return Set.of(register); }
     }
 
-    record IntervalGuard(SymbolicDataValue.SuffixValue parameter, SymbolicDataValue leftLimit, SymbolicDataValue rightLimit) implements SDTGuard {
+    record IntervalGuard(SymbolicDataValue.SuffixValue parameter, SDTGuardElement leftLimit, SDTGuardElement rightLimit) implements SDTGuard {
         @Override
         public String toString() {
             // TODO: align second case and make one statement
@@ -84,8 +86,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() {
-            Set<SymbolicDataValue> regs = new LinkedHashSet<>();
+        public Set<SDTGuardElement> getRegisters() {
+            Set<SDTGuardElement> regs = new LinkedHashSet<>();
             if (leftLimit != null) regs.add(leftLimit);
             if (rightLimit != null) regs.add(rightLimit);
             return regs;
@@ -116,8 +118,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() {
-            Set<SymbolicDataValue> ret = new HashSet<>();
+        public Set<SDTGuardElement> getRegisters() {
+            Set<SDTGuardElement> ret = new HashSet<>();
             conjuncts.stream().forEach( x -> ret.addAll(x.getRegisters() ));
             return ret;
         }
@@ -153,8 +155,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public SuffixValue getParameter() {return this.parameter; }
 
         @Override
-        public Set<SymbolicDataValue> getRegisters() {
-            Set<SymbolicDataValue> ret = new HashSet<>();
+        public Set<SDTGuardElement> getRegisters() {
+            Set<SDTGuardElement> ret = new HashSet<>();
             disjuncts.stream().forEach( x -> ret.addAll(x.getRegisters() ));
             return ret;
         }
@@ -183,10 +185,10 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
 
     SuffixValue getParameter();
 
-    Set<SymbolicDataValue> getRegisters();
+    Set<SDTGuardElement> getRegisters();
 
-    static Set<SymbolicDataValue> getComparands(SDTGuard in, SymbolicDataValue dv) {
-        Set<SymbolicDataValue> comparands = new LinkedHashSet<>();
+    static Set<SDTGuardElement> getComparands(SDTGuard in, SDTGuardElement dv) {
+        Set<SDTGuardElement> comparands = new LinkedHashSet<>();
         switch (in) {
             case SDTGuard.EqualityGuard g:
                 if (g.parameter.equals(dv)) comparands.add(g.register);
@@ -236,13 +238,13 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         }
     }
 
-    private static <T extends SymbolicDataValue> T newValueIfExists(VarMapping relabelling, T oldValue) {
-        if (oldValue == null || oldValue.isConstant()) return oldValue;
+    private static <T extends SDTGuardElement> T newValueIfExists(SDTRelabeling relabelling, T oldValue) {
+        if (oldValue == null || SDTGuardElement.isConstant(oldValue)) return oldValue;
         T newValue = (T) relabelling.get(oldValue);
         return newValue != null ? newValue : oldValue;
     }
 
-    static SDTGuard relabel(SDTGuard in, VarMapping remap) {
+    static SDTGuard relabel(SDTGuard in, SDTRelabeling remap) {
         switch (in) {
             case SDTGuard.EqualityGuard g:
                 return new SDTGuard.EqualityGuard(newValueIfExists(remap, g.parameter),
@@ -269,14 +271,14 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
     static Expression<Boolean> toExpr(SDTGuard in) {
         switch (in) {
             case SDTGuard.EqualityGuard g:
-                return new NumericBooleanExpression(g.register, NumericComparator.EQ, g.parameter);
+                return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.EQ, g.parameter);
             case SDTGuard.DisequalityGuard g:
-                return new NumericBooleanExpression(g.register, NumericComparator.NE, g.parameter);
+                return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.NE, g.parameter);
             case SDTGuard.IntervalGuard g:
-                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit);
-                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit);
-                Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit);
-                Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit);
+                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit.asExpression());
+                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit.asExpression());
+                Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit.asExpression());
+                Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit.asExpression());
                 return ExpressionUtil.and(smaller, bigger);
             case SDTGuard.SDTAndGuard g:
                 List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
@@ -304,7 +306,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.IntervalGuard g:
                 // FIXME: copied from old implementation but does not seem to make sense
                 assert !g.isIntervalGuard();
-                SymbolicDataValue r = g.isSmallerGuard() ? g.rightLimit : g.leftLimit;
+                SDTGuardElement r = g.isSmallerGuard() ? g.rightLimit : g.leftLimit;
                 return new DisequalityGuard(g.parameter,r);
             case SDTGuard.SDTAndGuard g:
                 throw new RuntimeException("not refactored yet");

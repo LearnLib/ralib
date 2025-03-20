@@ -6,7 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
@@ -25,7 +26,7 @@ public class PrefixSet {
 		prefixes.add(p);
 	}
 
-	public void add(Word<PSymbolInstance> p, PIV piv) {
+	public void add(Word<PSymbolInstance> p, Bijection<DataValue> piv) {
 		prefixes.add(new MappedPrefix(p, piv));
 	}
 

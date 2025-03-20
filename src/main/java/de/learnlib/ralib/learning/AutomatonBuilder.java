@@ -20,6 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.smt.ReplacingValuesVisitor;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +30,8 @@ import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -131,12 +129,17 @@ public class AutomatonBuilder {
 
         // guard
         Branching b = src_c.getBranching(action);
-//        System.out.println("b.getBranches is  " + b.getBranches().toString());
-//        System.out.println("getting guard for  " + r.getPrefix().toString());
+        //System.out.println("b.getBranches is  " + b.getBranches().toString());
+        //System.out.println("getting guard for  " + r.getPrefix().toString());
         Expression<Boolean> guard = b.getBranches().get(r.getPrefix());
+        //System.out.println("assignment: " + src_c.getPrimePrefix().getAssignment());
         if (guard == null) {
-        	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getParsInVars(), b.getBranches(), consts);
+        	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getAssignment(), b.getBranches(), consts);
         }
+
+        ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+        guard = rvv.apply( guard, src_c.getPrimePrefix().getAssignment());
+
 
         // TODO: better solution
         // guard is null because r is transition from a short prefix
@@ -147,32 +150,12 @@ public class AutomatonBuilder {
         assert guard!=null;
 
         // assignment
-        VarMapping assignments = new VarMapping();
-        int max = DataWords.paramLength(DataWords.actsOf(src_id));
-        PIV parsInVars_Src = src_c.getPrimePrefix().getParsInVars();
-        PIV parsInVars_Row = r.getParsInVars();
-        VarMapping remapping = dest_c.getRemapping(r);
 
-//        LOGGER.trace(Category.EVENT, "PIV ROW: {}", parsInVars_Row);
-//        LOGGER.trace(Category.EVENT, "PIV SRC: {}", parsInVars_Src);
-//        LOGGER.trace(Category.EVENT, "REMAP: {}", remapping);
+        RegisterAssignment srcAssign = src_c.getPrimePrefix().getAssignment();
+        RegisterAssignment destAssign = dest_c.getPrimePrefix().getAssignment();
+        Bijection<DataValue> remapping = dest_c.getRemapping(r);
+        Assignment assign = computeAssignment(r.getPrefix(), srcAssign, destAssign, remapping);
 
-        //System.out.println(parsInVars_Row);
-        for (Entry<Parameter, Register> e : parsInVars_Row) {
-            // param or register
-            Parameter p = e.getKey();
-            // remapping is null for prime rows ...
-            Register rNew = (remapping == null) ? e.getValue() : (Register) remapping.get(e.getValue());
-            if (p.getId() > max) {
-                Parameter pNew = new Parameter(p.getDataType(), p.getId() - max);
-                assignments.put(rNew, pNew);
-            } else {
-                Register rOld = parsInVars_Src.get(p);
-                assert rOld != null;
-                assignments.put(rNew, rOld);
-            }
-        }
-        Assignment assign = new Assignment(assignments);
         //System.out.println(assign);
 
         // create transition
@@ -189,15 +172,48 @@ public class AutomatonBuilder {
         return new Transition(action, guard, src_loc, dest_loc, assign);
     }
 
-    public static Expression<Boolean> findMatchingGuard(Word<PSymbolInstance> dw, PIV piv, Map<Word<PSymbolInstance>, Expression<Boolean>> branches, Constants consts) {
-    	ParameterValuation pars = ParameterValuation.fromPSymbolWord(dw);
-    	RegisterValuation vars = DataWords.computeRegisterValuation(ParameterValuation.fromPSymbolWord(dw.prefix(dw.length() - 1)), piv);
+    public static Expression<Boolean> findMatchingGuard(Word<PSymbolInstance> dw, RegisterAssignment div, Map<Word<PSymbolInstance>, Expression<Boolean>> branches, Constants consts) {
+    	//System.out.println("findMatchingGuard: " + div);
+        ParameterValuation pars = ParameterValuation.fromPSymbolWord(dw);
+    	//RegisterValuation vars = div.registerValuation();
     	for (Expression<Boolean> g : branches.values()) {
-    		if (g.evaluateSMT(SMTUtil.compose(vars, pars, consts))) {
+    		if (g.evaluateSMT(SMTUtil.compose(pars, consts))) {
     			return g;
     		}
     	}
     	return null;
+    }
+
+    public static Assignment computeAssignment(Word<PSymbolInstance> prefix, RegisterAssignment srcAssign,
+                                               RegisterAssignment destAssign, Bijection<DataValue> remapping) {
+
+        VarMapping<Register, SymbolicDataValue> assignments = new VarMapping<>();
+        ParameterizedSymbol action = prefix.lastSymbol().getBaseSymbol();
+        DataValue[] pvals = DataWords.valsOf(prefix);
+        for (Entry<DataValue, DataValue> e : remapping.entrySet()) {
+            Register rNew = destAssign.get(e.getValue());
+            assert rNew != null;
+            if (srcAssign.containsKey(e.getKey())) {
+                // has been stored in a register before => copy register to register
+                Register rOld = srcAssign.get(e.getKey());
+                assert rOld != null;
+                assignments.put(rNew, rOld);
+            }
+            else {
+                // has not been store before => copy parameter to register
+                int id = 0;
+                for (int i=0; i< action.getArity(); i++) {
+                    if (pvals[pvals.length-action.getArity()+i].equals(e.getKey())) {
+                        id = i;
+                        break;
+                    }
+                }
+                Parameter pNew = new Parameter(e.getKey().getDataType(), id + 1);
+                assert pNew.getId() > 0;
+                assignments.put(rNew, pNew);
+            }
+        }
+        return new Assignment(assignments);
     }
 
 }

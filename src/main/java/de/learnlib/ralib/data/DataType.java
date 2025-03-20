@@ -23,7 +23,8 @@ import java.util.Objects;
  *
  * @author falk
  */
-public final class DataType {
+// todo: make a record?
+public final class DataType implements Comparable<DataType> {
 
     /**
      * name of type (defining member)
@@ -57,4 +58,8 @@ public final class DataType {
         return name;
     }
 
+    @Override
+    public int compareTo(DataType o) {
+        return this.name.compareTo(o.name);
+    }
 }

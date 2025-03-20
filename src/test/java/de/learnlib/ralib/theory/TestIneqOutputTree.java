@@ -98,7 +98,7 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SDT sdt = res.getSdt();
+        SDT sdt = res.sdt();
 
         final String expectedTree = "[r1]-+\n" +
 "    []-(s1<r1)\n" +

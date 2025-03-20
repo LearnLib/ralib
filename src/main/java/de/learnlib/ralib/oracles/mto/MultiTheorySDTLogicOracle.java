@@ -18,18 +18,13 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.Map;
 
+import de.learnlib.ralib.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
@@ -61,8 +56,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean hasCounterexample(Word<PSymbolInstance> prefix, SDT sdt1, PIV piv1,
-            SDT sdt2, PIV piv2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
+    public boolean hasCounterexample(Word<PSymbolInstance> prefix, SDT sdt1,
+            SDT sdt2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
 
         // Collection<SymbolicDataValue> join = piv1.values();
 
@@ -71,23 +66,21 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         LOGGER.trace("SDT2: {0}", sdt2);
         LOGGER.trace("Guard: {0}", guard);
 
-        SDT _sdt1 =  sdt1;
-        SDT _sdt2 =  sdt2;
-
-        Expression<Boolean>  expr1 = _sdt1.getAcceptingPaths(consts);
-        Expression<Boolean>  expr2 = _sdt2.getAcceptingPaths(consts);
+        Expression<Boolean>  expr1 = sdt1.getAcceptingPaths(consts);
+        Expression<Boolean>  expr2 = sdt2.getAcceptingPaths(consts);
         Expression<Boolean>  exprG = guard;
 
+        //System.out.println(exprG);
+
         VarMapping<SymbolicDataValue, SymbolicDataValue> gremap = new VarMapping<>();
-        for (Variable sv : ExpressionUtil.freeVariables(exprG)) {
+        for (Variable<?> sv : ExpressionUtil.freeVariables(exprG)) {
             if (sv instanceof Parameter p) {
                 gremap.put(p, new SuffixValue( p.getDataType(), p.getId()));
             }
         }
 
         exprG = SMTUtil.renameVars(exprG, gremap);
-
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+        VarMapping<Register, Register> remap = new VarMapping<>(); //piv2.createRemapping(piv1);
 
         Expression<Boolean> expr2r = SMTUtil.renameVars(expr2, remap);
 
@@ -111,8 +104,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix,
-    		SDT sdt1, PIV piv1, SDT sdt2, PIV piv2) {
+    public Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix, SDT sdt1, SDT sdt2) {
 
     	SDT _sdt1 =  sdt1;
     	SDT _sdt2 =  sdt2;
@@ -127,8 +119,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
                 Expression<Boolean> expr2 = e2.getKey();
     			boolean outcome2 = e2.getValue();
     			if (outcome1 != outcome2) {
-    				VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
-                    Expression<Boolean> test = ExpressionUtil.and(expr1, SMTUtil.renameVars(expr2, remap));
+    				//VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+                    Expression<Boolean> test = ExpressionUtil.and(expr1, expr2);
     				if (solver.isSatisfiable(test, new Mapping<>())) {
     					return expr1;
     				}
@@ -139,17 +131,15 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean doesRefine(Expression<Boolean> refining, PIV pivRefining, Expression<Boolean> refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue> valuation) {
+    public boolean doesRefine(Expression<Boolean> refining, Expression<Boolean> refined, Mapping<SymbolicDataValue, DataValue> valuation) {
 
         LOGGER.trace("refining: {0}", refining);
         LOGGER.trace("refined: {0}", refined);
-        LOGGER.trace("pivRefining: {0}", pivRefining);
-        LOGGER.trace("pivRefined: {0}", pivRefined);
 
-        VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
+        //VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
         Expression<Boolean> exprRefining = refining;
-        Expression<Boolean> exprRefined = SMTUtil.renameVars(refined, remap);
+        Expression<Boolean> exprRefined = refined; //SMTUtil.renameVars(refined, remap);
 
 
         // is there any case for which refining is true but refined is false?
@@ -161,7 +151,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         valWithConsts.putAll(valuation);
         valWithConsts.putAll(consts);
 
-        LOGGER.trace("MAP: " + remap);
+        //LOGGER.trace("MAP: " + remap);
         LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valWithConsts);
@@ -169,21 +159,16 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean areMutuallyExclusive(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation) {
+    public boolean areMutuallyExclusive(Expression<Boolean> guard1, Expression<Boolean> guard2,
+            Mapping<SymbolicDataValue, DataValue> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
-        LOGGER.trace("piv1: {0}", piv1);
-        LOGGER.trace("piv2: {0}", piv2);
-
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
 
         Expression<Boolean> exprGuard1 = guard1;
-        Expression<Boolean> exprGuard2 = SMTUtil.renameVars(guard2, remap);
+        Expression<Boolean> exprGuard2 = guard2;
 
         Expression<Boolean>  test = ExpressionUtil.and(exprGuard1, exprGuard2);
 
-        LOGGER.trace("MAP: " + remap);
         LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
@@ -191,23 +176,22 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean areEquivalent(Expression<Boolean> guard1, PIV piv1, Expression<Boolean> guard2,
-                                 PIV piv2, Mapping<SymbolicDataValue, DataValue> valuation) {
+    public boolean areEquivalent(Expression<Boolean> guard1, Bijection<DataValue> remapping, Expression<Boolean> guard2,
+                                 Mapping<SymbolicDataValue, DataValue> valuation) {
         LOGGER.trace("guard1: {0}", guard1);
         LOGGER.trace("guard2: {0}", guard2);
-        LOGGER.trace("piv1: {0}", piv1);
-        LOGGER.trace("piv2: {0}", piv2);
+        LOGGER.trace("remapping: {0}", remapping);
 
-        VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+        //Mapping<DataValue, DataValue> remap = piv2.createRemapping(piv1);
 
-        Expression<Boolean> g2relabel = SMTUtil.renameVars(guard2, remap);
+        Expression<Boolean> g2relabel = SMTUtil.renameVals(guard2, remapping);
 
         Expression<Boolean> test = ExpressionUtil.or(
                 ExpressionUtil.and(guard1, new gov.nasa.jpf.constraints.expressions.Negation(g2relabel)),
                 ExpressionUtil.and(new gov.nasa.jpf.constraints.expressions.Negation(guard1), g2relabel)
         );
 
-        LOGGER.trace("MAP: " + remap);
+        LOGGER.trace("MAP: " + remapping);
         LOGGER.trace("TEST:" + test);
 
         boolean r = solver.isSatisfiable(test, valuation);
@@ -215,18 +199,18 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     }
 
     @Override
-    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt, PIV piv) {
+    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt) {
         assert prefix.isPrefixOf(word) : "invalid prefix";
         SDT _sdt =   sdt;
         assert _sdt.getHeight() == DataWords.paramValLength(word.suffix(word.length() - prefix.length()))  :
             "The height of the tree is not consistent with the number of parameters in the word";
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
         valuation.putAll(consts);
-        DataValue[] vals = DataWords.valsOf(prefix);
+        /*DataValue[] vals = DataWords.valsOf(prefix);
         for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
              DataValue parVal = vals[entry.getKey().getId()-1];
              valuation.put(entry.getValue(), parVal);
-        }
+        }*/
 
         boolean accepts = accepts(word, prefix, prefix.length(), _sdt, valuation);
         return accepts;

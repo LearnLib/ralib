@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -29,12 +30,7 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -129,26 +125,25 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         RegisterGenerator rgen = new RegisterGenerator();
         Register r1 = rgen.next(intType);
         Register r2 = rgen.next(intType);
-        VarMapping remap = new VarMapping();
+        SDTRelabeling remap = new SDTRelabeling();
+        /*
         remap.put(r1, r2);
         remap.put(r2, r1);
+        */
+        SDT sdt1 = tqr1.sdt().relabel(remap);
+        SDT sdt2 = tqr2.sdt();
 
-        PIV piv = tqr2.getPiv();
-        SDT sdt1 = tqr1.getSdt().relabel(remap);
-        SDT sdt2 = tqr2.getSdt();
-
-        logger.log(Level.FINE, "PIV: {0}", piv);
         logger.log(Level.FINE, "SDT1: {0}", sdt1);
         logger.log(Level.FINE, "SDT2: {0}", sdt2);
 
         // combine branching 1+2
-        Branching b = mto.getInitialBranching(prefix, o100, piv, sdt1);
-        b = mto.updateBranching(prefix, o100, b, piv, sdt1, sdt2);
+        Branching b = mto.getInitialBranching(prefix, o100, sdt1);
+        b = mto.updateBranching(prefix, o100, b, sdt1, sdt2);
 
         String guards = Arrays.toString(b.getBranches().values().toArray());
         logger.log(Level.FINE, "Guards: {0}", guards);
 
-        final String expected = "[('r2' == 'p1'), ('r2' != 'p1')]";
+        final String expected = "[(1 == 'p1'), (1 != 'p1')]";
         Assert.assertEquals(guards, expected);
     }
 

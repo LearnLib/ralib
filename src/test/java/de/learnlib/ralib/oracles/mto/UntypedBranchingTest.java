@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import de.learnlib.ralib.data.*;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -47,13 +48,8 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -131,9 +127,9 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "{0}", symSuffix);
 
         TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        logger.log(Level.FINE, "SDT: {0}", res.getSdt());
+        logger.log(Level.FINE, "SDT: {0}", res.sdt());
 
-        SDT sdt = res.getSdt();
+        SDT sdt = res.sdt();
 
         ParameterGenerator pgen = new ParameterGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -143,18 +139,12 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         Register r1 = rgen.next(intType);
         Register r2 = rgen.next(intType);
 
-        VarMapping map = new VarMapping();
-        map.put(r1, r2);
-        map.put(r2, r1);
-
-        PIV piv = new PIV();
-        piv.put(p2, r1);
-        piv.put(p1, r2);
+        SDTRelabeling map = new SDTRelabeling();
 
         sdt = sdt.relabel(map);
 
-        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());
-        bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);
+        Branching bug2 = mto.getInitialBranching(prefix, log);
+        bug2 = mto.updateBranching(prefix, log, bug2, sdt);
 
         // This set had only one word, there should be three
         Assert.assertEquals(bug2.getBranches().size(), 3);
