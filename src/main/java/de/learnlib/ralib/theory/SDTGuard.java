@@ -60,7 +60,7 @@ public abstract class SDTGuard {
 
     public abstract SDTGuard relabel(VarMapping relabelling);
 
-    public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
+//    public abstract Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential);
 
     public abstract SDTGuard copy();
 

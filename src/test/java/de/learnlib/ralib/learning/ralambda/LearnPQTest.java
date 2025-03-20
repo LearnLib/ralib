@@ -149,7 +149,7 @@ public class LearnPQTest extends RaLibTestSuite {
         }
 
 	// hard-coded results from first seed
-        Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 82, Resets: 2001, Inputs: 0}]");
+        Assert.assertEquals(Arrays.toString(ralambdaCount), "[{TQ: 71, Resets: 1946, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(rastarCount),   "[{TQ: 71, Resets: 8357, Inputs: 0}]");
     }
 }

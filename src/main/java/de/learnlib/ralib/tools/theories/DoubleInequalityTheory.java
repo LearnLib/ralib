@@ -255,6 +255,24 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
 	@Override
+	protected Comparator<DataValue<BigDecimal>> getComparator() {
+		return new Comparator<DataValue<BigDecimal>>() {
+			@Override
+			public int compare(DataValue<BigDecimal> d1, DataValue<BigDecimal> d2) {
+				return d1.getId().compareTo(d2.getId());
+			}
+		};
+	}
+
+	@Override
+	protected DataValue<BigDecimal> safeCast(DataValue<?> dv) {
+		if (dv.getId() instanceof BigDecimal) {
+			return new DataValue<BigDecimal>(dv.getType(), (BigDecimal) dv.getId());
+		}
+		return null;
+	}
+
+	@Override
 	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
 			Word<PSymbolInstance> suffix, Constants consts) {
 		return new UnrestrictedSuffixValue(suffixValue);
