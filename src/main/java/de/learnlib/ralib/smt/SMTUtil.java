@@ -48,6 +48,13 @@ public class SMTUtil {
         return replacer.apply(expr, map);
     }
 
+    public static Expression<Boolean> valsToRegisters(Expression<Boolean> expr, RegisterAssignment ra) {
+        final ReplacingValuesVisitor replacer = new ReplacingValuesVisitor();
+        Mapping<DataValue, SymbolicDataValue.Register> map = new Mapping<>();
+        map.putAll(ra);
+        return replacer.applyRegs(expr, map);
+    }
+
     public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         //Expression<Boolean> guardExpr = toExpression(expr, map);

@@ -1,20 +1,16 @@
 package de.learnlib.ralib.ceanalysis;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.util.RemappingIterator;
-import de.learnlib.ralib.theory.Memorables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.*;
@@ -24,6 +20,7 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -124,7 +121,7 @@ public class PrefixFinder {
 					// remapping
 					//
 					RemappingIterator<DataValue> iterator = new RemappingIterator<>(
-							uAlphaResult.sdt().getDataValues(), uPrimeResult.sdt().getDataValues());
+							uPrimeResult.sdt().getDataValues(), uAlphaResult.sdt().getDataValues());
 
 					for (Bijection<DataValue> m : iterator) {
 						if (uAlphaResult.sdt().isEquivalent(uPrimeResult.sdt(), m)) {

@@ -3,8 +3,6 @@ package de.learnlib.ralib.oracles.mto;
 import java.util.*;
 
 import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -42,7 +40,6 @@ public class OptimizedSymbolicSuffixBuilder {
      *
      * @param prefix (last symbol will be prepended to suffix)
      * @param sdt
-     * @param piv
      * @param suffix
      * @param registers - a list of registers that must be revealed by the suffix
      * @return a new suffix formed by prepending suffix with the last symbol of prefix
@@ -96,7 +93,7 @@ public class OptimizedSymbolicSuffixBuilder {
             restrictions.put(sv, actionSuffix.getRestriction(sv));
         }
 
-        List<DataValue> subVals = Arrays.stream(DataWords.valsOf(sub)).toList();
+        List<DataValue> subVals = Arrays.stream(DataWords.valsOf(prefix)).toList();
         SDTRelabeling renaming = new SDTRelabeling();
         sdtPath.stream()
                 .map(SDTGuard::getRegisters)

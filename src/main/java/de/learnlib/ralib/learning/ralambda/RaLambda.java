@@ -7,13 +7,13 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import de.learnlib.ralib.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.ceanalysis.PrefixFinder;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.dt.DTLeaf;
@@ -154,7 +154,7 @@ public class RaLambda implements RaLearningAlgorithm {
         if (candidateCEs.isEmpty()) {
         	prefixFinder = null;
         	if (counterexamples.isEmpty()) {
-        		assert noShortPrefixes() && !dt.isMissingParameter();
+        		assert noShortPrefixes() || !dt.isMissingParameter();
         		return false;
         	}
         	else {
@@ -179,6 +179,7 @@ public class RaLambda implements RaLearningAlgorithm {
         	ce = ces.poll();
         	boolean hypce = hyp.accepts(ce.getInput());
         	boolean sulce = ce.getOutput();
+            //System.out.println("ce: " + ce + " - " + sulce + " vs. " + hypce);
         	foundce = hypce != sulce;
         }
 
@@ -194,6 +195,7 @@ public class RaLambda implements RaLearningAlgorithm {
         Word<PSymbolInstance> ceWord = ce.getInput();
         CEAnalysisResult result = prefixFinder.analyzeCounterexample(ceWord);
         Word<PSymbolInstance> transition = result.getPrefix();						// u alpha(d)
+        //System.out.println("new prefix: " + transition);
 
         for (DefaultQuery<PSymbolInstance, Boolean> q : prefixFinder.getCounterExamples()) {
         	if (!candidateCEs.contains(q))
@@ -233,7 +235,7 @@ public class RaLambda implements RaLearningAlgorithm {
         if (noShortPrefixes() && !dt.isMissingParameter()) {
         	buildNewHypothesis();
         }
-
+        //System.out.println(hyp);
         return true;
     }
 
@@ -447,8 +449,9 @@ public class RaLambda implements RaLearningAlgorithm {
 
     private boolean noShortPrefixes() {
     	for (DTLeaf l : dt.getLeaves()) {
-    		if (!l.getShortPrefixes().isEmpty())
-    			return false;
+    		if (!l.getShortPrefixes().isEmpty()) {
+                return false;
+            }
     	}
     	return true;
     }

@@ -26,7 +26,6 @@ import java.util.Set;
 import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
 
 /**
  * Leaf implementation of an SDT.

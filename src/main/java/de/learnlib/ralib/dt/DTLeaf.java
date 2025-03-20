@@ -8,13 +8,13 @@ import java.util.stream.Stream;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
-import de.learnlib.ralib.learning.AutomatonBuilder;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;

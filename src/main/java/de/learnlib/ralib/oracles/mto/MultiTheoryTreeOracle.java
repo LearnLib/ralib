@@ -399,7 +399,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
             SDT sdt) {
-        assert (sdt instanceof SDT);
+
         Map<Word<PSymbolInstance>, Boolean> words = new LinkedHashMap<Word<PSymbolInstance>, Boolean>();
         instantiate(words, prefix, suffix,  sdt, 0, 0,
                 new SuffixValuation(), new ParameterGenerator(), new SuffixValuation(), new ParameterGenerator());

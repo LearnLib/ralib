@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
+import java.util.List;
+
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -25,8 +27,6 @@ import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
-
-import java.util.List;
 
 
 /**

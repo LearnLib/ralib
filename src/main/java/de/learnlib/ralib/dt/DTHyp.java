@@ -8,6 +8,7 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterAssignment;
 import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
@@ -87,9 +88,12 @@ public class DTHyp extends Hypothesis {
                 return null;
             }
 
+			RegisterAssignment ra = current.getPrimePrefix().getAssignment();
+
             boolean found = false;
             for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : candidates.entrySet()) {
 				Expression<Boolean> g = e.getValue();
+				g = SMTUtil.valsToRegisters(g, ra);
             	if (g.evaluateSMT(SMTUtil.compose(vars, pars, this.constants))) {
             		Word<PSymbolInstance> w = e.getKey();
             		vars = current.getAssignment(w, dt.getLeaf(w)).compute(vars, pars, this.constants);
@@ -110,6 +114,7 @@ public class DTHyp extends Hypothesis {
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Word<PSymbolInstance>> tseq = getDTTransitions(word);
+		assert tseq.size() == word.size();
 		if (tseq == null)
 			return dt.getLeaf(word).getAccessSequence();
 		return tseq.get(tseq.size() - 1);
@@ -126,6 +131,7 @@ public class DTHyp extends Hypothesis {
 
 		if (leaf.getAccessSequence().equals(location)) {
 			Word<PSymbolInstance> tseq = transformTransitionSequence(word);
+			//System.out.println("TSEQ: " + tseq);
 			if (tseq == null) {
 				ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
 				for (Word<PSymbolInstance> p : leaf.getBranching(ps).getBranches().keySet()) {

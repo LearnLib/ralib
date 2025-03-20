@@ -19,12 +19,12 @@ package de.learnlib.ralib.learning.rastar;
 import java.util.*;
 import java.util.Map.Entry;
 
-import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.util.RemappingIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;

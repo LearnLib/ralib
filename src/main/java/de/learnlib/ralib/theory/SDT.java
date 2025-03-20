@@ -32,7 +32,6 @@ import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import net.automatalib.word.Word;
 
 /**
  * Implementation of Symbolic Decision Trees.

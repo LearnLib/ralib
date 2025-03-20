@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -608,6 +607,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
             } else if (SDTGuardElement.isConstant(ereg)) {
                 returnThis = constants.get((SymbolicDataValue.Constant) ereg);
             }
+            assert returnThis != null;
         } else if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
 
             Collection<DataValue> potSet = DataWords.joinValsToSet(

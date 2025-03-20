@@ -2,7 +2,6 @@ package de.learnlib.ralib.data;
 
 import java.util.*;
 
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 
 public class Bijection<T extends TypedValue> implements Map<T, T> {
 

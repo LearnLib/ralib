@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.learnlib.ralib.data.SDTGuardElement;
-import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
  *

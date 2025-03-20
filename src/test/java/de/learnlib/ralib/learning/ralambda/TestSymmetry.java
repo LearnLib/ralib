@@ -72,12 +72,16 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.setSolver(solver);
 	learner.learn();
 
+	System.out.println(learner.getHypothesis().toString());
+
 	Word<PSymbolInstance> ce =
 	    Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
 			     new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2) )),
 			     new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)));
 	learner.addCounterexample(new DefaultQuery<>(ce, true));
 	learner.learn();
+
+	System.out.println(learner.getHypothesis().toString());
 
 	Hypothesis hyp = learner.getHypothesis();
 	// System.out.println(hyp.toString());
@@ -205,6 +209,7 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.setSolver(solver);
 
         learner.learn();
+		System.out.println(learner.getHypothesis().toString());
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
@@ -216,7 +221,7 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.learn();
 
         Hypothesis hyp = learner.getHypothesis();
-        // System.out.println(learner.getHypothesis().toString());
+		System.out.println(learner.getHypothesis().toString());
 
         ce = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),

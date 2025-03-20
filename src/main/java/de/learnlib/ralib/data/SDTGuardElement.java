@@ -1,8 +1,8 @@
 package de.learnlib.ralib.data;
 
-import gov.nasa.jpf.constraints.api.Expression;
-
 import java.math.BigDecimal;
+
+import gov.nasa.jpf.constraints.api.Expression;
 
 public interface SDTGuardElement extends TypedValue {
 
