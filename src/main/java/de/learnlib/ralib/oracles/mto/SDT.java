@@ -168,6 +168,17 @@ public class SDT implements SymbolicDecisionTree {
         return variables;
     }
 
+    public Set<SuffixValue> getSuffixValues() {
+    	Set<SuffixValue> values = new LinkedHashSet<>();
+    	if (this instanceof SDTLeaf)
+    		return values;
+    	for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		values.add(e.getKey().getParameter());
+    		values.addAll(e.getValue().getSuffixValues());
+    	}
+    	return values;
+    }
+
     @Override
     public boolean isAccepting() {
         if (this instanceof SDTLeaf) {
