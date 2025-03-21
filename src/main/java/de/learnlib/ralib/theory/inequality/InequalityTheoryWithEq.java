@@ -826,8 +826,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 //            LOGGER.trace("p: " + p.toString());
             return (DataValue) r;
         } else if (SDTGuardElement.isSuffixValue(r)) {
-            Parameter p = new Parameter(r.getDataType(), ((SuffixValue)r).getId());
-            return pval.get(p);
+            return pval.get( (SuffixValue) r);
         } else if (SDTGuardElement.isConstant(r)) {
             return constants.get((SymbolicDataValue.Constant) r);
         } else {

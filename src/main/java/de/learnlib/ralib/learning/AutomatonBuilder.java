@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.learnlib.ralib.learning.rastar.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +115,18 @@ public class AutomatonBuilder {
 
         Word<PSymbolInstance> dest_id = dest_c.getAccessSequence();
         Word<PSymbolInstance> src_id = r.getPrefix().prefix(r.getPrefix().length() -1);
-        LocationComponent src_c = this.components.get(src_id);
+
+        assert src_id != null;
+        LocationComponent src_c = null;
+        for (LocationComponent c : this.components.values()) {
+            if (c.getPrimePrefix().getPrefix().equals(src_id) || c.getOtherPrefixes().stream().map(PrefixContainer::getPrefix).toList().contains(src_id)) {
+                src_id = c.getAccessSequence();
+                src_c = c;
+                break;
+            }
+        }
+        //this.components.get(src_id);
+        assert src_c != null;
 
 //        if (src_c == null && automaton instanceof DTHyp)
 //        	return;
