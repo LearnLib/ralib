@@ -16,7 +16,6 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -140,7 +139,7 @@ public class CounterexampleAnalysis {
         }
 
         // PIV pivSul = new PIV(location, resSul.getParsInVars());
-        List<DataValue> pivSul = resSul.sdt().getDataValues();
+        Set<DataValue> pivSul = resSul.sdt().getDataValues();
         Set<DataValue> pivHyp = c.getPrimePrefix().getAssignment().keySet();
 
         boolean sulHasMoreRegs = !pivHyp.containsAll(pivSul);

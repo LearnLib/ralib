@@ -18,6 +18,7 @@ package de.learnlib.ralib.theory;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
@@ -66,13 +67,11 @@ public class SDT {
         return registers;
     }
 
-    public List<DataValue> getDataValues() {
+    public Set<DataValue> getDataValues() {
         return getVariables().stream()
                 .filter(SDTGuardElement::isDataValue)
                 .map( d -> (DataValue) d )
-                .distinct()
-                .sorted()
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     public int getHeight() {
@@ -450,8 +449,8 @@ public class SDT {
 	 * Returns true if other is semantically equivalent to this
 	 */
 	public boolean isEquivalent(SDT other, ConstraintSolver solver) {
-		List<DataValue> registers = getDataValues();
-		List<DataValue> otherRegisters = other.getDataValues();
+		Set<DataValue> registers = getDataValues();
+		Set<DataValue> otherRegisters = other.getDataValues();
 		if (registers.size() != otherRegisters.size() ||
 				!new HashSet<>(registers).containsAll(otherRegisters)) {
 			return false;
@@ -487,8 +486,8 @@ public class SDT {
 	 */
 	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection<DataValue> bi, ConstraintSolver solver) {
 		sdt1 = sdt1.relabel(SDTRelabeling.fromBijection(bi));
-		List<DataValue> regs1 = sdt1.getDataValues();
-        List<DataValue> regs2 = sdt2.getDataValues();
+		Set<DataValue> regs1 = sdt1.getDataValues();
+        Set<DataValue> regs2 = sdt2.getDataValues();
 
 		if (regs1.size() != regs2.size()) {
 			return null;

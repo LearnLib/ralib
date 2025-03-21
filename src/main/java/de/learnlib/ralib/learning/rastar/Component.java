@@ -208,8 +208,8 @@ public class Component implements LocationComponent {
 
         Row prefixRow = obs.getComponents().get(prefix).primeRow;
 
-        List<DataValue> memPrefix = prefixRow.memorableValues();
-        List<DataValue> memRow = r.memorableValues();
+        Set<DataValue> memPrefix = prefixRow.memorableValues();
+        Set<DataValue> memRow = r.memorableValues();
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
 

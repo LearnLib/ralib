@@ -276,7 +276,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     private Map<List<SDTGuard>, SDT> modGuardLists(SDTGuard refGuard, SDT refSDT, Map<List<SDTGuard>, SDT> partitionedMap) {
         boolean merged = false;
         Map<List<SDTGuard>, SDT> newParMap = new LinkedHashMap<>();
-//        System.out.println("modGuardLists for refGuard " + refGuard + ", refSDT " + refSDT + ", map: " + partitionedMap);
+        //System.out.println("modGuardLists for refGuard " + refGuard + ", refSDT " + refSDT + ", map: " + partitionedMap);
         for (Map.Entry<List<SDTGuard>, SDT> par : partitionedMap.entrySet()) {
 //            merged = false;
 //            System.out.println("par: " + par);
@@ -324,13 +324,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
                     if (newHeadList.contains(new SDTGuard.EqualityGuard(iRefGuard.getParameter(), iRefGuard.leftLimit()))) {
                         eqG = new SDTGuard.EqualityGuard(iRefGuard.getParameter(), iRefGuard.leftLimit());
                     } else if (newHeadList.contains(new SDTGuard.EqualityGuard(iRefGuard.getParameter(), iRefGuard.rightLimit()))) {
-                        eqG = new SDTGuard.EqualityGuard(iRefGuard.getParameter(), iRefGuard.leftLimit());
+                        eqG = new SDTGuard.EqualityGuard(iRefGuard.getParameter(), iRefGuard.rightLimit());
                     }
                     if (eqG != null) {
-//                        System.out.println("trying Eq " + refGuard + " against " + newHeadList + " with " + eqG);
+                        System.out.println("trying Eq " + refGuard + " against " + newHeadList + " with " + eqG);
                         SDT joinedSDT = getJoinedSDT(eqG, refSDT, headSDT);
                         if (joinedSDT != null) {
-//                            System.out.println("can merge: EQ" + headList + " with " + refGuard);
+                            System.out.println("can merge: EQ" + headList + " with " + refGuard);
                             newHeadList.add(refGuard);
                             newSDT = joinedSDT;
                             merged = true;

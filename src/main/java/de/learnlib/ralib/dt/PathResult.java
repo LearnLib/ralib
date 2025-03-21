@@ -2,6 +2,7 @@ package de.learnlib.ralib.dt;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
@@ -103,12 +104,10 @@ public class PathResult {
         return true;
     }
 
-    public List<DataValue> memorableValues() {
+    public Set<DataValue> memorableValues() {
         return results.values().stream()
                 .flatMap(sdt -> sdt.getDataValues().stream())
-                .distinct()
-                .sorted()
-                .toList();
+                .collect(Collectors.toSet());
     }
 
 

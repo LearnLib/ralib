@@ -172,13 +172,12 @@ public class DT implements DiscriminationTree {
                 leaf.addPrefix(mp);
             }
         }
-
         return leaf;
     }
 
     @Override
     public void split(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, DTLeaf leaf) {
-
+        //System.out.println("SPLIT: " + prefix + ", " + suffix + ", " + leaf);
         // add new inner node
         DTBranch branch = leaf.getParentBranch();
         DTInnerNode node = new DTInnerNode(suffix);
@@ -247,7 +246,8 @@ public class DT implements DiscriminationTree {
         leaf.getMappedExtendedPrefixes(prefixes);
         for (MappedPrefix prefix : prefixes) {
             leaf.removePrefix(prefix.getPrefix());
-            sift(prefix, node, true);
+            DTLeaf l = sift(prefix, node, true);
+            //System.out.println("SIFTED: " + prefix + " to " + l);
         }
 
         leaf.updateBranching(this);

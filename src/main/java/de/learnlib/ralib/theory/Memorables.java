@@ -1,9 +1,7 @@
 package de.learnlib.ralib.theory;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -13,17 +11,17 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 
 public class Memorables {
 
-    public static List<DataValue> relabel(List<DataValue> values, SDTRelabeling relabeling) {
-        List<DataValue> result = values.stream()
+    public static Set<DataValue> relabel(Set<DataValue> values, SDTRelabeling relabeling) {
+        Set<DataValue> result = values.stream()
                 .map(relabeling::get)
                 .map( d -> (DataValue) d)
-                .toList();
+                .collect(Collectors.toSet());
 
         assert result.size() == values.size();
         return result;
     }
 
-    public static Map<DataType, Integer> typedSize(List<DataValue> values) {
+    public static Map<DataType, Integer> typedSize(Set<DataValue> values) {
         Map<DataType, Integer> ret = new LinkedHashMap<>();
         values.forEach(v -> {
             Integer i = ret.get(v.getDataType());

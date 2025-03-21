@@ -16,7 +16,7 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.List;
+import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SDTRelabeling;
@@ -108,7 +108,7 @@ final class Cell {
         return this.sdt;
     }
 
-    List<DataValue> getMemorableValues() {
+    Set<DataValue> getMemorableValues() {
         return this.sdt.getDataValues();
     }
 
