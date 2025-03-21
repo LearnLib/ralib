@@ -41,7 +41,7 @@ public class SULOracle extends IOOracle {
 
     private final ParameterizedSymbol error;
 
-    private static Logger log = LoggerFactory.getLogger(SULOracle.class);
+    private static final Logger log = LoggerFactory.getLogger(SULOracle.class);
 
     private final Map<DataValue, Set<DataValue>> replacements = new HashMap<>();
 

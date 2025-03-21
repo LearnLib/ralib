@@ -21,12 +21,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.Disjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -35,6 +29,10 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  *
@@ -42,17 +40,17 @@ import de.learnlib.ralib.words.InputSymbol;
  */
 public final class LoginAutomatonExample {
 
-    public static final DataType T_UID = new DataType("T_uid", Integer.class);
-    public static final DataType T_PWD = new DataType("T_pwd", Integer.class);
+    public static final DataType T_UID = new DataType("T_uid");
+    public static final DataType T_PWD = new DataType("T_pwd");
 
     public static final InputSymbol I_REGISTER =
-            new InputSymbol("register", new DataType[] {T_UID, T_PWD});
+            new InputSymbol("register", T_UID, T_PWD);
 
     public static final InputSymbol I_LOGIN =
-            new InputSymbol("login", new DataType[] {T_UID, T_PWD});
+            new InputSymbol("login", T_UID, T_PWD);
 
     public static final InputSymbol I_LOGOUT =
-            new InputSymbol("logout", new DataType[] {});
+            new InputSymbol("logout");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 
@@ -77,17 +75,19 @@ public final class LoginAutomatonExample {
 
         // guards
 
-        GuardExpression condition = new Conjunction(
-                new AtomicGuardExpression(rUid, Relation.EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.EQUALS, pPwd));
+        Expression<Boolean> condition = ExpressionUtil.and(
+                new NumericBooleanExpression(rUid, NumericComparator.EQ, pUid),
+                new NumericBooleanExpression(rPwd, NumericComparator.EQ, pPwd)
+        );
 
-        GuardExpression elseCond = new Disjunction(
-                new AtomicGuardExpression(rUid, Relation.NOT_EQUALS, pUid),
-                new AtomicGuardExpression(rPwd, Relation.NOT_EQUALS, pPwd));
+        Expression<Boolean> elseCond = ExpressionUtil.or(
+                new NumericBooleanExpression(rUid, NumericComparator.NE, pUid),
+                new NumericBooleanExpression(rPwd, NumericComparator.NE, pPwd)
+        );
 
-        TransitionGuard okGuard    = new TransitionGuard(condition);
-        TransitionGuard errorGuard = new TransitionGuard(elseCond);
-        TransitionGuard trueGuard  = new TransitionGuard();
+        Expression<Boolean> okGuard    = condition;
+        Expression<Boolean> errorGuard = elseCond;
+        Expression<Boolean> trueGuard  = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();

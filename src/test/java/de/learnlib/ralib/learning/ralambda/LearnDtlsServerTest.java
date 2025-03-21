@@ -18,7 +18,7 @@ import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -47,7 +47,7 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
         teachers.put(epoch, new IntegerEqualityTheory(epoch));
         SimulatorOracle dwOracle = new SimulatorOracle(model);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         IOEquivalenceTest eqOracle = new IOEquivalenceTest(model, teachers, consts, false, actions);

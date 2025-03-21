@@ -52,7 +52,7 @@ public class IOCache extends IOOracle implements DataWordOracle {
 
     private final IOOracle sul;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(IOCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IOCache.class);
 
     public IOCache(IOOracle sul) {
         this.sul = sul;

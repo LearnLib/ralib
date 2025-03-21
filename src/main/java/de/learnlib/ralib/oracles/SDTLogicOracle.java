@@ -17,14 +17,10 @@
 package de.learnlib.ralib.oracles;
 
 
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -48,47 +44,48 @@ public interface SDTLogicOracle {
      *
      * @param prefix
      * @param sdt1
-     * @param piv1
      * @param sdt2
-     * @param piv2
      * @param guard
      * @param rep
      * @return
      */
     boolean hasCounterexample(Word<PSymbolInstance> prefix,
-            SymbolicDecisionTree sdt1, PIV piv1,
-            SymbolicDecisionTree sdt2, PIV piv2,
-            TransitionGuard guard, Word<PSymbolInstance> rep);
+            SDT sdt1, SDT sdt2, Expression<Boolean> guard, Word<PSymbolInstance> rep);
 
-    GuardExpression getCEGuard(Word<PSymbolInstance> prefix,
-    		SymbolicDecisionTree sdt1, PIV piv1,
-    		SymbolicDecisionTree sdt2, PIV piv2);
+    /**
+     *
+     * @param prefix
+     * @param sdt1
+     * @param sdt2
+     * @return
+     */
+    // TODO: write documentation
+    Expression<Boolean> getCEGuard(Word<PSymbolInstance> prefix, SDT sdt1, SDT sdt2);
 
     /**
      * checks if one guard refine another guard.
      *
      * @param refining
-     * @param pivRefining
      * @param refined
-     * @param pivRefined
      * @return
      */
-    boolean doesRefine(TransitionGuard refining, PIV pivRefining,
-            TransitionGuard refined, PIV pivRefined, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean doesRefine(Expression<Boolean> refining, Expression<Boolean> refined,
+                       Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are mutually exclusive (they cannot be both true)
      */
-    boolean areMutuallyExclusive(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-			PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean areMutuallyExclusive(Expression<Boolean> guard1, Expression<Boolean> guard2,
+			Mapping<SymbolicDataValue, DataValue> valuation);
 
     /**
      * Returns true if two guards are equivalent (guard1 is true iff guard2 is true)
      */
-    boolean areEquivalent(TransitionGuard guard1, PIV piv1, TransitionGuard guard2,
-            PIV piv2, Mapping<SymbolicDataValue, DataValue<?>> valuation);
+    boolean areEquivalent(Expression<Boolean> guard1, Bijection<DataValue> remapping, Expression<Boolean> guard2,
+                          Mapping<SymbolicDataValue, DataValue> valuation);
     /**
      * Returns true if the word leads to an accepting leaf on the SDT.
      */
-    public boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SymbolicDecisionTree sdt, PIV piv);
+    // FIXME: this method is only used by tests, maybe it can go?
+    boolean accepts(Word<PSymbolInstance> word, Word<PSymbolInstance> prefix, SDT sdt);
 }

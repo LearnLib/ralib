@@ -26,17 +26,14 @@ import de.learnlib.AccessSequenceTransformer;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.common.util.Pair;
 import net.automatalib.word.Word;
 
@@ -92,8 +89,8 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Transition> tseq = getTransitions(word);
         //System.out.println("TSEQ: " + tseq);
-        if (tseq == null)
-	    return null;
+        assert tseq.size() == word.length();
+        if (tseq == null) return null;
         Transition last = tseq.get(tseq.size() -1);
         return transitionSequences.get(last);
     }
@@ -105,15 +102,21 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     public Word<PSymbolInstance> branchWithSameGuard(Word<PSymbolInstance> word, Branching branching) {
 	ParameterizedSymbol ps = word.lastSymbol().getBaseSymbol();
 
-        List<Pair<Transition, VarValuation>> tvseq = getTransitionsAndValuations(word);
-        VarValuation vars = tvseq.get(tvseq.size()-1).getSecond();
-        ParValuation pval = new ParValuation(word.lastSymbol());
+        List<Pair<Transition, RegisterValuation>> tvseq = getTransitionsAndValuations(word);
+        RegisterValuation vars = tvseq.get(tvseq.size()-1).getSecond();
+        ParameterValuation pval = ParameterValuation.fromPSymbolInstance(word.lastSymbol());
 
-	for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : branching.getBranches().entrySet()) {
+	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branching.getBranches().entrySet()) {
 	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
-		if (e.getValue().isSatisfied(vars, pval, constants)) {
-		    return e.getKey();
-		}
+            Word<PSymbolInstance> prefix = e.getKey().prefix(e.getKey().size()-1);
+            RegisterValuation varsRef = getTransitionsAndValuations(prefix).get(getTransitionsAndValuations(prefix).size()-1).getSecond();
+            //System.out.println(varsRef);
+            RegisterAssignment ra = new RegisterAssignment();
+            varsRef.forEach((key, value) -> ra.put(value, key));
+            Expression<Boolean> guard = SMTUtil.valsToRegisters(e.getValue(), ra);
+            if (guard.evaluateSMT(SMTUtil.compose(vars, pval, constants))) {
+                return e.getKey();
+            }
 	    }
 	}
 	return null;

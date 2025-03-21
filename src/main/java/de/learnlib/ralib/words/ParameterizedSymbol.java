@@ -17,6 +17,7 @@
 package de.learnlib.ralib.words;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import de.learnlib.ralib.data.DataType;
 
@@ -60,7 +61,7 @@ public abstract class ParameterizedSymbol {
             return false;
         }
         final ParameterizedSymbol other = (ParameterizedSymbol) obj;
-        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+        if (!Objects.equals(this.name, other.name)) {
             return false;
         }
         return Arrays.deepEquals(this.ptypes, other.ptypes);
