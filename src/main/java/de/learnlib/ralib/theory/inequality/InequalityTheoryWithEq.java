@@ -462,7 +462,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         }
         return ret;
     }
-    */
+
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix,
     		SymbolicSuffix suffix,
@@ -560,15 +560,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
     private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
             List<DataValue> prefixValues, Constants constants,
-            ParameterValuation pval) {
-        if (r.isRegister()) {
-            Parameter p = piv.getOneKey((Register) r);
-            int idx = p.getId();
-            return prefixValues.get(idx - 1);
-        } else if (r.isSuffixValue()) {
-            Parameter p = new Parameter(r.getDataType(), r.getId());
-
-            return pval.get(p);
+            SuffixValuation pval) {
+        if (SDTGuardElement.isDataValue(r)) {
+//            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
+//            LOGGER.trace("p: " + p.toString());
+            return (DataValue) r;
+        } else if (SDTGuardElement.isSuffixValue(r)) {
+            return pval.get( (SuffixValue) r);
         } else if (SDTGuardElement.isConstant(r)) {
             return constants.get((SymbolicDataValue.Constant) r);
         } else {
