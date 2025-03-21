@@ -19,7 +19,6 @@ package de.learnlib.ralib.theory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import de.learnlib.ralib.automata.guards.Disjunction;
 import de.learnlib.ralib.automata.guards.GuardExpression;
@@ -97,11 +96,11 @@ public class SDTOrGuard extends SDTMultiGuard {
         }
         return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
     }
-
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        return other.mergeWith(this, regPotential);
-    }
+//
+//    @Override
+//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
+//        return other.mergeWith(this, regPotential);
+//    }
 
     @Override
     public SDTOrGuard copy() {
