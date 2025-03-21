@@ -2,6 +2,7 @@ package de.learnlib.ralib.dt;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.util.RemappingIterator;
@@ -85,12 +86,10 @@ public class MappedPrefix implements PrefixContainer {
 		this.remapping = remapping;
 	}
 
-	public List<DataValue> memorableValues() {
+	public Set<DataValue> memorableValues() {
 		return this.tqrs.values().stream()
 				.flatMap(sdt -> sdt.getDataValues().stream())
-				.distinct()
-				.sorted()
-				.toList();
+				.collect(Collectors.toSet());
 	}
 
 	@Override

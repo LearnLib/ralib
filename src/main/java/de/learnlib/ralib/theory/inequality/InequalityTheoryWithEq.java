@@ -409,6 +409,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 
 	private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
 
+
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();

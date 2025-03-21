@@ -18,6 +18,7 @@ package de.learnlib.ralib.learning.rastar;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,12 +108,10 @@ public class Row implements PrefixContainer {
         return sdts.toArray(new SDT[]{});
     }
 
-    public List<DataValue> memorableValues() {
+    public Set<DataValue> memorableValues() {
         return cells.values().stream()
                 .flatMap(c -> c.getMemorableValues().stream() )
-                .distinct()
-                .sorted()
-                .toList();
+                .collect(Collectors.toSet());
     }
 
     @Override

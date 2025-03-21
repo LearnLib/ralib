@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.PrefixContainer;
@@ -454,8 +453,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
         DTLeaf prefixLeaf = dt.getLeaf(prefix);
         MappedPrefix prefixMapped = prefixLeaf.getMappedPrefix(prefix);
 
-        List<DataValue> memPrefix = prefixMapped.memorableValues();
-        List<DataValue> memMP = mp.memorableValues();
+        Set<DataValue> memPrefix = prefixMapped.memorableValues();
+        Set<DataValue> memMP = mp.memorableValues();
 
         int max = DataWords.paramLength(DataWords.actsOf(prefix));
         List<DataValue> mpVals = Arrays.stream(DataWords.valsOf(mp.getPrefix())).toList();
@@ -540,7 +539,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
         		Set<DataValue> piv = Set.of(e.getValue().getDataValues().toArray(new DataValue[0]));
         		if (!Sets.intersection(piv, paramsIntersect).isEmpty()) {
         			SDT sdt = e.getValue();
-        			SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
+        			SymbolicSuffix newSuffix = suffixBuilder != null ?
         					suffixBuilder.extendSuffix(mp.getPrefix(), sdt, e.getKey()) :
         					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
         			if (!prefixMapped.getTQRs().containsKey(newSuffix)) {
@@ -561,14 +560,14 @@ public class DTLeaf extends DTNode implements LocationComponent {
         	for (Map.Entry<SymbolicSuffix, SDT> e : mp.getTQRs().entrySet()) {
         		SDT sdt = e.getValue();
         		for (Bijection<DataValue> vm : difference) {
-                	VarMapping<Register, Register> renaming = new VarMapping<>();
+                	//VarMapping<Register, Register> renaming = new VarMapping<>();
                 	/*for (Map.Entry<Parameter, Parameter> paramRenaming : vm.entrySet()) {
                 		Register oldRegister = memPrefix.get(paramRenaming.getKey());
                 		Register newRegister = memPrefix.get(paramRenaming.getValue());
                 		renaming.put(oldRegister, newRegister);
                 	}*/
         			if (!sdt.isEquivalent(sdt, vm)) {
-        				SymbolicSuffix newSuffix = suffixBuilder != null && sdt instanceof SDT ?
+        				SymbolicSuffix newSuffix = suffixBuilder != null  ?
             					suffixBuilder.extendSuffix(mp.getPrefix(), sdt, e.getKey()) :
             					new SymbolicSuffix(mp.getPrefix(), e.getKey(), consts);
             			dt.addSuffix(newSuffix, prefixLeaf);

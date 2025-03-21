@@ -18,7 +18,7 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 		putAll(injection, surjection, map);
 	}
 
-    public static Bijection<DataValue> identity(List<DataValue> dataValues) {
+    public static Bijection<DataValue> identity(Set<DataValue> dataValues) {
 		Bijection<DataValue> bij = new Bijection<>();
 		for (DataValue dv : dataValues) {
 			bij.put(dv, dv);

@@ -90,6 +90,7 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
     @Override
     public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), constants, new SuffixValuation());
+        //System.out.println(sdt);
         return new TreeQueryResult(sdt);
     }
 

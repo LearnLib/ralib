@@ -209,7 +209,6 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.setSolver(solver);
 
         learner.learn();
-		System.out.println(learner.getHypothesis().toString());
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
@@ -221,7 +220,6 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.learn();
 
         Hypothesis hyp = learner.getHypothesis();
-		System.out.println(learner.getHypothesis().toString());
 
         ce = Word.fromSymbols(
         		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
@@ -229,7 +227,7 @@ public class TestSymmetry extends RaLibTestSuite {
         		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(3))),
         		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
 
-        Assert.assertTrue(hyp.accepts(ce));
+		Assert.assertEquals(sul.accepts(ce), hyp.accepts(ce));
     }
 
     private RegisterAutomaton buildCT() {
@@ -258,6 +256,7 @@ public class TestSymmetry extends RaLibTestSuite {
         storeR1Mapping.put(r1, p1);
 	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         storeR2Mapping.put(r2, p1);
+		storeR2Mapping.put(r1, r1);
 	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1R2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
 	storeR1R2Mapping.put(r2, r1);
         storeR1R2Mapping.put(r1, p1);
