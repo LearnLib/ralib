@@ -12,17 +12,17 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <!-- Dependency versions appear alphabetically below -->
         <commons-lang.version>3.17.0</commons-lang.version>
+        <gson.version>2.12.1</gson.version>
         <guava.version>33.4.5-jre</guava.version>
         <jakarta-xml.version>4.0.2</jakarta-xml.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.18.0</learnlib.version>
-        <gson.version>2.12.1</gson.version>
     </properties>
 
     <build>

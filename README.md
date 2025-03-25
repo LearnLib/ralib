@@ -8,16 +8,17 @@ the [*Apache License, Version 2.0*][2].
 RALib is developed as an extension to [*LearnLib*][1].
 It currently implements the following algorithms for learning register automata:
 
-1. The _SL* algorithm_
-   by Sofia Cassel, Falk Howar, Bengt Jonsson, and Bernhard Steffen,
-   presented in the paper [Learning Extended Finite State Machines][3],
-   Software Engineering and Formal Methods (SEFM 2014), pp 250-264.
-
-2. The _SLλ algorithm_
+1. The _SLλ algorithm_
    by Simon Dierl, Paul Fiterau-Brostean, Falk Howar, Bengt Jonsson,
    Konstantinos Sagonas, and Fredrik Tåquist,
    presented in the paper [Scalable Tree-based Register Automata Learning][4],
-   Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2024).
+   Tools and Algorithms for the Construction and Analysis of Systems (TACAS 2024),
+    pp 87-108.
+
+2. The _SL* algorithm_
+   by Sofia Cassel, Falk Howar, Bengt Jonsson, and Bernhard Steffen,
+   presented in the paper [Learning Extended Finite State Machines][3],
+   Software Engineering and Formal Methods (SEFM 2014), pp 250-264.
 
 
 Installation
@@ -103,4 +104,4 @@ Below we provide two example configurations.
 [1]: http://www.learnlib.de
 [2]: http://www.apache.org/licenses/LICENSE-2.0
 [3]: https://link.springer.com/chapter/10.1007/978-3-319-10431-7_18
-[4]: https://arxiv.org/pdf/2401.14324.pdf
+[4]: https://doi.org/10.1007/978-3-031-57249-4_5
