@@ -22,6 +22,6 @@ package de.learnlib.ralib.data;
  */
 //TODO: check is necessary
 public class WordValuation extends
-        Mapping<Integer, DataValue<?>> {
+        Mapping<Integer, DataValue> {
 
 }

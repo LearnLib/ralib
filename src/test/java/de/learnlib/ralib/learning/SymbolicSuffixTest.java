@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
 
       final Map<DataType, Theory> teachers = new LinkedHashMap<>();
       loader.getDataTypes().stream().forEach((t) -> {
-          TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+          TypedTheory theory = new IntegerEqualityTheory(t);
           theory.setUseSuffixOpt(true);
           teachers.put(t, theory);
       });
@@ -50,20 +51,20 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
       ParameterizedSymbol iput = new InputSymbol(
-              "IPut", new DataType[] {intType});
+              "IPut", intType);
 
       ParameterizedSymbol iget = new InputSymbol(
-              "IGet", new DataType[] {});
+              "IGet");
 
       ParameterizedSymbol oget = new OutputSymbol(
-              "OGet", new DataType[] {intType});
+              "OGet", intType);
 
       ParameterizedSymbol ook = new OutputSymbol(
-              "OOK", new DataType[] {});
+              "OOK");
 
-      DataValue d0 = new DataValue(intType, 0);
-      DataValue d1 = new DataValue(intType, 1);
-      DataValue d6 = new DataValue(intType, 6);
+      DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+      DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+      DataValue d6 = new DataValue(intType, new BigDecimal( 6));
 
       //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
       Word<PSymbolInstance> prefix1 = Word.fromSymbols(

@@ -44,7 +44,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -98,7 +98,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
@@ -128,7 +128,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         int check = 0;
-        while (true && check < 100) {
+        while (check < 100) {
 
             check++;
             rastar.learn();
@@ -146,7 +146,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             ce = pref.optimizeCE(ce.getInput(), hyp);
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }

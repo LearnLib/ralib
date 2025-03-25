@@ -17,9 +17,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -31,6 +28,10 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class RAEquivalenceTestTest {
 	@Test
@@ -63,11 +64,9 @@ public class RAEquivalenceTestTest {
 		ParameterGenerator pgen = new ParameterGenerator();
 		Parameter pVal = pgen.next(T_INT);
 
-		TransitionGuard eqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
-		TransitionGuard neqGuard = new TransitionGuard(
-				new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> eqGuard = new NumericBooleanExpression(rVal, NumericComparator.EQ, pVal);
+		Expression<Boolean> neqGuard = new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		// assignments
 		VarMapping<Register, SymbolicDataValue> storeMapping = new VarMapping<Register, SymbolicDataValue>();

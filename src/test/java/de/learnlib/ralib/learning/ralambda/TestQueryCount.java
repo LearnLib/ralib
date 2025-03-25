@@ -23,7 +23,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -43,7 +43,7 @@ public class TestQueryCount extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL(2);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver jsolv = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
         Measurements measurements = new Measurements();
