@@ -103,27 +103,6 @@ public class DisequalityGuard extends SDTIfGuard {
         }
         return Objects.equals(this.parameter, other.parameter);
     }
-//
-//    @Override
-//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-//        Set<SDTGuard> guards = new LinkedHashSet<>();
-//        if (other instanceof EqualityGuard) {
-//            if (!(other.equals(this.toDeqGuard()))) {
-//            guards.add(this);
-//                guards.add(other);
-//            }
-//        }
-//        else if (other instanceof DisequalityGuard) {
-//            guards.add(this);
-//            guards.add(other);
-//        }
-//        else {
-////            System.out.println("attempt to merge " + this + " with " + other);
-//            guards.addAll(other.mergeWith(this,  regPotential));
-//
-//        }
-//        return guards;
-//    }
 
 	@Override
 	public SDTGuard copy() {

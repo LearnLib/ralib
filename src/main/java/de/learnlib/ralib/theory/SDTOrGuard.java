@@ -96,39 +96,9 @@ public class SDTOrGuard extends SDTMultiGuard {
         }
         return new SDTOrGuard(sv, gg.toArray(new SDTGuard[]{}));
     }
-//
-//    @Override
-//    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-//        return other.mergeWith(this, regPotential);
-//    }
 
     @Override
     public SDTOrGuard copy() {
     	return new SDTOrGuard(this);
     }
-
-    //@Override
-    //public SDTGuard mergeWith(Set<SDTGuard> _merged) {
-    //    return null;
-    //}
-//        Set<SDTGuard> merged = new LinkedHashSet<>();
-//        merged.addAll(_merged);
-//        for (SDTGuard x : this.getGuards()) {
-//            if (x instanceof SDTIfGuard) {
-//                SDTGuard newGuard = x.mergeWith(merged);
-//            }
-//        }
-//        if (merged.isEmpty()) {
-//            return new SDTTrueGuard(this.parameter);
-//        } else {
-//            SDTGuard[] mergedArr = merged.toArray(new SDTGuard[]{});
-//            if (mergedArr.length == 1) {
-//                return mergedArr[0];
-//            }
-//            else {
-//                return new SDTOrGuard(this.parameter, mergedArr);
-//            }
-//
-//        }
-//    }
 }
