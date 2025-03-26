@@ -23,10 +23,10 @@ import gov.nasa.jpf.constraints.api.Valuation;
 
 public class IntervalGuardInstaniateTest extends RaLibTestSuite {
 
-	@Test
-	public void instantiateIntervalTest() {
+    @Test
+    public void instantiateIntervalTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -72,5 +72,5 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         Assert.assertNotEquals(dvre.getId().compareTo(dv1.getId()), -1);
         Assert.assertTrue(dvi.getId().compareTo(dv1.getId()) == 1 && dvi.getId().compareTo(dv3.getId()) == -1);
         Assert.assertFalse(dvic.getId().compareTo(dv1.getId()) == -1 && dvic.getId().compareTo(dv3.getId()) == 1);
-	}
+    }
 }

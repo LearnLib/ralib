@@ -26,12 +26,12 @@ import net.automatalib.word.Word;
 
 public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
 
-	private final DataType D_TYPE = new DataType("double", BigDecimal.class);
+    private final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
-	private final InputSymbol A = new InputSymbol("a", D_TYPE);
+    private final InputSymbol A = new InputSymbol("a", D_TYPE);
 
-	@Test
-	public void optimizationFromConcreteValuesTest() {
+    @Test
+    public void optimizationFromConcreteValuesTest() {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -87,5 +87,5 @@ public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
         SymbolicSuffix actual2 = new SymbolicSuffix(prefix2, suffix2, builder);
 
         Assert.assertEquals(actual2, expected2);
-	}
+    }
 }

@@ -27,10 +27,10 @@ import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 
 public class IneqGuardMergeTest extends RaLibTestSuite {
 
-	@Test
-	public void intervalMergeTest() {
+    @Test
+    public void intervalMergeTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -153,12 +153,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Assert.assertEquals(actual4.size(), expected4.size());
         Assert.assertTrue(actual4.entrySet().containsAll(expected4.entrySet()));
-	}
+    }
 
-	@Test
-	public void trueGuardTest() {
+    @Test
+    public void trueGuardTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -202,12 +202,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Assert.assertEquals(merged.size(), 1);
         Assert.assertTrue(merged.containsKey(new SDTTrueGuard(s1)));
-	}
+    }
 
-	@Test
-	public void filteredDataValuesTest() {
+    @Test
+    public void filteredDataValuesTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -266,12 +266,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertTrue(actual.entrySet().containsAll(expected.entrySet()));
-	}
+    }
 
-	@Test
-	public void sdtSubtreeTest() {
+    @Test
+    public void sdtSubtreeTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -328,12 +328,12 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertTrue(actual.entrySet().containsAll(expected.entrySet()));
-	}
+    }
 
-	@Test
-	public void disequalityGuardTest() {
+    @Test
+    public void disequalityGuardTest() {
 
-		final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double", BigDecimal.class);
 
         final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
@@ -422,5 +422,5 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Assert.assertEquals(actual3.size(), expected3.size());
         Assert.assertTrue(actual3.entrySet().containsAll(expected3.entrySet()));
-	}
+    }
 }

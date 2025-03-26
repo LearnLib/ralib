@@ -35,8 +35,7 @@ public class LesserSuffixValue extends SuffixValueRestriction {
 	public GuardExpression toGuardExpression(Set<SymbolicDataValue> vals) {
 		List<GuardExpression> expr = new ArrayList<>();
 		for (SymbolicDataValue sdv : vals) {
-			GuardExpression g = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter, Relation.SMALLER, sdv);
-			return g;
+			return new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter, Relation.SMALLER, sdv);
 		}
 		GuardExpression exprArr[] = new GuardExpression[expr.size()];
 		exprArr = expr.toArray(exprArr);
