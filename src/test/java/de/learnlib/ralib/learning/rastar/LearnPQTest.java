@@ -100,7 +100,7 @@ public class LearnPQTest extends RaLibTestSuite {
         hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
-        Assert.assertEquals(hyp.getStates().size(), 9);
-        Assert.assertEquals(hyp.getTransitions().size(), 32);
+        Assert.assertEquals(hyp.getStates().size(), 5);
+        Assert.assertEquals(hyp.getTransitions().size(), 16);
     }
 }

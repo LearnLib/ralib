@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.theory.inequality;
 
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
 import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
 
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,12 +63,15 @@ import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import net.automatalib.word.Word;
 
 /**
  *
  * @author Sofia Cassel
+ * @author Fredrik Tåquist
  * @param<T>
  */
 public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
@@ -183,44 +186,70 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
 
 		List<DataValue<T>> ecValuesSorted = sort(equivClasses.keySet());
-		Iterator<DataValue<T>> ecit = ecValuesSorted.iterator();
-		DataValue<T> first = ecit.next();
-		SDTGuard mergedGuards = equivClasses.get(first);
-		SDT currSdt = sdts.get(mergedGuards);
 
-		Comparator<DataValue<T>> comparator = getComparator();
-		Iterator<DataValue<T>> filtit = sort(filteredOut).iterator();
-		DataValue<T> smallerDataValue = getSmallerDataValue(first);
-		DataValue<T> filtered = filtit.hasNext() ? filtit.next() : smallerDataValue;
-		boolean lastFilteredOut = comparator.compare(first, filtered) == 0;
-		if (lastFilteredOut) {
-			assert ecit.hasNext();
-			filtered = filtit.hasNext() ? filtit.next() : smallerDataValue;
-		}
-
-		while(ecit.hasNext()) {
-			DataValue<T> next = ecit.next();
-			SDTGuard nextGuard = equivClasses.get(next);
-			SDT nextSdt = sdts.get(nextGuard);
-			boolean thisFilteredOut = comparator.compare(next, filtered) == 0;
-			boolean inequivalentSdts = thisFilteredOut || (currSdt == null ? false : !currSdt.isEquivalent(nextSdt, new VarMapping<>()));
-			if (thisFilteredOut || inequivalentSdts || lastFilteredOut) {
-				if (!lastFilteredOut) {
-					merged.put(mergedGuards, currSdt);
+		// merge guards from left (lesser values) to right (greater values)
+		// stop merging when reaching
+		// i) a value that is filtered out, or
+		// ii) an inequivalent sub-tree
+		SDT currSdt = null;
+		SDTGuard currGuard = null;
+		SDTGuard currMerged = null;
+		SDTGuard prevGuard = null;
+		SDT prevSdt = null;
+		for (DataValue<T> nextDv : ecValuesSorted) {
+			if (filteredOut.contains(nextDv)) {
+				// stop merging if next guard was filtered out
+				if (currGuard != null) {
+					assert currMerged != null;
+					assert currSdt != null;
+					merged.put(currMerged, currSdt);
 				}
-				mergedGuards = nextGuard;
-				currSdt = nextSdt;
+				currSdt = null;
+				currGuard = null;
+				currMerged = null;
+				prevGuard = null;
+				prevSdt = null;
+				continue;
 			} else {
-				mergedGuards = mergeIntervals(mergedGuards, nextGuard);
-			}
+				boolean keepMerging = true;
+				SDTGuard nextGuard = equivClasses.get(nextDv);
+				SDT nextSdt = sdts.get(nextGuard);
+				if (currSdt == null) {
+					// this is the first guard of the run
+					currGuard = nextGuard;
+					currMerged = nextGuard;
+					currSdt = nextSdt;
+					continue;
+				} else {
+					if (equivalentWithRenaming(currSdt, currGuard, nextSdt, nextGuard)) {
+						// if left guard is equality, check for equality with previous guard
+						if (currGuard instanceof EqualityGuard && prevGuard != null &&
+								!equivalentWithRenaming(prevSdt, prevGuard, nextSdt, nextGuard)) {
+							keepMerging = false;
+						}
+					} else {
+						keepMerging = false;
+					}
+				}
 
-			lastFilteredOut = thisFilteredOut;
-			if (comparator.compare(next, filtered) >= 0 && filtit.hasNext()) {
-				filtered = filtit.next();
+				if (keepMerging) {
+					currMerged = mergeIntervals(currMerged, nextGuard);
+					prevGuard = currGuard;
+					prevSdt = currSdt;
+				} else {
+					assert currMerged != null;
+					assert currSdt != null;
+					merged.put(currMerged, currSdt);
+					currMerged = nextGuard;
+					currSdt = nextSdt;
+					prevGuard = null;
+					prevSdt = null;
+				}
+				currGuard = nextGuard;
 			}
 		}
-		if (!lastFilteredOut) {
-			merged.put(mergedGuards, currSdt);
+		if (currMerged != null) {
+			merged.put(currMerged, currSdt);
 		}
 
 		// check for disequality guard (i.e., both s < r and s > r guards are present for some r)
@@ -239,6 +268,17 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		assert !merged.isEmpty();
 
 		return merged;
+	}
+
+	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2) {
+		if (guard1 != null && guard1 instanceof EqualityGuard) {
+			Expression<Boolean> renaming = toExpression(guard1.toExpr());
+			return sdt1.isSemanticallyEquivalent(sdt2, renaming, getSolver());
+		} else if (guard2 != null && guard2 instanceof EqualityGuard) {
+			Expression<Boolean> renaming = toExpression(guard2.toExpr());
+			return sdt2.isSemanticallyEquivalent(sdt1, renaming, getSolver());
+		}
+		return sdt1.isEquivalent(sdt2, new VarMapping<>());
 	}
 
 	private SDTGuard mergeIntervals(SDTGuard leftGuard, SDTGuard rightGuard) {
@@ -319,16 +359,7 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		return guards;
 	}
 
-	private DataValue<T> getSmallerDataValue(DataValue<T> dv) {
-		SuffixValue s = new SuffixValue(dv.getType(), 1);
-		Register r = new Register(dv.getType(), 1);
-		IntervalGuard ig = new IntervalGuard(s, null, r);
-		Valuation val = new Valuation();
-		val.setValue(toVariable(r), dv.getId());
-		return instantiate(ig, val, new Constants(), new ArrayList<>());
-	}
-
-    private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
+	private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
         PIV ret = new PIV();
         for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
             SDTGuard mg = e.getKey();
@@ -464,6 +495,8 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     protected abstract DataValue<T> safeCast(DataValue<?> val);
 
     public abstract List<DataValue<T>> getPotential(List<DataValue<T>> vals);
+
+    public abstract NativeZ3Solver getSolver();
 
     private DataValue getRegisterValue(SymbolicDataValue r, PIV piv,
             List<DataValue> prefixValues, Constants constants,

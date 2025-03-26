@@ -1,5 +1,9 @@
 package de.learnlib.ralib.oracles.mto;
 
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.OFFER;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.POLL;
+import static de.learnlib.ralib.example.priority.PriorityQueueOracle.doubleType;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -30,6 +34,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.example.sdts.SDTOracle;
 import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.solver.ConstraintSolver;
@@ -37,6 +42,7 @@ import de.learnlib.ralib.solver.ConstraintSolverFactory;
 import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
 import de.learnlib.ralib.solver.jconstraints.JContraintsUtil;
 import de.learnlib.ralib.theory.SDTAndGuard;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.DisequalityGuard;
@@ -52,6 +58,47 @@ import gov.nasa.jpf.constraints.api.Valuation;
 import net.automatalib.word.Word;
 
 public class BranchMergingTest extends RaLibTestSuite {
+
+	@Test
+	public void branchMerginPQTest() {
+
+        Constants consts = new Constants();
+        DataWordOracle dwOracle =
+                new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        DoubleInequalityTheory dit = new DoubleInequalityTheory(doubleType);
+        teachers.put(doubleType, dit);
+
+        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
+                dwOracle, teachers, consts, jsolv);
+
+        Word<PSymbolInstance> prefix = Word.fromSymbols(
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, BigDecimal.ONE)));
+        Word<PSymbolInstance> suffix = Word.fromSymbols(
+                new PSymbolInstance(OFFER,
+                        new DataValue(doubleType, BigDecimal.valueOf(2))),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, BigDecimal.ONE)),
+                new PSymbolInstance(POLL,
+                        new DataValue(doubleType, BigDecimal.valueOf(2))));
+        SymbolicSuffix symbSuffix = new SymbolicSuffix(prefix, suffix);
+
+        TreeQueryResult tqr = mto.treeQuery(prefix, symbSuffix);
+        SDT sdt = (SDT) tqr.getSdt();
+
+        SuffixValue s1 = new SuffixValue(doubleType, 1);
+        Register r1 = new Register(doubleType, 1);
+
+        SDTGuard guardLeq = IntervalGuard.lessOrEqualGuard(s1, r1);
+        SDTGuard guardG = IntervalGuard.greaterGuard(s1, r1);
+
+        Assert.assertEquals(sdt.getSDTGuards(s1).size(), 2);
+        Assert.assertTrue(sdt.getSDTGuards(s1).contains(guardLeq));
+        Assert.assertTrue(sdt.getSDTGuards(s1).contains(guardG));
+	}
 
 	@Test
 	public void branchMergingEqTest() {
@@ -198,11 +245,11 @@ public class BranchMergingTest extends RaLibTestSuite {
         TreeQueryResult tqr2 = mto.treeQuery(prefix2, suffix2);
         SDT actualSdt2 = (SDT)tqr2.getSdt();
 
-        Assert.assertTrue(semanticallyEquivalent(actualSdt1, tqr1.getPiv(), (SDT)sdt1, piv1, mto, prefix1, suffix1, dit, D_TYPE));
-        Assert.assertTrue(semanticallyEquivalent(actualSdt2, tqr2.getPiv(), (SDT)sdt2, piv2, mto, prefix2, suffix2, dit, D_TYPE));
+        Assert.assertTrue(equivalentSDTs(actualSdt1, tqr1.getPiv(), (SDT)sdt1, piv1, mto, prefix1, suffix1, dit, D_TYPE));
+        Assert.assertTrue(equivalentSDTs(actualSdt2, tqr2.getPiv(), (SDT)sdt2, piv2, mto, prefix2, suffix2, dit, D_TYPE));
 	}
 
-	private boolean semanticallyEquivalent(SDT sdt1, PIV piv1, SDT sdt2, PIV piv2,
+	private boolean equivalentSDTs(SDT sdt1, PIV piv1, SDT sdt2, PIV piv2,
 			TreeOracle oracle, Word<PSymbolInstance> prefix, SymbolicSuffix suffix,
 			DoubleInequalityTheory theory, DataType type) {
 		Constants consts = new Constants();
