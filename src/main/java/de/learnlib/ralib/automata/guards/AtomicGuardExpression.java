@@ -61,6 +61,8 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
                 return !lv.equals(rv);
             case BIGGER:
             case SMALLER:
+            case BIGGER_OR_EQUAL:
+            case SMALLER_OR_EQUAL:
                 return numCompare(lv, rv, relation);
 
             default:
@@ -116,8 +118,12 @@ public class AtomicGuardExpression<Left extends SymbolicDataValue, Right extends
         switch (relation) {
             case SMALLER:
                 return result < 0;
+            case SMALLER_OR_EQUAL:
+            	return result <= 0;
             case BIGGER:
                 return result > 0;
+            case BIGGER_OR_EQUAL:
+            	return result >= 0;
 
             default:
                 throw new UnsupportedOperationException(

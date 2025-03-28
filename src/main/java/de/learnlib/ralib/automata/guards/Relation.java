@@ -19,7 +19,9 @@ package de.learnlib.ralib.automata.guards;
 public enum Relation {
 
     SMALLER("<"),
+    SMALLER_OR_EQUAL("<="),
     BIGGER(">"),
+    BIGGER_OR_EQUAL(">="),
     EQUALS("=="),
     NOT_EQUALS("!=");
 
