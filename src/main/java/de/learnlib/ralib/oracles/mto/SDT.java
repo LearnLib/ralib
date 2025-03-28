@@ -556,14 +556,13 @@ public class SDT implements SymbolicDecisionTree {
 	}
 
 	/**
-	 * Check a SDT is semantically equivalent to another, given some
-	 * conditions on (e.g., renaming of) the other SDT
+	 * Check if a SDT is semantically equivalent to another, given some conditions on the other SDT
 	 *
 	 * @param other - the SDT to compare to
-	 * @param renaming - the conditions to apply to other
+	 * @param condition - the conditions to apply to other
 	 * @param solver - a constraint solver
 	 */
-	public boolean isSemanticallyEquivalent(SDT other, Expression<Boolean> renaming, NativeZ3Solver solver) {
+	public boolean isEquivalentUnderCondition(SDT other, Expression<Boolean> condition, NativeZ3Solver solver) {
 		Map<GuardExpression, Boolean> expressions = this.getGuardExpressions(new Constants());
 		Map<GuardExpression, Boolean> otherExpressions = other.getGuardExpressions(new Constants());
 		for (Map.Entry<GuardExpression, Boolean> entry : expressions.entrySet()) {
@@ -572,7 +571,7 @@ public class SDT implements SymbolicDecisionTree {
 			for (Map.Entry<GuardExpression, Boolean> otherEntry : otherExpressions.entrySet()) {
 				if (outcome != otherEntry.getValue()) {
 					Expression<Boolean> otherX = toExpression(otherEntry.getKey());
-					Expression<Boolean> renamed = ExpressionUtil.and(otherX, renaming);
+					Expression<Boolean> renamed = ExpressionUtil.and(otherX, condition);
 					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
 					if (solver.isSatisfiable(con) == Result.SAT) {
 						return false;

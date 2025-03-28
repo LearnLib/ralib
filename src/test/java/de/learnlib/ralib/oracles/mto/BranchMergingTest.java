@@ -127,7 +127,6 @@ public class BranchMergingTest extends RaLibTestSuite {
         DataValue dv1 = new DataValue(INT_TYPE, 1);
         DataValue dv2 = new DataValue(INT_TYPE, 2);
 
-        // test 1
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
         		new PSymbolInstance(A, dv1),
         		new PSymbolInstance(A, dv2));
@@ -200,7 +199,6 @@ public class BranchMergingTest extends RaLibTestSuite {
         DataValue dv2 = new DataValue(D_TYPE, BigDecimal.valueOf(2));
         DataValue dv3 = new DataValue(D_TYPE, BigDecimal.valueOf(3));
 
-        // test 1
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(new PSymbolInstance(A, dv1));
         Word<ParameterizedSymbol> suffixActions1 = Word.fromSymbols(A, A);
         SymbolicSuffix suffix1 = new SymbolicSuffix(suffixActions1);

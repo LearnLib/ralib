@@ -78,18 +78,15 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
     boolean useSuffixOpt = false;
 
-    public Map<DataValue<T>, SDTGuard> equivalenceClasses(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix,
-    		SuffixValue suffixValue,
-    		Map<DataValue<T>, SymbolicDataValue> potValuation,
-    		SuffixValuation suffixValues,
-    		Constants consts,
-    		WordValuation values) {
-    	Map<DataValue<T>, SDTGuard> valueGuards = generateEquivClasses(prefix, suffixValue, potValuation, consts);
-    	// apply suffix restrictions
-    	return filterEquivClasses(valueGuards, prefix, suffix, suffixValue, potValuation, suffixValues, consts, values);
-    }
-
+    /**
+     * Given a prefix and a potential, generate data values for each equivalence class.
+     *
+     * @param prefix
+     * @param suffixValue
+     * @param potValuation
+     * @param consts
+     * @return A mapping from data values to their corresponding SDT guards
+     */
     private Map<DataValue<T>, SDTGuard> generateEquivClasses(Word<PSymbolInstance> prefix,
     		SuffixValue suffixValue,
     		Map<DataValue<T>, SymbolicDataValue> potValuation,
@@ -102,52 +99,65 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
     		valueGuards.put(fresh, new SDTTrueGuard(suffixValue));
     		return valueGuards;
     	}
-		int usedVals = potValuation.size();
-		List<DataValue<T>> potential = new ArrayList<>();
-		potential.addAll(potValuation.keySet());
-		List<DataValue<T>> sortedPot = sort(potential);
+        int usedVals = potValuation.size();
+        List<DataValue<T>> potential = new ArrayList<>();
+        potential.addAll(potValuation.keySet());
+        List<DataValue<T>> sortedPot = sort(potential);
 
-		Valuation vals = new Valuation();
-		for (Map.Entry<DataValue<T>, SymbolicDataValue> pot : potValuation.entrySet()) {
-			SymbolicDataValue r = pot.getValue();
-			DataValue<T> dv = pot.getKey();
-			// TODO: fix unchecked invocation
-			vals.setValue(toVariable(r), dv.getId());
-		}
+        Valuation vals = new Valuation();
+        for (Map.Entry<DataValue<T>, SymbolicDataValue> pot : potValuation.entrySet()) {
+            SymbolicDataValue r = pot.getValue();
+            DataValue<T> dv = pot.getKey();
+            // TODO: fix unchecked invocation
+            vals.setValue(toVariable(r), dv.getId());
+        }
 
-		// smallest
-		DataValue<T> dl = sortedPot.get(0);
-		SymbolicDataValue rl = potValuation.get(dl);
-		IntervalGuard sg = new IntervalGuard(suffixValue, null, rl);
-		DataValue<T> smallest = instantiate(sg, vals, consts, sortedPot);
-		valueGuards.put(smallest, sg);
+        // smallest
+        DataValue<T> dl = sortedPot.get(0);
+        SymbolicDataValue rl = potValuation.get(dl);
+        IntervalGuard sg = new IntervalGuard(suffixValue, null, rl);
+        DataValue<T> smallest = instantiate(sg, vals, consts, sortedPot);
+        valueGuards.put(smallest, sg);
 
-		for (int i = 1; i < usedVals; i++) {
-			// equality
-			EqualityGuard eg = new EqualityGuard(suffixValue, rl);
-			valueGuards.put(dl, eg);
+        for (int i = 1; i < usedVals; i++) {
+            // equality
+            EqualityGuard eg = new EqualityGuard(suffixValue, rl);
+            valueGuards.put(dl, eg);
 
-			// interval
-			DataValue<T> dr = sortedPot.get(i);
-			SymbolicDataValue rr = potValuation.get(dr);
-			IntervalGuard ig = new IntervalGuard(suffixValue, rl, rr);
-			DataValue<T> di = instantiate(ig, vals, consts, sortedPot);
-			valueGuards.put(di, ig);
+            // interval
+            DataValue<T> dr = sortedPot.get(i);
+            SymbolicDataValue rr = potValuation.get(dr);
+            IntervalGuard ig = new IntervalGuard(suffixValue, rl, rr);
+            DataValue<T> di = instantiate(ig, vals, consts, sortedPot);
+            valueGuards.put(di, ig);
 
-			dl = dr;
-			rl = rr;
-		}
-		EqualityGuard eg = new EqualityGuard(suffixValue, rl);
-		valueGuards.put(dl, eg);
+            dl = dr;
+            rl = rr;
+        }
+        EqualityGuard eg = new EqualityGuard(suffixValue, rl);
+        valueGuards.put(dl, eg);
 
-		// greatest
-		IntervalGuard gg = new IntervalGuard(suffixValue, rl, null);
-		DataValue<T> dg = instantiate(gg, vals, consts, sortedPot);
-		valueGuards.put(dg, gg);
+        // greatest
+        IntervalGuard gg = new IntervalGuard(suffixValue, rl, null);
+        DataValue<T> dg = instantiate(gg, vals, consts, sortedPot);
+        valueGuards.put(dg, gg);
 
-		return valueGuards;
-	}
+        return valueGuards;
+    }
 
+    /**
+     * Filter out equivalence classes that are to be removed through suffix optimization.
+     *
+     * @param valueGuards - a mapping between data values and corresponding SDT guards
+     * @param prefix - the prefix
+     * @param suffix - the suffix
+     * @param suffixValue - the suffix value for which to apply optimizations
+     * @param potValuation - potential
+     * @param suffixVals - suffix valuation
+     * @param consts - constants
+     * @param values - word valuation
+     * @return valueGuards without data values that are filtered out due to optimizations
+     */
 	private Map<DataValue<T>, SDTGuard> filterEquivClasses(Map<DataValue<T>, SDTGuard> valueGuards,
 			Word<PSymbolInstance> prefix,
 			SymbolicSuffix suffix,
@@ -180,6 +190,19 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 
 	protected abstract Comparator<DataValue<T>> getComparator();
 
+	/**
+	 * Merge SDT guards corresponding to data values representing equivalence classes from left (corresponding
+	 * to lower data values) to right. Guards will be be merged if their respective sub-SDTs are equivalent,
+	 * taking into account cases where two SDTs can be made equivalent by imposing equality. Any guards
+	 * corresponding to equivalence classes that have been removed through suffix optimization will not be
+	 * merged, but will instead be removed.
+	 * If the merging results in only a single guard, it will be replaced by a True guard.
+	 *
+	 * @param sdts - a mapping from SDT guards to their corresponding sub-SDTs
+	 * @param equivClasses - a mapping from data values to corresponding SDT guards
+	 * @param filteredOut - data values removed through suffix optimization
+	 * @return a mapping from merged SDT guards to their respective sub-trees
+	 */
 	protected Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> sdts,
 			Map<DataValue<T>, SDTGuard> equivClasses,
 			Collection<DataValue<T>> filteredOut) {
@@ -270,17 +293,40 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		return merged;
 	}
 
+	/**
+	 * Check whether two SDTs are equivalent. If one of the SDT guards is an equality guard, check whether
+	 * the SDT corresponding to the other guard is equivalent to the SDT corresponding to the equality guard
+	 * under the restriction of that equality.
+	 *
+	 * @param sdt1
+	 * @param guard1
+	 * @param sdt2
+	 * @param guard2
+	 * @return true if sdt1 is equivalent to sdt2, or can be under equality guard2, or vice versa
+	 */
 	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2) {
 		if (guard1 != null && guard1 instanceof EqualityGuard) {
 			Expression<Boolean> renaming = toExpression(guard1.toExpr());
-			return sdt1.isSemanticallyEquivalent(sdt2, renaming, getSolver());
+			return sdt1.isEquivalentUnderCondition(sdt2, renaming, getSolver());
 		} else if (guard2 != null && guard2 instanceof EqualityGuard) {
 			Expression<Boolean> renaming = toExpression(guard2.toExpr());
-			return sdt2.isSemanticallyEquivalent(sdt1, renaming, getSolver());
+			return sdt2.isEquivalentUnderCondition(sdt1, renaming, getSolver());
 		}
 		return sdt1.isEquivalent(sdt2, new VarMapping<>());
 	}
 
+	/**
+	 * Merge two SDT guards from left to right. Exactly one of the guards must include an equality such that
+	 * there is either an equality on the right register of left guard or an equality on the left register
+	 * of the right guard. In addition, the right register of the left guard must match the left register
+	 * of the right guard. If these conditions are met, the guards will be merged. For example, a guard
+	 * (r1 < s1 <= r2) can be merged with (r2 < s1 < r3), producing the merged guard (r1 < s1 < r3).
+	 * Similarly, (s1 < r1) can be merged with (r1 == s1), producing the merged guard (s1 <= r1).
+	 *
+	 * @param leftGuard
+	 * @param rightGuard
+	 * @return leftGuard merged with rightGuard
+	 */
 	private SDTGuard mergeIntervals(SDTGuard leftGuard, SDTGuard rightGuard) {
 		SuffixValue suffixValue = leftGuard.getParameter();
 		if (leftGuard instanceof EqualityGuard) {
@@ -330,6 +376,14 @@ public abstract class InequalityTheoryWithEq<T> implements Theory<T> {
 		throw new java.lang.IllegalArgumentException("Guards are not compatible for merging");
 	}
 
+	/**
+	 * Check whether two interval guards can be transformed into a disequality guard. This is possible if
+	 * the guards are of the form (r < s), (s == r), (s < r) such that the sub-SDTs of the guards (r < s)
+	 * and (s < r) are equivalent. If so, the guards (r < s) and (s < r) are replaced by a guard (s != r).
+	 *
+	 * @param guards - a mapping from SDT guards to their corresponding sub-SDTs
+	 * @return a new mapping from SDT guards to corresponding sub-SDTs, with guards transformed as described above
+	 */
 	private Map<SDTGuard, SDT> checkForDisequality(Map<SDTGuard, SDT> guards) {
 		int size = guards.size();
 		if (size < 1 || size > 3)
