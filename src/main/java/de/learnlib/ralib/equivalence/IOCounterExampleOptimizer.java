@@ -28,7 +28,7 @@ import net.automatalib.word.Word;
  */
 public interface IOCounterExampleOptimizer {
 
-    public DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
+    DefaultQuery<PSymbolInstance, Boolean> optimizeCE(
             Word<PSymbolInstance> ce, Hypothesis hyp);
 
 }

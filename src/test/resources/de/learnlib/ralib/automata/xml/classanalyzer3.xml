@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<register-automaton>
+    <alphabet>
+        <inputs>
+            <symbol name="I_get"/>
+            <symbol name="I_put">
+                <param type="int" name="p1"/>
+            </symbol>
+        </inputs>
+        <outputs>
+            <symbol name="V"/>
+            <symbol name="O_get">
+                <param type="int" name="p1"/>
+            </symbol>
+        </outputs>
+    </alphabet>
+    <constants>
+        <constant type="int" name="c1">0</constant>
+    </constants>
+    <globals>
+        <variable type="int" name="r1">0</variable>
+        <variable type="int" name="tmp_int_1">0</variable>
+    </globals>
+    <locations>
+        <location name="l0" initial="true"/>
+        <location name="l1"/>
+        <location name="l2"/>
+        <location name="l3"/>
+        <location name="l4"/>
+        <location name="l5"/>
+    </locations>
+    <transitions>
+        <transition from="l0" to="l2" symbol="I_put">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l0" to="l3" symbol="I_get">
+            <assignments/>
+        </transition>
+        <transition from="l1" to="l2" symbol="I_put">
+            <assignments>
+                <assign to="r1">p1</assign>
+            </assignments>
+        </transition>
+        <transition from="l1" to="l4" symbol="I_get">
+            <assignments/>
+        </transition>
+        <transition from="l2" to="l1" symbol="V">
+            <assignments/>
+        </transition>
+        <transition from="l3" to="l0" symbol="O_get" params="c1">
+            <assignments/>
+        </transition>
+        <transition from="l4" to="l1" symbol="O_get" params="tmp_int_1">
+            <assignments>
+                <assign to="tmp_int_1">r1</assign>
+            </assignments>
+        </transition>
+    </transitions>
+</register-automaton>

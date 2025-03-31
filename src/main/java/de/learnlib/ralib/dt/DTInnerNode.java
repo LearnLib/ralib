@@ -5,14 +5,16 @@ import java.util.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 
 public class DTInnerNode extends DTNode {
 
-	private SymbolicSuffix suffix;
+	private final SymbolicSuffix suffix;
 
-	private Set<DTBranch> branches;
+	private final Set<DTBranch> branches;
 
 	public DTInnerNode(SymbolicSuffix suffix) {
 		super();
@@ -39,11 +41,13 @@ public class DTInnerNode extends DTNode {
 	protected Pair<DTNode, PathResult> sift(MappedPrefix prefix, TreeOracle oracle, boolean ioMode) {
 		PathResult r = PathResult.computePathResult(oracle, prefix, getSuffixes(), ioMode);
 		for (DTBranch b : branches) {
-			if (b.matches(r)) {
+			Bijection<DataValue> remapping = b.matches(r);
+			if (remapping != null) {
+				r.setRemapping(remapping);
 				return new ImmutablePair<DTNode, PathResult>(b.getChild(), r);
 			}
 		}
-
+		r.setRemapping(Bijection.identity(r.memorableValues()));
 		return null;
 	}
 

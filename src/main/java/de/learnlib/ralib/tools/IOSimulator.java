@@ -173,7 +173,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
 
         final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
+                = new OutputSymbol("_io_err");
 
        IOOracle back = new SULOracle(sulLearn, ERROR);
        IOCache ioCache = new IOCache(back);

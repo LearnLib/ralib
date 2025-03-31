@@ -138,4 +138,7 @@ public class ConsoleClient {
         }
     }
 
+    public RaLibTool getTool() {
+        return tool;
+    }
 }

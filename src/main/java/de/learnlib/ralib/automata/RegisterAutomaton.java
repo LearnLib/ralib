@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.automaton.DeterministicAutomaton;
@@ -37,14 +37,14 @@ import net.automatalib.word.Word;
 public abstract class RegisterAutomaton
         implements DeterministicAutomaton<RALocation, ParameterizedSymbol, Transition> {
 
-    private final VarValuation initialRegisters;
+    private final RegisterValuation initialRegisters;
 
-    public RegisterAutomaton(VarValuation initialRegisters) {
+    public RegisterAutomaton(RegisterValuation initialRegisters) {
         this.initialRegisters = initialRegisters;
     }
 
     public RegisterAutomaton() {
-        this(new VarValuation());
+        this(new RegisterValuation());
     }
 
 
@@ -75,7 +75,7 @@ public abstract class RegisterAutomaton
     /**
      * @return the initialRegisters
      */
-    public VarValuation getInitialRegisters() {
+    public RegisterValuation getInitialRegisters() {
         return initialRegisters;
     }
 

@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
 import de.learnlib.ralib.theory.Theory;
@@ -72,7 +73,7 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
@@ -80,19 +81,19 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         //        "IAck", new DataType[] {intType});
 
         ParameterizedSymbol iin = new InputSymbol(
-                "IIn", new DataType[] {intType});
+                "IIn", intType);
 
         ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
         ParameterizedSymbol isend = new InputSymbol(
-                "ISendFrame", new DataType[] {});
+                "ISendFrame");
 
         ParameterizedSymbol oframe = new OutputSymbol(
-                "OFrame", new DataType[] {intType, intType});
+                "OFrame", intType, intType);
 
-        DataValue d2 = new DataValue(intType, 2);
-        //DataValue c1 = new DataValue(intType, 0);
+        DataValue d2 = new DataValue(intType, new BigDecimal(2));
+        //DataValue c1 = new DataValue(intType, BigDecimal.ZERO);
 
         //****** ROW:  IIn OOK ISendFrame
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -109,12 +110,11 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
 
         TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
-        logger.log(Level.FINE, "SDT: {0}", tqr.getSdt());
+        logger.log(Level.FINE, "SDT: {0}", tqr.sdt());
 
-        final String expected = "[(r1==p1) && (c1==p2), (r1==p1) && (c1!=p2), (r1!=p1) && TRUE]";
+        final String expected = "[((2 == 'p1') && ('c1' == 'p2')), ((2 == 'p1') && ('c1' != 'p2')), ((2 != 'p1') && true)]";
 
-        Branching b = mto.getInitialBranching(prefix, oframe, tqr.getPiv(), tqr.getSdt());
+        Branching b = mto.getInitialBranching(prefix, oframe, tqr.sdt());
         String bString = Arrays.toString(b.getBranches().values().toArray());
 
         Assert.assertEquals(b.getBranches().size(), 3);

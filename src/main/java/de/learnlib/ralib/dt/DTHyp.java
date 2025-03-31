@@ -6,14 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterAssignment;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class DTHyp extends Hypothesis {
@@ -72,24 +74,27 @@ public class DTHyp extends Hypothesis {
 	}
 
     protected List<Word<PSymbolInstance>> getDTTransitions(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation(getInitialRegisters());
+        RegisterValuation vars = RegisterValuation.copyOf(getInitialRegisters());
         DTLeaf current = dt.getLeaf(Word.epsilon());
         List<Word<PSymbolInstance>> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
 
-            ParValuation pars = new ParValuation(psi);
+            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(psi);
 
-            Map<Word<PSymbolInstance>, TransitionGuard> candidates =
+            Map<Word<PSymbolInstance>, Expression<Boolean>> candidates =
             		current.getBranching(psi.getBaseSymbol()).getBranches();
 
             if (candidates == null) {
                 return null;
             }
 
+			RegisterAssignment ra = current.getPrimePrefix().getAssignment();
+
             boolean found = false;
-            for (Map.Entry<Word<PSymbolInstance>, TransitionGuard> e : candidates.entrySet()) {
-            	TransitionGuard g = e.getValue();
-            	if (g.isSatisfied(vars, pars, this.constants)) {
+            for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : candidates.entrySet()) {
+				Expression<Boolean> g = e.getValue();
+				g = SMTUtil.valsToRegisters(g, ra);
+            	if (g.evaluateSMT(SMTUtil.compose(vars, pars, this.constants))) {
             		Word<PSymbolInstance> w = e.getKey();
             		vars = current.getAssignment(w, dt.getLeaf(w)).compute(vars, pars, this.constants);
             		current = dt.getLeaf(w);
@@ -109,6 +114,7 @@ public class DTHyp extends Hypothesis {
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Word<PSymbolInstance>> tseq = getDTTransitions(word);
+		assert tseq.size() == word.size();
 		if (tseq == null)
 			return dt.getLeaf(word).getAccessSequence();
 		return tseq.get(tseq.size() - 1);
@@ -125,6 +131,7 @@ public class DTHyp extends Hypothesis {
 
 		if (leaf.getAccessSequence().equals(location)) {
 			Word<PSymbolInstance> tseq = transformTransitionSequence(word);
+			//System.out.println("TSEQ: " + tseq);
 			if (tseq == null) {
 				ParameterizedSymbol ps = suffix.firstSymbol().getBaseSymbol();
 				for (Word<PSymbolInstance> p : leaf.getBranching(ps).getBranches().keySet()) {

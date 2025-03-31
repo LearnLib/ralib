@@ -3,7 +3,7 @@ package de.learnlib.ralib.dt;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -14,15 +14,11 @@ public class ShortPrefix extends MappedPrefix {
 	private final Map<ParameterizedSymbol, Branching> branching = new LinkedHashMap<ParameterizedSymbol, Branching>();
 
 	public ShortPrefix(Word<PSymbolInstance> prefix) {
-		super(prefix);
-	}
-
-	public ShortPrefix(Word<PSymbolInstance> prefix, PIV piv) {
-		super(prefix, piv);
+		super(prefix, new Bijection<>());
 	}
 
 	public ShortPrefix(MappedPrefix mp) {
-		super(mp);
+		super(mp, mp.getRemapping());
 	}
 
 	public Map<ParameterizedSymbol, Branching> getBranching() {

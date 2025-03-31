@@ -18,9 +18,9 @@ package de.learnlib.ralib.example.sdts;
 
 import java.util.Map;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -29,14 +29,14 @@ import net.automatalib.word.Word;
  */
 public class LoginExampleBranching implements Branching {
 
-    private final Map<Word<PSymbolInstance>, TransitionGuard> branches;
+    private final Map<Word<PSymbolInstance>, Expression<Boolean>> branches;
 
-    public LoginExampleBranching(Map<Word<PSymbolInstance>, TransitionGuard> branches) {
+    public LoginExampleBranching(Map<Word<PSymbolInstance>, Expression<Boolean>> branches) {
         this.branches = branches;
     }
 
     @Override
-    public Map<Word<PSymbolInstance>, TransitionGuard> getBranches() {
+    public Map<Word<PSymbolInstance>, Expression<Boolean>> getBranches() {
         return branches;
     }
 

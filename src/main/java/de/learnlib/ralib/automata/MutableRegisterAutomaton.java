@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
-import de.learnlib.ralib.data.VarValuation;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.automaton.MutableDeterministic;
@@ -47,7 +47,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
 
     private final Set<RALocation> locations = new LinkedHashSet<>();
 
-    public MutableRegisterAutomaton(Constants consts, VarValuation initialRegisters) {
+    public MutableRegisterAutomaton(Constants consts, RegisterValuation initialRegisters) {
         super(initialRegisters);
         this.constants = consts;
     }
@@ -87,12 +87,12 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
     }
 
     protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation(getInitialRegisters());
+        RegisterValuation vars = RegisterValuation.copyOf(getInitialRegisters());
         RALocation current = initial;
         List<Transition> tseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
 
-            ParValuation pars = new ParValuation(psi);
+            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(psi);
 
             Collection<Transition> candidates =
                     current.getOut(psi.getBaseSymbol());
@@ -119,13 +119,13 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         return tseq;
     }
 
-    protected List<Pair<Transition,VarValuation>> getTransitionsAndValuations(Word<PSymbolInstance> dw) {
-        VarValuation vars = new VarValuation(getInitialRegisters());
+    protected List<Pair<Transition,RegisterValuation>> getTransitionsAndValuations(Word<PSymbolInstance> dw) {
+        RegisterValuation vars = RegisterValuation.copyOf(getInitialRegisters());
         RALocation current = initial;
-        List<Pair<Transition,VarValuation>> tvseq = new ArrayList<>();
+        List<Pair<Transition,RegisterValuation>> tvseq = new ArrayList<>();
         for (PSymbolInstance psi : dw) {
 
-            ParValuation pars = new ParValuation(psi);
+            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(psi);
 
             Collection<Transition> candidates =
                     current.getOut(psi.getBaseSymbol());
@@ -139,7 +139,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
                 if (t.isEnabled(vars, pars, constants)) {
                     vars = t.execute(vars, pars, constants);
                     current = t.getDestination();
-                    tvseq.add(Pair.of(t, new VarValuation(vars)));
+                    tvseq.add(Pair.of(t, RegisterValuation.copyOf(vars)));
                     found = true;
                     break;
                 }

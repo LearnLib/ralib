@@ -7,7 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTLeaf;
 
 /**
  * Wrapper around an SDT, which labels each node in the SDT with an integer identifier
