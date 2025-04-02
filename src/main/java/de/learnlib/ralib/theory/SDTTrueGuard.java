@@ -81,13 +81,9 @@ public class SDTTrueGuard extends SDTGuard {
     public int hashCode() {
         int hash = 5;
         hash = 59 * hash + Objects.hashCode(this.getClass());
+        hash = 59 * hash + Objects.hashCode(parameter);
 
         return hash;
-    }
-
-    @Override
-    public Set<SDTGuard> mergeWith(SDTGuard other, List<SymbolicDataValue> regPotential) {
-        throw new IllegalStateException("trying to merge true guard");
     }
 
     @Override
@@ -100,10 +96,4 @@ public class SDTTrueGuard extends SDTGuard {
     	return new SDTTrueGuard(this);
     }
 
-
-//    @Override
-//    public SDTGuard mergeWith(Set<SDTGuard> _merged) {
-//        return new SDTOrGuard(this.parameter, _merged.toArray(new SDTGuard[]{}));
-//
-//    }
 }

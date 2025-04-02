@@ -16,6 +16,8 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -42,6 +44,10 @@ import de.learnlib.ralib.theory.SDTIfGuard;
 import de.learnlib.ralib.theory.SDTMultiGuard;
 import de.learnlib.ralib.theory.SDTTrueGuard;
 import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
  * Implementation of Symbolic Decision Trees.
@@ -166,6 +172,17 @@ public class SDT implements SymbolicDecisionTree {
             }
         }
         return variables;
+    }
+
+    public Set<SuffixValue> getSuffixValues() {
+    	Set<SuffixValue> values = new LinkedHashSet<>();
+    	if (this instanceof SDTLeaf)
+    		return values;
+    	for (Entry<SDTGuard, SDT> e : children.entrySet()) {
+    		values.add(e.getKey().getParameter());
+    		values.addAll(e.getValue().getSuffixValues());
+    	}
+    	return values;
     }
 
     @Override
@@ -538,4 +555,30 @@ public class SDT implements SymbolicDecisionTree {
 		return new SDT(cc);
 	}
 
+	/**
+	 * Check if a SDT is semantically equivalent to another, given some conditions on the other SDT
+	 *
+	 * @param other - the SDT to compare to
+	 * @param condition - the conditions to apply to other
+	 * @param solver - a constraint solver
+	 */
+	public boolean isEquivalentUnderCondition(SDT other, Expression<Boolean> condition, NativeZ3Solver solver) {
+		Map<GuardExpression, Boolean> expressions = this.getGuardExpressions(new Constants());
+		Map<GuardExpression, Boolean> otherExpressions = other.getGuardExpressions(new Constants());
+		for (Map.Entry<GuardExpression, Boolean> entry : expressions.entrySet()) {
+			Expression<Boolean> x = toExpression(entry.getKey());
+			Boolean outcome = entry.getValue();
+			for (Map.Entry<GuardExpression, Boolean> otherEntry : otherExpressions.entrySet()) {
+				if (outcome != otherEntry.getValue()) {
+					Expression<Boolean> otherX = toExpression(otherEntry.getKey());
+					Expression<Boolean> renamed = ExpressionUtil.and(otherX, condition);
+					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
+					if (solver.isSatisfiable(con) == Result.SAT) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 }

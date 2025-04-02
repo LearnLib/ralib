@@ -96,9 +96,17 @@ public class ExpressionParser {
             related = pred.split("!!");
             relation = Relation.NOT_EQUALS;
         }
+        else if (pred.contains("<=")) {
+        	related = pred.split("<=");
+        	relation = Relation.SMALLER_OR_EQUAL;
+        }
         else if (pred.contains("<")) {
             related = pred.split("<");
             relation = Relation.SMALLER;
+        }
+        else if (pred.contains(">=")) {
+        	related = pred.split(">=");
+        	relation = Relation.BIGGER_OR_EQUAL;
         }
         else if (pred.contains(">")) {
             related = pred.split(">");

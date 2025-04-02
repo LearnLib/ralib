@@ -96,7 +96,7 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries2 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries2, 36);
+        Assert.assertEquals(memQueries2, 27);
 
         Word<PSymbolInstance> ce3 = Word.fromSymbols(
         		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
@@ -114,6 +114,6 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries3 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries3, 44);
+        Assert.assertEquals(memQueries3, 36);
 	}
 }

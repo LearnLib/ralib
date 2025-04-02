@@ -136,8 +136,12 @@ public class JContraintsUtil {
                 return new NumericBooleanExpression(lv, NumericComparator.NE, rv);
             case SMALLER:
                 return new NumericBooleanExpression(lv, NumericComparator.LT, rv);
+            case SMALLER_OR_EQUAL:
+            	return new NumericBooleanExpression(lv, NumericComparator.LE, rv);
             case BIGGER:
                 return new NumericBooleanExpression(lv, NumericComparator.GT, rv);
+            case BIGGER_OR_EQUAL:
+            	return new NumericBooleanExpression(lv, NumericComparator.GE, rv);
 
             default:
                 throw new UnsupportedOperationException(
