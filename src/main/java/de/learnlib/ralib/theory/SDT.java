@@ -26,12 +26,10 @@ import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.theory.SDTGuard;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
-import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 /**
@@ -135,7 +133,6 @@ public class SDT {
     	return values;
     }
 
-    @Override
     public boolean isAccepting() {
 
             for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
@@ -467,20 +464,20 @@ public class SDT {
 	 *
 	 * @param other - the SDT to compare to
 	 * @param condition - the conditions to apply to other
-	 * @param solver - a constraint solver
 	 */
-	public boolean isEquivalentUnderCondition(SDT other, Expression<Boolean> condition, NativeZ3Solver solver) {
-		Map<GuardExpression, Boolean> expressions = this.getGuardExpressions(new Constants());
-		Map<GuardExpression, Boolean> otherExpressions = other.getGuardExpressions(new Constants());
-		for (Map.Entry<GuardExpression, Boolean> entry : expressions.entrySet()) {
-			Expression<Boolean> x = toExpression(entry.getKey());
+	public boolean isEquivalentUnderCondition(SDT other, Expression<Boolean> condition) {
+		Map<Expression<Boolean>, Boolean> expressions = this.getGuardExpressions(new Constants());
+		Map<Expression<Boolean>, Boolean> otherExpressions = other.getGuardExpressions(new Constants());
+		for (Map.Entry<Expression<Boolean>, Boolean> entry : expressions.entrySet()) {
+			Expression<Boolean> x = entry.getKey();
 			Boolean outcome = entry.getValue();
-			for (Map.Entry<GuardExpression, Boolean> otherEntry : otherExpressions.entrySet()) {
+			for (Map.Entry<Expression<Boolean>, Boolean> otherEntry : otherExpressions.entrySet()) {
 				if (outcome != otherEntry.getValue()) {
-					Expression<Boolean> otherX = toExpression(otherEntry.getKey());
+					Expression<Boolean> otherX = otherEntry.getKey();
 					Expression<Boolean> renamed = ExpressionUtil.and(otherX, condition);
 					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
-					if (solver.isSatisfiable(con) == Result.SAT) {
+					ConstraintSolver solver = new ConstraintSolver();
+                    if (solver.isSatisfiable(con, new Mapping<>())) {
 
 						return false;
 					}
@@ -498,10 +495,9 @@ public class SDT {
 	 * @param sdt1
 	 * @param sdt2
 	 * @param bi
-	 * @param solver
 	 * @return
 	 */
-	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection<DataValue> bi, ConstraintSolver solver) {
+	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, Bijection<DataValue> bi) {
 		sdt1 = sdt1.relabel(SDTRelabeling.fromBijection(bi));
 		Set<DataValue> regs1 = sdt1.getDataValues();
         Set<DataValue> regs2 = sdt2.getDataValues();
@@ -511,7 +507,7 @@ public class SDT {
 		}
 
 		if (new HashSet<>(regs1).containsAll(regs2)) {
-			return sdt1.isEquivalent(sdt2, solver) ? bi : null;
+			return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE) ? bi : null;
 		}
 
 		Set<DataValue> replace = new LinkedHashSet<>(regs1);
@@ -522,7 +518,7 @@ public class SDT {
 		RemappingIterator<DataValue> it = new RemappingIterator<>(replace, by);
 		while (it.hasNext()) {
 			Bijection<DataValue> vars = it.next();
-			if (sdt2.isEquivalent(sdt1.relabel(SDTRelabeling.fromBijection(vars)), solver)) {
+			if (sdt2.isEquivalentUnderCondition(sdt1.relabel(SDTRelabeling.fromBijection(vars)), ExpressionUtil.TRUE)) {
 				Bijection<DataValue> b = new Bijection<>();
 				b.putAll(bi);
 				b.putAll(vars);
@@ -538,11 +534,10 @@ public class SDT {
 	 *
 	 * @param sdt1
 	 * @param sdt2
-	 * @param solver
 	 * @return
 	 */
-	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
-		return equivalentUnderBijection(sdt1, sdt2, new Bijection<>(), solver);
+	public static Bijection<DataValue> equivalentUnderBijection(SDT sdt1, SDT sdt2) {
+		return equivalentUnderBijection(sdt1, sdt2, new Bijection<>());
 	}
 
 	/**
@@ -550,11 +545,10 @@ public class SDT {
 	 *
 	 * @param sdt1
 	 * @param sdt2
-	 * @param solver
 	 * @return
 	 */
-	public static boolean equivalentUnderId(SDT sdt1, SDT sdt2, ConstraintSolver solver) {
-		return sdt1.isEquivalent(sdt2, solver);
+	public static boolean equivalentUnderId(SDT sdt1, SDT sdt2) {
+		return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE);
 	}
 
 	/**

@@ -37,9 +37,9 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 				new SDTGuard.EqualityGuard(s1, r1), SDTLeaf.ACCEPTING,
 				new SDTGuard.IntervalGuard(s1, r1, null), SDTLeaf.REJECTING));
 
-		boolean equiv1 = sdt1.isEquivalent(sdt2, solver);
-		boolean equiv2 = sdt1.isEquivalent(sdt3, solver);
-		boolean equiv3 = sdt2.isEquivalent(sdt3, solver);
+		boolean equiv1 = sdt1.isEquivalent(sdt2, new Bijection<>());
+		boolean equiv2 = sdt1.isEquivalent(sdt3, new Bijection<>());
+		boolean equiv3 = sdt2.isEquivalent(sdt3, new Bijection<>());
 
 		Assert.assertTrue(equiv1);
 		Assert.assertTrue(equiv2);
@@ -59,7 +59,7 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 						new SDTGuard.EqualityGuard(s2, r2), SDTLeaf.REJECTING,
 						new SDTGuard.DisequalityGuard(s2, r2), SDTLeaf.ACCEPTING))));
 
-		boolean equiv4 = sdt4.isEquivalent(sdt5, solver);
+		boolean equiv4 = sdt4.isEquivalent(sdt5, new Bijection<>());
 		Assert.assertFalse(equiv4);
 	}
 
@@ -95,9 +95,9 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 		Bijection<DataValue> bijection2 = new Bijection<>();
 		bijection2.put(r1, r3);
 
-		Bijection<DataValue> bi1 = SDT.equivalentUnderBijection(sdt1, sdt2, solver);
-		Bijection<DataValue> bi2 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection1, solver);
-		Bijection<DataValue> bi3 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection2, solver);
+		Bijection<DataValue> bi1 = SDT.equivalentUnderBijection(sdt1, sdt2, new Bijection<>());
+		Bijection<DataValue> bi2 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection1);
+		Bijection<DataValue> bi3 = SDT.equivalentUnderBijection(sdt1, sdt2, bijection2);
 
 		Assert.assertEquals(bi1.size(), 2);
 		Assert.assertEquals(bi1.size(), 2);

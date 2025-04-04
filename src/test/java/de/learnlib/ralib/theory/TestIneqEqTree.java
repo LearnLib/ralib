@@ -31,23 +31,13 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
+
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -105,38 +95,24 @@ public class TestIneqEqTree extends RaLibTestSuite {
         SDT sdt = res.sdt();
 
         final String expectedTree = "[r1, r2]-+\n" +
-                "        []-(s1!=1.0[DOUBLE])\n" +
-                "         |    []-TRUE: s2\n" +
-                "         |          []-TRUE: s3\n" +
+                "        []-(s1=1.0[DOUBLE])\n" +
+                "         |    []-(s2>2.0[DOUBLE])\n" +
+                "         |     |    []-(s3=2.0[DOUBLE])\n" +
+                "         |     |     |    [Leaf+]\n" +
+                "         |     |     +-(s3!=2.0[DOUBLE])\n" +
+                "         |     |          [Leaf-]\n" +
+                "         |     +-(s2<=2.0[DOUBLE])\n" +
+                "         |          []-(s3=s2)\n" +
+                "         |           |    [Leaf+]\n" +
+                "         |           +-(s3!=s2)\n" +
                 "         |                [Leaf-]\n" +
-                "         +-(s1=1.0[DOUBLE])\n" +
-                "              []-(s2=2.0[DOUBLE])\n" +
-                "               |    []-(s3!=s2)\n" +
-                "               |     |    [Leaf-]\n" +
-                "               |     +-(s3=s2)\n" +
-                "               |          [Leaf+]\n" +
-                "               +-(s2<2.0[DOUBLE])\n" +
-                "               |    []-(s3!=s2)\n" +
-                "               |     |    [Leaf-]\n" +
-                "               |     +-(s3=s2)\n" +
-                "               |          [Leaf+]\n" +
-                "               +-(s2>2.0[DOUBLE])\n" +
-                "                    []-(s3!=2.0[DOUBLE])\n" +
-                "                     |    [Leaf-]\n" +
-                "                     +-(s3=2.0[DOUBLE])\n" +
-                "                          [Leaf+]\n";
+                "         +-(s1!=1.0[DOUBLE])\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-TRUE: s3\n" +
+                "                          [Leaf-]\n";
 
-        SDT expected = new SDT(Map.of(
-        		new EqualityGuard(s1,r1), new SDT(Map.of(
-        				IntervalGuard.greaterGuard(s2, r2), new SDT(Map.of(
-        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
-        						new DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
-        				IntervalGuard.lessOrEqualGuard(s2, r2), new SDT(Map.of(
-        						new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
-        						new DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new SDTTrueGuard(s2), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+        String tree = sdt.toString();
+        Assert.assertEquals(tree, expectedTree);
 
         Branching b = mto.getInitialBranching(
                 prefix, PriorityQueueSUL.OFFER, sdt);

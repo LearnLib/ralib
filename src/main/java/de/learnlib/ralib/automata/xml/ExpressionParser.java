@@ -96,7 +96,7 @@ public class ExpressionParser {
         }
         else if (pred.contains("<=")) {
         	related = pred.split("<=");
-        	relation = Relation.SMALLER_OR_EQUAL;
+        	relation = NumericComparator.LE;
         }
         else if (pred.contains("<")) {
             related = pred.split("<");
@@ -104,7 +104,7 @@ public class ExpressionParser {
         }
         else if (pred.contains(">=")) {
         	related = pred.split(">=");
-        	relation = Relation.BIGGER_OR_EQUAL;
+        	relation = NumericComparator.GE;
         }
         else if (pred.contains(">")) {
             related = pred.split(">");

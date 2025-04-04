@@ -72,13 +72,28 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         public Set<SDTGuardElement> getRegisters() { return Set.of(register); }
     }
 
-    record IntervalGuard(SymbolicDataValue.SuffixValue parameter, SDTGuardElement leftLimit, SDTGuardElement rightLimit) implements SDTGuard {
+    record IntervalGuard(SymbolicDataValue.SuffixValue parameter,
+                         SDTGuardElement leftLimit, SDTGuardElement rightLimit,
+                         boolean leftClosed, boolean rightClosed) implements SDTGuard {
+
+        public IntervalGuard(SuffixValue param, SDTGuardElement leftLimit, SDTGuardElement rightLimit) {
+            this(param, leftLimit, rightLimit, false, false);
+        }
+
         @Override
         public String toString() {
-            // TODO: align second case and make one statement
-            if (leftLimit == null) return "(" + parameter + "<" + this.rightLimit.toString() + ")";
-            if (rightLimit == null) return "(" + parameter + ">" + this.leftLimit + ")";
-            return "(" + leftLimit + "<" + parameter + "<" + this.rightLimit + ")";
+            if (leftLimit == null) {
+                return "(" + this.getParameter().toString() + (rightClosed ? "<=" : "<") + this.rightLimit.toString() + ")";
+            }
+            if (rightLimit == null) {
+                return "(" + this.getParameter().toString() + (leftClosed ? ">=" : ">") + this.leftLimit.toString() + ")";
+            }
+            return "(" + leftLimit.toString() +
+                    (leftClosed ? "<=" : "<") +
+                    this.getParameter().toString() +
+                    (rightClosed ? "<=" : "<") +
+                    this.rightLimit.toString() +
+                    ")";
         }
 
         @Override
@@ -101,6 +116,30 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         }
 
         public boolean isIntervalGuard() { return (leftLimit != null && rightLimit != null); }
+
+        public boolean isLeftClosed() {
+            return leftClosed;
+        }
+
+        public boolean isRightClosed() {
+            return rightClosed;
+        }
+
+        public static IntervalGuard lessGuard(SuffixValue param, SDTGuardElement r) {
+            return new IntervalGuard(param, null, r, false, false);
+        }
+
+        public static IntervalGuard lessOrEqualGuard(SuffixValue param, SDTGuardElement r) {
+            return new IntervalGuard(param, null, r, false, true);
+        }
+
+        public static IntervalGuard greaterGuard(SuffixValue param, SDTGuardElement r) {
+            return new IntervalGuard(param, r, null, false, false);
+        }
+
+        public static IntervalGuard greaterOrEqualGuard(SuffixValue param, SDTGuardElement r) {
+            return new IntervalGuard(param, r, null, true, false);
+        }
     }
 
     record SDTAndGuard(SymbolicDataValue.SuffixValue parameter, List<SDTGuard> conjuncts) implements SDTGuard {

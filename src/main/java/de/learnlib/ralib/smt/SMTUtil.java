@@ -17,7 +17,11 @@ public class SMTUtil {
         //System.out.println(Arrays.toString(varVals));
         Arrays.stream(varVals).sequential().flatMap( vv -> vv.entrySet().stream() ).forEach( e -> {
             assert !val.containsValueFor(e.getKey());
-            val.setValue(e.getKey(), e.getValue().getValue());
+            if (e.getValue() != null) {
+                val.setValue(e.getKey(), e.getValue().getValue());
+            } else {
+                System.out.println("Warning: null value for " + e.getKey());
+            }
         });
         return val;
     }

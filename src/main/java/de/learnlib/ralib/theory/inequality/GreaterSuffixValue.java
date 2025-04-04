@@ -5,14 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.Conjunction;
-import de.learnlib.ralib.automata.guards.GuardExpression;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class GreaterSuffixValue extends SuffixValueRestriction {
 
@@ -30,15 +32,15 @@ public class GreaterSuffixValue extends SuffixValueRestriction {
 	}
 
 	@Override
-	public GuardExpression toGuardExpression(Set<SymbolicDataValue> vals) {
-		List<GuardExpression> expr = new ArrayList<>();
+	public Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals) {
+		List<Expression<Boolean>> expr = new ArrayList<>();
 		for (SymbolicDataValue sdv : vals) {
-			GuardExpression g = new AtomicGuardExpression<SuffixValue, SymbolicDataValue>(parameter, Relation.BIGGER, sdv);
+			Expression<Boolean> g = new NumericBooleanExpression(parameter, NumericComparator.GT, sdv);
 			expr.add(g);
 		}
-		GuardExpression expArr[] = new GuardExpression[expr.size()];
+		Expression<Boolean> expArr[] = new Expression[expr.size()];
 		expArr = expr.toArray(expArr);
-		return new Conjunction(expArr);
+		return ExpressionUtil.and(expArr);
 	}
 
 	@Override

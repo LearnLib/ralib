@@ -21,14 +21,11 @@ package de.learnlib.ralib.tools.theories;
 import java.math.BigDecimal;
 import java.util.*;
 
+import de.learnlib.ralib.data.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
