@@ -2,31 +2,31 @@
 <register-automaton>
    <alphabet>
       <inputs>
-         <symbol name="IRepdigit3"> 
-            <param type="int" name="p0"/>
-            <param type="int" name="p1"/>
-            <param type="int" name="p2"/> 
-         </symbol>
-         <symbol name="IPalindrome3"> 
-            <param type="int" name="p0"/>
-            <param type="int" name="p1"/>
-            <param type="int" name="p2"/> 
-         </symbol>
-         <symbol name="IPalindrome4"> 
+         <symbol name="IRepdigit3">
             <param type="int" name="p0"/>
             <param type="int" name="p1"/>
             <param type="int" name="p2"/>
-            <param type="int" name="p3"/> 
          </symbol>
-         <symbol name="IRepdigit2"> 
-            <param type="int" name="p0"/>
-            <param type="int" name="p1"/> 
-         </symbol>
-         <symbol name="IRepdigit4"> 
+         <symbol name="IPalindrome3">
             <param type="int" name="p0"/>
             <param type="int" name="p1"/>
             <param type="int" name="p2"/>
-            <param type="int" name="p3"/> 
+         </symbol>
+         <symbol name="IPalindrome4">
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/>
+            <param type="int" name="p3"/>
+         </symbol>
+         <symbol name="IRepdigit2">
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+         </symbol>
+         <symbol name="IRepdigit4">
+            <param type="int" name="p0"/>
+            <param type="int" name="p1"/>
+            <param type="int" name="p2"/>
+            <param type="int" name="p3"/>
          </symbol>
       </inputs>
       <outputs>
@@ -44,12 +44,12 @@
       <variable type="int" name="vp2">0</variable>
    </globals>
    <locations>
-      <location name="id4"/> 
-      <location name="id5" initial="true"/> 
-      <location name="id2"/> 
-      <location name="id3"/> 
-      <location name="id0"/> 
-      <location name="id1"/> 
+      <location name="id4"/>
+      <location name="id5" initial="true"/>
+      <location name="id2"/>
+      <location name="id3"/>
+      <location name="id0"/>
+      <location name="id1"/>
    </locations>
    <transitions>
       <transition from="id0" to="id5" symbol="ONo" >

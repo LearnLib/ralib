@@ -3,13 +3,13 @@
    <alphabet>
       <inputs>
          <symbol name="IGet"/>
-         <symbol name="IPut"> 
-            <param type="int" name="p0"/> 
+         <symbol name="IPut">
+            <param type="int" name="p0"/>
          </symbol>
       </inputs>
       <outputs>
-         <symbol name="OGet"> 
-            <param type="int" name="p0"/> 
+         <symbol name="OGet">
+            <param type="int" name="p0"/>
          </symbol>
          <symbol name="ONOK"/>
          <symbol name="OOK"/>
