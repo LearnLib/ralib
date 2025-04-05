@@ -3,17 +3,17 @@
    <alphabet>
       <inputs>
          <symbol name="ISendFrame"/>
-         <symbol name="IAck"> 
-            <param type="int" name="p0"/> 
+         <symbol name="IAck">
+            <param type="int" name="p0"/>
          </symbol>
-         <symbol name="IIn"> 
-            <param type="int" name="p0"/> 
+         <symbol name="IIn">
+            <param type="int" name="p0"/>
          </symbol>
       </inputs>
       <outputs>
-         <symbol name="OFrame"> 
+         <symbol name="OFrame">
             <param type="int" name="p0"/>
-            <param type="int" name="p1"/> 
+            <param type="int" name="p1"/>
          </symbol>
          <symbol name="ONOK"/>
          <symbol name="OOK"/>
@@ -27,36 +27,36 @@
       <variable type="int" name="vd">0</variable>
    </globals>
    <locations>
-      <location name="id8"/> 
-      <location name="id9"/> 
-      <location name="id6"/> 
-      <location name="id7"/> 
-      <location name="id4"/> 
-      <location name="id5"/> 
-      <location name="id2"/> 
-      <location name="id3"/> 
-      <location name="id0"/> 
-      <location name="id1"/> 
-      <location name="id10"/> 
-      <location name="id11"/> 
-      <location name="id12"/> 
-      <location name="id13"/> 
-      <location name="id14"/> 
-      <location name="id15"/> 
-      <location name="id16"/> 
-      <location name="id17"/> 
-      <location name="id18"/> 
-      <location name="id19"/> 
-      <location name="id29" initial="true"/> 
-      <location name="id28"/> 
-      <location name="id21"/> 
-      <location name="id20"/> 
-      <location name="id23"/> 
-      <location name="id22"/> 
-      <location name="id25"/> 
-      <location name="id24"/> 
-      <location name="id27"/> 
-      <location name="id26"/> 
+      <location name="id8"/>
+      <location name="id9"/>
+      <location name="id6"/>
+      <location name="id7"/>
+      <location name="id4"/>
+      <location name="id5"/>
+      <location name="id2"/>
+      <location name="id3"/>
+      <location name="id0"/>
+      <location name="id1"/>
+      <location name="id10"/>
+      <location name="id11"/>
+      <location name="id12"/>
+      <location name="id13"/>
+      <location name="id14"/>
+      <location name="id15"/>
+      <location name="id16"/>
+      <location name="id17"/>
+      <location name="id18"/>
+      <location name="id19"/>
+      <location name="id29" initial="true"/>
+      <location name="id28"/>
+      <location name="id21"/>
+      <location name="id20"/>
+      <location name="id23"/>
+      <location name="id22"/>
+      <location name="id25"/>
+      <location name="id24"/>
+      <location name="id27"/>
+      <location name="id26"/>
    </locations>
    <transitions>
       <transition from="id0" to="id2" symbol="ONOK" />
