@@ -292,7 +292,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                         newValueIfExists(remap, g.register));
             case SDTGuard.IntervalGuard g:
                 return new SDTGuard.IntervalGuard(newValueIfExists(remap, g.parameter),
-                        newValueIfExists(remap, g.leftLimit), newValueIfExists(remap, g.rightLimit));
+                        newValueIfExists(remap, g.leftLimit), newValueIfExists(remap, g.rightLimit), g.leftClosed, g.rightClosed);
             case SDTGuard.SDTAndGuard g:
                 return new SDTGuard.SDTAndGuard(newValueIfExists(remap, g.parameter),
                         g.conjuncts.stream().map(ig -> relabel(ig, remap)).toList());

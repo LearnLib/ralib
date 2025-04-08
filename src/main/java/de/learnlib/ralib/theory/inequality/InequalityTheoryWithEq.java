@@ -76,6 +76,14 @@ public abstract class InequalityTheoryWithEq implements Theory {
     		Map<DataValue, SDTGuardElement> potValuation,
     		Constants consts) {
 
+		Map<DataValue, SDTGuardElement> filteredPotValuation = new LinkedHashMap<>(potValuation);
+		for (DataValue d : potValuation.keySet()) {
+			if (!d.getDataType().equals(suffixValue.getDataType())) {
+				filteredPotValuation.remove(d);
+			}
+		}
+		potValuation = filteredPotValuation;
+
     	Map<DataValue, SDTGuard> valueGuards = new LinkedHashMap<>();
 
     	if (potValuation.isEmpty()) {

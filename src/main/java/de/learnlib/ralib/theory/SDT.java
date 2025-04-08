@@ -172,11 +172,9 @@ public class SDT {
         if (other instanceof SDTLeaf) {
             return false;
         }
-        SDT otherSDT =  other;
-        SDT otherRelabeled =  otherSDT.relabel(renaming);
-        boolean regEq = this.regCanUse(otherRelabeled) && otherRelabeled.regCanUse(this);
-        return regEq && this.canUse(otherRelabeled)
-                && otherRelabeled.canUse(this);
+
+        SDT otherRelabeled =  other.relabel(renaming);
+        return SDT.equivalentUnderId(this, otherRelabeled);
     }
 
     public boolean isEquivalentUnder(
@@ -191,10 +189,10 @@ public class SDT {
         for (SDTGuard.EqualityGuard d : ds) {
             eqRenaming.put(d.parameter(), d.register());
         }
-//        System.out.println(eqRenaming);
-//        System.out.println(this + " vs " + deqSDT);
-        boolean x = this.canUse( deqSDT.relabel(eqRenaming));
-        return x;
+
+        SDT otherRelabeled =  deqSDT.relabel(eqRenaming);
+        return SDT.equivalentUnderId(this, otherRelabeled);
+
     }
 
     public SDT relabelUnderEq(List<SDTGuard.EqualityGuard> ds) {

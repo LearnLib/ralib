@@ -77,6 +77,7 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 
 	@Override
 	public T put(T key, T value) {
+		assert key.getDataType().equals(value.getDataType());
 		T existingVal = injection.get(key);
 		if (existingVal != null && !existingVal.equals(value)) {
 			remove(key);
@@ -134,6 +135,7 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 			throw new IllegalArgumentException("Mismatched size of keyset and valueset");
 		}
 		for (Map.Entry<? extends U, ? extends U> e : map.entrySet()) {
+			assert e.getKey().getDataType().equals(e.getValue().getDataType());
 			U key = e.getKey();
 			U val = e.getValue();
 
