@@ -41,7 +41,7 @@ public class RemappingIterator<T extends TypedValue> implements Iterable<Bijecti
 
 		next = advance(replace, by, permit);
 
-		return new Bijection(vars);
+		return new Bijection<>(vars);
 	}
 
 	@Override
@@ -61,12 +61,14 @@ public class RemappingIterator<T extends TypedValue> implements Iterable<Bijecti
 
 	private static int[] advance(TypedValue[] replace, TypedValue[] by, PermutationIterator permit) {
 		int[] next = null;
+		boolean isValid = false;
 		while (permit.hasNext()) {
 			next = permit.next();
 			if (isValidPermutation(replace, by, next)) {
+				isValid = true;
 				break;
 			}
 		}
-		return next;
+		return isValid ? next : null;
 	}
 }
