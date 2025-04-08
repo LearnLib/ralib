@@ -63,9 +63,12 @@
 		<configuration>
 		    <formats>
                         <format>
-                            <includes>
-                                <include>.xml</include>
-                            </includes>
+			    <includes>
+                                <include>**/*.xml</include>
+			    </includes>
+                            <excludes>
+                                <exclude>target/**/*.xml</exclude>
+                            </excludes>
 			    <endWithNewline />
 			    <trimTrailingWhitespace />
 			</format>
