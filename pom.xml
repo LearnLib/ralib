@@ -55,8 +55,11 @@
 		    <formats>
                         <format>
 			    <includes>
-                                <include>.xml</include>
+                                <include>**/*.xml</include>
 			    </includes>
+                            <excludes>
+                                <exclude>target/**/*.xml</exclude>
+                            </excludes>
 			    <endWithNewline />
 			    <trimTrailingWhitespace />
 			</format>
