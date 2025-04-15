@@ -262,7 +262,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.DisequalityGuard g:
                 return new SDTGuard.DisequalityGuard(g.parameter, g.register);
             case SDTGuard.IntervalGuard g:
-                return new SDTGuard.IntervalGuard(g.parameter, g.leftLimit, g.rightLimit);
+                return new SDTGuard.IntervalGuard(g.parameter, g.leftLimit, g.rightLimit, g.leftClosed, g.rightClosed);
             case SDTGuard.SDTAndGuard g:
                 return new SDTGuard.SDTAndGuard(g.parameter,
                         g.conjuncts.stream().map( x -> copy(x)).toList());
@@ -313,10 +313,14 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.DisequalityGuard g:
                 return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.NE, g.parameter);
             case SDTGuard.IntervalGuard g:
-                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit.asExpression());
-                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit.asExpression());
-                Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter, NumericComparator.LT, g.rightLimit.asExpression());
-                Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter, NumericComparator.GT, g.leftLimit.asExpression());
+                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter,
+                        g.rightClosed ? NumericComparator.LE : NumericComparator.LT, g.rightLimit.asExpression());
+                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter,
+                        g.leftClosed ? NumericComparator.GE : NumericComparator.GT, g.leftLimit.asExpression());
+                Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter,
+                        g.leftClosed ? NumericComparator.LE : NumericComparator.LT, g.rightLimit.asExpression());
+                Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter,
+                        g.rightClosed ? NumericComparator.GE : NumericComparator.GT, g.leftLimit.asExpression());
                 return ExpressionUtil.and(smaller, bigger);
             case SDTGuard.SDTAndGuard g:
                 List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
