@@ -321,9 +321,9 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 if (g.greaterElement == null) return new NumericBooleanExpression(g.parameter,
                         g.smallerEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter,
-                        g.smallerEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
+                        g.smallerEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter,
-                        g.greaterEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
+                        g.greaterEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
                 return ExpressionUtil.and(smaller, bigger);
             case SDTGuard.SDTAndGuard g:
                 List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
