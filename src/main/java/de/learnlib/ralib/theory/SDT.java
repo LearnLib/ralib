@@ -26,11 +26,14 @@ import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import net.automatalib.word.Word;
 
 /**
  * Implementation of Symbolic Decision Trees.
@@ -219,6 +222,19 @@ public class SDT {
         SDT relabelled = new SDT(reChildren);
         assert !relabelled.isEmpty();
         return relabelled;
+    }
+    
+    public SDT toRegisterSDT(Word<PSymbolInstance> prefix, Constants consts) {
+    	DataValue[] prefixVals = DataWords.valsOf(prefix);
+    	Mapping<SDTGuardElement, SDTGuardElement> regs = new Mapping<>();
+    	for (int i = 0; i < prefixVals.length; i++) {
+    		DataValue val = prefixVals[i];
+    		if (regs.get(val) == null) {
+    			Register r = new Register(val.getDataType(), i+1);
+    			regs.put(val, r);
+    		}
+    	}
+    	return relabel(SDTRelabeling.fromMapping(regs));
     }
 
     /* ***
