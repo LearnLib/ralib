@@ -76,8 +76,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                          SDTGuardElement smallerElement, SDTGuardElement greaterElement,
                          boolean smallerEqual, boolean greaterEqual) implements SDTGuard {
 
-        public IntervalGuard(SuffixValue param, SDTGuardElement smallerElemnt, SDTGuardElement smallerElement) {
-            this(param, smallerElement, smallerElement, false, false);
+        public IntervalGuard(SuffixValue param, SDTGuardElement smallerElement, SDTGuardElement greaterElement) {
+            this(param, smallerElement, greaterElement, false, false);
         }
 
         @Override
