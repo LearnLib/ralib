@@ -44,11 +44,16 @@ public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> impl
     /**
      * a register in a register automaton
      */
-    public static final class Register extends SymbolicDataValue {
+    public static final class Register extends SymbolicDataValue implements SDTGuardElement {
 
         public Register(DataType dataType, int id) {
             super(dataType, id, "r" + id);
         }
+
+		@Override
+		public Expression<BigDecimal> asExpression() {
+			return this;
+		}
     }
 
     /**

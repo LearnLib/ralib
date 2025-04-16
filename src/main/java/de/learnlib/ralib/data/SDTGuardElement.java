@@ -17,6 +17,10 @@ public interface SDTGuardElement extends TypedValue {
     static boolean isSuffixValue(SDTGuardElement e) {
         return e.getClass().equals(SymbolicDataValue.SuffixValue.class);
     }
+    
+    static boolean isRegister(SDTGuardElement e) {
+    	return e.getClass().equals(SymbolicDataValue.Register.class);
+    }
 
     Expression<BigDecimal> asExpression();
 
