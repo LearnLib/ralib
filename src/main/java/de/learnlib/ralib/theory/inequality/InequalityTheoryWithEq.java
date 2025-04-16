@@ -327,41 +327,41 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			SDTGuardElement rl = egLeft.register();
 			if (rightGuard instanceof SDTGuard.IntervalGuard) {
 				SDTGuard.IntervalGuard igRight = (SDTGuard.IntervalGuard) rightGuard;
-				if (!igRight.isSmallerGuard() && igRight.leftLimit().equals(rl)) {
+				if (!igRight.isSmallerGuard() && igRight.smallerElement().equals(rl)) {
 					if (igRight.isBiggerGuard()) {
 						return SDTGuard.IntervalGuard.greaterOrEqualGuard(suffixValue, rl);
 					} else {
-						return new SDTGuard.IntervalGuard(suffixValue, rl, igRight.rightLimit(), true, false);
+						return new SDTGuard.IntervalGuard(suffixValue, rl, igRight.greaterElement(), true, false);
 					}
 				}
 			}
 		} else if (leftGuard instanceof SDTGuard.IntervalGuard && !((SDTGuard.IntervalGuard) leftGuard).isBiggerGuard()) {
 			SDTGuard.IntervalGuard igLeft = (SDTGuard.IntervalGuard) leftGuard;
-			SDTGuardElement rr = igLeft.rightLimit();
+			SDTGuardElement rr = igLeft.greaterElement();
 			if (igLeft.isSmallerGuard()) {
 				if (rightGuard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) rightGuard).register().equals(rr)) {
 					return SDTGuard.IntervalGuard.lessOrEqualGuard(suffixValue, rr);
 				} else if (rightGuard instanceof SDTGuard.IntervalGuard &&
 						!((SDTGuard.IntervalGuard) rightGuard).isSmallerGuard() &&
-						((SDTGuard.IntervalGuard) rightGuard).leftLimit().equals(rr)) {
+						((SDTGuard.IntervalGuard) rightGuard).smallerElement().equals(rr)) {
 					SDTGuard.IntervalGuard igRight = (SDTGuard.IntervalGuard) rightGuard;
 					if (igRight.isIntervalGuard()) {
-						return SDTGuard.IntervalGuard.lessGuard(suffixValue, igRight.rightLimit());
+						return SDTGuard.IntervalGuard.lessGuard(suffixValue, igRight.greaterElement());
 					} else {
 						return new SDTGuard.SDTTrueGuard(suffixValue);
 					}
 				}
 			} else if (igLeft.isIntervalGuard()) {
 				if (rightGuard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) rightGuard).register().equals(rr)) {
-					return new SDTGuard.IntervalGuard(suffixValue, igLeft.leftLimit(), rr, igLeft.isLeftClosed(), true);
+					return new SDTGuard.IntervalGuard(suffixValue, igLeft.smallerElement(), rr, igLeft.isLeftClosed(), true);
 				} else if (rightGuard instanceof SDTGuard.IntervalGuard &&
 						!((SDTGuard.IntervalGuard) rightGuard).isSmallerGuard() &&
-						((SDTGuard.IntervalGuard) rightGuard).leftLimit().equals(rr)) {
+						((SDTGuard.IntervalGuard) rightGuard).smallerElement().equals(rr)) {
 					SDTGuard.IntervalGuard igRight = (SDTGuard.IntervalGuard) rightGuard;
 					if (igRight.isBiggerGuard()) {
-						return new SDTGuard.IntervalGuard(suffixValue, igLeft.leftLimit(), null, igLeft.isLeftClosed(), false);
+						return new SDTGuard.IntervalGuard(suffixValue, igLeft.smallerElement(), null, igLeft.isLeftClosed(), false);
 					} else {
-						return new SDTGuard.IntervalGuard(suffixValue, igLeft.leftLimit(), igRight.rightLimit(), igLeft.isLeftClosed(), igRight.isRightClosed());
+						return new SDTGuard.IntervalGuard(suffixValue, igLeft.smallerElement(), igRight.greaterElement(), igLeft.isLeftClosed(), igRight.isRightClosed());
 					}
 				}
 			}
@@ -389,8 +389,8 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			SDTGuard.IntervalGuard gg = (SDTGuard.IntervalGuard) greater.get();
 			SDT ls = guards.get(lg);
 			SDT gs = guards.get(gg);
-			SDTGuardElement rr = lg.rightLimit();
-			SDTGuardElement rl = gg.leftLimit();
+			SDTGuardElement rr = lg.greaterElement();
+			SDTGuardElement rl = gg.smallerElement();
 			if (rr.equals(rl) && ls.isEquivalent(gs, new Bijection<>())) {
 				Map<SDTGuard, SDT> diseq = new LinkedHashMap<>();
 				diseq.put(new SDTGuard.DisequalityGuard(lg.getParameter(), rr), guards.get(lg));
@@ -560,14 +560,14 @@ public abstract class InequalityTheoryWithEq implements Theory {
             if (guard instanceof SDTGuard.IntervalGuard) {
                 SDTGuard.IntervalGuard iGuard = (SDTGuard.IntervalGuard) guard;
                 if (!iGuard.isBiggerGuard()) {
-                    SDTGuardElement r = iGuard.rightLimit();
+                    SDTGuardElement r = iGuard.greaterElement();
                     if (SDTGuardElement.isSuffixValue(r) || SDTGuardElement.isConstant(r)) {
                         DataValue regVal = getRegisterValue(r, prefixValues, constants, pval);
                         val.setValue( (Variable) r, regVal.getValue());
                     }
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    SDTGuardElement l =  iGuard.leftLimit();
+                    SDTGuardElement l =  iGuard.smallerElement();
                     if (SDTGuardElement.isSuffixValue(l) || SDTGuardElement.isConstant(l)) {
                         DataValue regVal = getRegisterValue(l, prefixValues, constants, pval);
                         val.setValue( (Variable) l, regVal.getValue());
@@ -701,7 +701,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     		return true;
     	} else if (guard instanceof SDTGuard.IntervalGuard) {
     		SDTGuard.IntervalGuard ig = (SDTGuard.IntervalGuard) guard;
-    		if (ig.leftLimit().equals(register) || ig.rightLimit().equals(register)) {
+    		if (ig.smallerElement().equals(register) || ig.greaterElement().equals(register)) {
     			return true;
     		}
     	} else if (guard instanceof SDTGuard.SDTOrGuard) {

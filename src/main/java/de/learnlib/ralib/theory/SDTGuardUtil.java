@@ -17,8 +17,8 @@ public class SDTGuardUtil {
             if (other instanceof SDTGuard.IntervalGuard) {
                 guards.addAll(IntervalGuardUtil.mergeIntervals(intervalGuard, (SDTGuard.IntervalGuard) other));
             } else if (other instanceof SDTGuard.DisequalityGuard dGuard) {
-                if ((intervalGuard.isBiggerGuard() && intervalGuard.leftLimit().equals(dGuard.register()))
-                        || (intervalGuard.isSmallerGuard() && intervalGuard.rightLimit().equals(dGuard.register()))) {
+                if ((intervalGuard.isBiggerGuard() && intervalGuard.smallerElement().equals(dGuard.register()))
+                        || (intervalGuard.isSmallerGuard() && intervalGuard.greaterElement().equals(dGuard.register()))) {
 
                     guards.add(other);
                 }

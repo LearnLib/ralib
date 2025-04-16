@@ -105,10 +105,10 @@ public class SDT {
                 }
             } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
                 if (!iGuard.isBiggerGuard()) {
-                    variables.add(iGuard.rightLimit());
+                    variables.add(iGuard.greaterElement());
                 }
                 if (!iGuard.isSmallerGuard()) {
-                    variables.add(iGuard.leftLimit());
+                    variables.add(iGuard.smallerElement());
                 }
             } else if (!(g instanceof SDTGuard.SDTTrueGuard)) {
                 throw new RuntimeException("unexpected case");

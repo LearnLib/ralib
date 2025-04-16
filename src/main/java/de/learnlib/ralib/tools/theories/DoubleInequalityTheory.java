@@ -120,7 +120,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
         } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
             if (!iGuard.isBiggerGuard()) {
-                SDTGuardElement r =  iGuard.rightLimit();
+                SDTGuardElement r =  iGuard.greaterElement();
                 assert r != null;
                 DataValue ri = (r instanceof DataValue) ? (DataValue) r :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) r));
@@ -130,7 +130,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
 
             }
             if (!iGuard.isSmallerGuard()) {
-                SDTGuardElement l = iGuard.leftLimit();
+                SDTGuardElement l = iGuard.smallerElement();
                 assert l != null;
                 DataValue li = (l instanceof DataValue) ? (DataValue) l :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) l));

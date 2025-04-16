@@ -73,26 +73,29 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
     }
 
     record IntervalGuard(SymbolicDataValue.SuffixValue parameter,
-                         SDTGuardElement leftLimit, SDTGuardElement rightLimit,
-                         boolean leftClosed, boolean rightClosed) implements SDTGuard {
+                         SDTGuardElement smallerElement, SDTGuardElement greaterElement,
+                         boolean smallerEqual, boolean greaterEqual) implements SDTGuard {
 
-        public IntervalGuard(SuffixValue param, SDTGuardElement leftLimit, SDTGuardElement rightLimit) {
-            this(param, leftLimit, rightLimit, false, false);
+        public IntervalGuard(SuffixValue param, SDTGuardElement smallerElemnt, SDTGuardElement smallerElement) {
+            this(param, smallerElement, smallerElement, false, false);
         }
 
         @Override
         public String toString() {
-            if (leftLimit == null) {
-                return "(" + this.getParameter().toString() + (rightClosed ? "<=" : "<") + this.rightLimit.toString() + ")";
+            if (smallerElement == null) {
+            	// no smaller element, parameter is less than the greater (e.g., s1 < r1)
+                return "(" + this.getParameter().toString() + (greaterEqual ? "<=" : "<") + this.greaterElement.toString() + ")";
             }
-            if (rightLimit == null) {
-                return "(" + this.getParameter().toString() + (leftClosed ? ">=" : ">") + this.leftLimit.toString() + ")";
+            if (greaterElement == null) {
+            	// no greater element, parameter is greater than the smaller (e.g., s1 > r1)
+                return "(" + this.getParameter().toString() + (smallerEqual ? ">=" : ">") + this.smallerElement.toString() + ")";
             }
-            return "(" + leftLimit.toString() +
-                    (leftClosed ? "<=" : "<") +
+            // interval (e.g., r1 < s1 < r2)
+            return "(" + smallerElement.toString() +
+                    (smallerEqual ? "<=" : "<") +
                     this.getParameter().toString() +
-                    (rightClosed ? "<=" : "<") +
-                    this.rightLimit.toString() +
+                    (greaterEqual ? "<=" : "<") +
+                    this.greaterElement.toString() +
                     ")";
         }
 
@@ -102,27 +105,27 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         @Override
         public Set<SDTGuardElement> getRegisters() {
             Set<SDTGuardElement> regs = new LinkedHashSet<>();
-            if (leftLimit != null) regs.add(leftLimit);
-            if (rightLimit != null) regs.add(rightLimit);
+            if (smallerElement != null) regs.add(smallerElement);
+            if (greaterElement != null) regs.add(greaterElement);
             return regs;
         }
 
         public boolean isSmallerGuard() {
-            return leftLimit == null;
+            return smallerElement == null;
         }
 
         public boolean isBiggerGuard() {
-            return rightLimit == null;
+            return greaterElement == null;
         }
 
-        public boolean isIntervalGuard() { return (leftLimit != null && rightLimit != null); }
+        public boolean isIntervalGuard() { return (smallerElement != null && greaterElement != null); }
 
         public boolean isLeftClosed() {
-            return leftClosed;
+            return smallerEqual;
         }
 
         public boolean isRightClosed() {
-            return rightClosed;
+            return greaterEqual;
         }
 
         public static IntervalGuard lessGuard(SuffixValue param, SDTGuardElement r) {
@@ -238,8 +241,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 return comparands;
             case SDTGuard.IntervalGuard g:
                 // FIXME: this was copied from original class but does not seem to make any sense
-                if (dv.equals(g.leftLimit)) comparands.add(g.rightLimit);
-                if (dv.equals(g.rightLimit)) comparands.add(g.leftLimit);
+                if (dv.equals(g.smallerElement)) comparands.add(g.greaterElement);
+                if (dv.equals(g.greaterElement)) comparands.add(g.smallerElement);
                 return comparands;
             case SDTGuard.SDTAndGuard g:
                 g.conjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
@@ -262,7 +265,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.DisequalityGuard g:
                 return new SDTGuard.DisequalityGuard(g.parameter, g.register);
             case SDTGuard.IntervalGuard g:
-                return new SDTGuard.IntervalGuard(g.parameter, g.leftLimit, g.rightLimit, g.leftClosed, g.rightClosed);
+                return new SDTGuard.IntervalGuard(g.parameter, g.smallerElement, g.greaterElement, g.smallerEqual, g.greaterEqual);
             case SDTGuard.SDTAndGuard g:
                 return new SDTGuard.SDTAndGuard(g.parameter,
                         g.conjuncts.stream().map( x -> copy(x)).toList());
@@ -292,7 +295,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                         newValueIfExists(remap, g.register));
             case SDTGuard.IntervalGuard g:
                 return new SDTGuard.IntervalGuard(newValueIfExists(remap, g.parameter),
-                        newValueIfExists(remap, g.leftLimit), newValueIfExists(remap, g.rightLimit), g.leftClosed, g.rightClosed);
+                        newValueIfExists(remap, g.smallerElement), newValueIfExists(remap, g.greaterElement), g.smallerEqual, g.greaterEqual);
             case SDTGuard.SDTAndGuard g:
                 return new SDTGuard.SDTAndGuard(newValueIfExists(remap, g.parameter),
                         g.conjuncts.stream().map(ig -> relabel(ig, remap)).toList());
@@ -313,14 +316,14 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.DisequalityGuard g:
                 return new NumericBooleanExpression(g.register.asExpression(), NumericComparator.NE, g.parameter);
             case SDTGuard.IntervalGuard g:
-                if (g.leftLimit == null)  return new NumericBooleanExpression(g.parameter,
-                        g.rightClosed ? NumericComparator.LE : NumericComparator.LT, g.rightLimit.asExpression());
-                if (g.rightLimit == null) return new NumericBooleanExpression(g.parameter,
-                        g.leftClosed ? NumericComparator.GE : NumericComparator.GT, g.leftLimit.asExpression());
+                if (g.smallerElement == null)  return new NumericBooleanExpression(g.parameter,
+                        g.greaterEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
+                if (g.greaterElement == null) return new NumericBooleanExpression(g.parameter,
+                        g.smallerEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 Expression<Boolean> smaller = new NumericBooleanExpression(g.parameter,
-                        g.leftClosed ? NumericComparator.LE : NumericComparator.LT, g.rightLimit.asExpression());
+                        g.smallerEqual ? NumericComparator.LE : NumericComparator.LT, g.greaterElement.asExpression());
                 Expression<Boolean> bigger = new NumericBooleanExpression(g.parameter,
-                        g.rightClosed ? NumericComparator.GE : NumericComparator.GT, g.leftLimit.asExpression());
+                        g.greaterEqual ? NumericComparator.GE : NumericComparator.GT, g.smallerElement.asExpression());
                 return ExpressionUtil.and(smaller, bigger);
             case SDTGuard.SDTAndGuard g:
                 List<Expression<Boolean>> andList = g.conjuncts.stream().map( x -> toExpr(x)).toList();
@@ -348,7 +351,7 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             case SDTGuard.IntervalGuard g:
                 // FIXME: copied from old implementation but does not seem to make sense
                 assert !g.isIntervalGuard();
-                SDTGuardElement r = g.isSmallerGuard() ? g.rightLimit : g.leftLimit;
+                SDTGuardElement r = g.isSmallerGuard() ? g.greaterElement : g.smallerElement;
                 return new DisequalityGuard(g.parameter,r);
             case SDTGuard.SDTAndGuard g:
                 throw new RuntimeException("not refactored yet");

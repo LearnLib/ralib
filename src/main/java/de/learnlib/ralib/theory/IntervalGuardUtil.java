@@ -34,10 +34,10 @@ final public class IntervalGuardUtil  {
         assert !g.isIntervalGuard();
         SDTGuardElement r = null;
         if (g.isSmallerGuard()) {
-            r = g.rightLimit();
+            r = g.greaterElement();
         }
         else {
-            r = g.leftLimit();
+            r = g.smallerElement();
         }
         return new SDTGuard.EqualityGuard(g.parameter(),r);
     }
@@ -47,24 +47,24 @@ final public class IntervalGuardUtil  {
         assert !g.isIntervalGuard();
         SDTGuardElement r = null;
         if (g.isSmallerGuard()) {
-            r = g.rightLimit();
+            r = g.greaterElement();
         }
         else {
-            r = g.leftLimit();
+            r = g.smallerElement();
         }
         return new SDTGuard.DisequalityGuard(g.parameter(),r);
     }
 
     // FIXME: g method does not make any sense
     public static SDTGuard.IntervalGuard flip(SDTGuard.IntervalGuard g) {
-        return new SDTGuard.IntervalGuard(g.parameter(), g.rightLimit(), g.leftLimit());
+        return new SDTGuard.IntervalGuard(g.parameter(), g.greaterElement(), g.smallerElement());
     }
 
 
     // merge bigger with something
     private static Set<SDTGuard> bMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SDTGuardElement l = g.leftLimit();
+        SDTGuardElement l = g.smallerElement();
         if (other.isBiggerGuard()) {
             //          System.out.println("other " + other + " is bigger");
             guards.add(g);
@@ -72,7 +72,7 @@ final public class IntervalGuardUtil  {
         } else if (other.isSmallerGuard()) {
 //            System.out.println("other " + other + " is smaller");
 //            System.out.println("see if " + l + " equals " + other.rightLimit() + "?");
-            if (l.equals(other.rightLimit())) {
+            if (l.equals(other.greaterElement())) {
 //                System.out.println("yes, adding disequalityguard");
                 guards.add(new SDTGuard.DisequalityGuard(g.parameter(), l));
             } else {
@@ -84,10 +84,10 @@ final public class IntervalGuardUtil  {
         } else {
 //            System.out.println("other " + other + " is interv");
 
-            if (l.equals(other.rightLimit())) {
-                guards.add(new SDTGuard.IntervalGuard(g.parameter(), other.leftLimit(), null));
+            if (l.equals(other.greaterElement())) {
+                guards.add(new SDTGuard.IntervalGuard(g.parameter(), other.smallerElement(), null));
                 guards.add(new SDTGuard.DisequalityGuard(g.parameter(), l));
-            } else if (l.equals(other.leftLimit())) {
+            } else if (l.equals(other.smallerElement())) {
                 guards.add(g);
             } else {
                 guards.add(g);
@@ -101,17 +101,17 @@ final public class IntervalGuardUtil  {
     // merge smaller with something
     private static Set<SDTGuard> sMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SDTGuardElement r = g.rightLimit();
+        SDTGuardElement r = g.greaterElement();
         if (other.isBiggerGuard()) {
             return bMergeIntervals(other, g);
         } else if (other.isSmallerGuard()) {
             guards.add(g);
             guards.add(other);
         } else {
-            if (r.equals(other.leftLimit())) {
-                guards.add(new SDTGuard.IntervalGuard(g.parameter(), null, other.rightLimit()));
+            if (r.equals(other.smallerElement())) {
+                guards.add(new SDTGuard.IntervalGuard(g.parameter(), null, other.greaterElement()));
                 guards.add(new SDTGuard.DisequalityGuard(g.parameter(), r));
-            } else if (r.equals(other.rightLimit())) {
+            } else if (r.equals(other.greaterElement())) {
                 guards.add(g);
             } else {
                 guards.add(g);
@@ -124,15 +124,15 @@ final public class IntervalGuardUtil  {
     // merge interval with something
     private static Set<SDTGuard> iMergeIntervals(SDTGuard.IntervalGuard g, SDTGuard.IntervalGuard other) {
         Set<SDTGuard> guards = new LinkedHashSet<>();
-        SDTGuardElement l = g.leftLimit();
-        SDTGuardElement r = g.rightLimit();
+        SDTGuardElement l = g.smallerElement();
+        SDTGuardElement r = g.greaterElement();
         if (other.isBiggerGuard()) {
             return bMergeIntervals(other, g);
         } else if (other.isSmallerGuard()) {
             return sMergeIntervals(other, g);
         } else {
-            SDTGuardElement oL = other.leftLimit();
-            SDTGuardElement oR = other.rightLimit();
+            SDTGuardElement oL = other.smallerElement();
+            SDTGuardElement oR = other.greaterElement();
             if (l.equals(oR)) {
                 if (r.equals(oL)) {
                     guards.add(new SDTGuard.DisequalityGuard(g.parameter(), l));
