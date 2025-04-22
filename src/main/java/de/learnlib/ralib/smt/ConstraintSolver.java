@@ -22,6 +22,7 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.SolverContext;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3SolverProvider;
 
 /**
@@ -34,8 +35,11 @@ public class ConstraintSolver {
             new NativeZ3SolverProvider().createSolver(new Properties());
 
     public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+        SolverContext ctx = solver.createContext();
+        gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = ctx.isSatisfiable(SMTUtil.toExpression(expr, val));
+        ctx.dispose();
         //System.out.println("isSatisfiable: " + expr);
-        gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = solver.isSatisfiable( SMTUtil.toExpression(expr, val));
+        //gov.nasa.jpf.constraints.api.ConstraintSolver.Result r = solver.isSatisfiable( SMTUtil.toExpression(expr, val));
         return r == gov.nasa.jpf.constraints.api.ConstraintSolver.Result.SAT;
     }
 }
