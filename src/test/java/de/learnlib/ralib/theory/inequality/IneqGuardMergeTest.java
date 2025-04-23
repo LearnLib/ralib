@@ -1,26 +1,8 @@
 package de.learnlib.ralib.theory.inequality;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
-import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.theory.SDTLeaf;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
-import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 
 public class IneqGuardMergeTest extends RaLibTestSuite {
 /*

@@ -30,27 +30,23 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.smt.SMTUtil;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.oracles.mto.SDTConstructor;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
-import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
-import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
 import net.automatalib.word.Word;
 
 /**

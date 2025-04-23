@@ -10,7 +10,6 @@ import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.DataWordOracle;
-
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;

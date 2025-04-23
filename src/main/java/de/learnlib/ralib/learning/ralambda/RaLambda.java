@@ -36,14 +36,12 @@ import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class RaLambda implements RaLearningAlgorithm {
@@ -311,7 +309,7 @@ public class RaLambda implements RaLearningAlgorithm {
     			}
     			Word<PSymbolInstance> src_id = dest_id.prefix(dest_id.length() - 1);
     			DTLeaf src_c = dt.getLeaf(src_id);
-    			
+
     			Branching hypBranching = null;
     			if (src_c.getAccessSequence().equals(src_id)) {
     				hypBranching = src_c.getBranching(dest_id.lastSymbol().getBaseSymbol());
@@ -325,9 +323,9 @@ public class RaLambda implements RaLearningAlgorithm {
     				continue;
     			}
     			Word<PSymbolInstance> hyp_id = branchWithSameGuard(dest_c.getPrefix(dest_id), hypBranching);
-    			
+
     			SymbolicSuffix suffix = null;
-    			
+
     			DTLeaf hyp_c = dt.getLeaf(hyp_id);
     			if (hyp_c != dest_c) {
     				suffix = distinguishingSuffix(hyp_id, hyp_c, dest_id, dest_c);
@@ -340,25 +338,25 @@ public class RaLambda implements RaLearningAlgorithm {
     					SDT dest_sdt = e.getValue();
     					SDT hyp_sdt = hyp_c.getPrefix(hyp_id).getTQRs().get(s);
     					assert hyp_sdt != null;
-    					
+
     					if (!SDT.equivalentUnderId(dest_sdt.toRegisterSDT(dest_id, consts), hyp_sdt.toRegisterSDT(hyp_id, consts))) {
     						suffixes.add(s);
     						dest_sdts.put(s, dest_sdt);
     						hyp_sdts.put(s, hyp_sdt);
     					}
     				}
-    				
+
     				if (suffixes.isEmpty()) {
     					continue;
     				}
-    				
+
     				Collections.sort(suffixes, (sa, sb) -> sa.length() > sb.length() ? 1 :
     						sa.length() < sb.length() ? -1 : 0);
-    				
+
     				for (SymbolicSuffix s : suffixes) {
     					SymbolicSuffix testSuffix;
     					SDT hyp_sdt = hyp_sdts.get(s);
-    					
+
     					if (suffixBuilder != null) {
     						SDT dest_sdt = dest_sdts.get(s);
     						DataValue[] regs = remappedRegisters(dest_sdt, hyp_sdt);
@@ -367,7 +365,7 @@ public class RaLambda implements RaLearningAlgorithm {
     						testSuffix = new SymbolicSuffix(src_id, dest_id.suffix(1), restrictionBuilder);
     						testSuffix = testSuffix.concat(s);
     					}
-    					
+
     					SDT testSDT = sulOracle.treeQuery(src_id, testSuffix).sdt();
     					Branching testBranching = sulOracle.updateBranching(src_id, dest_id.lastSymbol().getBaseSymbol(), hypBranching, testSDT);
     					if (testBranching.getBranches().get(dest_id) != null) {
@@ -376,14 +374,14 @@ public class RaLambda implements RaLearningAlgorithm {
     					}
     				}
     			}
-    			
+
     			if (suffix != null) {
     				dt.addSuffix(suffix, src_c);
     				return false;
     			}
     		}
     	}
-    	
+
     	return true;
     }
 
