@@ -111,6 +111,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         SDTGuardElement rl = potValuation.get(dl);
         SDTGuard.IntervalGuard sg = new SDTGuard.IntervalGuard(suffixValue, null, rl);
         DataValue smallest = instantiate(sg, vals, consts, sortedPot);
+        assert smallest != null;
         valueGuards.put(smallest, sg);
 
         for (int i = 1; i < usedVals; i++) {
@@ -123,6 +124,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			SDTGuardElement rr = potValuation.get(dr);
             SDTGuard.IntervalGuard ig = new SDTGuard.IntervalGuard(suffixValue, rl, rr);
             DataValue di = instantiate(ig, vals, consts, sortedPot);
+            assert di != null;
             valueGuards.put(di, ig);
 
             dl = dr;
@@ -134,6 +136,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         // greatest
         SDTGuard.IntervalGuard gg = new SDTGuard.IntervalGuard(suffixValue, rl, null);
         DataValue dg = instantiate(gg, vals, consts, sortedPot);
+        assert dg != null;
         valueGuards.put(dg, gg);
 
         return valueGuards;
@@ -642,7 +645,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	boolean lesser = false;
     	boolean foundFirst = false;
     	for (int i = 0; i < priorVals.length; i++) {
-    		if (priorVals[i].getType().equals(svType)) {
+    		if (priorVals[i].getDataType().equals(svType)) {
     			DataValue dv = safeCast(priorVals[i]);
     			assert dv != null;
     			int comparison = comparator.compare(svDataValue, dv);
