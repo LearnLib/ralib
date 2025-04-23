@@ -145,21 +145,21 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "class-analyzer",
             "target=java.util.PriorityQueue;" +
             "methods=offer(java.lang.Object:double)boolean:boolean+poll()java.lang.Object:double;" +
-            "random.seed=652102309071547789;" +
+            "random.seed=3364703215613917377;" +
             "logging.level=WARNING;" +
             "max.time.millis=600000;" +
             "use.ceopt=true;" +
             "use.suffixopt=true;" +
             "use.fresh=false;" +
             "use.rwalk=true;" +
-            "export.model=false;" +
-            "rwalk.prob.fresh=0.8;" +
-            "rwalk.prob.reset=0.1;" +
+            "export.model=true;" +
+            "rwalk.prob.fresh=0.1;" +
+            "rwalk.prob.reset=0.0;" +
             "rwalk.max.depth=6;" +
             "rwalk.max.runs=100;" +
             "rwalk.reset.count=false;" +
             "rwalk.draw.uniform=false;" +
-            "solver=z3;" +
+            "rwalk.seed.transitions=true;" +
             "teachers=double:de.learnlib.ralib.tools.theories.DoubleInequalityTheory"};
 
         try {
@@ -185,10 +185,12 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             IOEquivalenceTest check = new IOEquivalenceTest(
                     loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
 
+            System.out.println(check.findCounterExample(hyp, null) );
             boolean equiv = check.findCounterExample(hyp, null) == null;
             Assert.assertTrue(equiv);
 
         } catch (Throwable t) {
+            t.printStackTrace();
             Assert.fail(t.getClass().getName());
         }
     }
