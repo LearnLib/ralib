@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +27,13 @@ import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.automata.TransitionSequenceTransformer;
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterAssignment;
+import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -88,10 +93,10 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
     @Override
     public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Transition> tseq = getTransitions(word);
-        //System.out.println("TSEQ: " + tseq);
+        // System.out.println("TSEQ: " + tseq);
         if (tseq == null) return null;
         assert tseq.size() == word.length();
-        Transition last = tseq.get(tseq.size() -1);
+        Transition last = tseq.get(tseq.size() - 1);
         return transitionSequences.get(last);
     }
 
@@ -108,15 +113,15 @@ implements AccessSequenceTransformer<PSymbolInstance>, TransitionSequenceTransfo
 
 	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branching.getBranches().entrySet()) {
 	    if (e.getKey().lastSymbol().getBaseSymbol().equals(ps)) {
-            Word<PSymbolInstance> prefix = e.getKey().prefix(e.getKey().size()-1);
-            RegisterValuation varsRef = getTransitionsAndValuations(prefix).get(getTransitionsAndValuations(prefix).size()-1).getSecond();
-            //System.out.println(varsRef);
-            RegisterAssignment ra = new RegisterAssignment();
-            varsRef.forEach((key, value) -> ra.put(value, key));
-            Expression<Boolean> guard = SMTUtil.valsToRegisters(e.getValue(), ra);
-            if (guard.evaluateSMT(SMTUtil.compose(vars, pval, constants))) {
-                return e.getKey();
-            }
+                Word<PSymbolInstance> prefix = e.getKey().prefix(e.getKey().size()-1);
+                RegisterValuation varsRef = getTransitionsAndValuations(prefix).get(getTransitionsAndValuations(prefix).size()-1).getSecond();
+                // System.out.println(varsRef);
+                RegisterAssignment ra = new RegisterAssignment();
+                varsRef.forEach((key, value) -> ra.put(value, key));
+                Expression<Boolean> guard = SMTUtil.valsToRegisters(e.getValue(), ra);
+                if (guard.evaluateSMT(SMTUtil.compose(vars, pval, constants))) {
+                    return e.getKey();
+                }
 	    }
 	}
 	return null;
