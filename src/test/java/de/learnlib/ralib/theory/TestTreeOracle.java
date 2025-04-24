@@ -46,9 +46,9 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-@Test
 public class TestTreeOracle extends RaLibTestSuite {
 
+    @Test
     public void testTreeOracle() {
 
         // define types
@@ -88,7 +88,6 @@ public class TestTreeOracle extends RaLibTestSuite {
         //System.out.println("Suffix: " + symSuffix);
 
         // hacked oracle
-
         DataWordOracle dwOracle = new DataWordOracle() {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
@@ -142,7 +141,6 @@ public class TestTreeOracle extends RaLibTestSuite {
         Assert.assertEquals(tree, expectedTree);
 
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
-
     }
 
 }

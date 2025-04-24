@@ -74,21 +74,21 @@ public class TestWords extends RaLibTestSuite {
         Word<PSymbolInstance> prefix = Word.fromSymbols(prefixSymbols);
         Word<PSymbolInstance> suffix = Word.fromSymbols(suffixSymbols);
 
-       logger.log(Level.FINE, "Prefix: {0}", prefix);
-       logger.log(Level.FINE, "Suffix: {0}", suffix);
+        logger.log(Level.FINE, "Prefix: {0}", prefix);
+        logger.log(Level.FINE, "Suffix: {0}", suffix);
 
         SymbolicSuffix sym = new SymbolicSuffix(prefix, suffix);
 
-       logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
-       Collection<SuffixValue> symSVs = sym.getDataValues();
-       SuffixValue[] symSVArr = symSVs.toArray(new SuffixValue[symSVs.size()]);
-       Map<SuffixValue, SuffixValueRestriction> expRestr = new LinkedHashMap<>();
-       expRestr.put(symSVArr[0], new UnrestrictedSuffixValue(symSVArr[0]));
-       expRestr.put(symSVArr[1], new FreshSuffixValue(symSVArr[1]));
-       expRestr.put(symSVArr[2], new EqualRestriction(symSVArr[2], symSVArr[1]));
-       expRestr.put(symSVArr[3], new UnrestrictedSuffixValue(symSVArr[3]));
-       SymbolicSuffix exp = new SymbolicSuffix(sym.getActions(), expRestr);
-       Assert.assertEquals(sym, exp);
+        logger.log(Level.FINE, "Symbolic Suffix: {0}", sym);
+        Collection<SuffixValue> symSVs = sym.getDataValues();
+        SuffixValue[] symSVArr = symSVs.toArray(new SuffixValue[symSVs.size()]);
+        Map<SuffixValue, SuffixValueRestriction> expRestr = new LinkedHashMap<>();
+        expRestr.put(symSVArr[0], new UnrestrictedSuffixValue(symSVArr[0]));
+        expRestr.put(symSVArr[1], new FreshSuffixValue(symSVArr[1]));
+        expRestr.put(symSVArr[2], new EqualRestriction(symSVArr[2], symSVArr[1]));
+        expRestr.put(symSVArr[3], new UnrestrictedSuffixValue(symSVArr[3]));
+        SymbolicSuffix exp = new SymbolicSuffix(sym.getActions(), expRestr);
+        Assert.assertEquals(sym, exp);
 //       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
 //        Assert.assertEquals(sym.toString(), expString);
     }

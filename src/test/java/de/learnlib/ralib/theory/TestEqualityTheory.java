@@ -78,7 +78,6 @@ public class TestEqualityTheory extends RaLibTestSuite {
                     new DataValue(T_UID, BigDecimal.ONE),
                     new DataValue(T_PWD, BigDecimal.ONE)));
 
-
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
         final SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, longsuffix);

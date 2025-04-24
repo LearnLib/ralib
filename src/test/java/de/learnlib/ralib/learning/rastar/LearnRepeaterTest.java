@@ -47,18 +47,16 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 
         RepeaterSUL sul = new RepeaterSUL();
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
-	IOCache ioCache = new IOCache(ioOracle);
+        IOCache ioCache = new IOCache(ioOracle);
 	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
         ConstraintSolver solver = new ConstraintSolver();
 
-        MultiTheoryTreeOracle mto =
-	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo =
-	    new MultiTheorySDTLogicOracle(consts, solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+            new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, ioOracle);
@@ -74,7 +72,7 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertNull(repeater.repeat(0));
 
         Word<PSymbolInstance> ce =
-	    Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+            Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
 			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
 			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
 			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
@@ -85,8 +83,8 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 
         learner.learn();
 
-	String str = stats.toString();
-	Assert.assertTrue(str.contains("Counterexamples: 1"));
+        String str = stats.toString();
+        Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 6"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));
         Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 7, Inputs: 0}"));

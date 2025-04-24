@@ -62,8 +62,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
 	TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-				      new Constants(), solver);
+	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
 	// System.out.println(sul);
 	// System.out.println("---------------------------------");
@@ -72,7 +71,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.setSolver(solver);
 	learner.learn();
 
-	System.out.println(learner.getHypothesis().toString());
+        // System.out.println(learner.getHypothesis().toString());
 
 	Word<PSymbolInstance> ce =
 	    Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
@@ -81,7 +80,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.addCounterexample(new DefaultQuery<>(ce, true));
 	learner.learn();
 
-	System.out.println(learner.getHypothesis().toString());
+	// System.out.println(learner.getHypothesis().toString());
 
 	Hypothesis hyp = learner.getHypothesis();
 	// System.out.println(hyp.toString());
@@ -125,17 +124,16 @@ public class TestSymmetry extends RaLibTestSuite {
 	SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
 	Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
-		Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
-		Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
+        Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+        Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
 
-		Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
+        Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
 				new NumericBooleanExpression(r1, NumericComparator.EQ, p1),
 				new NumericBooleanExpression(r2, NumericComparator.EQ, p1));
 
-		Expression<Boolean> elseGuard = ExpressionUtil.and(
+        Expression<Boolean> elseGuard = ExpressionUtil.and(
 				new NumericBooleanExpression(r1, NumericComparator.NE, p1),
 				new NumericBooleanExpression(r2, NumericComparator.NE, p1));
-
 
 	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
 	storeR1Mapping.put(r1, p1);
@@ -202,8 +200,7 @@ public class TestSymmetry extends RaLibTestSuite {
         SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-				      new Constants(), solver);
+	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
         RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
         learner.setSolver(solver);
@@ -211,10 +208,10 @@ public class TestSymmetry extends RaLibTestSuite {
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
-        		new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2))),
-        		new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)),
-        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
+            new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+            new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2))),
+            new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)),
+            new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
 
         learner.addCounterexample(new DefaultQuery<>(ce, true));
         learner.learn();
@@ -222,12 +219,12 @@ public class TestSymmetry extends RaLibTestSuite {
         Hypothesis hyp = learner.getHypothesis();
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
-        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))),
-        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(3))),
-        		new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
+            new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+            new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))),
+            new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(3))),
+            new PSymbolInstance(B, new DataValue(T_INT, new BigDecimal(2))));
 
-		Assert.assertEquals(sul.accepts(ce), hyp.accepts(ce));
+        Assert.assertEquals(sul.accepts(ce), hyp.accepts(ce));
     }
 
     private RegisterAutomaton buildCT() {
@@ -245,22 +242,22 @@ public class TestSymmetry extends RaLibTestSuite {
 	SymbolicDataValueGenerator.ParameterGenerator pgen = new SymbolicDataValueGenerator.ParameterGenerator();
 	SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
-	Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
-		Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
-		Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
-		Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
-        				new NumericBooleanExpression(r1, NumericComparator.EQ, p1),
-        				new NumericBooleanExpression(r2, NumericComparator.EQ, p1));
+        Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
+        Expression<Boolean> equalR1 = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+        Expression<Boolean> notEqualR1 = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
+        Expression<Boolean> disjunctionGuard = ExpressionUtil.or(
+            new NumericBooleanExpression(r1, NumericComparator.EQ, p1),
+            new NumericBooleanExpression(r2, NumericComparator.EQ, p1));
 
-	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         storeR1Mapping.put(r1, p1);
-	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         storeR2Mapping.put(r2, p1);
-		storeR2Mapping.put(r1, r1);
-	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1R2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
-	storeR1R2Mapping.put(r2, r1);
+        storeR2Mapping.put(r1, r1);
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> storeR1R2Mapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        storeR1R2Mapping.put(r2, r1);
         storeR1R2Mapping.put(r1, p1);
-	VarMapping<SymbolicDataValue.Register, SymbolicDataValue> copyMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
+        VarMapping<SymbolicDataValue.Register, SymbolicDataValue> copyMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         copyMapping.put(r1, r2);
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
 

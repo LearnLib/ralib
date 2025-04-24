@@ -58,7 +58,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class LearnPQIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExampleIO() {
+    public void testLearnLoginExampleIO() {
 
         long seed = -4750580074638681533L;
         logger.log(Level.FINE, "SEED={0}", seed);
@@ -66,7 +66,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
+            new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         final Constants consts = new Constants();
 
@@ -103,15 +103,12 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (check < 100) {
-            check++;
+        for (int check = 0; check < 100; check++) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
             //System.out.println(hyp);
 
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
 
             //System.out.println("CE: " + ce);
             if (ce == null) {
@@ -134,6 +131,5 @@ public class LearnPQIOTest extends RaLibTestSuite {
         );
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

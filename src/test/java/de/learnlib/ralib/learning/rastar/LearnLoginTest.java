@@ -56,7 +56,7 @@ import net.automatalib.word.Word;
 public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExample() {
+    public void testLearnLoginExample() {
 
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
@@ -81,7 +81,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();
-        System.out.println(hyp);
+        // System.out.println(hyp);
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -94,11 +94,10 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         rastar.learn();
         hyp = rastar.getHypothesis();
-        System.out.println(hyp);
+        // System.out.println(hyp);
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 3);
         Assert.assertEquals(hyp.getTransitions().size(), 11);
-
     }
 }

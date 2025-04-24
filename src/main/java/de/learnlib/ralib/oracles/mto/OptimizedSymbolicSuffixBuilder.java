@@ -129,7 +129,6 @@ public class OptimizedSymbolicSuffixBuilder {
 
         Word<ParameterizedSymbol> actions = suffixActions.prepend(actionSymbol);
         return new SymbolicSuffix(actions, restrictions);
-
     }
 
     SDT pruneSDT(SDT sdt, DataValue[] registers) {
@@ -166,7 +165,7 @@ public class OptimizedSymbolicSuffixBuilder {
         int revealedRegisters = 0;
         for (DataValue r : registers) {
             if (guardsOnRegisterHaveBothOutcomes(prunedSDT, r)) {
-            revealedRegisters++;
+                revealedRegisters++;
             }
         }
         if (revealedRegisters < registers.length) {
@@ -380,7 +379,7 @@ public class OptimizedSymbolicSuffixBuilder {
         Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
 
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
-        for (int i=0; i<DataWords.paramLength(suffix1.getActions()); i++) {
+        for (int i = 0; i < DataWords.paramLength(suffix1.getActions()); i++) {
             DataType type = suffix1.getDataValue(i+1).getDataType();
             SuffixValue sv = sgen.next(type);
             SuffixValueRestriction restr1 = suffix1.getRestriction(sv);

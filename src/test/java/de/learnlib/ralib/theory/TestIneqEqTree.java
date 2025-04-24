@@ -119,5 +119,4 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
 
-
 }

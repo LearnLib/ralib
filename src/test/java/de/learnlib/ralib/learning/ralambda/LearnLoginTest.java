@@ -42,7 +42,7 @@ import net.automatalib.word.Word;
 public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginTest() {
+    public void testLearnLogin() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -86,7 +86,7 @@ public class LearnLoginTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnLoginRandomTest() {
+    public void testLearnLoginRandom() {
         final int SEEDS = 10;
 
         Constants consts = new Constants();

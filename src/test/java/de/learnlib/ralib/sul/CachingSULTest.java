@@ -44,7 +44,6 @@ public class CachingSULTest {
         IOCache ioCache = new IOCache(ioOracle);
         CachingSUL cachingSul = new CachingSUL(sul, ioCache);
 
-
         cachingSul.pre();
         cachingSul.step(new PSymbolInstance(OFFER, new DataValue(DOUBLE_TYPE, new BigDecimal(1))));
         cachingSul.step(new PSymbolInstance(POLL));

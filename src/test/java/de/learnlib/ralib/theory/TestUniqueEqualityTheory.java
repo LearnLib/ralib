@@ -27,7 +27,6 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
 
     @Test
     public void testLoginExample1() {
-
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
 
         Map<DataType, Theory> theories = new LinkedHashMap();
@@ -50,7 +49,6 @@ public class TestUniqueEqualityTheory extends RaLibTestSuite {
                 new PSymbolInstance(I_REGISTER,
                         new DataValue(T_UID, BigDecimal.ONE),
                         new DataValue(T_PWD, BigDecimal.ONE)));
-
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2, s3, s4
