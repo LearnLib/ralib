@@ -26,9 +26,6 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import net.automatalib.word.Word;
 
 /**
