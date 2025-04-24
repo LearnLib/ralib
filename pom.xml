@@ -103,11 +103,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-<<<<<<< HEAD
                 <version>${spotbugs-plugin.version}</version>
-=======
-		<version>${spotbugs-plugin.version}</version>
->>>>>>> 0889e0b8 (Remove some warnings related to plugin versions)
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
