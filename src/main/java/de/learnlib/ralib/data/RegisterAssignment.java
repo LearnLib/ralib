@@ -1,6 +1,5 @@
 package de.learnlib.ralib.data;
 
-
 import java.util.Map;
 
 /**

@@ -311,8 +311,8 @@ public class OptimizedSymbolicSuffixBuilder {
     }
 
     /**
-     * Provides a one-symbol extension of an (optimized) suffix for two non-empty prefixes leading to inequivalent locations,
-     * based on the SDTs and associated PIVs that revealed the source of the inequivalence.
+     * Provides a one-symbol extension of an (optimized) suffix for two non-empty prefixes leading
+     * to inequivalent locations, based on the SDTs that revealed the source of the inequivalence.
      */
     public SymbolicSuffix extendDistinguishingSuffix(Word<PSymbolInstance> prefix1, SDT sdt1,
             Word<PSymbolInstance> prefix2,  SDT sdt2,  SymbolicSuffix suffix) {
@@ -328,29 +328,10 @@ public class OptimizedSymbolicSuffixBuilder {
 
     /**
      * Provides an optimized suffix to distinguish two inequivalent locations specified by prefixes,
-     * based on the SDTs and associated PIVs that revealed the source of the inequivalence.
+     * based on the SDTs that revealed the source of the inequivalence.
      */
     public SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1,
             Word<PSymbolInstance> prefix2,  SDT sdt2,  Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
-
-        /*
-        // we relabel SDTs and PIV such that they use different registers
-        SymbolicDataValueGenerator.ParameterGenerator rgen = new SymbolicDataValueGenerator.ParameterGenerator();
-        SDTRelabeling relabellingSdt1 = new SDTRelabeling();
-        if (true) throw new RuntimeException("fix PIV");
-        for (Object r : sdt1.getDataValues()) {
-            relabellingSdt1.put( r, rgen.next( ((TypedValue)r).getDataType()));
-        }
-        SDT relSdt1 =  sdt1.relabel(relabellingSdt1);
-        PIV relPiv1 = piv1.relabel(relabellingSdt1);
-
-        VarMapping<Register, Register> relabellingSdt2 = new VarMapping<>();
-        for (Register r : piv2.values()) {
-            relabellingSdt2.put(r, rgen.next(r.getDataType()));
-        }
-        SDT relSdt2 =  sdt2.relabel(relabellingSdt2);
-        PIV relPiv2 = piv2.relabel(relabellingSdt2);
-        */
         // we build valuations which we use to determine satisfiable paths
         Mapping<SymbolicDataValue, DataValue> valuationSdt1 = buildValuation(prefix1, consts);
         Mapping<SymbolicDataValue, DataValue> valuationSdt2 = buildValuation(prefix2, consts);

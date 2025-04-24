@@ -220,8 +220,7 @@ public class Component implements LocationComponent {
                 SymbolicSuffix newSuffix = new SymbolicSuffix(
                         r.getPrefix(), suffix, restrictionBuilder);
 
-//               System.out.println("Found inconsistency. msissing " + p +
-//                        " in mem. of " + prefix);
+//               System.out.println("Found inconsistency. msissing " + p + " in mem. of " + prefix);
 //               System.out.println("Fixing with prefix " + r.getPrefix() + " and suffix " + suffix);
 //               System.out.println("New symbolic suffix: " + newSuffix);
 
@@ -273,7 +272,7 @@ public class Component implements LocationComponent {
     public Collection<PrefixContainer> getOtherPrefixes() {
     	Collection<PrefixContainer> ret = new LinkedHashSet<PrefixContainer>();
     	for (Row r : getOtherRows())
-    		ret.add(r);
+            ret.add(r);
     	return ret;
     }
 

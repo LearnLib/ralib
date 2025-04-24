@@ -81,7 +81,6 @@ public abstract class EqualityTheory implements Theory {
     // given a map from guards to SDTs, merge guards based on whether they can
     // use another SDT. Base case: always add the 'else' guard first.
     private Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard.EqualityGuard, SDT> eqs, SDTGuard.SDTAndGuard deqGuard, SDT deqSdt) {
-
         Map<SDTGuard, SDT> retMap = new LinkedHashMap<>();
         List<SDTGuard> deqList = new ArrayList<>();
         List<SDTGuard.EqualityGuard> eqList = new ArrayList<>();
@@ -118,27 +117,6 @@ public abstract class EqualityTheory implements Theory {
 
         return retMap;
     }
-
-    // given a set of registers and a set of guards, keep only the registers
-    // that are mentioned in any guard
-    /*
-    private PIV keepMem(Map<SDTGuard, SDT> guardMap) {
-        PIV ret = new PIV();
-        for (Map.Entry<SDTGuard, SDT> e : guardMap.entrySet()) {
-            SDTGuard mg = e.getKey();
-            if (mg instanceof SDTGuard.EqualityGuard eg) {
-                LOGGER.trace(mg.toString());
-                SDTGuardElement r = eg.register();
-                // FIXME: why create new parameter?
-                Parameter p = new Parameter(r.getDataType(), r.getId());
-                if (r instanceof Register) {
-                    ret.put(p, (Register) r);
-                }
-            }
-        }
-        return ret;
-    }
-    */
 
     // process a tree query
     @Override

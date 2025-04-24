@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -112,33 +112,17 @@ public class CounterexampleAnalysis {
         LOGGER.trace("SDT SYS: {}", resSul.sdt());
         LOGGER.trace("------------------------------------------------------");
 
-//        System.out.println("------------------------------------------------------");
-//        System.out.println("Computing index: " + idx);
-//        System.out.println("Prefix: " + prefix);
-//        System.out.println("SymSuffix: " + symSuffix);
-//        System.out.println("Location: " + location);
-//        System.out.println("Transition: " + transition);
-//        System.out.println("PIV HYP: " + resHyp.getPiv());
-//        System.out.println("SDT HYP: " + resHyp.getSdt());
-//        System.out.println("PIV SYS: " + resSul.getPiv());
-//        System.out.println("SDT SYS: " + resSul.getSdt());
-//        System.out.println("------------------------------------------------------");
-
         LocationComponent c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
         //System.out.println(c.getBranching(act).getBranches());
         Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
-        boolean hasCE = sdtOracle.hasCounterexample(location,
-                resHyp.sdt(), //new PIV(location, resHyp.getParsInVars()),
-                resSul.sdt(), //new PIV(location, resSul.getParsInVars()),
-                g, transition);
+        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp.sdt(), resSul.sdt(), g, transition);
 
         if (!hasCE) {
             return IndexResult.NO_CE;
         }
 
-        // PIV pivSul = new PIV(location, resSul.getParsInVars());
         Set<DataValue> pivSul = resSul.sdt().getDataValues();
         Set<DataValue> pivHyp = c.getPrimePrefix().getAssignment().keySet();
 

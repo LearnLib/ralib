@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -478,48 +478,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, constants, casted);
         return fluff;
     }
-
-    /*
-    public boolean accepts(Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, SDT sdt, PIV piv) {
-    	Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
-    	mapping.putAll(constants);
-
-    	int index = 0;
-    	for (PSymbolInstance psi : prefix) {
-    		index = index + psi.getBaseSymbol().getArity();
-    	}
-
-    	SuffixValueGenerator svGen = new SuffixValueGenerator();
-    	for (PSymbolInstance psi : suffix) {
-    		DataType[] dts = psi.getBaseSymbol().getPtypes();
-    		DataValue[] dvs = psi.getParameterValues();
-    		for (int i = 0; i < dts.length; i++) {
-    			SuffixValue sv = svGen.next(dts[i]);
-    			mapping.put(sv, dvs[i]);
-    		}
-    	}
-
-    	ParameterValuation pars = DataWords.computeParameterValuation(prefix);
-    	RegisterValuation vars = DataWords.computeRegisterValuation(pars, piv);
-    	mapping.putAll(vars);
-
-    	SDT _sdt = sdt;
-        Expression<Boolean> expr = _sdt.getAcceptingPaths(constants);
-    	if (expr.equals(ExpressionUtil.FALSE))
-    		return false;
-    	for (SymbolicDataValue sdv : SMTUtil.getSymbolicDataValues(expr)) {
-    		if (sdv instanceof Register && mapping.get(sdv) == null) {
-    			Theory teach = teachers.get(sdv.getDataType());
-    			List<DataValue> values = new ArrayList<>();
-    			values.addAll(mapping.values());
-    			values.addAll(pars.values());
-    			DataValue dv = teach.getFreshValue(values);
-    			mapping.put(sdv, dv);
-    		}
-    	}
-
-    	return expr.evaluateSMT(SMTUtil.compose(mapping));
-    }*/
 
     public Map<DataType, Theory> getTeachers() {
     	return teachers;

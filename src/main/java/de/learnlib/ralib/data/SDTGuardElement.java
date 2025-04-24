@@ -24,5 +24,4 @@ public interface SDTGuardElement extends TypedValue {
 
     Expression<BigDecimal> asExpression();
 
-
 }

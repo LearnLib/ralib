@@ -206,7 +206,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     void addTQRs(SymbolicSuffix suffix) {
-        //access.updateMemorable(primePIV);
         Iterator<MappedPrefix> it = Iterators.concat(shortPrefixes.iterator(), otherPrefixes.iterator());
         while (it.hasNext()) {
             MappedPrefix mp = it.next();
@@ -416,17 +415,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
         return sdts.toArray(new SDT[] {});
     }
 
-    /*
-    private SDT makeConsistent(SDT sdt, PIV piv, PIV memorable) {
-        VarMapping relabeling = new VarMapping();
-        for (Entry<Parameter, Register> e : piv.entrySet()) {
-            Register r = memorable.get(e.getKey());
-            relabeling.put(e.getValue(), r);
-        }
-        return sdt.relabel(relabeling);
-    }
-     */
-
     public boolean checkVariableConsistency(DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
         if (!checkVariableConsistency(access, dt, consts, suffixBuilder)) {
             return false;
@@ -460,31 +448,30 @@ public class DTLeaf extends DTNode implements LocationComponent {
         List<DataValue> mpVals = Arrays.stream(DataWords.valsOf(mp.getPrefix())).toList();
 
         for (DataValue d : memMP) {
-        	boolean prefixMissingParam = !memPrefix.contains(d) ||
-        			               prefixMapped.missingParameter.contains(d);
+            boolean prefixMissingParam = !memPrefix.contains(d) || prefixMapped.missingParameter.contains(d);
             if (prefixMissingParam && mpVals.indexOf(d) < max) {
             	List<SymbolicSuffix> prefixSuffixes = prefixMapped.getAllSuffixesForMemorable(d);
             	List<SymbolicSuffix> suffixes = mp.getAllSuffixesForMemorable(d);
             	assert !suffixes.isEmpty();
             	for (SymbolicSuffix suffix : suffixes) {
-            		SDT sdt = mp.getTQRs().get(suffix);
-            		// suffixBuilder == null ==> suffix.isOptimizedGeneric()
-            		assert suffixBuilder != null || suffix.isOptimizationGeneric() : "Optimized with restriction builder, but no restriction builder provided";
-            		SymbolicSuffix newSuffix = suffixBuilder != null ?
+                    SDT sdt = mp.getTQRs().get(suffix);
+                    // suffixBuilder == null ==> suffix.isOptimizedGeneric()
+                    assert suffixBuilder != null || suffix.isOptimizationGeneric() : "Optimized with restriction builder, but no restriction builder provided";
+                    SymbolicSuffix newSuffix = suffixBuilder != null ?
             				suffixBuilder.extendSuffix(mp.getPrefix(), sdt, suffix, d) :
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
-            		if (prefixSuffixes.contains(newSuffix))
-            			continue;
-            		TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
+                    if (prefixSuffixes.contains(newSuffix))
+                        continue;
+                    TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
 
-            		if (tqr.sdt().getDataValues().contains(d)) {
-            			dt.addSuffix(newSuffix, prefixLeaf);
-            			mp.missingParameter.remove(d);
-            			return false;
-            		}
+                    if (tqr.sdt().getDataValues().contains(d)) {
+                        dt.addSuffix(newSuffix, prefixLeaf);
+                        mp.missingParameter.remove(d);
+                        return false;
+                    }
             	}
             	if (!prefixMapped.missingParameter.contains(d)) {
-            		mp.missingParameter.add(d);
+                    mp.missingParameter.add(d);
             	}
             } else {
             	mp.missingParameter.remove(d);
@@ -495,7 +482,7 @@ public class DTLeaf extends DTNode implements LocationComponent {
     }
 
     public boolean checkRegisterConsistency(DT dt, Constants consts, OptimizedSymbolicSuffixBuilder suffixBuilder) {
-    	if (access.memorableValues().isEmpty())
+        if (access.memorableValues().isEmpty())
     		return true;
 
     	if (!checkRegisterConsistency(access, dt, consts, suffixBuilder))
