@@ -114,9 +114,9 @@ public class DTHyp extends Hypothesis {
 	@Override
 	public Word<PSymbolInstance> transformTransitionSequence(Word<PSymbolInstance> word) {
         List<Word<PSymbolInstance>> tseq = getDTTransitions(word);
-		assert tseq.size() == word.size();
 		if (tseq == null)
 			return dt.getLeaf(word).getAccessSequence();
+		assert tseq.size() == word.size();
 		return tseq.get(tseq.size() - 1);
 	}
 
