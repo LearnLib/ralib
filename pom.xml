@@ -40,7 +40,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-		<version>${dependency-plugin.version}</version>
+                <version>${dependency-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>analyze-only</id>
@@ -63,9 +63,9 @@
 		<configuration>
 		    <formats>
                         <format>
-			    <includes>
+                            <includes>
                                 <include>.xml</include>
-			    </includes>
+                            </includes>
 			    <endWithNewline />
 			    <trimTrailingWhitespace />
 			</format>
@@ -100,7 +100,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-		<version>${spotbugs-plugin.version}</version>
+                <version>${spotbugs-plugin.version}</version>
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>

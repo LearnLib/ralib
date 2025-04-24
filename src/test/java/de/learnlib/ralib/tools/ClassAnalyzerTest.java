@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,7 +152,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             "use.suffixopt=true;" +
             "use.fresh=false;" +
             "use.rwalk=true;" +
-            "export.model=true;" +
+            "export.model=false;" +
             "rwalk.prob.fresh=0.1;" +
             "rwalk.prob.reset=0.0;" +
             "rwalk.max.depth=6;" +
@@ -185,7 +185,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
             IOEquivalenceTest check = new IOEquivalenceTest(
                     loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
 
-            System.out.println(check.findCounterExample(hyp, null) );
+            // System.out.println(check.findCounterExample(hyp, null) );
             boolean equiv = check.findCounterExample(hyp, null) == null;
             Assert.assertTrue(equiv);
 
@@ -199,11 +199,11 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     public void classAnalyzerConstantsTest() {
 
     	final String[] options = new String[] {
-    			"class-analyzer",
-    			"target=de.learnlib.ralib.example.container.ContainerSUL;" +
-    			"methods=put(java.math.BigDecimal:int)void+" +
-    					"get()java.math.BigDecimal:int;" +
-    			"random.seed=652102309071547789;" +
+                "class-analyzer",
+                "target=de.learnlib.ralib.example.container.ContainerSUL;" +
+                "methods=put(java.math.BigDecimal:int)void+" +
+                        "get()java.math.BigDecimal:int;" +
+                "random.seed=652102309071547789;" +
                 "logging.level=WARNING;" +
                 "max.time.millis=600000;" +
                 "learner=sllambda;" +
@@ -222,9 +222,9 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
                 "constants=[{'type':'int','value':'0'}]"};
 
     	try {
-    		ConsoleClient cl = new ConsoleClient(options);
-    		int ret = cl.run();
-    		Assert.assertEquals(ret, 0);
+            ConsoleClient cl = new ConsoleClient(options);
+            int ret = cl.run();
+            Assert.assertEquals(ret, 0);
 
             RegisterAutomaton hyp = ((ClassAnalyzer) cl.getTool()).getHypothesis();
 
@@ -245,10 +245,10 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
                     loader.getRegisterAutomaton(), teachers, loader.getConstants(), true, actions);
 
             boolean equiv = check.findCounterExample(hyp, null) == null;
-             Assert.assertTrue(equiv);
+            Assert.assertTrue(equiv);
 
     	} catch (Throwable t) {
-    		Assert.fail(t.getClass().getName());
+            Assert.fail(t.getClass().getName());
     	}
     }
 
