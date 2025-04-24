@@ -232,18 +232,4 @@ public final class DataWords {
         return length;
     }
 
-    public static ParameterValuation computeParameterValuation(Word<PSymbolInstance> word) {
-    	ParameterGenerator pGen = new ParameterGenerator();
-    	ParameterValuation pars = new ParameterValuation();
-    	for (PSymbolInstance psi : word) {
-    		DataType[] dt = psi.getBaseSymbol().getPtypes();
-    		DataValue[] dv = psi.getParameterValues();
-    		for (int i = 0; i < dt.length; i++) {
-    			Parameter p = pGen.next(dt[i]);
-    			pars.put(p, dv[i]);
-    		}
-    	}
-    	return pars;
-    }
-
 }
