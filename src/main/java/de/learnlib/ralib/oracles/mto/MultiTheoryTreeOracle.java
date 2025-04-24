@@ -64,7 +64,7 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
+public class MultiTheoryTreeOracle implements TreeOracle {
 
     private final DataWordOracle oracle;
 
@@ -94,7 +94,6 @@ public class MultiTheoryTreeOracle implements TreeOracle, SDTConstructor {
         return new TreeQueryResult(sdt);
     }
 
-    @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
             Constants constants, SuffixValuation suffixValues) {
 

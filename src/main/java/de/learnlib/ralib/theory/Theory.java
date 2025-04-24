@@ -28,7 +28,7 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -72,7 +72,7 @@ public interface Theory {
             WordValuation values,
             Constants constants,
             SuffixValuation suffixValues,
-            SDTConstructor oracle);
+            MultiTheoryTreeOracle oracle);
 
 
     /**

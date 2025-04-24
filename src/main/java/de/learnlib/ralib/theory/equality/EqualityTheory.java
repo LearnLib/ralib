@@ -38,7 +38,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTLeaf;
@@ -121,7 +121,7 @@ public abstract class EqualityTheory implements Theory {
     // process a tree query
     @Override
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,
-            Constants constants, SuffixValuation suffixValues, SDTConstructor oracle) {
+            Constants constants, SuffixValuation suffixValues, MultiTheoryTreeOracle oracle) {
 
         int pId = values.size() + 1;
 
