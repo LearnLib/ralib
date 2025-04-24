@@ -2,12 +2,22 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.*;
 
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SDTGuardElement;
+import de.learnlib.ralib.data.SDTRelabeling;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.*;
+import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.SDTGuard;
+import de.learnlib.ralib.theory.SDTLeaf;
+import de.learnlib.ralib.theory.SuffixValueRestriction;
+import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -270,7 +280,7 @@ public class OptimizedSymbolicSuffixBuilder {
         }
         if (!childrenWithRegister.isEmpty()) {
             if (!guardHasBothOutcomes(childrenWithRegister)) {
-            return false;
+                return false;
             }
         }
         boolean ret = true;
@@ -323,10 +333,10 @@ public class OptimizedSymbolicSuffixBuilder {
     public SymbolicSuffix distinguishingSuffixFromSDTs(Word<PSymbolInstance> prefix1, SDT sdt1,
             Word<PSymbolInstance> prefix2,  SDT sdt2,  Word<ParameterizedSymbol> suffixActions, ConstraintSolver solver) {
 
+        /*
         // we relabel SDTs and PIV such that they use different registers
         SymbolicDataValueGenerator.ParameterGenerator rgen = new SymbolicDataValueGenerator.ParameterGenerator();
         SDTRelabeling relabellingSdt1 = new SDTRelabeling();
-        /*
         if (true) throw new RuntimeException("fix PIV");
         for (Object r : sdt1.getDataValues()) {
             relabellingSdt1.put( r, rgen.next( ((TypedValue)r).getDataType()));
@@ -416,7 +426,6 @@ public class OptimizedSymbolicSuffixBuilder {
         final int distinctValueCost = 100;
         return suffix.getFreeValues().size() * freeCost + suffix.getValues().size() * distinctValueCost;
     }
-
 
     private Expression<Boolean> toGuardExpression(List<SDTGuard> guards) {
         List<Expression<Boolean>> expr = new ArrayList<>();
