@@ -57,22 +57,22 @@
 
             <!-- Format the source code -->
             <plugin>
-	        <groupId>com.diffplug.spotless</groupId>
-	        <artifactId>spotless-maven-plugin</artifactId>
+	              <groupId>com.diffplug.spotless</groupId>
+	              <artifactId>spotless-maven-plugin</artifactId>
                 <version>${spotless-plugin.version}</version>
-		<configuration>
-		    <formats>
+                <configuration>
+		                <formats>
                         <format>
-			    <includes>
+			                      <includes>
                                 <include>**/*.xml</include>
-			    </includes>
+			                      </includes>
                             <excludes>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
-			    <endWithNewline />
-			    <trimTrailingWhitespace />
-			</format>
-		    </formats>
+                            <endWithNewline />
+                            <trimTrailingWhitespace />
+                        </format>
+                    </formats>
 		    <java>
 		        <endWithNewline />
                         <formatAnnotations />
@@ -120,7 +120,7 @@
             <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-		<version>${assembly-plugin.version}</version>
+                <version>${assembly-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -135,7 +135,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-		<version>${compiler-plugin.version}</version>
+                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <release>17</release>
                     <showWarnings>true</showWarnings>
@@ -147,7 +147,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-		<version>${surefire-plugin.version}</version>
+                <version>${surefire-plugin.version}</version>
                 <configuration>
                     <argLine>--enable-preview</argLine>
                 </configuration>
