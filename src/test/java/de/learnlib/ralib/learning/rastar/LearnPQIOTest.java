@@ -71,17 +71,16 @@ public class LearnPQIOTest extends RaLibTestSuite {
         final Constants consts = new Constants();
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
+                ioOracle, teachers, consts, solver, sul.getInputSymbols());
 
-        MultiTheorySDTLogicOracle mlo
-                = new MultiTheorySDTLogicOracle(consts, jsolv);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo,
                 consts, true, sul.getActionSymbols());
@@ -109,7 +108,6 @@ public class LearnPQIOTest extends RaLibTestSuite {
             //System.out.println(hyp);
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
-
             //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
@@ -127,8 +125,7 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 imp.getRegisterAutomaton(), teachers, consts, true,
-                sul.getActionSymbols()
-        );
+                sul.getActionSymbols());
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
     }

@@ -47,7 +47,7 @@ import net.automatalib.word.Word;
 public class TestSuffixOptimization extends RaLibTestSuite {
 
     @Test
-    public void learnRepeaterSuffixOptTest() {
+    public void testLearnRepeaterSuffixOpt() {
 
         Constants consts = new Constants();
 
@@ -105,11 +105,10 @@ public class TestSuffixOptimization extends RaLibTestSuite {
     }
 
     @Test
-    public void learnPQSuffixOptTest() {
+    public void testLearnPQSuffixOpt() {
 
         Constants consts = new Constants();
-        DataWordOracle dwOracle =
-                new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
+        DataWordOracle dwOracle = new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
         CacheDataWordOracle ioCache = new CacheDataWordOracle(dwOracle);
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -118,24 +117,24 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         teachers.put(doubleType, dit);
 
         Measurements m = new Measurements();
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         QueryStatistics stats = new QueryStatistics(m, ioCache);
-        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, jsolv), m);
-        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+        MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioCache, teachers, consts, solver), m);
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
         RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
-        learner.setSolver(jsolv);
+        learner.setSolver(solver);
         learner.setStatisticCounter(stats);
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(OFFER, new DataValue(doubleType, BigDecimal.ONE)),
-        		new PSymbolInstance(OFFER, new DataValue(doubleType, BigDecimal.ZERO)),
-        		new PSymbolInstance(POLL, new DataValue(doubleType, BigDecimal.ZERO)),
-        		new PSymbolInstance(POLL, new DataValue(doubleType, BigDecimal.ONE)));
+                new PSymbolInstance(OFFER, new DataValue(doubleType, BigDecimal.ONE)),
+                new PSymbolInstance(OFFER, new DataValue(doubleType, BigDecimal.ZERO)),
+                new PSymbolInstance(POLL, new DataValue(doubleType, BigDecimal.ZERO)),
+                new PSymbolInstance(POLL, new DataValue(doubleType, BigDecimal.ONE)));
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
 
         learner.learn();

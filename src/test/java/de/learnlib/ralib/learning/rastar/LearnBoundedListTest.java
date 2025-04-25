@@ -42,8 +42,8 @@ import net.automatalib.word.Word;
  */
 public class LearnBoundedListTest {
 
-    @Test(enabled=false)
-    public void learnBoundedListOracleTest() {
+    @Test(enabled = false)
+    public void testLearnBoundedListOracle() {
         @SuppressWarnings("unchecked")
         Word<PSymbolInstance>[] ces = new Word[] {
                 Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(POP, dv(1))),

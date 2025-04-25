@@ -55,24 +55,22 @@ import net.automatalib.word.Word;
 public class LearnPQTest extends RaLibTestSuite {
 
     @Test
-    public void PQExample() {
+    public void testPQExample() {
 
         Constants consts = new Constants();
-        DataWordOracle dwOracle =
-                new de.learnlib.ralib.example.priority.PriorityQueueOracle();
+        DataWordOracle dwOracle = new de.learnlib.ralib.example.priority.PriorityQueueOracle();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                dwOracle, teachers, new Constants(), jsolv);
+                dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, OFFER, POLL);
         rastar.learn();
@@ -86,8 +84,6 @@ public class LearnPQTest extends RaLibTestSuite {
                         new DataValue(doubleType, BigDecimal.ONE)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, BigDecimal.ONE)),
-                //                new PSymbolInstance(OFFER,
-                //                        new DataValue(doubleType, 1.0)),
                 new PSymbolInstance(POLL,
                         new DataValue(doubleType, BigDecimal.ONE)));
 

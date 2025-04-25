@@ -55,10 +55,10 @@ public class TestIneqEqTree extends RaLibTestSuite {
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers,
-                new Constants(), jsolv,
+                new Constants(), solver,
                 sul.getInputSymbols());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
@@ -112,8 +112,7 @@ public class TestIneqEqTree extends RaLibTestSuite {
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
 
-        Branching b = mto.getInitialBranching(
-                prefix, PriorityQueueSUL.OFFER, sdt);
+        Branching b = mto.getInitialBranching(prefix, PriorityQueueSUL.OFFER, sdt);
 
         Assert.assertEquals(b.getBranches().size(), 2);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());

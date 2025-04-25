@@ -27,14 +27,11 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnDtlsServerTest extends RaLibTestSuite {
 
     @Test
-    public void learnDtlsServerTest() {
+    public void testLearnDtlsServer() {
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/dtls-server.xml");
 
         RegisterAutomaton model = loader.getRegisterAutomaton();
-
-//        ParameterizedSymbol[] inputs = loader.getInputs().toArray(
-//                new ParameterizedSymbol[]{});
 
         ParameterizedSymbol[] actions = loader.getActions().toArray(
                 new ParameterizedSymbol[]{});
@@ -47,13 +44,13 @@ public class LearnDtlsServerTest extends RaLibTestSuite {
         teachers.put(epoch, new IntegerEqualityTheory(epoch));
         SimulatorOracle dwOracle = new SimulatorOracle(model);
 
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
 
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         IOEquivalenceTest eqOracle = new IOEquivalenceTest(model, teachers, consts, false, actions);
         runner.setEqOracle(eqOracle);
         runner.setIoMode(true);
-        Hypothesis result = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, actions);
+        Hypothesis result = runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, actions);
         DefaultQuery<PSymbolInstance, Boolean> ce = eqOracle.findCounterExample(result, null);
         Assert.assertNull(ce);
     }

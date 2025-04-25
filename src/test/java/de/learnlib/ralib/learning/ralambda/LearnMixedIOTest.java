@@ -62,7 +62,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnMixedIO() {
+    public void testLearnMixedIO() {
 
         long seed = -1386796323025681754L;
         logger.log(Level.FINE, "SEED={0}", seed);
@@ -81,7 +81,6 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             TypedTheory th;
@@ -98,18 +97,17 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
-        MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, inputs);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+        MultiTheoryTreeOracle mto = TestUtil.createMTO(ioOracle, teachers, consts, solver, inputs);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-		rastar.setSolver(jsolv);
+        rastar.setSolver(solver);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -128,16 +126,11 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; check++) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    iowalk.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             if (ce == null) {
                 break;
             }
@@ -157,6 +150,5 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 model, teachers, consts, true, actions);
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

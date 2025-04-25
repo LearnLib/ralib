@@ -62,7 +62,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnMixedIO() {
+    public void testLearnMixedIO() {
 
         long seed = -1386796323025681754L;
         logger.log(Level.FINE, "SEED={0}", seed);
@@ -87,8 +87,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             TypedTheory th;
             if (t.getName().equals("int")) {
                 th = new IntegerEqualityTheory();
-            }
-            else {
+            } else {
                 th = new DoubleInequalityTheory();
             }
             th.setType(t);
@@ -98,15 +97,15 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, inputs);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+                ioOracle, teachers, consts, solver, inputs);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
@@ -134,9 +133,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    iowalk.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             if (ce == null) {
                 break;
             }
@@ -156,6 +153,5 @@ public class LearnMixedIOTest extends RaLibTestSuite {
                 model, teachers, consts, true, actions);
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

@@ -72,18 +72,16 @@ public class TestIneqOutputTree extends RaLibTestSuite {
 
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testIneqEqTree() {
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         BiggerSUL sul = new BiggerSUL();
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers,
-                new Constants(), jsolv,
-                IN);
+                new Constants(), solver, IN);
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(IN, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
@@ -111,7 +109,6 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
-
     }
 
 }

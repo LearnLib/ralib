@@ -32,8 +32,8 @@ import net.automatalib.word.Word;
 
 public class TestQueryCount extends RaLibTestSuite {
 
-	@Test
-	public void testQueryCount() {
+    @Test
+    public void testQueryCount() {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
@@ -43,19 +43,18 @@ public class TestQueryCount extends RaLibTestSuite {
 
         PriorityQueueSUL sul = new PriorityQueueSUL(2);
 
-        ConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
         Measurements measurements = new Measurements();
         MeasuringOracle mto = new MeasuringOracle(TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, sul.getInputSymbols()),
+                ioOracle, teachers, consts, solver, sul.getInputSymbols()),
         		measurements);
 
-        MultiTheorySDTLogicOracle mlo
-                = new MultiTheorySDTLogicOracle(consts, jsolv);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         QueryStatistics queryStats = new QueryStatistics(measurements, ioOracle);
         RaLambda learner = new RaLambda(mto, hypFactory, mlo,
@@ -115,5 +114,5 @@ public class TestQueryCount extends RaLibTestSuite {
 
         long memQueries3 = learner.getQueryStatistics().getMemQueries();
         Assert.assertEquals(memQueries3, 36);
-	}
+    }
 }
