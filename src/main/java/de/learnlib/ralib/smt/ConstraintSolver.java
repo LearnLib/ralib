@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,7 +41,6 @@ public class ConstraintSolver {
         Expression<Boolean> test = SMTUtil.toExpression(expr, val);
         Boolean r = cache.get(test);
         if (r == null) {
-
             SolverContext ctx = solver.createContext();
             r = ctx.isSatisfiable(test) == gov.nasa.jpf.constraints.api.ConstraintSolver.Result.SAT;
             cache.put(test, r);

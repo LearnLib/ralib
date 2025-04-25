@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,10 +19,15 @@ package de.learnlib.ralib.automata;
 import java.util.List;
 import java.util.Map.Entry;
 
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.VarMapping;
 
 /**
  * A parallel assignment for registers.

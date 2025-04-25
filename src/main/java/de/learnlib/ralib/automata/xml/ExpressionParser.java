@@ -33,7 +33,6 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
  */
 public class ExpressionParser {
 
-
     private final String expLine;
     private final Map<String, SymbolicDataValue> pMap;
 
@@ -42,12 +41,10 @@ public class ExpressionParser {
     public ExpressionParser(String exp, Map<String, SymbolicDataValue> pMap) {
         expLine = exp.trim();
         this.pMap = pMap;
-
         buildExpression();
     }
 
-    private void buildExpression()
-    {
+    private void buildExpression() {
         this.predicate = buildDisjunction(expLine);
     }
 
@@ -75,9 +72,7 @@ public class ExpressionParser {
         return ExpressionUtil.and(conjuncts.toArray(new Expression[] {}));
     }
 
-    private Expression<Boolean> buildPredicate(String pred)
-    {
-
+    private Expression<Boolean> buildPredicate(String pred) {
         pred = pred.replace("!=", "!!");
         if (pred.trim().length() < 1) {
             return ExpressionUtil.TRUE;

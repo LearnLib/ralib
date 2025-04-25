@@ -2,11 +2,18 @@ package de.learnlib.ralib.smt;
 
 import java.util.*;
 
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.RegisterAssignment;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.VarMapping;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
-import gov.nasa.jpf.constraints.expressions.*;
+import gov.nasa.jpf.constraints.expressions.Constant;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.types.BuiltinTypes;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -30,17 +37,16 @@ public class SMTUtil {
         return new Constant(BuiltinTypes.DECIMAL, sv.getValue());
     }
 
-    public static Collection<SymbolicDataValue> getSymbolicDataValues(
-            Expression<Boolean> expr) {
+    public static Collection<SymbolicDataValue> getSymbolicDataValues(Expression<Boolean> expr) {
         ArrayList<SymbolicDataValue> list = new ArrayList<>();
         for (Variable v : ExpressionUtil.freeVariables(expr)) {
-            list.add( (SymbolicDataValue) v);
+            list.add((SymbolicDataValue) v);
         }
         return list;
     }
 
     public static Expression<Boolean> renameVars(Expression<Boolean> expr,
-                                              final VarMapping<? extends SymbolicDataValue, ? extends SymbolicDataValue> relabelling) {
+	    final VarMapping<? extends SymbolicDataValue, ? extends SymbolicDataValue> relabelling) {
         final ReplacingVarsVisitor replacer = new ReplacingVarsVisitor();
         return replacer.apply(expr, relabelling);
     }
@@ -61,7 +67,6 @@ public class SMTUtil {
 
     public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
-        //Expression<Boolean> guardExpr = toExpression(expr, map);
         Expression<Boolean> valExpr = toExpression(val, map);
         return ExpressionUtil.and(expr, valExpr);
     }
@@ -75,8 +80,7 @@ public class SMTUtil {
         return ExpressionUtil.and(elems);
     }
 
-    private static Variable getOrCreate(SymbolicDataValue dv,
-                                        Map<SymbolicDataValue, Variable> map) {
+    private static Variable getOrCreate(SymbolicDataValue dv, Map<SymbolicDataValue, Variable> map) {
         Variable ret = map.get(dv);
         if (ret == null) {
             // FIXME: superfluous!

@@ -2,7 +2,8 @@ package de.learnlib.ralib.learning;
 
 import java.util.Collection;
 
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;

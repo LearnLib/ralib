@@ -57,15 +57,15 @@
 
             <!-- Format the source code -->
             <plugin>
-	              <groupId>com.diffplug.spotless</groupId>
-	              <artifactId>spotless-maven-plugin</artifactId>
+	        <groupId>com.diffplug.spotless</groupId>
+	        <artifactId>spotless-maven-plugin</artifactId>
                 <version>${spotless-plugin.version}</version>
                 <configuration>
-		                <formats>
+		    <formats>
                         <format>
-			                      <includes>
+                            <includes>
                                 <include>**/*.xml</include>
-			                      </includes>
+                            </includes>
                             <excludes>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
@@ -99,6 +99,20 @@
                 </executions>
 	    </plugin>
 
+            <!-- Compilation options -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <release>17</release>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                         <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <!-- Static code analysis -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
@@ -117,6 +131,16 @@
                 </executions>
             </plugin>
 
+            <!-- Surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>--enable-preview</argLine>
+                </configuration>
+            </plugin>
+
             <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -130,26 +154,6 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
-                <configuration>
-                    <release>17</release>
-                    <showWarnings>true</showWarnings>
-                    <compilerArgs>
-                         <arg>--enable-preview</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-plugin.version}</version>
-                <configuration>
-                    <argLine>--enable-preview</argLine>
                 </configuration>
             </plugin>
         </plugins>
