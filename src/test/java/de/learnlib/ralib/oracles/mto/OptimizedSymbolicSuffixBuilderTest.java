@@ -19,9 +19,9 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.example.list.BoundedList;
 import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -228,7 +228,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
      */
     private void equalsSuffixesFromConcretePrefixSuffix(Word<PSymbolInstance> word, MultiTheoryTreeOracle mto, Constants consts) {
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
-        TreeQueryResult tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
+        SDT tqr = mto.treeQuery(word, new SymbolicSuffix(Word.epsilon()));
         SymbolicSuffix actual = new SymbolicSuffix(word, Word.epsilon());
         int suffixLength;
         for (suffixLength=1; suffixLength<word.length(); suffixLength++) {
@@ -236,7 +236,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
             Word<PSymbolInstance> sub = word.prefix(word.length() - suffixLength);
             Word<PSymbolInstance> prefix = word.prefix(sub.length()+1);
             SymbolicSuffix expected = new SymbolicSuffix(sub, suffix);
-            actual = builder.extendSuffix(prefix,  tqr.sdt(), actual);
+            actual = builder.extendSuffix(prefix,  tqr, actual);
             Assert.assertEquals(actual, expected);
             tqr = mto.treeQuery(sub, expected);
         }

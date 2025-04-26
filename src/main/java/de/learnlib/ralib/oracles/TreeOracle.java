@@ -42,7 +42,7 @@ public interface TreeOracle {
      * @param suffix
      * @return
      */
-    TreeQueryResult treeQuery(
+    SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix);
 
     /**

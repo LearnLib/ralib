@@ -144,7 +144,7 @@ public class PathResult {
             }
             SDT tqr = prefix.getTQRs().get(s);
             if (tqr == null) {
-                tqr = oracle.treeQuery(prefix.getPrefix(), s).sdt();
+                tqr = oracle.treeQuery(prefix.getPrefix(), s);
             }
             //System.out.println("TQ: " + prefix + " : " + s + " : " + tqr);
             r.addResult(s, tqr);

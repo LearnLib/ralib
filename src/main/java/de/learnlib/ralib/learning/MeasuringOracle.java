@@ -4,7 +4,6 @@ import java.util.Map;
 
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -23,7 +22,7 @@ public class MeasuringOracle implements TreeOracle {
 	}
 
 	@Override
-	public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+	public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 		result.treeQueries++;
 		SymbolicWord key = new SymbolicWord(prefix, suffix);
 		if (result.treeQueryWords.containsKey(key))

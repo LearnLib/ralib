@@ -17,7 +17,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
@@ -39,7 +38,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		private static class DummyOracle implements TreeOracle {
 
 			@Override
-			public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+			public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 				return null;
 			}
 
@@ -137,17 +136,17 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 			new SDTGuard.DisequalityGuard(s1, r1), new SDT(Map.of(
 				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.REJECTING))));
 
-		TreeQueryResult tqrEps = new TreeQueryResult(sdtEps);
-		TreeQueryResult tqrPrefix = new TreeQueryResult(sdtPrefix);
-		TreeQueryResult tqrWord = new TreeQueryResult( sdtWord);
+		SDT tqrEps = sdtEps;
+		SDT tqrPrefix = sdtPrefix;
+		SDT tqrWord = sdtWord;
 
 		MappedPrefix mpWord = new MappedPrefix(word, Bijection.identity(sdtWord.getDataValues()));
 		MappedPrefix mpPrefix = new MappedPrefix(prefix, Bijection.identity(sdtPrefix.getDataValues()));
 
-		mpWord.addTQR(new SymbolicSuffix(Word.epsilon(), Word.epsilon()), tqrEps.sdt());
-		mpWord.addTQR(symSuffixWord, tqrWord.sdt());
-		mpPrefix.addTQR(symSuffixEps, tqrEps.sdt());
-		mpPrefix.addTQR(symSuffixPrefix, tqrPrefix.sdt());
+		mpWord.addTQR(new SymbolicSuffix(Word.epsilon(), Word.epsilon()), tqrEps);
+		mpWord.addTQR(symSuffixWord, tqrWord);
+		mpPrefix.addTQR(symSuffixEps, tqrEps);
+		mpPrefix.addTQR(symSuffixPrefix, tqrPrefix);
 
 		DummyDT dt = new DummyDT(mpWord, mpPrefix);
 		DTLeaf leafWord = dt.getLeaf(word);

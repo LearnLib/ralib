@@ -54,7 +54,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -126,10 +125,10 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "{0}", suffix);
         logger.log(Level.FINE, "{0}", symSuffix);
 
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        logger.log(Level.FINE, "SDT: {0}", res.sdt());
+        SDT res = mto.treeQuery(prefix, symSuffix);
+        logger.log(Level.FINE, "SDT: {0}", res);
 
-        SDT sdt = res.sdt();
+        SDT sdt = res;
 
         ParameterGenerator pgen = new ParameterGenerator();
         RegisterGenerator rgen = new RegisterGenerator();

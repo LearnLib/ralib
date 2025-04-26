@@ -22,7 +22,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -90,8 +89,8 @@ final class Cell {
      */
     static Cell computeCell(TreeOracle oracle, Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         //System.out.println("START: computecell for " + prefix.toString() + "   .    " + suffix.toString());
-        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
-        Cell c = new Cell(prefix, suffix, tqr.sdt());
+        SDT tqr = oracle.treeQuery(prefix, suffix);
+        Cell c = new Cell(prefix, suffix, tqr);
         //System.out.println("END: computecell " + c.toString());
         return c;
     }

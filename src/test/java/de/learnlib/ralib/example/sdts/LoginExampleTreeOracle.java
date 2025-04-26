@@ -37,7 +37,6 @@ import de.learnlib.ralib.example.sdts.LoginExampleSDT.SDTClass;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
@@ -70,12 +69,11 @@ public class LoginExampleTreeOracle implements TreeOracle {
     }
 
     @Override
-    public TreeQueryResult treeQuery(
+    public SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
-            return new TreeQueryResult(
-                    new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
+            return new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>());
         }
 
         DataValue uid = null;
@@ -114,8 +112,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
             }
 
             if (state == State.ERROR) {
-                return new TreeQueryResult(
-                        new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>()));
+                return new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>());
             }
 
             idx++;
@@ -140,8 +137,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
                 break;
         }
 
-        return new TreeQueryResult(
-                new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>()));
+        return new LoginExampleSDT(clazz, suffix, new LinkedHashSet<Register>());
     }
 
 

@@ -32,7 +32,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
@@ -40,6 +39,7 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -136,8 +136,8 @@ public class FreshValuesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
-        String tree = tqr.sdt().toString();
+        SDT tqr = mto.treeQuery(prefix1, symSuffix);
+        String tree = tqr.toString();
 
         logger.log(Level.FINE, "SDT: {0}", tree);
 

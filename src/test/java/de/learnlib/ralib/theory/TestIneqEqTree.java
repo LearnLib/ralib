@@ -34,7 +34,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -89,8 +88,8 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SDT sdt = res.sdt();
+        SDT res = mto.treeQuery(prefix, symSuffix);
+        SDT sdt = res;
 
         final String expectedTree = "[r1, r2]-+\n" +
                 "        []-(s1=1.0[DOUBLE])\n" +

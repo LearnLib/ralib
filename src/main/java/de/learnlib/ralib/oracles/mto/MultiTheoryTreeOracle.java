@@ -47,7 +47,6 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryBranching.Node;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
@@ -88,10 +87,10 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     @Override
-    public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         SDT sdt = treeQuery(prefix, suffix, new WordValuation(), constants, new SuffixValuation());
         //System.out.println(sdt);
-        return new TreeQueryResult(sdt);
+        return sdt;
     }
 
     public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix, WordValuation values,

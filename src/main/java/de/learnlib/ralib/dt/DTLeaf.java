@@ -22,7 +22,6 @@ import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.DataWords;
@@ -462,9 +461,9 @@ public class DTLeaf extends DTNode implements LocationComponent {
             				new SymbolicSuffix(mp.getPrefix(), suffix, consts);
                     if (prefixSuffixes.contains(newSuffix))
                         continue;
-                    TreeQueryResult tqr = oracle.treeQuery(prefix, newSuffix);
+                    SDT tqr = oracle.treeQuery(prefix, newSuffix);
 
-                    if (tqr.sdt().getDataValues().contains(d)) {
+                    if (tqr.getDataValues().contains(d)) {
                         dt.addSuffix(newSuffix, prefixLeaf);
                         mp.missingParameter.remove(d);
                         return false;

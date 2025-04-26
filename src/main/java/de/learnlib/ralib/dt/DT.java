@@ -186,7 +186,7 @@ public class DT implements DiscriminationTree {
 
         // add the new leaf
         MappedPrefix mp = leaf.getMappedPrefix(prefix);
-        //TreeQueryResult tqr = mp.computeTQR(suffix, oracle);
+        //SDT tqr = mp.computeTQR(suffix, oracle);
         DTLeaf newLeaf = new DTLeaf(mp, oracle);
         newLeaf.setParent(node);
         PathResult r = PathResult.computePathResult(oracle, mp, node.getSuffixes(), ioMode);
@@ -203,7 +203,7 @@ public class DT implements DiscriminationTree {
         boolean removed = leaf.removeShortPrefix(prefix);
         assert (removed); // must not split a prefix that isn't there
 
-        //TreeQueryResult tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
+        //SDT tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
         SDT tqr2 = r2.getSDTforSuffix(suffix);
         leaf.getPrimePrefix().addTQR(suffix, tqr2);
@@ -232,7 +232,7 @@ public class DT implements DiscriminationTree {
         branch.setChild(node);
         leaf.setParent(node);
 
-        //TreeQueryResult tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
+        //SDT tqr  = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);
         SDT tqr = r.getSDTforSuffix(suffix);
         assert !leaf.getPrimePrefix().getTQRs().containsKey(suffix);

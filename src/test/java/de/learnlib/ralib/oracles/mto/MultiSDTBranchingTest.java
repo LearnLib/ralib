@@ -34,10 +34,10 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -126,28 +126,28 @@ public class MultiSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Suffix 1: {0}", symSuffix1);
         logger.log(Level.FINE, "Suffix 2: {0}", symSuffix2);
 
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
+        SDT tqr1 = mto.treeQuery(prefix, symSuffix1);
+        SDT tqr2 = mto.treeQuery(prefix, symSuffix2);
 
-        logger.log(Level.FINE, "SDT 1: {0}", tqr1.sdt());
-        logger.log(Level.FINE, "SDT 2: {0}", tqr2.sdt());
+        logger.log(Level.FINE, "SDT 1: {0}", tqr1);
+        logger.log(Level.FINE, "SDT 2: {0}", tqr2);
 
-        Branching b1 = mto.getInitialBranching(prefix, o100, tqr1.sdt());
+        Branching b1 = mto.getInitialBranching(prefix, o100, tqr1);
         logger.log(Level.FINE, "B.1 initial: {0}",
                 Arrays.toString(b1.getBranches().values().toArray()));
         Assert.assertEquals(b1.getBranches().size(), 2);
 
-        b1 = mto.updateBranching(prefix, o100, b1, tqr1.sdt(), tqr2.sdt());
+        b1 = mto.updateBranching(prefix, o100, b1, tqr1, tqr2);
         logger.log(Level.FINE, "B.1 updated: {0}",
                 Arrays.toString(b1.getBranches().values().toArray()));
         Assert.assertEquals(b1.getBranches().size(), 2);
 
-        Branching b2 = mto.getInitialBranching(prefix, o100, tqr2.sdt());
+        Branching b2 = mto.getInitialBranching(prefix, o100, tqr2);
         logger.log(Level.FINE, "B.2 initial: {0}",
                 Arrays.toString(b2.getBranches().values().toArray()));
         Assert.assertEquals(b2.getBranches().size(), 1);
 
-        b2 = mto.updateBranching(prefix, o100, b2, tqr2.sdt(), tqr1.sdt());
+        b2 = mto.updateBranching(prefix, o100, b2, tqr2, tqr1);
         logger.log(Level.FINE, "B.2 updated: {0}",
                 Arrays.toString(b2.getBranches().values().toArray()));
         Assert.assertEquals(b2.getBranches().size(), 2);

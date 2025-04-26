@@ -22,7 +22,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -42,7 +41,7 @@ public class LoggingOracle implements TreeOracle {
     }
 
     @Override
-    public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         //System.out.println("QUERY (tree query): " + prefix + " and " + suffix);
         return treeoracle.treeQuery(prefix, suffix);
     }

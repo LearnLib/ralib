@@ -34,10 +34,10 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -109,12 +109,12 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix1);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix1);
-        logger.log(Level.FINE, "SDT: {0}", tqr.sdt());
+        SDT tqr = mto.treeQuery(prefix, symSuffix1);
+        logger.log(Level.FINE, "SDT: {0}", tqr);
 
         final String expected = "[((2 == 'p1') && ('c1' == 'p2')), ((2 == 'p1') && ('c1' != 'p2')), ((2 != 'p1') && true)]";
 
-        Branching b = mto.getInitialBranching(prefix, oframe, tqr.sdt());
+        Branching b = mto.getInitialBranching(prefix, oframe, tqr);
         String bString = Arrays.toString(b.getBranches().values().toArray());
 
         Assert.assertEquals(b.getBranches().size(), 3);

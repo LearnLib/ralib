@@ -29,7 +29,6 @@ import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -99,8 +98,8 @@ public class CounterexampleAnalysis {
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
-        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
-        TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
+        SDT resHyp = hypOracle.treeQuery(location, symSuffix);
+        SDT resSul = sulOracle.treeQuery(location, symSuffix);
 
         LOGGER.trace("------------------------------------------------------");
         LOGGER.trace("Computing index: {}", idx);
@@ -108,8 +107,8 @@ public class CounterexampleAnalysis {
         LOGGER.trace("SymSuffix: {}", symSuffix);
         LOGGER.trace("Location: {}", location);
         LOGGER.trace("Transition: {}", transition);
-        LOGGER.trace("SDT HYP: {}", resHyp.sdt());
-        LOGGER.trace("SDT SYS: {}", resSul.sdt());
+        LOGGER.trace("SDT HYP: {}", resHyp);
+        LOGGER.trace("SDT SYS: {}", resSul);
         LOGGER.trace("------------------------------------------------------");
 
         LocationComponent c = components.get(location);
@@ -117,18 +116,18 @@ public class CounterexampleAnalysis {
         //System.out.println(c.getBranching(act).getBranches());
         Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
-        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp.sdt(), resSul.sdt(), g, transition);
+        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSul, g, transition);
 
         if (!hasCE) {
             return IndexResult.NO_CE;
         }
 
-        Set<DataValue> pivSul = resSul.sdt().getDataValues();
+        Set<DataValue> pivSul = resSul.getDataValues();
         Set<DataValue> pivHyp = c.getPrimePrefix().getAssignment().keySet();
 
         boolean sulHasMoreRegs = !pivHyp.containsAll(pivSul);
         boolean hypRefinesTransition =
-                hypRefinesTransitions(location, act, resSul.sdt());
+                hypRefinesTransitions(location, act, resSul);
 
 //        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
 //        System.out.println("hypRefinesTransition: " + hypRefinesTransition);

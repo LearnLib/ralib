@@ -25,8 +25,8 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -59,8 +59,8 @@ public class MultiTheorySDTLogicOracleTest {
       Word<PSymbolInstance> prefix = acceptedWord.prefix(1);
       Word<PSymbolInstance> suffix = acceptedWord.suffix(acceptedWord.length() - prefix.length());
       SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-      TreeQueryResult query = sulTreeOracle.treeQuery(prefix, symSuffix);
-      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query.sdt()));
+      SDT query = sulTreeOracle.treeQuery(prefix, symSuffix);
+      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query));
       List<Word<PSymbolInstance>> rejectedSuffixes = Arrays.asList(
               Word.fromSymbols(
                       new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ZERO)),
@@ -73,7 +73,7 @@ public class MultiTheorySDTLogicOracleTest {
 
       for (Word<PSymbolInstance> rejectedSuffix : rejectedSuffixes) {
           Word<PSymbolInstance> rejectedWord = prefix.concat(rejectedSuffix);
-          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.sdt()));
+          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query));
       }
   }
 }

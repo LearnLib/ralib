@@ -366,7 +366,7 @@ public class RaLambda implements RaLearningAlgorithm {
     						testSuffix = testSuffix.concat(s);
     					}
 
-    					SDT testSDT = sulOracle.treeQuery(src_id, testSuffix).sdt();
+    					SDT testSDT = sulOracle.treeQuery(src_id, testSuffix);
     					Branching testBranching = sulOracle.updateBranching(src_id, dest_id.lastSymbol().getBaseSymbol(), hypBranching, testSDT);
     					if (testBranching.getBranches().get(dest_id) != null) {
     						suffix = testSuffix;

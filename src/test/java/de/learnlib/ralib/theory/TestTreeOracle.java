@@ -33,7 +33,6 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -125,7 +124,7 @@ public class TestTreeOracle extends RaLibTestSuite {
                 dwOracle, theories,
                 new Constants(), new ConstraintSolver());
 
-        TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+        SDT res = treeOracle.treeQuery(prefix, symSuffix);
 
         String expectedTree = "[r1, r2]-+\n" +
                 "        []-(s1=1[userType])\n" +
@@ -137,7 +136,7 @@ public class TestTreeOracle extends RaLibTestSuite {
                 "              []-TRUE: s2\n" +
                 "                    [Leaf-]\n";
 
-        String tree = res.sdt().toString();
+        String tree = res.toString();
         Assert.assertEquals(tree, expectedTree);
 
         logger.log(Level.FINE, "final SDT: \n{0}", tree);

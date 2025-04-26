@@ -34,7 +34,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -119,8 +118,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "{0}", symSuffix1);
         logger.log(Level.FINE, "{0}", symSuffix2);
 
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, symSuffix1);
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, symSuffix2);
+        SDT tqr1 = mto.treeQuery(prefix, symSuffix1);
+        SDT tqr2 = mto.treeQuery(prefix, symSuffix2);
 
         RegisterGenerator rgen = new RegisterGenerator();
         Register r1 = rgen.next(intType);
@@ -130,8 +129,8 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         remap.put(r1, r2);
         remap.put(r2, r1);
         */
-        SDT sdt1 = tqr1.sdt().relabel(remap);
-        SDT sdt2 = tqr2.sdt();
+        SDT sdt1 = tqr1.relabel(remap);
+        SDT sdt2 = tqr2;
 
         logger.log(Level.FINE, "SDT1: {0}", sdt1);
         logger.log(Level.FINE, "SDT2: {0}", sdt2);

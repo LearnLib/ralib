@@ -27,8 +27,8 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -62,9 +62,9 @@ public class InstantiateSymbolicWordTest {
         		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
         SymbolicSuffix symbSuffix = new SymbolicSuffix(prefix, suffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symbSuffix);
+        SDT tqr = mto.treeQuery(prefix, symbSuffix);
 
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr.sdt());
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr);
 
         Word<PSymbolInstance> p1 = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
@@ -150,8 +150,8 @@ public class InstantiateSymbolicWordTest {
               new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)));
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr.sdt());
+        SDT tqr = mto.treeQuery(prefix, symSuffix);
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr);
 
         Assert.assertEquals(words.size(), 1);
 

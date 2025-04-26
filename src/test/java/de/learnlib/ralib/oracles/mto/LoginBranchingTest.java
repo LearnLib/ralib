@@ -42,10 +42,10 @@ import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -105,13 +105,13 @@ public class LoginBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Conc. Suffix: {0}", suffix);
         logger.log(Level.FINE, "Sym. Suffix: {0}", symSuffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        logger.log(Level.FINE, "SDT: {0}", tqr.sdt());
+        SDT tqr = mto.treeQuery(prefix, symSuffix);
+        logger.log(Level.FINE, "SDT: {0}", tqr);
 
         // initial branching bug
         // Regression: Why does the last word in the set have a password val. of 2
 
-        Branching bug1 = mto.getInitialBranching(prefix, log, tqr.sdt());
+        Branching bug1 = mto.getInitialBranching(prefix, log, tqr);
         final String expectedKeyset = "[IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 0[pwd]],"
                 + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 1[pwd]],"
                 + " IRegister[0[uid], 0[pwd]] OOK[] ILogin[1[uid], 1[pwd]]]";
@@ -123,7 +123,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         // Regression: This keyset has only one word, there should be three.
 
         Branching bug2 = mto.getInitialBranching(prefix, log);
-        bug2 = mto.updateBranching(prefix, log, bug2, tqr.sdt());
+        bug2 = mto.updateBranching(prefix, log, bug2, tqr);
         String keyset2 = Arrays.toString(bug2.getBranches().keySet().toArray());
         Assert.assertEquals(keyset2, expectedKeyset);
 
@@ -151,17 +151,17 @@ public class LoginBranchingTest extends RaLibTestSuite {
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
                 Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
+        SDT tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
                 Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
                         new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
+        SDT tqr2 = mto.treeQuery(prefix, suffix2);
 
         Branching initial = mto.getInitialBranching(prefix, I_LOGIN);
-        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.sdt());
-        Branching actual = mto.updateBranching(prefix, I_LOGIN, finer, tqr2.sdt());
+        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1);
+        Branching actual = mto.updateBranching(prefix, I_LOGIN, finer, tqr2);
         Assert.assertEquals(actual.getBranches().toString(), finer.getBranches().toString());
     }
 
@@ -187,17 +187,17 @@ public class LoginBranchingTest extends RaLibTestSuite {
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
                 Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
+        SDT tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
                 Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
                         new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
+        SDT tqr2 = mto.treeQuery(prefix, suffix2);
 
-        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.sdt(), tqr2.sdt());
+        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1, tqr2);
         Branching initial = mto.getInitialBranching(prefix, I_LOGIN);
-        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1.sdt());
+        Branching finer = mto.updateBranching(prefix, I_LOGIN, initial, tqr1);
         Assert.assertEquals(initialFiner.getBranches().toString(), finer.getBranches().toString());
     }
 
@@ -219,15 +219,15 @@ public class LoginBranchingTest extends RaLibTestSuite {
         SymbolicSuffix suffix1 = new SymbolicSuffix(prefix,
                 Word.fromLetter(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr1 = mto.treeQuery(prefix, suffix1);
+        SDT tqr1 = mto.treeQuery(prefix, suffix1);
 
         SymbolicSuffix suffix2 = new SymbolicSuffix(prefix,
                 Word.fromSymbols(new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
                         new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE))));
 
-        TreeQueryResult tqr2 = mto.treeQuery(prefix, suffix2);
+        SDT tqr2 = mto.treeQuery(prefix, suffix2);
 
-        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1.sdt(), tqr2.sdt());
+        Branching initialFiner = mto.getInitialBranching(prefix, I_LOGIN, tqr1, tqr2);
         Branching update = mto.updateBranching(prefix, I_LOGIN, initialFiner);
         Assert.assertEquals(update.getBranches().toString(), initialFiner.getBranches().toString());
     }

@@ -19,10 +19,10 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -44,10 +44,10 @@ public class DTTest {
 		SymbolicSuffix suffPop = new SymbolicSuffix(epsilon, prePop);
 		SymbolicSuffix suffPush = new SymbolicSuffix(epsilon, prePush);
 
-		TreeQueryResult tqrPop = oracle.treeQuery(prePop, suffEps);
-		TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
-		TreeQueryResult tqrPush = oracle.treeQuery(prePush, suffPush);
-		TreeQueryResult tqrPushPush = oracle.treeQuery(prePushPush, suffPush);
+		SDT tqrPop = oracle.treeQuery(prePop, suffEps);
+		SDT tqrEps = oracle.treeQuery(epsilon, suffPop);
+		SDT tqrPush = oracle.treeQuery(prePush, suffPush);
+		SDT tqrPushPush = oracle.treeQuery(prePushPush, suffPush);
 
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);
@@ -76,8 +76,8 @@ public class DTTest {
 		DTBranch brInnerPush = new DTBranch(nodePush, rInnerPush);
 		DTBranch brInnerPop = new DTBranch(nodePop, rInnerPop);
 
-		leafPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePush, suffPop).sdt());
-		leafPushPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePushPush, suffPop).sdt());
+		leafPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePush, suffPop));
+		leafPushPush.getPrimePrefix().addTQR(suffPop, oracle.treeQuery(prePushPush, suffPop));
 
 		nodeEps.addBranch(brPop);
 		nodeEps.addBranch(brInnerPop);
@@ -97,8 +97,8 @@ public class DTTest {
 		SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
 		SymbolicSuffix suffPop = new SymbolicSuffix(epsilon, prePop);
 
-		TreeQueryResult tqrPop = oracle.treeQuery(prePop, suffEps);
-		TreeQueryResult tqrEps = oracle.treeQuery(epsilon, suffPop);
+		SDT tqrPop = oracle.treeQuery(prePop, suffEps);
+		SDT tqrEps = oracle.treeQuery(epsilon, suffPop);
 
 		DTInnerNode nodeEps = new DTInnerNode(suffEps);
 		DTInnerNode nodePop = new DTInnerNode(suffPop);

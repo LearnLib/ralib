@@ -11,7 +11,6 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -57,9 +56,9 @@ public class MappedPrefix implements PrefixContainer {
 	 * Performs a tree query for the (new) suffix and stores it in its internal map.
 	 * Returns the result.
 	 */
-	TreeQueryResult computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
-        TreeQueryResult tqr = oracle.treeQuery(prefix, suffix);
-	    addTQR(suffix, tqr.sdt());
+	SDT computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
+        SDT tqr = oracle.treeQuery(prefix, suffix);
+	    addTQR(suffix, tqr);
 	    return tqr;
 	}
 
