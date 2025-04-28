@@ -78,7 +78,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
-        for (int check = 0; check < 10; check++) {
+        for (int check = 0; check < 10; ++check) {
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);

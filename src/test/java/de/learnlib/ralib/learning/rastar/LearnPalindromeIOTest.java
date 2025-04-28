@@ -99,14 +99,12 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
-        for (int check = 0; check < 10; check++) {
+        for (int check = 0; check < 10; ++check) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
 
-
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
             logger.log(Level.FINE, "CE: {0}", ce);
             if (ce == null) {

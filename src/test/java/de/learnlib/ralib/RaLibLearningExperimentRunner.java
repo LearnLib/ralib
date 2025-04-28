@@ -148,7 +148,7 @@ public class RaLibLearningExperimentRunner {
 			    eqOracle = this.eqOracle;
 			}
 
-			for (int check = 0; check < 100; check++) {
+			for (int check = 0; check < 100; ++check) {
 				learner.learn();
 				Hypothesis hyp = learner.getHypothesis();
 				ce = eqOracle.findCounterExample(hyp, null);
