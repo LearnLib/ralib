@@ -16,7 +16,7 @@ public class QueryStatisticsTest extends RaLibTestSuite {
     public static final InputSymbol A = new InputSymbol("a");
 
     @Test
-    public void counterexampleStatisticsTest() {
+    public void testCounterexampleStatistics() {
 
 	DataWordSUL sul = null;
 	QueryStatistics qs = new QueryStatistics(null, sul);

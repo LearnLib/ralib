@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,17 +23,16 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class FreshMultiLogin {
-
-    // Initialize statemachine constants,variables and locations
-    HashMap< java.math.BigDecimal, java.math.BigDecimal> id2pwd = new HashMap<>();
-    HashMap< java.math.BigDecimal, Boolean> id2loggedin = new HashMap<>();
+    // Initialize state machine constants, variables and locations
+    HashMap<BigDecimal, java.math.BigDecimal> id2pwd = new HashMap<>();
+    HashMap<BigDecimal, Boolean> id2loggedin = new HashMap<>();
 
     private final int MAX_REGISTERED_USERS = 3;
     private final int MAX_LOGGEDIN_USERS = 1000000;
     private int loggedin_users = 0;
     private final Random random = new Random();
 
-    //handling each Input
+    // Handling each Input
 
     /* register a uid
      *
@@ -41,8 +40,8 @@ public class FreshMultiLogin {
      *   - you can only register once for a specific uid
      *   - at most MAX_REGISTERED_USERS may be registered
      */
-    public java.math.BigDecimal IRegister(java.math.BigDecimal uid) {
-        java.math.BigDecimal pwd = new BigDecimal(random.nextInt(10000000));
+    public BigDecimal IRegister(BigDecimal uid) {
+        BigDecimal pwd = new BigDecimal(random.nextInt(10000000));
         if (!id2pwd.containsKey(uid) && id2pwd.keySet().size() < MAX_REGISTERED_USERS) {
             id2pwd.put(uid, pwd);
             id2loggedin.put(uid, false);
@@ -58,7 +57,7 @@ public class FreshMultiLogin {
      *       + and is not logged in
      *   - at most MAX_LOGGEDIN_USERS users may be logged in
      */
-    public boolean ILogin(java.math.BigDecimal uid, java.math.BigDecimal pwd) {
+    public boolean ILogin(BigDecimal uid, BigDecimal pwd) {
         if (id2pwd.containsKey(uid)
                 && !id2loggedin.get(uid)
                 && pwd == id2pwd.get(uid)
@@ -74,7 +73,7 @@ public class FreshMultiLogin {
      *
      * A user can only logout when logged in.
      */
-    public boolean ILogout(java.math.BigDecimal uid) {
+    public boolean ILogout(BigDecimal uid) {
         if (id2loggedin.containsKey(uid) && id2loggedin.get(uid)) {
             id2loggedin.put(uid, false);
             loggedin_users--;
@@ -87,8 +86,7 @@ public class FreshMultiLogin {
      *
      * A user can only change password when logged in
      */
-    public boolean IChangePassword(java.math.BigDecimal uid, java.math.BigDecimal pwd) {
-
+    public boolean IChangePassword(BigDecimal uid, BigDecimal pwd) {
         if (id2loggedin.containsKey(uid) && id2loggedin.get(uid)) {
             id2pwd.put(uid, pwd);
             return true;

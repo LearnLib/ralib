@@ -13,7 +13,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataType;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -27,8 +30,7 @@ import net.automatalib.word.Word;
 public class DTInnerNodeTest {
 
     @Test
-    public void siftTest() {
-
+    public void testSiftDTInnerNode() {
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
@@ -63,7 +65,6 @@ public class DTInnerNodeTest {
 
         PathResult r1 = PathResult.computePathResult(mto, new MappedPrefix(epsilon, new Bijection<>()), node.getSuffixes(), false);
         PathResult r2 = PathResult.computePathResult(mto, new MappedPrefix(push, new Bijection<>()), node.getSuffixes(), false);
-
 
         node.addBranch(new DTBranch(child1, r1));
         node.addBranch(new DTBranch(child2, r2));

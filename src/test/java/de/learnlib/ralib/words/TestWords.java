@@ -48,9 +48,8 @@ import net.automatalib.word.Word;
  */
 public class TestWords extends RaLibTestSuite {
 
-   @Test
+    @Test
     public void testSymbolicSuffix1() {
-
         DataType intType = new DataType("int");
 
         ParameterizedSymbol a = new InputSymbol("a", intType);
@@ -63,7 +62,6 @@ public class TestWords extends RaLibTestSuite {
             new PSymbolInstance(a, i1),
             new PSymbolInstance(a, i3)
         };
-
         PSymbolInstance[] suffixSymbols = new PSymbolInstance[] {
             new PSymbolInstance(a, i1),
             new PSymbolInstance(a, i2),
@@ -89,18 +87,14 @@ public class TestWords extends RaLibTestSuite {
         expRestr.put(symSVArr[3], new UnrestrictedSuffixValue(symSVArr[3]));
         SymbolicSuffix exp = new SymbolicSuffix(sym.getActions(), expRestr);
         Assert.assertEquals(sym, exp);
-//       String expString = "[s1, s3]((a[s1] a[s2] a[s2] a[s3]))";
-//        Assert.assertEquals(sym.toString(), expString);
     }
 
     @Test
     public void testSymbolicSuffix2() {
-
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, BigDecimal.ONE),
                     new DataValue(T_PWD, BigDecimal.ONE)));
-
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
                     new DataValue(T_UID, BigDecimal.ONE),
@@ -109,7 +103,6 @@ public class TestWords extends RaLibTestSuite {
                     new DataValue(T_UID, BigDecimal.ONE),
                     new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT));
-
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
                     new DataValue(T_UID, BigDecimal.ONE),

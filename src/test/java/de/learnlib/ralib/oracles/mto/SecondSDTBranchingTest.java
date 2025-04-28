@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +55,6 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
     @Test
     public void testModelswithOutput() {
 
-
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
 
@@ -78,20 +77,11 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", intType);
-
-        ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", intType);
-
-        ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", intType);
-
-        ParameterizedSymbol o200 = new OutputSymbol(
-                "O200", intType);
-
-        ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", intType);
+        ParameterizedSymbol ipr = new InputSymbol("IPRACK", intType);
+        ParameterizedSymbol inv = new InputSymbol("IINVITE", intType);
+        ParameterizedSymbol o100 = new OutputSymbol("O100", intType);
+        ParameterizedSymbol o200 = new OutputSymbol("O200", intType);
+        ParameterizedSymbol o481 = new OutputSymbol("O481", intType);
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);

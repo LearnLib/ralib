@@ -86,19 +86,19 @@ public class RaLibLearningExperimentRunner {
 	}
 
 	public void setSeed(long seed) {
-		this.seed = seed;
+            this.seed = seed;
 	}
 
 	public void setIoMode(boolean ioMode) {
-	    this.ioMode = ioMode;
+            this.ioMode = ioMode;
 	}
 
 	public void setUseOldAnalyzer(boolean useOldAnalyzer) {
-		this.useOldAnalyzer = useOldAnalyzer;
+            this.useOldAnalyzer = useOldAnalyzer;
 	}
 
 	public void setEqOracle(IOEquivalenceOracle eqOracle) {
-	    this.eqOracle = eqOracle;
+            this.eqOracle = eqOracle;
 	}
 
 	/**
@@ -108,7 +108,6 @@ public class RaLibLearningExperimentRunner {
 	public Hypothesis run(RaLearningAlgorithmName algorithmName, DataWordOracle dataOracle,
 			Map<DataType, Theory> teachers, Constants consts, ConstraintSolver solver,
 			ParameterizedSymbol[] actionSymbols) {
-
 		try {
 			logger.log(Level.INFO, "SEED={0}", seed);
 			Random random = new Random(seed);
@@ -138,7 +137,7 @@ public class RaLibLearningExperimentRunner {
 			DefaultQuery<PSymbolInstance, Boolean> ce = null;
 			IOEquivalenceOracle eqOracle;
 			if (this.eqOracle == null) {
-			eqOracle = new RandomWalk(random, ioCache,
+			    eqOracle = new RandomWalk(random, ioCache,
 					resetProbability, // reset probability
 					freshProbability, // prob. of choosing a fresh data value
 					maxRuns, // number of runs
@@ -149,9 +148,7 @@ public class RaLibLearningExperimentRunner {
 			    eqOracle = this.eqOracle;
 			}
 
-			int check = 0;
-			while (check < 100) {
-				check++;
+			for (int check = 0; check < 100; check++) {
 				learner.learn();
 				Hypothesis hyp = learner.getHypothesis();
 				ce = eqOracle.findCounterExample(hyp, null);

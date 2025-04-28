@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,14 +99,9 @@ public class UntypedBranchingTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol reg = new InputSymbol(
-                "IRegister", intType, intType);
-
-        ParameterizedSymbol log = new InputSymbol(
-                "ILogin", intType, intType);
-
-        ParameterizedSymbol ok = new OutputSymbol(
-                "OOK");
+        ParameterizedSymbol reg = new InputSymbol("IRegister", intType, intType);
+        ParameterizedSymbol log = new InputSymbol("ILogin", intType, intType);
+        ParameterizedSymbol ok = new OutputSymbol("OOK");
 
         DataValue u = new DataValue(intType, BigDecimal.ZERO);
         DataValue p = new DataValue(intType, BigDecimal.ONE);
@@ -147,7 +142,6 @@ public class UntypedBranchingTest extends RaLibTestSuite {
 
         // This set had only one word, there should be three
         Assert.assertEquals(bug2.getBranches().size(), 3);
-
     }
 
 }

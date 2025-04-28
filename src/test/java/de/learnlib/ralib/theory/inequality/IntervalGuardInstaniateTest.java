@@ -23,7 +23,7 @@ import gov.nasa.jpf.constraints.api.Valuation;
 public class IntervalGuardInstaniateTest extends RaLibTestSuite {
 
     @Test
-    public void instantiateIntervalTest() {
+    public void testInstantiateInterval() {
 
         final DataType D_TYPE = new DataType("double");
 
@@ -42,8 +42,8 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         DataValue dv4 = new DataValue(D_TYPE, BigDecimal.valueOf(4));
 
         Valuation val = new Valuation();
-        val.setValue( r1 , dv1.getValue());
-        val.setValue( r2, dv2.getValue());
+        val.setValue(r1 , dv1.getValue());
+        val.setValue(r2, dv2.getValue());
 
         Collection<DataValue> alreadyUsed = new ArrayList<>();
         alreadyUsed.add(dv1);

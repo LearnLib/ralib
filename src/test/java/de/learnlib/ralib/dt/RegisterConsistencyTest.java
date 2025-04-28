@@ -30,8 +30,7 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 
 	private static final DataType T_INT = new DataType("int");
 
-	private static final InputSymbol A =
-			new InputSymbol("a", T_INT);
+	private static final InputSymbol A = new InputSymbol("a", T_INT);
 
 	private static class DummyDT extends DT {
 

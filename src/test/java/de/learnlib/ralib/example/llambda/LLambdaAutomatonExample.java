@@ -14,11 +14,9 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class LLambdaAutomatonExample {
 
-    public static final InputSymbol A =
-            new InputSymbol("a");
+    public static final InputSymbol A = new InputSymbol("a");
 
-    public static final InputSymbol B =
-            new InputSymbol("b");
+    public static final InputSymbol B = new InputSymbol("b");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 
@@ -40,12 +38,12 @@ public class LLambdaAutomatonExample {
         // registers and parameters
 
         // guards
-        Expression<Boolean> trueGuard   = ExpressionUtil.TRUE;
+        Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();
 
-        Assignment noAssign     = new Assignment(noMapping);
+        Assignment noAssign = new Assignment(noMapping);
 
         // initial location
         ra.addTransition(l0, A, new InputTransition(trueGuard, A, l0, l1, noAssign));

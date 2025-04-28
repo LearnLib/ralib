@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,17 +88,10 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol iput = new InputSymbol(
-                "IPut", intType);
-
-        ParameterizedSymbol iget = new InputSymbol(
-                "IGet");
-
-        ParameterizedSymbol oget = new OutputSymbol(
-                "OGet", intType);
-
-        ParameterizedSymbol ook = new OutputSymbol(
-                "OOK");
+        ParameterizedSymbol iput = new InputSymbol("IPut", intType);
+        ParameterizedSymbol iget = new InputSymbol("IGet");
+        ParameterizedSymbol oget = new OutputSymbol("OGet", intType);
+        ParameterizedSymbol ook = new OutputSymbol("OOK");
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);
@@ -153,7 +146,6 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
         checkTreeForSuffix(prefix, symSuffix, mto, expectedTree);
     }
 
-
     @Test
     public void testModelswithOutputPalindrome() {
 
@@ -180,20 +172,17 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol i4 = new InputSymbol(
-                "IPalindrome4", intType, intType, intType, intType);
+        ParameterizedSymbol i4 = new InputSymbol("IPalindrome4", intType, intType, intType, intType);
+        ParameterizedSymbol oyes = new OutputSymbol("OYes");
 
-         ParameterizedSymbol oyes = new OutputSymbol(
-                "OYes");
-
-         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
-         DataValue d1 = new DataValue(intType, BigDecimal.ONE);
-         DataValue d2 = new DataValue(intType, new BigDecimal(2));
-         DataValue d3 = new DataValue(intType, new BigDecimal(3));
-         DataValue d4 = new DataValue(intType, new BigDecimal(4));
-         DataValue d5 = new DataValue(intType, new BigDecimal(5));
-         DataValue d6 = new DataValue(intType, new BigDecimal(6));
-         DataValue d7 = new DataValue(intType, new BigDecimal(7));
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+        DataValue d2 = new DataValue(intType, new BigDecimal(2));
+        DataValue d3 = new DataValue(intType, new BigDecimal(3));
+        DataValue d4 = new DataValue(intType, new BigDecimal(4));
+        DataValue d5 = new DataValue(intType, new BigDecimal(5));
+        DataValue d6 = new DataValue(intType, new BigDecimal(6));
+        DataValue d7 = new DataValue(intType, new BigDecimal(7));
 
         //******
         Word<PSymbolInstance> prefix1 = Word.fromSymbols();
@@ -208,7 +197,6 @@ public class NonFreeSuffixValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(oyes));
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix2, suffix, restrictionBuilder);
-
 
         String expectedTree = "[]-+\n" +
 "  []-TRUE: s1\n" +

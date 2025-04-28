@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,18 +79,10 @@ public class ConstantsSDTBranchingTest extends RaLibTestSuite {
 
         //ParameterizedSymbol iack = new InputSymbol(
         //        "IAck", new DataType[] {intType});
-
-        ParameterizedSymbol iin = new InputSymbol(
-                "IIn", intType);
-
-        ParameterizedSymbol ook = new OutputSymbol(
-                "OOK");
-
-        ParameterizedSymbol isend = new InputSymbol(
-                "ISendFrame");
-
-        ParameterizedSymbol oframe = new OutputSymbol(
-                "OFrame", intType, intType);
+        ParameterizedSymbol iin = new InputSymbol("IIn", intType);
+        ParameterizedSymbol ook = new OutputSymbol("OOK");
+        ParameterizedSymbol isend = new InputSymbol("ISendFrame");
+        ParameterizedSymbol oframe = new OutputSymbol("OFrame", intType, intType);
 
         DataValue d2 = new DataValue(intType, new BigDecimal(2));
         //DataValue c1 = new DataValue(intType, BigDecimal.ZERO);

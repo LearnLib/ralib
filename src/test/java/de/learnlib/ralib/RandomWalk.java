@@ -54,7 +54,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 	@Override
 	public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(RegisterAutomaton hypothesis,
 			Collection<? extends PSymbolInstance> inputs) {
-		for (int i=0; i<maxRuns; i++) {
+		for (int i = 0; i < maxRuns; i++) {
 			Word<PSymbolInstance> randomWord = generateRandomWord(symbols);
 			DefaultQuery<PSymbolInstance, Boolean> query = new DefaultQuery<PSymbolInstance, Boolean>(randomWord);
 			wordOracle.processQuery(query);
@@ -63,29 +63,24 @@ public class RandomWalk implements IOEquivalenceOracle  {
 				return query;
 			}
 		}
-
 		return null;
 	}
 
 	public Word<PSymbolInstance> generateRandomWord(List<ParameterizedSymbol> symbols) {
 		WordBuilder<PSymbolInstance> wordBuilder = new WordBuilder<PSymbolInstance>();
-		for (int i=0; i<depth; i++) {
+		for (int i = 0; i < depth; i++) {
 			ParameterizedSymbol randSym = symbols.get(rand.nextInt(symbols.size()));
 			PSymbolInstance input = nextDataValues(wordBuilder.toWord(), randSym);
-
 			wordBuilder.add(input);
 			if (rand.nextDouble() < resetProbability) {
 				break;
 			}
 		}
-
 		return wordBuilder.toWord();
 	}
 
 
-    private PSymbolInstance nextDataValues(
-            Word<PSymbolInstance> run, ParameterizedSymbol ps) {
-
+    private PSymbolInstance nextDataValues(Word<PSymbolInstance> run, ParameterizedSymbol ps) {
         DataValue[] vals = new DataValue[ps.getArity()];
 
         int i = 0;
@@ -103,8 +98,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 
             ArrayList<DataValue> old = new ArrayList<>(oldSet);
 
-            Set<DataValue> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
+            Set<DataValue> newSet = new HashSet<>(teacher.getAllNextValues(old));
 
             newSet.removeAll(old);
             ArrayList<DataValue> newList = new ArrayList<>(newSet);
