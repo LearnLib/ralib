@@ -37,7 +37,7 @@ import net.automatalib.word.Word;
 public class LearnEchoTest extends RaLibTestSuite {
 
     @Test
-    public void learnEchoTest() {
+    public void testLearnEcho() {
 
         Constants consts = new Constants();
 

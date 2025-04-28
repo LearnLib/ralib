@@ -47,7 +47,7 @@ import net.automatalib.word.Word;
 public class LearnStackTest extends RaLibTestSuite {
 
     @Test
-    public void learnStackTest() {
+    public void testLearnStack() {
 
 	Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
@@ -102,7 +102,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackSwitchedCETest() {
+    public void testLearnStackSwitchedCE() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -175,7 +175,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackLongCETest() {
+    public void testLearnStackLongCE() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -207,8 +207,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
                 new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
                 new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)),
-                new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO))
-                );
+                new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -220,7 +219,7 @@ public class LearnStackTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnStackRandomTest() {
+    public void testLearnStackRandom() {
 	final int SEEDS = 10;
 	Constants consts = new Constants();
 	RegisterAutomaton sul = AUTOMATON;

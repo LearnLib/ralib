@@ -35,10 +35,8 @@ import net.automatalib.word.Word;
 
 public class TestDistinguishingSuffixOptimization {
 
-	private static final InputSymbol A =
-			new InputSymbol("a");
-	private static final InputSymbol B =
-			new InputSymbol("b");
+	private static final InputSymbol A = new InputSymbol("a");
+	private static final InputSymbol B = new InputSymbol("b");
 
 	private RegisterAutomaton buildAutomaton() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();

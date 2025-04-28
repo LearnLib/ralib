@@ -50,7 +50,7 @@ public class KeygenAutomatonTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testHasTrace() {
+    public void testKeygenHasTrace() {
 
         RegisterAutomaton ra = AUTOMATON;
 

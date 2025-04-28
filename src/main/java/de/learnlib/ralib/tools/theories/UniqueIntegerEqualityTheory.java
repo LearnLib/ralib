@@ -37,7 +37,6 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
         for (DataValue d : vals) {
             dv = dv.max(d.getValue());
         }
-
         return new DataValue(type, BigDecimal.ONE.add(dv));
     }
 
@@ -57,29 +56,27 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
     }
 
     @Override
-    public Collection<DataValue> getAllNextValues(
-            List<DataValue> vals) {
-
+    public Collection<DataValue> getAllNextValues(List<DataValue> vals) {
         // only fresh value is next value ...
         ArrayList<DataValue> ret = new ArrayList<>();
         ret.add(getFreshValue(vals));
         return ret;
     }
 
-	@Override
-	public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+    @Override
+    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
 			Word<PSymbolInstance> suffix, Constants consts) {
-		return new UnrestrictedSuffixValue(suffixValue);
-	}
+        return new UnrestrictedSuffixValue(suffixValue);
+    }
 
-	@Override
-	public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
-		return new UnrestrictedSuffixValue(guard.getParameter());
-	}
+    @Override
+    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+        return new UnrestrictedSuffixValue(guard.getParameter());
+    }
 
-	@Override
-	public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-		// not yet implemented for inequality theory
-		return false;
-	}
+    @Override
+    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
+        // not yet implemented for inequality theory
+        return false;
+    }
 }

@@ -89,21 +89,11 @@ public class FreshValuesTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-
-        ParameterizedSymbol iput = new InputSymbol(
-                "IPut", intType);
-
-        ParameterizedSymbol iget = new InputSymbol(
-                "IGet", intType);
-
-        ParameterizedSymbol oput = new OutputSymbol(
-                "OPut", intType);
-
-//        ParameterizedSymbol oget = new OutputSymbol(
-//                "OGet", new DataType[] {intType});
-
-        ParameterizedSymbol onok = new OutputSymbol(
-                "ONOK");
+        ParameterizedSymbol iput = new InputSymbol("IPut", intType);
+        ParameterizedSymbol iget = new InputSymbol("IGet", intType);
+        ParameterizedSymbol oput = new OutputSymbol("OPut", intType);
+//        ParameterizedSymbol oget = new OutputSymbol("OGet", new DataType[] {intType});
+        ParameterizedSymbol onok = new OutputSymbol("ONOK");
 
         DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
         DataValue d1 = new DataValue(intType, BigDecimal.ONE);
@@ -140,7 +130,6 @@ public class FreshValuesTest extends RaLibTestSuite {
         String tree = tqr.toString();
 
         logger.log(Level.FINE, "SDT: {0}", tree);
-
 
         final String expectedTree = "[r1]-+\n" +
                 "    []-(s1=1[int])\n" +

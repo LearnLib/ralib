@@ -59,25 +59,16 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
 	private static final DataType T_INT = new DataType("int");
 
-	private static final InputSymbol IPUT =
-			new InputSymbol("put", T_INT);
-	private static final InputSymbol IQUERY =
-			new InputSymbol("query");
-	private static final InputSymbol IHELLO =
-			new InputSymbol("hello");
+	private static final InputSymbol IPUT = new InputSymbol("put", T_INT);
+	private static final InputSymbol IQUERY = new InputSymbol("query");
+	private static final InputSymbol IHELLO = new InputSymbol("hello");
 
-	private static final OutputSymbol OECHO =
-			new OutputSymbol("echo", T_INT);
-	private static final OutputSymbol OYES =
-			new OutputSymbol("yes", T_INT);
-	private static final OutputSymbol ONO =
-			new OutputSymbol("no", T_INT);
-	private static final OutputSymbol OHELLO =
-			new OutputSymbol("hello");
-	private static final OutputSymbol ONOREPLY =
-			new OutputSymbol("noreply");
-	private static final OutputSymbol ONOK =
-			new OutputSymbol("nok");
+	private static final OutputSymbol OECHO = new OutputSymbol("echo", T_INT);
+	private static final OutputSymbol OYES = new OutputSymbol("yes", T_INT);
+	private static final OutputSymbol ONO = new OutputSymbol("no", T_INT);
+	private static final OutputSymbol OHELLO = new OutputSymbol("hello");
+	private static final OutputSymbol ONOREPLY = new OutputSymbol("noreply");
+	private static final OutputSymbol ONOK = new OutputSymbol("nok");
 
 	private RegisterAutomaton buildAutomaton() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
@@ -253,7 +244,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
@@ -312,7 +302,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
                 new ParameterizedSymbol[]{});
 
         final Constants consts = loader.getConstants();
-
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {

@@ -40,7 +40,7 @@ import net.automatalib.word.Word;
 public class LoginAutomatonTest extends RaLibTestSuite {
 
     @Test
-    public void testHasTrace() {
+    public void testLoginHasTrace() {
 
         RegisterAutomaton ra = AUTOMATON;
         //System.out.println(ra);

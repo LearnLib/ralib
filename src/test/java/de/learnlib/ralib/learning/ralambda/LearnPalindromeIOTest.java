@@ -36,7 +36,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnPalindromeIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnPalindromeIO() {
+    public void testLearnPalindromeIO() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/palindrome.xml");
@@ -66,10 +66,8 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(
-                consts, solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
@@ -80,18 +78,12 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
-        int check = 0;
-        while (check < 10) {
-
-            check++;
+        for (int check = 0; check < 10; check++) {
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
 
-
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             logger.log(Level.FINE, "CE: {0}", ce);
             if (ce == null) {
                 break;
@@ -105,8 +97,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         RegisterAutomaton hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
 //        Assert.assertEquals(hyp.getStates().size(), 5);

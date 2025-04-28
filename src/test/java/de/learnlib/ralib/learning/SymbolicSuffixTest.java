@@ -29,7 +29,7 @@ import net.automatalib.word.Word;
 public class SymbolicSuffixTest extends RaLibTestSuite {
 
   @Test
-  public void concatTest() {
+  public void testConcat() {
 
       RegisterAutomatonImporter loader = TestUtil.getLoader(
               "/de/learnlib/ralib/automata/xml/fifo7.xml");
@@ -50,17 +50,10 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
 
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-      ParameterizedSymbol iput = new InputSymbol(
-              "IPut", intType);
-
-      ParameterizedSymbol iget = new InputSymbol(
-              "IGet");
-
-      ParameterizedSymbol oget = new OutputSymbol(
-              "OGet", intType);
-
-      ParameterizedSymbol ook = new OutputSymbol(
-              "OOK");
+      ParameterizedSymbol iput = new InputSymbol("IPut", intType);
+      ParameterizedSymbol iget = new InputSymbol("IGet");
+      ParameterizedSymbol oget = new OutputSymbol("OGet", intType);
+      ParameterizedSymbol ook = new OutputSymbol("OOK");
 
       DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
       DataValue d1 = new DataValue(intType, BigDecimal.ONE);
@@ -95,7 +88,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, restrictionBuilder);
 
       LinkedHashMap<Integer, SuffixValue> dataValues = new LinkedHashMap<Integer, SuffixValue>();
-      for (int i=1; i<=5; i++) {
+      for (int i = 1; i <= 5; i++) {
     	  dataValues.put(i, new SuffixValue(intType, i));
       }
 

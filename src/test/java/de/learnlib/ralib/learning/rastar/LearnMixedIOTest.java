@@ -126,10 +126,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; check++) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
@@ -149,8 +146,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
-        IOEquivalenceTest checker = new IOEquivalenceTest(
-                model, teachers, consts, true, actions);
+        IOEquivalenceTest checker = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
     }

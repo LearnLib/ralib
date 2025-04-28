@@ -42,7 +42,7 @@ import net.automatalib.word.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {
     @Test
-    public void learnSipIO() {
+    public void testLearnSipIO() {
 
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
@@ -99,22 +99,18 @@ public class LearnSipIOTest extends RaLibTestSuite {
         RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
         ralambda.setSolver(solver);
 
-            IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
+        IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
 
         IOCounterexampleLoopRemover loops = new IOCounterexampleLoopRemover(ioOracle);
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (check < 100) {
-            check++;
+        for (int check = 0; check < 100; check++) {
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             if (ce == null) {
                 break;
             }

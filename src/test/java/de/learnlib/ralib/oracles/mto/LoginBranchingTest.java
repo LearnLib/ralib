@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,9 +85,7 @@ public class LoginBranchingTest extends RaLibTestSuite {
         DataType pwd = TestUtil.getType("pwd", loader.getDataTypes());
 
         ParameterizedSymbol reg = new InputSymbol("IRegister", uid, pwd);
-
         ParameterizedSymbol log = new InputSymbol("ILogin", uid, pwd);
-
         ParameterizedSymbol ok = new OutputSymbol("OOK");
 
         DataValue u = new DataValue(uid, BigDecimal.ZERO);
@@ -126,7 +124,6 @@ public class LoginBranchingTest extends RaLibTestSuite {
         bug2 = mto.updateBranching(prefix, log, bug2, tqr);
         String keyset2 = Arrays.toString(bug2.getBranches().keySet().toArray());
         Assert.assertEquals(keyset2, expectedKeyset);
-
     }
 
     /*

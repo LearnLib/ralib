@@ -63,8 +63,8 @@ public class LearnPadlock extends RaLibTestSuite {
 
         // guards
         Expression<Boolean> eqGuard = new NumericBooleanExpression(rVal, NumericComparator.EQ, pVal);
-        Expression<Boolean>  neqGuard = new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
-        Expression<Boolean>  trueGuard = ExpressionUtil.TRUE;
+        Expression<Boolean> neqGuard = new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
+        Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
@@ -98,7 +98,7 @@ public class LearnPadlock extends RaLibTestSuite {
     }
 
     @Test
-    public void learnPadlock() {
+    public void testLearnPadlock() {
 
         Constants consts = new Constants();
         RegisterAutomaton sul = buildAutomaton();
@@ -135,6 +135,5 @@ public class LearnPadlock extends RaLibTestSuite {
         ralambda.learn();
         hyp = ralambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
-
     }
 }

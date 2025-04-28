@@ -56,7 +56,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnPalindromeIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnPalindromeIO() {
+    public void testLearnPalindromeIO() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/palindrome.xml");
@@ -99,10 +99,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
-        int check = 0;
-        while (check < 10) {
-
-            check++;
+        for (int check = 0; check < 10; check++) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
@@ -124,8 +121,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
         Assert.assertEquals(hyp.getStates().size(), 5);
