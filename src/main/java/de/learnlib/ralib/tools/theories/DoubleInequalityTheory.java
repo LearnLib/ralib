@@ -126,7 +126,6 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getValue()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r.asExpression()));
-
             }
             if (!iGuard.isSmallerGuard()) {
                 SDTGuardElement l = iGuard.smallerElement();
@@ -136,7 +135,6 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getValue()));
                 // add the constant equivalence expression to the list
                 eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l.asExpression()));
-
             }
         }
         return eList;

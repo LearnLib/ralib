@@ -97,7 +97,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
         OPTION_RWALK_SEED_TRANSITIONS
-        };
+    };
 
     private RegisterAutomaton model;
 
@@ -292,7 +292,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         int rounds = 0;
         while (maxRounds < 0 || rounds < maxRounds) {
-
             rounds++;
             rastar.learn();
             hyp = rastar.getHypothesis();
@@ -379,8 +378,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             System.out.println("Last EQ Test found a counterexample: " + eqTestfoundCE);
         }
 
-        System.out.println("ce lengths (original): " +
-                Arrays.toString(ceLengths.toArray()));
+        System.out.println("ce lengths (original): " + Arrays.toString(ceLengths.toArray()));
 
         if (useCeOptimizers) {
             System.out.println("ce lengths (shortened): " +
@@ -422,5 +420,4 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
         return sb.toString();
     }
-
 }

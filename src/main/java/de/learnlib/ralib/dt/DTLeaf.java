@@ -309,11 +309,11 @@ public class DTLeaf extends DTNode implements LocationComponent {
     	for (Entry<Word<PSymbolInstance>, Expression<Boolean>> e : accBranching.getBranches().entrySet()) {
             Expression<Boolean> ag = e.getValue();
             //System.out.println("ag: " + ag);
-    		boolean eq = oracle.areEquivalent(ag, remapping, g, new Mapping<SymbolicDataValue, DataValue>());
-    		if (eq) {
-    			a = e.getKey();
-    			break;
-    		}
+            boolean eq = oracle.areEquivalent(ag, remapping, g, new Mapping<SymbolicDataValue, DataValue>());
+            if (eq) {
+                a = e.getKey();
+                break;
+            }
     	}
         assert a != null;
     	return a;
