@@ -20,39 +20,6 @@ public class SymbolicWord {
 		return suffix;
 	}
 
-	/*
-	public Mapping<SymbolicDataValue, DataValue> computeValuation(Word<PSymbolInstance> concreteSuffix) {
-    	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
-
-    	SuffixValueGenerator svGen = new SuffixValueGenerator();
-    	Word<ParameterizedSymbol> actions = suffix.getActions();
-    	int length = actions.length();
-
-    	assert concreteSuffix.length() == length;
-
-    	for (int i = 0; i < length; i++) {
-    		ParameterizedSymbol ps = actions.getSymbol(i);
-    		PSymbolInstance psi = concreteSuffix.getSymbol(i);
-    		int arity = ps.getArity();
-    		DataType[] dts = ps.getPtypes();
-    		DataValue[] dvs = psi.getParameterValues();
-
-    		assert psi.getBaseSymbol().getArity() == arity;
-    		assert Arrays.deepEquals(psi.getBaseSymbol().getPtypes(), dts);
-
-    		for (int j = 0; j < arity; j++ ) {
-    			DataType dt = dts[j];
-    			SuffixValue sv = svGen.next(dt);
-    			vals.put(sv, dvs[j]);
-    		}
-    	}
-
-    	RegisterValuation vars = DataWords.computeRegisterValuation(DataWords.computeParameterValuation(prefix), piv);
-    	vals.putAll(vars);
-
-    	return vals;
-	}*/
-
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
