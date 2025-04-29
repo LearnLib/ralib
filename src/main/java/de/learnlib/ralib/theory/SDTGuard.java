@@ -165,7 +165,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             return ret;
         }
 
-        // FIXME: And guards rely on a set representation for equals and hash code, that seems wrong
+        // And guards rely on a set representation for equals and
+        // hash code as we want to ignore the order of the conjuncts
 
         @Override
         public boolean equals(Object o) {
@@ -207,7 +208,8 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
             return disjuncts;
         }
 
-        // FIXME: Or guards rely on a set representation for equals and hash code, that seems wrong
+        // Or guards rely on a set representation for equals and
+        // hash code as we want to ignore the order of the disjuncts
 
         @Override
         public boolean equals(Object o) {
