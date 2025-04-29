@@ -106,8 +106,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
         SDT tqr = mto.treeQuery(prefix, symSuffix);
         logger.log(Level.FINE, "SDT: {0}", tqr);
 
-        // initial branching bug
-        // Regression: Why does the last word in the set have a password val. of 2
+        // regression test for initial branching bug
+        // Regression: the last word in the set had a password val. of 2
 
         Branching bug1 = mto.getInitialBranching(prefix, log, tqr);
         final String expectedKeyset = "[IRegister[0[uid], 0[pwd]] OOK[] ILogin[0[uid], 0[pwd]],"
@@ -117,8 +117,8 @@ public class LoginBranchingTest extends RaLibTestSuite {
         String keyset = Arrays.toString(bug1.getBranches().keySet().toArray());
         Assert.assertEquals(keyset, expectedKeyset);
 
-        // updated branching bug
-        // Regression: This keyset has only one word, there should be three.
+        // regression test for updated branching bug
+        // Regression: This keyset had only one word, while there should be three.
 
         Branching bug2 = mto.getInitialBranching(prefix, log);
         bug2 = mto.updateBranching(prefix, log, bug2, tqr);
