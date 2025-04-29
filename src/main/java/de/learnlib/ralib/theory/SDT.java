@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,16 +134,12 @@ public class SDT {
     }
 
     public boolean isAccepting() {
-
-            for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-                if (!e.getValue().isAccepting()) {
-                    return false;
-                }
-
+        for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
+            if (!e.getValue().isAccepting()) {
+                return false;
+            }
         }
-
         return true;
-        //return false;
     }
 
     public boolean isAccepting(Mapping<SymbolicDataValue, DataValue> vals, Constants consts) {
@@ -158,8 +154,7 @@ public class SDT {
         return this.children;
     }
 
-    public boolean isEquivalent(
-            SDT other, Bijection<DataValue> renaming) {
+    public boolean isEquivalent(SDT other, Bijection<DataValue> renaming) {
         SDT otherSDT =  other;
 
         SDTRelabeling relabelling = new SDTRelabeling();
@@ -167,8 +162,7 @@ public class SDT {
         return isEquivalent(otherSDT, relabelling);
     }
 
-    public boolean isEquivalent(
-            SDT other, SDTRelabeling renaming) {
+    public boolean isEquivalent(SDT other, SDTRelabeling renaming) {
         if (other instanceof SDTLeaf) {
             return false;
         }
@@ -177,8 +171,7 @@ public class SDT {
         return SDT.equivalentUnderId(this, otherRelabeled);
     }
 
-    public boolean isEquivalentUnder(
-            SDT deqSDT, List<SDTGuard.EqualityGuard> ds) {
+    public boolean isEquivalentUnder(SDT deqSDT, List<SDTGuard.EqualityGuard> ds) {
         if (deqSDT instanceof SDTLeaf) {
             if (this instanceof SDTLeaf) {
                 return (this.isAccepting() == deqSDT.isAccepting());
@@ -368,7 +361,6 @@ public class SDT {
     }
 
     public Expression<Boolean> getAcceptingPaths(Constants consts) {
-
         List<List<SDTGuard>> paths = getPaths(new ArrayList<SDTGuard>());
         if (paths.isEmpty()) {
             return ExpressionUtil.FALSE;
@@ -397,7 +389,6 @@ public class SDT {
     				expr.toArray(new Expression[] {}));
     		expressions.put(con, e.getValue());
     	}
-
     	return expressions;
     }
 
@@ -409,7 +400,6 @@ public class SDT {
             List<List<SDTGuard>> nextRet = e.getValue().getPaths(nextPath);
             ret.addAll(nextRet);
         }
-
         return ret;
     }
 
@@ -442,7 +432,6 @@ public class SDT {
             Map<List<SDTGuard>, Boolean> nextRet = e.getValue().getAllPaths(nextPath);
             ret.putAll(nextRet);
         }
-
         return ret;
     }
 

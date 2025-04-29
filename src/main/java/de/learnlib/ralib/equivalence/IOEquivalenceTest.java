@@ -136,8 +136,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
     private boolean compareRegister(
             RegisterValuation r1, RegisterValuation r2, Map<Object,Object> vMap) {
 
-        for (Map.Entry<Register,DataValue> entry : r1.entrySet())
-        {
+        for (Map.Entry<Register,DataValue> entry : r1.entrySet()) {
             DataValue v1 = entry.getValue();
             DataValue v2 = r2.get(entry.getKey());
 
@@ -156,8 +155,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             }
 
             if (!v1.equals(v2)) {
-                for (DataValue cv : consts.values())
-                {
+                for (DataValue cv : consts.values()) {
                     if (v1.equals(cv) || v2.equals(cv))
                         return false;
                 }
@@ -167,8 +165,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         return true;
     }
-
-
 
     /* **********************************************************************
      * queue elements
@@ -194,7 +190,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
     }
 
-
     /* **********************************************************************
      * main class implementation
      */
@@ -216,7 +211,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             ParameterizedSymbol ... actions) {
 
         this.sys1 = in1;
-
         this.teacher = teacher;
         this.consts = consts;
         this.actions = actions;
@@ -228,7 +222,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
         this.sys2 = a;
-        //int x = 0;
 
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
@@ -242,7 +235,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         visited.put(st, new ArrayList<Tuple>());
         visited.get(st).add(st);
 
-        while (!q.isEmpty()) // && x<200)
+        while (!q.isEmpty())
         {
             Triple t = q.poll();
 
@@ -253,12 +246,11 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 }
 
                 List<Word<PSymbolInstance>> words =
-                        getNext(t.as, ps, t.sys1reg, //t.sys2reg,
-				checkForEqualParameters);
+                        getNext(t.as, ps, t.sys1reg, checkForEqualParameters);
 
                 for (Word<PSymbolInstance> w : words)
                 {
-                    //log.trace(x + "----------------------------------------------------------------------");
+                    //log.trace("----------------------------------------------------------------------");
                     //log.trace(w);
 
                     Triple next = new Triple(null, null, null, null, w, null);
@@ -305,19 +297,14 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                                 break;
                             }
                         }
-
                         if (found)
                             continue;
                     }
-
                     q.add(next);
                     visited.get(st).add(st);
                     //log.trace("added " + w + " to queue");
-
                 }
             }
-
-            //x++;
         }
 
         return null;
@@ -393,7 +380,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         }
         PSymbolInstance ret2 = createOutputSymbol(ot2, out.sys2reg, out.sys1reg);
 
-
         // first sys output commit
         out.sys1reg = ot1.execute(out.sys1reg, ParameterValuation.fromPSymbolInstance(ret1), consts);
         out.sys1loc = ot1.getDestination();
@@ -412,7 +398,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
 
         return new Pair<>(ret1, ret2);
     }
-
 
     private List<Word<PSymbolInstance>> getNext(Word<PSymbolInstance> w,
             ParameterizedSymbol ps, RegisterValuation r1, //RegisterValuation r2,
@@ -440,7 +425,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         return ret;
     }
 
-    // FIXME: this work only for the equality case!!!!
+    // FIXME: this works only for the equality case!!!!
     private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
             Set<DataValue> potential, List<DataValue> val,
             boolean checkForEqualParameters, Set<DataValue> prefixVals) {
@@ -482,7 +467,7 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
                 if (dv.getDataType().equals(t)) {
                     out.add(dv);
                 }
-            }
+        }
         return out;
     }
 
@@ -497,7 +482,6 @@ public class IOEquivalenceTest implements IOEquivalenceOracle
         for (DataType t : ps.getPtypes()) {
             SymbolicDataValue.Parameter p = pgen.next(t);
             if (!mapping.getOutput().containsKey(p)) {
-
                 Set<DataValue> forFresh = new LinkedHashSet<>();
                 forFresh.addAll(register.values());
                 forFresh.addAll(register2.values());

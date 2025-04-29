@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,9 +97,9 @@ public abstract class InequalityTheoryWithEq implements Theory {
             SDTGuardElement r = pot.getValue();
             DataValue dv = pot.getKey();
             // TODO: fix unchecked invocation
-		if (!(r instanceof DataValue)) {
-			vals.setValue((Variable<BigDecimal>) r, dv.getValue());
-		}
+	    if (!(r instanceof DataValue)) {
+		vals.setValue((Variable<BigDecimal>) r, dv.getValue());
+	    }
         }
 
         // smallest
@@ -442,7 +442,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
         Collections.reverse(keys);
         for (SDTGuard g : keys) {
         	reversed.put(g, merged.get(g));
-
         }
 
         return new SDT(reversed);
@@ -586,7 +585,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 returnThis = instantiate(aGuard, val, constants, alreadyUsedValues);
             */
             } else {
-
                 throw new IllegalStateException("only =, != or interval allowed. Got " + guard);
             }
 

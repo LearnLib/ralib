@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,9 +66,9 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         LOGGER.trace("SDT2: {0}", sdt2);
         LOGGER.trace("Guard: {0}", guard);
 
-        Expression<Boolean>  expr1 = sdt1.getAcceptingPaths(consts);
-        Expression<Boolean>  expr2 = sdt2.getAcceptingPaths(consts);
-        Expression<Boolean>  exprG = guard;
+        Expression<Boolean> expr1 = sdt1.getAcceptingPaths(consts);
+        Expression<Boolean> expr2 = sdt2.getAcceptingPaths(consts);
+        Expression<Boolean> exprG = guard;
 
         //System.out.println(exprG);
 
@@ -83,11 +83,8 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         VarMapping<Register, Register> remap = new VarMapping<>(); //piv2.createRemapping(piv1);
 
         Expression<Boolean> expr2r = SMTUtil.renameVars(expr2, remap);
-
         Expression<Boolean> left = ExpressionUtil.and(exprG, expr1, new Negation(expr2r));
-
         Expression<Boolean> right = ExpressionUtil.and(exprG, expr2r, new Negation(expr1));
-
         Expression<Boolean> test = ExpressionUtil.or(left, right);
 
 //        System.out.println("A1:  " + expr1);
@@ -140,7 +137,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         Expression<Boolean> exprRefining = refining;
         Expression<Boolean> exprRefined = refined; //SMTUtil.renameVars(refined, remap);
-
 
         // is there any case for which refining is true but refined is false?
         Expression<Boolean> test = ExpressionUtil.and(
@@ -220,7 +216,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             Mapping<SymbolicDataValue, DataValue> valuation) {
         boolean accepts;
         if (symIndex == word.length()) {
-            accepts =  sdt.isAccepting();
+            accepts = sdt.isAccepting();
         } else {
             PSymbolInstance sym = word.getSymbol(symIndex);
             if (sym.getBaseSymbol().getArity() == 0) {

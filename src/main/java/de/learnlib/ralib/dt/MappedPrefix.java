@@ -36,7 +36,6 @@ public class MappedPrefix implements PrefixContainer {
 	}
 
 	public Set<Bijection<DataValue>> equivalentRenamings(Set<DataValue> params) {
-
 		assert new HashSet<>(memorableValues()).containsAll(params);
 
 		Set<Bijection<DataValue>> renamings = new LinkedHashSet<>();
@@ -48,7 +47,6 @@ public class MappedPrefix implements PrefixContainer {
 			}
 			renamings.add(b);
 		}
-
 		return renamings;
 	}
 
@@ -57,7 +55,7 @@ public class MappedPrefix implements PrefixContainer {
 	 * Returns the result.
 	 */
 	SDT computeTQR(SymbolicSuffix suffix, TreeOracle oracle) {
-        SDT tqr = oracle.treeQuery(prefix, suffix);
+            SDT tqr = oracle.treeQuery(prefix, suffix);
 	    addTQR(suffix, tqr);
 	    return tqr;
 	}
@@ -65,7 +63,6 @@ public class MappedPrefix implements PrefixContainer {
 	void addTQR(SymbolicSuffix s, SDT tqr) {
 	    if (tqrs.containsKey(s) || tqr == null) return;
 		tqrs.put(s, tqr);
-		//updateMemorable(tqr.getPiv());
 	}
 
 	public Map<SymbolicSuffix, SDT> getTQRs() {

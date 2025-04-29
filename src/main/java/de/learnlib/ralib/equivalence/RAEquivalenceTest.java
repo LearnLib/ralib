@@ -198,7 +198,6 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
             RegisterAutomaton a, Collection<? extends PSymbolInstance> clctn) {
 
         this.sys2 = a;
-        //int x = 0;
 
         LinkedList<Triple> q = new LinkedList<>();
         Triple start = new Triple(sys1.getInitialState(), sys2.getInitialState(),
@@ -216,19 +215,18 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         visited.put(st, new ArrayList<Tuple>());
         visited.get(st).add(st);
 
-        while (!q.isEmpty()) // && x<200)
+        while (!q.isEmpty())
         {
             Triple t = q.poll();
 
             for (ParameterizedSymbol ps : actions)
             {
-
                 List<Word<PSymbolInstance>> words =
                         getNext(t.as, ps, t.sys1reg, checkForEqualParameters);
 
                 for (Word<PSymbolInstance> w : words)
                 {
-                    //log.trace(x + "----------------------------------------------------------------------");
+                    //log.trace("----------------------------------------------------------------------");
                     //log.trace(w);
 
                     Triple next = new Triple(null, null, null, null, w, null);
@@ -242,11 +240,6 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                     if (next.sys1loc.isAccepting() != next.sys2loc.isAccepting()) {
                         return new DefaultQuery<>(next.trace, next.sys1loc.isAccepting());
                     }
-                    // FIXME: this may not be OK in general. I think it is ok
-                    // for learning ....
-                    //if (hasDoubles(next.sys2reg)) {
-                    //    continue;
-                    //}
 
                     st = new Tuple(next.sys1loc, next.sys2loc, next.sys1reg, next.sys2reg);
                     ArrayList<Tuple> comp = visited.get(st);
@@ -279,31 +272,9 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                     //log.trace("added " + w + " to queue");
                 }
             }
-
-            //x++;
-
         }
-
         return null;
     }
-
-//    private static boolean hasDoubles(RegisterValuation r) {
-//        return false;
-
-//        Set<Object> s = new LinkedHashSet<>();
-//        int x=0;
-//        for (String key : r.getKeys()) {
-//            if (!key.startsWith("r")) {
-//                continue;
-//            }
-//            DataValue v = r.resolveLocal(new Reference(key)).getValue();
-//            if (!v.equals(DataValue.NULL)) {
-//                x++;
-//                s.add(v.getValue());
-//            }
-//        }
-//        return (s.size() != x);
-//    }
 
     private void executeStep(Triple in, PSymbolInstance psi, Triple out) {
         out.sys1reg = RegisterValuation.copyOf(in.sys1reg);
@@ -373,7 +344,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         return ret;
     }
 
-    // FIXME: this work only for the equality case!!!!
+    // FIXME: this works only for the equality case!!!!
     private void computeValuations(ParameterizedSymbol ps, List<DataValue[]> valuations,
             Set<DataValue> potential, List<DataValue> val,
             boolean checkForEqualParameters) {
@@ -410,7 +381,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
                 if (dv.getDataType().equals(t)) {
                     out.add(dv);
                 }
-            }
+        }
         return out;
     }
 

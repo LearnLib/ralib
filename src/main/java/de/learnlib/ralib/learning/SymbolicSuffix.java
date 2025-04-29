@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,13 @@
  */
 package de.learnlib.ralib.learning;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -114,11 +120,9 @@ public class SymbolicSuffix {
         this.restrictions = restrictionBuilder.restrictSuffix(prefix, suffix);
     }
 
-
     public SymbolicSuffix(ParameterizedSymbol ps) {
         this(Word.fromSymbols(ps));
     }
-
 
     public SymbolicSuffix(Word<ParameterizedSymbol> actions) {
         this.actions = actions;

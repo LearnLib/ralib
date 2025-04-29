@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -92,7 +92,7 @@ public class Component implements LocationComponent {
                 r.memorableValues(), primeRow.memorableValues());
 
         for (Bijection<DataValue> m : iterator) {
-            if (r.isEquivalentTo(primeRow,  SDTRelabeling.fromBijection(m))) {
+            if (r.isEquivalentTo(primeRow, SDTRelabeling.fromBijection(m))) {
                 this.otherRows.put(r, m);
                 return true;
             }
