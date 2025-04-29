@@ -138,7 +138,6 @@ public class DTLeaf extends DTNode implements LocationComponent {
     @Override
     public Bijection<DataValue> getRemapping(PrefixContainer r) {
         if (r.getPrefix().equals(this.getAccessSequence()))
-            //fixme: should return identity instead
             return Bijection.identity(this.access.memorableValues());
         MappedPrefix mp = otherPrefixes.get(r.getPrefix());
         if (mp == null)
