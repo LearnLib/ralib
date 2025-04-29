@@ -32,6 +32,14 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 /**
+ * The class analyzer SUL is a SUL that uses reflection to call methods of
+ * a class. It is used to analyze the class and its methods. Method parameters
+ * have to be of type BigDecimal and the return type should be of type
+ * BigDecimal, void, Boolean.
+ *
+ * The ClasssAnalyzerDataWordSUL support for return type Object is rudimentary,
+ * but it is recommended to use BigDecimal as return type and implement a
+ * mapper in the class that is analyzed.
  *
  * @author falk
  */
@@ -123,7 +131,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
             return new PSymbolInstance((Boolean) ret ? SpecialSymbols.TRUE : SpecialSymbols.FALSE);
         }
 
-        // FIXME: this is broken now, we need to register values and create representative BigDecimals
+        assert ret instanceof BigDecimal : "The class analyzer only works for BigDecimal values!";
         DataValue retVal = (isFresh(in.getRetType(), ret))
                 ? registerFreshValue(in.getRetType(), ret)
                 : new DataValue(in.getRetType(), (BigDecimal) ret);
@@ -135,12 +143,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private void updateSeen(DataValue... vals) {
         for (DataValue v : vals) {
-            Map<DataValue, Object> map = this.buckets.get(v.getDataType());
-            if (map == null) {
-                map = new HashMap<>();
-                this.buckets.put(v.getDataType(), map);
-            }
-
+            Map<DataValue, Object> map = this.buckets.computeIfAbsent(v.getDataType(), k -> new HashMap<>());
             if (!map.containsKey(v)) {
                 //System.out.println("Put: " + v + " : " + v.getId());
                 map.put(v, v.getValue());
@@ -150,11 +153,7 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
 
     private Object resolve(DataValue d) {
         Map<DataValue, Object> map = this.buckets.get(d.getDataType());
-        if (map == null || !map.containsKey(d)) {
-            //System.out.println(d);
-            assert false;
-            return d.getValue();
-        }
+        assert map != null && map.containsKey(d);
         //System.out.println("Get: " + d + " : " + map.get(d));
         return map.get(d);
     }
@@ -162,21 +161,14 @@ public class ClasssAnalyzerDataWordSUL extends DataWordSUL {
     private boolean isFresh(DataType t, Object id) {
         if (consts.values()
         		.stream()
-        		.filter(d -> d.getDataType().equals(t) && d.getValue().equals(id))
-        		.findAny()
-        		.isPresent())
+        		.anyMatch(d -> d.getDataType().equals(t) && d.getValue().equals(id)))
         	return false;
         Map<DataValue, Object> map = this.buckets.get(t);
         return map == null || !map.containsValue(id);
     }
 
     private DataValue registerFreshValue(DataType retType, Object ret) {
-        Map<DataValue, Object> map = this.buckets.get(retType);
-        if (map == null) {
-            map = new HashMap<>();
-            this.buckets.put(retType, map);
-        }
-
+        Map<DataValue, Object> map = this.buckets.computeIfAbsent(retType, k -> new HashMap<>());
         DataValue v = new DataValue(retType, new BigDecimal(map.size()));
         //System.out.println("Put (F): " + v + " : " + ret);
         map.put(v, ret);
