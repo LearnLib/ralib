@@ -257,28 +257,6 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
         }
     }
 
-    // TODO: previously parameters and registers were copied but that is not necessary?
-    static SDTGuard copy(SDTGuard in) {
-        switch (in) {
-            case SDTGuard.EqualityGuard g:
-                return new SDTGuard.EqualityGuard(g.parameter, g.register);
-            case SDTGuard.DisequalityGuard g:
-                return new SDTGuard.DisequalityGuard(g.parameter, g.register);
-            case SDTGuard.IntervalGuard g:
-                return new SDTGuard.IntervalGuard(g.parameter, g.smallerElement, g.greaterElement, g.smallerEqual, g.greaterEqual);
-            case SDTGuard.SDTAndGuard g:
-                return new SDTGuard.SDTAndGuard(g.parameter,
-                        g.conjuncts.stream().map( x -> copy(x)).toList());
-            case SDTGuard.SDTOrGuard g:
-                return new SDTGuard.SDTOrGuard(g.parameter,
-                        g.disjuncts.stream().map( x -> copy(x)).toList());
-            case SDTGuard.SDTTrueGuard g:
-                return new SDTGuard.SDTTrueGuard(g.parameter);
-            default:	// needed only for Java 17?
-                throw new RuntimeException("should not be reachable");
-        }
-    }
-
     private static <T extends SDTGuardElement> T newValueIfExists(SDTRelabeling relabelling, T oldValue) {
         if (oldValue == null || SDTGuardElement.isConstant(oldValue)) return oldValue;
         T newValue = (T) relabelling.get(oldValue);

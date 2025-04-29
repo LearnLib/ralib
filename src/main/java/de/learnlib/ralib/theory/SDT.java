@@ -449,16 +449,6 @@ public class SDT {
         }
     }
 
-	public SDT copy() {
-		Map<SDTGuard, SDT> cc = new LinkedHashMap<>();
-		if (children != null) {
-			for (Map.Entry<SDTGuard, SDT> e : children.entrySet()) {
-				cc.put(SDTGuard.copy(e.getKey()), e.getValue().copy());
-			}
-		}
-		return new SDT(cc);
-	}
-
 	/**
 	 * Check if a SDT is semantically equivalent to another, given some conditions on the other SDT
 	 *

@@ -171,7 +171,7 @@ public class PathResult {
 
     public PathResult copy() {
         PathResult r = new PathResult(ioMode);
-        this.results.forEach((key, value) -> r.results.put(key, value.copy()));
+        r.results.putAll(this.results);
         return  r;
     }
 

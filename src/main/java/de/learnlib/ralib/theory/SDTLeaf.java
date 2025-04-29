@@ -109,11 +109,6 @@ public class SDTLeaf extends SDT {
     }
 
     @Override
-    public SDT copy() {
-    	return new SDTLeaf(accepting);
-    }
-
-    @Override
     public Set<SDTGuardElement> getVariables() {
         return new LinkedHashSet<>();
     }

@@ -19,7 +19,7 @@ public class DTBranch {
 
     public DTBranch(DTBranch b) {
         child = b.child.copy();
-        urap = b.urap.copy(); //todo: should we copy?
+        urap = b.urap.copy();
         child.setParentBranch(this);
     }
 

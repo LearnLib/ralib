@@ -72,11 +72,6 @@ public class LoginExampleSDT extends SDTLeaf {
     }
 
     @Override
-    public LoginExampleSDT copy() {
-    	return new LoginExampleSDT(this);
-    }
-
-    @Override
     public String toString() {
         return "[" + clazz + "]";
     }
