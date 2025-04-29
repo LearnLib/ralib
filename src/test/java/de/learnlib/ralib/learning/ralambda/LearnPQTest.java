@@ -60,7 +60,7 @@ import net.automatalib.word.Word;
  */
 public class LearnPQTest extends RaLibTestSuite {
 
-    @Test(enabled = false)
+    @Test
     public void testLearnPQ() {
 
         Constants consts = new Constants();

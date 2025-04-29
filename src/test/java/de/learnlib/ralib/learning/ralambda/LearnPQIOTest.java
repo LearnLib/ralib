@@ -57,7 +57,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
  */
 public class LearnPQIOTest extends RaLibTestSuite {
 
-    @Test(enabled = false)
+    @Test
     public void testLearnPQIO() {
 
         long seed = -4750580074638681533L;
