@@ -50,7 +50,11 @@ public class SDT {
      *
      * @return
      */
-    // fixme: SDTs cannot have registers anymore, this should probably be data values!
+    // todo: SDTs cannot have registers anymore, this should be data values!
+    // this method is currently only used in the toString methods of SDTs. Changing
+    // it will require changing many test cases as the toString methods are used
+    // to check the correctness of many SDTs.
+    @Deprecated
     public Set<Register> getRegisters() {
         Set<DataValue> temp = new LinkedHashSet<>();
         this.getVariables().stream().filter(SDTGuardElement::isDataValue).forEach((x) -> {
@@ -288,33 +292,6 @@ public class SDT {
         return maybe;
     }
 
-    // Returns true if this SDT can use the registers of another SDT.  Registers
-    // are matched by name (no remapping)
-    private boolean regCanUse(SDT other) {
-
-        Set<Register> otherRegisters = other.getRegisters();
-        Set<Register> thisRegisters = this.getRegisters();
-
-        if (otherRegisters.isEmpty() && thisRegisters.isEmpty()) {
-            return true;
-        } else {
-            Boolean[] regEqArr = new Boolean[thisRegisters.size()];
-            Integer i = 0;
-            for (SymbolicDataValue thisReg : thisRegisters) {
-                // if the trees have the same type and size
-                regEqArr[i] = false;
-                for (SymbolicDataValue otherReg : otherRegisters) {
-                    if (thisReg.equals(otherReg)) {
-                        regEqArr[i] = true;
-                        break;
-                    }
-                }
-                i++;
-            }
-            return isArrayTrue(regEqArr);
-        }
-    }
-
     private boolean hasPair(
             SDTGuard thisGuard, SDT thisSdt, Map<SDTGuard, SDT> otherBranches) {
         for (Map.Entry<SDTGuard, SDT> otherB : otherBranches.entrySet()) {
@@ -541,17 +518,4 @@ public class SDT {
 		return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE);
 	}
 
-	/**
-	 * Returns the set of registers of used by the sdts
-	 *
-	 * @param sdts
-	 * @return
-	 */
-	public static Set<Register> registersOf(SDT ... sdts) {
-		Set<Register> regs = new LinkedHashSet<>();
-		for (SDT sdt : sdts) {
-			regs.addAll(sdt.getRegisters());
-		}
-		return regs;
-	}
 }
