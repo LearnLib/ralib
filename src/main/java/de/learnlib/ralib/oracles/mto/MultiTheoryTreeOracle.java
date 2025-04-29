@@ -346,7 +346,9 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         if (a.equals(b) || a instanceof SDTGuard.SDTTrueGuard || b instanceof SDTGuard.SDTTrueGuard)
             return true;
 
-        // FIXME: Falk added this to prevent and of two equals
+        // two equality guards cannot be merged as this could
+        // violate history independence (it could entail the
+        // equality of two registers)
         if (a instanceof SDTGuard.EqualityGuard && b instanceof SDTGuard.EqualityGuard)
             return false;
 
@@ -454,27 +456,15 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         //}
 
         MultiTheoryBranching oldBranching = (MultiTheoryBranching) current;
-
         Map<SuffixValue, Set<DataValue>> oldDvs = oldBranching.getDVs();
 
-        SDT[] casted = new SDT[sdts.length + 1];
-        casted[0] = oldBranching.buildFakeSDT();
+        SDT[] updated = new SDT[sdts.length + 1];
+        updated[0] = oldBranching.buildFakeSDT();
+        System.arraycopy(sdts, 0, updated, 1, sdts.length);
 
-
-        //VarMapping remapping = piv.createRemapping(oldBranching.getPiv());
-        // todo: this can be cleaned up
-        for (int i = 0; i < sdts.length; i++) {
-            if (sdts[i] instanceof SDTLeaf) {
-                casted[i + 1] = (SDTLeaf) sdts[i];
-            } else {
-                casted[i + 1] =  sdts[i];
-            }
-        }
-
-        Node n = createNode(1, prefix, ps, new SuffixValuation(),oldDvs, casted);
-
-        MultiTheoryBranching fluff = new MultiTheoryBranching(prefix, ps, n, constants, casted);
-        return fluff;
+        Node n = createNode(1, prefix, ps, new SuffixValuation(),oldDvs, updated);
+        MultiTheoryBranching mtb = new MultiTheoryBranching(prefix, ps, n, constants, updated);
+        return mtb;
     }
 
     public Map<DataType, Theory> getTeachers() {
