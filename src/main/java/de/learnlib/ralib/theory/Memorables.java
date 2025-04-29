@@ -31,17 +31,17 @@ public class Memorables {
         return ret;
     }
 
-    // TODO: duplicates code from MappedPrefix
-    public static List<DataValue> memorableValues(SDT ... sdts) {
-        return Arrays.stream(sdts)
+    public static Set<DataValue> memorableValues(Collection<SDT> sdts) {
+        return sdts.stream()
                 .flatMap(sdt -> sdt.getDataValues().stream())
-                .distinct()
-                .sorted()
-                .toList();
+                .collect(Collectors.toSet());
     }
 
-    // TODO: duplicates code from MappedPrefix
     public static RegisterAssignment getAssignment(SDT ... sdts) {
+        return getAssignment(Arrays.asList(sdts));
+    }
+
+    public static RegisterAssignment getAssignment(Collection<SDT> sdts) {
         RegisterAssignment ra = new RegisterAssignment();
         SymbolicDataValueGenerator.RegisterGenerator regGen =
                 new SymbolicDataValueGenerator.RegisterGenerator();

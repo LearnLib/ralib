@@ -2,15 +2,14 @@ package de.learnlib.ralib.dt;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.util.RemappingIterator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.theory.Memorables;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -83,22 +82,12 @@ public class MappedPrefix implements PrefixContainer {
 	}
 
 	public Set<DataValue> memorableValues() {
-		return this.tqrs.values().stream()
-				.flatMap(sdt -> sdt.getDataValues().stream())
-				.collect(Collectors.toSet());
+		return Memorables.memorableValues(tqrs.values());
 	}
 
 	@Override
 	public RegisterAssignment getAssignment() {
-		RegisterAssignment ra = new RegisterAssignment();
-		SymbolicDataValueGenerator.RegisterGenerator regGen =
-				new SymbolicDataValueGenerator.RegisterGenerator();
-
-		this.memorableValues().forEach(
-				dv -> ra.put(dv, regGen.next(dv.getDataType()))
-		);
-
-		return ra;
+		return Memorables.getAssignment(tqrs.values());
 	}
 
 	@Override
