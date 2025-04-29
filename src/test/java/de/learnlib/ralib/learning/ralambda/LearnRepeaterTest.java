@@ -38,7 +38,7 @@ import net.automatalib.word.Word;
 public class LearnRepeaterTest extends RaLibTestSuite {
 
     @Test
-    public void learnRepeaterTest() {
+    public void testLearnRepeater() {
 
         Constants consts = new Constants();
 

@@ -57,7 +57,7 @@ import net.automatalib.word.Word;
 public class PrefixFinderTest extends RaLibTestSuite {
 
     @Test
-    public void prefixFinderTest() {
+    public void testPrefixFinder() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -102,7 +102,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
     }
 
     @Test
-    public void prefixFinderMultipleAccessSequencesTest() {
+    public void testPrefixFinderMultipleAccessSequences() {
 	Constants consts = new Constants();
 	RegisterAutomaton sul = de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
 	DataWordOracle dwOracle = new SimulatorOracle(sul);

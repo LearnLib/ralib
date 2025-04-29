@@ -47,7 +47,7 @@ public class TestSymmetry extends RaLibTestSuite {
     private static final InputSymbol B = new InputSymbol("b", T_INT);
 
     @Test
-    public void learnSymmetryExampleCT2() {
+    public void testLearnSymmetryExampleCT2() {
 	Constants consts = new Constants();
 	RegisterAutomaton sul = buildCT2();
 	DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -185,9 +185,9 @@ public class TestSymmetry extends RaLibTestSuite {
     }
 
     @Test
-    public void learnSymmetryExampleCT() {
+    public void testLearnSymmetryExampleCT1() {
 	Constants consts = new Constants();
-	RegisterAutomaton sul = buildCT();
+	RegisterAutomaton sul = buildCT1();
 	DataWordOracle dwOracle = new SimulatorOracle(sul);
 
 	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -227,7 +227,7 @@ public class TestSymmetry extends RaLibTestSuite {
         Assert.assertEquals(sul.accepts(ce), hyp.accepts(ce));
     }
 
-    private RegisterAutomaton buildCT() {
+    private RegisterAutomaton buildCT1() {
 	MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
 
 	RALocation l0 = ra.addInitialState(false);

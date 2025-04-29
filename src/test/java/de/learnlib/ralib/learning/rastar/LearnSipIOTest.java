@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnSipIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnSipIO() {
+    public void testLearnSipIO() {
 
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();

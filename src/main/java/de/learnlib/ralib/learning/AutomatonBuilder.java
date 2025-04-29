@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -144,23 +144,21 @@ public class AutomatonBuilder {
         Expression<Boolean> guard = b.getBranches().get(r.getPrefix());
         //System.out.println("assignment: " + src_c.getPrimePrefix().getAssignment());
         if (guard == null) {
-        	guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getAssignment(), b.getBranches(), consts);
+            guard = findMatchingGuard(dest_id, src_c.getPrimePrefix().getAssignment(), b.getBranches(), consts);
         }
 
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
-        guard = rvv.apply( guard, src_c.getPrimePrefix().getAssignment());
-
+        guard = rvv.apply(guard, src_c.getPrimePrefix().getAssignment());
 
         // TODO: better solution
         // guard is null because r is transition from a short prefix
         if (automaton instanceof DTHyp && guard == null)
-        	return;
+            return;
 
         assert true;
-        assert guard!=null;
+        assert guard != null;
 
         // assignment
-
         RegisterAssignment srcAssign = src_c.getPrimePrefix().getAssignment();
         RegisterAssignment destAssign = dest_c.getPrimePrefix().getAssignment();
         Bijection<DataValue> remapping = dest_c.getRemapping(r);
@@ -208,11 +206,10 @@ public class AutomatonBuilder {
                 Register rOld = srcAssign.get(e.getKey());
                 assert rOld != null;
                 assignments.put(rNew, rOld);
-            }
-            else {
-                // has not been store before => copy parameter to register
+            } else {
+                // has not been stored before => copy parameter to register
                 int id = 0;
-                for (int i=0; i< action.getArity(); i++) {
+                for (int i = 0; i < action.getArity(); i++) {
                     if (pvals[pvals.length-action.getArity()+i].equals(e.getKey())) {
                         id = i;
                         break;

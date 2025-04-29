@@ -39,11 +39,12 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class LearnABPOutputTest extends RaLibTestSuite {
-	@Test
-	public void learnABPOutput() {
 
-		long seed = -1297170870937649002L;
-		final Random random = new Random(seed);
+    @Test
+    public void testLearnABPOutput() {
+
+        long seed = -1297170870937649002L;
+        final Random random = new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/abp.output.xml");
@@ -110,22 +111,17 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		teachers,
         		inputs);
 
-        int check = 0;
-        while (check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; ++check) {
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
 
             ce = null;
 
             boolean nullCe = false;
-            for (int i=0; i<3; i++) {
-
+            for (int i = 0; i < 3; i++) {
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
                 ce2 = randomWalk.findCounterExample(hyp, null);
-
                 if (ce2 == null) {
                     nullCe = true;
                     break;
@@ -155,5 +151,5 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
-	}
+    }
 }
