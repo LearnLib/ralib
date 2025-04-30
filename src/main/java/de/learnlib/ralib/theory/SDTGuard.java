@@ -242,9 +242,11 @@ public sealed interface SDTGuard permits SDTGuard.DisequalityGuard, SDTGuard.Equ
                 if (g.register.equals(dv)) comparands.add(g.parameter);
                 return comparands;
             case SDTGuard.IntervalGuard g:
-                // FIXME: this was copied from original class but does not seem to make any sense
-                if (dv.equals(g.smallerElement)) comparands.add(g.greaterElement);
-                if (dv.equals(g.greaterElement)) comparands.add(g.smallerElement);
+                if (dv.equals(g.smallerElement) || dv.equals(g.greaterElement)) comparands.add(g.parameter);
+                if (dv.equals(g.parameter)) {
+                	if (g.smallerElement != null) comparands.add(g.smallerElement);
+                	if (g.greaterElement != null) comparands.add(g.greaterElement);
+                }
                 return comparands;
             case SDTGuard.SDTAndGuard g:
                 g.conjuncts.forEach((x) -> comparands.addAll(getComparands(x, dv)));
