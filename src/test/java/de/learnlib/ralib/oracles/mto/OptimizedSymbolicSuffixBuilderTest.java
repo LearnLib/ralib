@@ -34,7 +34,7 @@ import net.automatalib.word.Word;
 public class OptimizedSymbolicSuffixBuilderTest {
 
     @Test
-    public void extendDistinguishingSuffixTest() {
+    public void testExtendDistinguishingSuffix() {
         BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(2, false));
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -242,7 +242,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    public void extendSuffixTest() {
+    public void testExtendSuffix() {
         DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -342,11 +342,9 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    public void buildOptimizedSuffixTest() {
-
+    public void testBuildOptimizedSuffix() {
         DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
-
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
@@ -407,7 +405,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
                         new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
                                 new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
-
         SDT sdt4 = new SDT(Map.of(
                 new SDTGuard.EqualityGuard(s1, dv0), new SDT(Map.of(
                         new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
@@ -429,7 +426,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    public void extendSuffixRevealingRegistersTest() {
+    public void testExtendSuffixRevealingRegisters() {
         DataType type = new DataType("int");
         InputSymbol a = new InputSymbol("a", type);
         InputSymbol b = new InputSymbol("b", type, type);
@@ -467,7 +464,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         SymbolicSuffix actualSuffix1 = builder.extendSuffix(word1.prefix(2), sdt1, suffix1, dv0);
         Assert.assertEquals(actualSuffix1, expectedSuffix1);
 
-
         Word<PSymbolInstance> word2 = Word.fromSymbols(
         		new PSymbolInstance(a, dv0),
         		new PSymbolInstance(a, dv1),
@@ -485,7 +481,6 @@ public class OptimizedSymbolicSuffixBuilderTest {
         				new SDTGuard.DisequalityGuard(s2, dv0), SDTLeaf.ACCEPTING))));
         SymbolicSuffix actualSuffix2 = builder.extendSuffix(word2.prefix(2), sdt2, suffix2, dv0, dv1);
         Assert.assertEquals(actualSuffix2, expectedSuffix2);
-
 
         Word<PSymbolInstance> word3 = Word.fromSymbols(
         		new PSymbolInstance(a, dv0),
@@ -506,8 +501,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    private void sdtPruneTest() {
-
+    private void testSDTPrune() {
         DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();

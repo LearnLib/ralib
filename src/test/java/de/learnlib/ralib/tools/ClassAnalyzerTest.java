@@ -42,8 +42,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class ClassAnalyzerTest extends RaLibTestSuite {
 
     @Test
-    public void classAnalyzerWithMultiloginTest() {
-
+    public void testClassAnalyzerWithMultilogin() {
         final String[] options = new String[] {
             "class-analyzer",
             "target=de.learnlib.ralib.example.login.FreshMultiLogin;" +
@@ -80,8 +79,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     }
 
     @Test
-    public void classAnalyzerWithFreshValuesTest() {
-
+    public void testClassAnalyzerWithFreshValues() {
         final String[] options = new String[] {
             "class-analyzer",
             "target=de.learnlib.ralib.example.keygen.KeyGenMap;" +
@@ -139,8 +137,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     }
 
     @Test
-    public void classAnalyzerInequalitiesTest() {
-
+    public void testClassAnalyzerInequalities() {
         final String[] options = new String[] {
             "class-analyzer",
             "target=java.util.PriorityQueue;" +
@@ -196,8 +193,7 @@ public class ClassAnalyzerTest extends RaLibTestSuite {
     }
 
     @Test
-    public void classAnalyzerConstantsTest() {
-
+    public void testClassAnalyzerConstants() {
     	final String[] options = new String[] {
                 "class-analyzer",
                 "target=de.learnlib.ralib.example.container.ContainerSUL;" +

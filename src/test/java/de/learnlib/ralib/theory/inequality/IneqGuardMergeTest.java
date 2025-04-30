@@ -1,7 +1,5 @@
 package de.learnlib.ralib.theory.inequality;
 
-
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,8 +25,7 @@ import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 public class IneqGuardMergeTest extends RaLibTestSuite {
 
     @Test
-    public void intervalMergeTest() {
-
+    public void testIntervalMerge() {
         final DataType D_TYPE = new DataType("double");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -155,8 +152,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     }
 
     @Test
-    public void trueGuardTest() {
-
+    public void testTrueGuard() {
         final DataType D_TYPE = new DataType("double");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -204,8 +200,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     }
 
     @Test
-    public void filteredDataValuesTest() {
-
+    public void testFilteredDataValues() {
         final DataType D_TYPE = new DataType("double");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -268,8 +263,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     }
 
     @Test
-    public void sdtSubtreeTest() {
-
+    public void testSDTSubtree() {
         final DataType D_TYPE = new DataType("double");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
@@ -331,8 +325,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
     }
 
     @Test
-    public void disequalityGuardTest() {
-
+    public void testDisequalityGuard() {
         final DataType D_TYPE = new DataType("double");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();

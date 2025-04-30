@@ -31,8 +31,7 @@ public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
     private final InputSymbol A = new InputSymbol("a", D_TYPE);
 
     @Test
-    public void optimizationFromConcreteValuesTest() {
-
+    public void testOptimizationFromConcreteValues() {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);

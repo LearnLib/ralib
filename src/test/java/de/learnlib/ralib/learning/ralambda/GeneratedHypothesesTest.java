@@ -32,10 +32,11 @@ import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 public class GeneratedHypothesesTest extends RaLibTestSuite {
 
     /**
-     * Tests that {@link RaLambda#getHypothesis()} returns a generic {@link Hypothesis} (and not a specialized Hypothesis, such as a {@link DTHyp}, which is a lot slower)
+     * Tests that {@link RaLambda#getHypothesis()} returns a generic {@link Hypothesis}
+     * (and not a specialized Hypothesis, such as a {@link DTHyp}, which is a lot slower)
      */
     @Test
-    public void getHypothesisTest() {
+    public void testGetHypothesis() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
