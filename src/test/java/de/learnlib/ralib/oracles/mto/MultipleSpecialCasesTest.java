@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,7 +50,7 @@ import net.automatalib.word.Word;
 public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput1() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/passport.xml");
@@ -120,6 +120,5 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         Assert.assertEquals(tree, expectedTree);
     }
-
 
 }

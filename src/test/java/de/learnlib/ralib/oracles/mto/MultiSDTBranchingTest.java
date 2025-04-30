@@ -53,7 +53,7 @@ import net.automatalib.word.Word;
 public class MultiSDTBranchingTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput4() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");

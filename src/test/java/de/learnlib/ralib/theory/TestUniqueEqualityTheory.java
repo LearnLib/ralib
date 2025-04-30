@@ -25,7 +25,7 @@ import net.automatalib.word.Word;
 public class TestUniqueEqualityTheory extends RaLibTestSuite {
 
     @Test
-    public void testLoginExample1() {
+    public void testLoginExample2() {
         DataWordOracle oracle = new SimulatorOracle(AUTOMATON);
 
         Map<DataType, Theory> theories = new LinkedHashMap();

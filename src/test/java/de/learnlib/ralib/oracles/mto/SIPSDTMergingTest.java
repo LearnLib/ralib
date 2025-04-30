@@ -51,7 +51,7 @@ import net.automatalib.word.Word;
 public class SIPSDTMergingTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput6() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");

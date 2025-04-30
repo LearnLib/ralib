@@ -53,7 +53,7 @@ import net.automatalib.word.Word;
 public class ConstantsSDTBranchingTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput3() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/abp.output.xml");

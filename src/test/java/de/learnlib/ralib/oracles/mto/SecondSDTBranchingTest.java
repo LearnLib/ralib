@@ -53,7 +53,7 @@ import net.automatalib.word.Word;
 public class SecondSDTBranchingTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput2() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
