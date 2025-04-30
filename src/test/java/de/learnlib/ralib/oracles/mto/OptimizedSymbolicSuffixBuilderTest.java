@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -15,13 +16,16 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.example.list.BoundedList;
 import de.learnlib.ralib.example.list.BoundedListDataWordOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -335,6 +339,266 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         SymbolicSuffix actual4 = builder2.extendSuffix(word4.prefix(2), sdtPath4, suffix4.getActions());
         Assert.assertEquals(actual4.getFreeValues().size(), 1);
+    }
+
+    @Test
+    public void buildOptimizedSuffixTest() {
+
+        DataType type = new DataType("int");
+        InputSymbol a = new InputSymbol("a", type);
+
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
+        SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
+        SuffixValue s1 = sgen.next(type);
+        SuffixValue s2 = sgen.next(type);
+        SuffixValue s3 = sgen.next(type);
+        SuffixValue s4 = sgen.next(type);
+
+        Constants consts = new Constants();
+
+        DataValue dv0 = new DataValue(type, BigDecimal.ZERO);
+        DataValue dv1 = new DataValue(type, BigDecimal.ONE);
+
+        Word<PSymbolInstance> prefix1 = Word.fromSymbols(new PSymbolInstance(a, dv0));
+        Word<PSymbolInstance> prefix2 = Word.fromSymbols(new PSymbolInstance(a, dv0),
+                new PSymbolInstance(a, dv1));
+
+        SDT sdt1 = new SDT(Map.of(
+                new SDTGuard.EqualityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
+                                new SDTGuard.DisequalityGuard(s3, s2), SDTLeaf.REJECTING
+                                )))),
+                new SDTGuard.DisequalityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
+        SDT sdt2 = new SDT(Map.of(
+                new SDTGuard.EqualityGuard(s1, dv1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)))),
+                new SDTGuard.DisequalityGuard(s1, dv1), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING))))));
+
+        ConstraintSolver solver = new ConstraintSolver();
+
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
+        SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, Word.fromSymbols(a, a, a), solver);
+        Map<SuffixValue, SuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
+        expectedRestr12.put(s1, new FreshSuffixValue(s1));
+        expectedRestr12.put(s2, new EqualRestriction(s2, s1));
+        expectedRestr12.put(s3, new FreshSuffixValue(s3));
+        expectedRestr12.put(s4, new FreshSuffixValue(s4));
+        SymbolicSuffix expected12 = new SymbolicSuffix(suffix12.getActions(), expectedRestr12);
+        Assert.assertEquals(suffix12, expected12);
+
+        Word<PSymbolInstance> prefix3 = prefix1;
+        Word<PSymbolInstance> prefix4 = prefix2;
+        SDT sdt3 = new SDT(Map.of(
+                new SDTGuard.EqualityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
+                                new SDTGuard.DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
+                new SDTGuard.DisequalityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+
+        SDT sdt4 = new SDT(Map.of(
+                new SDTGuard.EqualityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.ACCEPTING)),
+                        new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+                                new SDTGuard.EqualityGuard(s3, s2), SDTLeaf.REJECTING)))),
+                new SDTGuard.DisequalityGuard(s1, dv0), new SDT(Map.of(
+                        new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+                                new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+        SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, prefix4, sdt4,  Word.fromSymbols(a, a, a), solver);
+        Map<SuffixValue, SuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
+        expectedRestr34.put(s1, new FreshSuffixValue(s1));
+        expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));
+        expectedRestr34.put(s3, new FreshSuffixValue(s3));
+        expectedRestr34.put(s4, new EqualRestriction(s4, s3));
+        SymbolicSuffix expected34 = new SymbolicSuffix(suffix34.getActions(), expectedRestr34);
+        Assert.assertEquals(suffix34, expected34);
+    }
+
+    @Test
+    public void extendSuffixRevealingRegistersTest() {
+        DataType type = new DataType("int");
+        InputSymbol a = new InputSymbol("a", type);
+        InputSymbol b = new InputSymbol("b", type, type);
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
+        SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
+        SuffixValue s1 = sgen.next(type);
+        SuffixValue s2 = sgen.next(type);
+
+        DataValue dv0 = new DataValue(type, BigDecimal.ZERO);
+        DataValue dv1 = new DataValue(type, BigDecimal.ONE);
+        DataValue dv2 = new DataValue(type, BigDecimal.valueOf(2));
+
+        Constants consts = new Constants();
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
+
+        Word<PSymbolInstance> word1 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv0),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv0));
+        SymbolicSuffix suffix1 = new SymbolicSuffix(word1.prefix(2), word1.suffix(2), restrictionBuilder);
+        SymbolicSuffix expectedSuffix1 = new SymbolicSuffix(word1.prefix(1), word1.suffix(3), restrictionBuilder);
+        SDT sdt1 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s2), SDTLeaf.ACCEPTING)),
+        		new SDTGuard.DisequalityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv0), SDTLeaf.REJECTING,
+        				new SDTGuard.DisequalityGuard(s2, dv0), SDTLeaf.ACCEPTING))));
+
+        SymbolicSuffix actualSuffix1 = builder.extendSuffix(word1.prefix(2), sdt1, suffix1, dv0);
+        Assert.assertEquals(actualSuffix1, expectedSuffix1);
+
+
+        Word<PSymbolInstance> word2 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv0),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv2),
+        		new PSymbolInstance(a, dv1),
+        		new PSymbolInstance(a, dv0));
+        SymbolicSuffix suffix2 = new SymbolicSuffix(word2.prefix(3), word2.suffix(2), restrictionBuilder);
+        SymbolicSuffix expectedSuffix2 = new SymbolicSuffix(word2.prefix(2), word2.suffix(3), restrictionBuilder);
+        SDT sdt2 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv0), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, dv0), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv0), SDTLeaf.REJECTING,
+        				new SDTGuard.DisequalityGuard(s2, dv0), SDTLeaf.ACCEPTING))));
+        SymbolicSuffix actualSuffix2 = builder.extendSuffix(word2.prefix(2), sdt2, suffix2, dv0, dv1);
+        Assert.assertEquals(actualSuffix2, expectedSuffix2);
+
+
+        Word<PSymbolInstance> word3 = Word.fromSymbols(
+        		new PSymbolInstance(a, dv0),
+        		new PSymbolInstance(b, dv1, dv2),
+        		new PSymbolInstance(a, dv0),
+        		new PSymbolInstance(a, dv0));
+        SymbolicSuffix suffix3 = new SymbolicSuffix(word3.prefix(2), word3.suffix(2), restrictionBuilder);
+        SymbolicSuffix expectedSuffix3 = new SymbolicSuffix(word3.prefix(1), word3.suffix(3), restrictionBuilder);
+        SDT sdt3 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv0), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, dv1), SDTLeaf.REJECTING)),
+        		new SDTGuard.DisequalityGuard(s1, dv0), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv2), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s2, dv2), SDTLeaf.REJECTING))));
+        SymbolicSuffix actualSuffix3 = builder.extendSuffix(word3.prefix(2), sdt3, suffix3, dv1, dv2);
+        Assert.assertEquals(actualSuffix3, expectedSuffix3);
+    }
+
+    @Test
+    private void sdtPruneTest() {
+
+        DataType type = new DataType("int");
+
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
+        teachers.put(type, dit);
+
+        SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
+        SuffixValue s1 = sgen.next(type);
+        SuffixValue s2 = sgen.next(type);
+        SuffixValue s3 = sgen.next(type);
+
+        DataValue dv1 = new DataValue(type, BigDecimal.ONE);
+        DataValue dv2 = new DataValue(type, BigDecimal.valueOf(2));
+
+        Constants consts = new Constants();
+        SymbolicSuffixRestrictionBuilder restrictionBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+        OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
+
+        SDT subSDT1 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s3), SDTLeaf.ACCEPTING)),
+        		new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s3, dv1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s3, dv1), SDTLeaf.REJECTING))));
+        SDT subSDT2 = new SDT(Map.of(
+        		new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s3, dv1), SDTLeaf.ACCEPTING,
+        				new SDTGuard.DisequalityGuard(s3, dv1), SDTLeaf.REJECTING))));
+        SDT subSDT3 = new SDT(Map.of(
+        		new SDTGuard.SDTTrueGuard(s2), new SDT(Map.of(
+        				new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))));
+
+        SDT sdt1 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv2), subSDT1,
+        		new SDTGuard.DisequalityGuard(s1, dv2), subSDT2));
+        SDT sdt2 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv2), subSDT1,
+        		new SDTGuard.DisequalityGuard(s1, dv2), subSDT3));
+        Map<SDTGuard, SDT> branches2 = new LinkedHashMap<>();
+        for (Map.Entry<SDTGuard, SDT> e : sdt2.getChildren().entrySet()) {
+        	if (e.getKey() instanceof SDTGuard.EqualityGuard)
+        		branches2.put(e.getKey(), e.getValue());
+        }
+
+        SDT sdt3 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, dv2), SDTLeaf.ACCEPTING,
+        						new SDTGuard.DisequalityGuard(s3, dv2), SDTLeaf.REJECTING)),
+        				new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new SDTGuard.DisequalityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, dv2), SDTLeaf.REJECTING,
+        						new SDTGuard.DisequalityGuard(s3, dv2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+        SDT expected1 = sdt1;
+        SDT expected2 = new SDT(branches2);
+        SDT expected3 = new SDT(Map.of(
+        		new SDTGuard.EqualityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.EqualityGuard(s3, dv2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING)))),
+        		new SDTGuard.DisequalityGuard(s1, dv1), new SDT(Map.of(
+        				new SDTGuard.EqualityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.DisequalityGuard(s3, dv2), SDTLeaf.ACCEPTING)),
+        				new SDTGuard.DisequalityGuard(s2, dv1), new SDT(Map.of(
+        						new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+
+        SDT actual2 = builder.pruneSDT(sdt2, new DataValue[] {dv1});
+        SDT actual1 = builder.pruneSDT(sdt1, new DataValue[] {dv1});
+        SDT actual3 = builder.pruneSDT(sdt3, new DataValue[] {dv1});
+
+        Set<List<SDTGuard>> expectedPaths1 = expected1.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> expectedPaths2 = expected2.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> expectedPaths3 = expected3.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths1 = actual1.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths2 = actual2.getAllPaths(new ArrayList<>()).keySet();
+        Set<List<SDTGuard>> actualPaths3 = actual3.getAllPaths(new ArrayList<>()).keySet();
+
+        Assert.assertEquals(actualPaths1.size(), expectedPaths1.size());
+        Assert.assertTrue(actualPaths1.containsAll(expectedPaths1));
+
+        Assert.assertEquals(actualPaths2.size(), expectedPaths2.size());
+        Assert.assertTrue(actualPaths2.containsAll(expectedPaths2));
+
+        Assert.assertEquals(actualPaths3.size(), expectedPaths3.size());
+        Assert.assertTrue(actualPaths3.containsAll(expectedPaths3));
     }
 
     @Test
