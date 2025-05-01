@@ -25,6 +25,7 @@ import static de.learnlib.ralib.example.keygen.MapAutomatonExample.O_PUT;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.T_KEY;
 import static de.learnlib.ralib.example.keygen.MapAutomatonExample.T_VAL;
 
+import java.math.BigDecimal;
 import java.util.logging.Level;
 
 import org.testng.Assert;
@@ -49,7 +50,7 @@ public class KeygenAutomatonTest extends RaLibTestSuite {
     }
 
     @Test
-    public void testHasTrace() {
+    public void testKeygenHasTrace() {
 
         RegisterAutomaton ra = AUTOMATON;
 
@@ -60,61 +61,61 @@ public class KeygenAutomatonTest extends RaLibTestSuite {
         Assert.assertTrue(ra.accepts(test1));
 
         Word<PSymbolInstance> test2 = Word.epsilon();
-        test2 = test2.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test2 = test2.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
+        test2 = test2.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test2 = test2.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
 
         logger.log(Level.FINE, "test2: {0}", test2);
         Assert.assertTrue(ra.accepts(test2));
 
         Word<PSymbolInstance> test3 = Word.epsilon();
-        test3 = test3.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test3 = test3.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
-        test3 = test3.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 1)} ));
-        test3 = test3.append(new PSymbolInstance(O_GET, new DataValue[] { new DataValue(T_VAL, 1) }));
+        test3 = test3.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test3 = test3.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
+        test3 = test3.append(new PSymbolInstance(I_GET, new DataValue(T_KEY, BigDecimal.ONE)));
+        test3 = test3.append(new PSymbolInstance(O_GET, new DataValue(T_VAL, BigDecimal.ONE)));
 
         logger.log(Level.FINE, "test3: {0}", test3);
         Assert.assertTrue(ra.accepts(test3));
 
         Word<PSymbolInstance> test4 = Word.epsilon();
-        test4 = test4.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test4 = test4.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
-        test4 = test4.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 2)} ));
-        test4 = test4.append(new PSymbolInstance(O_NULL, new DataValue[] { }));
+        test4 = test4.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test4 = test4.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
+        test4 = test4.append(new PSymbolInstance(I_GET, new DataValue(T_KEY, new BigDecimal(2))));
+        test4 = test4.append(new PSymbolInstance(O_NULL));
 
         logger.log(Level.FINE, "test4: {0}", test4);
         Assert.assertTrue(ra.accepts(test4));
 
         Word<PSymbolInstance> test5 = Word.epsilon();
-        test5 = test5.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test5 = test5.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
-        test5 = test5.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 2)} ));
-        test5 = test5.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 2) }));
-        test5 = test5.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 1)} ));
-        test5 = test5.append(new PSymbolInstance(O_GET, new DataValue[] { new DataValue(T_VAL, 1) }));
-        test5 = test5.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 2)} ));
-        test5 = test5.append(new PSymbolInstance(O_GET, new DataValue[] { new DataValue(T_VAL, 2) }));
+        test5 = test5.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test5 = test5.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
+        test5 = test5.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, new BigDecimal(2))));
+        test5 = test5.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, new BigDecimal(2))));
+        test5 = test5.append(new PSymbolInstance(I_GET, new DataValue(T_KEY, BigDecimal.ONE)));
+        test5 = test5.append(new PSymbolInstance(O_GET, new DataValue(T_VAL, BigDecimal.ONE)));
+        test5 = test5.append(new PSymbolInstance(I_GET, new DataValue(T_KEY, new BigDecimal(2))));
+        test5 = test5.append(new PSymbolInstance(O_GET, new DataValue(T_VAL, new BigDecimal(2))));
 
         logger.log(Level.FINE, "test5: {0}", test5);
         Assert.assertTrue(ra.accepts(test5));
 
         Word<PSymbolInstance> test6 = Word.epsilon();
-        test6 = test6.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test6 = test6.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
-        test6 = test6.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 2)} ));
-        test6 = test6.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 2) }));
-        test6 = test6.append(new PSymbolInstance(I_GET, new DataValue[] { new DataValue(T_KEY, 3)} ));
+        test6 = test6.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test6 = test6.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
+        test6 = test6.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, new BigDecimal(2))));
+        test6 = test6.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, new BigDecimal(2))));
+        test6 = test6.append(new PSymbolInstance(I_GET, new DataValue(T_KEY, new BigDecimal(3))));
 
         logger.log(Level.FINE, "test6: {0}", test6);
-        Assert.assertTrue(!ra.accepts(test6));
+        Assert.assertFalse(ra.accepts(test6));
 
         Word<PSymbolInstance> test7 = Word.epsilon();
-        test7 = test7.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 1)} ));
-        test7 = test7.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
-        test7 = test7.append(new PSymbolInstance(I_PUT, new DataValue[] { new DataValue(T_VAL, 2)} ));
-        test7 = test7.append(new PSymbolInstance(O_PUT, new DataValue[] { new DataValue(T_KEY, 1) }));
+        test7 = test7.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, BigDecimal.ONE)));
+        test7 = test7.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
+        test7 = test7.append(new PSymbolInstance(I_PUT, new DataValue(T_VAL, new BigDecimal(2))));
+        test7 = test7.append(new PSymbolInstance(O_PUT, new DataValue(T_KEY, BigDecimal.ONE)));
 
         logger.log(Level.FINE, "test7: {0}", test7);
-        Assert.assertTrue(!ra.accepts(test7));
+        Assert.assertFalse(ra.accepts(test7));
     }
 
     @BeforeClass

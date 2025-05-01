@@ -37,25 +37,26 @@ import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.automata.xml.RegisterAutomaton.Transitions.Transition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ConstantGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.alphabet.Alphabet;
 import net.automatalib.alphabet.impl.GrowingMapAlphabet;
 
@@ -75,7 +76,7 @@ public class RegisterAutomatonImporter {
     // TRUE input locations, FALSE output locations
     private final Map<String, Boolean> locationTypeMap = new LinkedHashMap<>();
 
-    private final VarValuation initialRegs = new VarValuation();
+    private final RegisterValuation initialRegs = new RegisterValuation();
     private final Constants consts = new Constants();
 
     private MutableRegisterAutomaton iora;
@@ -149,12 +150,12 @@ public class RegisterAutomatonImporter {
 
             // guard
             String gstring = t.getGuard();
-            TransitionGuard p = new TransitionGuard();
+            Expression<Boolean> p = ExpressionUtil.TRUE;
             if (gstring != null) {
                 Map<String, SymbolicDataValue> map = buildValueMap(
                         constMap, regMap, (ps instanceof OutputSymbol) ? new LinkedHashMap<String, Parameter>() : paramMap);
                 ExpressionParser parser = new ExpressionParser(gstring, map);
-                p = new TransitionGuard(parser.getPredicate());
+                p = parser.getPredicate();
             }
 
             // assignment
@@ -286,7 +287,7 @@ public class RegisterAutomatonImporter {
             constMap.put(def.value, c);
             constMap.put(def.name, c);
             LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, c);
-            DataValue dv = new DataValue(type, Integer.parseInt(def.value));
+            DataValue dv = new DataValue(type, new BigDecimal(def.value));
             consts.put(c, dv);
         }
         LOGGER.trace(Category.EVENT, "Loading: {}", consts);
@@ -299,19 +300,7 @@ public class RegisterAutomatonImporter {
             Register r = rgen.next(type);
             regMap.put(def.name, r);
             LOGGER.trace(Category.DATASTRUCTURE, "{} ->{}", def.name, r);
-            Object o = null;
-            switch (type.getBase().getName()) {
-                case "java.lang.Integer":
-                    o = Integer.parseInt(def.value);
-                    break;
-                case "java.lang.Double":
-                    o = BigDecimal.valueOf(Double.parseDouble(def.value));
-                    break;
-                default:
-                    throw new IllegalStateException(
-                            "Unsupported Register Type: " +
-                                    type.getBase().getName());
-            }
+            BigDecimal o = new BigDecimal(def.value);
             DataValue dv = new DataValue(type, o);
             initialRegs.put(r, dv);
         }
@@ -326,7 +315,7 @@ public class RegisterAutomatonImporter {
         DataType t = typeMap.get(name);
         if (t == null) {
             // TODO: there should be a proper way of specifying java types to be bound
-            t = new DataType(name, isDoubleTempCheck(name) ? Double.class : Integer.class);
+            t = new DataType(name);
             typeMap.put(name, t);
         }
         return t;

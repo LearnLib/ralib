@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,22 +17,23 @@
 package de.learnlib.ralib.learning;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.PIV;
 import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -57,7 +58,7 @@ public class CounterexampleAnalysis {
 
     private final Constants consts;
 
-    private static enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE};
+    private enum IndexResult {HAS_CE_AND_REFINES, HAS_CE_NO_REFINE, NO_CE}
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterexampleAnalysis.class);
 
@@ -97,8 +98,8 @@ public class CounterexampleAnalysis {
         Word<PSymbolInstance> suffix = ce.suffix(ce.length() -idx);
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix, restrictionBuilder);
 
-        TreeQueryResult resHyp = hypOracle.treeQuery(location, symSuffix);
-        TreeQueryResult resSul = sulOracle.treeQuery(location, symSuffix);
+        SDT resHyp = hypOracle.treeQuery(location, symSuffix);
+        SDT resSul = sulOracle.treeQuery(location, symSuffix);
 
         LOGGER.trace("------------------------------------------------------");
         LOGGER.trace("Computing index: {}", idx);
@@ -106,43 +107,27 @@ public class CounterexampleAnalysis {
         LOGGER.trace("SymSuffix: {}", symSuffix);
         LOGGER.trace("Location: {}", location);
         LOGGER.trace("Transition: {}", transition);
-        LOGGER.trace("PIV HYP: {}", resHyp.getPiv());
-        LOGGER.trace("SDT HYP: {}", resHyp.getSdt());
-        LOGGER.trace("PIV SYS: {}", resSul.getPiv());
-        LOGGER.trace("SDT SYS: {}", resSul.getSdt());
+        LOGGER.trace("SDT HYP: {}", resHyp);
+        LOGGER.trace("SDT SYS: {}", resSul);
         LOGGER.trace("------------------------------------------------------");
-
-//        System.out.println("------------------------------------------------------");
-//        System.out.println("Computing index: " + idx);
-//        System.out.println("Prefix: " + prefix);
-//        System.out.println("SymSuffix: " + symSuffix);
-//        System.out.println("Location: " + location);
-//        System.out.println("Transition: " + transition);
-//        System.out.println("PIV HYP: " + resHyp.getPiv());
-//        System.out.println("SDT HYP: " + resHyp.getSdt());
-//        System.out.println("PIV SYS: " + resSul.getPiv());
-//        System.out.println("SDT SYS: " + resSul.getSdt());
-//        System.out.println("------------------------------------------------------");
 
         LocationComponent c = components.get(location);
         ParameterizedSymbol act = transition.lastSymbol().getBaseSymbol();
-        TransitionGuard g = c.getBranching(act).getBranches().get(transition);
+        //System.out.println(c.getBranching(act).getBranches());
+        Expression<Boolean> g = c.getBranching(act).getBranches().get(transition);
 
-        boolean hasCE = sdtOracle.hasCounterexample(location,
-                resHyp.getSdt(), resHyp.getPiv(), //new PIV(location, resHyp.getParsInVars()),
-                resSul.getSdt(), resSul.getPiv(), //new PIV(location, resSul.getParsInVars()),
-                g, transition);
+        boolean hasCE = sdtOracle.hasCounterexample(location, resHyp, resSul, g, transition);
 
         if (!hasCE) {
             return IndexResult.NO_CE;
         }
 
-        // PIV pivSul = new PIV(location, resSul.getParsInVars());
-        PIV pivSul = resSul.getPiv();
-        PIV pivHyp = c.getPrimePrefix().getParsInVars();
-        boolean sulHasMoreRegs = !pivHyp.keySet().containsAll(pivSul.keySet());
+        Set<DataValue> pivSul = resSul.getDataValues();
+        Set<DataValue> pivHyp = c.getPrimePrefix().getAssignment().keySet();
+
+        boolean sulHasMoreRegs = !pivHyp.containsAll(pivSul);
         boolean hypRefinesTransition =
-                hypRefinesTransitions(location, act, resSul.getSdt(), pivSul);
+                hypRefinesTransitions(location, act, resSul);
 
 //        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
 //        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
@@ -152,26 +137,25 @@ public class CounterexampleAnalysis {
     }
 
     private boolean hypRefinesTransitions(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol action, SymbolicDecisionTree sdtSUL, PIV pivSUL) {
+                                          ParameterizedSymbol action, SDT sdtSUL) {
 
-        Branching branchSul = sulOracle.getInitialBranching(prefix, action, pivSUL, sdtSUL);
+        Branching branchSul = sulOracle.getInitialBranching(prefix, action, sdtSUL);
         LocationComponent c = components.get(prefix);
         Branching branchHyp = c.getBranching(action);
 
-//        System.out.println("Branching Hyp:");
-//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchHyp.getBranches().entrySet()) {
-//            System.out.println(e.getKey() + " -> " + e.getValue());
-//        }
-//        System.out.println("Branching Sys:");
-//        for (Entry<Word<PSymbolInstance>, TransitionGuard> e : branchSul.getBranches().entrySet()) {
-//            System.out.println(e.getKey() + " -> " + e.getValue());
-//        }
+        //System.out.println("Branching Hyp:");
+        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchHyp.getBranches().entrySet()) {
+            //System.out.println(e.getKey() + " -> " + e.getValue());
+        }
+        //System.out.println("Branching Sys:");
+        for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : branchSul.getBranches().entrySet()) {
+            //System.out.println(e.getKey() + " -> " + e.getValue());
+        }
 
-        for (TransitionGuard guardHyp : branchHyp.getBranches().values()) {
+        for (Expression<Boolean> guardHyp : branchHyp.getBranches().values()) {
             boolean refines = false;
-            for (TransitionGuard guardSul : branchSul.getBranches().values()) {
-                if (sdtOracle.doesRefine(guardHyp, c.getPrimePrefix().getParsInVars(),
-                        guardSul, pivSUL, new Mapping<>())) {
+            for (Expression<Boolean> guardSul : branchSul.getBranches().values()) {
+                if (sdtOracle.doesRefine(guardHyp, guardSul, new Mapping<>())) {
                     refines = true;
                     break;
                 }

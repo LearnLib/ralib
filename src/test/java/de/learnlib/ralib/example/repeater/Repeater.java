@@ -34,10 +34,10 @@ public class Repeater {
 			repeats++;
 			return max_repeats > 0 && repeats > max_repeats
 					? null
-					: Integer.valueOf(p);
+					: p;
 		}
-		latest = Integer.valueOf(p);
+		latest = p;
 		repeats = 1;
-		return Integer.valueOf(p);
+		return p;
 	}
 }

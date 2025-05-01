@@ -52,7 +52,7 @@ public class SpecialSymbols {
             }
             return getClass() == obj.getClass();
         }
-    };
+    }
 
     public static final ErrorSymbol ERROR = new ErrorSymbol(new Exception("__dummy"));
 
@@ -66,5 +66,5 @@ public class SpecialSymbols {
 
     public static final OutputSymbol FALSE = new OutputSymbol("FALSE");
 
-    public static final DataType BOOLEAN_TYPE = new DataType("boolean", boolean.class);
+    public static final DataType BOOLEAN_TYPE = new DataType("boolean");
 }

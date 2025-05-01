@@ -16,90 +16,99 @@
  */
 package de.learnlib.ralib.data;
 
+import java.math.BigDecimal;
 import java.util.Objects;
+
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.types.BuiltinTypes;
 
 /**
  * Symbolic Data Values (Parameters, registers, etc.).
  *
  * @author falk
  */
-public abstract class SymbolicDataValue extends DataValue<Integer> {
+public sealed abstract class SymbolicDataValue extends Variable<BigDecimal> implements TypedValue permits
+        SymbolicDataValue.Parameter, SymbolicDataValue.Constant, SymbolicDataValue.Register, SymbolicDataValue.SuffixValue {
 
+    /**
+     * a data parameter of an action
+     */
     public static final class Parameter extends SymbolicDataValue {
 
         public Parameter(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "p" + id);
         }
+    }
 
-        public boolean equals(Parameter other) {
-            return (this.getType().equals(other.getType()) && this.getId().equals(other.getId()));
-        }
-
-        @Override
-        public SymbolicDataValue.Parameter copy() {
-        	return new SymbolicDataValue.Parameter(type, id);
-        }
-    };
-
-    public static final class Register extends SymbolicDataValue {
+    /**
+     * a register in a register automaton
+     */
+    public static final class Register extends SymbolicDataValue implements SDTGuardElement {
 
         public Register(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "r" + id);
         }
 
-        @Override
-        public SymbolicDataValue.Register copy() {
-        	return new SymbolicDataValue.Register(type, id);
-        }
-    };
+		@Override
+		public Expression<BigDecimal> asExpression() {
+			return this;
+		}
+    }
 
-    public static final class Constant extends SymbolicDataValue {
+    /**
+     * a named constant in some theory
+     */
+    public static final class Constant extends SymbolicDataValue implements SDTGuardElement {
 
         public Constant(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "c" + id);
         }
 
         @Override
-        public SymbolicDataValue.Constant copy() {
-        	return new SymbolicDataValue.Constant(type, id);
+        public Expression<BigDecimal> asExpression() {
+            return this;
         }
-    };
+    }
 
-    public static final class SuffixValue extends SymbolicDataValue {
+    /**
+     * a parameter in a suffix or SDT guard
+     */
+    // todo: we should replace those by v_i
+    public static final class SuffixValue extends SymbolicDataValue implements SDTGuardElement {
 
         public SuffixValue(DataType dataType, int id) {
-            super(dataType, id);
+            super(dataType, id, "s" + id);
         }
 
         @Override
-        public SymbolicDataValue.SuffixValue copy() {
-        	return new SymbolicDataValue.SuffixValue(type, id);
+        public Expression<BigDecimal> asExpression() {
+            return this;
         }
-    };
-
-    private SymbolicDataValue(DataType dataType, int id) {
-        super(dataType, id);
     }
 
-    public String toStringWithType() {
-        return this.toString() + ":" + this.type.getName();
+    final DataType type;
+
+    final int id;
+
+    private SymbolicDataValue(DataType dataType, int id, String name) {
+        super(BuiltinTypes.DECIMAL, name);
+        this.type = dataType;
+        this.id = id;
     }
 
-    public abstract SymbolicDataValue copy();
+    @Override
+    public DataType getDataType() {
+        return this.type;
+    }
+
+    public int getId() {
+        return this.id;
+    }
 
     @Override
     public String toString() {
-        String s = "";
-        if (this.isParameter()) {
-            s += "p";
-        } else if (this.isRegister()) {
-            s += "r";
-        } else if (this.isSuffixValue()) {
-            s += "s";
-        } else if (this.isConstant()) {
-            s += "c";
-        }
-        return s + this.id;
+        return getName();
     }
 
     @Override
@@ -114,10 +123,7 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        if (this.id != other.id) {
-            return false;
-        }
-        return true;
+        return this.id == other.id;
     }
 
     @Override
@@ -144,4 +150,5 @@ public abstract class SymbolicDataValue extends DataValue<Integer> {
     public boolean isSuffixValue() {
         return this.getClass().equals(SuffixValue.class);
     }
+
 }

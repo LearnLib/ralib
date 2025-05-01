@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
-/*
- * Copyright (C) 2015 falk.
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301  USA
- */
-
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -46,22 +28,17 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -99,29 +76,24 @@ public class UntypedBranchingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol reg = new InputSymbol(
-                "IRegister", new DataType[] {intType, intType});
+        ParameterizedSymbol reg = new InputSymbol("IRegister", intType, intType);
+        ParameterizedSymbol log = new InputSymbol("ILogin", intType, intType);
+        ParameterizedSymbol ok = new OutputSymbol("OOK");
 
-        ParameterizedSymbol log = new InputSymbol(
-                "ILogin", new DataType[] {intType, intType});
-
-        ParameterizedSymbol ok = new OutputSymbol(
-                "OOK", new DataType[] {});
-
-        DataValue u = new DataValue(intType, 0);
-        DataValue p = new DataValue(intType, 1);
+        DataValue u = new DataValue(intType, BigDecimal.ZERO);
+        DataValue p = new DataValue(intType, BigDecimal.ONE);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
-                new PSymbolInstance(reg, new DataValue[] {u, p}),
-                new PSymbolInstance(ok, new DataValue[] {}));
+                new PSymbolInstance(reg, u, p),
+                new PSymbolInstance(ok));
 
         Word<PSymbolInstance> suffix = Word.fromSymbols(
-                new PSymbolInstance(log, new DataValue[] {u, p}),
-                new PSymbolInstance(ok, new DataValue[] {}));
+                new PSymbolInstance(log, u, p),
+                new PSymbolInstance(ok));
 
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
@@ -129,10 +101,10 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "{0}", suffix);
         logger.log(Level.FINE, "{0}", symSuffix);
 
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        logger.log(Level.FINE, "SDT: {0}", res.getSdt());
+        SDT res = mto.treeQuery(prefix, symSuffix);
+        logger.log(Level.FINE, "SDT: {0}", res);
 
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT sdt = res;
 
         ParameterGenerator pgen = new ParameterGenerator();
         RegisterGenerator rgen = new RegisterGenerator();
@@ -142,22 +114,15 @@ public class UntypedBranchingTest extends RaLibTestSuite {
         Register r1 = rgen.next(intType);
         Register r2 = rgen.next(intType);
 
-        VarMapping map = new VarMapping();
-        map.put(r1, r2);
-        map.put(r2, r1);
-
-        PIV piv = new PIV();
-        piv.put(p2, r1);
-        piv.put(p1, r2);
+        SDTRelabeling map = new SDTRelabeling();
 
         sdt = sdt.relabel(map);
 
-        Branching bug2 = mto.getInitialBranching(prefix, log, new PIV());
-        bug2 = mto.updateBranching(prefix, log, bug2, piv, sdt);
+        Branching bug2 = mto.getInitialBranching(prefix, log);
+        bug2 = mto.updateBranching(prefix, log, bug2, sdt);
 
         // This set had only one word, there should be three
         Assert.assertEquals(bug2.getBranches().size(), 3);
-
     }
 
 }

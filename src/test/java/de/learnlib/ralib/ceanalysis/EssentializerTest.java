@@ -1,5 +1,6 @@
 package de.learnlib.ralib.ceanalysis;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,21 +21,21 @@ public class EssentializerTest {
     @Test
     public void testEssentializerLogin() {
 
-        final DataType _t = new DataType("T", Integer.class);
+        final DataType _t = new DataType("T");
         final InputSymbol act = new InputSymbol("act", _t);
 
-        final EqualityTheory<Integer> theory = new EqualityTheory<Integer>() {
+        final EqualityTheory theory = new EqualityTheory() {
             @Override
-            public DataValue<Integer> getFreshValue(List<DataValue<Integer>> vals) {
-                int max = 0;
-                for (DataValue<Integer> i : vals) {
-                    max = Math.max(max, i.getId());
+            public DataValue getFreshValue(List<DataValue> vals) {
+                BigDecimal max = BigDecimal.ZERO;
+                for (DataValue i : vals) {
+                    max = max.max(i.getValue());
                 }
-                return new DataValue<Integer>(_t, max + 1);
+                return new DataValue(_t, max.add(BigDecimal.ONE));
             }
 
             @Override
-            public Collection<DataValue<Integer>> getAllNextValues(List<DataValue<Integer>> vals) {
+            public Collection<DataValue> getAllNextValues(List<DataValue> vals) {
                 throw new RuntimeException("not implemented for test.");
             }
         };
@@ -52,10 +53,10 @@ public class EssentializerTest {
 
         Essentializer e = new Essentializer(theory, oracle, oracle);
 
-        DataValue dv1 = new DataValue<Integer>(_t, 1);
-        DataValue dv2 = new DataValue<Integer>(_t, 2);
-        DataValue dv3 = new DataValue<Integer>(_t, 3);
-        DataValue dv4 = new DataValue<Integer>(_t, 4);
+        DataValue dv1 = new DataValue(_t, new BigDecimal(1));
+        DataValue dv2 = new DataValue(_t, new BigDecimal(2));
+        DataValue dv3 = new DataValue(_t, new BigDecimal(3));
+        DataValue dv4 = new DataValue(_t, new BigDecimal(4));
 
         Word<PSymbolInstance> w1 = DataWords.instantiate(
                 Word.fromSymbols(act, act, act, act),

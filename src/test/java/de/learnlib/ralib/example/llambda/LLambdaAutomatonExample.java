@@ -5,20 +5,18 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.words.InputSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class LLambdaAutomatonExample {
 
-    public static final InputSymbol A =
-            new InputSymbol("a", new DataType[] {});
+    public static final InputSymbol A = new InputSymbol("a");
 
-    public static final InputSymbol B =
-            new InputSymbol("b", new DataType[] {});
+    public static final InputSymbol B = new InputSymbol("b");
 
     public static final RegisterAutomaton AUTOMATON = buildAutomaton();
 
@@ -40,12 +38,12 @@ public class LLambdaAutomatonExample {
         // registers and parameters
 
         // guards
-        TransitionGuard trueGuard   = new TransitionGuard();
+        Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<Register, SymbolicDataValue>();
 
-        Assignment noAssign     = new Assignment(noMapping);
+        Assignment noAssign = new Assignment(noMapping);
 
         // initial location
         ra.addTransition(l0, A, new InputTransition(trueGuard, A, l0, l1, noAssign));

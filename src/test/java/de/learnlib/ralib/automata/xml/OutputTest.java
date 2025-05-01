@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.automata.xml;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -47,7 +48,7 @@ import net.automatalib.word.Word;
 public class OutputTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput7() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
@@ -69,21 +70,21 @@ public class OutputTest extends RaLibTestSuite {
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[] {intType});
+                "IINVITE", intType);
 
         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});
+                "O100", intType);
 
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
         Word<PSymbolInstance> test1 = Word.fromSymbols(
-                new PSymbolInstance(inv, new DataValue[] {d0}),
-                new PSymbolInstance(o100, new DataValue[] {d0}));
+                new PSymbolInstance(inv, d0),
+                new PSymbolInstance(o100, d0));
 
         Word<PSymbolInstance> test2 = Word.fromSymbols(
-                new PSymbolInstance(inv, new DataValue[] {d0}),
-                new PSymbolInstance(o100, new DataValue[] {d1}));
+                new PSymbolInstance(inv, d0),
+                new PSymbolInstance(o100, d1));
 
         logger.log(Level.FINE, "Test 1: {0}", test1);
         logger.log(Level.FINE, "Test 2: {0}", test2);

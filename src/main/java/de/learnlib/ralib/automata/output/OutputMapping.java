@@ -56,7 +56,7 @@ public class OutputMapping  {
     }
 
     public OutputMapping(Parameter key, Register value) {
-        this(new ArrayList<Parameter>(), new VarMapping<Parameter, SymbolicDataValue>(key, value));
+        this(new ArrayList<Parameter>(), VarMapping.fromPair(key, value));
     }
 
     public OutputMapping(VarMapping<Parameter, SymbolicDataValue> outputs) {

@@ -18,9 +18,6 @@
  */
 package de.learnlib.ralib.tools.theories;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toExpression;
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -28,23 +25,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SDTIfGuard;
-import de.learnlib.ralib.theory.SDTOrGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.theory.inequality.InequalityTheoryWithEq;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
 import gov.nasa.jpf.constraints.api.ConstraintSolver;
 import gov.nasa.jpf.constraints.api.ConstraintSolver.Result;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
+import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
@@ -56,13 +46,13 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
  *
  * @author falk
  */
-public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> implements TypedTheory<BigDecimal> {
+public class DoubleInequalityTheory extends InequalityTheoryWithEq implements TypedTheory {
 
-    private static final class Cpr implements Comparator<DataValue<BigDecimal>> {
+    private static final class Cpr implements Comparator<DataValue> {
 
         @Override
-        public int compare(DataValue<BigDecimal> one, DataValue<BigDecimal> other) {
-            return one.getId().compareTo(other.getId());
+        public int compare(DataValue one, DataValue other) {
+            return one.getValue().compareTo(other.getValue());
         }
     }
 
@@ -84,10 +74,10 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
     @Override
-    public List<DataValue<BigDecimal>> getPotential(List<DataValue<BigDecimal>> dvs) {
+    public List<DataValue> getPotential(List<DataValue> dvs) {
         //assume we can just sort the list and get the values
-        List<DataValue<BigDecimal>> sortedList = new ArrayList<>();
-        for (DataValue<BigDecimal> d : dvs) {
+        List<DataValue> sortedList = new ArrayList<>();
+        for (DataValue d : dvs) {
 //                    if (d.getId() instanceof Integer) {
 //                        sortedList.add(new DataValue(d.getType(), ((Integer) d.getId()).doubleValue()));
 //                    } else if (d.getId() instanceof Double) {
@@ -106,79 +96,91 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
 
     private List<Expression<Boolean>> instantiateGuard(SDTGuard g, Valuation val) {
         List<Expression<Boolean>> eList = new ArrayList<Expression<Boolean>>();
-        if (g instanceof SDTIfGuard) {
+        if (g instanceof SDTGuard.EqualityGuard eualityGuard) {
             // pick up the register
-            SymbolicDataValue si = ((SDTIfGuard) g).getRegister();
+            SymbolicDataValue si = (SymbolicDataValue) eualityGuard.register();
             // get the register value from the valuation
-            DataValue<BigDecimal> sdi = new DoubleDataValue(type, (BigDecimal) val.getValue(toVariable(si)));
+            DataValue sdi = new DataValue(type, val.getValue(si));
             // add the register value as a constant
-            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getId()));
+            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getValue()));
             // add the constant equivalence expression to the list
-            eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(si)));
+            eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
 
-        } else if (g instanceof IntervalGuard) {
-            IntervalGuard iGuard = (IntervalGuard) g;
+        } else if (g instanceof SDTGuard.DisequalityGuard disequalityGuard) {
+            // pick up the register
+            SymbolicDataValue si = (SymbolicDataValue) disequalityGuard.register();
+            // get the register value from the valuation
+            DataValue sdi = new DataValue(type, val.getValue(si));
+            // add the register value as a constant
+            gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (sdi.getValue()));
+            // add the constant equivalence expression to the list
+            eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, si));
+            throw new RuntimeException("this seems to be wrong ...");
+
+        } else if (g instanceof SDTGuard.IntervalGuard iGuard) {
             if (!iGuard.isBiggerGuard()) {
-                SymbolicDataValue r = iGuard.getRightReg();
-                DataValue<BigDecimal> ri = new DoubleDataValue(type, (BigDecimal) val.getValue(toVariable(r)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getId()));
+                SDTGuardElement r =  iGuard.greaterElement();
+                assert r != null;
+                DataValue ri = (r instanceof DataValue) ? (DataValue) r :
+                        new DataValue(type, (BigDecimal) val.getValue( (Variable) r));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (ri.getValue()));
                 // add the constant equivalence expression to the list
-                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(r)));
-
+                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, r.asExpression()));
             }
             if (!iGuard.isSmallerGuard()) {
-                SymbolicDataValue l = iGuard.getLeftReg();
-                DataValue<BigDecimal> li = new DoubleDataValue(type, (BigDecimal) val.getValue(toVariable(l)));
-                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getId()));
+                SDTGuardElement l = iGuard.smallerElement();
+                assert l != null;
+                DataValue li = (l instanceof DataValue) ? (DataValue) l :
+                        new DataValue(type, (BigDecimal) val.getValue( (Variable) l));
+                gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (li.getValue()));
                 // add the constant equivalence expression to the list
-                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, toVariable(l)));
-
+                eList.add(new NumericBooleanExpression(wm, NumericComparator.EQ, l.asExpression()));
             }
         }
         return eList;
     }
 
     @Override
-    public DoubleDataValue instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue<BigDecimal>> alreadyUsedValues) {
+    public DataValue instantiate(SDTGuard g, Valuation val, Constants c, Collection<DataValue> alreadyUsedValues) {
         //System.out.println("INSTANTIATING: " + g.toString());
         SymbolicDataValue.SuffixValue sp = g.getParameter();
         Valuation newVal = new Valuation();
         newVal.putAll(val);
-        GuardExpression x = g.toExpr();
+        Expression<Boolean> x = SDTGuard.toExpr(g);
         Result res;
-        if (g instanceof EqualityGuard) {
+        if (g instanceof SDTGuard.EqualityGuard) {
             //System.out.println("SOLVING: " + x);
-            res = solver.solve(toExpression(x), newVal);
+            res = solver.solve(x, newVal);
         } else {
             List<Expression<Boolean>> eList = new ArrayList<>();
             // add the guard
-            eList.add(toExpression(g.toExpr()));
+            eList.add(SDTGuard.toExpr(g));
             eList.addAll(instantiateGuard(g, val));
-            if (g instanceof SDTOrGuard) {
+            if (g instanceof SDTGuard.SDTOrGuard og) {
                 // for all registers, pick them up
-                for (SDTGuard subg : ((SDTOrGuard) g).getGuards()) {
-                    if (!(subg instanceof EqualityGuard)) {
+                for (SDTGuard subg : og.disjuncts()) {
+                    if (!(subg instanceof SDTGuard.EqualityGuard)) {
                         eList.addAll(instantiateGuard(subg, val));
                     }
                 }
             }
 
             // add disequalities
-            for (DataValue<BigDecimal> au : alreadyUsedValues) {
-                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (au.getId()));
-                Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, toVariable(sp));
+            for (DataValue au : alreadyUsedValues) {
+                gov.nasa.jpf.constraints.expressions.Constant w = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (au.getValue()));
+                Expression<Boolean> auExpr = new NumericBooleanExpression(w, NumericComparator.NE, sp);
                 eList.add(auExpr);
             }
 
-            if (newVal.containsValueFor(toVariable(sp))) {
-                DoubleDataValue spDouble = new DoubleDataValue(type, (BigDecimal)newVal.getValue(toVariable(sp)));
-                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (spDouble.getId()));
-                Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, toVariable(sp));
+            if (newVal.containsValueFor(sp)) {
+                DataValue spDouble = new DataValue(type, newVal.getValue(sp));
+                gov.nasa.jpf.constraints.expressions.Constant spw = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, (spDouble.getValue()));
+                Expression<Boolean> spExpr = new NumericBooleanExpression(spw, NumericComparator.EQ, sp);
                 eList.add(spExpr);
             }
 
             Expression<Boolean> _x = ExpressionUtil.and(eList);
-//                    System.out.println("SOLVING: " + _x + " with " + newVal);
+                    //System.out.println("SOLVING: " + _x + " with " + newVal);
             res = solver.solve(_x, newVal);
 //                    System.out.println("SOLVING:: " + res + "  " + eList + "  " + newVal);
         }
@@ -188,7 +190,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
         if (res == Result.SAT) {
 //                    System.out.println("SAT!!");
 //                    System.out.println(newVal.getValue(sp.toVariable()) + "   " + newVal.getValue(sp.toVariable()).getClass());
-            DoubleDataValue d = new DoubleDataValue(type, (BigDecimal)(newVal.getValue(toVariable(sp))));
+            DataValue d = new DataValue(type, newVal.getValue(sp));
             //System.out.println("return d: " + d.toString());
             return d;//new DataValue<Double>(doubleType, d);
         } else {
@@ -198,17 +200,17 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
     @Override
-    public DoubleDataValue getFreshValue(List<DataValue<BigDecimal>> vals) {
+    public DataValue getFreshValue(List<DataValue> vals) {
         if (vals.isEmpty()) {
-            return new DoubleDataValue(type, BigDecimal.ONE);
+            return new DataValue(type, BigDecimal.ONE);
         }
-        List<DataValue<BigDecimal>> potential = getPotential(vals);
+        List<DataValue> potential = getPotential(vals);
         if (potential.isEmpty()) {
-            return new DoubleDataValue(type, BigDecimal.ONE);
+            return new DataValue(type, BigDecimal.ONE);
         }
         //LOGGER.trace("smallest index of " + newDv.toString() + " in " + ifValues.toString() + " is " + smallest);
-        DataValue<BigDecimal> biggestDv = Collections.max(potential, new Cpr());
-        return new DoubleDataValue(type, biggestDv.getId().add(BigDecimal.ONE));
+        DataValue biggestDv = Collections.max(potential, new Cpr());
+        return new DataValue(type, biggestDv.getValue().add(BigDecimal.ONE));
     }
 
     @Override
@@ -231,43 +233,43 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq<BigDecimal> i
     }
 
     @Override
-    public Collection<DataValue<BigDecimal>> getAllNextValues(
-            List<DataValue<BigDecimal>> vals) {
-        Set<DataValue<BigDecimal>> nextValues = new LinkedHashSet<>();
+    public Collection<DataValue> getAllNextValues(
+            List<DataValue> vals) {
+        Set<DataValue> nextValues = new LinkedHashSet<>();
         nextValues.addAll(vals);
         if (vals.isEmpty()) {
-            nextValues.add(new DoubleDataValue(type, BigDecimal.ONE));
+            nextValues.add(new DataValue(type, BigDecimal.ONE));
         } else {
             Collections.sort(vals, new Cpr());
             if (vals.size() > 1) {
                 for (int i = 0; i < (vals.size() - 1); i++) {
-                    BigDecimal d1 = vals.get(i).getId();
-                    BigDecimal d2 = vals.get(i + 1).getId();
-                    nextValues.add(new DoubleDataValue(type,
+                    BigDecimal d1 = vals.get(i).getValue();
+                    BigDecimal d2 = vals.get(i + 1).getValue();
+                    nextValues.add(new DataValue(type,
                             d2.subtract(d1).divide(BigDecimal.valueOf(2.0)).add(d1)));
                             //(d1 + ((d2 - d1) / 2))));
                 }
             }
-            nextValues.add(new DoubleDataValue(type, (Collections.min(vals, new Cpr()).getId().subtract(BigDecimal.ONE))));
-            nextValues.add(new DoubleDataValue(type, (Collections.max(vals, new Cpr()).getId().add(BigDecimal.ONE))));
+            nextValues.add(new DataValue(type, (Collections.min(vals, new Cpr()).getValue().subtract(BigDecimal.ONE))));
+            nextValues.add(new DataValue(type, (Collections.max(vals, new Cpr()).getValue().add(BigDecimal.ONE))));
         }
         return nextValues;
     }
 
 	@Override
-	protected Comparator<DataValue<BigDecimal>> getComparator() {
-		return new Comparator<DataValue<BigDecimal>>() {
+	protected Comparator<DataValue> getComparator() {
+		return new Comparator<DataValue>() {
 			@Override
-			public int compare(DataValue<BigDecimal> d1, DataValue<BigDecimal> d2) {
-				return d1.getId().compareTo(d2.getId());
+			public int compare(DataValue d1, DataValue d2) {
+				return d1.getValue().compareTo(d2.getValue());
 			}
 		};
 	}
 
 	@Override
-	protected DataValue<BigDecimal> safeCast(DataValue<?> dv) {
-		if (dv.getId() instanceof BigDecimal) {
-			return new DataValue<BigDecimal>(dv.getType(), (BigDecimal) dv.getId());
+	protected DataValue safeCast(DataValue dv) {
+		if (dv.getValue() instanceof BigDecimal) {
+			return new DataValue(dv.getDataType(), (BigDecimal) dv.getValue());
 		}
 		return null;
 	}

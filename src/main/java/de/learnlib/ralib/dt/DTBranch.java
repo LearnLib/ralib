@@ -1,11 +1,12 @@
 package de.learnlib.ralib.dt;
 
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.util.RemappingIterator;
 
 public class DTBranch {
 
-    private PathResult urap;
+    private final PathResult urap;
 
     private DTNode child;
 
@@ -18,7 +19,7 @@ public class DTBranch {
 
     public DTBranch(DTBranch b) {
         child = b.child.copy();
-        urap = b.urap.copy(); //todo: should we copy?
+        urap = b.urap.copy();
         child.setParentBranch(this);
     }
 
@@ -31,20 +32,27 @@ public class DTBranch {
         return child;
     }
 
-    public boolean matches(PathResult r) {
+    /**
+     * null if there is no match
+     *
+     * @param r
+     * @return
+     */
+    public Bijection<DataValue> matches(PathResult r) {
         if (!urap.couldBeEquivalentTo(r)) {
-            return false;
+            return null;
         }
 
-        PIVRemappingIterator iterator = new PIVRemappingIterator(
-                r.getParsInVars(), urap.getParsInVars());
+        RemappingIterator<DataValue> iterator = new RemappingIterator<>(
+                r.memorableValues(), urap.memorableValues());
 
-        for (VarMapping m : iterator) {
+        for (Bijection<DataValue> m : iterator) {
+            //System.out.println("m: " + m);
             if (r.isEquivalentTo(urap, m)) {
-                return true;
+                return m;
             }
         }
-        return false;
+        return null;
     }
 
     PathResult getUrap() {

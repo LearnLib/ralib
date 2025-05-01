@@ -23,21 +23,16 @@ import java.util.Objects;
  *
  * @author falk
  */
-public final class DataType {
+// todo: make a record?
+public final class DataType implements Comparable<DataType> {
 
     /**
      * name of type (defining member)
      */
     final String name;
 
-    /**
-     * base type
-     */
-    final Class base;
-
-    public DataType(String name, Class base) {
+    public DataType(String name) {
         this.name = name;
-        this.base = base;
     }
 
     @Override
@@ -56,17 +51,15 @@ public final class DataType {
             return false;
         }
         final DataType other = (DataType) obj;
-        if (!Objects.equals(this.name, other.name)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.name, other.name);
     }
 
     public String getName() {
         return name;
     }
 
-    public Class getBase() {
-        return base;
+    @Override
+    public int compareTo(DataType o) {
+        return this.name.compareTo(o.name);
     }
 }

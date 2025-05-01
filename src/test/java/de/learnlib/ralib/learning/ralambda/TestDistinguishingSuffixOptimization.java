@@ -13,7 +13,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -26,19 +25,18 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class TestDistinguishingSuffixOptimization {
 
-	private static final InputSymbol A =
-			new InputSymbol("a", new DataType[] {});
-	private static final InputSymbol B =
-			new InputSymbol("b", new DataType[] {});
+	private static final InputSymbol A = new InputSymbol("a");
+	private static final InputSymbol B = new InputSymbol("b");
 
 	private RegisterAutomaton buildAutomaton() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
@@ -50,7 +48,7 @@ public class TestDistinguishingSuffixOptimization {
 		RALocation l4 = ra.addState(false);
 		RALocation l5 = ra.addState(true);
 
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		VarMapping<Register, SymbolicDataValue> noMapping = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
         Assignment noAssign = new Assignment(noMapping);
@@ -81,7 +79,7 @@ public class TestDistinguishingSuffixOptimization {
 
 	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+	    ConstraintSolver solver = new ConstraintSolver();
 
 	    MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 

@@ -19,13 +19,11 @@ package de.learnlib.ralib.learning.rastar;
 import java.util.Map;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -43,35 +41,34 @@ public class LoggingOracle implements TreeOracle {
     }
 
     @Override
-    public TreeQueryResult treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
         //System.out.println("QUERY (tree query): " + prefix + " and " + suffix);
         return treeoracle.treeQuery(prefix, suffix);
     }
 
     @Override
     public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts) {
+            ParameterizedSymbol ps, SDT ... sdts) {
 
         //System.out.println("QUERY (initial branching): " + prefix + " and " + ps);
-        return treeoracle.getInitialBranching(prefix, ps, piv, sdts);
+        return treeoracle.getInitialBranching(prefix, ps, sdts);
     }
 
     @Override
     public Branching updateBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree ... sdts) {
+            ParameterizedSymbol ps, Branching current, SDT ... sdts) {
 
         //System.out.println("QUERY (update branching): " + prefix +
         //        " and " + ps + " with " + sdts.length + " sdts");
-        Branching b = treeoracle.updateBranching(prefix, ps, current, piv, sdts);
+        Branching b = treeoracle.updateBranching(prefix, ps, current, sdts);
         //System.out.println(b.getBranches().size());
         return b;
     }
 
     @Override
     public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv) {
-    	return treeoracle.instantiate(prefix, suffix, sdt, piv);
+    		SymbolicSuffix suffix, SDT sdt) {
+    	return treeoracle.instantiate(prefix, suffix, sdt);
     }
 
     @Override

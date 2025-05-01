@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,27 +23,20 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.ParValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTConstructor;
+import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 /**
- *
  * @author falk
- * @param <T>
  */
-public interface Theory<T> {
-
+public interface Theory {
 
     /**
      * Returns a fresh data value.
@@ -51,7 +44,7 @@ public interface Theory<T> {
      * @param vals
      * @return a fresh data value of type T
      */
-    public DataValue<T> getFreshValue(List<DataValue<T>> vals);
+    DataValue getFreshValue(List<DataValue> vals);
 
     /**
      * Implements a tree query for this theory. This tree query
@@ -65,7 +58,6 @@ public interface Theory<T> {
      * @param prefix prefix word.
      * @param suffix suffix word.
      * @param values found values for complete word (pos -> dv)
-     * @param piv memorable data values of the prefix (dv <-> itr)
      * @param constants
      * @param suffixValues map of already instantiated suffix
      * data values (sv -> dv)
@@ -73,15 +65,13 @@ public interface Theory<T> {
      *
      * @return a symbolic decision tree and updated piv
      */
-    public SDT treeQuery(
+    SDT treeQuery(
             Word<PSymbolInstance> prefix,
             SymbolicSuffix suffix,
             WordValuation values,
-            PIV piv,
             Constants constants,
             SuffixValuation suffixValues,
-            SDTConstructor oracle);
-
+            MultiTheoryTreeOracle oracle);
 
     /**
      * returns all next data values to be tested (for vals).
@@ -89,14 +79,13 @@ public interface Theory<T> {
      * @param vals
      * @return
      */
-    public Collection<DataValue<T>> getAllNextValues(List<DataValue<T>> vals);
+    Collection<DataValue> getAllNextValues(List<DataValue> vals);
 
     /**
      * TBD
      *
      * @param prefix
      * @param ps
-     * @param piv
      * @param pval
      * @param constants
      * @param guard
@@ -104,15 +93,15 @@ public interface Theory<T> {
      * @param oldDvs
      * @return
      */
-    public DataValue instantiate(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, ParValuation pval,
-            Constants constants,
-            SDTGuard guard, Parameter param, Set<DataValue<T>> oldDvs);
+    DataValue instantiate(Word<PSymbolInstance> prefix,
+                          ParameterizedSymbol ps, SuffixValuation pval,
+                          Constants constants,
+                          SDTGuard guard, SuffixValue param, Set<DataValue> oldDvs);
 
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
+    SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
+    SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
 
-    public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
+    boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
 
 }

@@ -5,6 +5,7 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,10 +17,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -30,13 +27,16 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class InstantiateSymbolicWordTest {
@@ -49,38 +49,38 @@ public class InstantiateSymbolicWordTest {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
 	              dwOracle, teachers, new Constants(), solver);
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)));
         Word<PSymbolInstance> suffix = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
         SymbolicSuffix symbSuffix = new SymbolicSuffix(prefix, suffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symbSuffix);
+        SDT tqr = mto.treeQuery(prefix, symbSuffix);
 
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr.getSdt(), tqr.getPiv());
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symbSuffix, tqr);
 
         Word<PSymbolInstance> p1 = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
         Word<PSymbolInstance> p2 = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 2)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(2))));
         Word<PSymbolInstance> p3 = Word.fromSymbols(
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 2)),
-        		new PSymbolInstance(I_POP, new DataValue(T_INT, 3)));
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(2) )),
+        		new PSymbolInstance(I_POP, new DataValue(T_INT, new BigDecimal(3) )));
 
         Assert.assertEquals(words.size(), 3);
         Assert.assertTrue(words.containsKey(p1) &&
@@ -93,8 +93,8 @@ public class InstantiateSymbolicWordTest {
     public void testInstantiateWithSuffixOpt() {
         MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
 
-        InputSymbol A = new InputSymbol("a", new DataType[] {T_INT});
-        InputSymbol B = new InputSymbol("b", new DataType[] {T_INT});
+        InputSymbol A = new InputSymbol("a", T_INT);
+        InputSymbol B = new InputSymbol("b", T_INT);
 
         RALocation l0 = ra.addInitialState();
         RALocation l1 = ra.addState();
@@ -107,12 +107,12 @@ public class InstantiateSymbolicWordTest {
         SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
         // guards
-        GuardExpression equal = new AtomicGuardExpression(r1, Relation.EQUALS, p1);
-        GuardExpression notEqual = new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1);
+        Expression<Boolean>  equal = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+        Expression<Boolean>  notEqual = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
 
-        TransitionGuard equalGuard = new TransitionGuard(equal);
-        TransitionGuard notEqualGuard = new TransitionGuard(notEqual);
-        TransitionGuard trueGuard = new TransitionGuard();
+        Expression<Boolean> equalGuard = equal;
+        Expression<Boolean>  notEqualGuard = notEqual;
+        Expression<Boolean>  trueGuard = ExpressionUtil.TRUE;
 
         // assignments
         VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
@@ -140,18 +140,18 @@ public class InstantiateSymbolicWordTest {
         DataWordOracle dwOracle = new SimulatorOracle(ra);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-              dwOracle, teachers, new Constants(), new SimpleConstraintSolver());
+              dwOracle, teachers, new Constants(), new ConstraintSolver());
 
         Word<PSymbolInstance> prefix = Word.fromSymbols(
-              new PSymbolInstance(A, new DataValue(T_INT, 0)),
-              new PSymbolInstance(B, new DataValue(T_INT, 0)));
+              new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ZERO)),
+              new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ZERO)));
         Word<PSymbolInstance> suffix = Word.fromSymbols(
-              new PSymbolInstance(A, new DataValue(T_INT, 1)),
-              new PSymbolInstance(B, new DataValue(T_INT, 1)));
+              new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
+              new PSymbolInstance(B, new DataValue(T_INT, BigDecimal.ONE)));
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr.getSdt(), tqr.getPiv());
+        SDT tqr = mto.treeQuery(prefix, symSuffix);
+        Map<Word<PSymbolInstance>, Boolean> words = mto.instantiate(prefix, symSuffix, tqr);
 
         Assert.assertEquals(words.size(), 1);
 

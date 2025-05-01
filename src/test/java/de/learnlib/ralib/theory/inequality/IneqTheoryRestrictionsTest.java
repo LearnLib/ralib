@@ -26,13 +26,12 @@ import net.automatalib.word.Word;
 
 public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
 
-    private final DataType D_TYPE = new DataType("double", BigDecimal.class);
+    private final DataType D_TYPE = new DataType("double");
 
     private final InputSymbol A = new InputSymbol("a", D_TYPE);
 
     @Test
-    public void optimizationFromConcreteValuesTest() {
-
+    public void testOptimizationFromConcreteValues() {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         dit.useSuffixOptimization(true);
@@ -41,10 +40,10 @@ public class IneqTheoryRestrictionsTest extends RaLibTestSuite {
         Constants consts = new Constants();
         SymbolicSuffixRestrictionBuilder builder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 
-        DataValue<BigDecimal> dv0 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.ZERO);
-        DataValue<BigDecimal> dv1 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.ONE);
-        DataValue<BigDecimal> dv2 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.valueOf(2));
-        DataValue<BigDecimal> dv3 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.valueOf(3));
+        DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
+        DataValue dv1 = new DataValue(D_TYPE, BigDecimal.ONE);
+        DataValue dv2 = new DataValue(D_TYPE, BigDecimal.valueOf(2));
+        DataValue dv3 = new DataValue(D_TYPE, BigDecimal.valueOf(3));
 
         SuffixValueGenerator sgen = new SuffixValueGenerator();
         SuffixValue s1 = sgen.next(D_TYPE);

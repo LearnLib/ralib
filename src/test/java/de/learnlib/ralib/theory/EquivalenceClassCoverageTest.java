@@ -1,7 +1,5 @@
 package de.learnlib.ralib.theory;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,10 +18,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -33,31 +28,30 @@ import net.automatalib.word.Word;
 
 public class EquivalenceClassCoverageTest extends RaLibTestSuite {
 
-	@Test
-	public void testEqualityTheory() {
+    @Test
+    public void testEqualityTheory() {
 
-        DataType type = new DataType("int",Integer.class);
+        DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory dit = new IntegerEqualityTheory(type);
         dit.setUseSuffixOpt(false);
         teachers.put(type, dit);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
         EqCRecordingOracle oracle = new EqCRecordingOracle();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                oracle, teachers, new Constants(), solver);
+            oracle, teachers, new Constants(), solver);
 
         InputSymbol A = new InputSymbol("a", type);
-        DataValue d0 = new DataValue(type, 0);
-        DataValue d1 = new DataValue(type, 1);
-        DataValue d2 = new DataValue(type, 2);
-        DataValue d3 = new DataValue(type, 3);
+        DataValue d0 = new DataValue(type, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(type, BigDecimal.ONE);
+        DataValue d2 = new DataValue(type, new BigDecimal(2));
+        DataValue d3 = new DataValue(type, new BigDecimal(3));
         PSymbolInstance symbol = new PSymbolInstance(A, d0);
 
         Word<PSymbolInstance> prefix = Word.epsilon();
-        Word<PSymbolInstance> suffix = Word.fromSymbols(
-        		symbol, symbol, symbol, symbol);
+        Word<PSymbolInstance> suffix = Word.fromSymbols(symbol, symbol, symbol, symbol);
         SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
 
         mto.treeQuery(prefix, symSuffix);
@@ -68,21 +62,21 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
         for (Word<PSymbolInstance> q : expected) {
         	Assert.assertTrue(actual.contains(q));
         }
-	}
+    }
 
-	@Test
-	public void testDoubleInequalityTheory() {
-		DataType type = new DataType("double", BigDecimal.class);
+    @Test
+    public void testDoubleInequalityTheory() {
+        DataType type = new DataType("double");
 
-		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
-		DoubleInequalityTheory dit = new DoubleInequalityTheory(type);
-		dit.setUseSuffixOpt(false);
-		teachers.put(type, dit);
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        DoubleInequalityTheory dit = new DoubleInequalityTheory(type);
+        dit.setUseSuffixOpt(false);
+        teachers.put(type, dit);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         EqCRecordingOracle oracle = new EqCRecordingOracle();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-        		oracle, teachers, new Constants(), jsolv);
+            oracle, teachers, new Constants(), solver);
 
         InputSymbol A = new InputSymbol("a", type);
         DataValue d1 = new DataValue(type, BigDecimal.ONE);
@@ -103,14 +97,14 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
         for (Word<PSymbolInstance> q : expected) {
         	Assert.assertTrue(actual.contains(q), q.toString() + " not in list of queries:");
         }
-	}
+    }
 
-	private static Collection<Word<PSymbolInstance>> permutationsEqWith4Params(InputSymbol A) {
-		DataType type = A.getPtypes()[0];
-        DataValue d0 = new DataValue(type, 0);
-        DataValue d1 = new DataValue(type, 1);
-        DataValue d2 = new DataValue(type, 2);
-        DataValue d3 = new DataValue(type, 3);
+    private static Collection<Word<PSymbolInstance>> permutationsEqWith4Params(InputSymbol A) {
+        DataType type = A.getPtypes()[0];
+        DataValue d0 = new DataValue(type, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(type, BigDecimal.ONE);
+        DataValue d2 = new DataValue(type, new BigDecimal(2));
+        DataValue d3 = new DataValue(type, new BigDecimal(3));
         Collection<Word<PSymbolInstance>> expected = new ArrayList<>();
         expected.add(Word.fromSymbols(
         		new PSymbolInstance(A, d0),
@@ -188,9 +182,9 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
         		new PSymbolInstance(A, d2),
         		new PSymbolInstance(A, d3)));
         return expected;
-	}
+    }
 
-	private static Collection<Word<PSymbolInstance>> permutationsIneqWith4Params(InputSymbol A, DoubleInequalityTheory theory) {
+    private static Collection<Word<PSymbolInstance>> permutationsIneqWith4Params(InputSymbol A, DoubleInequalityTheory theory) {
 		DataType t = A.getPtypes()[0];
 		DataValue dm2 = new DataValue(t, BigDecimal.valueOf(-2));
 		DataValue dm1 = new DataValue(t, BigDecimal.valueOf(-1));
@@ -341,20 +335,20 @@ public class EquivalenceClassCoverageTest extends RaLibTestSuite {
 		expected.add(sw123.concat(Word.fromSymbols(new PSymbolInstance(A, d4))));
 
 		return expected;
-	}
+    }
 
-	private static DataValue generateDecimal(DataValue d1, DataValue d2, DoubleInequalityTheory theory, DataType t) {
+    private static DataValue generateDecimal(DataValue d1, DataValue d2, DoubleInequalityTheory theory, DataType t) {
 		SuffixValueGenerator sgen = new SuffixValueGenerator();
 		SuffixValue s1 = sgen.next(t);
 		SuffixValue s2 = sgen.next(t);
 		SuffixValue s3 = sgen.next(t);
-		SDTGuard ig = new IntervalGuard(s3, s1, s2);
+		SDTGuard ig = new SDTGuard.IntervalGuard(s3, s1, s2);
 		Valuation vals1 = new Valuation();
-		vals1.setValue(toVariable(s1), d1.getId());
-		vals1.setValue(toVariable(s2), d2.getId());
-		Collection<DataValue<BigDecimal>> usedVals1 = new ArrayList<>();
+		vals1.setValue(s1, d1.getValue());
+		vals1.setValue(s2, d2.getValue());
+		Collection<DataValue> usedVals1 = new ArrayList<>();
 		usedVals1.add(d1);
 		usedVals1.add(d2);
 		return theory.instantiate(ig, vals1, new Constants(), usedVals1);
-	}
+    }
 }

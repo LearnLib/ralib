@@ -2,15 +2,15 @@ package de.learnlib.ralib.dt;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
+import de.learnlib.ralib.theory.Memorables;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 
@@ -22,9 +22,9 @@ import de.learnlib.ralib.words.OutputSymbol;
  */
 public class PathResult {
 
-    private final Map<SymbolicSuffix, TreeQueryResult> results;
+    private final Map<SymbolicSuffix, SDT> results;
 
-    private final PIV memorable = new PIV();
+    private Bijection<DataValue> remapping;
 
     private final SymbolicDataValueGenerator.RegisterGenerator regGen = new SymbolicDataValueGenerator.RegisterGenerator();
 
@@ -35,40 +35,26 @@ public class PathResult {
         this.ioMode = ioMode;
     }
 
-    private void addResult(SymbolicSuffix s, TreeQueryResult tqr) {
-
-        // make sure that pars-in-vars is consistent with
-        // existing cells in his row
-        PIV cpv = tqr.getPiv();
-        VarMapping relabelling = new VarMapping();
-        for (Map.Entry<SymbolicDataValue.Parameter, SymbolicDataValue.Register> e : cpv.entrySet()) {
-            SymbolicDataValue.Register r = this.memorable.get(e.getKey());
-            if (r == null) {
-                r = regGen.next(e.getKey().getType());
-                memorable.put(e.getKey(), r);
-            }
-            relabelling.put(e.getValue(), r);
-        }
-
-        this.results.put(s, new TreeQueryResult(tqr.getPiv().relabel(relabelling), tqr.getSdt().relabel(relabelling)));
+    private void addResult(SymbolicSuffix s, SDT tqr) {
+       this.results.put(s, tqr);
     }
 
-    public PIV getParsInVars() {
-        return this.memorable;
+    public boolean isEquivalentTo(PathResult other, Bijection<DataValue> renaming) {
+        return isEquivalentTo(other, SDTRelabeling.fromBijection(renaming));
     }
 
-    public boolean isEquivalentTo(PathResult other, VarMapping renaming) {
+    public boolean isEquivalentTo(PathResult other, SDTRelabeling renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }
 
-        if (!this.memorable.relabel(renaming).equals(other.memorable)) {
+        if (!Memorables.relabel(this.memorableValues(), renaming).equals(other.memorableValues())) {
             return false;
         }
 
-        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
-            TreeQueryResult c1 = e.getValue();
-            TreeQueryResult c2 = other.results.get(e.getKey());
+        for (Map.Entry<SymbolicSuffix, SDT> e : this.results.entrySet()) {
+            SDT c1 = e.getValue();
+            SDT c2 = other.results.get(e.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {
@@ -87,24 +73,19 @@ public class PathResult {
         return true;
     }
 
-    boolean isEquivalentTo(TreeQueryResult c1, TreeQueryResult c2, VarMapping renaming) {
-        if (!couldBeEquivalentTo(c1, c2)) {
-            return false;
-        }
-
-        return c1.getPiv().relabel(renaming).equals(c2.getPiv()) &&
-                c1.getSdt().isEquivalent(c2.getSdt(), renaming);
-
+    boolean isEquivalentTo(SDT c1, SDT c2, SDTRelabeling renaming) {
+        if (!couldBeEquivalentTo(c1, c2)) return false;
+        return  Memorables.relabel(c1.getDataValues(), renaming).equals(c2.getDataValues()) && c2.isEquivalent(c1, renaming);
     }
 
     boolean couldBeEquivalentTo(PathResult other) {
-        if (!this.memorable.typedSize().equals(other.memorable.typedSize())) {
+        if (!Memorables.typedSize(this.memorableValues()).equals(Memorables.typedSize(other.memorableValues()))) {
             return false;
         }
 
-        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
-            TreeQueryResult c1 = e.getValue();
-            TreeQueryResult c2 = other.results.get(e.getKey());
+        for (Map.Entry<SymbolicSuffix, SDT> e : this.results.entrySet()) {
+            SDT c1 = e.getValue();
+            SDT c2 = other.results.get(e.getKey());
 
             if (ioMode) {
                 if (c1 == null && c2 == null) {
@@ -123,8 +104,15 @@ public class PathResult {
         return true;
     }
 
-    private boolean couldBeEquivalentTo(TreeQueryResult c1, TreeQueryResult c2) {
-        return c1.getPiv().typedSize().equals(c2.getPiv().typedSize());
+    public Set<DataValue> memorableValues() {
+        return results.values().stream()
+                .flatMap(sdt -> sdt.getDataValues().stream())
+                .collect(Collectors.toSet());
+    }
+
+
+    private boolean couldBeEquivalentTo(SDT c1, SDT c2) {
+        return Memorables.typedSize(c1.getDataValues()).equals(Memorables.typedSize(c2.getDataValues()));
     }
 
     /**
@@ -141,21 +129,20 @@ public class PathResult {
         PathResult r = new PathResult(ioMode);
         for (SymbolicSuffix s : suffixes) {
             //todo: potential for optimization
-            if (ioMode && s.getActions().length() > 0) {
+            if (ioMode && !s.getActions().isEmpty()) {
                 // error row
-                if (prefix.getPrefix().length() > 0 && !r.isAccepting()) {
+                if (!prefix.getPrefix().isEmpty() && !r.isAccepting()) {
                     //log.log(Level.INFO, "Not adding suffix " + s + " to error row " + r.getPrefix());
                     continue;
                 }
                 // unmatching suffix
-                if ((prefix.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.getPrefix().length() > 0 && !(prefix.getPrefix().lastSymbol().getBaseSymbol() instanceof InputSymbol
-                        ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
+                if ((prefix.getPrefix().isEmpty() && (s.getActions().firstSymbol() instanceof OutputSymbol))
+                        || (!prefix.getPrefix().isEmpty() && prefix.getPrefix().lastSymbol().getBaseSymbol() instanceof InputSymbol == s.getActions().firstSymbol() instanceof InputSymbol)) {
                     //log.log(Level.INFO, "Not adding suffix " + s + " to unmatching row " + r.getPrefix());
                     continue;
                 }
             }
-            TreeQueryResult tqr = prefix.getTQRs().get(s);
+            SDT tqr = prefix.getTQRs().get(s);
             if (tqr == null) {
                 tqr = oracle.treeQuery(prefix.getPrefix(), s);
             }
@@ -166,29 +153,33 @@ public class PathResult {
     }
 
     public boolean isAccepting() {
-        TreeQueryResult c = this.results.get(RaStar.EMPTY_SUFFIX);
-        return c.getSdt().isAccepting();
+        SDT c = this.results.get(RaStar.EMPTY_SUFFIX);
+        return c.isAccepting();
     }
 
-    public TreeQueryResult getTQRforSuffix(SymbolicSuffix suffix) {
+    public Bijection<DataValue> getRemapping() {
+        return remapping;
+    }
+
+    public void setRemapping(Bijection<DataValue> remapping) {
+        this.remapping = remapping;
+    }
+
+    public SDT getSDTforSuffix(SymbolicSuffix suffix) {
         return results.get(suffix);
     }
 
     public PathResult copy() {
         PathResult r = new PathResult(ioMode);
-        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
-            r.results.put(e.getKey(), new TreeQueryResult(e.getValue().getPiv(), e.getValue().getSdt().copy()));
-        }
-        r.memorable.putAll(this.memorable);
+        r.results.putAll(this.results);
         return  r;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry<SymbolicSuffix, TreeQueryResult> e : this.results.entrySet()) {
-            sb.append("[").append(e.getKey()).append("->").append(e.getValue().getSdt().toString().replaceAll("\\s+", " ")).append("] ");
-        }
+        this.results.forEach((key, value) -> sb.append("[").append(key).append("->")
+                .append(value.toString().replaceAll("\\s+", " ")).append("] "));
         return sb.toString();
     }
 }

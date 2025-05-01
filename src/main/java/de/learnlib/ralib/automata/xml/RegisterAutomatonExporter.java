@@ -28,7 +28,6 @@ import jakarta.xml.bind.JAXB;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
-import de.learnlib.ralib.automata.TransitionGuard;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
@@ -42,6 +41,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 
 /**
  *
@@ -53,11 +53,11 @@ public class RegisterAutomatonExporter {
 
     private static RegisterAutomaton.Constants exportConstants(Constants consts) {
         RegisterAutomaton.Constants ret = factory.createRegisterAutomatonConstants();
-        for (Entry<Constant, DataValue<?>> e : consts) {
+        for (Entry<Constant, DataValue> e : consts) {
             RegisterAutomaton.Constants.Constant c = factory.createRegisterAutomatonConstantsConstant();
             c.setName(e.getKey().toString());
-            c.setType(e.getKey().getType().getName());
-            c.setValue(e.getValue().getId().toString());
+            c.setType(e.getKey().getDataType().getName());
+            c.setValue(e.getValue().getValue().toString());
             ret.getConstant().add(c);
         }
         return ret;
@@ -68,7 +68,7 @@ public class RegisterAutomatonExporter {
         for (Register r : reg) {
             RegisterAutomaton.Globals.Variable v = factory.createRegisterAutomatonGlobalsVariable();
             v.setName(r.toString());
-            v.setType(r.getType().getName());
+            v.setType(r.getDataType().getName());
             v.setValue("0");
             ret.getVariable().add(v);
         }
@@ -206,8 +206,8 @@ public class RegisterAutomatonExporter {
                 // assignments are assumed to happen before
                 // output by the parser
                 if (out instanceof Register) {
-                    String tmpName = "tmp_" + out.getType().getName() + "_" + idx;
-                    tmp.put(tmpName, out.getType());
+                    String tmpName = "tmp_" + out.getDataType().getName() + "_" + idx;
+                    tmp.put(tmpName, out.getDataType());
                     RegisterAutomaton.Transitions.Transition.Assignments.Assign a =
                             factory.createRegisterAutomatonTransitionsTransitionAssignmentsAssign();
 
@@ -232,7 +232,7 @@ public class RegisterAutomatonExporter {
         return ret;
     }
 
-    private static String exportGuard(TransitionGuard guard) {
+    private static String exportGuard(Expression<Boolean> guard) {
         String g = guard.toString();
         if (!g.contains("=") && !g.contains("<") && !g.contains(">")) {
             return null;

@@ -8,7 +8,7 @@ public interface RaLearningAlgorithm {
 	/**
 	 * Creates a hypothesis consistent with the counterexamples added thus far.
 	 */
-	public void learn();
+    void learn();
 
 	/**
 	 * Provides a counterexample to the learner. Should be followed by {@link RaLearningAlgorithm#learn()}, which
@@ -19,16 +19,16 @@ public interface RaLearningAlgorithm {
 	 *           SUL (i.e. with the SULs output).
 	 *
 	 */
-	public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce);
+    void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce);
 
 	/**
 	 * Returns the last created hypothesis.
 	 */
-	public Hypothesis getHypothesis();
+    Hypothesis getHypothesis();
 
-	public void setStatisticCounter(QueryStatistics queryStats);
+	void setStatisticCounter(QueryStatistics queryStats);
 
-	public QueryStatistics getQueryStatistics();
+	QueryStatistics getQueryStatistics();
 
-	public RaLearningAlgorithmName getName();
+	RaLearningAlgorithmName getName();
 }

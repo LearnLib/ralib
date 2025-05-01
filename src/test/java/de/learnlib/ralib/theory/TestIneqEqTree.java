@@ -31,26 +31,11 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.oracles.mto.SDT;
-import de.learnlib.ralib.oracles.mto.SDTLeaf;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
-import de.learnlib.ralib.theory.inequality.IntervalGuard;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -69,10 +54,10 @@ public class TestIneqEqTree extends RaLibTestSuite {
                 new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers,
-                new Constants(), jsolv,
+                new Constants(), solver,
                 sul.getInputSymbols());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
@@ -103,55 +88,33 @@ public class TestIneqEqTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT res = mto.treeQuery(prefix, symSuffix);
+        SDT sdt = res;
 
-        SuffixValueGenerator sgen = new SuffixValueGenerator();
-        RegisterGenerator rgen = new RegisterGenerator();
-        ParameterGenerator pgen = new ParameterGenerator();
-        SuffixValue s1 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        SuffixValue s2 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        SuffixValue s3 = sgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Register r1 = rgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Register r2 = rgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Parameter p1 = pgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        Parameter p2 = pgen.next(PriorityQueueSUL.DOUBLE_TYPE);
-        PIV piv = new PIV();
-        piv.put(p1, r1);
-        piv.put(p2, r2);
-        VarMapping<Register, Register> renaming = new VarMapping<>();
-        renaming.put(r1, res.getPiv().get(p1));
-        renaming.put(r2, res.getPiv().get(p2));
+        final String expectedTree = "[r1, r2]-+\n" +
+                "        []-(s1=1.0[DOUBLE])\n" +
+                "         |    []-(s2>2.0[DOUBLE])\n" +
+                "         |     |    []-(s3=2.0[DOUBLE])\n" +
+                "         |     |     |    [Leaf+]\n" +
+                "         |     |     +-(s3!=2.0[DOUBLE])\n" +
+                "         |     |          [Leaf-]\n" +
+                "         |     +-(s2<=2.0[DOUBLE])\n" +
+                "         |          []-(s3=s2)\n" +
+                "         |           |    [Leaf+]\n" +
+                "         |           +-(s3!=s2)\n" +
+                "         |                [Leaf-]\n" +
+                "         +-(s1!=1.0[DOUBLE])\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-TRUE: s3\n" +
+                "                          [Leaf-]\n";
 
-        SDT expected = new SDT(Map.of(
-        		new EqualityGuard(s1,r1), new SDT(Map.of(
-        				IntervalGuard.greaterGuard(s2, r2), new SDT(Map.of(
-        						new EqualityGuard(s3, r2), SDTLeaf.ACCEPTING,
-        						new DisequalityGuard(s3, r2), SDTLeaf.REJECTING)),
-        				IntervalGuard.lessOrEqualGuard(s2, r2), new SDT(Map.of(
-        						new EqualityGuard(s3, s2), SDTLeaf.ACCEPTING,
-        						new DisequalityGuard(s3, s2), SDTLeaf.REJECTING)))),
-        		new DisequalityGuard(s1, r1), new SDT(Map.of(
-        				new SDTTrueGuard(s2), new SDT(Map.of(
-        						new SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
+        String tree = sdt.toString();
+        Assert.assertEquals(tree, expectedTree);
 
-        Assert.assertTrue(sdt.isEquivalent(expected, renaming));
-
-        p1 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 1);
-        p2 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 2);
-        Parameter p3 = new Parameter(PriorityQueueSUL.DOUBLE_TYPE, 3);
-
-        PIV testPiv = new PIV();
-        testPiv.put(p1, new Register(PriorityQueueSUL.DOUBLE_TYPE, 1));
-        testPiv.put(p2, new Register(PriorityQueueSUL.DOUBLE_TYPE, 2));
-        testPiv.put(p3, new Register(PriorityQueueSUL.DOUBLE_TYPE, 3));
-
-        Branching b = mto.getInitialBranching(
-                prefix, PriorityQueueSUL.OFFER, testPiv, sdt);
+        Branching b = mto.getInitialBranching(prefix, PriorityQueueSUL.OFFER, sdt);
 
         Assert.assertEquals(b.getBranches().size(), 2);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());
     }
-
 
 }

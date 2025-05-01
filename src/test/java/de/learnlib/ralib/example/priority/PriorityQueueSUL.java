@@ -30,13 +30,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class PriorityQueueSUL extends DataWordSUL {
 
     public static final DataType DOUBLE_TYPE =
-            new DataType("DOUBLE", BigDecimal.class);
+            new DataType("DOUBLE");
 
     public static final ParameterizedSymbol POLL =
-            new InputSymbol("poll", new DataType[]{});
+            new InputSymbol("poll");
 
     public static final ParameterizedSymbol OFFER =
-            new InputSymbol("offer", new DataType[]{DOUBLE_TYPE});
+            new InputSymbol("offer", DOUBLE_TYPE);
 
 
     public final ParameterizedSymbol[] getInputSymbols() {
@@ -44,16 +44,16 @@ public class PriorityQueueSUL extends DataWordSUL {
     }
 
     public static final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err", new DataType[]{});
+            new OutputSymbol("_io_err");
 
     public static final ParameterizedSymbol OUTPUT =
-            new OutputSymbol("_out", new DataType[]{DOUBLE_TYPE});
+            new OutputSymbol("_out", DOUBLE_TYPE);
 
     public static final ParameterizedSymbol OK =
-            new OutputSymbol("_ok", new DataType[]{});
+            new OutputSymbol("_ok");
 
     public static final ParameterizedSymbol NOK =
-            new OutputSymbol("_not_ok", new DataType[]{});
+            new OutputSymbol("_not_ok");
 
     public final ParameterizedSymbol[] getActionSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER, OUTPUT, OK, NOK, ERROR };
@@ -61,7 +61,7 @@ public class PriorityQueueSUL extends DataWordSUL {
 
 
     private PQWrapper pqueue;
-    private int capacity;
+    private final int capacity;
 
     public PriorityQueueSUL() {
         capacity = PQWrapper.CAPACITY;
@@ -91,7 +91,7 @@ public class PriorityQueueSUL extends DataWordSUL {
             return new PSymbolInstance(NOK);
         } else {
             assert (null != x);
-            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, x));
+            return new PSymbolInstance(OUTPUT, new DataValue(DOUBLE_TYPE, new BigDecimal(x.toString())));
         }
     }
 
@@ -99,7 +99,7 @@ public class PriorityQueueSUL extends DataWordSUL {
     public PSymbolInstance step(PSymbolInstance i) throws SULException {
         countInputs(1);
         if (i.getBaseSymbol().equals(OFFER)) {
-            Object x = pqueue.offer(i.getParameterValues()[0].getId());
+            Object x = pqueue.offer(i.getParameterValues()[0].getValue());
             return createOutputSymbol(x);
         } else if (i.getBaseSymbol().equals(POLL)) {
             Object x = pqueue.poll();

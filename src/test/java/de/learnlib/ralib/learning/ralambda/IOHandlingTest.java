@@ -6,6 +6,7 @@ import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.NO
 import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.OK;
 import static de.learnlib.ralib.learning.ralambda.IOHandlingTest.IORAExamples.OUT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -20,9 +21,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
@@ -42,8 +40,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -53,22 +50,26 @@ import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class IOHandlingTest extends RaLibTestSuite {
 	static class IORAExamples {
 
-		static final DataType ID = new DataType("id", Integer.class);
+		static final DataType ID = new DataType("id");
 
-		static final OutputSymbol NOK = new OutputSymbol("NOK", new DataType[] {});
+		static final OutputSymbol NOK = new OutputSymbol("NOK");
 
-		static final OutputSymbol OK = new OutputSymbol("OK", new DataType[] {});
+		static final OutputSymbol OK = new OutputSymbol("OK");
 
-		static final InputSymbol IN = new InputSymbol("in", new DataType[] { ID });
+		static final InputSymbol IN = new InputSymbol("in", ID);
 
-		static final OutputSymbol ERROR = new OutputSymbol("ERROR", new DataType[] {});
+		static final OutputSymbol ERROR = new OutputSymbol("ERROR");
 
-		static final OutputSymbol OUT = new OutputSymbol("OUT", new DataType[] { ID });
+		static final OutputSymbol OUT = new OutputSymbol("OUT", ID);
 
 		private IORAExamples() {
 		}
@@ -90,11 +91,11 @@ public class IOHandlingTest extends RaLibTestSuite {
 			Parameter pVal = pgen.next(ID);
 
 			// guards
-			TransitionGuard okGuard = new TransitionGuard(
-					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
-			TransitionGuard nokGuard = new TransitionGuard(
-					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
-			TransitionGuard trueGuard = new TransitionGuard();
+			Expression<Boolean> okGuard =
+					new NumericBooleanExpression(rVal, NumericComparator.EQ, pVal);
+			Expression<Boolean> nokGuard =
+					new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
+			Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 			// assignments
 			VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
@@ -152,11 +153,9 @@ public class IOHandlingTest extends RaLibTestSuite {
 			Parameter pVal = pgen.next(ID);
 
 			// guards
-			TransitionGuard okGuard = new TransitionGuard(
-					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.EQUALS, pVal));
-			TransitionGuard nokGuard = new TransitionGuard(
-					new AtomicGuardExpression<Register, Parameter>(rVal, Relation.NOT_EQUALS, pVal));
-			TransitionGuard trueGuard = new TransitionGuard();
+			Expression<Boolean> okGuard = new NumericBooleanExpression(rVal, NumericComparator.EQ, pVal);
+			Expression<Boolean> nokGuard = new NumericBooleanExpression(rVal, NumericComparator.NE, pVal);
+			Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 			// assignments
 			VarMapping<Register, SymbolicDataValue> copyMapping = new VarMapping<Register, SymbolicDataValue>();
@@ -212,7 +211,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = new SimpleConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
@@ -227,8 +226,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, 1)), new PSymbolInstance(NOK));
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
+				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
@@ -259,7 +258,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = new SimpleConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
@@ -277,8 +276,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 //		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
 //				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
 //				new PSymbolInstance(NOK));
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 0)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
+				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ZERO)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
@@ -310,7 +309,7 @@ public class IOHandlingTest extends RaLibTestSuite {
 			((EqualityTheory) t).setFreshValues(true, ioCache);
 		});
 
-		ConstraintSolver solver = new SimpleConstraintSolver();
+		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
 		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
@@ -325,8 +324,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		RegisterAutomaton hyp = ralambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
-		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
-				new PSymbolInstance(OUT, new DataValue(ID, 1)), new PSymbolInstance(IN, new DataValue(ID, 1)),
+		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
+				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
 		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));

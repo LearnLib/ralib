@@ -6,7 +6,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -14,10 +13,10 @@ import net.automatalib.word.Word;
 
 public class QueryStatisticsTest extends RaLibTestSuite {
 
-    public static final InputSymbol A = new InputSymbol("a", new DataType[] {});
+    public static final InputSymbol A = new InputSymbol("a");
 
     @Test
-    public void counterexampleStatisticsTest() {
+    public void testCounterexampleStatistics() {
 
 	DataWordSUL sul = null;
 	QueryStatistics qs = new QueryStatistics(null, sul);

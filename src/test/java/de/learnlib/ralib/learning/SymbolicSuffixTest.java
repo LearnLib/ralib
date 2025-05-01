@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -28,7 +29,7 @@ import net.automatalib.word.Word;
 public class SymbolicSuffixTest extends RaLibTestSuite {
 
   @Test
-  public void concatTest() {
+  public void testConcat() {
 
       RegisterAutomatonImporter loader = TestUtil.getLoader(
               "/de/learnlib/ralib/automata/xml/fifo7.xml");
@@ -40,7 +41,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
 
       final Map<DataType, Theory> teachers = new LinkedHashMap<>();
       loader.getDataTypes().stream().forEach((t) -> {
-          TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+          TypedTheory theory = new IntegerEqualityTheory(t);
           theory.setUseSuffixOpt(true);
           teachers.put(t, theory);
       });
@@ -49,21 +50,14 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
 
       DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-      ParameterizedSymbol iput = new InputSymbol(
-              "IPut", new DataType[] {intType});
+      ParameterizedSymbol iput = new InputSymbol("IPut", intType);
+      ParameterizedSymbol iget = new InputSymbol("IGet");
+      ParameterizedSymbol oget = new OutputSymbol("OGet", intType);
+      ParameterizedSymbol ook = new OutputSymbol("OOK");
 
-      ParameterizedSymbol iget = new InputSymbol(
-              "IGet", new DataType[] {});
-
-      ParameterizedSymbol oget = new OutputSymbol(
-              "OGet", new DataType[] {intType});
-
-      ParameterizedSymbol ook = new OutputSymbol(
-              "OOK", new DataType[] {});
-
-      DataValue d0 = new DataValue(intType, 0);
-      DataValue d1 = new DataValue(intType, 1);
-      DataValue d6 = new DataValue(intType, 6);
+      DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+      DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+      DataValue d6 = new DataValue(intType, new BigDecimal( 6));
 
       //****** IPut[0[int]] OOK[] IPut[1[int]] OOK[]
       Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -94,7 +88,7 @@ public class SymbolicSuffixTest extends RaLibTestSuite {
       SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix2, suffix2, restrictionBuilder);
 
       LinkedHashMap<Integer, SuffixValue> dataValues = new LinkedHashMap<Integer, SuffixValue>();
-      for (int i=1; i<=5; i++) {
+      for (int i = 1; i <= 5; i++) {
     	  dataValues.put(i, new SuffixValue(intType, i));
       }
 

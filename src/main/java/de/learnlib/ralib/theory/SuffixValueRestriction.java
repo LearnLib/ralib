@@ -4,17 +4,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.theory.equality.DisequalityGuard;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
-import de.learnlib.ralib.theory.equality.EqualityGuard;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public abstract class SuffixValueRestriction {
@@ -25,11 +20,11 @@ public abstract class SuffixValueRestriction {
 	}
 
 	public SuffixValueRestriction(SuffixValueRestriction other) {
-		parameter = new SuffixValue(other.parameter.getType(), other.parameter.getId());
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId());
 	}
 
 	public SuffixValueRestriction(SuffixValueRestriction other, int shift) {
-		parameter = new SuffixValue(other.parameter.getType(), other.parameter.getId()+shift);
+		parameter = new SuffixValue(other.parameter.getDataType(), other.parameter.getId()+shift);
 	}
 
 	public SuffixValue getParameter() {
@@ -38,7 +33,7 @@ public abstract class SuffixValueRestriction {
 
 	public abstract SuffixValueRestriction shift(int shiftStep);
 
-	public abstract GuardExpression toGuardExpression(Set<SymbolicDataValue> vals);
+	public abstract Expression<Boolean> toGuardExpression(Set<SymbolicDataValue> vals);
 
 	public abstract SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior);
 
@@ -54,20 +49,21 @@ public abstract class SuffixValueRestriction {
 	 * @return
 	 */
 	public static SuffixValueRestriction genericRestriction(SuffixValue sv, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
-		DataValue<?>[] prefixVals = DataWords.valsOf(prefix);
-		DataValue<?>[] suffixVals = DataWords.valsOf(suffix);
+		DataValue[] prefixVals = DataWords.valsOf(prefix);
+		DataValue[] suffixVals = DataWords.valsOf(suffix);
 		DataType[] prefixTypes = DataWords.typesOf(DataWords.actsOf(prefix));
 		DataType[] suffixTypes = DataWords.typesOf(DataWords.actsOf(suffix));
-		DataValue<?> val = suffixVals[sv.getId()-1];
+		DataValue val = suffixVals[sv.getId()-1];
 		int firstSymbolArity = suffix.length() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
 
 		boolean unrestricted = false;
 		for (int i = 0; i < prefixVals.length; i++) {
-			DataValue<?> dv = prefixVals[i];
+			DataValue dv = prefixVals[i];
 			DataType dt = prefixTypes[i];
-			if (dt.equals(sv.getType()) && dv.equals(val)) {
-				unrestricted = true;
-			}
+            if (dt.equals(sv.getDataType()) && dv.equals(val)) {
+                unrestricted = true;
+                break;
+            }
 		}
 		if (consts.containsValue(val)) {
 			unrestricted = true;
@@ -76,7 +72,7 @@ public abstract class SuffixValueRestriction {
 		int equalSV = -1;
 		for (int i = 0; i < sv.getId()-1 && !equalsSuffixValue; i++) {
 			DataType dt = suffixTypes[i];
-			if (dt.equals(sv.getType()) && suffixVals[i].equals(val)) {
+			if (dt.equals(sv.getDataType()) && suffixVals[i].equals(val)) {
 				if (sv.getId() <= firstSymbolArity) {
 					unrestricted = true;
 				} else {
@@ -88,7 +84,7 @@ public abstract class SuffixValueRestriction {
 
 		// case equal to previous suffix value
 		if (equalsSuffixValue && !unrestricted) {
-			SuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getType(), equalSV+1));
+			SuffixValueRestriction restr = new EqualRestriction(sv, new SuffixValue(suffixVals[equalSV].getDataType(), equalSV+1));
 			return restr;
 		}
 		// case fresh
@@ -121,11 +117,11 @@ public abstract class SuffixValueRestriction {
 	public static SuffixValueRestriction genericRestriction(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
     	SuffixValue suffixValue = guard.getParameter();
     	// case fresh
-    	if (guard instanceof SDTTrueGuard || guard instanceof DisequalityGuard) {
+    	if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
     		return new FreshSuffixValue(suffixValue);
     	// case equal to previous suffix value
-    	} else if (guard instanceof EqualityGuard) {
-    		SymbolicDataValue param = ((EqualityGuard) guard).getRegister();
+    	} else if (guard instanceof SDTGuard.EqualityGuard) {
+    		SDTGuardElement param = ((SDTGuard.EqualityGuard) guard).register();
     		if (param instanceof SuffixValue) {
     			SuffixValueRestriction restr = prior.get(param);
     			if (restr instanceof FreshSuffixValue) {

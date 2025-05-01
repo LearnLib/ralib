@@ -18,10 +18,9 @@ package de.learnlib.ralib.oracles;
 
 import java.util.Map;
 
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
@@ -35,7 +34,7 @@ import net.automatalib.word.Word;
 public interface TreeOracle {
 
     /**
-     * performs a tree query, returning a SymbolicDecisionTree
+     * performs a tree query, returning a SDT
      * an an Assignment of registers of this tree with parameters
      * of the prefix.
      *
@@ -43,39 +42,36 @@ public interface TreeOracle {
      * @param suffix
      * @return
      */
-    public TreeQueryResult treeQuery(
+    SDT treeQuery(
             Word<PSymbolInstance> prefix, SymbolicSuffix suffix);
 
     /**
-     * Computes a Branching from a set of SymbolicDecisionTrees.
+     * Computes a Branching from a set of SDTs.
      *
      * @param prefix
      * @param ps
-     * @param piv
      * @param sdts
      * @return
      */
-    public Branching getInitialBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, PIV piv, SymbolicDecisionTree ... sdts);
+    Branching getInitialBranching(Word<PSymbolInstance> prefix,
+                                  ParameterizedSymbol ps, SDT... sdts);
 
     /**
      * Updates and extends an existing Branching
-     * from a set of SymbolicDecisionTrees.
+     * from a set of SDTs.
      *
      * @param prefix
      * @param ps
      * @param current
-     * @param piv
      * @param sdts
      * @return
      */
-    public Branching updateBranching(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, Branching current,
-            PIV piv, SymbolicDecisionTree ... sdts);
+    Branching updateBranching(Word<PSymbolInstance> prefix,
+                              ParameterizedSymbol ps, Branching current, SDT... sdts);
 
-    public Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
-    		SymbolicSuffix suffix, SymbolicDecisionTree sdt, PIV piv);
+    Map<Word<PSymbolInstance>, Boolean> instantiate(Word<PSymbolInstance> prefix,
+                                                    SymbolicSuffix suffix, SDT sdt);
 
-    public SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
+    SymbolicSuffixRestrictionBuilder getRestrictionBuilder();
 
 }

@@ -1,5 +1,6 @@
 package de.learnlib.ralib.learning.ralambda;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
@@ -21,10 +22,6 @@ import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.MutableRegisterAutomaton;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RegisterAutomaton;
-import de.learnlib.ralib.automata.TransitionGuard;
-import de.learnlib.ralib.automata.guards.AtomicGuardExpression;
-import de.learnlib.ralib.automata.guards.GuardExpression;
-import de.learnlib.ralib.automata.guards.Relation;
 import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
@@ -42,8 +39,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -53,31 +49,26 @@ import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class TestUnknownMemorable extends RaLibTestSuite {
 
-	private static final DataType T_INT = new DataType("int", Integer.class);
+	private static final DataType T_INT = new DataType("int");
 
-	private static final InputSymbol IPUT =
-			new InputSymbol("put", new DataType[] {T_INT});
-	private static final InputSymbol IQUERY =
-			new InputSymbol("query", new DataType[] {});
-	private static final InputSymbol IHELLO =
-			new InputSymbol("hello", new DataType[] {});
+	private static final InputSymbol IPUT = new InputSymbol("put", T_INT);
+	private static final InputSymbol IQUERY = new InputSymbol("query");
+	private static final InputSymbol IHELLO = new InputSymbol("hello");
 
-	private static final OutputSymbol OECHO =
-			new OutputSymbol("echo", new DataType[] {T_INT});
-	private static final OutputSymbol OYES =
-			new OutputSymbol("yes", new DataType[] {T_INT});
-	private static final OutputSymbol ONO =
-			new OutputSymbol("no", new DataType[] {T_INT});
-	private static final OutputSymbol OHELLO =
-			new OutputSymbol("hello", new DataType[] {});
-	private static final OutputSymbol ONOREPLY =
-			new OutputSymbol("noreply", new DataType[] {});
-	private static final OutputSymbol ONOK =
-			new OutputSymbol("nok", new DataType[] {});
+	private static final OutputSymbol OECHO = new OutputSymbol("echo", T_INT);
+	private static final OutputSymbol OYES = new OutputSymbol("yes", T_INT);
+	private static final OutputSymbol ONO = new OutputSymbol("no", T_INT);
+	private static final OutputSymbol OHELLO = new OutputSymbol("hello");
+	private static final OutputSymbol ONOREPLY = new OutputSymbol("noreply");
+	private static final OutputSymbol ONOK = new OutputSymbol("nok");
 
 	private RegisterAutomaton buildAutomaton() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
@@ -107,12 +98,12 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 		SymbolicDataValue.Parameter p1 = pgen.next(T_INT);
 
 		// guards
-		GuardExpression equal = new AtomicGuardExpression(r1, Relation.EQUALS, p1);
-		GuardExpression notEqual = new AtomicGuardExpression(r1, Relation.NOT_EQUALS, p1);
+		Expression<Boolean> equal = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
+		Expression<Boolean> notEqual = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
 
-		TransitionGuard equalGuard = new TransitionGuard(equal);
-		TransitionGuard notEqualGuard = new TransitionGuard(notEqual);
-		TransitionGuard trueGuard = new TransitionGuard();
+		Expression<Boolean> equalGuard = equal;
+		Expression<Boolean> notEqualGuard = notEqual;
+		Expression<Boolean> trueGuard = ExpressionUtil.TRUE;
 
 		// assignments
 		VarMapping<SymbolicDataValue.Register, SymbolicDataValue> store = new VarMapping<SymbolicDataValue.Register, SymbolicDataValue>();
@@ -188,10 +179,10 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 	    final Map<DataType, Theory> teachers = new LinkedHashMap<>();
 	    teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
-	    ConstraintSolver solver = new SimpleConstraintSolver();
+	    ConstraintSolver solver = new ConstraintSolver();
 
 	    DataWordSUL sul = new SimulatorSUL(ra, teachers, consts);
-        final ParameterizedSymbol ERROR = new OutputSymbol("_io_err", new DataType[]{});
+        final ParameterizedSymbol ERROR = new OutputSymbol("_io_err");
 
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 	    IOCache ioCache = new IOCache(ioOracle);
@@ -208,25 +199,25 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         ralambda.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 1)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 1)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ONE)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(OYES, new DataValue(T_INT, 1)));
+        		new PSymbolInstance(OYES, new DataValue(T_INT, BigDecimal.ONE)));
         ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
 
         ralambda.learn();
 
         ce = Word.fromSymbols(
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(IHELLO),
         		new PSymbolInstance(OHELLO),
-        		new PSymbolInstance(IPUT, new DataValue(T_INT, 0)),
-        		new PSymbolInstance(OECHO, new DataValue(T_INT, 0)),
+        		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
+        		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(IQUERY),
-        		new PSymbolInstance(ONO, new DataValue(T_INT, 0)));
+        		new PSymbolInstance(ONO, new DataValue(T_INT, BigDecimal.ZERO)));
         boolean acc = ralambda.getHypothesis().accepts(ce);
         if (!acc) {
         	ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
@@ -253,7 +244,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
@@ -266,7 +256,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -313,7 +303,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 
         final Constants consts = loader.getConstants();
 
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
             IntegerEqualityTheory theory = new IntegerEqualityTheory(t);
@@ -326,7 +315,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         IOCache ioCache = new IOCache(ioOracle);
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -409,7 +398,7 @@ public class TestUnknownMemorable extends RaLibTestSuite {
 				return null;
 			DataType[] dt = actionSymbols[idx].getPtypes();
 			PSymbolInstance psi = dt.length > 0 ?
-				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], dv[i])) :
+				new PSymbolInstance(actionSymbols[idx], new DataValue(dt[0], new BigDecimal(dv[i]))) :
 				new PSymbolInstance(actionSymbols[idx]);
 			ce = ce.append(psi);
 		}

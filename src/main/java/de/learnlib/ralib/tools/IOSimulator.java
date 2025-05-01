@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,7 +97,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         OPTION_RWALK_MAX_RUNS,
         OPTION_RWALK_RESET,
         OPTION_RWALK_SEED_TRANSITIONS
-        };
+    };
 
     private RegisterAutomaton model;
 
@@ -172,31 +172,30 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
            this.sulLearn = new TimeOutSUL(this.sulLearn, this.timeoutMillis);
         }
 
-        final ParameterizedSymbol ERROR
-                = new OutputSymbol("_io_err", new DataType[]{});
+        final ParameterizedSymbol ERROR = new OutputSymbol("_io_err");
 
-       IOOracle back = new SULOracle(sulLearn, ERROR);
-       IOCache ioCache = new IOCache(back);
-       IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
+        IOOracle back = new SULOracle(sulLearn, ERROR);
+        IOCache ioCache = new IOCache(back);
+        IOFilter ioOracle = new IOFilter(ioCache, inputSymbols);
 
-       this.sulTest = new SimulatorSUL(model, teachers, consts);
-       if (this.timeoutMillis > 0L) {
-          this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
-       }
+        this.sulTest = new SimulatorSUL(model, teachers, consts);
+        if (this.timeoutMillis > 0L) {
+            this.sulTest = new TimeOutSUL(this.sulTest, this.timeoutMillis);
+        }
 
-       DataWordSUL trackingSulTest = this.sulTest;
+        DataWordSUL trackingSulTest = this.sulTest;
 
-       if (OPTION_CACHE_TESTS.parse(config)) {
-           SULOracle testBack = new SULOracle(sulTest, ERROR);
-           IOCache testCache = new IOCache(testBack, ioCache);
-           this.sulTest = new CachingSUL(trackingSulTest, testCache);
-       }
+        if (OPTION_CACHE_TESTS.parse(config)) {
+            SULOracle testBack = new SULOracle(sulTest, ERROR);
+            IOCache testCache = new IOCache(testBack, ioCache);
+            this.sulTest = new CachingSUL(trackingSulTest, testCache);
+        }
 
-       if (useFresh) {
-           for (Theory t : teachers.values()) {
-               ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
-           }
-       }
+        if (useFresh) {
+            for (Theory t : teachers.values()) {
+                ((TypedTheory) t).setCheckForFreshOutputs(true, ioCache);
+            }
+        }
 
         Measurements measurements = new Measurements();
         MeasuringOracle mto = new MeasuringOracle(new MultiTheoryTreeOracle(ioOracle, teachers, consts, solver), measurements);
@@ -236,7 +235,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         this.useEqTest = OPTION_USE_EQTEST.parse(config);
 
         if (findCounterexamples) {
-
             boolean drawUniformly = OPTION_RWALK_DRAW.parse(config);
             double resetProbabilty = OPTION_RWALK_RESET_PROB.parse(config);
             double freshProbability = OPTION_RWALK_FRESH_PROB.parse(config);
@@ -257,7 +255,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                     seedTransitions,
                     teachers,
                     inputSymbols);
-
         }
 
         this.ceOptLoops = new IOCounterexampleLoopRemover(back);
@@ -283,7 +280,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         System.out.println("Sys. Registers: " + model.getRegisters().size());
         System.out.println("Constants: " + consts.size());
 
-
         SimpleProfiler.start(__RUN__);
         SimpleProfiler.start(__LEARN__);
 
@@ -296,7 +292,6 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         int rounds = 0;
         while (maxRounds < 0 || rounds < maxRounds) {
-
             rounds++;
             rastar.learn();
             hyp = rastar.getHypothesis();
@@ -327,7 +322,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 ce = null;
             }
 
-            for (int i=0; i<3; i++) {
+            for (int i = 0; i < 3; i++) {
 
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
@@ -383,8 +378,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
             System.out.println("Last EQ Test found a counterexample: " + eqTestfoundCE);
         }
 
-        System.out.println("ce lengths (original): " +
-                Arrays.toString(ceLengths.toArray()));
+        System.out.println("ce lengths (original): " + Arrays.toString(ceLengths.toArray()));
 
         if (useCeOptimizers) {
             System.out.println("ce lengths (shortened): " +
@@ -416,10 +410,7 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
 
         // statistics
         System.out.println(queryStats.toString());
-
     }
-
-
 
     @Override
     public String help() {
@@ -429,6 +420,4 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
         }
         return sb.toString();
     }
-
-
 }

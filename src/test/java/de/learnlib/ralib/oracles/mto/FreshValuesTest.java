@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,14 +32,14 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -55,7 +56,7 @@ import net.automatalib.word.Word;
 public class FreshValuesTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput5() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/keygen.xml");
@@ -80,7 +81,7 @@ public class FreshValuesTest extends RaLibTestSuite {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                ioFilter, teachers, consts, new SimpleConstraintSolver());
+                ioFilter, teachers, consts, new ConstraintSolver());
 
         teachers.values().stream().forEach((t) -> {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
@@ -88,25 +89,15 @@ public class FreshValuesTest extends RaLibTestSuite {
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
+        ParameterizedSymbol iput = new InputSymbol("IPut", intType);
+        ParameterizedSymbol iget = new InputSymbol("IGet", intType);
+        ParameterizedSymbol oput = new OutputSymbol("OPut", intType);
+//        ParameterizedSymbol oget = new OutputSymbol("OGet", new DataType[] {intType});
+        ParameterizedSymbol onok = new OutputSymbol("ONOK");
 
-        ParameterizedSymbol iput = new InputSymbol(
-                "IPut", new DataType[] {intType});
-
-        ParameterizedSymbol iget = new InputSymbol(
-                "IGet", new DataType[] {intType});
-
-        ParameterizedSymbol oput = new OutputSymbol(
-                "OPut", new DataType[] {intType});
-
-//        ParameterizedSymbol oget = new OutputSymbol(
-//                "OGet", new DataType[] {intType});
-
-        ParameterizedSymbol onok = new OutputSymbol(
-                "ONOK", new DataType[] {});
-
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-        DataValue d2 = new DataValue(intType, 2);
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
+        DataValue d2 = new DataValue(intType, new BigDecimal(2));
 
         // IPut[0[int]] OPut[1[int]] IGet[2[int]] ONOK[] [p2>r1,p1>r2,p3>r3,] []
         Word<PSymbolInstance> prefix1 = Word.fromSymbols(
@@ -115,9 +106,9 @@ public class FreshValuesTest extends RaLibTestSuite {
                 new PSymbolInstance(iget, d2),
                 new PSymbolInstance(onok));
 
-        DataValue d3 = new DataValue(intType, 3);
-        DataValue d4 = new DataValue(intType, 4);
-        DataValue d5 = new DataValue(intType, 5);
+        DataValue d3 = new DataValue(intType, new BigDecimal(3));
+        DataValue d4 = new DataValue(intType, new BigDecimal(4));
+        DataValue d5 = new DataValue(intType, new BigDecimal(5));
 
         // [s2, s4]((IGet[s1] ONOK[] IPut[s2] OPut[s3] IGet[s4] ONOK[] IPut[s5] ONOK[]))
         Word<PSymbolInstance> suffix = Word.fromSymbols(
@@ -135,32 +126,30 @@ public class FreshValuesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix1);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix1, symSuffix);
-        String tree = tqr.getSdt().toString();
+        SDT tqr = mto.treeQuery(prefix1, symSuffix);
+        String tree = tqr.toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
 
-
         final String expectedTree = "[r1]-+\n" +
-"    []-(s1=r1)\n" +
-"     |    []-TRUE: s2\n" +
-"     |          []-TRUE: s3\n" +
-"     |                []-TRUE: s4\n" +
-"     |                      []-TRUE: s5\n" +
-"     |                            [Leaf-]\n" +
-"     +-(s1!=r1)\n" +
-"          []-TRUE: s2\n" +
-"                []-TRUE: s3\n" +
-"                      []-(s4=r1)\n" +
-"                       |    []-TRUE: s5\n" +
-"                       |          [Leaf-]\n" +
-"                       +-(s4=s3)\n" +
-"                       |    []-TRUE: s5\n" +
-"                       |          [Leaf-]\n" +
-"                       +-ANDCOMPOUND: s4[(s4!=r1), (s4!=s3)]\n" +
-"                            []-TRUE: s5\n" +
-"                                  [Leaf+]\n";
+                "    []-(s1=1[int])\n" +
+                "     |    []-TRUE: s2\n" +
+                "     |          []-TRUE: s3\n" +
+                "     |                []-TRUE: s4\n" +
+                "     |                      []-TRUE: s5\n" +
+                "     |                            [Leaf-]\n" +
+                "     +-(s1!=1[int])\n" +
+                "          []-TRUE: s2\n" +
+                "                []-TRUE: s3\n" +
+                "                      []-(s4=1[int])\n" +
+                "                       |    []-TRUE: s5\n" +
+                "                       |          [Leaf-]\n" +
+                "                       +-(s4=s3)\n" +
+                "                       |    []-TRUE: s5\n" +
+                "                       |          [Leaf-]\n" +
+                "                       +-ANDCOMPOUND: s4[(s4!=1[int]), (s4!=s3)]\n" +
+                "                            []-TRUE: s5\n" +
+                "                                  [Leaf+]\n";
 
         Assert.assertEquals(tree, expectedTree);
     }

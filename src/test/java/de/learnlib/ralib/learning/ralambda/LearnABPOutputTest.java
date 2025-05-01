@@ -28,8 +28,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -40,11 +39,12 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class LearnABPOutputTest extends RaLibTestSuite {
-	@Test
-	public void learnABPOutput() {
 
-		long seed = -1297170870937649002L;
-		final Random random = new Random(seed);
+    @Test
+    public void testLearnABPOutput() {
+
+        long seed = -1297170870937649002L;
+        final Random random = new Random(seed);
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/abp.output.xml");
@@ -76,7 +76,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
         });
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -111,22 +111,17 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		teachers,
         		inputs);
 
-        int check = 0;
-        while (true && check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; ++check) {
             ralambda.learn();
             Hypothesis hyp = ralambda.getHypothesis();
 
             ce = null;
 
             boolean nullCe = false;
-            for (int i=0; i<3; i++) {
-
+            for (int i = 0; i < 3; i++) {
                 DefaultQuery<PSymbolInstance, Boolean> ce2 = null;
 
                 ce2 = randomWalk.findCounterExample(hyp, null);
-
                 if (ce2 == null) {
                     nullCe = true;
                     break;
@@ -146,7 +141,7 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             ralambda.addCounterexample(ce);
         }
@@ -156,5 +151,5 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
-	}
+    }
 }

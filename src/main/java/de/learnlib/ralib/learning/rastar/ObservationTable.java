@@ -62,7 +62,7 @@ class ObservationTable {
 
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ObservationTable.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObservationTable.class);
 
     public ObservationTable(TreeOracle oracle, boolean ioMode,
             Constants consts, ParameterizedSymbol ... inputs) {
@@ -105,16 +105,11 @@ class ObservationTable {
             return false;
         }
 
-        if (!checkVariableConsistency()) {
-            //AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());
-            //Hypothesis hyp = ab.toRegisterAutomaton();
-
-            //FIXME: the default logging appender cannot log models and data structures
-            //System.out.println(hyp.toString());
-            return false;
-        }
-
-        return true;
+        //AutomatonBuilder ab = new AutomatonBuilder(getComponents(), new Constants());
+        //Hypothesis hyp = ab.toRegisterAutomaton();
+        //FIXME: the default logging appender cannot log models and data structures
+        //System.out.println(hyp.toString());
+        return checkVariableConsistency();
     }
 
     private boolean checkBranchingCompleteness() {
@@ -140,7 +135,7 @@ class ObservationTable {
     private void processNewSuffix() {
         SymbolicSuffix suffix = newSuffixes.poll();
         LOGGER.info(Category.EVENT, "Adding suffix to obs: {}", suffix);
-//        System.out.println("Adding suffix to obs: " + suffix);
+        //System.out.println("Adding suffix to obs: " + suffix);
         suffixes.add(suffix);
         for (Component c : components.values()) {
             c.addSuffix(suffix, oracle);

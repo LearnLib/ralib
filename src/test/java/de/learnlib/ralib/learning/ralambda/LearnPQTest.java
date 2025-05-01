@@ -47,7 +47,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -61,7 +61,7 @@ import net.automatalib.word.Word;
 public class LearnPQTest extends RaLibTestSuite {
 
     @Test
-    public void learnPQ() {
+    public void testLearnPQ() {
 
         Constants consts = new Constants();
         DataWordOracle dwOracle =
@@ -70,14 +70,14 @@ public class LearnPQTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
-                dwOracle, teachers, new Constants(), jsolv);
+                dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
         RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
         rastar.learn();
@@ -123,7 +123,7 @@ public class LearnPQTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnPQRandom() {
+    public void testLearnPQRandom() {
         int SEEDS = 1;	// NB: results are hard-coded for one seed only
         Constants consts = new Constants();
         DataWordOracle dwOracle =
@@ -132,7 +132,7 @@ public class LearnPQTest extends RaLibTestSuite {
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         RaLibLearningExperimentRunner runner = new RaLibLearningExperimentRunner(logger);
         runner.setMaxDepth(4);
 
@@ -140,10 +140,10 @@ public class LearnPQTest extends RaLibTestSuite {
         Measurements[] rastarCount = new Measurements [SEEDS];
         for (int i = 0; i < SEEDS; i++) {
             runner.setSeed(i);
-            runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+            runner.run(RaLearningAlgorithmName.RALAMBDA, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
             ralambdaCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
-            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, jsolv, new ParameterizedSymbol [] {OFFER, POLL});
+            runner.run(RaLearningAlgorithmName.RASTAR, dwOracle, teachers, consts, solver, new ParameterizedSymbol [] {OFFER, POLL});
             rastarCount[i] = runner.getMeasurements();
             runner.resetMeasurements();
         }

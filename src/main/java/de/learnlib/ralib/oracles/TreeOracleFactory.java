@@ -31,6 +31,6 @@ public interface TreeOracleFactory {
      * @param hyp
      * @return
      */
-    public TreeOracle createTreeOracle(RegisterAutomaton hyp);
+    TreeOracle createTreeOracle(RegisterAutomaton hyp);
 
 }

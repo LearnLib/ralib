@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
  */
 package de.learnlib.ralib.oracles.mto;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -31,10 +32,10 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -50,7 +51,7 @@ import net.automatalib.word.Word;
 public class SIPSDTMergingTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput6() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/sip.xml");
@@ -70,31 +71,19 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
-        ParameterizedSymbol ipr = new InputSymbol(
-                "IPRACK", new DataType[] {intType});
+        ParameterizedSymbol ipr = new InputSymbol("IPRACK", intType);
+        ParameterizedSymbol inv = new InputSymbol("IINVITE", intType);
+        ParameterizedSymbol inil = new InputSymbol("Inil");
+        ParameterizedSymbol o100 = new OutputSymbol("O100", intType);
+        ParameterizedSymbol o486 = new OutputSymbol("O486", intType);
+        ParameterizedSymbol o481 = new OutputSymbol("O481", intType);
 
-        ParameterizedSymbol inv = new InputSymbol(
-                "IINVITE", new DataType[] {intType});
-
-         ParameterizedSymbol inil = new InputSymbol(
-                "Inil", new DataType[] {});
-
-         ParameterizedSymbol o100 = new OutputSymbol(
-                "O100", new DataType[] {intType});
-
-        ParameterizedSymbol o486 = new OutputSymbol(
-                "O486", new DataType[] {intType});
-
-        ParameterizedSymbol o481 = new OutputSymbol(
-                "O481", new DataType[] {intType});
-
-        DataValue d0 = new DataValue(intType, 0);
-        DataValue d1 = new DataValue(intType, 1);
-
+        DataValue d0 = new DataValue(intType, BigDecimal.ZERO);
+        DataValue d1 = new DataValue(intType, BigDecimal.ONE);
 
         //****** ROW:  IINVITE[0[int]] O100[0[int]] IINVITE[1[int]] O100[1[int]]
         Word<PSymbolInstance> prefix = Word.fromSymbols(
@@ -114,26 +103,25 @@ public class SIPSDTMergingTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        String tree = tqr.getSdt().toString();
+        SDT tqr = mto.treeQuery(prefix, symSuffix);
+        String tree = tqr.toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}",tree);
 
         final String expectedTree = "[r1, r2]-+\n" +
-"        []-(s1=r1)\n" +
-"         |    []-(s2=r2)\n" +
-"         |     |    []-TRUE: s3\n" +
-"         |     |          [Leaf-]\n" +
-"         |     +-(s2!=r2)\n" +
-"         |          []-(s3=s2)\n" +
-"         |           |    [Leaf+]\n" +
-"         |           +-(s3!=s2)\n" +
-"         |                [Leaf-]\n" +
-"         +-(s1!=r1)\n" +
-"              []-TRUE: s2\n" +
-"                    []-TRUE: s3\n" +
-"                          [Leaf-]\n";
+                "        []-(s1=1[int])\n" +
+                "         |    []-(s2=0[int])\n" +
+                "         |     |    []-TRUE: s3\n" +
+                "         |     |          [Leaf-]\n" +
+                "         |     +-(s2!=0[int])\n" +
+                "         |          []-(s3=s2)\n" +
+                "         |           |    [Leaf+]\n" +
+                "         |           +-(s3!=s2)\n" +
+                "         |                [Leaf-]\n" +
+                "         +-(s1!=1[int])\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-TRUE: s3\n" +
+                "                          [Leaf-]\n";
 
         Assert.assertEquals(tree, expectedTree);
     }

@@ -24,17 +24,12 @@ package de.learnlib.ralib.data;
  * @param <K>
  * @param <V>
  */
-public class VarMapping<K extends SymbolicDataValue, V extends SymbolicDataValue>
-extends Mapping<K, V> {
+public class VarMapping<K extends SymbolicDataValue, V extends SymbolicDataValue> extends Mapping<K, V> {
 
-    public VarMapping(SymbolicDataValue ... kvpairs) {
-        for (int i=0; i<kvpairs.length; i+= 2) {
-            K key = (K) kvpairs[i];
-            V val = (V) kvpairs[i+1];
-            put(key, val);
-        }
-
+    public static <K extends SymbolicDataValue, V extends SymbolicDataValue> VarMapping<K,V> fromPair(K key, V value) {
+        VarMapping<K,V> pairs = new VarMapping<>();
+        pairs.put(key, value);
+        return pairs;
     }
-
 
 }

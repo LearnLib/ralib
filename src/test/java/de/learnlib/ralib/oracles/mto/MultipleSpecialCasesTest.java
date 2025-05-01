@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,10 +31,10 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SimulatorSUL;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -50,7 +50,7 @@ import net.automatalib.word.Word;
 public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
     @Test
-    public void testModelswithOutput() {
+    public void testModelswithOutput1() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/passport.xml");
@@ -70,21 +70,21 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         MultiTheoryTreeOracle mto = TestUtil.createMTO(sul, ERROR,
-                teachers, consts, new SimpleConstraintSolver(), inputs);
+                teachers, consts, new ConstraintSolver(), inputs);
 
         DataType intType = TestUtil.getType("int", loader.getDataTypes());
 
         ParameterizedSymbol igc = new InputSymbol(
-                "IGetChallenge", new DataType[] {});
+                "IGetChallenge");
 
         ParameterizedSymbol icb = new InputSymbol(
-                "ICompleteBAC", new DataType[] {});
+                "ICompleteBAC");
 
          ParameterizedSymbol irf = new InputSymbol(
-                "IReadFile", new DataType[] {intType});
+                "IReadFile", intType);
 
          ParameterizedSymbol ook = new OutputSymbol(
-                "OOK", new DataType[] {});
+                "OOK");
 
          DataValue d0 = consts.values().iterator().next();
 
@@ -105,10 +105,9 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult tqr = mto.treeQuery(prefix, symSuffix);
-        String tree = tqr.getSdt().toString();
+        SDT tqr = mto.treeQuery(prefix, symSuffix);
+        String tree = tqr.toString();
 
-        logger.log(Level.FINE, "PIV: {0}", tqr.getPiv());
         logger.log(Level.FINE, "SDT: {0}", tree);
 
         String expectedTree = "[]-+\n" +
@@ -121,6 +120,5 @@ public class MultipleSpecialCasesTest extends RaLibTestSuite {
 
         Assert.assertEquals(tree, expectedTree);
     }
-
 
 }

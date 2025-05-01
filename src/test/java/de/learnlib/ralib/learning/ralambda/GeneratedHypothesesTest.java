@@ -25,22 +25,22 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 
 public class GeneratedHypothesesTest extends RaLibTestSuite {
 
     /**
-     * Tests that {@link RaLambda#getHypothesis()} returns a generic {@link Hypothesis} (and not a specialized Hypothesis, such as a {@link DTHyp}, which is a lot slower)
+     * Tests that {@link RaLambda#getHypothesis()} returns a generic {@link Hypothesis}
+     * (and not a specialized Hypothesis, such as a {@link DTHyp}, which is a lot slower)
      */
     @Test
-    public void getHypothesisTest() {
+    public void testGetHypothesis() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         IntegerEqualityTheory theory = new IntegerEqualityTheory(T_INT);

@@ -33,11 +33,9 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.priority.PriorityQueueSUL;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.InputSymbol;
@@ -68,23 +66,21 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         @Override
         public PSymbolInstance step(PSymbolInstance i) throws SULException {
             return new PSymbolInstance(OUT, new DataValue(TYPE,
-                    ((BigDecimal)i.getParameterValues()[0].getId()).add(BigDecimal.ONE)));
+                    i.getParameterValues()[0].getValue().add(BigDecimal.ONE)));
         }
 
     }
 
-    @Test(enabled=false)
+    @Test(enabled = false)
     public void testIneqEqTree() {
-
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
 
         BiggerSUL sul = new BiggerSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
                 sul, PriorityQueueSUL.ERROR, teachers,
-                new Constants(), jsolv,
-                IN);
+                new Constants(), solver, IN);
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(IN, new DataValue(TYPE,  BigDecimal.valueOf(1.0))));
@@ -98,8 +94,8 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult res = mto.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT res = mto.treeQuery(prefix, symSuffix);
+        SDT sdt = res;
 
         final String expectedTree = "[r1]-+\n" +
 "    []-(s1<r1)\n" +
@@ -112,7 +108,6 @@ public class TestIneqOutputTree extends RaLibTestSuite {
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
-
     }
 
 }

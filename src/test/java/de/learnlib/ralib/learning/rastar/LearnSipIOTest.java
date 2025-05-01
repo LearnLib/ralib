@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,8 +43,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -61,7 +60,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnSipIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnSipIO() {
+    public void testLearnSipIO() {
 
         long seed = -1386796323025681754L;
         //long seed = (new Random()).nextLong();
@@ -97,7 +96,7 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ((EqualityTheory)t).setFreshValues(true, ioCache);
         });
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
@@ -115,16 +114,11 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (true && check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; ++check) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             if (ce == null) {
                 break;
             }
@@ -134,16 +128,14 @@ public class LearnSipIOTest extends RaLibTestSuite {
             ce = pref.optimizeCE(ce.getInput(), hyp);
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
-
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
         Assert.assertNull(ce);
     }
 }

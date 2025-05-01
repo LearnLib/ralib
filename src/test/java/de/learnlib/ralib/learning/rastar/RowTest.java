@@ -21,6 +21,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -28,9 +29,10 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.util.PIVRemappingIterator;
+import de.learnlib.ralib.data.SDTRelabeling;
+import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -47,25 +49,25 @@ public class RowTest extends RaLibTestSuite {
 
         final Word<PSymbolInstance> prefix1 = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));
+                    new DataValue(T_UID, new BigDecimal(2)),
+                    new DataValue(T_PWD, new BigDecimal(2))));
 
         final Word<PSymbolInstance> prefix2 = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));
+                    new DataValue(T_UID, new BigDecimal(2)),
+                    new DataValue(T_PWD, new BigDecimal(2))));
 
         final Word<PSymbolInstance> suffix1 = Word.epsilon();
         final Word<PSymbolInstance> suffix2 = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         final SymbolicSuffix symSuffix1 = new SymbolicSuffix(prefix1, suffix1);
         final SymbolicSuffix symSuffix2 = new SymbolicSuffix(prefix1, suffix2);
@@ -78,9 +80,9 @@ public class RowTest extends RaLibTestSuite {
         Row r1 = Row.computeRow(oracle, prefix1, Arrays.asList(suffixes), false);
         Row r2 = Row.computeRow(oracle, prefix2, Arrays.asList(suffixes), false);
 
-        VarMapping renaming = null;
-        for (VarMapping map : new PIVRemappingIterator(r1.getParsInVars(), r2.getParsInVars())) {
-            if (r1.isEquivalentTo(r2, map)) {
+        Bijection<DataValue> renaming = null;
+        for (Bijection<DataValue> map : new RemappingIterator<>(r1.memorableValues(), r2.memorableValues())) {
+            if (r2.isEquivalentTo(r1, SDTRelabeling.fromBijection(map))) {
                 renaming = map;
                 break;
             }
@@ -88,7 +90,7 @@ public class RowTest extends RaLibTestSuite {
 
         Assert.assertNotNull(renaming);
         Assert.assertTrue(r1.couldBeEquivalentTo(r2));
-        Assert.assertTrue(r1.isEquivalentTo(r2, renaming));
+        Assert.assertTrue(r2.isEquivalentTo(r1, SDTRelabeling.fromBijection(renaming)));
 
     }
 

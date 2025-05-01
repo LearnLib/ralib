@@ -44,7 +44,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -62,7 +62,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnMixedIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnMixedIO() {
+    public void testLearnMixedIO() {
 
         long seed = -1386796323025681754L;
         logger.log(Level.FINE, "SEED={0}", seed);
@@ -87,8 +87,7 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             TypedTheory th;
             if (t.getName().equals("int")) {
                 th = new IntegerEqualityTheory();
-            }
-            else {
+            } else {
                 th = new DoubleInequalityTheory();
             }
             th.setType(t);
@@ -98,15 +97,15 @@ public class LearnMixedIOTest extends RaLibTestSuite {
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
 
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, inputs);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, jsolv);
+                ioOracle, teachers, consts, solver, inputs);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
 
@@ -127,16 +126,11 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (true && check < 100) {
-
-            check++;
+        for (int check = 0; check < 100; ++check) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
 
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    iowalk.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             if (ce == null) {
                 break;
             }
@@ -146,16 +140,14 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             ce = pref.optimizeCE(ce.getInput(), hyp);
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
-        IOEquivalenceTest checker = new IOEquivalenceTest(
-                model, teachers, consts, true, actions);
+        IOEquivalenceTest checker = new IOEquivalenceTest(model, teachers, consts, true, actions);
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

@@ -7,6 +7,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,8 +32,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -42,7 +42,7 @@ import net.automatalib.word.Word;
 public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginTest() {
+    public void testLearnLogin() {
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
@@ -51,7 +51,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
@@ -71,9 +71,9 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 0), new DataValue(T_PWD, 0)),
+                        new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 0), new DataValue(T_PWD, 0)));
+                        new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)));
 
         ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
@@ -86,13 +86,13 @@ public class LearnLoginTest extends RaLibTestSuite {
     }
 
     @Test
-    public void learnLoginRandomTest() {
+    public void testLearnLoginRandom() {
         final int SEEDS = 10;
 
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,25 +16,22 @@
  */
 package de.learnlib.ralib.learning.rastar;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.learnlib.logging.Category;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.*;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.theory.Memorables;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -52,8 +49,6 @@ public class Row implements PrefixContainer {
 
     private final Map<SymbolicSuffix, Cell> cells;
 
-    private final PIV memorable = new PIV();
-
     private final RegisterGenerator regGen = new RegisterGenerator();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Row.class);
@@ -66,25 +61,16 @@ public class Row implements PrefixContainer {
         this.ioMode = ioMode;
     }
 
-//    private Row(Word<PSymbolInstance> prefix, List<Cell> cells, boolean ioMode) {
-//        this(prefix, ioMode);
-//
-//        for (Cell c : cells) {
-//            this.cells.put(c.getSuffix(), c);
-//        }
-//    }
-
     void addSuffix(SymbolicSuffix suffix, TreeOracle oracle) {
-        if (ioMode && suffix.getActions().length() > 0) {
+        if (ioMode && !suffix.getActions().isEmpty()) {
             // error row
-            if (getPrefix().length() > 0 && !isAccepting()) {
+            if (!getPrefix().isEmpty() && !isAccepting()) {
                 LOGGER.info(Category.EVENT, "Not adding suffix {} to error row {}", suffix, getPrefix());
                 return;
             }
             // unmatching suffix
-            if ((getPrefix().length() < 1 && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
-                    || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                    ^ suffix.getActions().firstSymbol() instanceof InputSymbol))) {
+            if ((getPrefix().isEmpty() && (suffix.getActions().firstSymbol() instanceof OutputSymbol))
+                    || (!prefix.isEmpty() && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == suffix.getActions().firstSymbol() instanceof InputSymbol)) {
                 LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", suffix, getPrefix());
                 return;
             }
@@ -95,38 +81,21 @@ public class Row implements PrefixContainer {
     }
 
     private void addCell(Cell c) {
-
         assert c.getPrefix().equals(this.prefix);
         assert !this.cells.containsKey(c.getSuffix());
-
-        // make sure that pars-in-vars is consistent with
-        // existing cells in his row
-        PIV cpv = c.getParsInVars();
-        VarMapping relabelling = new VarMapping();
-        for (Entry<Parameter, Register> e : cpv.entrySet()) {
-            Register r = this.memorable.get(e.getKey());
-            if (r == null) {
-                r = regGen.next(e.getKey().getType());
-                memorable.put(e.getKey(), r);
-            }
-            relabelling.put(e.getValue(), r);
-        }
-
-        this.cells.put(c.getSuffix(), c.relabel(relabelling));
+        this.cells.put(c.getSuffix(), c);
     }
 
-    SymbolicSuffix getSuffixForMemorable(Parameter p) {
-        for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
-            if (c.getValue().getParsInVars().containsKey(p)) {
-                return c.getKey();
-            }
-        }
-
-        throw new IllegalStateException("This line is not supposed to be reached.");
+    SymbolicSuffix getSuffixForMemorable(DataValue d) {
+        return cells.entrySet().stream()
+                .filter(e -> e.getValue().getMemorableValues().contains(d))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("This line is not supposed to be reached."))
+                .getKey();
     }
 
-    SymbolicDecisionTree[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
-        List<SymbolicDecisionTree> sdts = new ArrayList<>();
+    SDT[] getSDTsForInitialSymbol(ParameterizedSymbol ps) {
+        List<SDT> sdts = new ArrayList<>();
         for (Entry<SymbolicSuffix, Cell> c : cells.entrySet()) {
             Word<ParameterizedSymbol> acts = c.getKey().getActions();
             if (acts.length() > 0 && acts.firstSymbol().equals(ps)) {
@@ -134,12 +103,26 @@ public class Row implements PrefixContainer {
                 sdts.add(c.getValue().getSDT());
             }
         }
-        return sdts.toArray(new SymbolicDecisionTree[]{});
+        return sdts.toArray(new SDT[]{});
+    }
+
+    public Set<DataValue> memorableValues() {
+        return cells.values().stream()
+                .flatMap(c -> c.getMemorableValues().stream() )
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public PIV getParsInVars() {
-        return this.memorable;
+    public RegisterAssignment getAssignment() {
+        RegisterAssignment ra = new RegisterAssignment();
+        SymbolicDataValueGenerator.RegisterGenerator regGen =
+                new SymbolicDataValueGenerator.RegisterGenerator();
+
+        this.memorableValues().forEach(
+                dv -> ra.put(dv, regGen.next(dv.getDataType()))
+        );
+
+        return ra;
     }
 
     @Override
@@ -154,12 +137,12 @@ public class Row implements PrefixContainer {
      * @param other
      * @return true if rows are equal
      */
-    boolean isEquivalentTo(Row other, VarMapping renaming) {
+    boolean isEquivalentTo(Row other, SDTRelabeling renaming) {
         if (!couldBeEquivalentTo(other)) {
             return false;
         }
 
-        if (!this.memorable.relabel(renaming).equals(other.memorable)) {
+        if (!Memorables.relabel(this.memorableValues(), renaming).equals(other.memorableValues())) {
             return false;
         }
 
@@ -190,7 +173,7 @@ public class Row implements PrefixContainer {
      * @return
      */
     boolean couldBeEquivalentTo(Row other) {
-        if (!this.memorable.typedSize().equals(other.memorable.typedSize())) {
+        if (!Memorables.typedSize(this.memorableValues()).equals(Memorables.typedSize(other.memorableValues()))) {
             return false;
         }
 
@@ -236,8 +219,7 @@ public class Row implements PrefixContainer {
                 }
                 // unmatching suffix
                 if ((r.getPrefix().length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))
-                        || (prefix.length() > 0 && !(prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol
-                        ^ s.getActions().firstSymbol() instanceof InputSymbol))) {
+                        || (prefix.length() > 0 && prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol == s.getActions().firstSymbol() instanceof InputSymbol)) {
                     LOGGER.info(Category.EVENT, "Not adding suffix {} to unmatching row {}", s, r.getPrefix());
                     continue;
                 }

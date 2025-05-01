@@ -23,6 +23,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -42,8 +43,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -56,7 +56,7 @@ import net.automatalib.word.Word;
 public class LearnLoginTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExample() {
+    public void testLearnLoginExample() {
 
         Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
@@ -66,7 +66,7 @@ public class LearnLoginTest extends RaLibTestSuite {
         teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
         teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
@@ -81,22 +81,23 @@ public class LearnLoginTest extends RaLibTestSuite {
 
         rastar.learn();
         RegisterAutomaton hyp = rastar.getHypothesis();
+        // System.out.println(hyp);
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)),
+                        new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGIN,
-                        new DataValue(T_UID, 1), new DataValue(T_PWD, 1)));
+                        new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         rastar.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
         rastar.learn();
         hyp = rastar.getHypothesis();
+        // System.out.println(hyp);
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 3);
         Assert.assertEquals(hyp.getTransitions().size(), 11);
-
     }
 }

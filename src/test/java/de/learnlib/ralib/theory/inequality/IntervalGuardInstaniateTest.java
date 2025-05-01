@@ -1,7 +1,5 @@
 package de.learnlib.ralib.theory.inequality;
 
-import static de.learnlib.ralib.solver.jconstraints.JContraintsUtil.toVariable;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +15,7 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import gov.nasa.jpf.constraints.api.Valuation;
@@ -24,11 +23,11 @@ import gov.nasa.jpf.constraints.api.Valuation;
 public class IntervalGuardInstaniateTest extends RaLibTestSuite {
 
     @Test
-    public void instantiateIntervalTest() {
+    public void testInstantiateInterval() {
 
-        final DataType D_TYPE = new DataType("double", BigDecimal.class);
+        final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory<BigDecimal>> teachers = new LinkedHashMap<>();
+        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
         teachers.put(D_TYPE, dit);
 
@@ -36,41 +35,41 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         Register r1 = new Register(D_TYPE, 1);
         Register r2 = new Register(D_TYPE, 2);
 
-        DataValue<BigDecimal> dv0 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.ZERO);
-        DataValue<BigDecimal> dv1 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.ONE);
-        DataValue<BigDecimal> dv2 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.valueOf(2));
-        DataValue<BigDecimal> dv3 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.valueOf(3));
-        DataValue<BigDecimal> dv4 = new DataValue<BigDecimal>(D_TYPE, BigDecimal.valueOf(4));
+        DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
+        DataValue dv1 = new DataValue(D_TYPE, BigDecimal.ONE);
+        DataValue dv2 = new DataValue(D_TYPE, BigDecimal.valueOf(2));
+        DataValue dv3 = new DataValue(D_TYPE, BigDecimal.valueOf(3));
+        DataValue dv4 = new DataValue(D_TYPE, BigDecimal.valueOf(4));
 
         Valuation val = new Valuation();
-        val.setValue(toVariable(r1), dv1.getId());
-        val.setValue(toVariable(r2), dv2.getId());
+        val.setValue(r1 , dv1.getValue());
+        val.setValue(r2, dv2.getValue());
 
-        Collection<DataValue<BigDecimal>> alreadyUsed = new ArrayList<>();
+        Collection<DataValue> alreadyUsed = new ArrayList<>();
         alreadyUsed.add(dv1);
         alreadyUsed.add(dv2);
 
         Constants consts = new Constants();
 
-        IntervalGuard lg = IntervalGuard.lessGuard(s1, r1);
-        IntervalGuard leg = IntervalGuard.lessOrEqualGuard(s1, r1);
-        IntervalGuard rg = IntervalGuard.greaterGuard(s1, r1);
-        IntervalGuard reg = IntervalGuard.greaterOrEqualGuard(s1, r1);
-        IntervalGuard ig = new IntervalGuard(s1, r1, r2);
-        IntervalGuard igc = new IntervalGuard(s1, r1, r2, true, true);
+        SDTGuard.IntervalGuard lg = SDTGuard.IntervalGuard.lessGuard(s1, dv1);
+        SDTGuard.IntervalGuard leg = SDTGuard.IntervalGuard.lessOrEqualGuard(s1, dv1);
+        SDTGuard.IntervalGuard rg = SDTGuard.IntervalGuard.greaterGuard(s1, dv1);
+        SDTGuard.IntervalGuard reg = SDTGuard.IntervalGuard.greaterOrEqualGuard(s1, dv1);
+        SDTGuard.IntervalGuard ig = new SDTGuard.IntervalGuard(s1, dv1, dv2);
+        SDTGuard.IntervalGuard igc = new SDTGuard.IntervalGuard(s1, dv1, dv2, true, true);
 
-        DataValue<BigDecimal> dvl = dit.instantiate(lg, val, consts, alreadyUsed);
-        DataValue<BigDecimal> dvle = dit.instantiate(leg, val, consts, alreadyUsed);
-        DataValue<BigDecimal> dvr = dit.instantiate(rg, val, consts, alreadyUsed);
-        DataValue<BigDecimal> dvre = dit.instantiate(reg, val, consts, alreadyUsed);
-        DataValue<BigDecimal> dvi = dit.instantiate(ig, val, consts, alreadyUsed);
-        DataValue<BigDecimal> dvic = dit.instantiate(igc, val, consts, alreadyUsed);
+        DataValue dvl = dit.instantiate(lg, val, consts, alreadyUsed);
+        DataValue dvle = dit.instantiate(leg, val, consts, alreadyUsed);
+        DataValue dvr = dit.instantiate(rg, val, consts, alreadyUsed);
+        DataValue dvre = dit.instantiate(reg, val, consts, alreadyUsed);
+        DataValue dvi = dit.instantiate(ig, val, consts, alreadyUsed);
+        DataValue dvic = dit.instantiate(igc, val, consts, alreadyUsed);
 
-        Assert.assertEquals(dvl.getId().compareTo(dv1.getId()), -1);
-        Assert.assertNotEquals(dvle.getId().compareTo(dv1.getId()), 1);
-        Assert.assertEquals(dvr.getId().compareTo(dv1.getId()), 1);
-        Assert.assertNotEquals(dvre.getId().compareTo(dv1.getId()), -1);
-        Assert.assertTrue(dvi.getId().compareTo(dv1.getId()) == 1 && dvi.getId().compareTo(dv3.getId()) == -1);
-        Assert.assertFalse(dvic.getId().compareTo(dv1.getId()) == -1 && dvic.getId().compareTo(dv3.getId()) == 1);
+        Assert.assertEquals(dvl.getValue().compareTo(dv1.getValue()), -1);
+        Assert.assertNotEquals(dvle.getValue().compareTo(dv1.getValue()), 1);
+        Assert.assertEquals(dvr.getValue().compareTo(dv1.getValue()), 1);
+        Assert.assertNotEquals(dvre.getValue().compareTo(dv1.getValue()), -1);
+        Assert.assertTrue(dvi.getValue().compareTo(dv1.getValue()) == 1 && dvi.getValue().compareTo(dv3.getValue()) == -1);
+        Assert.assertFalse(dvic.getValue().compareTo(dv1.getValue()) == -1 && dvic.getValue().compareTo(dv3.getValue()) == 1);
     }
 }

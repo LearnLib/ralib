@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,16 +16,18 @@
  */
 package de.learnlib.ralib.automata;
 
+import java.util.List;
 import java.util.Map.Entry;
 
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.data.ParValuation;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.ParameterValuation;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.data.VarValuation;
 
 /**
  * A parallel assignment for registers.
@@ -40,8 +42,14 @@ public class Assignment {
         this.assignment = assignment;
     }
 
-    public VarValuation compute(VarValuation registers, ParValuation parameters, Constants consts) {
-        VarValuation val = new VarValuation(registers);
+    public RegisterValuation compute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
+        RegisterValuation val = new RegisterValuation();
+        List<String> rNames = assignment.keySet().stream().map(k -> k.getName()).toList();
+        for (Entry<Register, DataValue> e : registers.entrySet()) {
+            if (!rNames.contains(e.getKey().getName())) {
+                val.put(e.getKey(), e.getValue());
+            }
+        }
         for (Entry<Register, ? extends SymbolicDataValue> e : assignment) {
             SymbolicDataValue valp = e.getValue();
             if (valp.isRegister()) {

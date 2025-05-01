@@ -16,10 +16,10 @@
  */
 package de.learnlib.ralib.theory;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -33,10 +33,9 @@ import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
-import de.learnlib.ralib.theory.equality.EqualityTheory;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -46,21 +45,21 @@ import net.automatalib.word.Word;
  *
  * @author falk
  */
-@Test
 public class TestTreeOracle extends RaLibTestSuite {
 
+    @Test
     public void testTreeOracle() {
 
         // define types
-        final DataType userType = new DataType("userType", String.class);
-        final DataType passType = new DataType("passType", String.class);
+        final DataType userType = new DataType("userType");
+        final DataType passType = new DataType("passType");
 
         // define parameterized symbols
         final ParameterizedSymbol register = new InputSymbol(
-                "register", new DataType[] {userType, passType});
+                "register", userType, passType);
 
         final ParameterizedSymbol login = new InputSymbol(
-                "login", new DataType[] {userType, passType});
+                "login", userType, passType);
 
         //final ParameterizedSymbol change = new InputSymbol(
         //        "change", new DataType[] {passType});
@@ -71,13 +70,13 @@ public class TestTreeOracle extends RaLibTestSuite {
         // create prefix: register(falk[userType], secret[passType])
         final Word<PSymbolInstance> prefix = Word.fromLetter(
                 new PSymbolInstance(register,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret")));
+                    new DataValue(userType, BigDecimal.ONE),
+                    new DataValue(passType, BigDecimal.ZERO)));
 
         final Word<PSymbolInstance> suffix = Word.fromSymbols(
                 new PSymbolInstance(login,
-                    new DataValue(userType, "falk"),
-                    new DataValue(passType, "secret"))
+                    new DataValue(userType, BigDecimal.ONE),
+                    new DataValue(passType, BigDecimal.ZERO))
                     );
 
         // create a symbolic suffix from the concrete suffix
@@ -88,7 +87,6 @@ public class TestTreeOracle extends RaLibTestSuite {
         //System.out.println("Suffix: " + symSuffix);
 
         // hacked oracle
-
         DataWordOracle dwOracle = new DataWordOracle() {
             @Override
             public void processQueries(Collection<? extends Query<PSymbolInstance, Boolean>> clctn) {
@@ -115,37 +113,8 @@ public class TestTreeOracle extends RaLibTestSuite {
             }
         };
 
-        Theory<String> userTheory = new EqualityTheory<String>() {
-
-            @Override
-            public DataValue getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
-            }
-
-            @Override
-            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-        };
-
-        Theory<String> passTheory = new EqualityTheory<String>() {
-
-            @Override
-            public DataValue<String> getFreshValue(List<DataValue<String>> vals) {
-                DataValue v = vals.get(0);
-                return new DataValue(v.getType(),
-                        v.getId().toString() + "_" + vals.size());
-            }
-
-            @Override
-            public Collection<DataValue<String>> getAllNextValues(List<DataValue<String>> vals) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-        };
+        Theory userTheory = new IntegerEqualityTheory(userType);
+        Theory passTheory = new IntegerEqualityTheory(passType);
 
         Map<DataType, Theory> theories = new LinkedHashMap();
         theories.put(userType, userTheory);
@@ -153,25 +122,24 @@ public class TestTreeOracle extends RaLibTestSuite {
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
                 dwOracle, theories,
-                new Constants(), new SimpleConstraintSolver());
+                new Constants(), new ConstraintSolver());
 
-        TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
+        SDT res = treeOracle.treeQuery(prefix, symSuffix);
 
-        String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1=r2)\n" +
-"         |    []-(s2=r1)\n" +
-"         |     |    [Leaf+]\n" +
-"         |     +-(s2!=r1)\n" +
-"         |          [Leaf-]\n" +
-"         +-(s1!=r2)\n" +
-"              []-TRUE: s2\n" +
-"                    [Leaf-]\n";
+        String expectedTree = "[r1, r2]-+\n" +
+                "        []-(s1=1[userType])\n" +
+                "         |    []-(s2=0[passType])\n" +
+                "         |     |    [Leaf+]\n" +
+                "         |     +-(s2!=0[passType])\n" +
+                "         |          [Leaf-]\n" +
+                "         +-(s1!=1[userType])\n" +
+                "              []-TRUE: s2\n" +
+                "                    [Leaf-]\n";
 
-        String tree = res.getSdt().toString();
+        String tree = res.toString();
         Assert.assertEquals(tree, expectedTree);
 
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
-
     }
 
 }

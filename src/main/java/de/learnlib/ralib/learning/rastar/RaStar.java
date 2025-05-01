@@ -54,7 +54,7 @@ public class RaStar implements RaLearningAlgorithm {
     public static final Word<PSymbolInstance> EMPTY_PREFIX = Word.epsilon();
 
     public static final SymbolicSuffix EMPTY_SUFFIX = new SymbolicSuffix(
-            Word.<PSymbolInstance>epsilon(), Word.<PSymbolInstance>epsilon());
+            Word.epsilon(), Word.epsilon());
 
     private final ObservationTable obs;
 
@@ -115,7 +115,7 @@ public class RaStar implements RaLearningAlgorithm {
 
         do {
             LOGGER.info(Category.PHASE, "completing observation table");
-            while(! obs.complete()) {};
+            while(! obs.complete()) {}
             LOGGER.info(Category.PHASE, "completed observation table");
 
             //System.out.println(obs.toString());

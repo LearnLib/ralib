@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
-import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 
@@ -33,8 +32,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
  */
 public abstract class RaLibTestSuite {
 
-    protected final ParameterizedSymbol ERROR =
-            new OutputSymbol("_io_err", new DataType[]{});
+    protected final ParameterizedSymbol ERROR = new OutputSymbol("_io_err");
 
     protected static final Logger logger = Logger.getLogger("UnitTest");
 

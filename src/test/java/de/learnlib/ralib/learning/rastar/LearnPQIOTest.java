@@ -45,7 +45,7 @@ import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -58,7 +58,7 @@ import de.learnlib.ralib.words.PSymbolInstance;
 public class LearnPQIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnLoginExampleIO() {
+    public void testLearnLoginExampleIO() {
 
         long seed = -4750580074638681533L;
         logger.log(Level.FINE, "SEED={0}", seed);
@@ -66,22 +66,21 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         teachers.put(PriorityQueueSUL.DOUBLE_TYPE,
-                new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
+            new DoubleInequalityTheory(PriorityQueueSUL.DOUBLE_TYPE));
 
         final Constants consts = new Constants();
 
         PriorityQueueSUL sul = new PriorityQueueSUL();
-        JConstraintsConstraintSolver jsolv = TestUtil.getZ3Solver();
+        ConstraintSolver solver = TestUtil.getZ3Solver();
         IOOracle ioOracle = new SULOracle(sul, PriorityQueueSUL.ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(
-                ioOracle, teachers, consts, jsolv, sul.getInputSymbols());
+                ioOracle, teachers, consts, solver, sul.getInputSymbols());
 
-        MultiTheorySDTLogicOracle mlo
-                = new MultiTheorySDTLogicOracle(consts, jsolv);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, jsolv);
+                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         RaStar rastar = new RaStar(mto, hypFactory, mlo,
                 consts, true, sul.getActionSymbols());
@@ -103,15 +102,12 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixReplacer asrep = new IOCounterExamplePrefixReplacer(ioOracle);
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
-        int check = 0;
-        while (true && check < 100) {
-            check++;
+        for (int check = 0; check < 100; ++check) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
+            //System.out.println(hyp);
 
-            DefaultQuery<PSymbolInstance, Boolean> ce
-                    = iowalk.findCounterExample(hyp, null);
-
+            DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
@@ -129,10 +125,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
 
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 imp.getRegisterAutomaton(), teachers, consts, true,
-                sul.getActionSymbols()
-        );
+                sul.getActionSymbols());
 
         Assert.assertNull(checker.findCounterExample(hyp, null));
-
     }
 }

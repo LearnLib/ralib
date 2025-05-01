@@ -32,13 +32,11 @@ import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.jconstraints.JConstraintsConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.solvers.ConstraintSolverFactory;
 
 /**
  *
@@ -59,11 +57,8 @@ public class TestUtil {
         }
     }
 
-    public static JConstraintsConstraintSolver getZ3Solver() {
-        gov.nasa.jpf.constraints.api.ConstraintSolver solver =
-                ConstraintSolverFactory.createSolver("z3");
-
-        return new JConstraintsConstraintSolver(solver);
+    public static ConstraintSolver getZ3Solver() {
+        return new ConstraintSolver();
     }
 
     public static MultiTheoryTreeOracle createMTO(

@@ -16,6 +16,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <!-- Dependency versions appear alphabetically below -->
+        <checker-qual.version>3.49.1</checker-qual.version>
         <commons-lang.version>3.17.0</commons-lang.version>
         <gson.version>2.13.1</gson.version>
         <guava.version>33.4.8-jre</guava.version>
@@ -23,6 +24,14 @@
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.18.0</learnlib.version>
+
+        <!-- Plugin versions in alphabetical order -->
+        <assembly-plugin.version>3.7.1</assembly-plugin.version>
+        <compiler-plugin.version>3.14.0</compiler-plugin.version>
+        <dependency-plugin.version>3.8.1</dependency-plugin.version>
+        <spotless-plugin.version>2.44.4</spotless-plugin.version>
+        <spotbugs-plugin.version>4.9.3.0</spotbugs-plugin.version>
+        <surefire-plugin.version>3.5.3</surefire-plugin.version>
     </properties>
 
     <build>
@@ -31,7 +40,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>${dependency-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>analyze-only</id>
@@ -50,20 +59,20 @@
             <plugin>
 	        <groupId>com.diffplug.spotless</groupId>
 	        <artifactId>spotless-maven-plugin</artifactId>
-		<version>2.44.4</version>
-		<configuration>
+                <version>${spotless-plugin.version}</version>
+                <configuration>
 		    <formats>
                         <format>
-			    <includes>
+                            <includes>
                                 <include>**/*.xml</include>
-			    </includes>
+                            </includes>
                             <excludes>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
-			    <endWithNewline />
-			    <trimTrailingWhitespace />
-			</format>
-		    </formats>
+                            <endWithNewline />
+                            <trimTrailingWhitespace />
+                        </format>
+                    </formats>
 		    <java>
 		        <endWithNewline />
                         <formatAnnotations />
@@ -90,11 +99,25 @@
                 </executions>
 	    </plugin>
 
+            <!-- Compilation options -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <release>17</release>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                         <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+
             <!-- Static code analysis -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.9.3.0</version>
+                <version>${spotbugs-plugin.version}</version>
                 <configuration>
                     <threshold>High</threshold>
                     <includeFilterFile>.spotbugs/include.xml</includeFilterFile>
@@ -108,9 +131,20 @@
                 </executions>
             </plugin>
 
+            <!-- Surefire -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>--enable-preview</argLine>
+                </configuration>
+            </plugin>
+
             <!-- Make a jar archive -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>${assembly-plugin.version}</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -147,6 +181,12 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb-runtime.version}</version>
 	        <scope>runtime</scope>
+            </dependency>
+             <!-- checker framework -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker-qual.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -201,6 +241,10 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,6 +23,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,17 +35,12 @@ import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.PIV;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.learning.SymbolicDecisionTree;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
@@ -65,22 +61,21 @@ public class TestEqualityTheory extends RaLibTestSuite {
         theories.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
         MultiTheoryTreeOracle treeOracle = new MultiTheoryTreeOracle(
-                oracle, theories, new Constants(), new SimpleConstraintSolver());
+                oracle, theories, new Constants(), new ConstraintSolver());
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)));
-
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)));
 
         // create a symbolic suffix from the concrete suffix
         // symbolic data values: s1, s2 (userType, passType)
@@ -88,42 +83,39 @@ public class TestEqualityTheory extends RaLibTestSuite {
         logger.log(Level.FINE, "Prefix: {0}", prefix);
         logger.log(Level.FINE, "Suffix: {0}", symSuffix);
 
-        TreeQueryResult res = treeOracle.treeQuery(prefix, symSuffix);
-        SymbolicDecisionTree sdt = res.getSdt();
+        SDT res = treeOracle.treeQuery(prefix, symSuffix);
+        SDT sdt = res;
 
-        String expectedTree = "[r2, r1]-+\n" +
-"        []-(s1=r2)\n" +
-"         |    []-(s2=r1)\n" +
-"         |     |    []-(s3=r2)\n" +
-"         |     |     |    []-(s4=r1)\n" +
-"         |     |     |     |    [Leaf+]\n" +
-"         |     |     |     +-(s4!=r1)\n" +
-"         |     |     |          [Leaf-]\n" +
-"         |     |     +-(s3!=r2)\n" +
-"         |     |          []-TRUE: s4\n" +
-"         |     |                [Leaf-]\n" +
-"         |     +-(s2!=r1)\n" +
-"         |          []-TRUE: s3\n" +
-"         |                []-TRUE: s4\n" +
-"         |                      [Leaf-]\n" +
-"         +-(s1!=r2)\n" +
-"              []-TRUE: s2\n" +
-"                    []-TRUE: s3\n" +
-"                          []-TRUE: s4\n" +
-"                                [Leaf-]\n";
+        String expectedTree = "[r1, r2]-+\n" +
+                "        []-(s1=1[T_uid])\n" +
+                "         |    []-(s2=1[T_pwd])\n" +
+                "         |     |    []-(s3=1[T_uid])\n" +
+                "         |     |     |    []-(s4=1[T_pwd])\n" +
+                "         |     |     |     |    [Leaf+]\n" +
+                "         |     |     |     +-(s4!=1[T_pwd])\n" +
+                "         |     |     |          [Leaf-]\n" +
+                "         |     |     +-(s3!=1[T_uid])\n" +
+                "         |     |          []-TRUE: s4\n" +
+                "         |     |                [Leaf-]\n" +
+                "         |     +-(s2!=1[T_pwd])\n" +
+                "         |          []-TRUE: s3\n" +
+                "         |                []-TRUE: s4\n" +
+                "         |                      [Leaf-]\n" +
+                "         +-(s1!=1[T_uid])\n" +
+                "              []-TRUE: s2\n" +
+                "                    []-TRUE: s3\n" +
+                "                          []-TRUE: s4\n" +
+                "                                [Leaf-]\n";
 
         String tree = sdt.toString();
         Assert.assertEquals(tree, expectedTree);
         logger.log(Level.FINE, "final SDT: \n{0}", tree);
 
-        Parameter p1 = new Parameter(T_UID, 1);
-        Parameter p2 = new Parameter(T_PWD, 2);
-
-        PIV testPiv =  new PIV();
-        testPiv.put(p1, new Register(T_UID, 1));
-        testPiv.put(p2, new Register(T_PWD, 2));
-
-        Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, testPiv, sdt);
+        Branching b = treeOracle.getInitialBranching(prefix, I_LOGIN, sdt);
+        Assert.assertEquals(b.getBranches().toString(),
+                "{register[1[T_uid], 1[T_pwd]] login[1[T_uid], 1[T_pwd]]=((1 == 'p1') && (1 == 'p2')), " +
+                        "register[1[T_uid], 1[T_pwd]] login[1[T_uid], 2[T_pwd]]=((1 == 'p1') && (1 != 'p2')), " +
+                        "register[1[T_uid], 1[T_pwd]] login[2[T_uid], 2[T_pwd]]=((1 != 'p1') && true)}");
 
         Assert.assertEquals(b.getBranches().size(), 3);
         logger.log(Level.FINE, "initial branching: \n{0}", b.getBranches().toString());

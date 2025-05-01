@@ -7,6 +7,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,9 +25,8 @@ import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.TreeQueryResult;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -43,7 +43,7 @@ public class MultiTheorySDTLogicOracleTest {
       teachers.put(T_UID, new IntegerEqualityTheory(T_UID));
       teachers.put(T_PWD, new IntegerEqualityTheory(T_PWD));
 
-      ConstraintSolver solver = new SimpleConstraintSolver();
+      ConstraintSolver solver = new ConstraintSolver();
 
       SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
 
@@ -52,28 +52,28 @@ public class MultiTheorySDTLogicOracleTest {
                       new Constants(), solver);
       TreeOracle sulTreeOracle = hypFactory.createTreeOracle(sul);
       Word<PSymbolInstance> acceptedWord = Word.fromSymbols(
-              new PSymbolInstance(I_REGISTER, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)),
-              new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)),
+              new PSymbolInstance(I_REGISTER, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)),
+              new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)),
               new PSymbolInstance(I_LOGOUT),
-              new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)));
+              new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)));
       Word<PSymbolInstance> prefix = acceptedWord.prefix(1);
       Word<PSymbolInstance> suffix = acceptedWord.suffix(acceptedWord.length() - prefix.length());
       SymbolicSuffix symSuffix = new SymbolicSuffix(prefix, suffix);
-      TreeQueryResult query = sulTreeOracle.treeQuery(prefix, symSuffix);
-      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query.getSdt(), query.getPiv()));
+      SDT query = sulTreeOracle.treeQuery(prefix, symSuffix);
+      Assert.assertTrue(slo.accepts(acceptedWord, prefix, query));
       List<Word<PSymbolInstance>> rejectedSuffixes = Arrays.asList(
               Word.fromSymbols(
-                      new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 1), new DataValue<>(T_PWD, 0)),
+                      new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ZERO)),
                       new PSymbolInstance(I_LOGOUT),
-                      new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 1))),
+                      new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ONE))),
               Word.fromSymbols(
-                      new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 0)),
+                      new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)),
                       new PSymbolInstance(I_LOGOUT),
-                      new PSymbolInstance(I_LOGIN, new DataValue<>(T_UID, 0), new DataValue<>(T_PWD, 1))));
+                      new PSymbolInstance(I_LOGIN, new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ONE))));
 
       for (Word<PSymbolInstance> rejectedSuffix : rejectedSuffixes) {
           Word<PSymbolInstance> rejectedWord = prefix.concat(rejectedSuffix);
-          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query.getSdt(), query.getPiv()));
+          Assert.assertFalse(slo.accepts(rejectedWord, prefix, query));
       }
   }
 }

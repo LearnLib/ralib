@@ -4,6 +4,7 @@ import static de.learnlib.ralib.example.repeater.RepeaterSUL.IPUT;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.OECHO;
 import static de.learnlib.ralib.example.repeater.RepeaterSUL.TINT;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,8 +28,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
@@ -38,7 +38,7 @@ import net.automatalib.word.Word;
 public class LearnRepeaterTest extends RaLibTestSuite {
 
     @Test
-    public void learnRepeaterTest() {
+    public void testLearnRepeater() {
 
         Constants consts = new Constants();
 
@@ -49,18 +49,16 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 
         RepeaterSUL sul = new RepeaterSUL();
         IOOracle ioOracle = new SULOracle(sul, RepeaterSUL.ERROR);
-	IOCache ioCache = new IOCache(ioOracle);
-	IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
+        IOCache ioCache = new IOCache(ioOracle);
+        IOFilter oracle = new IOFilter(ioCache, sul.getInputSymbols());
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
-        MultiTheoryTreeOracle mto =
-	    new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo =
-	    new MultiTheorySDTLogicOracle(consts, solver);
+        MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
+            new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, ioOracle);
@@ -77,19 +75,20 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Assert.assertNull(repeater.repeat(0));
 
         Word<PSymbolInstance> ce =
-	    Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-			     new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)),
-			     new PSymbolInstance(IPUT, new DataValue(TINT, 0)),
-			     new PSymbolInstance(OECHO, new DataValue(TINT, 0)));
+            Word.fromSymbols(new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(IPUT, new DataValue(TINT, BigDecimal.ZERO)),
+			     new PSymbolInstance(OECHO, new DataValue(TINT, BigDecimal.ZERO)));
 
         learner.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, false));
 
         learner.learn();
 
-	String str = stats.toString();
-	Assert.assertTrue(str.contains("Counterexamples: 1"));
+        String str = stats.toString();
+        // System.out.println(str);
+        Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 6"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));
         Assert.assertTrue(str.contains("Processing / Refinement: {TQ: 0, Resets: 5, Inputs: 0}"));

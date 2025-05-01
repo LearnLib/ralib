@@ -39,8 +39,7 @@ import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.simple.SimpleConstraintSolver;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.sul.SimulatorSUL;
@@ -57,7 +56,7 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 public class LearnPalindromeIOTest extends RaLibTestSuite {
 
     @Test
-    public void learnPalindromeIO() {
+    public void testLearnPalindromeIO() {
 
         RegisterAutomatonImporter loader = TestUtil.getLoader(
                 "/de/learnlib/ralib/automata/xml/palindrome.xml");
@@ -75,12 +74,12 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         loader.getDataTypes().stream().forEach((t) -> {
-            TypedTheory<Integer> theory = new IntegerEqualityTheory(t);
+            TypedTheory theory = new IntegerEqualityTheory(t);
             theory.setUseSuffixOpt(true);
             teachers.put(t, theory);
         });
 
-        ConstraintSolver solver = new SimpleConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
 
         DataWordSUL sul = new SimulatorSUL(model, teachers, consts);
         IOOracle ioOracle = new SULOracle(sul, ERROR);
@@ -100,17 +99,12 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
-        int check = 0;
-        while (true && check < 10) {
-
-            check++;
+        for (int check = 0; check < 10; ++check) {
             rastar.learn();
             Hypothesis hyp = rastar.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
 
-
-            DefaultQuery<PSymbolInstance, Boolean> ce =
-                    ioEquiv.findCounterExample(hyp, null);
+            DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
             logger.log(Level.FINE, "CE: {0}", ce);
             if (ce == null) {
@@ -118,15 +112,14 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             }
 
             Assert.assertTrue(model.accepts(ce.getInput()));
-            Assert.assertTrue(!hyp.accepts(ce.getInput()));
+            Assert.assertFalse(hyp.accepts(ce.getInput()));
 
             rastar.addCounterexample(ce);
         }
 
         RegisterAutomaton hyp = rastar.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
-        DefaultQuery<PSymbolInstance, Boolean> ce =
-            ioEquiv.findCounterExample(hyp, null);
+        DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
         Assert.assertEquals(hyp.getStates().size(), 5);

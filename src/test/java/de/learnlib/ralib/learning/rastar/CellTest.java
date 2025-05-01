@@ -22,6 +22,7 @@ import static de.learnlib.ralib.example.login.LoginAutomatonExample.I_REGISTER;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_PWD;
 import static de.learnlib.ralib.example.login.LoginAutomatonExample.T_UID;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.logging.Level;
 
@@ -30,7 +31,7 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.data.SDTRelabeling;
 import de.learnlib.ralib.example.sdts.LoginExampleTreeOracle;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -47,16 +48,16 @@ public class CellTest extends RaLibTestSuite {
 
         final Word<PSymbolInstance> prefix = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 2),
-                    new DataValue(T_PWD, 2)));
+                    new DataValue(T_UID, new BigDecimal(2)),
+                    new DataValue(T_PWD, new BigDecimal(2))));
 
         final Word<PSymbolInstance> longsuffix = Word.fromSymbols(
                 new PSymbolInstance(I_LOGIN,
-                    new DataValue(T_UID, 1),
-                    new DataValue(T_PWD, 1)),
+                    new DataValue(T_UID, BigDecimal.ONE),
+                    new DataValue(T_PWD, BigDecimal.ONE)),
                 new PSymbolInstance(I_LOGOUT));
 
 
@@ -71,11 +72,11 @@ public class CellTest extends RaLibTestSuite {
 
         Cell c = Cell.computeCell(oracle, prefix, symSuffix);
 
-        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorable().toArray()));
+        logger.log(Level.FINE, "Memorable: {0}", Arrays.toString(c.getMemorableValues().toArray()));
         logger.log(Level.FINE, "Cell: {0}", c.toString());
 
         Assert.assertTrue(c.couldBeEquivalentTo(c));
-        Assert.assertTrue(c.isEquivalentTo(c, new VarMapping()));
+        Assert.assertTrue(c.isEquivalentTo(c, new SDTRelabeling()));
 
     }
 

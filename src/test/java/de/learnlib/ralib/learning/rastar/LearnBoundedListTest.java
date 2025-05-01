@@ -28,8 +28,7 @@ import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
-import de.learnlib.ralib.solver.ConstraintSolver;
-import de.learnlib.ralib.solver.ConstraintSolverFactory;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -43,8 +42,8 @@ import net.automatalib.word.Word;
  */
 public class LearnBoundedListTest {
 
-    @Test(enabled=false)
-    public void learnBoundedListOracleTest() {
+    @Test(enabled = false)
+    public void testLearnBoundedListOracle() {
         @SuppressWarnings("unchecked")
         Word<PSymbolInstance>[] ces = new Word[] {
                 Word.fromSymbols(new PSymbolInstance(PUSH, dv(0)), new PSymbolInstance(POP, dv(1))),
@@ -61,7 +60,7 @@ public class LearnBoundedListTest {
     private Hypothesis learnBoundedListDWOracle(int size, boolean useNull, Word<PSymbolInstance>[] ces) {
         Constants consts = new Constants();
         if (useNull) {
-            consts.put(new Constant(INT_TYPE, 1), new DataValue<>(INT_TYPE, BoundedList.NULL_VALUE));
+            consts.put(new Constant(INT_TYPE, 1), new DataValue(INT_TYPE, BoundedList.NULL_VALUE));
         }
 
         BoundedListDataWordOracle dwOracle = new BoundedListDataWordOracle(() -> new BoundedList(size, useNull));
@@ -70,7 +69,7 @@ public class LearnBoundedListTest {
         IntegerEqualityTheory dit = new IntegerEqualityTheory(INT_TYPE);
         teachers.put(INT_TYPE, dit);
 
-        ConstraintSolver solver = ConstraintSolverFactory.createZ3ConstraintSolver();
+        ConstraintSolver solver = new ConstraintSolver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
         SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);

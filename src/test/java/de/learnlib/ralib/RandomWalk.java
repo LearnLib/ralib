@@ -27,15 +27,15 @@ import net.automatalib.word.WordBuilder;
  */
 public class RandomWalk implements IOEquivalenceOracle  {
 
-	private Map<DataType, Theory> teachers;
-	private Random rand;
-	private long maxRuns;
+	private final Map<DataType, Theory> teachers;
+	private final Random rand;
+	private final long maxRuns;
 	private int depth = 10;
 	private double resetProbability = 0.1;
 	private double freshProbability = 0.5;
-	private List<ParameterizedSymbol> symbols;
-	private DataWordOracle wordOracle;
-	private Constants consts;
+	private final List<ParameterizedSymbol> symbols;
+	private final DataWordOracle wordOracle;
+	private final Constants consts;
 
 	public RandomWalk(Random rand, DataWordOracle membershipOracle, double resetProbability, double newDataProbability, long maxRuns, int maxDepth,
 			Map<DataType, Theory> teachers, Constants consts,
@@ -54,7 +54,7 @@ public class RandomWalk implements IOEquivalenceOracle  {
 	@Override
 	public DefaultQuery<PSymbolInstance, Boolean> findCounterExample(RegisterAutomaton hypothesis,
 			Collection<? extends PSymbolInstance> inputs) {
-		for (int i=0; i<maxRuns; i++) {
+		for (int i = 0; i < maxRuns; i++) {
 			Word<PSymbolInstance> randomWord = generateRandomWord(symbols);
 			DefaultQuery<PSymbolInstance, Boolean> query = new DefaultQuery<PSymbolInstance, Boolean>(randomWord);
 			wordOracle.processQuery(query);
@@ -63,29 +63,24 @@ public class RandomWalk implements IOEquivalenceOracle  {
 				return query;
 			}
 		}
-
 		return null;
 	}
 
 	public Word<PSymbolInstance> generateRandomWord(List<ParameterizedSymbol> symbols) {
 		WordBuilder<PSymbolInstance> wordBuilder = new WordBuilder<PSymbolInstance>();
-		for (int i=0; i<depth; i++) {
+		for (int i = 0; i < depth; i++) {
 			ParameterizedSymbol randSym = symbols.get(rand.nextInt(symbols.size()));
 			PSymbolInstance input = nextDataValues(wordBuilder.toWord(), randSym);
-
 			wordBuilder.add(input);
 			if (rand.nextDouble() < resetProbability) {
 				break;
 			}
 		}
-
 		return wordBuilder.toWord();
 	}
 
 
-    private PSymbolInstance nextDataValues(
-            Word<PSymbolInstance> run, ParameterizedSymbol ps) {
-
+    private PSymbolInstance nextDataValues(Word<PSymbolInstance> run, ParameterizedSymbol ps) {
         DataValue[] vals = new DataValue[ps.getArity()];
 
         int i = 0;
@@ -93,21 +88,20 @@ public class RandomWalk implements IOEquivalenceOracle  {
             Theory teacher = teachers.get(t);
             // TODO: generics hack?
             // TODO: add constants?
-            Set<DataValue<Object>> oldSet = DataWords.valSet(run, t);
+            Set<DataValue> oldSet = DataWords.valSet(run, t);
             for (int j = 0; j < i; j++) {
-                if (vals[j].getType().equals(t)) {
+                if (vals[j].getDataType().equals(t)) {
                     oldSet.add(vals[j]);
                 }
             }
             oldSet.addAll(consts.values(t));
 
-            ArrayList<DataValue<Object>> old = new ArrayList<>(oldSet);
+            ArrayList<DataValue> old = new ArrayList<>(oldSet);
 
-            Set<DataValue<Object>> newSet = new HashSet<>(
-                teacher.getAllNextValues(old));
+            Set<DataValue> newSet = new HashSet<>(teacher.getAllNextValues(old));
 
             newSet.removeAll(old);
-            ArrayList<DataValue<Object>> newList = new ArrayList<>(newSet);
+            ArrayList<DataValue> newList = new ArrayList<>(newSet);
 
             double draw = rand.nextDouble();
             if (draw <= freshProbability || old.isEmpty()) {
