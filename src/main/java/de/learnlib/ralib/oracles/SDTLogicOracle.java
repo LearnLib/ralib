@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 package de.learnlib.ralib.oracles;
-
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.theory.SDT;
@@ -35,8 +34,7 @@ public interface SDTLogicOracle {
      * checks if there is a counterexample (a word that is accepted by one sdt
      * and rejected by the other sdt).
      *
-     * sdts are both after prefix. the piv objects describe respective assignments
-     * of registers of the sdts.
+     * sdts are both after prefix.
      *
      * rep is the dataword that was used for one transition in a hypothesis
      * with guard. Guard should be used to constrain the initial parameter values

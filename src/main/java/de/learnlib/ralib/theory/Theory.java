@@ -63,7 +63,7 @@ public interface Theory {
      * data values (sv -> dv)
      * @param oracle the tree oracle in control of this query
      *
-     * @return a symbolic decision tree and updated piv
+     * @return a symbolic decision tree
      */
     SDT treeQuery(
             Word<PSymbolInstance> prefix,

@@ -370,9 +370,8 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         return ref1;
     }
 
-    // produces a mapping from top level SDT guards to the next level SDTs. Since
-    // the same guard can appear
-    // in multiple SDTs, the guard maps to a list of SDTs
+    // Produces a mapping from top level SDT guards to the next level SDTs.
+    // Since the same guard can appear in multiple SDTs, the guard maps to a list of SDTs.
     private Map<SDTGuard, List<SDT>> getChildren(SDT[] sdts) {
         List<Map<SDTGuard, SDT>> sdtChildren = Stream.of(sdts).map(sdt -> sdt.getChildren())
                 .collect(Collectors.toList());
@@ -390,8 +389,6 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     private Mapping<SymbolicDataValue, DataValue> buildValuation(SuffixValuation suffixValuation,
             Word<PSymbolInstance> prefix, Constants constants) {
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<SymbolicDataValue, DataValue>();
-        //DataValue[] values = DataWords.valsOf(prefix);
-        //piv.forEach((param, reg) -> valuation.put(reg, values[param.getId() - 1]));
         valuation.putAll(suffixValuation);
         valuation.putAll(constants);
         return valuation;
