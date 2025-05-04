@@ -122,12 +122,11 @@ public class CounterexampleAnalysis {
             return IndexResult.NO_CE;
         }
 
-        Set<DataValue> pivSul = resSul.getDataValues();
-        Set<DataValue> pivHyp = c.getPrimePrefix().getAssignment().keySet();
+        Set<DataValue> pSul = resSul.getDataValues();
+        Set<DataValue> pHyp = c.getPrimePrefix().getAssignment().keySet();
 
-        boolean sulHasMoreRegs = !pivHyp.containsAll(pivSul);
-        boolean hypRefinesTransition =
-                hypRefinesTransitions(location, act, resSul);
+        boolean sulHasMoreRegs = !pHyp.containsAll(pSul);
+        boolean hypRefinesTransition = hypRefinesTransitions(location, act, resSul);
 
 //        System.out.println("sulHasMoreRegs: " + sulHasMoreRegs);
 //        System.out.println("hypRefinesTransition: " + hypRefinesTransition);
