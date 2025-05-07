@@ -59,8 +59,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
     public boolean hasCounterexample(Word<PSymbolInstance> prefix, SDT sdt1,
             SDT sdt2, Expression<Boolean> guard, Word<PSymbolInstance> rep) {
 
-        // Collection<SymbolicDataValue> join = piv1.values();
-
         LOGGER.trace("Searching for counterexample in SDTs");
         LOGGER.trace("SDT1: {0}", sdt1);
         LOGGER.trace("SDT2: {0}", sdt2);
@@ -80,7 +78,7 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         }
 
         exprG = SMTUtil.renameVars(exprG, gremap);
-        VarMapping<Register, Register> remap = new VarMapping<>(); //piv2.createRemapping(piv1);
+        VarMapping<Register, Register> remap = new VarMapping<>();
 
         Expression<Boolean> expr2r = SMTUtil.renameVars(expr2, remap);
         Expression<Boolean> left = ExpressionUtil.and(exprG, expr1, new Negation(expr2r));
@@ -111,20 +109,19 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
     	for (Map.Entry<Expression<Boolean>, Boolean> e1 : exprMap1.entrySet()) {
             Expression<Boolean> expr1 = e1.getKey();
-    		boolean outcome1 = e1.getValue();
-    		for (Map.Entry<Expression<Boolean>, Boolean> e2 : exprMap2.entrySet()) {
+            boolean outcome1 = e1.getValue();
+            for (Map.Entry<Expression<Boolean>, Boolean> e2 : exprMap2.entrySet()) {
                 Expression<Boolean> expr2 = e2.getKey();
-    			boolean outcome2 = e2.getValue();
-    			if (outcome1 != outcome2) {
-    				//VarMapping<Register, Register> remap = piv2.createRemapping(piv1);
+                boolean outcome2 = e2.getValue();
+                if (outcome1 != outcome2) {
                     Expression<Boolean> test = ExpressionUtil.and(expr1, expr2);
-    				if (solver.isSatisfiable(test, new Mapping<>())) {
-    					return expr1;
-    				}
-    			}
-    		}
-    	}
-    	return null;
+                    if (solver.isSatisfiable(test, new Mapping<>())) {
+                        return expr1;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -132,8 +129,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
 
         LOGGER.trace("refining: {0}", refining);
         LOGGER.trace("refined: {0}", refined);
-
-        //VarMapping<Register, Register> remap = pivRefined.createRemapping(pivRefining);
 
         Expression<Boolean> exprRefining = refining;
         Expression<Boolean> exprRefined = refined; //SMTUtil.renameVars(refined, remap);
@@ -178,8 +173,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
         LOGGER.trace("guard2: {0}", guard2);
         LOGGER.trace("remapping: {0}", remapping);
 
-        //Mapping<DataValue, DataValue> remap = piv2.createRemapping(piv1);
-
         Expression<Boolean> g2relabel = SMTUtil.renameVals(guard2, remapping);
 
         Expression<Boolean> test = ExpressionUtil.or(
@@ -202,11 +195,6 @@ public class MultiTheorySDTLogicOracle implements SDTLogicOracle {
             "The height of the tree is not consistent with the number of parameters in the word";
         Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
         valuation.putAll(consts);
-        /*DataValue[] vals = DataWords.valsOf(prefix);
-        for (Map.Entry<Parameter, Register> entry : piv.entrySet()) {
-             DataValue parVal = vals[entry.getKey().getId()-1];
-             valuation.put(entry.getValue(), parVal);
-        }*/
 
         boolean accepts = accepts(word, prefix, prefix.length(), _sdt, valuation);
         return accepts;

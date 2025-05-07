@@ -39,12 +39,12 @@ public class OutputMapping  {
 
     private final Collection<Parameter> fresh;
 
-    private final VarMapping<Parameter, SymbolicDataValue> piv;
+    private final VarMapping<Parameter, SymbolicDataValue> pmap;
 
     public OutputMapping(Collection<Parameter> fresh,
-            VarMapping<Parameter, SymbolicDataValue> piv) {
+            VarMapping<Parameter, SymbolicDataValue> pmap) {
         this.fresh = fresh;
-        this.piv = piv;
+        this.pmap = pmap;
     }
 
     public OutputMapping() {
@@ -68,12 +68,12 @@ public class OutputMapping  {
     }
 
     public VarMapping<Parameter, SymbolicDataValue> getOutput() {
-        return piv;
+        return pmap;
     }
 
     @Override
     public String toString() {
-        return "F:" + Arrays.toString(fresh.toArray()) + ", M:" + piv.toString();
+        return "F:" + Arrays.toString(fresh.toArray()) + ", M:" + pmap.toString();
     }
 
 }

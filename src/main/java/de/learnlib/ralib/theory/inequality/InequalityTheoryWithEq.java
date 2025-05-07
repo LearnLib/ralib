@@ -496,8 +496,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
             List<DataValue> prefixValues, Constants constants,
             SuffixValuation pval) {
         if (SDTGuardElement.isDataValue(r)) {
-//            LOGGER.trace("piv: " + piv + " " + r.toString() + " " + prefixValues);
-//            LOGGER.trace("p: " + p.toString());
             return (DataValue) r;
         } else if (SDTGuardElement.isSuffixValue(r)) {
             return pval.get( (SuffixValue) r);

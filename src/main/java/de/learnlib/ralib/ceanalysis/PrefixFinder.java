@@ -110,7 +110,7 @@ public class PrefixFinder {
 					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} u': {}", idx, uPrime);
 					LOGGER.trace(Category.DATASTRUCTURE, "idx: {} v:  {}", idx, symSuffix);
 
-					// different piv sizes
+					// different sizes
 					//
 					if (!Memorables.typedSize(uPrimeResult.getDataValues()).equals(
 							Memorables.typedSize(uAlphaResult.getDataValues()))) {
@@ -250,7 +250,6 @@ public class PrefixFinder {
 
         	ParameterValuation pars = ParameterValuation.fromPSymbolWord(path);
         	Mapping<SymbolicDataValue, DataValue> vals = new Mapping<>();
-        	//vals.putAll(DataWords.computeRegisterValuation(pars, pivSul));
         	vals.putAll(pars);
         	vals.putAll(consts);
 

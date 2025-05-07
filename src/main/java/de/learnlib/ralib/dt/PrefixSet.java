@@ -26,8 +26,8 @@ public class PrefixSet {
 		prefixes.add(p);
 	}
 
-	public void add(Word<PSymbolInstance> p, Bijection<DataValue> piv) {
-		prefixes.add(new MappedPrefix(p, piv));
+	public void add(Word<PSymbolInstance> p, Bijection<DataValue> pmap) {
+		prefixes.add(new MappedPrefix(p, pmap));
 	}
 
 	public boolean remove(MappedPrefix p) {

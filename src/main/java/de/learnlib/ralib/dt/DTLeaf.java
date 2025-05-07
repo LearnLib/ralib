@@ -521,8 +521,8 @@ public class DTLeaf extends DTNode implements LocationComponent {
         if (!paramsIntersect.isEmpty() && paramsIntersect.size() < memPrefix.size()) {
         	// word shares some data values with prefix, but not all
         	for (Map.Entry<SymbolicSuffix, SDT> e : mp.getTQRs().entrySet()) {
-        		Set<DataValue> piv = Set.of(e.getValue().getDataValues().toArray(new DataValue[0]));
-        		if (!Sets.intersection(piv, paramsIntersect).isEmpty()) {
+        		Set<DataValue> pmap = Set.of(e.getValue().getDataValues().toArray(new DataValue[0]));
+        		if (!Sets.intersection(pmap, paramsIntersect).isEmpty()) {
         			SDT sdt = e.getValue();
         			SymbolicSuffix newSuffix = suffixBuilder != null ?
         					suffixBuilder.extendSuffix(mp.getPrefix(), sdt, e.getKey()) :
