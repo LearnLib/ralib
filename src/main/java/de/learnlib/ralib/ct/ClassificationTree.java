@@ -1,0 +1,548 @@
+package de.learnlib.ralib.ct;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
+
+import de.learnlib.ralib.automata.RALocation;
+import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
+import de.learnlib.ralib.learning.SymbolicSuffix;
+import de.learnlib.ralib.learning.rastar.RaStar;
+import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.oracles.TreeOracle;
+import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.smt.ReplacingValuesVisitor;
+import de.learnlib.ralib.theory.SDT;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.OutputSymbol;
+import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
+import net.automatalib.word.Word;
+
+public class ClassificationTree {
+	private final CTNode root;
+
+	private final Map<Word<PSymbolInstance>, CTLeaf> prefixes;
+	private final Set<Word<PSymbolInstance>> shortPrefixes;
+
+	private final ConstraintSolver solver;
+	private final TreeOracle oracle;
+	private final SymbolicSuffixRestrictionBuilder restrBuilder;
+	private final OptimizedSymbolicSuffixBuilder suffixBuilder;
+
+	private final ParameterizedSymbol[] inputs;
+	private final List<SymbolicSuffix> outputs;
+
+	private boolean ioMode;
+
+	public ClassificationTree(TreeOracle oracle,
+			ConstraintSolver solver,
+			SymbolicSuffixRestrictionBuilder restrBuilder,
+			OptimizedSymbolicSuffixBuilder suffixBuilder,
+			boolean ioMode,
+			ParameterizedSymbol ... inputs) {
+		this.oracle = oracle;
+		this.solver = solver;
+		this.ioMode = ioMode;
+		this.inputs = inputs;
+		this.restrBuilder = restrBuilder;
+		this.suffixBuilder = suffixBuilder;
+
+		prefixes = new LinkedHashMap<>();
+		shortPrefixes = new LinkedHashSet<>();
+		outputs = outputSuffixes(inputs);
+
+		root = new CTInnerNode(null, RaStar.EMPTY_SUFFIX);
+	}
+	
+	private static List<SymbolicSuffix> outputSuffixes(ParameterizedSymbol[] inputs) {
+		List<SymbolicSuffix> ret = new ArrayList<>();
+		for (ParameterizedSymbol ps : inputs) {
+			if (ps instanceof OutputSymbol) {
+				ret.add(new SymbolicSuffix(ps));
+			}
+		}
+		return ret;
+	}
+
+	public Set<CTLeaf> getLeaves() {
+		return new LinkedHashSet<>(prefixes.values());
+	}
+
+	public Set<Word<PSymbolInstance>> getPrefixes() {
+		return new LinkedHashSet<>(prefixes.keySet());
+	}
+	
+//	public Set<Word<PSymbolInstance>> getShortPrefixes() {
+//		return new LinkedHashSet<>(shortPrefixes);
+//	}
+
+	public CTLeaf getLeaf(Word<PSymbolInstance> u) {
+		return prefixes.get(u);
+	}
+	
+	public Set<Prefix> getExtensions(Word<PSymbolInstance> u) {
+		Set<Prefix> extensions = new LinkedHashSet<>();
+		for (ParameterizedSymbol action : inputs) {
+			extensions.addAll(getExtensions(u, action)
+					.stream()
+					.map(w -> getLeaf(u).getPrefix(u))
+					.collect(Collectors.toList()));
+		}
+		return extensions;
+	}
+
+	public CTLeaf sift(Word<PSymbolInstance> u) {
+		Prefix prefix = new Prefix(u, new CTPath(ioMode));
+		CTLeaf leaf = root.sift(prefix, oracle, solver, ioMode);
+		prefixes.put(u, leaf);
+		return leaf;
+	}
+
+	public void expand(Word<PSymbolInstance> u) {
+		CTLeaf leaf = prefixes.get(u);
+		if (leaf == null) {
+			leaf = sift(u);
+		}
+		ShortPrefix prefix = leaf.elevatePrefix(u, oracle, inputs);
+		shortPrefixes.add(u);
+
+		for (ParameterizedSymbol ps : inputs) {
+			Branching b = prefix.getBranching(ps);
+			for (Word<PSymbolInstance> ua : b.getBranches().keySet()) {
+				CTLeaf l = sift(ua);
+				prefixes.put(ua, l);
+			}
+		}
+	}
+
+	public void refine(CTLeaf leaf, SymbolicSuffix suffix) {
+		CTInnerNode parent = (CTInnerNode) leaf.getParent();
+		assert parent != null;
+		Map<Word<PSymbolInstance>, CTLeaf> leaves = parent.refine(leaf, suffix, oracle, solver, ioMode);
+		prefixes.putAll(leaves);
+		
+		for (Word<PSymbolInstance> sp : shortPrefixes) {
+			CTLeaf l = prefixes.get(sp);
+			Prefix p = l.getPrefix(sp);
+			if (!(p instanceof ShortPrefix)) {
+				l.elevatePrefix(sp, oracle, inputs);
+			}
+		}
+	}
+	
+	public void initialize() {
+		sift(RaStar.EMPTY_PREFIX);
+	}
+	
+	public Set<ShortPrefix> getShortPrefixes() {
+		Set<ShortPrefix> sp = new LinkedHashSet<>();
+		for (CTLeaf leaf : getLeaves()) {
+			sp.addAll(leaf.getShortPrefixes());
+		}
+		assert sp.size() == shortPrefixes.size();
+		assert sp.containsAll(shortPrefixes);
+		return sp;
+	}
+	
+	public CTInnerNode lca(CTNode n1, CTNode n2) {
+		if (n1 == n2) {
+			if (n1.isLeaf()) {
+				return (CTInnerNode) n1.getParent();
+			}
+			return (CTInnerNode) n1;
+		}
+		int h1 = height(n1);
+		int h2 = height(n2);
+		
+		return lca(n1, h1, n2, h2);
+	}
+	
+	private CTInnerNode lca(CTNode n1, int h1, CTNode n2, int h2) {
+		if (n1 == n2) {
+			assert n1 instanceof CTInnerNode;
+			return (CTInnerNode) n1;
+		}
+		if (h1 < h2) {
+			return lca(n1, h1, n2.getParent(), h2 - 1);
+		}
+		if (h1 > h2) {
+			return lca(n1.getParent(), h1 - 1, n2, h2);
+		}
+		return lca(n1.getParent(), h1 - 1, n2.getParent(), h2 - 1);
+	}
+	
+	private int height(CTNode n) {
+		int h = 0;
+		while (n.getParent() != null) {
+			h++;
+			n = n.getParent();
+		}
+		return h;
+	}
+	
+	public boolean checkOutputClosed() {
+		if (!ioMode) {
+			return true;
+		}
+		return checkOutputClosed(root);
+	}
+	
+	private boolean checkOutputClosed(CTNode node) {
+		if (node.isLeaf()) {
+			CTLeaf leaf = (CTLeaf) node;
+			for (SymbolicSuffix v : outputs) {
+				if (!leaf.getSuffixes().contains(v)) {
+					refine(leaf, v);
+					return false;
+				}
+			}
+			return true;
+		} else {
+			CTInnerNode n = (CTInnerNode) node;
+			for (CTBranch b : n.getBranches()) {
+				if (!checkOutputClosed(b.getChild())) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	// CLOSEDNESS CHECKS
+	
+	public boolean checkLocationClosedness() {
+		for (CTLeaf leaf : getLeaves()) {
+			if (leaf.getShortPrefixes().isEmpty()) {
+				expand(leaf.getRepresentativePrefix());
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean checkTransitionClosedness() {
+		for (CTLeaf leaf : getLeaves()) {
+			for (ShortPrefix u : leaf.getShortPrefixes()) {
+				for (ParameterizedSymbol a : inputs) {
+					for (Word<PSymbolInstance> ua : u.getBranching(a).getBranches().keySet()) {
+						if (!prefixes.containsKey(ua)) {
+							sift(ua);
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean checkRegisterClosedness() {
+		for (Map.Entry<Word<PSymbolInstance>, CTLeaf> e : prefixes.entrySet()) {
+			Word<PSymbolInstance> ua = e.getKey();
+			CTLeaf leaf = e.getValue();
+			if (ua.length() < 1) {
+				continue;
+			}
+			Word<PSymbolInstance> u = ua.prefix(ua.size() - 1);
+			Prefix ua_pref = leaf.getPrefix(ua);
+			CTLeaf u_leaf = prefixes.get(u);
+			
+			Set<DataValue> ua_mem = leaf.getPrefix(ua).getRegisters();
+			Set<DataValue> u_mem = prefixes.get(u).getPrefix(u).getRegisters();
+			Set<DataValue> a_mem = actionRegisters(ua);
+			
+			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
+				for (SymbolicSuffix v : leaf.getSuffixes()) {
+					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
+					if (!consistentMemorable(s_mem, u_mem, a_mem)) {
+						DataValue[] missingRegs = missingRegisters(s_mem, u_mem, a_mem);
+						SymbolicSuffix av = extendSuffix(ua, v, missingRegs);
+						refine(u_leaf, av);
+						break;
+					}
+				}
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean consistentMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
+		Set<DataValue> union = new LinkedHashSet<>();
+		union.addAll(u_mem);
+		union.addAll(a_mem);
+		return union.containsAll(ua_mem);
+	}
+	
+	private Set<DataValue> actionRegisters(Word<PSymbolInstance> ua) {
+		int ua_arity = DataWords.paramLength(DataWords.actsOf(ua));
+		int u_arity = ua_arity - ua.lastSymbol().getBaseSymbol().getArity();
+		DataValue[] vals = DataWords.valsOf(ua);
+		
+		Set<DataValue> regs = new LinkedHashSet<>();
+		for (int i = u_arity; i < ua_arity; i++) {
+			regs.add(vals[i]);
+		}
+		return regs;
+	}
+	
+	private DataValue[] missingRegisters(Set<DataValue> s_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
+		Set<DataValue> union = new LinkedHashSet<>(u_mem);
+		union.addAll(a_mem);
+		Set<DataValue> difference = new LinkedHashSet<>(s_mem);
+		difference.removeAll(union);
+		return difference.toArray(new DataValue[difference.size()]);
+	}
+	
+	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> ua, SymbolicSuffix v, DataValue[] missingRegs) {
+		if (suffixBuilder == null) {
+			PSymbolInstance a = ua.lastSymbol();
+			Word<PSymbolInstance> u = ua.prefix(ua.length() - 1);
+			SymbolicSuffix alpha = new SymbolicSuffix(u, Word.fromSymbols(a), restrBuilder);
+			return alpha.concat(v);
+		}
+		
+		SDT u_sdt = prefixes.get(ua).getPrefix(ua).getSDT(v);
+		assert u_sdt != null : "SDT for symbolic suffix " + v + " does not exist for prefix " + ua;
+		
+		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs);
+	}
+	
+	// CONSISTENCY CHECKS
+	
+	public boolean checkLocationConsistency() {
+		for (CTLeaf l : getLeaves()) {
+			Iterator<ShortPrefix> sp = l.getShortPrefixes().iterator();
+			if (!sp.hasNext()) {
+				continue;
+			}
+			ShortPrefix u = sp.next();
+			while (sp.hasNext()) {
+				ShortPrefix uPrime = sp.next();
+				for (ParameterizedSymbol action : inputs) {
+					for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> ue : u.getBranching(action).getBranches().entrySet()) {
+						Word<PSymbolInstance> ua = ue.getKey();
+						Expression<Boolean> g = ue.getValue();
+						Bijection<DataValue> gamma = u.getRpBijection().compose(uPrime.getRpBijection().inverse());
+						
+						ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+						Expression<Boolean> gammaG = rvv.apply(g, gamma.toVarMapping());
+						
+						Optional<Word<PSymbolInstance>> uPrimeA = uPrime.getBranching(action).getPrefix(gammaG, new Mapping<>(), solver);
+						assert uPrimeA.isPresent();
+						
+						CTLeaf uALeaf = getLeaf(ua);
+						CTLeaf uPrimeALeaf = getLeaf(uPrimeA.get());
+						if (uALeaf != uPrimeALeaf) {
+							SymbolicSuffix v = lca(uALeaf, uPrimeALeaf).getSuffix();
+							SymbolicSuffix av = extendSuffix(ua, uPrimeA.get(), v);
+							refine(l, av);
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean checkTransitionConsistency() {
+		for (ShortPrefix u : getShortPrefixes()) {
+			if (u.length() < 1) {
+				continue;
+			}
+			for (ParameterizedSymbol action : inputs) {
+				Set<Word<PSymbolInstance>> extensions = getExtensions(u, action);
+				for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : u.getBranching(action).getBranches().entrySet()) {
+					Word<PSymbolInstance> uA = e.getKey();
+					Expression<Boolean> g = e.getValue();
+					for (Word<PSymbolInstance> uB : extensions) {
+						if (uB.equals(uA)) {
+							continue;
+						}
+						SuffixValuation uBVals = actionValuation(uB);
+						if (solver.isSatisfiable(g, uBVals)) {
+							Optional<SymbolicSuffix> av = transitionConsistentA(uA, uB);
+							if (av.isEmpty()) {
+								av = transitionConsistentB(uA, uB);
+							}
+							if (av.isPresent()) {
+								refine(getLeaf(u), av.get());
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
+		Word<PSymbolInstance> u = uA.prefix(uA.length() - 1);
+		CTLeaf uALeaf = getLeaf(uA);
+		CTLeaf uBLeaf = getLeaf(uB);
+		if (uALeaf != uBLeaf) {
+			CTLeaf uLeaf = getLeaf(u);
+			assert uLeaf != null : "Prefix is not short: " + u;
+			SymbolicSuffix v = lca(uALeaf, uBLeaf).getSuffix();
+			SymbolicSuffix av = extendSuffix(uA, uB, v);
+			return Optional.of(av);
+		}
+		return Optional.empty();
+	}
+	
+	private Optional<SymbolicSuffix> transitionConsistentB(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
+		Prefix pA = getLeaf(uA).getPrefix(uA);
+		Prefix pB = getLeaf(uB).getPrefix(uB);
+		for (SymbolicSuffix v : getLeaf(uB).getSuffixes()) {
+			if (!SDT.equivalentUnderId(pA.getSDT(v), pB.getSDT(v), solver)) {
+				CTLeaf uLeaf = getLeaf(uA.prefix(uA.length() - 1));
+				assert uLeaf != null;
+				DataValue[] regs = inequivalentMapping(pA.getRpBijection(), pB.getRpBijection());
+				SymbolicSuffix av = extendSuffix(uA, v, regs);
+				return Optional.of(av);
+			}
+		}
+		return Optional.empty();
+	}
+	
+	public boolean checkRegisterConsistency() {
+		for (Prefix u : getShortPrefixes()) {
+			if (u.length() < 2) {
+				continue;
+			}
+			for (ParameterizedSymbol action : inputs) {
+				Iterator<Prefix> extensions = getExtensions(u, action)
+						.stream()
+						.map(w -> getLeaf(w).getPrefix(w))
+						.iterator();
+				while (extensions.hasNext()) {
+					Prefix ua = extensions.next();
+					
+					RemappingIterator<DataValue> rit = new RemappingIterator<>(u.getRegisters(), u.getRegisters());
+					for (Bijection<DataValue> gamma : rit) {
+						CTPath uPath = u.getPath();
+						if (uPath.isEquivalent(uPath, gamma, solver)) {
+							for (Map.Entry<SymbolicSuffix, SDT> e : ua.getPath().getSDTs().entrySet()) {
+								SymbolicSuffix v = e.getKey();
+								SDT uaSDT = e.getValue();
+								if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma, solver) == null) {
+									DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
+									SymbolicSuffix av = extendSuffix(ua, v, regs);
+									refine(getLeaf(u), av);
+									return false;
+								}
+							}
+						}
+						
+						
+//						for (Map.Entry<SymbolicSuffix, SDT> e : u.getPath().getSDTs().entrySet()) {
+//							// is u equivalent to u for v under gamma?
+//							SymbolicSuffix v = e.getKey();
+//							SDT uSDT = e.getValue();
+//							if (SDT.equivalentUnderBijection(uSDT, uSDT, gamma, solver) == null) {
+//								continue;
+//							}
+//							
+//							// is ua equivalent to ua for v under (gamma union {regs(a) -> regs(a)])
+//							SDT uaSDT = ua.getSDT(v);
+//							if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma, solver) == null) {
+//								DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
+//								SymbolicSuffix av = extendSuffix(ua, v, regs);
+//								refine(getLeaf(u), av);
+//								return false;
+//							}
+//						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> u1, Word<PSymbolInstance> u2, SymbolicSuffix v) {
+		SDT sdt1 = getLeaf(u1).getPrefix(u1).getSDT(v);
+		SDT sdt2 = getLeaf(u2).getPrefix(u2).getSDT(v);
+		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
+	}
+	
+	private SuffixValuation actionValuation(Word<PSymbolInstance> ua) {
+		SuffixValueGenerator svgen = new SuffixValueGenerator();
+		DataValue[] vals = ua.lastSymbol().getParameterValues();
+		SuffixValuation valuation = new SuffixValuation();
+		for (int i = 0; i < vals.length; i++) {
+			SuffixValue sv = svgen.next(vals[i].getDataType());
+			valuation.put(sv, vals[i]);
+		}
+		return valuation;
+	}
+	
+	public Set<Word<PSymbolInstance>> getExtensions(Word<PSymbolInstance> u, ParameterizedSymbol action) {
+		assert u.length() > 0;
+		return prefixes.keySet()
+				.stream()
+				.filter(w -> w.length() == u.length() + 1)
+				.filter(w -> w.prefix(w.length() - 1).equals(u) && w.lastSymbol().getBaseSymbol().equals(action))
+				.collect(Collectors.toSet());
+	}
+	
+	private DataValue[] inequivalentMapping(Bijection<DataValue> a, Bijection<DataValue> b) {
+		Set<DataValue> ret = new LinkedHashSet<>();
+		for (Map.Entry<DataValue, DataValue> ea : a.entrySet()) {
+			DataValue key = ea.getKey();
+			if (!b.get(key).equals(ea.getValue())) {
+				ret.add(key);
+				ret.add(b.get(key));
+			}
+		}
+		return ret.toArray(new DataValue[ret.size()]);
+	}
+	
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("CT: {");
+        buildTreeString(builder, root, "", "   ", " -- ");
+        builder.append("}");
+        return builder.toString();
+    }
+
+    private void buildTreeString(StringBuilder builder, CTNode node, String currentIndentation, String indentation, String sep) {
+        if (node.isLeaf()) {
+            builder.append("\n").append(currentIndentation).append("Leaf: ").append(node);
+        } else {
+            CTInnerNode inner = (CTInnerNode) node;
+            builder.append("\n").append(currentIndentation).append("Inner: ").append(inner.getSuffix());
+            if (!inner.getBranches().isEmpty()) {
+                Iterator<CTBranch> iter = inner.getBranches().iterator();
+                while (iter.hasNext()) {
+                    builder.append("\n").append(currentIndentation);
+                    CTBranch branch = iter.next();
+                    builder.append("Branch: ").append(branch.getRepresentativePath());
+                    buildTreeString(builder, branch.getChild(), indentation + currentIndentation, indentation, sep);
+                }
+            }
+        }
+    }
+}
