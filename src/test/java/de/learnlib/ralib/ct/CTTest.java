@@ -7,7 +7,6 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.AUTOMATON;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_POP;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.I_PUSH;
 import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
-import static org.testng.Assert.assertEquals;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -55,14 +54,14 @@ import net.automatalib.word.Word;
 public class CTTest {
 	private final OutputSymbol YES = new OutputSymbol("yes");
 	private final OutputSymbol NO = new OutputSymbol("no");
-	
+
 	@Test
 	public void testStackCT() {
 		Map<DataType, Theory> teachers = new LinkedHashMap<>();
 		teachers.put(T_INT, new IntegerEqualityTheory(T_INT));
 
 		Constants consts = new Constants();
-		
+
 		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
@@ -92,7 +91,7 @@ public class CTTest {
         SymbolicSuffix s3 = new SymbolicSuffix(w1, Word.fromSymbols(pop0));
         SymbolicSuffix s4 = new SymbolicSuffix(w2, Word.fromSymbols(pop1, pop0));
 
-        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, false, I_PUSH, I_POP);
+        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, I_PUSH, I_POP);
 
         ct.sift(Word.epsilon());
 //        ct.expand(Word.epsilon());
@@ -105,7 +104,7 @@ public class CTTest {
         Assert.assertFalse(consistent);
         consistent = ct.checkLocationClosedness();
         Assert.assertTrue(consistent);
-        
+
         ct.expand(w1);
 //        ct.expand(w2);
         Assert.assertEquals(ct.getLeaves().size(), 2);
@@ -114,7 +113,7 @@ public class CTTest {
         ct.refine(ct.getLeaf(w3), s1);
         Assert.assertEquals(ct.getLeaves().size(), 3);
         Assert.assertEquals(ct.getPrefixes().size(), 7);
-        
+
         consistent = ct.checkLocationClosedness();
         Assert.assertFalse(consistent);
 
@@ -145,15 +144,15 @@ public class CTTest {
         Assert.assertFalse(consistent);
         Assert.assertTrue(ct.getLeaf(w3).getRepresentativePrefix().getRegisters().contains(dv0));
         Assert.assertTrue(ct.getLeaf(w3).getRepresentativePrefix().getRegisters().contains(dv1));
-        
+
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, false);
         Hypothesis hyp = ab.buildHypothesis();
-        
+
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
         Assert.assertEquals(hyp.getAccessSequences().size(), hyp.getStates().size());
 	}
-	
+
 	@Test
 	public void testPQCT() {
         DataWordOracle dwOracle = new de.learnlib.ralib.example.priority.PriorityQueueOracle(2);
@@ -162,14 +161,14 @@ public class CTTest {
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 		Constants consts = new Constants();
-		
+
 		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
-        
+
         DataValue dv0 = new DataValue(doubleType, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(doubleType, BigDecimal.ONE);
         DataValue dv2 = new DataValue(doubleType, BigDecimal.valueOf(2));
@@ -180,7 +179,7 @@ public class CTTest {
         PSymbolInstance poll0 = new PSymbolInstance(POLL, dv0);
         PSymbolInstance poll1 = new PSymbolInstance(POLL, dv1);
         PSymbolInstance poll2 = new PSymbolInstance(POLL, dv2);
-        
+
         Word<PSymbolInstance> o1 = Word.fromSymbols(offer1);
         Word<PSymbolInstance> o1o2 = Word.fromSymbols(offer1, offer2);
         Word<PSymbolInstance> o1o1 = Word.fromSymbols(offer1, offer1);
@@ -188,38 +187,67 @@ public class CTTest {
         Word<PSymbolInstance> o1p1 = Word.fromSymbols(offer1, poll1);
         Word<PSymbolInstance> o1o2p1 = Word.fromSymbols(offer1, offer2, poll1);
         Word<PSymbolInstance> o1o0p0 = Word.fromSymbols(offer1, offer0, poll0);
-        
+
         SymbolicSuffix s1 = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(offer1, poll1));
         SymbolicSuffix s2 = new SymbolicSuffix(o1, Word.fromSymbols(poll1));
         SymbolicSuffix s3 = new SymbolicSuffix(o1o2, Word.fromSymbols(poll1, poll2));
-        
-        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, false, OFFER, POLL);
-        
+
+        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, OFFER, POLL);
+
         ct.sift(Word.epsilon());
-        ct.refine(ct.getLeaf(Word.epsilon()), s1);
-        ct.expand(Word.epsilon());
-        Assert.assertEquals(ct.getLeaves().size(), 3);
-        
+        boolean closed = ct.checkLocationClosedness();
+        Assert.assertFalse(closed);
+        closed = ct.checkTransitionClosedness();
+        Assert.assertTrue(closed);
+        closed = ct.checkLocationClosedness();
+        Assert.assertFalse(closed);
+
         ct.expand(o1);
-        Assert.assertEquals(ct.getLeaves().size(), 4);
-        
-        ct.refine(ct.getLeaf(o1), s2);
         ct.sift(o1p1);
-        
-        ct.refine(ct.getLeaf(o1o1), s3);
-        ct.expand(o1o1);
-        ct.expand(o1o0);
-        Assert.assertEquals(ct.getLeaves().size(), 5);
-        
+        boolean consistent = ct.checkTransitionConsistency();
+        Assert.assertFalse(consistent);
+
+        ct.expand(o1o2);
+        consistent = ct.checkLocationConsistency();
+        Assert.assertFalse(consistent);
+        closed = ct.checkRegisterClosedness();
+        Assert.assertFalse(closed);
+
+        ct.sift(o1o0);
+        consistent = ct.checkTransitionConsistency();
+        Assert.assertFalse(consistent);
+
+        closed = ct.checkRegisterClosedness();
+        Assert.assertTrue(closed);
+//        ct.sift(o1p1);
+
+
+//        ct.refine(ct.getLeaf(Word.epsilon()), s1);
+//        ct.expand(Word.epsilon());
+//        Assert.assertEquals(ct.getLeaves().size(), 3);
+//
+//        ct.expand(o1);
+//        Assert.assertEquals(ct.getLeaves().size(), 4);
+//
+//        ct.refine(ct.getLeaf(o1), s2);
+//        ct.sift(o1p1);
+
+//        ct.refine(ct.getLeaf(o1o1), s3);
+//        ct.expand(o1o1);
+//        ct.expand(o1o0);
+//        Assert.assertEquals(ct.getLeaves().size(), 5);
+
+
+
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), false);
         Hypothesis hyp = ab.buildHypothesis();
-        
+
         Assert.assertEquals(hyp.getStates().size(), ct.getLeaves().size());
         Assert.assertEquals(hyp.getTransitions().size(), ct.getPrefixes().size() - 1);
         Assert.assertTrue(hyp.accepts(o1o2p1));
         Assert.assertTrue(hyp.accepts(o1o0p0));;
 	}
-	
+
 	@Test(enabled=false)
 	public void testCTAutomatonBuilder() {
 		RegisterAutomaton sul = buildTestRA();
@@ -229,14 +257,14 @@ public class CTTest {
         teachers.put(doubleType, new DoubleInequalityTheory(doubleType));
 
 		Constants consts = new Constants();
-		
+
 		SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
 		OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
-        
+
 		System.out.println(sul);
 
         DataValue dv0 = new DataValue(doubleType, BigDecimal.ZERO);
@@ -250,7 +278,7 @@ public class CTTest {
         PSymbolInstance offer3 = new PSymbolInstance(OFFER, dv3);
         PSymbolInstance yes = new PSymbolInstance(YES);
         PSymbolInstance no = new PSymbolInstance(NO);
-        
+
         Word<PSymbolInstance> o1 = Word.fromSymbols(offer1);
         Word<PSymbolInstance> o1y = Word.fromSymbols(offer1, yes);
         Word<PSymbolInstance> o1yo2 = Word.fromSymbols(offer1, yes, offer2);
@@ -265,16 +293,16 @@ public class CTTest {
         Word<PSymbolInstance> o1yo2yo3yo2 = Word.fromSymbols(offer1, yes, offer2, yes, offer3, yes, offer2);
         Word<PSymbolInstance> o1yo2yo3yo3y = Word.fromSymbols(offer1, yes, offer2, yes, offer3, yes, offer3, yes);
         Word<PSymbolInstance> o1yo2yo3yo2n = Word.fromSymbols(offer1, yes, offer2, yes, offer3, yes, offer2, no);
-        
+
         SymbolicSuffix sy = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(yes));
         SymbolicSuffix sn = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(no));
         SymbolicSuffix so = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(offer1));
         SymbolicSuffix syoyoyoy = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(yes, offer2, yes, offer3, yes, offer3, yes));
         SymbolicSuffix soyoyoy = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(offer2, yes, offer3, yes, offer3, yes));
         SymbolicSuffix syoyoy = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(yes, offer3, yes, offer3, yes));
-        
-        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, true, OFFER, YES, NO);
-        
+
+        ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, true, OFFER, YES, NO);
+
         ct.sift(Word.epsilon());
         ct.refine(ct.getLeaf(Word.epsilon()), sn);
         ct.refine(ct.getLeaf(Word.epsilon()), sy);
@@ -291,18 +319,18 @@ public class CTTest {
         ct.expand(o1yo2yo2);
         ct.expand(o1yo2yo0y);
         ct.expand(o1yo2yo2y);
-        
+
         System.out.println(ct);
-        
+
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), true);
         Hypothesis hyp = ab.buildHypothesis();
-        
+
         System.out.println(hyp);
 	}
-	
+
 	private RegisterAutomaton buildTestRA() {
 		MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
-		
+
 		RALocation l0i = ra.addInitialState();
 		RALocation l0o = ra.addState();
 		RALocation l1i = ra.addState();
@@ -312,18 +340,18 @@ public class CTTest {
 		RALocation l3i = ra.addState();
 		RALocation l3o1 = ra.addState();
 		RALocation l3o2 = ra.addState();
-		
+
 		Parameter p1 = new Parameter(doubleType, 1);
 		Register r1 = new Register(doubleType, 1);
 		Register r2 = new Register(doubleType, 2);
 		SuffixValue s1 = new SuffixValue(doubleType, 1);
-		
+
 		Expression<Boolean> gT = ExpressionUtil.TRUE;
 		Expression<Boolean> gL = new NumericBooleanExpression(r1, NumericComparator.LE, p1);
 		Expression<Boolean> gG = new NumericBooleanExpression(r1, NumericComparator.GE, p1);
 		Expression<Boolean> gEq = new NumericBooleanExpression(r1, NumericComparator.EQ, p1);
 		Expression<Boolean> gNe = new NumericBooleanExpression(r1, NumericComparator.NE, p1);
-		
+
 		VarMapping<Register, SymbolicDataValue> storeP1 = new VarMapping<>();
 		storeP1.put(r1, p1);
 		VarMapping<Register, SymbolicDataValue> storeR1 = new VarMapping<>();
@@ -338,7 +366,7 @@ public class CTTest {
 		storeR1R1.put(r1, r1);
 		storeR1R1.put(r2, r2);
 		VarMapping<Register, SymbolicDataValue> emptyMapping = new VarMapping<>();
-		
+
 		Assignment assP1 = new Assignment(storeP1);
 		Assignment assR1 = new Assignment(storeR1);
 		Assignment assP1R1 = new Assignment(storeP1R1);
@@ -346,7 +374,7 @@ public class CTTest {
 		Assignment assR1R1 = new Assignment(storeR1R1);
 		Assignment assNo = new Assignment(emptyMapping);
 		OutputMapping om = new OutputMapping(new ArrayList<>(), new VarMapping<>());
-		
+
 		ra.addTransition(l0i, OFFER, new InputTransition(gT, OFFER, l0i, l0o, assNo));
 		ra.addTransition(l0o, YES, new OutputTransition(gT, om, YES, l0o, l1i, assNo));
 		ra.addTransition(l1i, OFFER, new InputTransition(gT, OFFER, l1i, l1o, assP1));
@@ -358,7 +386,7 @@ public class CTTest {
 		ra.addTransition(l3o1, YES, new OutputTransition(gT, om, YES, l3o1, l1i, assNo));
 		ra.addTransition(l3i, OFFER, new InputTransition(gNe, OFFER, l3i, l3o2, assNo));
 		ra.addTransition(l3o2, YES, new OutputTransition(gT, om, NO, l3o2, l3i, assR1R1));
-		
+
 		return ra;
 	}
 }

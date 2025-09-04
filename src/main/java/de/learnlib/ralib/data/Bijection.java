@@ -2,6 +2,11 @@ package de.learnlib.ralib.data;
 
 import java.util.*;
 
+import de.learnlib.ralib.data.SymbolicDataValue.Register;
+import de.learnlib.ralib.words.DataWords;
+import de.learnlib.ralib.words.PSymbolInstance;
+import net.automatalib.word.Word;
+
 
 public class Bijection<T extends TypedValue> implements Map<T, T> {
 
@@ -147,5 +152,30 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 			in.put(key, val);
 			sur.put(val, key);
 		}
+	}
+
+	public static Bijection<Register> DVtoRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> keyWord, Word<PSymbolInstance> valueWord) {
+		DataValue[] keyVals = DataWords.valsOf(keyWord);
+		DataValue[] valueVals = DataWords.valsOf(valueWord);
+		Bijection<Register> ret = new Bijection<>();
+		for (Map.Entry<DataValue, DataValue> e : bijection.entrySet()) {
+			DataValue key = e.getKey();
+			DataValue val = e.getValue();
+			int keyId = findFirstDv(key, keyVals);
+			int valueId = findFirstDv(val, valueVals);
+			Register regKey = new Register(keyVals[keyId].getDataType(), keyId+1);
+			Register regValue = new Register(valueVals[valueId].getDataType(), valueId+1);
+			ret.put(regKey, regValue);
+		}
+		return ret;
+	}
+
+	private static int findFirstDv(DataValue dv, DataValue[] vals) {
+		for (int i = 0; i < vals.length; i++) {
+			if (vals[i].equals(dv)) {
+				return i;
+			}
+		}
+		throw new IllegalArgumentException("No matching data value for " + dv + ": " + vals);
 	}
 }

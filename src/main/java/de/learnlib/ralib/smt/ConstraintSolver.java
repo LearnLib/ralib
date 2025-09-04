@@ -37,7 +37,7 @@ public class ConstraintSolver {
     private final static gov.nasa.jpf.constraints.api.ConstraintSolver solver =
             new NativeZ3SolverProvider().createSolver(new Properties());
 
-    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+    public boolean isSatisfiable(Expression<Boolean> expr, Mapping<? extends SymbolicDataValue, DataValue> val) {
         Expression<Boolean> test = SMTUtil.toExpression(expr, val);
         Boolean r = cache.get(test);
         if (r == null) {

@@ -10,12 +10,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Sets;
-
-import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
@@ -35,7 +32,6 @@ import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
-import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 public class ClassificationTree {
@@ -52,12 +48,15 @@ public class ClassificationTree {
 	private final ParameterizedSymbol[] inputs;
 	private final List<SymbolicSuffix> outputs;
 
+	private final Constants consts;
+
 	private boolean ioMode;
 
 	public ClassificationTree(TreeOracle oracle,
 			ConstraintSolver solver,
 			SymbolicSuffixRestrictionBuilder restrBuilder,
 			OptimizedSymbolicSuffixBuilder suffixBuilder,
+			Constants consts,
 			boolean ioMode,
 			ParameterizedSymbol ... inputs) {
 		this.oracle = oracle;
@@ -66,6 +65,7 @@ public class ClassificationTree {
 		this.inputs = inputs;
 		this.restrBuilder = restrBuilder;
 		this.suffixBuilder = suffixBuilder;
+		this.consts = consts;
 
 		prefixes = new LinkedHashMap<>();
 		shortPrefixes = new LinkedHashSet<>();
@@ -73,7 +73,7 @@ public class ClassificationTree {
 
 		root = new CTInnerNode(null, RaStar.EMPTY_SUFFIX);
 	}
-	
+
 	private static List<SymbolicSuffix> outputSuffixes(ParameterizedSymbol[] inputs) {
 		List<SymbolicSuffix> ret = new ArrayList<>();
 		for (ParameterizedSymbol ps : inputs) {
@@ -91,7 +91,7 @@ public class ClassificationTree {
 	public Set<Word<PSymbolInstance>> getPrefixes() {
 		return new LinkedHashSet<>(prefixes.keySet());
 	}
-	
+
 //	public Set<Word<PSymbolInstance>> getShortPrefixes() {
 //		return new LinkedHashSet<>(shortPrefixes);
 //	}
@@ -99,7 +99,7 @@ public class ClassificationTree {
 	public CTLeaf getLeaf(Word<PSymbolInstance> u) {
 		return prefixes.get(u);
 	}
-	
+
 	public Set<Prefix> getExtensions(Word<PSymbolInstance> u) {
 		Set<Prefix> extensions = new LinkedHashSet<>();
 		for (ParameterizedSymbol action : inputs) {
@@ -140,7 +140,7 @@ public class ClassificationTree {
 		assert parent != null;
 		Map<Word<PSymbolInstance>, CTLeaf> leaves = parent.refine(leaf, suffix, oracle, solver, ioMode);
 		prefixes.putAll(leaves);
-		
+
 		for (Word<PSymbolInstance> sp : shortPrefixes) {
 			CTLeaf l = prefixes.get(sp);
 			Prefix p = l.getPrefix(sp);
@@ -149,11 +149,11 @@ public class ClassificationTree {
 			}
 		}
 	}
-	
+
 	public void initialize() {
 		sift(RaStar.EMPTY_PREFIX);
 	}
-	
+
 	public Set<ShortPrefix> getShortPrefixes() {
 		Set<ShortPrefix> sp = new LinkedHashSet<>();
 		for (CTLeaf leaf : getLeaves()) {
@@ -163,7 +163,7 @@ public class ClassificationTree {
 		assert sp.containsAll(shortPrefixes);
 		return sp;
 	}
-	
+
 	public CTInnerNode lca(CTNode n1, CTNode n2) {
 		if (n1 == n2) {
 			if (n1.isLeaf()) {
@@ -173,10 +173,10 @@ public class ClassificationTree {
 		}
 		int h1 = height(n1);
 		int h2 = height(n2);
-		
+
 		return lca(n1, h1, n2, h2);
 	}
-	
+
 	private CTInnerNode lca(CTNode n1, int h1, CTNode n2, int h2) {
 		if (n1 == n2) {
 			assert n1 instanceof CTInnerNode;
@@ -190,7 +190,7 @@ public class ClassificationTree {
 		}
 		return lca(n1.getParent(), h1 - 1, n2.getParent(), h2 - 1);
 	}
-	
+
 	private int height(CTNode n) {
 		int h = 0;
 		while (n.getParent() != null) {
@@ -199,14 +199,14 @@ public class ClassificationTree {
 		}
 		return h;
 	}
-	
+
 	public boolean checkOutputClosed() {
 		if (!ioMode) {
 			return true;
 		}
 		return checkOutputClosed(root);
 	}
-	
+
 	private boolean checkOutputClosed(CTNode node) {
 		if (node.isLeaf()) {
 			CTLeaf leaf = (CTLeaf) node;
@@ -227,9 +227,9 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	// CLOSEDNESS CHECKS
-	
+
 	public boolean checkLocationClosedness() {
 		for (CTLeaf leaf : getLeaves()) {
 			if (leaf.getShortPrefixes().isEmpty()) {
@@ -239,7 +239,7 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	public boolean checkTransitionClosedness() {
 		for (CTLeaf leaf : getLeaves()) {
 			for (ShortPrefix u : leaf.getShortPrefixes()) {
@@ -255,7 +255,7 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	public boolean checkRegisterClosedness() {
 		for (Map.Entry<Word<PSymbolInstance>, CTLeaf> e : prefixes.entrySet()) {
 			Word<PSymbolInstance> ua = e.getKey();
@@ -266,11 +266,11 @@ public class ClassificationTree {
 			Word<PSymbolInstance> u = ua.prefix(ua.size() - 1);
 			Prefix ua_pref = leaf.getPrefix(ua);
 			CTLeaf u_leaf = prefixes.get(u);
-			
+
 			Set<DataValue> ua_mem = leaf.getPrefix(ua).getRegisters();
 			Set<DataValue> u_mem = prefixes.get(u).getPrefix(u).getRegisters();
 			Set<DataValue> a_mem = actionRegisters(ua);
-			
+
 			if (!consistentMemorable(ua_mem, u_mem, a_mem)) {
 				for (SymbolicSuffix v : leaf.getSuffixes()) {
 					Set<DataValue> s_mem = ua_pref.getSDT(v).getDataValues();
@@ -286,26 +286,26 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	private boolean consistentMemorable(Set<DataValue> ua_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
 		Set<DataValue> union = new LinkedHashSet<>();
 		union.addAll(u_mem);
 		union.addAll(a_mem);
 		return union.containsAll(ua_mem);
 	}
-	
+
 	private Set<DataValue> actionRegisters(Word<PSymbolInstance> ua) {
 		int ua_arity = DataWords.paramLength(DataWords.actsOf(ua));
 		int u_arity = ua_arity - ua.lastSymbol().getBaseSymbol().getArity();
 		DataValue[] vals = DataWords.valsOf(ua);
-		
+
 		Set<DataValue> regs = new LinkedHashSet<>();
 		for (int i = u_arity; i < ua_arity; i++) {
 			regs.add(vals[i]);
 		}
 		return regs;
 	}
-	
+
 	private DataValue[] missingRegisters(Set<DataValue> s_mem, Set<DataValue> u_mem, Set<DataValue> a_mem) {
 		Set<DataValue> union = new LinkedHashSet<>(u_mem);
 		union.addAll(a_mem);
@@ -313,7 +313,7 @@ public class ClassificationTree {
 		difference.removeAll(union);
 		return difference.toArray(new DataValue[difference.size()]);
 	}
-	
+
 	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> ua, SymbolicSuffix v, DataValue[] missingRegs) {
 		if (suffixBuilder == null) {
 			PSymbolInstance a = ua.lastSymbol();
@@ -321,15 +321,15 @@ public class ClassificationTree {
 			SymbolicSuffix alpha = new SymbolicSuffix(u, Word.fromSymbols(a), restrBuilder);
 			return alpha.concat(v);
 		}
-		
+
 		SDT u_sdt = prefixes.get(ua).getPrefix(ua).getSDT(v);
 		assert u_sdt != null : "SDT for symbolic suffix " + v + " does not exist for prefix " + ua;
-		
+
 		return suffixBuilder.extendSuffix(ua, u_sdt, v, missingRegs);
 	}
-	
+
 	// CONSISTENCY CHECKS
-	
+
 	public boolean checkLocationConsistency() {
 		for (CTLeaf l : getLeaves()) {
 			Iterator<ShortPrefix> sp = l.getShortPrefixes().iterator();
@@ -344,13 +344,13 @@ public class ClassificationTree {
 						Word<PSymbolInstance> ua = ue.getKey();
 						Expression<Boolean> g = ue.getValue();
 						Bijection<DataValue> gamma = u.getRpBijection().compose(uPrime.getRpBijection().inverse());
-						
+
 						ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
 						Expression<Boolean> gammaG = rvv.apply(g, gamma.toVarMapping());
-						
-						Optional<Word<PSymbolInstance>> uPrimeA = uPrime.getBranching(action).getPrefix(gammaG, new Mapping<>(), solver);
+
+						Optional<Word<PSymbolInstance>> uPrimeA = uPrime.getBranching(action).getPrefix(gammaG, solver);
 						assert uPrimeA.isPresent();
-						
+
 						CTLeaf uALeaf = getLeaf(ua);
 						CTLeaf uPrimeALeaf = getLeaf(uPrimeA.get());
 						if (uALeaf != uPrimeALeaf) {
@@ -365,7 +365,7 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	public boolean checkTransitionConsistency() {
 		for (ShortPrefix u : getShortPrefixes()) {
 			if (u.length() < 1) {
@@ -397,7 +397,7 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	private Optional<SymbolicSuffix> transitionConsistentA(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
 		Word<PSymbolInstance> u = uA.prefix(uA.length() - 1);
 		CTLeaf uALeaf = getLeaf(uA);
@@ -411,22 +411,39 @@ public class ClassificationTree {
 		}
 		return Optional.empty();
 	}
-	
+
 	private Optional<SymbolicSuffix> transitionConsistentB(Word<PSymbolInstance> uA, Word<PSymbolInstance> uB) {
 		Prefix pA = getLeaf(uA).getPrefix(uA);
 		Prefix pB = getLeaf(uB).getPrefix(uB);
 		for (SymbolicSuffix v : getLeaf(uB).getSuffixes()) {
-			if (!SDT.equivalentUnderId(pA.getSDT(v), pB.getSDT(v), solver)) {
+			SDT sdtA = pA.getSDT(v).toRegisterSDT(uA, consts);
+			SDT sdtB = pB.getSDT(v).toRegisterSDT(uB, consts);
+			if (!SDT.equivalentUnderId(sdtA, sdtB)) {
+//			if (!SDT.equivalentUnderId(pA.getSDT(v), pB.getSDT(v))) {
 				CTLeaf uLeaf = getLeaf(uA.prefix(uA.length() - 1));
 				assert uLeaf != null;
-				DataValue[] regs = inequivalentMapping(pA.getRpBijection(), pB.getRpBijection());
-				SymbolicSuffix av = extendSuffix(uA, v, regs);
+				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
+				DataValue[] regVals = regsToDvs(regs, uA);
+				SymbolicSuffix av = extendSuffix(uA, v, regVals);
 				return Optional.of(av);
 			}
 		}
 		return Optional.empty();
 	}
-	
+
+	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
+		return Bijection.DVtoRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
+	}
+
+	private DataValue[] regsToDvs(Register[] regs, Word<PSymbolInstance> prefix) {
+		DataValue[] vals = DataWords.valsOf(prefix);
+		DataValue[] ret = new DataValue[regs.length];
+		for (int i = 0; i < ret.length; i++) {
+			ret[i] = vals[regs[i].getId()-1];
+		}
+		return ret;
+	}
+
 	public boolean checkRegisterConsistency() {
 		for (Prefix u : getShortPrefixes()) {
 			if (u.length() < 2) {
@@ -439,7 +456,7 @@ public class ClassificationTree {
 						.iterator();
 				while (extensions.hasNext()) {
 					Prefix ua = extensions.next();
-					
+
 					RemappingIterator<DataValue> rit = new RemappingIterator<>(u.getRegisters(), u.getRegisters());
 					for (Bijection<DataValue> gamma : rit) {
 						CTPath uPath = u.getPath();
@@ -447,7 +464,7 @@ public class ClassificationTree {
 							for (Map.Entry<SymbolicSuffix, SDT> e : ua.getPath().getSDTs().entrySet()) {
 								SymbolicSuffix v = e.getKey();
 								SDT uaSDT = e.getValue();
-								if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma, solver) == null) {
+								if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma) == null) {
 									DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
 									SymbolicSuffix av = extendSuffix(ua, v, regs);
 									refine(getLeaf(u), av);
@@ -455,8 +472,8 @@ public class ClassificationTree {
 								}
 							}
 						}
-						
-						
+
+
 //						for (Map.Entry<SymbolicSuffix, SDT> e : u.getPath().getSDTs().entrySet()) {
 //							// is u equivalent to u for v under gamma?
 //							SymbolicSuffix v = e.getKey();
@@ -464,7 +481,7 @@ public class ClassificationTree {
 //							if (SDT.equivalentUnderBijection(uSDT, uSDT, gamma, solver) == null) {
 //								continue;
 //							}
-//							
+//
 //							// is ua equivalent to ua for v under (gamma union {regs(a) -> regs(a)])
 //							SDT uaSDT = ua.getSDT(v);
 //							if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma, solver) == null) {
@@ -480,13 +497,13 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	private SymbolicSuffix extendSuffix(Word<PSymbolInstance> u1, Word<PSymbolInstance> u2, SymbolicSuffix v) {
 		SDT sdt1 = getLeaf(u1).getPrefix(u1).getSDT(v);
 		SDT sdt2 = getLeaf(u2).getPrefix(u2).getSDT(v);
 		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
 	}
-	
+
 	private SuffixValuation actionValuation(Word<PSymbolInstance> ua) {
 		SuffixValueGenerator svgen = new SuffixValueGenerator();
 		DataValue[] vals = ua.lastSymbol().getParameterValues();
@@ -497,7 +514,7 @@ public class ClassificationTree {
 		}
 		return valuation;
 	}
-	
+
 	public Set<Word<PSymbolInstance>> getExtensions(Word<PSymbolInstance> u, ParameterizedSymbol action) {
 		assert u.length() > 0;
 		return prefixes.keySet()
@@ -506,19 +523,19 @@ public class ClassificationTree {
 				.filter(w -> w.prefix(w.length() - 1).equals(u) && w.lastSymbol().getBaseSymbol().equals(action))
 				.collect(Collectors.toSet());
 	}
-	
-	private DataValue[] inequivalentMapping(Bijection<DataValue> a, Bijection<DataValue> b) {
-		Set<DataValue> ret = new LinkedHashSet<>();
-		for (Map.Entry<DataValue, DataValue> ea : a.entrySet()) {
-			DataValue key = ea.getKey();
+
+	private Register[] inequivalentMapping(Bijection<Register> a, Bijection<Register> b) {
+		Set<Register> ret = new LinkedHashSet<>();
+		for (Map.Entry<Register, Register> ea : a.entrySet()) {
+			Register key = ea.getKey();
 			if (!b.get(key).equals(ea.getValue())) {
 				ret.add(key);
 				ret.add(b.get(key));
 			}
 		}
-		return ret.toArray(new DataValue[ret.size()]);
+		return ret.toArray(new Register[ret.size()]);
 	}
-	
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

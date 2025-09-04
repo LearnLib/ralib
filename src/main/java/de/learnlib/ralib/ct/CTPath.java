@@ -7,13 +7,10 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SDTRelabeling;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.DataUtils;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeQueryResult;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.OutputSymbol;
@@ -43,7 +40,7 @@ public class CTPath {
 	public SDT getSDT(SymbolicSuffix suffix) {
 		return sdts.get(suffix);
 	}
-	
+
 	public Map<SymbolicSuffix, SDT> getSDTs() {
 		return sdts;
 	}
@@ -66,7 +63,7 @@ public class CTPath {
 			SDT sdt1 = e.getValue();
 			SDT sdt2 = other.sdts.get(e.getKey());
 
-			if (!sdt1.isEquivalent(sdt2.relabel(SDTRelabeling.fromBijection(renaming)), solver)) {
+			if (!sdt1.isEquivalent(sdt2, renaming)) {
 				return false;
 			}
 		}
@@ -106,7 +103,7 @@ public class CTPath {
 	public static CTPath computePath(TreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
-		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX).sdt() : sdt;
+		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
 		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
 		for (SymbolicSuffix s : suffixes) {
 			if (ioMode && s.getActions().length() > 0) {
@@ -123,8 +120,8 @@ public class CTPath {
 
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
-				TreeQueryResult tqr = oracle.treeQuery(prefix, s);
-				sdt = tqr.sdt();
+				sdt = oracle.treeQuery(prefix, s);
+//				sdt = tqr.sdt();
 //				sdt = tqr.getSdt().relabel(tqr.getPiv().getRenaming().toVarMapping());
 			}
 
