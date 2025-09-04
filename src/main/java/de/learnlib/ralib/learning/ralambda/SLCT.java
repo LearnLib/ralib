@@ -33,13 +33,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SLCT implements RaLearningAlgorithm {
-	
+
 	private final ClassificationTree ct;
-	
+
 	private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
-    
+
     private Hypothesis hyp;
 
     private final TreeOracle sulOracle;
@@ -71,7 +71,7 @@ public class SLCT implements RaLearningAlgorithm {
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;
-    	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, ioMode, inputs);
+    	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.sift(RaStar.EMPTY_PREFIX);
     }
 
@@ -81,14 +81,14 @@ public class SLCT implements RaLearningAlgorithm {
 			while(!checkClosedness());
 			buildHypothesis();
 		}
-		
+
 		while(analyzeCounterExample());
-		
+
 		if (queryStats != null) {
 			queryStats.hypothesisConstructed();
 		}
 	}
-	
+
 	private boolean checkClosedness() {
 		if (!ct.checkOutputClosed()) {
 			return false;
@@ -104,12 +104,12 @@ public class SLCT implements RaLearningAlgorithm {
 		}
 		return true;
 	}
-	
+
 	private void buildHypothesis() {
 		CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, ioMode);
 		hyp = ab.buildHypothesis();
 	}
-	
+
 	private boolean analyzeCounterExample() {
         LOGGER.info(Category.PHASE, "Analyzing Counterexample");
         if (counterexamples.isEmpty()) {
@@ -117,7 +117,7 @@ public class SLCT implements RaLearningAlgorithm {
         }
 
         TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
-        
+
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<>();
         for (CTLeaf leaf : ct.getLeaves()) {
 //        	LeafComponent c = new LeafComponent(leaf);
@@ -126,9 +126,9 @@ public class SLCT implements RaLearningAlgorithm {
         	}
         }
         CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
-        
+
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
-        
+
         boolean hypce = hyp.accepts(ce.getInput());
         boolean sulce = ce.getOutput();
         if (hypce == sulce) {
@@ -152,9 +152,9 @@ public class SLCT implements RaLearningAlgorithm {
         CTLeaf leaf = ct.getLeaf(accSeq);
         assert leaf != null : "Prefix not in classification tree: " + accSeq;
         ct.refine(leaf, res.getSuffix());
-        
+
         while(!checkClosedness());
-        
+
         buildHypothesis();
         return true;
 	}

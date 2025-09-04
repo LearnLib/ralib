@@ -17,7 +17,13 @@
 package de.learnlib.ralib.oracles;
 
 import java.util.Map;
+import java.util.Optional;
 
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
@@ -31,4 +37,29 @@ public interface Branching {
     Map<Word<PSymbolInstance>, Expression<Boolean>> getBranches();
 
     Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> prefix);
+
+    default Optional<Word<PSymbolInstance>> getPrefix(Expression<Boolean> guard, ConstraintSolver solver) {
+    	Optional<Word<PSymbolInstance>> prefix = getBranches().entrySet()
+    			.stream()
+    			.filter(e -> e.getValue().equals(guard))
+    			.map(e -> e.getKey())
+    			.findFirst();
+    	if (prefix.isPresent()) {
+    		return prefix;
+    	}
+
+    	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : getBranches().entrySet()) {
+    		DataValue[] vals = e.getKey().lastSymbol().getParameterValues();
+    		Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
+    		for (int i = 0; i < vals.length; i++) {
+    			SuffixValue sv = new SuffixValue(vals[i].getDataType(), i+1);
+    			valuation.put(sv, vals[i]);
+    		}
+    		if (solver.isSatisfiable(guard, valuation)) {
+    			return Optional.of(e.getKey());
+    		}
+    	}
+
+    	return Optional.empty();
+    }
 }

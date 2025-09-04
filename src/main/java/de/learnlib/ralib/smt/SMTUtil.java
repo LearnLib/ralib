@@ -65,16 +65,16 @@ public class SMTUtil {
         return replacer.applyRegs(expr, map);
     }
 
-    public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<SymbolicDataValue, DataValue> val) {
+    public static Expression<Boolean> toExpression(Expression<Boolean> expr, Mapping<? extends SymbolicDataValue, DataValue> val) {
         Map<SymbolicDataValue, Variable> map = new HashMap<>();
         Expression<Boolean> valExpr = toExpression(val, map);
         return ExpressionUtil.and(expr, valExpr);
     }
 
-    public static Expression<Boolean> toExpression(Mapping<SymbolicDataValue, DataValue> val, Map<SymbolicDataValue, Variable> map) {
+    public static Expression<Boolean> toExpression(Mapping<? extends SymbolicDataValue, DataValue> val, Map<SymbolicDataValue, Variable> map) {
         Expression<Boolean>[] elems = new Expression[val.size()];
         int i = 0;
-        for (Map.Entry<SymbolicDataValue, DataValue> entry : val.entrySet()) {
+        for (Map.Entry<? extends SymbolicDataValue, DataValue> entry : val.entrySet()) {
             elems[i++] = new NumericBooleanExpression(getOrCreate(entry.getKey(), map), NumericComparator.EQ, toConstant(entry.getValue()));
         }
         return ExpressionUtil.and(elems);

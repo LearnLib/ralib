@@ -2,11 +2,8 @@ package de.learnlib.ralib.ct;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Spliterator;
 import java.util.function.Function;
 
@@ -15,7 +12,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.RegisterAssignment;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.PrefixContainer;
 import de.learnlib.ralib.learning.SymbolicSuffix;
@@ -39,7 +35,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	}
 
 	public Prefix(Word<PSymbolInstance> prefix, CTPath path) {
-		this(prefix, Bijection.id(path.getMemorable()), path);
+		this(prefix, Bijection.identity(path.getMemorable()), path);
 	}
 
 	public Prefix(Prefix prefix, Bijection<DataValue> rpRenaming) {
@@ -85,7 +81,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public MemorableSet getRegisters() {
 		return path.getMemorable();
 	}
-	
+
 	public CTPath getPath() {
 		return path;
 	}
@@ -101,12 +97,12 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 //		}
 //		return ((Prefix) other).prefix.equals(prefix);
 	}
-	
+
 	@Override
 	public Word<PSymbolInstance> getPrefix() {
 		return prefix;
 	}
-	
+
 	@Override
 	public RegisterAssignment getAssignment() {
 		RegisterAssignment ra = new RegisterAssignment();
@@ -119,12 +115,12 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 
 		return ra;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return prefix.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
 		return prefix.toString();
@@ -139,32 +135,32 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public PSymbolInstance getSymbol(int index) {
 		return prefix.getSymbol(index);
 	}
-	
+
 	@Override
 	public Iterator<PSymbolInstance> iterator() {
 		return prefix.iterator();
 	}
-	
+
 	@Override
 	public Spliterator<PSymbolInstance> spliterator() {
 		return prefix.spliterator();
 	}
-	
+
 	@Override
     public void writeToArray(int offset, @Nullable Object[] array, int tgtOffset, int length) {
 		prefix.writeToArray(offset, array, tgtOffset, length);
 	}
-	
+
 	@Override
 	public List<PSymbolInstance> asList() {
 		return prefix.asList();
 	}
-	
+
 	@Override
 	public PSymbolInstance lastSymbol() {
 		return prefix.lastSymbol();
 	}
-	
+
 	@Override
 	public Word<PSymbolInstance> append(PSymbolInstance symbol) {
 		return prefix.append(symbol);
@@ -174,22 +170,22 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	public Word<PSymbolInstance> prepend(PSymbolInstance symbol) {
 		return prefix.prepend(symbol);
 	}
-	
+
 	@Override
 	public boolean isPrefixOf(Word<?> other) {
 		return prefix.isPrefixOf(other);
 	}
-	
+
 	@Override
     public Word<PSymbolInstance> longestCommonPrefix(Word<?> other) {
 		return prefix.longestCommonPrefix(other);
 	}
-	
+
 	@Override
     public boolean isSuffixOf(Word<?> other) {
 		return prefix.isSuffixOf(other);
 	}
-	
+
     @Override
     public Word<PSymbolInstance> longestCommonSuffix(Word<?> other) {
     	return prefix.longestCommonSuffix(other);
