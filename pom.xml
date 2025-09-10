@@ -16,7 +16,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <!-- Dependency versions appear alphabetically below -->
-        <checker-qual.version>3.50.0</checker-qual.version>
+        <checker-qual.version>3.51.0</checker-qual.version>
         <commons-lang.version>3.18.0</commons-lang.version>
         <gson.version>2.13.1</gson.version>
         <guava.version>33.4.8-jre</guava.version>
