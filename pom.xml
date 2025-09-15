@@ -30,7 +30,7 @@
         <compiler-plugin.version>3.14.0</compiler-plugin.version>
         <dependency-plugin.version>3.8.1</dependency-plugin.version>
         <spotless-plugin.version>2.46.1</spotless-plugin.version>
-        <spotbugs-plugin.version>4.9.4.2</spotbugs-plugin.version>
+        <spotbugs-plugin.version>4.9.5.0</spotbugs-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
 
