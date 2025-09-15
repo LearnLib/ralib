@@ -20,7 +20,7 @@
         <commons-lang.version>3.18.0</commons-lang.version>
         <gson.version>2.13.1</gson.version>
         <guava.version>33.4.8-jre</guava.version>
-        <jakarta-xml.version>4.0.2</jakarta-xml.version>
+        <jakarta-xml.version>4.0.4</jakarta-xml.version>
         <jaxb-runtime.version>4.0.5</jaxb-runtime.version>
         <jconstraints.version>0.9.9</jconstraints.version>
         <learnlib.version>0.18.0</learnlib.version>
