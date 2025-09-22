@@ -27,7 +27,7 @@
 
         <!-- Plugin versions in alphabetical order -->
         <assembly-plugin.version>3.7.1</assembly-plugin.version>
-        <compiler-plugin.version>3.14.0</compiler-plugin.version>
+        <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <dependency-plugin.version>3.8.1</dependency-plugin.version>
         <spotless-plugin.version>2.46.1</spotless-plugin.version>
         <spotbugs-plugin.version>4.9.6.0</spotbugs-plugin.version>
