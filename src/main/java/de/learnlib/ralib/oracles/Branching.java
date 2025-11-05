@@ -16,8 +16,10 @@
  */
 package de.learnlib.ralib.oracles;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
@@ -62,4 +64,11 @@ public interface Branching {
 
     	return Optional.empty();
     }
+
+    default Set<Expression<Boolean>> guardSet() {
+    	Set<Expression<Boolean>> guards = new LinkedHashSet<>();
+    	guards.addAll(getBranches().values());
+    	return guards;
+    }
+
 }

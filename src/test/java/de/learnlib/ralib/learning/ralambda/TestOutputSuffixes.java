@@ -77,8 +77,9 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
-        radt.learn();
+//        RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+        SLCT slct = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
+        slct.learn();
 
         String[] ces = {"IINVITE[1[int]] O100[1[int]] / true",
         		"IINVITE[0[int]] O100[0[int]] IPRACK[0[int]] O200[0[int]] / true"};
@@ -86,8 +87,8 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = TestUnknownMemorable.buildSIPCEs(ces, actions);
 
         while (!ceQueue.isEmpty()) {
-        	radt.addCounterexample(ceQueue.pop());
-        	radt.learn();
+        	slct.addCounterexample(ceQueue.pop());
+        	slct.learn();
         }
 
         Set<ParameterizedSymbol> outputs = Sets.difference(Set.of(actions), Set.of(inputs));
@@ -96,7 +97,7 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         ceQueue = TestUnknownMemorable.buildSIPCEs(wordStr, actions);
         Word<PSymbolInstance> word = ceQueue.getFirst().getInput();
 
-        Set<SymbolicSuffix> suffixes = radt.getDT().getLeaf(word).getPrefix(word).getTQRs().keySet();
+        Set<SymbolicSuffix> suffixes = slct.getCT().getLeaf(word).getPrefix(word).getPath().getSDTs().keySet();
         Set<ParameterizedSymbol> suffixActions = suffixes.stream()
         		                                         .filter(s -> s.length() == 1)
         		                                         .map(s -> s.getActions().firstSymbol())

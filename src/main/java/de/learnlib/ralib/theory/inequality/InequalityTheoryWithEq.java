@@ -23,16 +23,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Constant;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDT;
@@ -46,7 +50,10 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Valuation;
 import gov.nasa.jpf.constraints.api.Variable;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
 import gov.nasa.jpf.constraints.solvers.nativez3.NativeZ3Solver;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -602,6 +609,55 @@ public abstract class InequalityTheoryWithEq implements Theory {
         }
         return returnThis;
     }
+
+    public DataValue instantiate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Set<DataValue> pval,
+            Constants constants,
+            Expression<Boolean> guard, int param,
+            ConstraintSolver solver) {
+    	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
+//    	SuffixValue sv = new SuffixValue(ps.getPtypes()[param-1], param);
+    	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
+    	vals.addAll(vals.stream()
+    			.filter(w -> w.getDataType().equals(p.getDataType()))
+    			.collect(Collectors.toSet()));
+    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+
+    	if (tryEquality(guard, p, fresh, solver)) {
+    		return fresh;
+    	}
+
+    	List<Expression<Boolean>> diseqList = new LinkedList<>();
+    	vals.stream().forEach(d -> diseqList.add(new NumericBooleanExpression(p, NumericComparator.NE, d)));
+    	Expression<Boolean> diseqs = ExpressionUtil.and(diseqList.toArray(new Expression[diseqList.size()]));
+
+    	Optional<Valuation> valuation = solver.solve(ExpressionUtil.and(guard, diseqs));
+    	if (valuation.isPresent()) {
+    		BigDecimal dv = valuation.get().getValue(p);
+    		assert dv != null : "No valuation for " + p + " in " + valuation;
+    		return new DataValue(p.getDataType(), dv);
+    	}
+
+    	for (DataValue val : vals) {
+    		if (tryEquality(guard, p, val, solver)) {
+    			return val;
+    		}
+    	}
+
+    	throw new IllegalArgumentException("Not a valid guard: " + guard);
+    }
+
+    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver) {
+    	ParameterValuation valuation = new ParameterValuation();
+    	valuation.put(p, val);
+    	return solver.isSatisfiable(guard, valuation);
+    }
+//    private boolean tryEquality(Expression<Boolean> guard, SuffixValue sv, DataValue val, ConstraintSolver solver) {
+//    	SuffixValuation valuation = new SuffixValuation();
+//    	valuation.put(sv, val);
+//    	return solver.isSatisfiable(guard, valuation);
+//    }
+
 
     public void useSuffixOptimization(boolean useSuffixOpt) {
     	this.useSuffixOpt = useSuffixOpt;

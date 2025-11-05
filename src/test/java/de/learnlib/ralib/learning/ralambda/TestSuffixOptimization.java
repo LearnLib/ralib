@@ -74,9 +74,10 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, sul);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+//        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(stats);
-        learner.setSolver(solver);
+//        learner.setSolver(solver);
 
         learner.learn();
 
@@ -125,8 +126,9 @@ public class TestSuffixOptimization extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
-        learner.setSolver(solver);
+//        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, OFFER, POLL);
+//        learner.setSolver(solver);
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, false, solver, OFFER, POLL);
         learner.setStatisticCounter(stats);
         learner.learn();
 

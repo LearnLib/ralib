@@ -29,8 +29,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -97,6 +99,12 @@ public interface Theory {
                           ParameterizedSymbol ps, SuffixValuation pval,
                           Constants constants,
                           SDTGuard guard, SuffixValue param, Set<DataValue> oldDvs);
+
+    public DataValue instantiate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Set<DataValue> pval,
+            Constants constants,
+            Expression<Boolean> guard, int param,
+            ConstraintSolver solver);
 
     SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 

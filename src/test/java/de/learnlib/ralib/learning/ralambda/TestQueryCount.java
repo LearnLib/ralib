@@ -20,6 +20,8 @@ import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
+import de.learnlib.ralib.oracles.io.IOCache;
+import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -57,8 +59,10 @@ public class TestQueryCount extends RaLibTestSuite {
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         QueryStatistics queryStats = new QueryStatistics(measurements, ioOracle);
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo,
-                consts, true, sul.getActionSymbols());
+//        RaLambda learner = new RaLambda(mto, hypFactory, mlo,
+//                consts, true, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers,
+        		consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(queryStats);
 
         learner.learn();
@@ -77,7 +81,7 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries1 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries1, 2);
+        Assert.assertEquals(memQueries1, 22);
 
         Word<PSymbolInstance> ce2 = Word.fromSymbols(
         		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
@@ -95,7 +99,7 @@ public class TestQueryCount extends RaLibTestSuite {
         learner.learn();
 
         long memQueries2 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries2, 27);
+        Assert.assertEquals(memQueries2, 35);
 
         Word<PSymbolInstance> ce3 = Word.fromSymbols(
         		new PSymbolInstance(PriorityQueueSUL.OFFER, new DataValue(PriorityQueueSUL.DOUBLE_TYPE, BigDecimal.ONE)),
@@ -111,8 +115,8 @@ public class TestQueryCount extends RaLibTestSuite {
 
         learner.addCounterexample(ceQuery);
         learner.learn();
-
+        
         long memQueries3 = learner.getQueryStatistics().getMemQueries();
-        Assert.assertEquals(memQueries3, 36);
+        Assert.assertEquals(memQueries3, 48);
     }
 }

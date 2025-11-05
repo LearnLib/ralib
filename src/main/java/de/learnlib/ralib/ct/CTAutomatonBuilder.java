@@ -1,14 +1,11 @@
 package de.learnlib.ralib.ct;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
-import de.learnlib.logging.Category;
 import de.learnlib.ralib.automata.Assignment;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.Transition;
@@ -18,20 +15,21 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterAssignment;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.AutomatonBuilder;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
-import de.learnlib.ralib.smt.SMTUtil;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -45,46 +43,56 @@ import net.automatalib.word.Word;
 public class CTAutomatonBuilder {
 
 	private final ClassificationTree ct;
-	
+
 	private final Map<Word<PSymbolInstance>, RALocation> locations;
 	private final Map<CTLeaf, RALocation> leaves;
 //	private final Map<Word<PSymbolInstance>, Bijection> rpRenamings;
-	
+
 //	private final Set<Word<PSymbolInstance>> visitedTransitions;
-	
+
 	private final CTHypothesis hyp;
 	
+	private final ConstraintSolver solver;
+
 //	private final Constants consts;
-	
+
 	private boolean ioMode;
-	
-	public CTAutomatonBuilder(ClassificationTree ct, Constants consts, boolean ioMode) {
+
+	public CTAutomatonBuilder(ClassificationTree ct, Constants consts, boolean ioMode, ConstraintSolver solver) {
 		this.ct = ct;
 //		this.consts = consts;
 		this.ioMode = ioMode;
-		
+		this.solver = solver;
+
 		locations = new LinkedHashMap<>();
 		leaves = new LinkedHashMap<>();
 //		rpRenamings = new LinkedHashMap<>();
 //		visitedTransitions = new LinkedHashSet<>();
-		hyp = new CTHypothesis(consts, ct.getLeaves().size());
+		hyp = new CTHypothesis(consts, ct.getLeaves().size(), ioMode);
 	}
-	
-	public Hypothesis buildHypothesis() {
+
+	public CTHypothesis buildHypothesis() {
 		computeLocations();
 		computeTransitions();
 		hyp.putLeaves(leaves);
+		Optional<CTLeaf> sink = ct.getSink();
+		if (sink.isPresent()) {
+			hyp.setSink(hyp.getLocation(sink.get()));
+		}
 		return hyp;
 	}
-	
+
 	private void computeLocations() {
 		CTLeaf initial = ct.getLeaf(RaStar.EMPTY_PREFIX);
 		RALocation l0 = hyp.addInitialState(initial.isAccepting());
 		locations.put(RaStar.EMPTY_PREFIX, l0);
+		for (Word<PSymbolInstance> sp : initial.getShortPrefixes()) {
+			locations.put(sp, l0);
+		}
 		hyp.setAccessSequence(l0, RaStar.EMPTY_PREFIX);
 //		rpRenamings.put(RaStar.EMPTY_PREFIX, new Bijection());
 		leaves.put(initial, l0);
-		
+
 		for (CTLeaf leaf : ct.getLeaves()) {
 			if (leaf != initial) {
 				RALocation l = hyp.addState(leaf.isAccepting());
@@ -93,11 +101,12 @@ public class CTAutomatonBuilder {
 				for (Word<PSymbolInstance> sp : leaf.getShortPrefixes()) {
 					locations.put(sp, l);
 				}
+				locations.put(leaf.getRepresentativePrefix(), l);
 				leaves.put(leaf, l);
 			}
 		}
 	}
-	
+
 	private void computeTransitions() {
 		for (CTLeaf leaf : ct.getLeaves()) {
 //			computeTransition(leaf, leaf.getRepresentativePrefix());
@@ -106,71 +115,103 @@ public class CTAutomatonBuilder {
 			}
 		}
 	}
-	
+
 	private void computeTransition(CTLeaf dest_l, Prefix prefix) {
 //		if (visitedTransitions.contains(prefix)) {
 //			return;
 //		}
-		
+
 		if (prefix.length() < 1) {
 			return;
 		}
-		
+
 //		Word<PSymbolInstance> dest_id = prefix;
 		Prefix dest_rp = dest_l.getRepresentativePrefix();
 		Word<PSymbolInstance> src_id = prefix.prefix(prefix.length() - 1);
 		CTLeaf src_l = ct.getLeaf(src_id);
 		
+//		if (!src_id.equals(src_l.getRepresentativePrefix())) {
+//			return;
+//		}
+
 		assert src_l != null : "Source prefix not present in classification tree: " + src_id;
 		assert src_l.getPrefix(src_id) instanceof ShortPrefix : "Source prefix is not short: " + src_id;
-		assert dest_rp instanceof ShortPrefix : "Representative prefix is not short: " + dest_rp;
-		
+//		assert dest_rp instanceof ShortPrefix : "Representative prefix is not short: " + dest_rp;
+
 		RALocation src_loc = locations.get(src_id);
 		RALocation dest_loc = locations.get(dest_rp);
 		
+		assert src_loc != null;
+		assert dest_loc != null;
+
 		ParameterizedSymbol action = prefix.lastSymbol().getBaseSymbol();
 
-		assert src_l.getRepresentativePrefix() instanceof ShortPrefix : "Representative prefix is not a short prefix: " + src_l;
-		
+//		assert src_l.getRepresentativePrefix() instanceof ShortPrefix : "Representative prefix is not a short prefix: " + src_l;
+
 		Prefix src_prefix = src_l.getPrefix(src_id);
 		ShortPrefix src_u = (ShortPrefix)(src_prefix instanceof ShortPrefix ?
 				src_prefix :
 					src_l.getRepresentativePrefix());
-		
+
 		// guard
 		Branching b = src_u.getBranching(action);
 		Expression<Boolean> guard = b.getBranches().get(prefix);
 		
+		if (guard == null) {
+			for (Expression<Boolean> g : b.getBranches().values()) {
+				DataValue[] vals = prefix.lastSymbol().getParameterValues();
+				ParameterValuation pars = new ParameterValuation();
+				for (int i = 0; i < vals.length; i++) {
+					Parameter p = new Parameter(vals[i].getDataType(), i+1);
+					pars.put(p, vals[i]);
+				}
+				if (solver.isSatisfiable(g, pars)) {
+					guard = g;
+					break;
+				}
+			}
+		}
+
 		assert guard != null : "No guard for prefix " + prefix;
+		
+        for (Transition tr : hyp.getTransitions(src_loc, action)) {
+        	if (tr.getGuard().equals(guard)) {
+        		return;
+        	}
+        }
 
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
-        guard = rvv.apply(guard, src_u.getAssignment());
-        
         RegisterAssignment srcAssign = src_u.getAssignment();
+        RegisterAssignment rpAssign = src_l.getRepresentativePrefix().getAssignment();
+        RegisterAssignment srcAssignRemapped = srcAssign.relabel(registerRemapping(srcAssign, rpAssign, src_u.getRpBijection()));
+        guard = rvv.apply(guard, srcAssignRemapped);
+//        guard = rvv.apply(guard, src_u.getAssignment());
+
         RegisterAssignment destAssign = dest_rp.getAssignment();
         Bijection<DataValue> remapping = prefix.getRpBijection();
-        Assignment assign = AutomatonBuilder.computeAssignment(prefix, srcAssign, destAssign, remapping);
+        Assignment assign = AutomatonBuilder.computeAssignment(prefix, srcAssignRemapped, destAssign, remapping);
 
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
+        
         if (t != null) {
             hyp.addTransition(src_loc, action, t);
             hyp.setTransitionSequence(t, prefix);
         }
-//		
+//
 //		Word<PSymbolInstance> src_rp = src_l.getRepresentativePrefix();
 //		Bijection src_renaming = rpRenamings.get(src_rp);
 //		if (src_renaming == null) {
 //			computeTransition(src_l, src_l.getRepresentativePrefix());
 //			src_renaming = rpRenamings.get(src_rp);
 //		}
-//		
+//
 //		int max = DataWords.paramValLength(src_id);
 //		List<Register> regs = new ArrayList<>(prefix.getRegisters());
 //		regs.sort((r1, r2) -> Integer.compare(r1.getId(), r2.getId()));
 //		RegisterGenerator rgen = new RegisterGenerator();
 //
 //		Map<Register, SymbolicDataValue> mapping = new LinkedHashMap<>();
-//		
+//
 //		Bijection dest_renaming;
 //		if (prefix == dest_l.getRepresentativePrefix()) {
 //			// case 1 : prefix is the rp
@@ -207,34 +248,34 @@ public class CTAutomatonBuilder {
 //				}
 //			}
 //		}
-//		
+//
 //		VarMapping<Register, SymbolicDataValue> vars = new VarMapping<>();
 //		vars.putAll(mapping);
 //		Assignment assignment = new Assignment(vars);
-//		
+//
 //		VarMapping<Register, Register> guardRenaming = new VarMapping<>();
 //		guardRenaming.putAll(src_renaming);
 //		Expression<Boolean> guardRenamed = SMTUtil.renameVars(guard, guardRenaming);
-//		
+//
 //		Transition transition = createTransition(action, guardRenamed, src_loc, dest_loc, assignment);
 //		if (transition != null) {
 //			hyp.addTransition(src_loc, action, transition);
 //			hyp.setTransitionSequence(transition, dest_id);
 //		}
-//		
+//
 //		visitedTransitions.add(dest_id);
 	}
-	
+
 	private Transition createTransition(ParameterizedSymbol action, Expression<Boolean> guard,
 			RALocation src_loc, RALocation dest_loc, Assignment assignment) {
 		if (ioMode && !dest_loc.isAccepting()) {
 			return null;
 		}
-		
+
 		if (!ioMode || !(action instanceof OutputSymbol)) {
 			return new Transition(action, guard, src_loc, dest_loc, assignment);
 		}
-		
+
         //IfGuard _guard = (IfGuard) guard;
         Expression<Boolean> expr = guard;
 
@@ -255,7 +296,7 @@ public class CTAutomatonBuilder {
         return new OutputTransition(ExpressionUtil.TRUE,
                 outMap, (OutputSymbol) action, src_loc, dest_loc, assignment);
 	}
-	
+
 
     private void analyzeExpression(Expression<Boolean> expr,
             VarMapping<Parameter, SymbolicDataValue> outmap) {
@@ -295,5 +336,17 @@ public class CTAutomatonBuilder {
             // true and false ...
             //throw new IllegalStateException("Unsupported: " + expr.getClass());
         }
+    }
+    
+    private VarMapping<Register, Register> registerRemapping(RegisterAssignment raa, RegisterAssignment rab, Bijection<DataValue> bijection) {
+    	VarMapping<Register, Register> ret = new VarMapping<>();
+    	
+    	for (Map.Entry<DataValue, DataValue> be : bijection.entrySet()) {
+    		Register replace = raa.get(be.getKey());
+    		Register by = rab.get(be.getValue());
+    		ret.put(replace, by);
+    	}
+    	
+    	return ret;
     }
 }

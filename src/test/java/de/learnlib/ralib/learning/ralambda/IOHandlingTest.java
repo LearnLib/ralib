@@ -219,20 +219,21 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+//		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, OK, NOK);
+		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, OK, NOK);
 
-		ralambda.learn();
+		sllambda.learn();
 
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
 				new PSymbolInstance(OK), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, OK, NOK);
@@ -266,11 +267,12 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+//		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, NOK, OUT);
 
-		ralambda.learn();
+		sllambda.learn();
 
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 //		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, 0)),
@@ -280,10 +282,10 @@ public class IOHandlingTest extends RaLibTestSuite {
 				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ZERO)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);
@@ -317,21 +319,22 @@ public class IOHandlingTest extends RaLibTestSuite {
 		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
 				teachers, consts, solver);
 
-		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+//		RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, IN, NOK, OUT);
+		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, NOK, OUT);
 
-		ralambda.learn();
+		sllambda.learn();
 
-		RegisterAutomaton hyp = ralambda.getHypothesis();
+		RegisterAutomaton hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP1: {0}", hyp);
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ZERO)),
 				new PSymbolInstance(OUT, new DataValue(ID, BigDecimal.ONE)), new PSymbolInstance(IN, new DataValue(ID, BigDecimal.ONE)),
 				new PSymbolInstance(NOK));
 
-		ralambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
+		sllambda.addCounterexample(new DefaultQuery<>(ce, model.accepts(ce)));
 
-		ralambda.learn();
-		hyp = ralambda.getHypothesis();
+		sllambda.learn();
+		hyp = sllambda.getHypothesis();
 		logger.log(Level.FINE, "HYP2: {0}", hyp);
 		Assert.assertTrue(hyp.accepts(ce));
 		IOEquivalenceTest test = new IOEquivalenceTest(model, teachers, consts, true, IN, NOK, OUT);

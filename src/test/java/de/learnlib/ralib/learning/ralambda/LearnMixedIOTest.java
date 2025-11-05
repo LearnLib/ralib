@@ -106,8 +106,9 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        rastar.setSolver(solver);
+//        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//        rastar.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -127,8 +128,8 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             if (ce == null) {
@@ -142,10 +143,10 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            rastar.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rastar.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 

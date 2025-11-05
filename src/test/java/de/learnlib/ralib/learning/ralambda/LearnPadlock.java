@@ -117,11 +117,12 @@ public class LearnPadlock extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
-        ralambda.setSolver(solver);
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, true, IN);
+//        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, IN);
 
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -130,10 +131,10 @@ public class LearnPadlock extends RaLibTestSuite {
                 new PSymbolInstance(IN, new DataValue(DIGIT, BigDecimal.ZERO)),
                 new PSymbolInstance(IN, new DataValue(DIGIT, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
     }
 }

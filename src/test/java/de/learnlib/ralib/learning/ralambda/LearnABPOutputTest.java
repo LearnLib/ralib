@@ -86,8 +86,9 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
@@ -112,8 +113,8 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         		inputs);
 
         for (int check = 0; check < 100; ++check) {
-            ralambda.learn();
-            Hypothesis hyp = ralambda.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             ce = null;
 
@@ -143,10 +144,10 @@ public class LearnABPOutputTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            ralambda.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         ce = ioEquiv.findCounterExample(hyp, null);
 

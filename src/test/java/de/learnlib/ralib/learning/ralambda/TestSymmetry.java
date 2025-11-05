@@ -67,8 +67,9 @@ public class TestSymmetry extends RaLibTestSuite {
 	// System.out.println(sul);
 	// System.out.println("---------------------------------");
 
-	RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
-	learner.setSolver(solver);
+//	RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
+//	learner.setSolver(solver);
+	SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
 	learner.learn();
 
         // System.out.println(learner.getHypothesis().toString());
@@ -101,7 +102,7 @@ public class TestSymmetry extends RaLibTestSuite {
 
 	// System.out.println(learner.getHypothesis().toString());
 	// System.out.println(learner.getDT());
-	Assert.assertTrue(learner.getDTHyp().accepts(ce));
+	Assert.assertTrue(learner.getHypothesis().accepts(ce));
     }
 
     private RegisterAutomaton buildCT2() {
@@ -202,8 +203,9 @@ public class TestSymmetry extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
 	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
-        learner.setSolver(solver);
+//        RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
+//        learner.setSolver(solver);
+        SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
 
         learner.learn();
 

@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTLeaf;
@@ -46,6 +48,7 @@ import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -406,6 +409,42 @@ public abstract class EqualityTheory implements Theory {
             SDT sdt = new SDT(map);
             return sdt;
         }
+    }
+
+    @Override
+    public DataValue instantiate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Set<DataValue> pval,
+            Constants constants,
+            Expression<Boolean> guard, int param,
+            ConstraintSolver solver) {
+    	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
+//    	SuffixValue sv = new SuffixValue(ps.getPtypes()[param-1], param);
+    	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
+    	vals.addAll(vals.stream()
+    			.filter(v -> v.getDataType().equals(p.getDataType()))
+    			.collect(Collectors.toSet()));
+    	vals.addAll(constants.values());
+    	DataValue fresh = getFreshValue(new LinkedList<>(vals));
+
+    	if (tryEquality(guard, p, fresh, solver, constants)) {
+    		return fresh;
+    	}
+
+    	for (DataValue val : vals) {
+    		if (tryEquality(guard, p, val, solver, constants)) {
+    			return val;
+    		}
+    	}
+
+    	throw new IllegalArgumentException("Guard is not equality/disequality: " + guard);
+    }
+
+    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
+//    	SuffixValuation valuation = new SuffixValuation();
+    	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
+    	valuation.put(p, val);
+    	valuation.putAll(consts);
+    	return solver.isSatisfiable(guard, valuation);
     }
 
     @Override

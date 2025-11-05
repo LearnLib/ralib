@@ -63,9 +63,9 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, ioOracle);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(stats);
-        learner.setSolver(solver);
+//        learner.setSolver(solver);
 
         learner.learn();
 

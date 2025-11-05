@@ -13,10 +13,15 @@ import java.util.stream.Collectors;
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.RemappingIterator;
+import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
@@ -35,7 +40,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class ClassificationTree {
-	private final CTNode root;
+	private final CTInnerNode root;
 
 	private final Map<Word<PSymbolInstance>, CTLeaf> prefixes;
 	private final Set<Word<PSymbolInstance>> shortPrefixes;
@@ -105,7 +110,7 @@ public class ClassificationTree {
 		for (ParameterizedSymbol action : inputs) {
 			extensions.addAll(getExtensions(u, action)
 					.stream()
-					.map(w -> getLeaf(u).getPrefix(u))
+					.map(w -> getLeaf(w).getPrefix(w))
 					.collect(Collectors.toList()));
 		}
 		return extensions;
@@ -138,7 +143,7 @@ public class ClassificationTree {
 	public void refine(CTLeaf leaf, SymbolicSuffix suffix) {
 		CTInnerNode parent = (CTInnerNode) leaf.getParent();
 		assert parent != null;
-		Map<Word<PSymbolInstance>, CTLeaf> leaves = parent.refine(leaf, suffix, oracle, solver, ioMode);
+		Map<Word<PSymbolInstance>, CTLeaf> leaves = parent.refine(leaf, suffix, oracle, solver, ioMode, inputs);
 		prefixes.putAll(leaves);
 
 		for (Word<PSymbolInstance> sp : shortPrefixes) {
@@ -368,9 +373,9 @@ public class ClassificationTree {
 
 	public boolean checkTransitionConsistency() {
 		for (ShortPrefix u : getShortPrefixes()) {
-			if (u.length() < 1) {
-				continue;
-			}
+//			if (u.length() < 1) {
+//				continue;
+//			}
 			for (ParameterizedSymbol action : inputs) {
 				Set<Word<PSymbolInstance>> extensions = getExtensions(u, action);
 				for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : u.getBranching(action).getBranches().entrySet()) {
@@ -380,8 +385,11 @@ public class ClassificationTree {
 						if (uB.equals(uA)) {
 							continue;
 						}
-						SuffixValuation uBVals = actionValuation(uB);
-						if (solver.isSatisfiable(g, uBVals)) {
+//						ParameterValuation uBVals = actionValuation(uB);
+						Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
+						mapping.putAll(actionValuation(uB));
+						mapping.putAll(consts);
+						if (solver.isSatisfiable(g, mapping)) {
 							Optional<SymbolicSuffix> av = transitionConsistentA(uA, uB);
 							if (av.isEmpty()) {
 								av = transitionConsistentB(uA, uB);
@@ -425,10 +433,26 @@ public class ClassificationTree {
 				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
 				DataValue[] regVals = regsToDvs(regs, uA);
 				SymbolicSuffix av = extendSuffix(uA, v, regVals);
-				return Optional.of(av);
+				if (suffixRevealsNewGuard(av, getLeaf(uA.prefix(uA.length() - 1)))) {
+					return Optional.of(av);
+				}
 			}
 		}
 		return Optional.empty();
+	}
+	
+	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
+		Word<PSymbolInstance> u = leaf.getRepresentativePrefix();
+		SDT sdt = oracle.treeQuery(u, av);
+		ParameterizedSymbol a = av.getActions().firstSymbol();
+		Branching branching = leaf.getBranching(a);
+		Branching newBranching = oracle.updateBranching(u, a, branching, sdt);
+		for (Expression<Boolean> guard : newBranching.getBranches().values()) {
+			if (!branching.getBranches().values().contains(guard)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
@@ -504,19 +528,19 @@ public class ClassificationTree {
 		return suffixBuilder.extendDistinguishingSuffix(u1, sdt1, u2, sdt2, v);
 	}
 
-	private SuffixValuation actionValuation(Word<PSymbolInstance> ua) {
-		SuffixValueGenerator svgen = new SuffixValueGenerator();
+	private ParameterValuation actionValuation(Word<PSymbolInstance> ua) {
+		ParameterGenerator pgen = new ParameterGenerator();
 		DataValue[] vals = ua.lastSymbol().getParameterValues();
-		SuffixValuation valuation = new SuffixValuation();
+		ParameterValuation valuation = new ParameterValuation();
 		for (int i = 0; i < vals.length; i++) {
-			SuffixValue sv = svgen.next(vals[i].getDataType());
-			valuation.put(sv, vals[i]);
+			Parameter p = pgen.next(vals[i].getDataType());
+			valuation.put(p, vals[i]);
 		}
 		return valuation;
 	}
 
 	public Set<Word<PSymbolInstance>> getExtensions(Word<PSymbolInstance> u, ParameterizedSymbol action) {
-		assert u.length() > 0;
+//		assert u.length() > 0;
 		return prefixes.keySet()
 				.stream()
 				.filter(w -> w.length() == u.length() + 1)
@@ -528,12 +552,41 @@ public class ClassificationTree {
 		Set<Register> ret = new LinkedHashSet<>();
 		for (Map.Entry<Register, Register> ea : a.entrySet()) {
 			Register key = ea.getKey();
-			if (!b.get(key).equals(ea.getValue())) {
+			Register val = b.get(key);
+			if (val == null) {
 				ret.add(key);
-				ret.add(b.get(key));
+				ret.add(ea.getValue());
+			} else if (!val.equals(ea.getValue())) {
+				ret.add(key);
+				ret.add(val);
 			}
 		}
 		return ret.toArray(new Register[ret.size()]);
+	}
+	
+	/*
+	 * Returns the sink node for IO automata
+	 */
+	public Optional<CTLeaf> getSink() {
+		if (!ioMode) {
+			return Optional.empty();
+		}
+		
+		for (CTBranch branch : root.getBranches()) {
+			if (!branch.getPath().isAccepting()) {
+				CTNode node = branch.getChild();
+				while (!node.isLeaf()) {
+					CTInnerNode inner = (CTInnerNode) node;
+					List<CTBranch> children = inner.getBranches();
+					if (children.isEmpty()) {
+						return Optional.empty();
+					}
+					node = children.getFirst().getChild();
+				}
+				return Optional.of((CTLeaf) node);
+			}
+		}
+		return Optional.empty();
 	}
 
     @Override
