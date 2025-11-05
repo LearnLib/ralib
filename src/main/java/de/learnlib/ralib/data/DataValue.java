@@ -63,7 +63,8 @@ public class DataValue extends Constant<BigDecimal> implements
         if (!Objects.equals(this.type, other.type)) {
             return false;
         }
-        return this.getValue().equals(other.getValue());
+//        return this.getValue().equals(other.getValue());
+        return this.getValue().compareTo(other.getValue()) == 0;
     }
 
     @Override

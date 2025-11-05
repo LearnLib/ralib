@@ -33,6 +33,10 @@ public class RemappingIterator<T extends TypedValue> implements Iterable<Bijecti
 //	public VarMapping<Register, Register> next() {
 	public Bijection<T> next() {
 		assert next != null : "No more permutations";
+		if (replace.length == 0) {
+			next = null;
+			return new Bijection<>();
+		}
 		Mapping<T, T> vars = new Mapping<>();
 		for (int i = 0; i < replace.length; i++) {
 			int index = next[i];
