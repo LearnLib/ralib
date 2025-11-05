@@ -145,7 +145,7 @@ public class CTTest {
         Assert.assertTrue(ct.getLeaf(w3).getRepresentativePrefix().getRegisters().contains(dv0));
         Assert.assertTrue(ct.getLeaf(w3).getRepresentativePrefix().getRegisters().contains(dv1));
 
-        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, false);
+        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, false, solver);
         Hypothesis hyp = ab.buildHypothesis();
 
         Assert.assertEquals(hyp.getStates().size(), 4);
@@ -239,7 +239,7 @@ public class CTTest {
 
 
 
-        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), false);
+        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), false, solver);
         Hypothesis hyp = ab.buildHypothesis();
 
         Assert.assertEquals(hyp.getStates().size(), ct.getLeaves().size());
@@ -322,7 +322,7 @@ public class CTTest {
 
         System.out.println(ct);
 
-        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), true);
+        CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), true, solver);
         Hypothesis hyp = ab.buildHypothesis();
 
         System.out.println(hyp);

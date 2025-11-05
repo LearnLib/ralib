@@ -96,8 +96,9 @@ public class LearnSipIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
+//        sllambda.setSolver(solver);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
@@ -107,8 +108,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            ralambda.learn();
-            Hypothesis hyp = ralambda.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             if (ce == null) {
@@ -122,10 +123,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            ralambda.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 

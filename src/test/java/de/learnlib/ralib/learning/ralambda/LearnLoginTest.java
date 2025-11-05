@@ -61,12 +61,14 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
-                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        ralambda.setSolver(solver);
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
+//                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers,
+        		consts, false, solver, I_LOGIN, I_LOGOUT, I_REGISTER);
+//        sllambda.setSolver(solver);
 
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -75,10 +77,10 @@ public class LearnLoginTest extends RaLibTestSuite {
                 new PSymbolInstance(I_LOGIN,
                         new DataValue(T_UID, BigDecimal.ZERO), new DataValue(T_PWD, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 3);

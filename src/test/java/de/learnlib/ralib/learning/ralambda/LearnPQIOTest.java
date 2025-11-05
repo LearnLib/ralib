@@ -114,8 +114,10 @@ public class LearnPQIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo,
-                consts, true, sul.getActionSymbols());
+//        RaLambda rastar = new RaLambda(mto, hypFactory, mlo,
+//                consts, true, sul.getActionSymbols());
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers,
+                consts, true, solver, sul.getActionSymbols());
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -135,8 +137,8 @@ public class LearnPQIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             //System.out.println("CE: " + ce);
@@ -147,9 +149,9 @@ public class LearnPQIOTest extends RaLibTestSuite {
             ce = loops.optimizeCE(ce.getInput(), hyp);
             ce = asrep.optimizeCE(ce.getInput(), hyp);
             ce = pref.optimizeCE(ce.getInput(), hyp);
-            rastar.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        return rastar.getHypothesis();
+        return sllambda.getHypothesis();
     }
 }

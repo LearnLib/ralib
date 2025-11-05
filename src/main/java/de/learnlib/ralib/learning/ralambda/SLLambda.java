@@ -1,46 +1,41 @@
 package de.learnlib.ralib.learning.ralambda;
 
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import de.learnlib.logging.Category;
 import de.learnlib.query.DefaultQuery;
+import de.learnlib.ralib.ceanalysis.PrefixFinder;
+import de.learnlib.ralib.ceanalysis.PrefixFinder.Result;
 import de.learnlib.ralib.ct.CTAutomatonBuilder;
-import de.learnlib.ralib.ct.CTLeaf;
+import de.learnlib.ralib.ct.CTHypothesis;
 import de.learnlib.ralib.ct.ClassificationTree;
 import de.learnlib.ralib.data.Constants;
-import de.learnlib.ralib.learning.CounterexampleAnalysis;
+import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.rastar.CEAnalysisResult;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
-public class SLCT implements RaLearningAlgorithm {
-
+public class SLLambda implements RaLearningAlgorithm {
+	
 	private final ClassificationTree ct;
-
+	
 	private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
-
-    private Hypothesis hyp;
+    
+    private CTHypothesis hyp;
 
     private final TreeOracle sulOracle;
 
@@ -50,6 +45,8 @@ public class SLCT implements RaLearningAlgorithm {
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+    
+    private final Map<DataType, Theory> teachers;
 
     private QueryStatistics queryStats;
 
@@ -57,38 +54,38 @@ public class SLCT implements RaLearningAlgorithm {
 
     private final ConstraintSolver solver;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaDT.class);
-
-    public SLCT(TreeOracle sulOracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle,
-    		Constants consts, boolean ioMode, ConstraintSolver solver, ParameterizedSymbol ... inputs) {
-    	this.consts = consts;
+    public SLLambda(TreeOracle sulOracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle,
+    		Map<DataType, Theory> teachers, Constants consts, boolean ioMode, ConstraintSolver solver,
+    		ParameterizedSymbol ... inputs) {
     	this.sulOracle = sulOracle;
-    	this.sdtLogicOracle = sdtLogicOracle;
     	this.hypOracleFactory = hypOracleFactory;
-    	this.solver = solver;
+    	this.sdtLogicOracle = sdtLogicOracle;
+    	this.teachers = teachers;
+    	this.consts = consts;
     	this.ioMode = ioMode;
+    	this.solver = solver;
     	restrictionBuilder = sulOracle.getRestrictionBuilder();
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;
     	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
-    	ct.sift(RaStar.EMPTY_PREFIX);
+    	ct.initialize();
     }
-
+    
 	@Override
 	public void learn() {
 		if (hyp == null) {
 			while(!checkClosedness());
 			buildHypothesis();
 		}
-
+		
 		while(analyzeCounterExample());
-
+		
 		if (queryStats != null) {
 			queryStats.hypothesisConstructed();
 		}
 	}
-
+	
 	private boolean checkClosedness() {
 		if (!ct.checkOutputClosed()) {
 			return false;
@@ -104,65 +101,90 @@ public class SLCT implements RaLearningAlgorithm {
 		}
 		return true;
 	}
+	
+	private boolean checkConsistency() {
+		if (!ct.checkLocationConsistency()) {
+			return false;
+		}
+		if (!ct.checkTransitionConsistency()) {
+			return false;
+		}
+		if (!ct.checkRegisterConsistency()) {
+			return false;
+		}
+		return true;
+	}
 
 	private void buildHypothesis() {
 		CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, ioMode, solver);
 		hyp = ab.buildHypothesis();
 	}
-
+	
 	private boolean analyzeCounterExample() {
-        LOGGER.info(Category.PHASE, "Analyzing Counterexample");
-        if (counterexamples.isEmpty()) {
-            return false;
-        }
-
-        TreeOracle hypOracle = hypOracleFactory.createTreeOracle(hyp);
-
-        Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<>();
-        for (CTLeaf leaf : ct.getLeaves()) {
-//        	LeafComponent c = new LeafComponent(leaf);
-        	for (Word<PSymbolInstance> u : leaf.getPrefixes()) {
-        		components.put(u, leaf);
-        	}
-        }
-        CounterexampleAnalysis analysis = new CounterexampleAnalysis(sulOracle, hypOracle, hyp, sdtLogicOracle, components, consts);
-
+		if (counterexamples.isEmpty()) {
+			return false;
+		}
+        
+		// check whether ce is still a ce
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
-
-        boolean hypce = hyp.accepts(ce.getInput());
-        boolean sulce = ce.getOutput();
-        if (hypce == sulce) {
-            LOGGER.info(Category.EVENT, "word is not a counterexample: " + ce + " - " + sulce);
-            counterexamples.poll();
-            return false;
+        Word<PSymbolInstance> ceWord = ce.getInput();
+        boolean accHyp = hyp.accepts(ceWord);
+        boolean accSul = ce.getOutput();
+        if (accHyp == accSul) {
+        	// not a ce, dequeue it
+        	counterexamples.poll();
+        	return true;
         }
 
+        // analyze counterexample
+        
         if (queryStats != null) {
         	queryStats.analyzingCounterExample();
+        	queryStats.analyzeCE(ceWord);
         }
+        
+        PrefixFinder prefixFinder = new PrefixFinder(sulOracle,
+        		hyp,
+        		ct,
+        		teachers,
+        		restrictionBuilder,
+        		solver,
+        		consts);
+        
+        Result res = prefixFinder.analyzeCounterExample(ceWord);
 
-        CEAnalysisResult res = analysis.analyzeCounterexample(ce.getInput());
-
-        if (queryStats != null) {
+        // process counterexample
+        
+        if (queryStats != null)
         	queryStats.processingCounterExample();
-        	queryStats.analyzeCE(ce.getInput());
+
+        switch(res.result()) {
+        case TRANSITION:
+        	assert !ct.getPrefixes().contains(res.prefix()) : "Duplicate prefix: " + res.prefix();
+        	ct.sift(res.prefix());
+        	break;
+        case LOCATION:
+        	assert !ct.getShortPrefixes().contains(res.prefix()) : "Prefix already short: " + res.prefix();
+        	ct.expand(res.prefix());
+        	break;
         }
-
-        Word<PSymbolInstance> accSeq = hyp.transformAccessSequence(res.getPrefix());
-        CTLeaf leaf = ct.getLeaf(accSeq);
-        assert leaf != null : "Prefix not in classification tree: " + accSeq;
-        ct.refine(leaf, res.getSuffix());
-
-        while(!checkClosedness());
-
+        
+        boolean closedAndConsistent = false;
+        while(!closedAndConsistent) {
+        	if (checkClosedness()) {
+        		if (checkConsistency()) {
+        			closedAndConsistent = true;
+        		}
+        	}
+        }
+        
         buildHypothesis();
         return true;
 	}
 
 	@Override
 	public void addCounterexample(DefaultQuery<PSymbolInstance, Boolean> ce) {
-        LOGGER.info(Category.EVENT, "adding counterexample: " + ce);
-        counterexamples.add(ce);
+		counterexamples.add(ce);
 	}
 
 	@Override
@@ -172,7 +194,7 @@ public class SLCT implements RaLearningAlgorithm {
 
 	@Override
 	public void setStatisticCounter(QueryStatistics queryStats) {
-    	this.queryStats = queryStats;
+		this.queryStats = queryStats;
 	}
 
 	@Override
@@ -182,9 +204,9 @@ public class SLCT implements RaLearningAlgorithm {
 
 	@Override
 	public RaLearningAlgorithmName getName() {
-		return RaLearningAlgorithmName.RADT;
+		return RaLearningAlgorithmName.RALAMBDA;
 	}
-	
+
 	public ClassificationTree getCT() {
 		return ct;
 	}

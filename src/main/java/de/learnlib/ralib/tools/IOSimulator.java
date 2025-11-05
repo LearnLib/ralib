@@ -37,8 +37,8 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
-import de.learnlib.ralib.learning.ralambda.RaDT;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
+import de.learnlib.ralib.learning.ralambda.SLCT;
+import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -218,11 +218,13 @@ public class IOSimulator extends AbstractToolWithRandomWalk {
                 this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-                ((RaLambda)this.rastar).setSolver(solver);
+//                this.rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//                ((RaLambda)this.rastar).setSolver(solver);
+                this.rastar = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
                 break;
             case AbstractToolWithRandomWalk.LEARNER_RADT:
-            	this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+//            	this.rastar = new RaDT(mto, hypFactory, mlo, consts, true, actions);
+            	this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
             	break;
             default:
                 throw new ConfigurationException("Unknown Learning algorithm: " + this.learner);

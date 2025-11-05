@@ -193,10 +193,11 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
-        ralambda.learn();
+        sllambda.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
@@ -205,9 +206,9 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(IQUERY),
         		new PSymbolInstance(OYES, new DataValue(T_INT, BigDecimal.ONE)));
-        ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
+        sllambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
 
-        ralambda.learn();
+        sllambda.learn();
 
         ce = Word.fromSymbols(
         		new PSymbolInstance(IPUT, new DataValue(T_INT, BigDecimal.ZERO)),
@@ -218,10 +219,10 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         		new PSymbolInstance(OECHO, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(IQUERY),
         		new PSymbolInstance(ONO, new DataValue(T_INT, BigDecimal.ZERO)));
-        boolean acc = ralambda.getHypothesis().accepts(ce);
+        boolean acc = sllambda.getHypothesis().accepts(ce);
         if (!acc) {
-        	ralambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
-        	ralambda.learn();
+        	sllambda.addCounterexample(new DefaultQuery<PSymbolInstance, Boolean>(ce, true));
+        	sllambda.learn();
         }
 
         // if learning reaches this point without assertion violations, the test is passed
@@ -266,9 +267,10 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
-        ralambda.learn();
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
+        sllambda.learn();
 
         String[] ces = {"IPRACK[0[int]] Otimeout[] IINVITE[1[int]] Otimeout[] / true",
         		        "Inil[] Otimeout[] IINVITE[0[int]] O100[0[int]] / true",
@@ -280,8 +282,8 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = buildSIPCEs(ces, actions);
 
         while (!ceQueue.isEmpty()) {
-        	ralambda.addCounterexample(ceQueue.pop());
-        	ralambda.learn();
+        	sllambda.addCounterexample(ceQueue.pop());
+        	sllambda.learn();
         }
 
         Assert.assertTrue(true);
@@ -325,9 +327,10 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
-        ralambda.learn();
+//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
+//        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
+        sllambda.learn();
 
         String[] ces = {"IINVITE[0[int]] O100[0[int]] / true",
         		        "IACK[0[int]] Otimeout[] IINVITE[0[int]] Otimeout[] / true",
@@ -343,8 +346,8 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         Deque<DefaultQuery<PSymbolInstance, Boolean>> ceQueue = buildSIPCEs(ces, actions);
 
         while (!ceQueue.isEmpty()) {
-        	ralambda.addCounterexample(ceQueue.pop());
-        	ralambda.learn();
+        	sllambda.addCounterexample(ceQueue.pop());
+        	sllambda.learn();
         }
 
         Assert.assertTrue(true);

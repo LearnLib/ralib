@@ -22,7 +22,7 @@ import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerat
 import de.learnlib.ralib.learning.LocationComponent;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.ralambda.DiscriminationTree;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
+import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
@@ -96,7 +96,7 @@ public class DT implements DiscriminationTree {
     public void initialize() {
         if (ioMode) {
             DTInnerNode parent = root;
-            MappedPrefix epsilon = new MappedPrefix(RaLambda.EMPTY_PREFIX, new Bijection<>());
+            MappedPrefix epsilon = new MappedPrefix(RaStar.EMPTY_PREFIX, new Bijection<>());
             for (ParameterizedSymbol symbol : inputs) {
                 if (symbol instanceof OutputSymbol) {
                     DTInnerNode outputNode = new DTInnerNode(new SymbolicSuffix(symbol));
@@ -114,7 +114,7 @@ public class DT implements DiscriminationTree {
                     sink = (DTLeaf) branch.getChild();
             }
         } else {
-            sift(RaLambda.EMPTY_PREFIX, true);
+            sift(RaStar.EMPTY_PREFIX, true);
         }
     }
 

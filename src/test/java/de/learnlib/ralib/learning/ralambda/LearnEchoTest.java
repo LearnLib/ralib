@@ -59,7 +59,8 @@ public class LearnEchoTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+//        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, sul.getActionSymbols());
         learner.learn();
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
