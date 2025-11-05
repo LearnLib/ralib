@@ -11,8 +11,8 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
+import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class CTInnerNode extends CTNode {
@@ -65,9 +65,12 @@ public class CTInnerNode extends CTNode {
 		return leaf;
 	}
 
-	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
+	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
+		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
+		
+		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
 
 		CTInnerNode newNode = new CTInnerNode(this, suffix);
 		CTBranch newBranch = new CTBranch(b.getPath(), newNode);
@@ -84,6 +87,11 @@ public class CTInnerNode extends CTNode {
 		for (Prefix u : prefixes) {
 			l = sift(u, oracle, solver, ioMode);
 			leaves.put(u, l);
+		}
+		for (ShortPrefix u : shorts) {
+			if (!(u instanceof ShortPrefix)) {
+				leaves.get(u).elevatePrefix(u, oracle, inputs);
+			}
 		}
 
 		return leaves;

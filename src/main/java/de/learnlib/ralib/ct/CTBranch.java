@@ -4,7 +4,6 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.smt.ConstraintSolver;
 
@@ -30,7 +29,7 @@ public class CTBranch {
 		if (!reprPath.typeSizesMatch(other)) {
 			return null;
 		}
-		
+
 		Set<DataValue> regs = reprPath.getMemorable();
 		Set<DataValue> otherRegs = other.getMemorable();
 
@@ -38,6 +37,8 @@ public class CTBranch {
 
 		for (Bijection<DataValue> vars : it) {
 			if (reprPath.isEquivalent(other, vars, solver)) {
+//			if (reprPath.isEquivalent(other, vars, solver) &&
+//					other.isEquivalent(getPath(), vars, solver)) {
 				return vars;
 			}
 		}
@@ -48,7 +49,7 @@ public class CTBranch {
 	public CTPath getRepresentativePath() {
 		return reprPath;
 	}
-	
+
 	@Override
 	public String toString() {
 		return child.toString();
