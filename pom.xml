@@ -47,7 +47,7 @@
         </developer>
         <developer>
             <id>kostis</id>
-            <name>Konstantinos Sagonas</name>
+            <name>Kostis Sagonas</name>
             <email>kostis@it.uu.se</email>
             <organization>Uppsala University, Uppsala, Sweden</organization>
             <roles>
@@ -66,7 +66,7 @@
     </developers>
     <contributors>
         <contributor>
-            <name>Sophia Cassel</name>
+            <name>Sofia Cassel</name>
             <organization>Uppsala University, Uppsala, Sweden</organization>
             <roles>
                 <role>Developer</role>
