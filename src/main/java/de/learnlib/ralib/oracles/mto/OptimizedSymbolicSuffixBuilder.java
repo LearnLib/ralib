@@ -51,7 +51,6 @@ public class OptimizedSymbolicSuffixBuilder {
      * @param prefix (last symbol will be prepended to suffix)
      * @param sdt
      * @param suffix
-     * @param registers - a list of registers that must be revealed by the suffix
      * @return a new suffix formed by prepending suffix with the last symbol of prefix
      */
     public SymbolicSuffix extendSuffix(Word<PSymbolInstance> prefix, SDT sdt, SymbolicSuffix suffix, DataValue... values) {
