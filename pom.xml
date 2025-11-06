@@ -67,6 +67,7 @@
                                 <include>**/*.xml</include>
                             </includes>
                             <excludes>
+                                <exclude>.idea/**/*.xml</exclude>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
                             <endWithNewline />
