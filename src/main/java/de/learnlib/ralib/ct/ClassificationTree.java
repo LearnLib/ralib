@@ -581,7 +581,7 @@ public class ClassificationTree {
 					if (children.isEmpty()) {
 						return Optional.empty();
 					}
-					node = children.getFirst().getChild();
+					node = children.stream().findFirst().get().getChild();
 				}
 				return Optional.of((CTLeaf) node);
 			}
