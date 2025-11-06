@@ -40,7 +40,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 			boolean answer = traceBoolean(query.getInput());
 			query.answer(answer);
 		}
-		countQueries(queries.size());
+//		countQueries(queries.size());
 	}
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {
@@ -49,6 +49,7 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
             return ret;
         }
         ret = oracle.answerQuery(query);
+        countQueries(1);
         addToCache(query, ret);
         return ret;
     }
