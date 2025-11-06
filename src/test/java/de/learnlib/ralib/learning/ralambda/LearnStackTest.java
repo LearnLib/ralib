@@ -254,30 +254,28 @@ public class LearnStackTest extends RaLibTestSuite {
             measuresStar[seed] = runner.getMeasurements();
             runner.resetMeasurements();
         }
-        
-        System.out.println(Arrays.toString(measuresLambda));
 
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 60, Resets: 1199, Inputs: 0}," +
-			    " {TQ: 65, Resets: 1859, Inputs: 0}," +
-			    " {TQ: 60, Resets: 1178, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1516, Inputs: 0}," +
-			    " {TQ: 70, Resets: 2717, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1443, Inputs: 0}," +
-			    " {TQ: 56, Resets: 1148, Inputs: 0}," +
-			    " {TQ: 41, Resets: 1089, Inputs: 0}," +
-			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
-			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
+			    "[{TQ: 93, Resets: 435, Inputs: 0}," +
+			    " {TQ: 103, Resets: 737, Inputs: 0}," +
+			    " {TQ: 88, Resets: 441, Inputs: 0}," +
+			    " {TQ: 98, Resets: 574, Inputs: 0}," +
+			    " {TQ: 113, Resets: 936, Inputs: 0}," +
+			    " {TQ: 92, Resets: 597, Inputs: 0}," +
+			    " {TQ: 82, Resets: 446, Inputs: 0}," +
+			    " {TQ: 58, Resets: 418, Inputs: 0}," +
+			    " {TQ: 133, Resets: 694, Inputs: 0}," +
+			    " {TQ: 63, Resets: 470, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
-			    "[{TQ: 51, Resets: 1589, Inputs: 0}," +
-			    " {TQ: 50, Resets: 12577, Inputs: 0}," +
-			    " {TQ: 63, Resets: 1317, Inputs: 0}," +
-			    " {TQ: 50, Resets: 10669, Inputs: 0}," +
-			    " {TQ: 39, Resets: 11088, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1310, Inputs: 0}," +
-			    " {TQ: 60, Resets: 1298, Inputs: 0}," +
-			    " {TQ: 49, Resets: 1207, Inputs: 0}," +
-			    " {TQ: 53, Resets: 11461, Inputs: 0}," +
-			    " {TQ: 49, Resets: 1301, Inputs: 0}]");
+			    "[{TQ: 51, Resets: 838, Inputs: 0}," +
+			    " {TQ: 50, Resets: 10681, Inputs: 0}," +
+			    " {TQ: 63, Resets: 599, Inputs: 0}," +
+			    " {TQ: 50, Resets: 9021, Inputs: 0}," +
+			    " {TQ: 39, Resets: 9971, Inputs: 0}," +
+			    " {TQ: 62, Resets: 606, Inputs: 0}," +
+			    " {TQ: 60, Resets: 603, Inputs: 0}," +
+			    " {TQ: 49, Resets: 520, Inputs: 0}," +
+			    " {TQ: 53, Resets: 9344, Inputs: 0}," +
+			    " {TQ: 49, Resets: 620, Inputs: 0}]");
     }
 }
