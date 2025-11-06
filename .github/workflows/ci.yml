@@ -16,4 +16,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Compile, check, and run tests
-        run: mvn verify assembly:single
+        run: mvn -Pbundles verify assembly:single
