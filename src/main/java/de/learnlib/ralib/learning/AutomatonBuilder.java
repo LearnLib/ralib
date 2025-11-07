@@ -30,8 +30,6 @@ import de.learnlib.ralib.automata.Transition;
 import de.learnlib.ralib.data.*;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.dt.DT;
-import de.learnlib.ralib.dt.DTHyp;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
@@ -65,11 +63,11 @@ public class AutomatonBuilder {
         this.automaton = new Hypothesis(consts);
     }
 
-    public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts, DT dt) {
-    	this.consts = consts;
-    	this.components = components;
-    	this.automaton = new DTHyp(consts, dt);
-    }
+//    public AutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components, Constants consts, DT dt) {
+//    	this.consts = consts;
+//    	this.components = components;
+//    	this.automaton = new DTHyp(consts, dt);
+//    }
 
     public Hypothesis toRegisterAutomaton() {
         LOGGER.debug(Category.EVENT, "computing hypothesis");
@@ -152,8 +150,8 @@ public class AutomatonBuilder {
 
         // TODO: better solution
         // guard is null because r is transition from a short prefix
-        if (automaton instanceof DTHyp && guard == null)
-            return;
+//        if (automaton instanceof DTHyp && guard == null)
+//            return;
 
         assert true;
         assert guard != null;

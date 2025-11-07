@@ -57,7 +57,7 @@ public class SLCT implements RaLearningAlgorithm {
 
     private final ConstraintSolver solver;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RaDT.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SLCT.class);
 
     public SLCT(TreeOracle sulOracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle,
     		Constants consts, boolean ioMode, ConstraintSolver solver, ParameterizedSymbol ... inputs) {
