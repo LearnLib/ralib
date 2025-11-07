@@ -119,7 +119,7 @@ public class LearnLoginTest extends RaLibTestSuite {
 	    measuresStar[seed] = runner.getMeasurements();
 	    runner.resetMeasurements();
         }
-        
+
         Assert.assertEquals(Arrays.toString(measuresLambda),
 			    "[{TQ: 88, Resets: 1997, Inputs: 0}," +
 			    " {TQ: 88, Resets: 1984, Inputs: 0}," +

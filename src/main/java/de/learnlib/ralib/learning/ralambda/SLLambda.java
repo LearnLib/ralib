@@ -28,13 +28,13 @@ import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
 public class SLLambda implements RaLearningAlgorithm {
-	
+
 	private final ClassificationTree ct;
-	
+
 	private final Constants consts;
 
     private final Deque<DefaultQuery<PSymbolInstance, Boolean>> counterexamples;
-    
+
     private CTHypothesis hyp;
 
     private final TreeOracle sulOracle;
@@ -45,7 +45,7 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
-    
+
     private final Map<DataType, Theory> teachers;
 
     private QueryStatistics queryStats;
@@ -71,21 +71,21 @@ public class SLLambda implements RaLearningAlgorithm {
     	ct = new ClassificationTree(sulOracle, solver, restrictionBuilder, suffixBuilder, consts, ioMode, inputs);
     	ct.initialize();
     }
-    
+
 	@Override
 	public void learn() {
 		if (hyp == null) {
 			while(!checkClosedness());
 			buildHypothesis();
 		}
-		
+
 		while(analyzeCounterExample());
-		
+
 		if (queryStats != null) {
 			queryStats.hypothesisConstructed();
 		}
 	}
-	
+
 	private boolean checkClosedness() {
 		if (!ct.checkOutputClosed()) {
 			return false;
@@ -101,7 +101,7 @@ public class SLLambda implements RaLearningAlgorithm {
 		}
 		return true;
 	}
-	
+
 	private boolean checkConsistency() {
 		if (!ct.checkLocationConsistency()) {
 			return false;
@@ -119,12 +119,12 @@ public class SLLambda implements RaLearningAlgorithm {
 		CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, ioMode, solver);
 		hyp = ab.buildHypothesis();
 	}
-	
+
 	private boolean analyzeCounterExample() {
 		if (counterexamples.isEmpty()) {
 			return false;
 		}
-        
+
 		// check whether ce is still a ce
         DefaultQuery<PSymbolInstance, Boolean> ce = counterexamples.peek();
         Word<PSymbolInstance> ceWord = ce.getInput();
@@ -137,12 +137,12 @@ public class SLLambda implements RaLearningAlgorithm {
         }
 
         // analyze counterexample
-        
+
         if (queryStats != null) {
         	queryStats.analyzingCounterExample();
         	queryStats.analyzeCE(ceWord);
         }
-        
+
         PrefixFinder prefixFinder = new PrefixFinder(sulOracle,
         		hyp,
         		ct,
@@ -150,11 +150,11 @@ public class SLLambda implements RaLearningAlgorithm {
         		restrictionBuilder,
         		solver,
         		consts);
-        
+
         Result res = prefixFinder.analyzeCounterExample(ceWord);
 
         // process counterexample
-        
+
         if (queryStats != null)
         	queryStats.processingCounterExample();
 
@@ -168,7 +168,7 @@ public class SLLambda implements RaLearningAlgorithm {
         	ct.expand(res.prefix());
         	break;
         }
-        
+
         boolean closedAndConsistent = false;
         while(!closedAndConsistent) {
         	if (checkClosedness()) {
@@ -177,7 +177,7 @@ public class SLLambda implements RaLearningAlgorithm {
         		}
         	}
         }
-        
+
         buildHypothesis();
         return true;
 	}

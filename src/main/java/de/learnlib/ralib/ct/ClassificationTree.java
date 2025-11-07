@@ -15,14 +15,11 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
-import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
@@ -440,7 +437,7 @@ public class ClassificationTree {
 		}
 		return Optional.empty();
 	}
-	
+
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
 		Word<PSymbolInstance> u = leaf.getRepresentativePrefix();
 		SDT sdt = oracle.treeQuery(u, av);
@@ -563,7 +560,7 @@ public class ClassificationTree {
 		}
 		return ret.toArray(new Register[ret.size()]);
 	}
-	
+
 	/*
 	 * Returns the sink node for IO automata
 	 */
@@ -571,7 +568,7 @@ public class ClassificationTree {
 		if (!ioMode) {
 			return Optional.empty();
 		}
-		
+
 		for (CTBranch branch : root.getBranches()) {
 			if (!branch.getPath().isAccepting()) {
 				CTNode node = branch.getChild();

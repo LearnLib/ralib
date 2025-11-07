@@ -45,15 +45,8 @@ import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
-import de.learnlib.ralib.dt.DTHyp;
-import de.learnlib.ralib.dt.DTLeaf;
-import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
@@ -97,12 +90,12 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
 //        RaStar rastar = new RaStar(mto, hypFactory, slo,
 //                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
-        
+
         SymbolicSuffixRestrictionBuilder rb = new SymbolicSuffixRestrictionBuilder(consts, teachers);
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
         ClassificationTree ct = new ClassificationTree(mto, solver, rb, sb, consts, false,
         		I_LOGIN, I_LOGOUT, I_REGISTER);
-        
+
         ct.initialize();
         boolean closed = false;
         while(!closed) {
@@ -124,7 +117,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
                         new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)));
 
         PrefixFinder pf = new PrefixFinder(mto, hyp, ct, teachers, rb, solver, consts);
-        
+
 //        PrefixFinder pf = new PrefixFinder(
 //                MTO,
 //                HYPFACTORY.CREATETREEORACLE(HYP), HYP,
@@ -169,7 +162,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
         ClassificationTree ct = new ClassificationTree(mto, solver, rb, sb, consts, false,
         		I_PUSH, I_POP);
-        
+
         ct.initialize();
         boolean closed = false;
         while(!closed) {
@@ -200,39 +193,39 @@ public class PrefixFinderTest extends RaLibTestSuite {
 //        );
 
         PrefixFinder pf = new PrefixFinder(mto, hyp, ct, teachers, rb, solver, consts);
-        
+
 //        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         Result res = pf.analyzeCounterExample(ce);
         Assert.assertEquals(res.result(), PrefixFinder.ResultType.TRANSITION);
         Assert.assertEquals(res.prefix().toString(), "push[0[T_int]] pop[0[T_int]]");
     }
-    
+
     private final DataType DT = new DataType("double");
     private final InputSymbol A = new InputSymbol("α", DT);
     private final InputSymbol B = new InputSymbol("β");
-    
+
     private RegisterAutomaton buildTestAutomaton() {
     	MutableRegisterAutomaton ra = new MutableRegisterAutomaton();
-    	
+
     	Register x1 = new Register(DT, 1);
     	Parameter p1 = new Parameter(DT, 1);
-    	
+
     	RALocation l0 = ra.addInitialState(true);
     	RALocation l1 = ra.addState(false);
     	RALocation l2 = ra.addState(false);
     	RALocation l3 = ra.addState(false);
-    	
+
     	Expression<Boolean> gTrue = ExpressionUtil.TRUE;
     	Expression<Boolean> gGT = new NumericBooleanExpression(x1, NumericComparator.GE, p1);
     	Expression<Boolean> gLT = new NumericBooleanExpression(x1, NumericComparator.LT, p1);
-    	
+
     	VarMapping<Register, Parameter> mapX1P1 = new VarMapping<>();
     	mapX1P1.put(x1, p1);
     	VarMapping<Register, SymbolicDataValue> mapNo = new VarMapping<>();
-    	
+
     	Assignment assX1P1 = new Assignment(mapX1P1);
     	Assignment assNo = new Assignment(mapNo);
-    	
+
     	ra.addTransition(l0, A, new InputTransition(gTrue, A, l0, l1, assX1P1));
     	ra.addTransition(l0, B, new InputTransition(gTrue, B, l0, l0, assNo));
     	ra.addTransition(l1, A, new InputTransition(gGT, A, l1, l2, assNo));
@@ -242,25 +235,25 @@ public class PrefixFinderTest extends RaLibTestSuite {
     	ra.addTransition(l2, B, new InputTransition(gTrue, B, l2, l2, assNo));
     	ra.addTransition(l3, A, new InputTransition(gTrue, A, l3, l0, assNo));
     	ra.addTransition(l3, B, new InputTransition(gTrue, B, l3, l0, assNo));
-    	
+
     	return ra;
     }
-    
+
     @Test
     public void testAnalyzeCELocation() {
     	RegisterAutomaton ra = buildTestAutomaton();
     	DataWordOracle dwOracle = new SimulatorOracle(ra);
-    	
+
     	final Map<DataType, Theory> teachers = new LinkedHashMap<>();
     	DoubleInequalityTheory dit = new DoubleInequalityTheory(DT);
     	dit.useSuffixOptimization(false);
     	teachers.put(DT, dit);
-    	
+
     	ConstraintSolver solver = new ConstraintSolver();
     	Constants consts = new Constants();
-    	
+
     	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
-    	
+
     	SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
     	OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
@@ -268,42 +261,42 @@ public class PrefixFinderTest extends RaLibTestSuite {
         DataValue dv1 = new DataValue(DT, BigDecimal.ONE);
         DataValue dv2 = new DataValue(DT, BigDecimal.valueOf(2));
         DataValue dv3 = new DataValue(DT, BigDecimal.valueOf(3));
-    	
+
     	ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, A, B);
-    	
+
     	ct.initialize();
     	ct.checkLocationClosedness();
     	ct.checkLocationClosedness();
 
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), false, solver);
         CTHypothesis hyp = ab.buildHypothesis();
-        
+
     	Word<PSymbolInstance> ce1 = Word.fromSymbols(
     			new PSymbolInstance(A, dv1),
     			new PSymbolInstance(A, dv2),
     			new PSymbolInstance(A, dv3));
-    	
+
     	PrefixFinder pf = new PrefixFinder(mto, hyp, ct, teachers, restrBuilder, solver, consts);
-    	
+
     	Result res = pf.analyzeCounterExample(ce1);
     	Assert.assertEquals(res.result(), PrefixFinder.ResultType.LOCATION);
     	Assert.assertEquals(res.prefix().toString(), "α[1[double]] α[2[double]]");
-    	
+
     	ct.expand(res.prefix());
     	boolean consistent = ct.checkLocationConsistency();
     	Assert.assertFalse(consistent);
-    	
+
     	ab = new CTAutomatonBuilder(ct, consts, false, solver);
     	hyp = ab.buildHypothesis();
     	pf = new PrefixFinder(mto, hyp, ct, teachers, restrBuilder, solver, consts);
-    	
+
     	Word<PSymbolInstance> ce2 = Word.fromSymbols(
     			new PSymbolInstance(A, dv1),
     			new PSymbolInstance(A, dv0),
     			new PSymbolInstance(B));
-    	
+
     	Assert.assertFalse(hyp.accepts(ce2) == ra.accepts(ce2));
-    	
+
     	res = pf.analyzeCounterExample(ce2);
     	Assert.assertEquals(res.result(), PrefixFinder.ResultType.TRANSITION);
     	Assert.assertEquals(res.prefix().toString(), "α[1[double]] α[0[double]]");

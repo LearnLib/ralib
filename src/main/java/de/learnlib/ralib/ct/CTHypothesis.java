@@ -43,11 +43,11 @@ public class CTHypothesis extends Hypothesis {
 	public void putLeaves(Map<CTLeaf, RALocation> leaves) {
 		this.leaves.putAll(leaves);
 	}
-	
+
 	public void setSink(RALocation sink) {
 		this.sink = sink;
 	}
-	
+
 	public RALocation getSink() {
 		return sink;
 	}
@@ -64,7 +64,7 @@ public class CTHypothesis extends Hypothesis {
 	public CTLeaf getLeaf(RALocation location) {
 		return leaves.inverse().get(location);
 	}
-	
+
 	@Override
     public RARun getRun(Word<PSymbolInstance> word) {
         int n = word.length();

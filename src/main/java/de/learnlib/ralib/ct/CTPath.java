@@ -13,9 +13,6 @@ import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.words.InputSymbol;
-import de.learnlib.ralib.words.OutputSymbol;
-import de.learnlib.ralib.words.ParameterizedSymbol;
 
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
@@ -120,7 +117,7 @@ public class CTPath {
 //						(prefix.length() < 1 || prefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol)) {
 //					continue;
 //				}
-//				
+//
 //				if (first instanceof InputSymbol &&
 //						prefix.length() > 0 &&
 //						prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol) {

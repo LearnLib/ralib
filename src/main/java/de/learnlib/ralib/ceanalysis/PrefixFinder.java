@@ -1,9 +1,7 @@
 package de.learnlib.ralib.ceanalysis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -25,10 +23,7 @@ import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.data.util.PermutationIterator;
-import de.learnlib.ralib.data.util.RemappingIterator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -38,7 +33,6 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.smt.ReplacingValuesVisitor;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
-import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import gov.nasa.jpf.constraints.api.Expression;
@@ -119,7 +113,7 @@ public class PrefixFinder {
 
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
-	
+
 	/*
 	 * Generate a mapping from the register valuation of u on the hypothesis to val
 	 */
@@ -138,7 +132,7 @@ public class PrefixFinder {
 		}
 		return ret;
 	}
-	
+
 	private Set<Mapping<DataValue, DataValue>> extendedValuationRenamings(SDT uSDT, Set<DataValue> uValuation, RARun run, int id) {
 		Set<Mapping<DataValue, DataValue>> identity = new LinkedHashSet<>();
 		identity.add(new Mapping<>());
@@ -153,7 +147,7 @@ public class PrefixFinder {
 			return identity;
 		}
 		DataValue[] sdtValsArr = sdtVals.toArray(new DataValue[sdtVals.size()]);
-		
+
 		ArrayList<DataValue> runVals = new ArrayList<>();
 		for (int i = 1; i <= id-1; i++) {
 			for (DataValue d : run.getTransition(i).getParameterValues()) {
@@ -163,7 +157,7 @@ public class PrefixFinder {
 		for (DataValue d : run.getValuation(id-1).values()) {
 			runVals = removeFirst(runVals, d);
 		}
-		
+
 		Set<Mapping<DataValue, DataValue>> renamings = new LinkedHashSet<>();
 		PermutationIterator permit = new PermutationIterator(runVals.size());
 		for (int[] order : permit) {
@@ -182,10 +176,10 @@ public class PrefixFinder {
 				renamings.add(remapping);
 			}
 		}
-		
+
 		return renamings;
 	}
-	
+
 	private ArrayList<DataValue> removeFirst(ArrayList<DataValue> list, DataValue d) {
 		ArrayList<DataValue> ret = new ArrayList<>();
 		ret.addAll(list);
@@ -228,7 +222,7 @@ public class PrefixFinder {
 			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vi).toRegisterSDT(uExtHyp, consts);
 			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vi).toRegisterSDT(uExtSul, consts);
 //			assert false : "Remember to convert SDTs to register SDTs";
-			
+
 			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
 				return Optional.empty();
 			}
@@ -297,16 +291,16 @@ public class PrefixFinder {
 		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
 		DataValue[] vals = symbol.getParameterValues();
 		ParameterGenerator pgen = new ParameterGenerator();
-		
+
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
         Expression<Boolean> guardRenamed = rvv.apply(guard, renaming);
-        
+
 		for (int i = 0; i < vals.length; i++) {
 			Parameter p = pgen.next(vals[i].getDataType());
 			mapping.put(p, vals[i]);
 		}
 		mapping.putAll(consts);
-		
+
 		return solver.isSatisfiable(guardRenamed, mapping);
 	}
 }

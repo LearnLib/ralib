@@ -20,8 +20,6 @@ import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.io.IOCache;
-import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
@@ -115,7 +113,7 @@ public class TestQueryCount extends RaLibTestSuite {
 
         learner.addCounterexample(ceQuery);
         learner.learn();
-        
+
         long memQueries3 = learner.getQueryStatistics().getMemQueries();
         Assert.assertEquals(memQueries3, 48);
     }

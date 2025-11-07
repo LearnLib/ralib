@@ -75,7 +75,7 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
 //        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
 //        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
-        
+
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
