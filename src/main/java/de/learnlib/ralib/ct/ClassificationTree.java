@@ -342,9 +342,9 @@ public class ClassificationTree {
 			while (sp.hasNext()) {
 				ShortPrefix uPrime = sp.next();
 				for (ParameterizedSymbol action : inputs) {
-					for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> ue : u.getBranching(action).getBranches().entrySet()) {
-						Word<PSymbolInstance> ua = ue.getKey();
-						Expression<Boolean> g = ue.getValue();
+					for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> uEntry : u.getBranching(action).getBranches().entrySet()) {
+						Word<PSymbolInstance> ua = uEntry.getKey();
+						Expression<Boolean> g = uEntry.getValue();
 						Bijection<DataValue> gamma = u.getRpBijection().compose(uPrime.getRpBijection().inverse());
 
 						ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
