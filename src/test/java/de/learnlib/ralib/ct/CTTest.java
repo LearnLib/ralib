@@ -265,8 +265,6 @@ public class CTTest {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 
-		System.out.println(sul);
-
         DataValue dv0 = new DataValue(doubleType, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(doubleType, BigDecimal.ONE);
         DataValue dv2 = new DataValue(doubleType, BigDecimal.valueOf(2));
@@ -320,12 +318,8 @@ public class CTTest {
         ct.expand(o1yo2yo0y);
         ct.expand(o1yo2yo2y);
 
-        System.out.println(ct);
-
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, new Constants(), true, solver);
         Hypothesis hyp = ab.buildHypothesis();
-
-        System.out.println(hyp);
 	}
 
 	private RegisterAutomaton buildTestRA() {

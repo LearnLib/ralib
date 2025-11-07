@@ -132,8 +132,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
 
-        System.out.println(sul);
-
         DataValue dv0 = new DataValue(DT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(DT, BigDecimal.ONE);
         DataValue dv2 = new DataValue(DT, BigDecimal.valueOf(2));
@@ -264,8 +262,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
         ConstraintSolver solver = TestUtil.getZ3Solver();
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, consts, solver);
-
-        System.out.println(sul);
 
         DataValue dv0 = new DataValue(T_INT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
