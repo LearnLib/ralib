@@ -55,25 +55,9 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		return null;
 	}
 
-//	public Set<Word<PSymbolInstance>> getWords() {
-//		return getWords(prefixes);
-//	}
-
 	public Set<ShortPrefix> getShortPrefixes() {
 		return shortPrefixes;
 	}
-
-//	public Set<Word<PSymbolInstance>> getShortWords() {
-//		return getWords(shortPrefixes);
-//	}
-
-//	private static Set<Word<PSymbolInstance>> getWords(Set<? extends Prefix> prefixes) {
-//		Set<Word<PSymbolInstance>> words = new LinkedHashSet<>();
-//		for (Prefix p : prefixes) {
-//			words.add(p.getPrefix());
-//		}
-//		return words;
-//	}
 
 	public Prefix getRepresentativePrefix() {
 		return rp;
@@ -115,7 +99,6 @@ public class CTLeaf extends CTNode implements LocationComponent {
 
 	@Override
 	public String toString() {
-//		return prefixes.toString();
 		String str = "{RP:[" + rp.toString() + "]";
 		for (Prefix u : prefixes) {
 			if (u != rp) {

@@ -193,8 +193,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
         sllambda.learn();
@@ -267,8 +265,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
         sllambda.learn();
 
@@ -327,8 +323,6 @@ public class TestUnknownMemorable extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
         sllambda.learn();
 

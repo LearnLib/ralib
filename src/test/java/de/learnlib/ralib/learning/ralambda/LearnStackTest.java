@@ -63,12 +63,8 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
 
-//        ralambda.learn();
-//        RegisterAutomaton hyp = ralambda.getHypothesis();
         sllambda.learn();
         RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
@@ -118,8 +114,6 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
 
         sllambda.learn();
@@ -158,18 +152,8 @@ public class LearnStackTest extends RaLibTestSuite {
         sllambda.learn();
         hyp = sllambda.getHypothesis();
 
-//        Collection<SymbolicSuffix> suffixes = ralambda.getDT().getSuffixes();
-//        Set<Word<ParameterizedSymbol>> suffixActions = suffixes.stream().map(s -> s.getActions()).collect(Collectors.toSet());
-//        Set<Word<ParameterizedSymbol>> expectedSuffixActions = ImmutableSet.of(
-//            Word.fromSymbols(),
-//            Word.fromSymbols(I_PUSH),
-//            Word.fromSymbols(I_PUSH, I_PUSH),
-//            Word.fromSymbols(I_POP),
-//            Word.fromSymbols(I_POP, I_POP));
-
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
-//        Assert.assertEquals(suffixActions, expectedSuffixActions);
     }
 
     @Test
@@ -192,8 +176,6 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
 
         sllambda.learn();

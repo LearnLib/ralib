@@ -418,7 +418,6 @@ public abstract class EqualityTheory implements Theory {
             Expression<Boolean> guard, int param,
             ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
-//    	SuffixValue sv = new SuffixValue(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(v -> v.getDataType().equals(p.getDataType()))
@@ -440,7 +439,6 @@ public abstract class EqualityTheory implements Theory {
     }
 
     private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
-//    	SuffixValuation valuation = new SuffixValuation();
     	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
     	valuation.put(p, val);
     	valuation.putAll(consts);

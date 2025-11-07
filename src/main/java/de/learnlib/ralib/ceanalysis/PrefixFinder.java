@@ -127,7 +127,6 @@ public class PrefixFinder {
 			if (by == null) {
 				by = replace;
 			}
-//			assert by != null;
 			ret.put(replace, by);
 		}
 		return ret;
@@ -221,7 +220,6 @@ public class PrefixFinder {
 			Word<PSymbolInstance> uExtHyp = extensions.next();    // u_{i-1}\alpha_i(d_i')
 			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vi).toRegisterSDT(uExtHyp, consts);
 			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vi).toRegisterSDT(uExtSul, consts);
-//			assert false : "Remember to convert SDTs to register SDTs";
 
 			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
 				return Optional.empty();
@@ -271,12 +269,10 @@ public class PrefixFinder {
 		CTLeaf leafNext = hyp.getLeaf(locNext);
 		RegisterValuation mu = run.getValuation(idx-1);
 		PSymbolInstance a = run.getTransition(idx);
-//		ShortPrefix rp = (ShortPrefix) hyp.getLeaf(loc).getRepresentativePrefix();
 		ShortPrefix sp = hyp.getLeaf(loc).getShortPrefixes().iterator().next();
 		Mapping<DataValue, DataValue> renaming = valuationRenaming(sp, mu);
 		for (Word<PSymbolInstance> ua : ct.getExtensions(sp, a.getBaseSymbol())) {
 			if (leafNext.getPrefixes().contains(ua)) {
-//				Expression<Boolean> g = sp.getBranching(a.getBaseSymbol()).getBranches().get(ua);
 				for (Expression<Boolean> g : sp.getBranching(a.getBaseSymbol()).getBranches().values()) {
 					if (isGuardSatisfied(g, renaming, a)) {
 						return Optional.of(g);

@@ -94,10 +94,6 @@ public class ClassificationTree {
 		return new LinkedHashSet<>(prefixes.keySet());
 	}
 
-//	public Set<Word<PSymbolInstance>> getShortPrefixes() {
-//		return new LinkedHashSet<>(shortPrefixes);
-//	}
-
 	public CTLeaf getLeaf(Word<PSymbolInstance> u) {
 		return prefixes.get(u);
 	}
@@ -370,9 +366,6 @@ public class ClassificationTree {
 
 	public boolean checkTransitionConsistency() {
 		for (ShortPrefix u : getShortPrefixes()) {
-//			if (u.length() < 1) {
-//				continue;
-//			}
 			for (ParameterizedSymbol action : inputs) {
 				Set<Word<PSymbolInstance>> extensions = getExtensions(u, action);
 				for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : u.getBranching(action).getBranches().entrySet()) {
@@ -382,7 +375,6 @@ public class ClassificationTree {
 						if (uB.equals(uA)) {
 							continue;
 						}
-//						ParameterValuation uBVals = actionValuation(uB);
 						Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
 						mapping.putAll(actionValuation(uB));
 						mapping.putAll(consts);
@@ -424,7 +416,6 @@ public class ClassificationTree {
 			SDT sdtA = pA.getSDT(v).toRegisterSDT(uA, consts);
 			SDT sdtB = pB.getSDT(v).toRegisterSDT(uB, consts);
 			if (!SDT.equivalentUnderId(sdtA, sdtB)) {
-//			if (!SDT.equivalentUnderId(pA.getSDT(v), pB.getSDT(v))) {
 				CTLeaf uLeaf = getLeaf(uA.prefix(uA.length() - 1));
 				assert uLeaf != null;
 				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
@@ -493,25 +484,6 @@ public class ClassificationTree {
 								}
 							}
 						}
-
-
-//						for (Map.Entry<SymbolicSuffix, SDT> e : u.getPath().getSDTs().entrySet()) {
-//							// is u equivalent to u for v under gamma?
-//							SymbolicSuffix v = e.getKey();
-//							SDT uSDT = e.getValue();
-//							if (SDT.equivalentUnderBijection(uSDT, uSDT, gamma, solver) == null) {
-//								continue;
-//							}
-//
-//							// is ua equivalent to ua for v under (gamma union {regs(a) -> regs(a)])
-//							SDT uaSDT = ua.getSDT(v);
-//							if (SDT.equivalentUnderBijection(uaSDT, uaSDT, gamma, solver) == null) {
-//								DataValue[] regs = gamma.keySet().toArray(new DataValue[gamma.size()]);
-//								SymbolicSuffix av = extendSuffix(ua, v, regs);
-//								refine(getLeaf(u), av);
-//								return false;
-//							}
-//						}
 					}
 				}
 			}
@@ -537,7 +509,6 @@ public class ClassificationTree {
 	}
 
 	public Set<Word<PSymbolInstance>> getExtensions(Word<PSymbolInstance> u, ParameterizedSymbol action) {
-//		assert u.length() > 0;
 		return prefixes.keySet()
 				.stream()
 				.filter(w -> w.length() == u.length() + 1)

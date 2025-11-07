@@ -105,37 +105,11 @@ public class CTPath {
 		sdt = sdt == null ? oracle.treeQuery(prefix, RaStar.EMPTY_SUFFIX) : sdt;
 		r.putSDT(RaStar.EMPTY_SUFFIX, sdt);
 		for (SymbolicSuffix s : suffixes) {
-//			if (ioMode && s.getActions().length() > 0) {
-//				// error path
-//				if (prefix.length() > 0 && !r.isAccepting()) {
-//					continue;
-//				}
-//
-//				// umatched suffix
-//				ParameterizedSymbol first = s.getActions().firstSymbol();
-//				if (first instanceof OutputSymbol &&
-//						(prefix.length() < 1 || prefix.lastSymbol().getBaseSymbol() instanceof OutputSymbol)) {
-//					continue;
-//				}
-//
-//				if (first instanceof InputSymbol &&
-//						prefix.length() > 0 &&
-//						prefix.lastSymbol().getBaseSymbol() instanceof InputSymbol) {
-//					continue;
-//				}
-////				if ((prefix.length() < 1 && (s.getActions().firstSymbol() instanceof OutputSymbol))) {
-////					continue;
-////				}
-//			}
-
 			sdt = prefix.getSDT(s);
 			if (sdt == null) {
 				sdt = oracle.treeQuery(prefix, s);
-//				sdt = tqr.sdt();
-//				sdt = tqr.getSdt().relabel(tqr.getPiv().getRenaming().toVarMapping());
 			}
 
-//			r.sdts.put(s, sdt);
 			if (r.getSDT(s) == null) {
 				r.putSDT(s, sdt);
 			}

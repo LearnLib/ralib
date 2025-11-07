@@ -82,20 +82,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
         MultiTheorySDTLogicOracle mlo =
                 new MultiTheorySDTLogicOracle(consts, solver);
 
-//        for (ParameterizedSymbol ps : actions) {
-//        	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
-////        	if (ps.getArity() > 0) {
-//        		mto.treeQuery(Word.epsilon(), new SymbolicSuffix(ps));
-//        		break;
-//        	}
-//        }
-
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
-//        sllambda.setSolver(solver);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);

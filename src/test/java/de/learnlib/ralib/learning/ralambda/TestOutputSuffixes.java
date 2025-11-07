@@ -77,7 +77,6 @@ public class TestOutputSuffixes extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaDT radt = new RaDT(mto, hypFactory, mlo, consts, true, actions);
         SLCT slct = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);
         slct.learn();
 

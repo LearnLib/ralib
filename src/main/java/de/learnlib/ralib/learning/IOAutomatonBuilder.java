@@ -63,16 +63,6 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         }
     }
 
-//    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
-//            Constants consts, DT dt) {
-//    	super(components, consts, dt);
-//
-//        this.reverseConsts = new LinkedHashMap<>();
-//        for (Entry<Constant, DataValue> c : consts) {
-//            reverseConsts.put(c.getValue().getValue(), c.getKey());
-//        }
-//    }
-
     @Override
     protected Transition createTransition(ParameterizedSymbol action,
                                           Expression<Boolean> guard, RALocation src_loc, RALocation dest_loc,

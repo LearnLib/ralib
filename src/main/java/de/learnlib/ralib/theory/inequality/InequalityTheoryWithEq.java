@@ -616,7 +616,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
             Expression<Boolean> guard, int param,
             ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
-//    	SuffixValue sv = new SuffixValue(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()
     			.filter(w -> w.getDataType().equals(p.getDataType()))
@@ -652,12 +651,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	valuation.put(p, val);
     	return solver.isSatisfiable(guard, valuation);
     }
-//    private boolean tryEquality(Expression<Boolean> guard, SuffixValue sv, DataValue val, ConstraintSolver solver) {
-//    	SuffixValuation valuation = new SuffixValuation();
-//    	valuation.put(sv, val);
-//    	return solver.isSatisfiable(guard, valuation);
-//    }
-
 
     public void useSuffixOptimization(boolean useSuffixOpt) {
     	this.useSuffixOpt = useSuffixOpt;

@@ -90,7 +90,6 @@ public class CTHypothesis extends Hypothesis {
 
             for (Transition t : candidates) {
                 if (t.isEnabled(vals[i], pars, constants)) {
-//                    vals[i+1] = t.execute(vals[i], pars, constants);
                 	vals[i+1] = t.valuation(vals[i], pars, constants);
                     locs[i+1] = t.getDestination();
                     found = true;

@@ -23,15 +23,12 @@ import net.automatalib.word.Word;
 public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	private final Word<PSymbolInstance> prefix;
 	private Bijection<DataValue> rpBijection;
-//	private final Map<SymbolicSuffix, SDT> sdts;
 	private final CTPath path;
 
-//	public Prefix(Word<PSymbolInstance> prefix, Bijection rpBijection) {
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path) {
 		this.prefix = u instanceof Prefix ? ((Prefix) u).getPrefix() : u;
 		this.rpBijection = rpRenaming;
 		this.path = path;
-//		sdts = new LinkedHashMap<>();
 	}
 
 	public Prefix(Word<PSymbolInstance> prefix, CTPath path) {
@@ -40,7 +37,6 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 
 	public Prefix(Prefix prefix, Bijection<DataValue> rpRenaming) {
 		this(prefix.prefix, rpRenaming, prefix.path);
-//		sdts.putAll(u.sdts);
 	}
 
 	public Prefix(Prefix other) {
@@ -61,14 +57,6 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 		}
 		return list.toArray(new SDT[list.size()]);
 	}
-
-//	public void putSDT(SymbolicSuffix s, SDT sdt) {
-//		sdts.put(s, sdt);
-//	}
-
-//	public Word<PSymbolInstance> getPrefix() {
-//		return prefix;
-//	}
 
 	public SDT getSDT(SymbolicSuffix s) {
 		return path.getSDT(s);
@@ -92,10 +80,6 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 			return ((Prefix) other).prefix.equals(prefix);
 		}
 		return prefix.equals(other);
-//		if (!(other instanceof Prefix)) {
-//			return false;
-//		}
-//		return ((Prefix) other).prefix.equals(prefix);
 	}
 
 	@Override
