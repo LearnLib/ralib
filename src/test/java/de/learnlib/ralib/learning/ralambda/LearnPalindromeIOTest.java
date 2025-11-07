@@ -72,8 +72,6 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
@@ -101,7 +99,6 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
-//        Assert.assertEquals(hyp.getStates().size(), 5);
         Assert.assertEquals(hyp.getTransitions().size(), 16);
     }
 }

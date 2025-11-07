@@ -73,23 +73,16 @@ public class CTConsistencyTest extends RaLibTestSuite {
 
         DataValue dv0 = new DataValue(T_INT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
-        DataValue dv2 = new DataValue(T_INT, BigDecimal.valueOf(2));
 
         PSymbolInstance push0 = new PSymbolInstance(I_PUSH, dv0);
         PSymbolInstance push1 = new PSymbolInstance(I_PUSH, dv1);
         PSymbolInstance pop0 = new PSymbolInstance(I_POP, dv0);
-        PSymbolInstance pop1 = new PSymbolInstance(I_POP, dv1);
 
         Word<PSymbolInstance> pu0 = Word.fromSymbols(push0);
-        Word<PSymbolInstance> po0 = Word.fromSymbols(pop0);
         Word<PSymbolInstance> pu0pu1 = Word.fromSymbols(push0, push1);
         Word<PSymbolInstance> pu0po0 = Word.fromSymbols(push0, pop0);
-        Word<PSymbolInstance> pu0pu1po1 = Word.fromSymbols(push0, push1, pop1);
 
         SymbolicSuffix s1 = new SymbolicSuffix(pu0, Word.fromSymbols(push1));
-        SymbolicSuffix s2 = new SymbolicSuffix(Word.epsilon(), Word.fromSymbols(push0, push1));
-        SymbolicSuffix s3 = new SymbolicSuffix(pu0, Word.fromSymbols(pop0));
-        SymbolicSuffix s4 = new SymbolicSuffix(pu0pu1, Word.fromSymbols(pop1, pop0));
 
         ClassificationTree ct = new ClassificationTree(mto, solver, restrBuilder, suffixBuilder, consts, false, I_PUSH, I_POP);
 
@@ -266,7 +259,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
         DataValue dv0 = new DataValue(T_INT, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(T_INT, BigDecimal.ONE);
         DataValue dv2 = new DataValue(T_INT, BigDecimal.valueOf(2));
-        DataValue dv3 = new DataValue(T_INT, BigDecimal.valueOf(3));
 
         Word<PSymbolInstance> b0 = Word.fromSymbols(new PSymbolInstance(BETA, dv0));
         Word<PSymbolInstance> a0 = Word.fromSymbols(new PSymbolInstance(ALPHA, dv0));
@@ -280,10 +272,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
         		new PSymbolInstance(ALPHA, dv0),
         		new PSymbolInstance(ALPHA, dv1),
         		new PSymbolInstance(ALPHA, dv0));
-        Word<PSymbolInstance> a0a1b2 = Word.fromSymbols(
-        		new PSymbolInstance(ALPHA, dv0),
-        		new PSymbolInstance(ALPHA, dv1),
-        		new PSymbolInstance(BETA, dv2));
         Word<PSymbolInstance> b2b1 = Word.fromSymbols(
         		new PSymbolInstance(BETA, dv2),
         		new PSymbolInstance(BETA, dv1));

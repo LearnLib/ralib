@@ -114,8 +114,6 @@ public class LearnPQIOTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
                 -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda rastar = new RaLambda(mto, hypFactory, mlo,
-//                consts, true, sul.getActionSymbols());
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers,
                 consts, true, solver, sul.getActionSymbols());
 
@@ -141,7 +139,6 @@ public class LearnPQIOTest extends RaLibTestSuite {
             Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
-            //System.out.println("CE: " + ce);
             if (ce == null) {
                 break;
             }

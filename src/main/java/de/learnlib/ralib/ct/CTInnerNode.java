@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
+import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
@@ -45,13 +46,10 @@ public class CTInnerNode extends CTNode {
 	@Override
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		CTPath path = CTPath.computePath(oracle, prefix, getSuffixes(), ioMode);
-//		SDT sdt = path.getSDT(suffix);
-//		prefix.putSDT(suffix, sdt);
 
 		for (CTBranch b : branches) {
-			Bijection vars = b.matches(path, solver);
+			Bijection<DataValue> vars = b.matches(path, solver);
 			if (vars != null) {
-//				prefix.setRpBijection(vars);
 				prefix = new Prefix(prefix, vars, path);
 				return b.getChild().sift(prefix, oracle, solver, ioMode);
 			}
@@ -118,45 +116,5 @@ public class CTInnerNode extends CTNode {
 	public String toString() {
 		return "(" + suffix + ")";
 	}
-
-//	@Override
-//	protected void sift(Prefix u, Map<SymbolicSuffix, SDT> rpSDTs, ConstraintSolver solver, TreeOracle oracle) {
-//		TreeQueryResult tqr = oracle.treeQuery(u.getPrefix(), suffix);
-//		SDT sdt = tqr.getSdt().relabel(tqr.getPiv().getRenaming().toVarMapping());
-//
-//		Set<Register> regs = new LinkedHashSet<>();
-//		regs.addAll(u.getRegisters());
-//		regs.addAll(sdt.getRegisters());
-//
-//		Set<Register> rpRegs = new LinkedHashSet<>();
-//		for (SDT sdt : rpSDTs.values()) {
-//			rpRegs.addAll(sdt.getRegisters());
-//		}
-//
-//		for (CTBranch b : branches) {
-//			Set<Register> branchRegs = new LinkedHashSet<>(rpRegs);
-//			branchRegs.addAll(b.getSDT().getRegisters());
-//
-//			RemappingIterator it = new RemappingIterator(regs, branchRegs);
-//
-//			while(it.hasNext()) {
-//				Bijection renaming = it.next();
-//				if (!b.equivalentUnderRenaming(u, rpSDTs, renaming, solver, oracle)) {
-//					continue;
-//				}
-//
-//				// equivalent for all SDTs up to this point
-//				u = new Prefix(u, new Bijection(renaming));
-//				u.putSDT(suffix, sdt);
-//				rpSDTs.put(suffix, sdt);
-//				b.getChild().sift(u, rpSDTs, solver, oracle);
-//				return;
-//			}
-//		}
-//
-//		// no branch with equivalent SDT, create new leaf
-//		u.putSDT(suffix, sdt);
-//		CTLeaf leaf = new CTLeaf(u, this);
-//	}
 
 }

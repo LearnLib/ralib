@@ -37,8 +37,6 @@ public class CTBranch {
 
 		for (Bijection<DataValue> vars : it) {
 			if (reprPath.isEquivalent(other, vars, solver)) {
-//			if (reprPath.isEquivalent(other, vars, solver) &&
-//					other.isEquivalent(getPath(), vars, solver)) {
 				return vars;
 			}
 		}

@@ -120,7 +120,6 @@ public class SLCT implements RaLearningAlgorithm {
 
         Map<Word<PSymbolInstance>, LocationComponent> components = new LinkedHashMap<>();
         for (CTLeaf leaf : ct.getLeaves()) {
-//        	LeafComponent c = new LeafComponent(leaf);
         	for (Word<PSymbolInstance> u : leaf.getPrefixes()) {
         		components.put(u, leaf);
         	}

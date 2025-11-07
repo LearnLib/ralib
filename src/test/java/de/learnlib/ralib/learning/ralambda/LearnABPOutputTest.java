@@ -86,8 +86,6 @@ public class LearnABPOutputTest extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-//        ralambda.setSolver(solver);
         SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(

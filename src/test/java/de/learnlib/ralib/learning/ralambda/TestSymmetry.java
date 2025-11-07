@@ -203,8 +203,6 @@ public class TestSymmetry extends RaLibTestSuite {
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
 	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
-//        RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
-//        learner.setSolver(solver);
         SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
 
         learner.learn();

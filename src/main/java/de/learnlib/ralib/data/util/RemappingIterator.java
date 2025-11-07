@@ -30,7 +30,6 @@ public class RemappingIterator<T extends TypedValue> implements Iterable<Bijecti
 	}
 
 	@Override
-//	public VarMapping<Register, Register> next() {
 	public Bijection<T> next() {
 		assert next != null : "No more permutations";
 		if (replace.length == 0) {

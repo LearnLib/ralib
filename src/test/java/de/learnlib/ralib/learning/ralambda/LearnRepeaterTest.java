@@ -65,7 +65,6 @@ public class LearnRepeaterTest extends RaLibTestSuite {
 
         SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(stats);
-//        learner.setSolver(solver);
 
         learner.learn();
 
@@ -87,7 +86,6 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         learner.learn();
 
         String str = stats.toString();
-        // System.out.println(str);
         Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 6"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));
