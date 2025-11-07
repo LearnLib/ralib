@@ -35,7 +35,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -64,15 +63,15 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         }
     }
 
-    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
-            Constants consts, DT dt) {
-    	super(components, consts, dt);
-
-        this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue> c : consts) {
-            reverseConsts.put(c.getValue().getValue(), c.getKey());
-        }
-    }
+//    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
+//            Constants consts, DT dt) {
+//    	super(components, consts, dt);
+//
+//        this.reverseConsts = new LinkedHashMap<>();
+//        for (Entry<Constant, DataValue> c : consts) {
+//            reverseConsts.put(c.getValue().getValue(), c.getKey());
+//        }
+//    }
 
     @Override
     protected Transition createTransition(ParameterizedSymbol action,

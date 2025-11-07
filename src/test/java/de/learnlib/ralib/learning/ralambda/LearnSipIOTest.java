@@ -15,7 +15,6 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
@@ -85,13 +84,13 @@ public class LearnSipIOTest extends RaLibTestSuite {
         MultiTheorySDTLogicOracle mlo =
                 new MultiTheorySDTLogicOracle(consts, solver);
 
-        for (ParameterizedSymbol ps : actions) {
-        	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
-//        	if (ps.getArity() > 0) {
-        		mto.treeQuery(Word.epsilon(), new SymbolicSuffix(ps));
-        		break;
-        	}
-        }
+//        for (ParameterizedSymbol ps : actions) {
+//        	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
+////        	if (ps.getArity() > 0) {
+//        		mto.treeQuery(Word.epsilon(), new SymbolicSuffix(ps));
+//        		break;
+//        	}
+//        }
 
         TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
