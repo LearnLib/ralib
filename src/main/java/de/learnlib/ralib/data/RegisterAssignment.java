@@ -17,7 +17,7 @@ public class RegisterAssignment extends Mapping<DataValue, Register> {
         }
         return vars;
     }
-    
+
     public RegisterAssignment relabel(VarMapping<Register, Register> remapping) {
     	RegisterAssignment ret = new RegisterAssignment();
     	for (Map.Entry<DataValue, Register> e : entrySet()) {

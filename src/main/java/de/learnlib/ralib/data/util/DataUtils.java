@@ -7,7 +7,6 @@ import java.util.Set;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SuffixValuation;
-import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
@@ -24,7 +23,7 @@ public class DataUtils {
 		}
 		return ts;
 	}
-	
+
 	public static SuffixValuation actionValuation(PSymbolInstance action) {
 		SuffixValuation valuation = new SuffixValuation();
 		DataValue[] vals = action.getParameterValues();

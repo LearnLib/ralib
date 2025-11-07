@@ -11,7 +11,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 public class ShortPrefix extends Prefix {

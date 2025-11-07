@@ -18,7 +18,6 @@ package de.learnlib.ralib.oracles.mto;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -480,12 +479,12 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     public SymbolicSuffixRestrictionBuilder getRestrictionBuilder() {
     	return restrictionBuilder;
     }
-    
+
     private boolean isValid(Word<PSymbolInstance> word) {
     	if (word.length() < 1) {
     		return true;
     	}
-    	
+
     	Word<ParameterizedSymbol> actions = DataWords.actsOf(word);
     	if (actions.stream()
     			.filter(a -> a instanceof OutputSymbol)
@@ -493,7 +492,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     			.isEmpty()) {
     		return true;
     	}
-    	
+
     	boolean inExpected = true;
     	for (ParameterizedSymbol action : actions) {
     		if (inExpected ^ (action instanceof InputSymbol)) {
@@ -501,10 +500,10 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     		}
     		inExpected = !inExpected;
     	}
-    	
+
     	return true;
     }
-    
+
     private SDT makeRejectingSDT(SymbolicSuffix suffix) {
     	Queue<DataType> types = new LinkedList<>();
     	for (ParameterizedSymbol ps : suffix.getActions()) {
@@ -514,19 +513,19 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     	}
     	return makeRejectingSDT(1, types);
     }
-    
+
     private SDT makeRejectingSDT(int param, Queue<DataType> types) {
     	if (types.isEmpty()) {
     		return SDTLeaf.REJECTING;
     	}
-    	
+
     	DataType type = types.poll();
     	SuffixValue sv = new SuffixValue(type, param);
     	SDTGuard g = new SDTGuard.SDTTrueGuard(sv);
-    	
+
     	Map<SDTGuard, SDT> child = new LinkedHashMap<>();
     	child.put(g, makeRejectingSDT(param+1, types));
-    	
+
     	return new SDT(child);
     }
 }

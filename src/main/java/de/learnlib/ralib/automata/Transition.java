@@ -52,7 +52,7 @@ public class Transition {
     public boolean isEnabled(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
         return guard.evaluateSMT(SMTUtil.compose(registers, parameters, consts));
     }
-    
+
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	return this.getAssignment().valuation(registers, parameters, consts);
     }

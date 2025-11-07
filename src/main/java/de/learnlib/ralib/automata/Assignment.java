@@ -42,7 +42,7 @@ public class Assignment {
     public Assignment(VarMapping<Register, ? extends SymbolicDataValue> assignment) {
         this.assignment = assignment;
     }
-    
+
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	RegisterValuation val = new RegisterValuation();
     	for (Map.Entry<Register, ? extends SymbolicDataValue> e : assignment.entrySet()) {

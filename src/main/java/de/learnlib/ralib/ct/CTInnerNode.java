@@ -69,7 +69,7 @@ public class CTInnerNode extends CTNode {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
 		assert !getSuffixes().contains(suffix) : "Duplicate suffix: " + suffix;
-		
+
 		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
 
 		CTInnerNode newNode = new CTInnerNode(this, suffix);

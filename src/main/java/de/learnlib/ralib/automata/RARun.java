@@ -29,7 +29,7 @@ public class RARun {
 	public PSymbolInstance getTransition(int i) {
 		return transitions[i-1];
 	}
-	
+
 	public DataValue[] getDataValues(int i) {
 		ArrayList<DataValue> vals = new ArrayList<>();
 		for (int id = 0; id < i; id++) {

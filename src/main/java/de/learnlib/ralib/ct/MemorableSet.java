@@ -4,7 +4,6 @@ import java.util.LinkedHashSet;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
 
 public class MemorableSet extends LinkedHashSet<DataValue> {
 	public MemorableSet relabel(Bijection<DataValue> renaming) {

@@ -15,17 +15,14 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
-import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterAssignment;
-import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.learning.AutomatonBuilder;
-import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ConstraintSolver;
@@ -51,7 +48,7 @@ public class CTAutomatonBuilder {
 //	private final Set<Word<PSymbolInstance>> visitedTransitions;
 
 	private final CTHypothesis hyp;
-	
+
 	private final ConstraintSolver solver;
 
 //	private final Constants consts;
@@ -129,7 +126,7 @@ public class CTAutomatonBuilder {
 		Prefix dest_rp = dest_l.getRepresentativePrefix();
 		Word<PSymbolInstance> src_id = prefix.prefix(prefix.length() - 1);
 		CTLeaf src_l = ct.getLeaf(src_id);
-		
+
 //		if (!src_id.equals(src_l.getRepresentativePrefix())) {
 //			return;
 //		}
@@ -140,7 +137,7 @@ public class CTAutomatonBuilder {
 
 		RALocation src_loc = locations.get(src_id);
 		RALocation dest_loc = locations.get(dest_rp);
-		
+
 		assert src_loc != null;
 		assert dest_loc != null;
 
@@ -156,7 +153,7 @@ public class CTAutomatonBuilder {
 		// guard
 		Branching b = src_u.getBranching(action);
 		Expression<Boolean> guard = b.getBranches().get(prefix);
-		
+
 		if (guard == null) {
 			for (Expression<Boolean> g : b.getBranches().values()) {
 				DataValue[] vals = prefix.lastSymbol().getParameterValues();
@@ -173,7 +170,7 @@ public class CTAutomatonBuilder {
 		}
 
 		assert guard != null : "No guard for prefix " + prefix;
-		
+
         for (Transition tr : hyp.getTransitions(src_loc, action)) {
         	if (tr.getGuard().equals(guard)) {
         		return;
@@ -192,7 +189,7 @@ public class CTAutomatonBuilder {
         Assignment assign = AutomatonBuilder.computeAssignment(prefix, srcAssignRemapped, destAssign, remapping);
 
         Transition  t = createTransition(action, guard, src_loc, dest_loc, assign);
-        
+
         if (t != null) {
             hyp.addTransition(src_loc, action, t);
             hyp.setTransitionSequence(t, prefix);
@@ -337,16 +334,16 @@ public class CTAutomatonBuilder {
             //throw new IllegalStateException("Unsupported: " + expr.getClass());
         }
     }
-    
+
     private VarMapping<Register, Register> registerRemapping(RegisterAssignment raa, RegisterAssignment rab, Bijection<DataValue> bijection) {
     	VarMapping<Register, Register> ret = new VarMapping<>();
-    	
+
     	for (Map.Entry<DataValue, DataValue> be : bijection.entrySet()) {
     		Register replace = raa.get(be.getKey());
     		Register by = rab.get(be.getValue());
     		ret.put(replace, by);
     	}
-    	
+
     	return ret;
     }
 }

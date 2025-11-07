@@ -1,7 +1,6 @@
 package de.learnlib.ralib.ct;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,7 +83,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	public boolean isLeaf() {
 		return true;
 	}
-	
+
 	public boolean isAccepting() {
 		return rp.getPath().isAccepting();
 	}
@@ -107,7 +106,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		ShortPrefix sp = new ShortPrefix(prefix, oracle, inputs);
 		shortPrefixes.add(sp);
 		prefixes.add(sp);
-		
+
 		if (prefix == rp) {
 			rp = sp;
 		}
