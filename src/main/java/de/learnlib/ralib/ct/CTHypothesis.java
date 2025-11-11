@@ -25,7 +25,7 @@ import net.automatalib.word.Word;
  * Hypothesis constructed from a {@link ClassificationTree}. Maintains a mapping between
  * locations in the hypothesis and leaf nodes of the {@code ClassificationTree} from which the
  * hypothesis was constructed.
- * 
+ *
  * @author fredrik
  * @see Hypothesis
  */
@@ -67,7 +67,7 @@ public class CTHypothesis extends Hypothesis {
 
 	/**
 	 * Get location corresponding to {@code leaf}.
-	 * 
+	 *
 	 * @param leaf
 	 * @return {@link RALocation} corresponding to {@code leaf}
 	 */
@@ -78,7 +78,7 @@ public class CTHypothesis extends Hypothesis {
 	/**
 	 * Get leaf node of {@link ClassificationTree} from which this hypothesis was constructed.
 	 * which corresponds to {@code location}.
-	 * 
+	 *
 	 * @param location
 	 * @return leaf node corresponding to {@code location}
 	 * @see CTLeaf

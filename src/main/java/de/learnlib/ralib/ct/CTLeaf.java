@@ -22,7 +22,7 @@ import net.automatalib.word.Word;
  * Leaf node of a {@link ClassificationTree}, containing a number of prefixes.
  * A leaf node must contain at least one prefix, which is the representative
  * prefix of the leaf. Any number of prefixes may also be short prefixes.
- * 
+ *
  * @author fredrik
  * @see Prefix
  * @see ShortPrefix
@@ -60,7 +60,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 
 	/**
 	 * Helper method for retrieving the {@link Prefix} representation of a {@code Word<PSymbolInstance>}.
-	 * 
+	 *
 	 * @param u
 	 * @return the {@code Prefix} form of {@code u} if {@code u} is in this leaf, or {@code null} otherwise
 	 */
@@ -98,7 +98,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	/**
 	 * Returns {@code true} if this leaf is accepting, i.e., if a tree query for this
 	 * leaf's representative prefix with the empty suffix (ε) is accepting.
-	 * 
+	 *
 	 * @return {@code true} if this leaf corresponds to an accepting location
 	 */
 	public boolean isAccepting() {
@@ -109,7 +109,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 * Adds {@code prefix} to this leaf. If {@code prefix} is a short prefix, this method updates
 	 * the branching of {@code prefix} to include initial guards from the conjunction of all SDTs
 	 * along its path.
-	 * 
+	 *
 	 * @param prefix that will be added to this leaf
 	 * @param oracle unused
 	 * @param solver unused
@@ -131,7 +131,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 * Elevate {@code u} to a short prefix by converting it to a {@link ShortPrefix}. The branching
 	 * of {@code u} will be initialized to reflect the initial guards of the conjunction of SDTs
 	 * along its path.
-	 * 
+	 *
 	 * @param u the prefix to elevate
 	 * @param oracle tree oracle to use for updating the branching
 	 * @param inputs all input symbols
@@ -182,7 +182,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	/**
 	 * Get the branching for symbol {@code action} of the representative prefix.
 	 * Requires that the representative prefix is a {@link ShortPrefix}.
-	 * 
+	 *
 	 * @param action
 	 * @return {@code Branching} of {@code action} for the representative prefix of this leaf
 	 */

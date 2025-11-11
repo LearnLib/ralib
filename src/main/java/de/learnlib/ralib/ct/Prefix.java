@@ -27,7 +27,7 @@ import net.automatalib.word.Word;
  * the SDTs along the path are equivalent to those of the leaf's representative prefix
  * (the RP bijection). If this prefix is the representative prefix, the RP bijection
  * should be the identity mapping.
- * 
+ *
  * @author fredrik
  * @see CTLeaf
  * @see CTPath

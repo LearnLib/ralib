@@ -41,7 +41,7 @@ import net.automatalib.word.Word;
 
 /**
  * Analyzes counterexamples according to the SLλ algorithm.
- * 
+ *
  * @author fredrik
  */
 public class PrefixFinder {
@@ -84,7 +84,7 @@ public class PrefixFinder {
 	 * Analyze counterexample {@code ce} from right to leaf to find a transition or
 	 * location discrepancy. If a discrepancy is found, returns the prefix which reveals
 	 * the discrepancy, along with a {@code ResultType} indicating the type of discrepancy.
-	 * 
+	 *
 	 * @param ce
 	 * @return
 	 */
@@ -106,11 +106,11 @@ public class PrefixFinder {
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				SDT sdt = sulOracle.treeQuery(u, v);
-				
+
 				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
 				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
 				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
-				
+
 				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
 				for (Expression<Boolean> gSul : branching.guardSet()) {
 					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
@@ -158,13 +158,13 @@ public class PrefixFinder {
 	 * Create extensions of the valuation from the hypothesis at index {@code id}, and map
 	 * data values from {@code uSDT} to these extended valuations.
 	 * The returned remappings do not include parameters present in the valuation at {@code id}
-	 * (which should be mapped to parameters in {@code uVals}, except for duplicate parameters. 
+	 * (which should be mapped to parameters in {@code uVals}, except for duplicate parameters.
 	 * For example, if the parameters of {@code run} at index {@code id} contain the data values
 	 * 5,5,7 and the valuation contains 5, then the 7 and a single 5 will be considered for the
 	 * extension of the valuation. Similarly, if {@code uSDT} has data values 0,1,2 with 0 in
 	 * {@code uValuation}, then 1,2 will be considered. In this example, this method would
 	 * return the mappings {1->5, 2->7} and {1->7, 2->5}.
-	 * 
+	 *
 	 * @param uSDT sdt for prefix {@code u}
 	 * @param uVals memorable data values of {@code u}
 	 * @param run
@@ -177,7 +177,7 @@ public class PrefixFinder {
 		if (id < 1) {
 			return empty;
 		}
-		
+
 		// gather data values from uSDT, and remove values from uValuation
 		Set<DataValue> sdtVals = new LinkedHashSet<>(uSDT.getDataValues());
 		for (DataValue d : uVals) {
@@ -195,10 +195,10 @@ public class PrefixFinder {
 				runVals.add(d);
 			}
 		}
-		
+
 		/* remove data values from valuation.
 		 * may have multiple copies of same data value, which may be mapped to different
-		 * data values in uSDT, so only remove one instance of data values in valuation 
+		 * data values in uSDT, so only remove one instance of data values in valuation
 		 */
 		for (DataValue d : run.getValuation(id-1).values()) {
 			runVals = removeFirst(runVals, d);
@@ -248,7 +248,7 @@ public class PrefixFinder {
 	 * Check for a transition discrepancy. This is done by checking whether there exists no
 	 * {@code action}-extension of {@code u} in the leaf of {@code loc} that is equivalent
 	 * to the {@code (hypGuard && sulGuard)} extension of {@code u} after {@code v}.
-	 * 
+	 *
 	 * @param loc the source location
 	 * @param u short prefix from leaf of {@code loc}
 	 * @param action the symbol of the next transition
@@ -303,7 +303,7 @@ public class PrefixFinder {
 	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there
 	 * does not exist some short prefix in the leaf of {@code locNext} that is equivalent
 	 * to the {@code action}-extension of {@code u} after {@code v}.
-	 * 
+	 *
 	 * @param locNext the destination location
 	 * @param u short prefix in leaf prior to {@code locNext} in the run
 	 * @param action the symbol of the next transition
@@ -345,7 +345,7 @@ public class PrefixFinder {
 
 	/**
 	 * Get the guard in the hypothesis corresponding to {@code run} at index {@code idx}
-	 * 
+	 *
 	 * @param run
 	 * @param idx
 	 * @return
@@ -373,7 +373,7 @@ public class PrefixFinder {
 	/**
 	 * Check whether {@code guard} is satisfied by the parameters of {@code symbol}, after renaming
 	 * the parameters of {@code guard} according to {@code renaming}.
-	 * 
+	 *
 	 * @param guard
 	 * @param renaming
 	 * @param symbol

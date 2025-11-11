@@ -39,7 +39,7 @@ import net.automatalib.word.Word;
 /**
  * Data structure for a classification tree. Implements methods for sifting new prefixes into the tree
  * and refining the tree with additional symbolic suffixes, as well as closedness and consistency checks.
- * 
+ *
  * @author fredrik
  */
 public class ClassificationTree {
@@ -106,7 +106,7 @@ public class ClassificationTree {
 
 	/**
 	 * Get all one-symbol extensions of prefix {@code u}.
-	 * 
+	 *
 	 * @param u
 	 * @return set of prefixes which are one-symbol extensions of {@code u}
 	 */
@@ -125,7 +125,7 @@ public class ClassificationTree {
 	 * Get the sink node of the classification tree (IO mode only). The sink node of an IO classification
 	 * tree is the leaf node in the rejecting branch of the tree (i.e., the branch for the empty symbolic suffix
 	 * which is rejecting. Note that in IO mode, there should only be one rejecting leaf.
-	 * 
+	 *
 	 * @return an {@code Optional} containing the sink node if one exists, or an empty {@code Optional} otherwise
 	 */
 	public Optional<CTLeaf> getSink() {
@@ -152,7 +152,7 @@ public class ClassificationTree {
 
 	/**
 	 * Get all one-symbol {@code action}-extensions of prefix {@code u}.
-	 * 
+	 *
 	 * @param u
 	 * @param action
 	 * @return set of prefixes which are one-symbol extensions of {@code u} with symbol {@code action}
@@ -179,7 +179,7 @@ public class ClassificationTree {
 	/**
 	 * Sift prefix into the tree. If prefix sifts to a new leaf, it becomes the representative prefix
 	 * for that leaf.
-	 * 
+	 *
 	 * @param u prefix to sift
 	 * @return the leaf into which {@code u} has been sifted
 	 */
@@ -193,7 +193,7 @@ public class ClassificationTree {
 	/**
 	 * Expands a prefix by turning it into a short prefix. The new short prefix will have
 	 * branching information initialized from the initial guards of the conjunction of all its SDTs.
-	 * 
+	 *
 	 * @param u the prefix to be expanded
 	 */
 	public void expand(Word<PSymbolInstance> u) {
@@ -220,7 +220,7 @@ public class ClassificationTree {
 	 * all prefixes of {@code leaf} will be sifted into the classification tree with a call to
 	 * {@link ClassificationTree#sift(Word)}. Any short prefix in {@code leaf} will have its branching
 	 * updated.
-	 * 
+	 *
 	 * @param leaf the leaf to refine
 	 * @param suffix the symbolic suffix to be contained within the new inner node
 	 */
@@ -243,12 +243,12 @@ public class ClassificationTree {
 	///////////////////////
 	// CLOSEDNESS CHECKS //
 	///////////////////////
-	
+
 	/**
 	 * Checks for output closedness, i.e., whether a symbolic suffix for each output symbol is
 	 * present for each leaf. If not output closed, add one missing output suffix as a new inner
 	 * node with a call to {@link ClassificationTree#refine(CTLeaf, SymbolicSuffix)}.
-	 * 
+	 *
 	 * @return {@code true} if output closed
 	 */
 	public boolean checkOutputClosed() {
@@ -283,7 +283,7 @@ public class ClassificationTree {
 	 * Checks for location closedness, i.e., whether each leaf has at least one short prefix. If
 	 * not location closed, this method expands, with a call to {@link ClassificationTree#expand(Word)},
 	 * the representative prefix of one leaf which does not have a short prefix.
-	 * 
+	 *
 	 * @return {@code true} if location closed
 	 */
 	public boolean checkLocationClosedness() {
@@ -300,7 +300,7 @@ public class ClassificationTree {
 	 * Checks for transition closedness, i.e., whether each short prefix has a one-symbol extension
 	 * for each guard. If not transition closed, one new one-symbol prefix will be sifted for one
 	 * short prefix missing an extension.
-	 * 
+	 *
 	 * @return {@code true} if transition closed
 	 */
 	public boolean checkTransitionClosedness() {
@@ -326,7 +326,7 @@ public class ClassificationTree {
 	 * symbolic suffix {@code v} which reveals a missing memorable parameter of {@code ua(d)}, will be added to
 	 * the leaf of {@code u}. Note that only one new symbolic suffix will be added, even if there are multiple
 	 * short prefixes for which a memorable parameter is missing.
-	 * 
+	 *
 	 * @return {@code true} if register closed
 	 */
 	public boolean checkRegisterClosedness() {
@@ -360,7 +360,7 @@ public class ClassificationTree {
 		}
 		return true;
 	}
-	
+
 	////////////////////////
 	// CONSISTENCY CHECKS //
 	////////////////////////
@@ -372,7 +372,7 @@ public class ClassificationTree {
 	 * new symbolic suffix formed by prepending the symbolic suffix of the lowest common ancestor of {@code u} and {@code v}
 	 * by the symbol {@code a} of the one-symbol extensions revealing the inconsistency. Note that only one location inconsistency
 	 * will be resolved by this method. To resolve multiple inconsistencies, call the method multiple times.
-	 * 
+	 *
 	 * @return {@code true} if location consistent
 	 */
 	public boolean checkLocationConsistency() {
@@ -426,7 +426,7 @@ public class ClassificationTree {
 	 * revealing the inconsistency by the symbol {@code a} of the one-symbol extension.
 	 * Note that only one inconsistency will be resolved. Multiple inconsistencies can be resolved through
 	 * multiple calls to this method.
-	 * 
+	 *
 	 * @return {@code true} if transition consistent
 	 */
 	public boolean checkTransitionConsistency() {
@@ -440,7 +440,7 @@ public class ClassificationTree {
 						if (uB.equals(uA)) {
 							continue;
 						}
-						
+
 						// check if guard for uA is satisfiable under mapping of uB
 						Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
 						mapping.putAll(actionValuation(uB));
@@ -487,11 +487,11 @@ public class ClassificationTree {
 			if (!SDT.equivalentUnderId(sdtA, sdtB)) {
 				CTLeaf uLeaf = getLeaf(uA.prefix(uA.length() - 1));
 				assert uLeaf != null;
-				
+
 				// find registers that should not be removed through optimization
 				Register[] regs = inequivalentMapping(rpRegBijection(pA.getRpBijection(), pA), rpRegBijection(pB.getRpBijection(), pB));
 				DataValue[] regVals = regsToDvs(regs, uA);
-				
+
 				SymbolicSuffix av = extendSuffix(uA, v, regVals);
 				if (suffixRevealsNewGuard(av, getLeaf(uA.prefix(uA.length() - 1)))) {
 					return Optional.of(av);
@@ -509,7 +509,7 @@ public class ClassificationTree {
 	 * formed by prepending the symbolic suffix breaking the symmetry in the one-symbol extension
 	 * {@code ua(d)} by the symbol {@code a}. Not that only one inconsistency will be resolved in this
 	 * manner. Multiple inconsistencies should be resolved with multiple calls to this method.
-	 * 
+	 *
 	 * @return {@code true} if register consistent
 	 */
 	public boolean checkRegisterConsistency() {
@@ -555,7 +555,7 @@ public class ClassificationTree {
 	////////////////////
 
 	/**
-	 * 
+	 *
 	 * @param n1
 	 * @param n2
 	 * @return lowest common ancestor of {@code n1} and {@code n2}
@@ -597,7 +597,7 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param ua_mem
 	 * @param u_mem
 	 * @param a_mem
@@ -627,7 +627,7 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param s_mem
 	 * @param u_mem
 	 * @param a_mem
@@ -644,7 +644,7 @@ public class ClassificationTree {
 	/**
 	 * Form a new symbolic suffix by prepending {@code v} by the last symbol of {@code ua},
 	 * using suffix optimization.
-	 * 
+	 *
 	 * @param ua
 	 * @param v
 	 * @param missingRegs the register which should not be removed through suffix optimizations
@@ -667,7 +667,7 @@ public class ClassificationTree {
 	/**
 	 * Perform a tree query for the representative prefix of {@code leaf} with {@code av} to check
 	 * whether {@code av} reveals additional guards.
-	 * 
+	 *
 	 * @param av
 	 * @param leaf
 	 * @return {@code true} if {@code av} reveals additional guards
@@ -689,10 +689,10 @@ public class ClassificationTree {
 	/**
 	 * Convert {@code Bijection<DataValue>} to {@code Bijection<Register>} using the
 	 * data values of {@code prefix} to determine register ids.
-	 * 
+	 *
 	 * @param bijection
 	 * @param prefx
-	 * @return 
+	 * @return
 	 */
 	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
 		return Bijection.DVtoRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
@@ -701,7 +701,7 @@ public class ClassificationTree {
 	/**
 	 * Convert array of {@code Register} to array of {@code DataValue} by matching {@link Register#getId()}
 	 * values to data value positions in {@code prefix}.
-	 * 
+	 *
 	 * @param regs
 	 * @param prefix
 	 * @return
@@ -719,7 +719,7 @@ public class ClassificationTree {
 	 * Form a {@code SymbolicSuffix} by prepending {@code v} by the last symbol of {@code u1} and {@code u2}.
 	 * The new suffix will be optimized for separating {@code u1} and {@code u2}.
 	 * Note that {@code u1} and {@code u2} must have the same last symbol.
-	 * 
+	 *
 	 * @param u1
 	 * @param u2
 	 * @param v
@@ -733,7 +733,7 @@ public class ClassificationTree {
 
 	/**
 	 * {@code ParameterValuation} of the last symbol instance of {@code ua}.
-	 * 
+	 *
 	 * @param ua
 	 * @return
 	 */
@@ -749,7 +749,7 @@ public class ClassificationTree {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param a
 	 * @param b
 	 * @return array of registers in {@code a} and {@code b} which are not mapped the same
@@ -796,7 +796,7 @@ public class ClassificationTree {
             }
         }
     }
-    
+
 	private static List<SymbolicSuffix> outputSuffixes(ParameterizedSymbol[] inputs) {
 		List<SymbolicSuffix> ret = new ArrayList<>();
 		for (ParameterizedSymbol ps : inputs) {

@@ -8,7 +8,7 @@ import de.learnlib.ralib.smt.ConstraintSolver;
 
 /**
  * Node of a {@link ClassificationTree}.
- * 
+ *
  * @author fredrik
  */
 public abstract class CTNode {
@@ -19,7 +19,7 @@ public abstract class CTNode {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return immediate ancestor of this node
 	 */
 	public CTNode getParent() {
@@ -32,7 +32,7 @@ public abstract class CTNode {
 	public abstract List<SymbolicSuffix> getSuffixes();
 
 	/**
-	 * 
+	 *
 	 * @return {@code true} if this node is a {@link CTLeaf}
 	 */
 	public abstract boolean isLeaf();
@@ -44,7 +44,7 @@ public abstract class CTNode {
 	 * matches the tree query, determined with a call to {@link CTBranch#matches(CTPath, ConstraintSolver)}.
 	 * If no such child exists, this method creates a new {@code CTLeaf} and adds {@code prefix}
 	 * to it as its representative prefix.
-	 * 
+	 *
 	 * @param prefix the prefix to sift through this node
 	 * @param oracle the {@link TreeOracle} to use when making tree queries
 	 * @param solver the {@link ConstraintSolver} to use for comparing paths for equivalence

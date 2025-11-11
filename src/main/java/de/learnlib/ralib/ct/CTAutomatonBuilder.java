@@ -16,7 +16,6 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
-import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterAssignment;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
@@ -42,13 +41,13 @@ import net.automatalib.word.Word;
  * Builder class for building a {@link CTHypothesis} from a {@link ClassificationTree}.
  * This class implements similar functionality as {@link AutomatonBuilder} and {@link IOAutomatonBuilder},
  * but tailored for the {@link SLLambda} and {@link SLCT} learning algorithms.
- * 
+ *
  * {@code CTAutomatonBuilder} supports construction of automata from an incomplete classification tree,
  * so long as the classification tree is closed and consistent.
  * Multiple short prefixes in the same leaf, as well as one-symbol extensions without matching guards,
  * will be ignored during construction.
  * The access sequence for each location will be set to the representative prefix of the corresponding leaf.
- * 
+ *
  * @author fredrik
  */
 public class CTAutomatonBuilder {
@@ -61,7 +60,7 @@ public class CTAutomatonBuilder {
 	private final CTHypothesis hyp;
 
 	private final ConstraintSolver solver;
-	
+
 	private final Constants consts;
 
 	private boolean ioMode;
@@ -208,7 +207,7 @@ public class CTAutomatonBuilder {
 		}
 
 		// this is an output transition
-		
+
         Expression<Boolean> expr = guard;
 
         VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();
