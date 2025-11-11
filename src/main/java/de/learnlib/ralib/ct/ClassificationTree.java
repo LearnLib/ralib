@@ -673,7 +673,8 @@ public class ClassificationTree {
 	 * @return {@code true} if {@code av} reveals additional guards
 	 */
 	private boolean suffixRevealsNewGuard(SymbolicSuffix av, CTLeaf leaf) {
-		Word<PSymbolInstance> u = leaf.getRepresentativePrefix();
+		assert !leaf.getShortPrefixes().isEmpty() : "No short prefix in leaf " + leaf;
+		Word<PSymbolInstance> u = leaf.getShortPrefixes().iterator().next();
 		SDT sdt = oracle.treeQuery(u, av);
 		ParameterizedSymbol a = av.getActions().firstSymbol();
 		Branching branching = leaf.getBranching(a);
