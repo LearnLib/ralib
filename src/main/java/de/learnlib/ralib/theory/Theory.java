@@ -103,7 +103,7 @@ public interface Theory {
     /**
      * Instantiate a representative data value for the parameter {@code param}
      * of {@code ps} that satisfies {@code guard}.
-     * 
+     *
      * @param prefix
      * @param ps
      * @param guard

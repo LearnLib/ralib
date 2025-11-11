@@ -43,7 +43,7 @@ public interface Branching {
     /**
      * Return a prefix {@code u} within this branching such that the parameters of the last
      * symbol of {@code u} satisfy {@code guard}.
-     * 
+     *
      * @param guard
      * @param solver
      * @return an {@code Optional} encasing a prefix matching {@code guard} if one exists,

@@ -18,7 +18,7 @@ import de.learnlib.ralib.theory.SDT;
  * This data structure stores the SDTs from tree queries for a prefix along a path
  * in a {@link ClassificationTree}. It contains much of the same functionality as
  * {@link Row}, but adapted for use with classification trees.
- * 
+ *
  * @author fredrik
  * @author falk
  * @see Row
@@ -60,7 +60,7 @@ public class CTPath {
 
 	/**
 	 * Checks whether two paths are equivalent under {@code renaming}.
-	 * 
+	 *
 	 * @param other
 	 * @param renaming
 	 * @param solver
@@ -89,7 +89,7 @@ public class CTPath {
 	/**
 	 * Checks whether the SDTs of {@code this} and {@code other} have the same number of
 	 * data value types.
-	 * 
+	 *
 	 * @param other
 	 * @return {@code true} if the number of types match for the SDTs of {@code this} and {@code other}
 	 */
@@ -127,7 +127,7 @@ public class CTPath {
 	 * Computes the path for {@code prefix} by computing SDTs for each suffix in {@code suffixes}.
 	 * The SDTs already contained within the path {@code prefix} will be copied to the new path.
 	 * Remaining SDTs are computed via tree queries.
-	 * 
+	 *
 	 * @param oracle the oracle to use for tree queries
 	 * @param prefix the prefix for which the new path is to be computed
 	 * @param suffixes the suffixes along the path

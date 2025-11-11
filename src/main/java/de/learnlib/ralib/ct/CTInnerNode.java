@@ -19,7 +19,7 @@ import net.automatalib.word.Word;
 /**
  * Inner node of a {@link ClassificationTree}, containing a {@link SymbolicSuffix}.
  * Maintains a set of branches to child nodes.
- * 
+ *
  * @author fredrik
  * @see CTBranch
  * @see CTNode
@@ -77,7 +77,7 @@ public class CTInnerNode extends CTNode {
 	 * The prefixes in {@code leaf} will be sifted into this new inner node.
 	 * If this sifting creates a new {@link CTLeaf}, the first prefix to be sifted
 	 * into that leaf node will be made the representative prefix.
-	 * 
+	 *
 	 * @param leaf
 	 * @param suffix
 	 * @param oracle
@@ -112,7 +112,7 @@ public class CTInnerNode extends CTNode {
 			l = sift(u, oracle, solver, ioMode);
 			leaves.put(u, l);
 		}
-		
+
 		// make sure all short prefixes of leaf are still short
 		for (ShortPrefix u : shorts) {
 			if (!(u instanceof ShortPrefix)) {

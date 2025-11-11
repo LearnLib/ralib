@@ -2,22 +2,19 @@ package de.learnlib.ralib.ct;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.word.Word;
 
 /**
  * Data structure for storing branching information of a short prefix,
  * in addition to the SDTs from the suffixes along its path stored
  * in {@link Prefix}.
- * 
+ *
  * @author fredrik
  */
 public class ShortPrefix extends Prefix {

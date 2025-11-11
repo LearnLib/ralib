@@ -7,7 +7,7 @@ import de.learnlib.ralib.data.DataValue;
 
 /**
  * A set of memorable data values
- * 
+ *
  * @author fredrik
  */
 public class MemorableSet extends LinkedHashSet<DataValue> {
