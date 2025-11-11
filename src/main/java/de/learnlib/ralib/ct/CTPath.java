@@ -14,6 +14,15 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.SDT;
 
+/**
+ * This data structure stores the SDTs from tree queries for a prefix along a path
+ * in a {@link ClassificationTree}. It contains much of the same functionality as
+ * {@link Row}, but adapted for use with classification trees.
+ * 
+ * @author fredrik
+ * @author falk
+ * @see Row
+ */
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;
 	private final MemorableSet memorable;
@@ -49,6 +58,14 @@ public class CTPath {
 		return s.isAccepting();
 	}
 
+	/**
+	 * Checks whether two paths are equivalent under {@code renaming}.
+	 * 
+	 * @param other
+	 * @param renaming
+	 * @param solver
+	 * @return {@code true} if the SDTs of {@code this} are equivalent to those of {@code other} under {@code renaming}
+	 */
 	public boolean isEquivalent(CTPath other, Bijection<DataValue> renaming, ConstraintSolver solver) {
 		if (!typeSizesMatch(other)) {
 			return false;
@@ -69,6 +86,13 @@ public class CTPath {
 		return true;
 	}
 
+	/**
+	 * Checks whether the SDTs of {@code this} and {@code other} have the same number of
+	 * data value types.
+	 * 
+	 * @param other
+	 * @return {@code true} if the number of types match for the SDTs of {@code this} and {@code other}
+	 */
 	protected boolean typeSizesMatch(CTPath other) {
 		if (!DataUtils.typedSize(memorable).equals(DataUtils.typedSize(other.memorable))) {
 			return false;
@@ -99,6 +123,17 @@ public class CTPath {
 		return DataUtils.typedSize(s1).equals(DataUtils.typedSize(s2));
 	}
 
+	/**
+	 * Computes the path for {@code prefix} by computing SDTs for each suffix in {@code suffixes}.
+	 * The SDTs already contained within the path {@code prefix} will be copied to the new path.
+	 * Remaining SDTs are computed via tree queries.
+	 * 
+	 * @param oracle the oracle to use for tree queries
+	 * @param prefix the prefix for which the new path is to be computed
+	 * @param suffixes the suffixes along the path
+	 * @param ioMode {@code true} if the language being learned is an IO language
+	 * @return a {@code CTPath} containing SDTs for each suffix in {@code suffixes}
+	 */
 	public static CTPath computePath(TreeOracle oracle, Prefix prefix, List<SymbolicSuffix> suffixes, boolean ioMode) {
 		CTPath r = new CTPath(ioMode);
 		SDT sdt = prefix.getSDT(RaStar.EMPTY_SUFFIX);
