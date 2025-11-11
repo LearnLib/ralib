@@ -13,6 +13,13 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
+/**
+ * Data structure for storing branching information of a short prefix,
+ * in addition to the SDTs from the suffixes along its path stored
+ * in {@link Prefix}.
+ * 
+ * @author fredrik
+ */
 public class ShortPrefix extends Prefix {
 
 	private final Map<ParameterizedSymbol, Branching> branching;
@@ -42,15 +49,15 @@ public class ShortPrefix extends Prefix {
 		return branching.get(ps);
 	}
 
+	/**
+	 * Update the branching according to the SDTs computed for the suffixes along the path to
+	 * the leaf in which this short prefix is stored.
+	 */
 	public void updateBranching() {
 		for (ParameterizedSymbol ps : inputs) {
 			SDT[] sdts = getSDTs(ps);
 			Branching b = oracle.updateBranching(this, ps, branching.get(ps), sdts);
 			branching.put(ps, b);
 		}
-	}
-
-	public Set<Word<PSymbolInstance>> getInitialReprPrefixes(ParameterizedSymbol ps) {
-		return branching.get(ps).getBranches().keySet();
 	}
 }

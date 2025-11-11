@@ -40,7 +40,17 @@ public interface Branching {
 
     Word<PSymbolInstance> transformPrefix(Word<PSymbolInstance> prefix);
 
+    /**
+     * Return a prefix {@code u} within this branching such that the parameters of the last
+     * symbol of {@code u} satisfy {@code guard}.
+     * 
+     * @param guard
+     * @param solver
+     * @return an {@code Optional} encasing a prefix matching {@code guard} if one exists,
+     * or an empty {@code Optional} otherwise
+     */
     default Optional<Word<PSymbolInstance>> getPrefix(Expression<Boolean> guard, ConstraintSolver solver) {
+    	// if guard is a value, return the corresponding key
     	Optional<Word<PSymbolInstance>> prefix = getBranches().entrySet()
     			.stream()
     			.filter(e -> e.getValue().equals(guard))
@@ -50,6 +60,7 @@ public interface Branching {
     		return prefix;
     	}
 
+    	// find a guard where the last symbol's values satisfy guard
     	for (Map.Entry<Word<PSymbolInstance>, Expression<Boolean>> e : getBranches().entrySet()) {
     		DataValue[] vals = e.getKey().lastSymbol().getParameterValues();
     		Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
@@ -65,6 +76,9 @@ public interface Branching {
     	return Optional.empty();
     }
 
+    /**
+     * @return a set of all initial guards in this branching
+     */
     default Set<Expression<Boolean>> guardSet() {
     	Set<Expression<Boolean>> guards = new LinkedHashSet<>();
     	guards.addAll(getBranches().values());

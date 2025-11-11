@@ -100,11 +100,21 @@ public interface Theory {
                           Constants constants,
                           SDTGuard guard, SuffixValue param, Set<DataValue> oldDvs);
 
+    /**
+     * Instantiate a representative data value for the parameter {@code param}
+     * of {@code ps} that satisfies {@code guard}.
+     * 
+     * @param prefix
+     * @param ps
+     * @param guard
+     * @param param
+     * @param constants
+     * @param solver
+     * @return
+     */
     public DataValue instantiate(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, Set<DataValue> pval,
-            Constants constants,
-            Expression<Boolean> guard, int param,
-            ConstraintSolver solver);
+            ParameterizedSymbol ps, Expression<Boolean> guard, int param,
+            Constants constants, ConstraintSolver solver);
 
     SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 

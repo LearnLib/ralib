@@ -16,6 +16,14 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
+/**
+ * Inner node of a {@link ClassificationTree}, containing a {@link SymbolicSuffix}.
+ * Maintains a set of branches to child nodes.
+ * 
+ * @author fredrik
+ * @see CTBranch
+ * @see CTNode
+ */
 public class CTInnerNode extends CTNode {
 	private final SymbolicSuffix suffix;
 	private final List<CTBranch> branches;
@@ -47,6 +55,7 @@ public class CTInnerNode extends CTNode {
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		CTPath path = CTPath.computePath(oracle, prefix, getSuffixes(), ioMode);
 
+		// find a matching branch and sift to child
 		for (CTBranch b : branches) {
 			Bijection<DataValue> vars = b.matches(path, solver);
 			if (vars != null) {
@@ -63,6 +72,20 @@ public class CTInnerNode extends CTNode {
 		return leaf;
 	}
 
+	/**
+	 * Replace {@code leaf} with a new {@link CTInnerNode} containing {@code suffix}.
+	 * The prefixes in {@code leaf} will be sifted into this new inner node.
+	 * If this sifting creates a new {@link CTLeaf}, the first prefix to be sifted
+	 * into that leaf node will be made the representative prefix.
+	 * 
+	 * @param leaf
+	 * @param suffix
+	 * @param oracle
+	 * @param solver
+	 * @param ioMode
+	 * @param inputs
+	 * @return a mapping of prefixes in {@code leaf} to their new leaf nodes
+	 */
 	protected Map<Word<PSymbolInstance>, CTLeaf> refine(CTLeaf leaf, SymbolicSuffix suffix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode, ParameterizedSymbol[] inputs) {
 		CTBranch b = getBranch(leaf);
 		assert b != null : "Node is not the parent of leaf " + leaf;
@@ -70,15 +93,18 @@ public class CTInnerNode extends CTNode {
 
 		Set<ShortPrefix> shorts = leaf.getShortPrefixes();
 
+		// replace leaf with a new inner node, with same path as leaf
 		CTInnerNode newNode = new CTInnerNode(this, suffix);
-		CTBranch newBranch = new CTBranch(b.getPath(), newNode);
+		CTBranch newBranch = new CTBranch(b.getRepresentativePath(), newNode);
 		branches.remove(b);
 		branches.add(newBranch);
 
+		// sift leaf's RP into the new inner node
 		Map<Word<PSymbolInstance>, CTLeaf> leaves = new LinkedHashMap<>();
 		CTLeaf l = sift(leaf.getRepresentativePrefix(), oracle, solver, ioMode);
 		leaves.put(leaf.getRepresentativePrefix(), l);
 
+		// resift leaf's prefixes into this node (except the RP, which was already sifted)
 		Set<Prefix> prefixes = new LinkedHashSet<>(leaf.getPrefixes());
 		prefixes.remove(leaf.getRepresentativePrefix());
 
@@ -86,6 +112,8 @@ public class CTInnerNode extends CTNode {
 			l = sift(u, oracle, solver, ioMode);
 			leaves.put(u, l);
 		}
+		
+		// make sure all short prefixes of leaf are still short
 		for (ShortPrefix u : shorts) {
 			if (!(u instanceof ShortPrefix)) {
 				leaves.get(u).elevatePrefix(u, oracle, inputs);
@@ -107,6 +135,9 @@ public class CTInnerNode extends CTNode {
 		return suffixes;
 	}
 
+	/**
+	 * @return {@code false}
+	 */
 	@Override
 	public boolean isLeaf() {
 		return false;

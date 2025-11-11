@@ -20,6 +20,19 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
+/**
+ * Data structure for a prefix stored within a leaf of a {@link ClassificationTree}.
+ * Along with the prefix itself, also stores the SDTs for each suffix along the path
+ * through which the prefix was sifted, as well as the {@code Bijection} under which
+ * the SDTs along the path are equivalent to those of the leaf's representative prefix
+ * (the RP bijection). If this prefix is the representative prefix, the RP bijection
+ * should be the identity mapping.
+ * 
+ * @author fredrik
+ * @see CTLeaf
+ * @see CTPath
+ * @see Bijection
+ */
 public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	private final Word<PSymbolInstance> prefix;
 	private Bijection<DataValue> rpBijection;

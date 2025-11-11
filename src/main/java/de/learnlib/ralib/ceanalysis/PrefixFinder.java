@@ -39,6 +39,11 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
+/**
+ * Analyzes counterexamples according to the SLλ algorithm.
+ * 
+ * @author fredrik
+ */
 public class PrefixFinder {
 
 	public enum ResultType {
@@ -46,6 +51,9 @@ public class PrefixFinder {
 		LOCATION
 	}
 
+	/**
+	 * Container for the result of a counterexample analysis
+	 */
 	public record Result(Word<PSymbolInstance> prefix, ResultType result) {};
 
 	private final CTHypothesis hyp;
@@ -72,13 +80,21 @@ public class PrefixFinder {
 		this.consts = consts;
 	}
 
+	/**
+	 * Analyze counterexample {@code ce} from right to leaf to find a transition or
+	 * location discrepancy. If a discrepancy is found, returns the prefix which reveals
+	 * the discrepancy, along with a {@code ResultType} indicating the type of discrepancy.
+	 * 
+	 * @param ce
+	 * @return
+	 */
 	public Result analyzeCounterExample(Word<PSymbolInstance> ce) {
 		RARun run = hyp.getRun(ce);
 		for (int i = ce.length(); i >= 1; i--) {
 			RALocation loc = run.getLocation(i-1);
 			RALocation locNext = run.getLocation(i);
 			PSymbolInstance symbol = run.getTransition(i);
-			RegisterValuation mu = run.getValuation(i-1);
+			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
 
 			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
@@ -90,13 +106,15 @@ public class PrefixFinder {
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				SDT sdt = sulOracle.treeQuery(u, v);
+				
 				Set<DataValue> uVals = hyp.getLeaf(loc).getPrefix(u).getRegisters();
-				Mapping<DataValue, DataValue> muRenaming = valuationRenaming(u, mu);
-				Set<Mapping<DataValue, DataValue>> renamings = extendedValuationRenamings(sdt, uVals, run, i);
+				Mapping<DataValue, DataValue> uToRunRenaming = valuationRenaming(u, runValuation);
+				Set<Mapping<DataValue, DataValue>> uToRunExtendedRenamings = extendedValuationRenamings(sdt, uVals, run, i);
+				
 				Branching branching = sulOracle.getInitialBranching(u, action, sdt);
 				for (Expression<Boolean> gSul : branching.guardSet()) {
-					for (Mapping<DataValue, DataValue> renaming : renamings) {
-						renaming.putAll(muRenaming);
+					for (Mapping<DataValue, DataValue> renaming : uToRunExtendedRenamings) {
+						renaming.putAll(uToRunRenaming);
 						if (isGuardSatisfied(gSul, renaming, symbol)) {
 							Optional<Result> res = checkTransition(locNext, u, action, vNext, gHyp, gSul);
 							if (res.isEmpty()) {
@@ -114,12 +132,16 @@ public class PrefixFinder {
 		throw new IllegalStateException("Found no counterexample in " + ce);
 	}
 
-	/*
-	 * Generate a mapping from the register valuation of u on the hypothesis to val
+	/**
+	 * @param u
+	 * @param val
+	 * @return a mapping from the register valuation of {@code u} on the hypothesis to the {@code val}
 	 */
 	private Mapping<DataValue, DataValue> valuationRenaming(Word<PSymbolInstance> u, RegisterValuation val) {
+		// get register mapping for u when run over the hypothesis
 		RARun uRun = hyp.getRun(u);
 		RegisterValuation uVal = uRun.getValuation(u.size());
+		// create mapping from u's valuation to val
 		Mapping<DataValue, DataValue> ret = new Mapping<>();
 		for (Map.Entry<Register, DataValue> e : uVal.entrySet()) {
 			DataValue replace = e.getValue();
@@ -132,31 +154,57 @@ public class PrefixFinder {
 		return ret;
 	}
 
-	private Set<Mapping<DataValue, DataValue>> extendedValuationRenamings(SDT uSDT, Set<DataValue> uValuation, RARun run, int id) {
-		Set<Mapping<DataValue, DataValue>> identity = new LinkedHashSet<>();
-		identity.add(new Mapping<>());
-		if (id <= 1) {
-			return identity;
+	/**
+	 * Create extensions of the valuation from the hypothesis at index {@code id}, and map
+	 * data values from {@code uSDT} to these extended valuations.
+	 * The returned remappings do not include parameters present in the valuation at {@code id}
+	 * (which should be mapped to parameters in {@code uVals}, except for duplicate parameters. 
+	 * For example, if the parameters of {@code run} at index {@code id} contain the data values
+	 * 5,5,7 and the valuation contains 5, then the 7 and a single 5 will be considered for the
+	 * extension of the valuation. Similarly, if {@code uSDT} has data values 0,1,2 with 0 in
+	 * {@code uValuation}, then 1,2 will be considered. In this example, this method would
+	 * return the mappings {1->5, 2->7} and {1->7, 2->5}.
+	 * 
+	 * @param uSDT sdt for prefix {@code u}
+	 * @param uVals memorable data values of {@code u}
+	 * @param run
+	 * @param id
+	 * @return
+	 */
+	private Set<Mapping<DataValue, DataValue>> extendedValuationRenamings(SDT uSDT, Set<DataValue> uVals, RARun run, int id) {
+		Set<Mapping<DataValue, DataValue>> empty = new LinkedHashSet<>();
+		empty.add(new Mapping<>());
+		if (id < 1) {
+			return empty;
 		}
+		
+		// gather data values from uSDT, and remove values from uValuation
 		Set<DataValue> sdtVals = new LinkedHashSet<>(uSDT.getDataValues());
-		for (DataValue d : uValuation) {
+		for (DataValue d : uVals) {
 			sdtVals.remove(d);
 		}
 		if (sdtVals.isEmpty()) {
-			return identity;
+			return empty;
 		}
 		DataValue[] sdtValsArr = sdtVals.toArray(new DataValue[sdtVals.size()]);
 
+		// gather data values from prefix of run at index id
 		ArrayList<DataValue> runVals = new ArrayList<>();
 		for (int i = 1; i <= id-1; i++) {
 			for (DataValue d : run.getTransition(i).getParameterValues()) {
 				runVals.add(d);
 			}
 		}
+		
+		/* remove data values from valuation.
+		 * may have multiple copies of same data value, which may be mapped to different
+		 * data values in uSDT, so only remove one instance of data values in valuation 
+		 */
 		for (DataValue d : run.getValuation(id-1).values()) {
 			runVals = removeFirst(runVals, d);
 		}
 
+		// compute all possible permutations of mappings between extended uSDT values and run values
 		Set<Mapping<DataValue, DataValue>> renamings = new LinkedHashSet<>();
 		PermutationIterator permit = new PermutationIterator(runVals.size());
 		for (int[] order : permit) {
@@ -179,6 +227,11 @@ public class PrefixFinder {
 		return renamings;
 	}
 
+	/**
+	 * @param list
+	 * @param d
+	 * @return array containing data values of {@code list}, with one occurrence of {@code d} removed
+	 */
 	private ArrayList<DataValue> removeFirst(ArrayList<DataValue> list, DataValue d) {
 		ArrayList<DataValue> ret = new ArrayList<>();
 		ret.addAll(list);
@@ -191,71 +244,98 @@ public class PrefixFinder {
 		return ret;
 	}
 
-	private Optional<Result> checkTransition(RALocation loc_i,
+	/**
+	 * Check for a transition discrepancy. This is done by checking whether there exists no
+	 * {@code action}-extension of {@code u} in the leaf of {@code loc} that is equivalent
+	 * to the {@code (hypGuard && sulGuard)} extension of {@code u} after {@code v}.
+	 * 
+	 * @param loc the source location
+	 * @param u short prefix from leaf of {@code loc}
+	 * @param action the symbol of the next transition
+	 * @param v the suffix after {@code u} and {@code action}
+	 * @param hypGuard guard of {@code action} after {@code u} on the hypothesis
+	 * @param sulGuard guard of {@code action} after {@code u} on the SUL
+	 * @return an {@code Optional} containing the result if there is a transition discrepancy, or an empty {@code Optional} otherwise
+	 */
+	private Optional<Result> checkTransition(RALocation loc,
 			ShortPrefix u,
 			ParameterizedSymbol action,
-			SymbolicSuffix vi,
-			Expression<Boolean> gi,
-			Expression<Boolean> giPrime) {
+			SymbolicSuffix v,
+			Expression<Boolean> hypGuard,
+			Expression<Boolean> sulGuard) {
+		// rename hyp guard to match RP
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
-        Expression<Boolean> giRenamed = rvv.apply(gi, u.getRpBijection().inverse().toVarMapping());
-        Expression<Boolean> con = ExpressionUtil.and(giRenamed, giPrime);
+        Expression<Boolean> hypGuardRenamed = rvv.apply(hypGuard, u.getRpBijection().inverse().toVarMapping());
+        Expression<Boolean> conjunction = ExpressionUtil.and(hypGuardRenamed, sulGuard);
 
+        // instantiate a representative data value for the conjunction
         DataType[] types = action.getPtypes();
         DataValue[] reprDataVals = new DataValue[types.length];
-        Set<DataValue> prior = new LinkedHashSet<>();
         for (int i = 0; i < types.length; i++) {
-        	reprDataVals[i] = teachers.get(types[i]).instantiate(u, action, prior, consts, con, i+1, solver);
-        	prior.add(reprDataVals[i]);
+        	reprDataVals[i] = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
         Word<PSymbolInstance> uExtSul = u.append(psi);
 
-		CTLeaf leaf_i = hyp.getLeaf(loc_i);
+        // check whether leaf of loc contains an extension of u that is equivalent to uExtSul after v
+		CTLeaf leaf = hyp.getLeaf(loc);
 		Iterator<Word<PSymbolInstance>> extensions = ct.getExtensions(u, action)
 				.stream()
-				.filter(w -> leaf_i.getPrefixes().contains(w))
+				.filter(w -> leaf.getPrefixes().contains(w))
 				.iterator();
 		while (extensions.hasNext()) {
 			Word<PSymbolInstance> uExtHyp = extensions.next();    // u_{i-1}\alpha_i(d_i')
-			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, vi).toRegisterSDT(uExtHyp, consts);
-			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, vi).toRegisterSDT(uExtSul, consts);
+			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
+			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, v).toRegisterSDT(uExtSul, consts);
 
 			if (SDT.equivalentUnderId(uExtHypSDT, uExtSulSDT)) {
-				return Optional.empty();
+				return Optional.empty();  // there is an equivalent extension, so no discrepancy
 			}
 		}
 
+		// no equivalent extension exists
 		Result res = new Result(uExtSul, ResultType.TRANSITION);
 		return Optional.of(res);
 	}
 
-	private Optional<Result> checkLocation(RALocation loc_i,
+	/**
+	 * Check for a location discrepancy. This is done by checking whether there is some
+	 * {@code action}-extension of {@code u} in the leaf of {@code locNext} such that there
+	 * does not exist some short prefix in the leaf of {@code locNext} that is equivalent
+	 * to the {@code action}-extension of {@code u} after {@code v}.
+	 * 
+	 * @param locNext the destination location
+	 * @param u short prefix in leaf prior to {@code locNext} in the run
+	 * @param action the symbol of the next transition
+	 * @param v the suffix after {@code u} and {@code action}
+	 * @return an {@code Optional} containing the result if there is a location discrepancy, or an empty {@code Optional} otherwise
+	 */
+	private Optional<Result> checkLocation(RALocation locNext,
 			Word<PSymbolInstance> u,
 			ParameterizedSymbol action,
-			SymbolicSuffix vi) {
-		CTLeaf leaf_i = hyp.getLeaf(loc_i);
+			SymbolicSuffix v) {
+		CTLeaf leafNext = hyp.getLeaf(locNext);
 		Iterator<Prefix> extensions = ct.getExtensions(u, action)
 				.stream()
-				.filter(w -> leaf_i.getPrefixes().contains(w))
-				.map(w -> leaf_i.getPrefix(w))
+				.filter(w -> leafNext.getPrefixes().contains(w))
+				.map(w -> leafNext.getPrefix(w))
 				.iterator();
 		while (extensions.hasNext()) {
-			Prefix uExt = extensions.next();
-			Bijection<DataValue> uExtBi = uExt.getRpBijection();
-			boolean noEquivUi = true;
-			for (Prefix ui : leaf_i.getShortPrefixes()) {
-				Bijection<DataValue> uiBi = ui.getRpBijection();
-				Bijection<DataValue> gamma = uiBi.compose(uExtBi.inverse());
-				SDT uExtSDT = sulOracle.treeQuery(uExt, vi);
-				SDT uiSDT = sulOracle.treeQuery(ui, vi);
-				if (SDT.equivalentUnderBijection(uiSDT, uExtSDT, gamma) != null) {
-					noEquivUi = false;
+			Prefix uExtended = extensions.next();
+			Bijection<DataValue> uExtBijection = uExtended.getRpBijection();
+			boolean noEquivU = true;
+			for (Prefix uNext : leafNext.getShortPrefixes()) {
+				Bijection<DataValue> uNextBijection = uNext.getRpBijection();
+				Bijection<DataValue> gamma = uNextBijection.compose(uExtBijection.inverse());
+				SDT uExtSDT = sulOracle.treeQuery(uExtended, v);
+				SDT uNextSDT = sulOracle.treeQuery(uNext, v);
+				if (SDT.equivalentUnderBijection(uNextSDT, uExtSDT, gamma) != null) {
+					noEquivU = false;
 					break;
 				}
 			}
-			if (noEquivUi) {
-				Result res = new Result(uExt, ResultType.LOCATION);
+			if (noEquivU) {
+				Result res = new Result(uExtended, ResultType.LOCATION);
 				return Optional.of(res);
 			}
 		}
@@ -263,18 +343,25 @@ public class PrefixFinder {
 		return Optional.empty();
 	}
 
+	/**
+	 * Get the guard in the hypothesis corresponding to {@code run} at index {@code idx}
+	 * 
+	 * @param run
+	 * @param idx
+	 * @return
+	 */
 	private Optional<Expression<Boolean>> getHypGuard(RARun run, int idx) {
 		RALocation locNext = run.getLocation(idx);
 		RALocation loc = run.getLocation(idx - 1);
 		CTLeaf leafNext = hyp.getLeaf(locNext);
-		RegisterValuation mu = run.getValuation(idx-1);
-		PSymbolInstance a = run.getTransition(idx);
-		ShortPrefix sp = hyp.getLeaf(loc).getShortPrefixes().iterator().next();
-		Mapping<DataValue, DataValue> renaming = valuationRenaming(sp, mu);
-		for (Word<PSymbolInstance> ua : ct.getExtensions(sp, a.getBaseSymbol())) {
+		RegisterValuation hypValuation = run.getValuation(idx-1);
+		PSymbolInstance action = run.getTransition(idx);
+		ShortPrefix u = hyp.getLeaf(loc).getShortPrefixes().iterator().next();
+		Mapping<DataValue, DataValue> renaming = valuationRenaming(u, hypValuation);
+		for (Word<PSymbolInstance> ua : ct.getExtensions(u, action.getBaseSymbol())) {
 			if (leafNext.getPrefixes().contains(ua)) {
-				for (Expression<Boolean> g : sp.getBranching(a.getBaseSymbol()).getBranches().values()) {
-					if (isGuardSatisfied(g, renaming, a)) {
+				for (Expression<Boolean> g : u.getBranching(action.getBaseSymbol()).getBranches().values()) {
+					if (isGuardSatisfied(g, renaming, action)) {
 						return Optional.of(g);
 					}
 				}
@@ -283,6 +370,15 @@ public class PrefixFinder {
 		return Optional.empty();
 	}
 
+	/**
+	 * Check whether {@code guard} is satisfied by the parameters of {@code symbol}, after renaming
+	 * the parameters of {@code guard} according to {@code renaming}.
+	 * 
+	 * @param guard
+	 * @param renaming
+	 * @param symbol
+	 * @return {@code true} if {@code symbol} satisfies {@code guard}, renamed according to {@code renaming}
+	 */
 	private boolean isGuardSatisfied(Expression<Boolean> guard, Mapping<DataValue, DataValue> renaming, PSymbolInstance symbol) {
 		Mapping<SymbolicDataValue, DataValue> mapping = new Mapping<>();
 		DataValue[] vals = symbol.getParameterValues();

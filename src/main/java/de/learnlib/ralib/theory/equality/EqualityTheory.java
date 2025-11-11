@@ -413,10 +413,8 @@ public abstract class EqualityTheory implements Theory {
 
     @Override
     public DataValue instantiate(Word<PSymbolInstance> prefix,
-            ParameterizedSymbol ps, Set<DataValue> pval,
-            Constants constants,
-            Expression<Boolean> guard, int param,
-            ConstraintSolver solver) {
+            ParameterizedSymbol ps, Expression<Boolean> guard, int param,
+            Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
     	Set<DataValue> vals = DataWords.valSet(prefix, p.getDataType());
     	vals.addAll(vals.stream()

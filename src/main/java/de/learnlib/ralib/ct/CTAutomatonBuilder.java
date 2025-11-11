@@ -15,6 +15,7 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterAssignment;
 import de.learnlib.ralib.data.SymbolicDataValue;
@@ -37,21 +38,37 @@ import gov.nasa.jpf.constraints.expressions.PropositionalCompound;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
+/**
+ * Builder class for building a {@link CTHypothesis} from a {@link ClassificationTree}.
+ * This class implements similar functionality as {@link AutomatonBuilder} and {@link IOAutomatonBuilder},
+ * but tailored for the {@link SLLambda} and {@link SLCT} learning algorithms.
+ * 
+ * {@code CTAutomatonBuilder} supports construction of automata from an incomplete classification tree,
+ * so long as the classification tree is closed and consistent.
+ * Multiple short prefixes in the same leaf, as well as one-symbol extensions without matching guards,
+ * will be ignored during construction.
+ * The access sequence for each location will be set to the representative prefix of the corresponding leaf.
+ * 
+ * @author fredrik
+ */
 public class CTAutomatonBuilder {
 
 	private final ClassificationTree ct;
 
-	private final Map<Word<PSymbolInstance>, RALocation> locations;
+	private final Map<Word<PSymbolInstance>, RALocation> locations;    // to keep track of which prefix maps to which location
 	private final Map<CTLeaf, RALocation> leaves;
 
 	private final CTHypothesis hyp;
 
 	private final ConstraintSolver solver;
+	
+	private final Constants consts;
 
 	private boolean ioMode;
 
 	public CTAutomatonBuilder(ClassificationTree ct, Constants consts, boolean ioMode, ConstraintSolver solver) {
 		this.ct = ct;
+		this.consts = consts;
 		this.ioMode = ioMode;
 		this.solver = solver;
 
@@ -72,6 +89,7 @@ public class CTAutomatonBuilder {
 	}
 
 	private void computeLocations() {
+		// compute initial location
 		CTLeaf initial = ct.getLeaf(RaStar.EMPTY_PREFIX);
 		RALocation l0 = hyp.addInitialState(initial.isAccepting());
 		locations.put(RaStar.EMPTY_PREFIX, l0);
@@ -81,6 +99,7 @@ public class CTAutomatonBuilder {
 		hyp.setAccessSequence(l0, RaStar.EMPTY_PREFIX);
 		leaves.put(initial, l0);
 
+		// compute non-initial locations
 		for (CTLeaf leaf : ct.getLeaves()) {
 			if (leaf != initial) {
 				RALocation l = hyp.addState(leaf.isAccepting());
@@ -104,6 +123,7 @@ public class CTAutomatonBuilder {
 
 	private void computeTransition(CTLeaf dest_l, Prefix prefix) {
 		if (prefix.length() < 1) {
+			// empty prefix has no transition
 			return;
 		}
 
@@ -131,14 +151,16 @@ public class CTAutomatonBuilder {
 		Branching b = src_u.getBranching(action);
 		Expression<Boolean> guard = b.getBranches().get(prefix);
 
+		// prefix may not yet have a guard if ct is incomplete, so find a corresponding guard
 		if (guard == null) {
 			for (Expression<Boolean> g : b.getBranches().values()) {
 				DataValue[] vals = prefix.lastSymbol().getParameterValues();
-				ParameterValuation pars = new ParameterValuation();
+				Mapping<SymbolicDataValue, DataValue> pars = new Mapping<>();
 				for (int i = 0; i < vals.length; i++) {
 					Parameter p = new Parameter(vals[i].getDataType(), i+1);
 					pars.put(p, vals[i]);
 				}
+				pars.putAll(consts);
 				if (solver.isSatisfiable(g, pars)) {
 					guard = g;
 					break;
@@ -154,12 +176,14 @@ public class CTAutomatonBuilder {
         	}
         }
 
+        // rename guard to use register mapping of predecessor prefix
         ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
         RegisterAssignment srcAssign = src_u.getAssignment();
         RegisterAssignment rpAssign = src_l.getRepresentativePrefix().getAssignment();
         RegisterAssignment srcAssignRemapped = srcAssign.relabel(registerRemapping(srcAssign, rpAssign, src_u.getRpBijection()));
         guard = rvv.apply(guard, srcAssignRemapped);
 
+        // compute register assignment
         RegisterAssignment destAssign = dest_rp.getAssignment();
         Bijection<DataValue> remapping = prefix.getRpBijection();
         Assignment assign = AutomatonBuilder.computeAssignment(prefix, srcAssignRemapped, destAssign, remapping);
@@ -179,9 +203,12 @@ public class CTAutomatonBuilder {
 		}
 
 		if (!ioMode || !(action instanceof OutputSymbol)) {
+			// create input transition
 			return new Transition(action, guard, src_loc, dest_loc, assignment);
 		}
 
+		// this is an output transition
+		
         Expression<Boolean> expr = guard;
 
         VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();

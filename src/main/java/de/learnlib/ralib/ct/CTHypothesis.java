@@ -21,6 +21,14 @@ import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.word.Word;
 
+/**
+ * Hypothesis constructed from a {@link ClassificationTree}. Maintains a mapping between
+ * locations in the hypothesis and leaf nodes of the {@code ClassificationTree} from which the
+ * hypothesis was constructed.
+ * 
+ * @author fredrik
+ * @see Hypothesis
+ */
 public class CTHypothesis extends Hypothesis {
 
 	private final BiMap<CTLeaf, RALocation> leaves;
@@ -57,10 +65,25 @@ public class CTHypothesis extends Hypothesis {
 		return super.getSuccessor(state, input);
 	}
 
+	/**
+	 * Get location corresponding to {@code leaf}.
+	 * 
+	 * @param leaf
+	 * @return {@link RALocation} corresponding to {@code leaf}
+	 */
 	public RALocation getLocation(CTLeaf leaf) {
 		return leaves.get(leaf);
 	}
 
+	/**
+	 * Get leaf node of {@link ClassificationTree} from which this hypothesis was constructed.
+	 * which corresponds to {@code location}.
+	 * 
+	 * @param location
+	 * @return leaf node corresponding to {@code location}
+	 * @see CTLeaf
+	 * @see RALocation
+	 */
 	public CTLeaf getLeaf(RALocation location) {
 		return leaves.inverse().get(location);
 	}
@@ -98,6 +121,7 @@ public class CTHypothesis extends Hypothesis {
             }
 
             if (!found) {
+            	// in IO automata, invalid sequences go to sink
             	if (ioMode) {
             		if ((symbols[i].getBaseSymbol() instanceof OutputSymbol && (output || candidates.isEmpty()))
             				|| locs[i].equals(sink)) {
