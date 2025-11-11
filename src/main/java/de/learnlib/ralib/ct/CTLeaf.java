@@ -188,7 +188,6 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 */
 	@Override
 	public Branching getBranching(ParameterizedSymbol action) {
-		// FIXME: should get branching from a short prefix if representative prefix is not short
 		assert rp instanceof ShortPrefix : "Representative prefix is not a short prefix";
 		return ((ShortPrefix) rp).getBranching(action);
 	}
