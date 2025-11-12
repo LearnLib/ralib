@@ -31,7 +31,7 @@ import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import net.automatalib.word.Word;
 
-public class LearnArrayList {
+public class LearnArrayListTest {
 
 	@Test
 	public void testLearnArrayList() {
