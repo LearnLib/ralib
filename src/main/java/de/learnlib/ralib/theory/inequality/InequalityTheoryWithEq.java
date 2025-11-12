@@ -201,11 +201,13 @@ public abstract class InequalityTheoryWithEq implements Theory {
 	 * @param sdts - a mapping from SDT guards to their corresponding sub-SDTs
 	 * @param equivClasses - a mapping from data values to corresponding SDT guards
 	 * @param filteredOut - data values removed through suffix optimization
+	 * @param prior - suffix valuation for prior suffix values
 	 * @return a mapping from merged SDT guards to their respective sub-trees
 	 */
 	protected Map<SDTGuard, SDT> mergeGuards(Map<SDTGuard, SDT> sdts,
 			Map<DataValue, SDTGuard> equivClasses,
-			Collection<DataValue> filteredOut) {
+			Collection<DataValue> filteredOut,
+			SuffixValuation prior) {
 		Map<SDTGuard, SDT> merged = new LinkedHashMap<>();
 
 		List<DataValue> ecValuesSorted = sort(equivClasses.keySet());
@@ -244,10 +246,10 @@ public abstract class InequalityTheoryWithEq implements Theory {
 					currSdt = nextSdt;
 					continue;
 				} else {
-					if (equivalentWithRenaming(currSdt, currGuard, nextSdt, nextGuard)) {
+					if (equivalentWithRenaming(currSdt, currGuard, nextSdt, nextGuard, prior)) {
 						// if left guard is equality, check for equality with previous guard
 						if (currGuard instanceof SDTGuard.EqualityGuard && prevGuard != null &&
-								!equivalentWithRenaming(prevSdt, prevGuard, nextSdt, nextGuard)) {
+								!equivalentWithRenaming(prevSdt, prevGuard, nextSdt, nextGuard, prior)) {
 							keepMerging = false;
 						}
 					} else {
@@ -301,9 +303,10 @@ public abstract class InequalityTheoryWithEq implements Theory {
 	 * @param guard1
 	 * @param sdt2
 	 * @param guard2
+	 * @param prior
 	 * @return true if sdt1 is equivalent to sdt2, or can be under equality guard2, or vice versa
 	 */
-	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2) {
+	private boolean equivalentWithRenaming(SDT sdt1, SDTGuard guard1, SDT sdt2, SDTGuard guard2, SuffixValuation prior) {
 		if (guard1 != null && guard1 instanceof SDTGuard.EqualityGuard) {
 			Expression<Boolean> renaming = SDTGuard.toExpr(guard1);
 			return sdt1.isEquivalentUnderCondition(sdt2, renaming);
@@ -311,7 +314,17 @@ public abstract class InequalityTheoryWithEq implements Theory {
 			Expression<Boolean> renaming = SDTGuard.toExpr(guard2);
 			return sdt2.isEquivalentUnderCondition(sdt1, renaming);
 		}
-		return sdt1.isEquivalent(sdt2, new Bijection<>());
+
+		// constrain suffix values
+		Expression<Boolean> guard1Expr = SDTGuard.toExpr(guard1);
+		Expression<Boolean> guard2Expr = SDTGuard.toExpr(guard2);
+		Expression<Boolean> condition = ExpressionUtil.or(guard1Expr, guard2Expr);
+		for (Map.Entry<SuffixValue, DataValue> e : prior.entrySet()) {
+			Expression<Boolean> expr = new NumericBooleanExpression(e.getKey(), NumericComparator.EQ, e.getValue());
+			condition = ExpressionUtil.and(condition, expr);
+		}
+
+		return sdt1.isEquivalentUnderCondition(sdt2, condition);
 	}
 
 	/**
@@ -442,7 +455,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         Collection<DataValue> filteredOut = new ArrayList<>();
         filteredOut.addAll(equivClasses.keySet());
         filteredOut.removeAll(filteredEquivClasses.keySet());
-        Map<SDTGuard, SDT> merged = mergeGuards(children, equivClasses, filteredOut);
+        Map<SDTGuard, SDT> merged = mergeGuards(children, equivClasses, filteredOut, suffixValues);
 
         Map<SDTGuard, SDT> reversed = new LinkedHashMap<>();
         List<SDTGuard> keys = new ArrayList<>(merged.keySet());
