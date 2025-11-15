@@ -3,6 +3,9 @@ package de.learnlib.ralib.learning.ralambda;
 import static de.learnlib.ralib.example.list.ArrayListDataWordOracle.ADD;
 import static de.learnlib.ralib.example.list.ArrayListDataWordOracle.REMOVE;
 import static de.learnlib.ralib.example.list.ArrayListDataWordOracle.TYPE;
+import static de.learnlib.ralib.example.list.ArrayListIODataWordOracle.FALSE;
+import static de.learnlib.ralib.example.list.ArrayListIODataWordOracle.TRUE;
+import static de.learnlib.ralib.example.list.ArrayListIODataWordOracle.VOID;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
@@ -17,6 +20,7 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.example.list.ArrayListDataWordOracle;
+import de.learnlib.ralib.example.list.ArrayListIODataWordOracle;
 import de.learnlib.ralib.example.list.ArrayListWrapper;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.DataWordOracle;
@@ -86,5 +90,64 @@ public class LearnArrayListTest {
         Assert.assertTrue(hyp.accepts(ce));
 
         Assert.assertEquals(hyp.getStates().size(), 5);
+	}
+
+	@Test
+	public void testArrayListNonDeterminacy() {
+		DataWordOracle oracle = new ArrayListIODataWordOracle(() -> new ArrayListWrapper(4));
+
+		final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+		teachers.put(TYPE, new DoubleInequalityTheory(TYPE));
+		ConstraintSolver solver = new ConstraintSolver();
+		Constants consts = new Constants();
+		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
+        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
+        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
+                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
+
+        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, ADD, REMOVE, VOID, TRUE, FALSE);
+        learner.learn();
+
+		Word<PSymbolInstance> ce = Word.fromSymbols(
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(TRUE));
+		learner.addCounterexample(new DefaultQuery<>(ce, true));
+		learner.learn();
+
+		ce = Word.fromSymbols(
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.valueOf(-1))),
+        		new PSymbolInstance(FALSE),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(TRUE));
+		learner.addCounterexample(new DefaultQuery<>(ce, true));
+		learner.learn();
+
+		ce = Word.fromSymbols(
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.valueOf(2))),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.valueOf(2))),
+        		new PSymbolInstance(TRUE),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(TRUE));
+		learner.addCounterexample(new DefaultQuery<>(ce, true));
+		learner.learn();
+
+		ce = Word.fromSymbols(
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.ONE)),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(ADD, new DataValue(TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(VOID),
+        		new PSymbolInstance(REMOVE, new DataValue(TYPE, BigDecimal.ZERO)),
+        		new PSymbolInstance(TRUE));
+		learner.addCounterexample(new DefaultQuery<>(ce, true));
+		learner.learn();
+
+		Assert.assertTrue(learner.getHypothesis().accepts(ce));
 	}
 }
