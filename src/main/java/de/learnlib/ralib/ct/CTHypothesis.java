@@ -1,6 +1,8 @@
 package de.learnlib.ralib.ct;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.BiMap;
@@ -8,17 +10,23 @@ import com.google.common.collect.HashBiMap;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import de.learnlib.ralib.automata.Assignment;
+import de.learnlib.ralib.automata.InputTransition;
 import de.learnlib.ralib.automata.RALocation;
 import de.learnlib.ralib.automata.RARun;
 import de.learnlib.ralib.automata.Transition;
+import de.learnlib.ralib.automata.output.OutputMapping;
 import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.ParameterValuation;
 import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.Hypothesis;
+import de.learnlib.ralib.words.InputSymbol;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
@@ -89,11 +97,27 @@ public class CTHypothesis extends Hypothesis {
 	}
 
 	@Override
+	protected List<Transition> getTransitions(Word<PSymbolInstance> dw) {
+		List<Transition> tseq = new LinkedList<>();
+		RARun run = getRun(dw);
+		for (int i = 1; i <= dw.size(); i++) {
+			tseq.add(run.getRATransition(i));
+		}
+		return tseq;
+	}
+
+	@Override
+	public RALocation getLocation(Word<PSymbolInstance> dw) {
+		return getRun(dw).getLocation(dw.size());
+	}
+
+	@Override
     public RARun getRun(Word<PSymbolInstance> word) {
         int n = word.length();
         RALocation[] locs = new RALocation[n+1];
         RegisterValuation[] vals = new RegisterValuation[n+1];
         PSymbolInstance[] symbols = new PSymbolInstance[n];
+        Transition[] transitions = new Transition[n];
 
         locs[0] = getInitialState();
         vals[0] = new RegisterValuation();
@@ -113,6 +137,7 @@ public class CTHypothesis extends Hypothesis {
 
             for (Transition t : candidates) {
                 if (t.isEnabled(vals[i], pars, constants)) {
+                	transitions[i] = t;
                 	vals[i+1] = t.valuation(vals[i], pars, constants);
                     locs[i+1] = t.getDestination();
                     found = true;
@@ -127,6 +152,7 @@ public class CTHypothesis extends Hypothesis {
             				|| locs[i].equals(sink)) {
             			vals[i+1] = new RegisterValuation();
             			locs[i+1] = getSink();
+            			transitions[i] = createSinkTransition(locs[i], locs[i+1], symbols[i].getBaseSymbol());
             		}
             	} else {
             		return null;
@@ -134,6 +160,22 @@ public class CTHypothesis extends Hypothesis {
             }
         }
 
-        return new RARun(locs, vals, symbols);
+        return new RARun(locs, vals, symbols, transitions);
     }
+
+	private Transition createSinkTransition(RALocation src, RALocation dest, ParameterizedSymbol ps) {
+		if (ps instanceof OutputSymbol) {
+			return new OutputTransition(new OutputMapping(),
+					(OutputSymbol) ps,
+					src, dest,
+					new Assignment(new VarMapping<>()));
+		}
+		if (ps instanceof InputSymbol) {
+			return new InputTransition(ExpressionUtil.TRUE,
+					(InputSymbol) ps,
+					src, dest,
+					new Assignment(new VarMapping<>()));
+		}
+		throw new IllegalArgumentException("Not input or output symbol: " + ps);
+	}
 }

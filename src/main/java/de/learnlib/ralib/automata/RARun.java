@@ -1,20 +1,31 @@
 package de.learnlib.ralib.automata;
 
-import java.util.ArrayList;
 
+import java.util.Map;
+
+import de.learnlib.ralib.automata.output.OutputTransition;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.RegisterValuation;
+import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
+import de.learnlib.ralib.smt.VarsValuationVisitor;
 import de.learnlib.ralib.words.PSymbolInstance;
+import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
+import gov.nasa.jpf.constraints.expressions.NumericComparator;
+import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
 public class RARun {
 
 	private final RALocation[] locations;
 	private final RegisterValuation[] valuations;
-	private final PSymbolInstance[] transitions;
+	private final PSymbolInstance[] symbols;
+	private final Transition[] transitions;
 
-	public RARun(RALocation[] locations, RegisterValuation[] valuations, PSymbolInstance[] transitions) {
+	public RARun(RALocation[] locations, RegisterValuation[] valuations, PSymbolInstance[] symbols, Transition[] transitions) {
 		this.locations = locations;
 		this.valuations = valuations;
+		this.symbols = symbols;
 		this.transitions = transitions;
 	}
 
@@ -26,18 +37,39 @@ public class RARun {
 		return valuations[i];
 	}
 
-	public PSymbolInstance getTransition(int i) {
+	public PSymbolInstance getTransitionSymbol(int i) {
+		return symbols[i-1];
+	}
+
+	public Transition getRATransition(int i) {
 		return transitions[i-1];
 	}
 
-	public DataValue[] getDataValues(int i) {
-		ArrayList<DataValue> vals = new ArrayList<>();
-		for (int id = 0; id < i; id++) {
-			for (DataValue dv : transitions[id].getParameterValues()) {
-				vals.add(dv);
-			}
+	public Expression<Boolean> getGuard(int i) {
+		Transition transition = getRATransition(i);
+		if (transition == null) {
+			return null;
 		}
-		return vals.toArray(new DataValue[vals.size()]);
+		if (transition instanceof OutputTransition) {
+			return outputGuard((OutputTransition) transition, getTransitionSymbol(i));
+		}
+		VarsValuationVisitor vvv = new VarsValuationVisitor();
+		Expression<Boolean> guard = transition.getGuard();
+		RegisterValuation val = getValuation(i);
+		return vvv.apply(guard, val);
+	}
+
+	private Expression<Boolean> outputGuard(OutputTransition t, PSymbolInstance symbol) {
+		Expression<Boolean> guard = t.getGuard();
+		DataValue[] vals = symbol.getParameterValues();
+		for (Map.Entry<Parameter, SymbolicDataValue> e : t.getOutput().getOutput().entrySet()) {
+			Parameter p = e.getKey();
+			SymbolicDataValue s = e.getValue();
+			DataValue d = vals[p.getId()-1];
+			Expression<Boolean> eq = new NumericBooleanExpression(s, NumericComparator.EQ, d);
+			guard = ExpressionUtil.and(guard, eq);
+		}
+		return guard;
 	}
 
 	@Override
@@ -50,7 +82,7 @@ public class RARun {
 		for (int i = 1; i < locations.length; i++) {
 			str = str +
 					" -- " +
-					transitions[i-1] +
+					symbols[i-1] +
 					" -- <" +
 					locations[i] +
 					", " +

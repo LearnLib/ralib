@@ -73,8 +73,8 @@ public class RaRunTest extends RaLibTestSuite {
 		Assert.assertEquals(run.getValuation(1).get(r1), dv1);
 		Assert.assertEquals(run.getValuation(3).get(r1), dv2);
 
-		Assert.assertEquals(run.getTransition(1), psi1);
-		Assert.assertEquals(run.getTransition(2), psi1);
-		Assert.assertEquals(run.getTransition(3), psi2);
+		Assert.assertEquals(run.getTransitionSymbol(1), psi1);
+		Assert.assertEquals(run.getTransitionSymbol(2), psi1);
+		Assert.assertEquals(run.getTransitionSymbol(3), psi2);
 	}
 }

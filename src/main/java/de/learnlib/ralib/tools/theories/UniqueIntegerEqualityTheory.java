@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
@@ -67,7 +68,7 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
     }
 
 	@Override
-	public DataValue instantiate(Word<PSymbolInstance> prefix,
+	public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
 			ParameterizedSymbol ps, Expression<Boolean> guard, int param,
 			Constants constants, ConstraintSolver solver) {
 		throw new RuntimeException("Not implemented");

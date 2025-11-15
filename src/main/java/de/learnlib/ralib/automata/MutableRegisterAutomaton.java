@@ -28,7 +28,6 @@ import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
 import net.automatalib.automaton.MutableDeterministic;
-import net.automatalib.common.util.Pair;
 import net.automatalib.word.Word;
 
 /**
@@ -117,39 +116,6 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             }
         }
         return tseq;
-    }
-
-    protected List<Pair<Transition,RegisterValuation>> getTransitionsAndValuations(Word<PSymbolInstance> dw) {
-        RegisterValuation vars = RegisterValuation.copyOf(getInitialRegisters());
-        RALocation current = initial;
-        List<Pair<Transition,RegisterValuation>> tvseq = new ArrayList<>();
-        for (PSymbolInstance psi : dw) {
-
-            ParameterValuation pars = ParameterValuation.fromPSymbolInstance(psi);
-
-            Collection<Transition> candidates =
-                    current.getOut(psi.getBaseSymbol());
-
-            if (candidates == null) {
-                return null;
-            }
-
-            boolean found = false;
-            for (Transition t : candidates) {
-                if (t.isEnabled(vars, pars, constants)) {
-                    vars = t.execute(vars, pars, constants);
-                    current = t.getDestination();
-                    tvseq.add(Pair.of(t, RegisterValuation.copyOf(vars)));
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                return null;
-            }
-        }
-        return tvseq;
     }
 
     @Override
@@ -305,6 +271,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
         RALocation[] locs = new RALocation[n+1];
         RegisterValuation[] vals = new RegisterValuation[n+1];
         PSymbolInstance[] symbols = new PSymbolInstance[n];
+        Transition[] transitions = new Transition[n];
 
         locs[0] = getInitialState();
         vals[0] = new RegisterValuation();
@@ -322,6 +289,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
 
             for (Transition t : candidates) {
                 if (t.isEnabled(vals[i], pars, constants)) {
+                    transitions[i] = t;
                     vals[i+1] = t.execute(vals[i], pars, constants);
                     locs[i+1] = t.getDestination();
                     found = true;
@@ -334,7 +302,7 @@ public class MutableRegisterAutomaton extends RegisterAutomaton
             }
         }
 
-        return new RARun(locs, vals, symbols);
+        return new RARun(locs, vals, symbols, transitions);
     }
 
 }

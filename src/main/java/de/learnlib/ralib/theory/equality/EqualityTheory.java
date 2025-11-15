@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -412,7 +413,7 @@ public abstract class EqualityTheory implements Theory {
     }
 
     @Override
-    public DataValue instantiate(Word<PSymbolInstance> prefix,
+    public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
@@ -424,16 +425,16 @@ public abstract class EqualityTheory implements Theory {
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
     	if (tryEquality(guard, p, fresh, solver, constants)) {
-    		return fresh;
+    		return Optional.of(fresh);
     	}
 
     	for (DataValue val : vals) {
     		if (tryEquality(guard, p, val, solver, constants)) {
-    			return val;
+    			return Optional.of(val);
     		}
     	}
 
-    	throw new IllegalArgumentException("Guard is not equality/disequality: " + guard);
+    	return Optional.empty();
     }
 
     private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {

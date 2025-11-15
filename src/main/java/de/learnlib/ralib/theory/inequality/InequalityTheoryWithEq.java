@@ -623,7 +623,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         return returnThis;
     }
 
-    public DataValue instantiate(Word<PSymbolInstance> prefix,
+    public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver) {
     	Parameter p = new Parameter(ps.getPtypes()[param-1], param);
@@ -634,7 +634,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
     	if (tryEquality(guard, p, fresh, solver)) {
-    		return fresh;
+    		return Optional.of(fresh);
     	}
 
     	List<Expression<Boolean>> diseqList = new LinkedList<>();
@@ -645,16 +645,17 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	if (valuation.isPresent()) {
     		BigDecimal dv = valuation.get().getValue(p);
     		assert dv != null : "No valuation for " + p + " in " + valuation;
-    		return new DataValue(p.getDataType(), dv);
+    		DataValue ret = new DataValue(p.getDataType(), dv);
+    		return Optional.of(ret);
     	}
 
     	for (DataValue val : vals) {
     		if (tryEquality(guard, p, val, solver)) {
-    			return val;
+    			return Optional.of(val);
     		}
     	}
 
-    	throw new IllegalArgumentException("Not a valid guard: " + guard);
+    	return Optional.empty();
     }
 
     private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver) {

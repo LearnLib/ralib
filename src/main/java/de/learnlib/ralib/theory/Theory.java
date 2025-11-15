@@ -19,6 +19,7 @@ package de.learnlib.ralib.theory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
@@ -110,9 +111,9 @@ public interface Theory {
      * @param param
      * @param constants
      * @param solver
-     * @return
+     * @return an {@code Optional} containing a data value satisfying {@code guard}, or an empty {@code Optional} if {@code guard} is unsatisfiable
      */
-    public DataValue instantiate(Word<PSymbolInstance> prefix,
+    public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver);
 

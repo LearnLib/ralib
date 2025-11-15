@@ -93,16 +93,14 @@ public class PrefixFinder {
 		for (int i = ce.length(); i >= 1; i--) {
 			RALocation loc = run.getLocation(i-1);
 			RALocation locNext = run.getLocation(i);
-			PSymbolInstance symbol = run.getTransition(i);
+			PSymbolInstance symbol = run.getTransitionSymbol(i);
 			RegisterValuation runValuation = run.getValuation(i-1);
 			ParameterizedSymbol action = symbol.getBaseSymbol();
 
 			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
 			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
 
-			Optional<Expression<Boolean>> gOpt = getHypGuard(run, i);
-			assert gOpt.isPresent() : "No guard satisfying valuation at index " + i;
-			Expression<Boolean> gHyp = gOpt.get();
+			Expression<Boolean> gHyp = run.getGuard(i);
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				SDT sdt = sulOracle.treeQuery(u, v);
@@ -191,7 +189,7 @@ public class PrefixFinder {
 		// gather data values from prefix of run at index id
 		ArrayList<DataValue> runVals = new ArrayList<>();
 		for (int i = 1; i <= id-1; i++) {
-			for (DataValue d : run.getTransition(i).getParameterValues()) {
+			for (DataValue d : run.getTransitionSymbol(i).getParameterValues()) {
 				runVals.add(d);
 			}
 		}
@@ -272,7 +270,12 @@ public class PrefixFinder {
         DataType[] types = action.getPtypes();
         DataValue[] reprDataVals = new DataValue[types.length];
         for (int i = 0; i < types.length; i++) {
-        	reprDataVals[i] = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
+        	Optional<DataValue> reprDataVal = teachers.get(types[i]).instantiate(u, action, conjunction, i+1, consts, solver);
+        	if (reprDataVal.isEmpty()) {
+        		// guard unsat
+        		return Optional.empty();
+        	}
+        	reprDataVals[i] = reprDataVal.get();
         }
         PSymbolInstance psi = new PSymbolInstance(action, reprDataVals);
         Word<PSymbolInstance> uExtSul = u.append(psi);
@@ -340,33 +343,6 @@ public class PrefixFinder {
 			}
 		}
 
-		return Optional.empty();
-	}
-
-	/**
-	 * Get the guard in the hypothesis corresponding to {@code run} at index {@code idx}
-	 *
-	 * @param run
-	 * @param idx
-	 * @return
-	 */
-	private Optional<Expression<Boolean>> getHypGuard(RARun run, int idx) {
-		RALocation locNext = run.getLocation(idx);
-		RALocation loc = run.getLocation(idx - 1);
-		CTLeaf leafNext = hyp.getLeaf(locNext);
-		RegisterValuation hypValuation = run.getValuation(idx-1);
-		PSymbolInstance action = run.getTransition(idx);
-		ShortPrefix u = hyp.getLeaf(loc).getShortPrefixes().iterator().next();
-		Mapping<DataValue, DataValue> renaming = valuationRenaming(u, hypValuation);
-		for (Word<PSymbolInstance> ua : ct.getExtensions(u, action.getBaseSymbol())) {
-			if (leafNext.getPrefixes().contains(ua)) {
-				for (Expression<Boolean> g : u.getBranching(action.getBaseSymbol()).getBranches().values()) {
-					if (isGuardSatisfied(g, renaming, action)) {
-						return Optional.of(g);
-					}
-				}
-			}
-		}
 		return Optional.empty();
 	}
 
