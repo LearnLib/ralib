@@ -1,20 +1,27 @@
 package de.learnlib.ralib.automata;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
+import de.learnlib.ralib.automata.output.OutputMapping;
+import de.learnlib.ralib.automata.output.OutputTransition;
+import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue;
+import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.words.InputSymbol;
+import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -26,6 +33,7 @@ public class RaRunTest extends RaLibTestSuite {
 
 	final DataType DT = new DataType("int");
 	final InputSymbol A = new InputSymbol("a", new DataType[] {DT});
+	final OutputSymbol B = new OutputSymbol("b", new DataType[] {DT, DT, DT, DT});
 
 	@Test
 	public void testMutableRARun() {
@@ -76,5 +84,51 @@ public class RaRunTest extends RaLibTestSuite {
 		Assert.assertEquals(run.getTransitionSymbol(1), psi1);
 		Assert.assertEquals(run.getTransitionSymbol(2), psi1);
 		Assert.assertEquals(run.getTransitionSymbol(3), psi2);
+	}
+
+	@Test
+	public void testGetGuard() {
+		Parameter p1 = new Parameter(DT, 1);
+		Parameter p2 = new Parameter(DT, 2);
+		Parameter p3 = new Parameter(DT, 3);
+		Parameter p4 = new Parameter(DT, 4);
+		Register r1 = new Register(DT, 1);
+		Constant c1 = new Constant(DT, 1);
+		Constants consts = new Constants();
+		consts.put(c1, new DataValue(DT, BigDecimal.valueOf(-1)));
+
+		MutableRegisterAutomaton ra = new MutableRegisterAutomaton(consts);
+		RALocation l0 = ra.addInitialState();
+		RALocation l1 = ra.addState();
+		RALocation l2 = ra.addState();
+
+		VarMapping<Register, Parameter> mapping = new VarMapping<>();
+		mapping.put(r1, p1);
+		Assignment assign = new Assignment(mapping);
+		Collection<Parameter> fresh = new ArrayList<>();
+		fresh.add(p2);
+		fresh.add(p1);
+		VarMapping<Parameter, SymbolicDataValue> outmap = new VarMapping<>();
+		outmap.put(p3, r1);
+		outmap.put(p4, c1);
+		OutputMapping out = new OutputMapping(fresh, outmap);
+
+		ra.addTransition(l0, A, new InputTransition(ExpressionUtil.TRUE, A, l0, l1, assign));
+		ra.addTransition(l1, B, new OutputTransition(ExpressionUtil.TRUE, out, B, l1, l2, new Assignment(new VarMapping<>())));
+
+		Word<PSymbolInstance> word = Word.fromSymbols(
+				new PSymbolInstance(A, new DataValue(DT, BigDecimal.ZERO)),
+				new PSymbolInstance(B, new DataValue(DT, BigDecimal.ONE),
+						new DataValue(DT, BigDecimal.valueOf(2)),
+						new DataValue(DT, BigDecimal.ZERO),
+						new DataValue(DT, consts.get(c1).getValue())));
+
+		RARun run = ra.getRun(word);
+		Expression<Boolean> guard = run.getGuard(2, consts);
+
+		Assert.assertEquals(guard.toString(),
+				"((((('p1' != 0) && ('p1' != -1)) && "
+				+ "((('p2' != 'p1') && ('p2' != 0)) && ('p2' != -1))) && "
+				+ "('p3' == 0)) && ('p4' == -1))");
 	}
 }
