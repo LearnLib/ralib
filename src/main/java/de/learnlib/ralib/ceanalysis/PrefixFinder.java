@@ -100,7 +100,7 @@ public class PrefixFinder {
 			SymbolicSuffix vNext = new SymbolicSuffix(ce.prefix(i), ce.suffix(ce.length() - i), restrBuilder);
 			SymbolicSuffix v = new SymbolicSuffix(ce.prefix(i-1), ce.suffix(ce.length() - i + 1), restrBuilder);
 
-			Expression<Boolean> gHyp = run.getGuard(i);
+			Expression<Boolean> gHyp = run.getGuard(i, consts);
 
 			for (ShortPrefix u : hyp.getLeaf(loc).getShortPrefixes()) {
 				SDT sdt = sulOracle.treeQuery(u, v);
