@@ -23,10 +23,7 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -59,20 +56,8 @@ public class TestSymmetry extends RaLibTestSuite {
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
-	SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-	TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
-
-	// System.out.println(sul);
-	// System.out.println("---------------------------------");
-
-//	RaLambda learner = new RaLambda(mto, hypFactory, slo, consts, false, false, A, B);
-//	learner.setSolver(solver);
-	SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
+	SLLambda learner = new SLLambda(mto, teachers, consts, false, solver, A, B);
 	learner.learn();
-
-        // System.out.println(learner.getHypothesis().toString());
 
 	Word<PSymbolInstance> ce =
 	    Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
@@ -81,11 +66,7 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.addCounterexample(new DefaultQuery<>(ce, true));
 	learner.learn();
 
-	// System.out.println(learner.getHypothesis().toString());
-
 	Hypothesis hyp = learner.getHypothesis();
-	// System.out.println(hyp.toString());
-	// System.out.println(learner.getDT());
 
 	ce = Word.fromSymbols(new PSymbolInstance(A, new DataValue(T_INT, BigDecimal.ONE)),
 			      new PSymbolInstance(A, new DataValue(T_INT, new BigDecimal(2))),
@@ -100,8 +81,6 @@ public class TestSymmetry extends RaLibTestSuite {
 	learner.addCounterexample(new DefaultQuery<>(ce, true));
 	learner.learn();
 
-	// System.out.println(learner.getHypothesis().toString());
-	// System.out.println(learner.getDT());
 	Assert.assertTrue(learner.getHypothesis().accepts(ce));
     }
 
@@ -198,12 +177,7 @@ public class TestSymmetry extends RaLibTestSuite {
 
 	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-	    new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
-
-        SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
+        SLLambda learner = new SLLambda(mto, teachers, consts, false, solver, A, B);
 
         learner.learn();
 

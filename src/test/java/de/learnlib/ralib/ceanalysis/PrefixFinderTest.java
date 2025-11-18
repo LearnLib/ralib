@@ -82,14 +82,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
-//        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-//
-//        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-//                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-//                        new Constants(), solver);
-
-//        RaStar rastar = new RaStar(mto, hypFactory, slo,
-//                consts, I_LOGIN, I_LOGOUT, I_REGISTER);
 
         SymbolicSuffixRestrictionBuilder rb = new SymbolicSuffixRestrictionBuilder(consts, teachers);
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
@@ -106,10 +98,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
         CTAutomatonBuilder ab = new CTAutomatonBuilder(ct, consts, false, solver);
         final CTHypothesis hyp = ab.buildHypothesis();
 
-//        rastar.learn();
-//        final Hypothesis hyp = rastar.getHypothesis();
-        // System.out.println(hyp);
-
         Word<PSymbolInstance> ce = Word.fromSymbols(
                 new PSymbolInstance(I_REGISTER,
                         new DataValue(T_UID, BigDecimal.ONE), new DataValue(T_PWD, BigDecimal.ONE)),
@@ -118,15 +106,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         PrefixFinder pf = new PrefixFinder(mto, hyp, ct, teachers, rb, solver, consts);
 
-//        PrefixFinder pf = new PrefixFinder(
-//                MTO,
-//                HYPFACTORY.CREATETREEORACLE(HYP), HYP,
-//                SLO,
-//                // RASTAR.GETCOMPONENTS(),
-//                CONSTS
-//        );
-
-//        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         Result res = pf.analyzeCounterExample(ce);
         Word<PSymbolInstance> prefix = res.prefix();
         Assert.assertEquals(res.result(), PrefixFinder.ResultType.LOCATION);
@@ -146,17 +125,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
-//        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-//
-//        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-//                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-//                        new Constants(), solver);
-//        RaLambda ralambda = new RaLambda(mto, hypFactory, slo,
-//        		consts, I_PUSH, I_POP);
-//
-//        ralambda.learn();
-//        final DTHyp hyp = ralambda.getDTHyp();
-        // System.out.println(hyp);
 
         SymbolicSuffixRestrictionBuilder rb = new SymbolicSuffixRestrictionBuilder(consts, teachers);
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
@@ -175,8 +143,6 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
         Word<PSymbolInstance> shortPrefix = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)));
-//        DTLeaf leaf = ralambda.getDT().getLeaf(shortPrefix);
-//        leaf.elevatePrefix(ralambda.getDT(), shortPrefix, hyp, slo);
         ct.expand(shortPrefix);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -184,17 +150,8 @@ public class PrefixFinderTest extends RaLibTestSuite {
         		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)));
 
-//        PrefixFinder pf = new PrefixFinder(
-//                mto,
-//                hypFactory.createTreeOracle(hyp), hyp,
-//                slo,
-//                // ralambda.getComponents(),
-//                consts
-//        );
-
         PrefixFinder pf = new PrefixFinder(mto, hyp, ct, teachers, rb, solver, consts);
 
-//        Word<PSymbolInstance> prefix = pf.analyzeCounterexample(ce).getPrefix();
         Result res = pf.analyzeCounterExample(ce);
         Assert.assertEquals(res.result(), PrefixFinder.ResultType.TRANSITION);
         Assert.assertEquals(res.prefix().toString(), "push[0[T_int]] pop[0[T_int]]");

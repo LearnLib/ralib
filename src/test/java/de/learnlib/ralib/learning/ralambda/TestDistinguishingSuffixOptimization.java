@@ -21,10 +21,7 @@ import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -85,13 +82,7 @@ public class TestDistinguishingSuffixOptimization {
 
 	    MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        SLLambda learner = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, A, B);
+        SLLambda learner = new SLLambda(mto, teachers, consts, false, solver, A, B);
 
         learner.learn();
 

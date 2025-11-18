@@ -287,7 +287,7 @@ public class PrefixFinder {
 				.filter(w -> leaf.getPrefixes().contains(w))
 				.iterator();
 		while (extensions.hasNext()) {
-			Word<PSymbolInstance> uExtHyp = extensions.next();    // u_{i-1}\alpha_i(d_i')
+			Word<PSymbolInstance> uExtHyp = extensions.next();
 			SDT uExtHypSDT = sulOracle.treeQuery(uExtHyp, v).toRegisterSDT(uExtHyp, consts);
 			SDT uExtSulSDT = sulOracle.treeQuery(uExtSul, v).toRegisterSDT(uExtSul, consts);
 

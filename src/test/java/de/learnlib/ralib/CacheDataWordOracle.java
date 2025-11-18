@@ -40,7 +40,6 @@ public class CacheDataWordOracle extends QueryCounter implements DataWordOracle 
 			boolean answer = traceBoolean(query.getInput());
 			query.answer(answer);
 		}
-//		countQueries(queries.size());
 	}
 
     private boolean traceBoolean(Word<PSymbolInstance> query) {

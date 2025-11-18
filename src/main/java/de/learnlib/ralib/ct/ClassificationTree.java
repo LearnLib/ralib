@@ -172,9 +172,9 @@ public class ClassificationTree {
 		sift(RaStar.EMPTY_PREFIX);
 	}
 
-	//////////////////////////////////////////
-	// OPERATION ON THE CLASSIFICATION TREE //
-	//////////////////////////////////////////
+	///////////////////////////////////////////
+	// OPERATIONS ON THE CLASSIFICATION TREE //
+	///////////////////////////////////////////
 
 	/**
 	 * Sift prefix into the tree. If prefix sifts to a new leaf, it becomes the representative prefix
@@ -696,7 +696,7 @@ public class ClassificationTree {
 	 * @return
 	 */
 	private Bijection<Register> rpRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> prefx) {
-		return Bijection.DVtoRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
+		return Bijection.dvToRegBijection(bijection, prefx, getLeaf(prefx).getRepresentativePrefix());
 	}
 
 	/**

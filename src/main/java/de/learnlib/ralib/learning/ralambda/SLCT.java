@@ -78,11 +78,11 @@ public class SLCT implements RaLearningAlgorithm {
 	@Override
 	public void learn() {
 		if (hyp == null) {
-			while(!checkClosedness());
+			while (!checkClosedness());
 			buildHypothesis();
 		}
 
-		while(analyzeCounterExample());
+		while (analyzeCounterExample());
 
 		if (queryStats != null) {
 			queryStats.hypothesisConstructed();
