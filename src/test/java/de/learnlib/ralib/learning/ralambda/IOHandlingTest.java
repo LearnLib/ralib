@@ -33,12 +33,9 @@ import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -198,12 +195,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
-
-		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, OK, NOK);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, OK, NOK);
 
 		sllambda.learn();
 
@@ -245,12 +238,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
-
-		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, NOK, OUT);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, NOK, OUT);
 
 		sllambda.learn();
 
@@ -293,12 +282,8 @@ public class IOHandlingTest extends RaLibTestSuite {
 		ConstraintSolver solver = new ConstraintSolver();
 
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-		MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-		TreeOracleFactory hypFactory = (RegisterAutomaton hyp) -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp),
-				teachers, consts, solver);
-
-		SLLambda sllambda = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, IN, NOK, OUT);
+		SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, IN, NOK, OUT);
 
 		sllambda.learn();
 

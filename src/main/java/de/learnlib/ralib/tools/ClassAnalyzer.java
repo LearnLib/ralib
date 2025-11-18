@@ -249,7 +249,7 @@ public class ClassAnalyzer extends AbstractToolWithRandomWalk {
                     this.rastar = new RaStar(mto, hypFactory, mlo, consts, true, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_SLLAMBDA:
-                    this.rastar = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, actions);
+                    this.rastar = new SLLambda(mto, teachers, consts, true, solver, actions);
                     break;
                 case AbstractToolWithRandomWalk.LEARNER_RADT:
                     this.rastar = new SLCT(mto, hypFactory, mlo, consts, true, solver, actions);

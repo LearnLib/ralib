@@ -125,12 +125,9 @@ public class RaLibLearningExperimentRunner {
 				learner = new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 				break;
 			case RALAMBDA:
-//				learner = new RaLambda(mto, hypFactory, mlo, consts, ioMode, useOldAnalyzer, actionSymbols);
-//				((RaLambda)learner).setSolver(solver);
-				learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, ioMode, solver, actionSymbols);
+				learner = new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
 				break;
 			case RADT:
-//			    learner = new RaDT(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 			    learner = new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			    break;
 			default:

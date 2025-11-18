@@ -16,9 +16,7 @@ import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.QueryStatistics;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.TreeOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
@@ -39,10 +37,6 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private final TreeOracle sulOracle;
 
-    private final SDTLogicOracle sdtLogicOracle;
-
-    private final TreeOracleFactory hypOracleFactory;
-
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
     private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
 
@@ -54,12 +48,10 @@ public class SLLambda implements RaLearningAlgorithm {
 
     private final ConstraintSolver solver;
 
-    public SLLambda(TreeOracle sulOracle, TreeOracleFactory hypOracleFactory, SDTLogicOracle sdtLogicOracle,
-    		Map<DataType, Theory> teachers, Constants consts, boolean ioMode, ConstraintSolver solver,
+    public SLLambda(TreeOracle sulOracle, Map<DataType, Theory> teachers,
+    		Constants consts, boolean ioMode, ConstraintSolver solver,
     		ParameterizedSymbol ... inputs) {
     	this.sulOracle = sulOracle;
-    	this.hypOracleFactory = hypOracleFactory;
-    	this.sdtLogicOracle = sdtLogicOracle;
     	this.teachers = teachers;
     	this.consts = consts;
     	this.ioMode = ioMode;
@@ -75,11 +67,11 @@ public class SLLambda implements RaLearningAlgorithm {
 	@Override
 	public void learn() {
 		if (hyp == null) {
-			while(!checkClosedness());
+			while (!checkClosedness());
 			buildHypothesis();
 		}
 
-		while(analyzeCounterExample());
+		while (analyzeCounterExample());
 
 		if (queryStats != null) {
 			queryStats.hypothesisConstructed();
@@ -158,7 +150,7 @@ public class SLLambda implements RaLearningAlgorithm {
         if (queryStats != null)
         	queryStats.processingCounterExample();
 
-        switch(res.result()) {
+        switch (res.result()) {
         case TRANSITION:
         	assert !ct.getPrefixes().contains(res.prefix()) : "Duplicate prefix: " + res.prefix();
         	ct.sift(res.prefix());
@@ -170,7 +162,7 @@ public class SLLambda implements RaLearningAlgorithm {
         }
 
         boolean closedAndConsistent = false;
-        while(!closedAndConsistent) {
+        while (!closedAndConsistent) {
         	if (checkClosedness()) {
         		if (checkConsistency()) {
         			closedAndConsistent = true;

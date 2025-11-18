@@ -63,7 +63,7 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
         sllambda.learn();
         RegisterAutomaton hyp = sllambda.getHypothesis();
@@ -108,13 +108,7 @@ public class LearnStackTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
         sllambda.learn();
         RegisterAutomaton hyp = sllambda.getHypothesis();
@@ -170,13 +164,7 @@ public class LearnStackTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        SLLambda sllambda = new SLLambda(mto, hypFactory, slo, teachers, consts, false, solver, I_PUSH, I_POP);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
         sllambda.learn();
         RegisterAutomaton hyp = sllambda.getHypothesis();

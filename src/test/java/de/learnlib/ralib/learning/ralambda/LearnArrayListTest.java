@@ -15,7 +15,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import de.learnlib.query.DefaultQuery;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -24,10 +23,6 @@ import de.learnlib.ralib.example.list.ArrayListIODataWordOracle;
 import de.learnlib.ralib.example.list.ArrayListWrapper;
 import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.oracles.DataWordOracle;
-import de.learnlib.ralib.oracles.SDTLogicOracle;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
@@ -48,12 +43,7 @@ public class LearnArrayListTest {
 		Constants consts = new Constants();
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
 
-        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
-
-        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, false, solver, ADD, REMOVE);
+        SLLambda learner = new SLLambda(mto, teachers, consts, false, solver, ADD, REMOVE);
         learner.learn();
 
         // round 1: find all locations
@@ -101,11 +91,8 @@ public class LearnArrayListTest {
 		ConstraintSolver solver = new ConstraintSolver();
 		Constants consts = new Constants();
 		MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
-        SDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, new Constants(), solver);
 
-        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers, consts, true, solver, ADD, REMOVE, VOID, TRUE, FALSE);
+        SLLambda learner = new SLLambda(mto, teachers, consts, true, solver, ADD, REMOVE, VOID, TRUE, FALSE);
         learner.learn();
 
 		Word<PSymbolInstance> ce = Word.fromSymbols(

@@ -151,16 +151,12 @@ public class CTConsistencyTest extends RaLibTestSuite {
         boolean closed = ct.checkLocationClosedness();
         Assert.assertFalse(closed);
         closed = ct.checkLocationClosedness();
-//        Assert.assertFalse(closed);
-//        closed = ct.checkLocationClosedness();
         Assert.assertTrue(closed);
 
         boolean consistent = ct.checkLocationConsistency();
         Assert.assertTrue(consistent);
         ct.expand(a1);
         consistent = ct.checkLocationConsistency();
-//        Assert.assertFalse(consistent);
-//        consistent = ct.checkLocationConsistency();
         Assert.assertTrue(consistent);
 
         ct.expand(a1a2);
@@ -194,7 +190,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
 		RALocation l2 = ra.addState(true);
 		RALocation l3 = ra.addState(true);
 		RALocation l4 = ra.addState(false);
-//		RALocation l5 = ra.addState(false);
 
 		Register r1 = new Register(DT, 1);
 		Parameter p1 = new Parameter(DT, 1);
@@ -231,8 +226,6 @@ public class CTConsistencyTest extends RaLibTestSuite {
 
 		ra.addTransition(l4, A, new InputTransition(gT, A, l4, l4, assNo));
 		ra.addTransition(l4, B, new InputTransition(gT, B, l4, l4, assNo));
-//		ra.addTransition(l5, A, new InputTransition(gT, A, l5, l5, assNo));
-//		ra.addTransition(l5, B, new InputTransition(gT, B, l5, l5, assNo));
 
 		return ra;
 	}

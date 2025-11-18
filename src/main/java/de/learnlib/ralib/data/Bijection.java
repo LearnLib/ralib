@@ -154,7 +154,7 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 		}
 	}
 
-	public static Bijection<Register> DVtoRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> keyWord, Word<PSymbolInstance> valueWord) {
+	public static Bijection<Register> dvToRegBijection(Bijection<DataValue> bijection, Word<PSymbolInstance> keyWord, Word<PSymbolInstance> valueWord) {
 		DataValue[] keyVals = DataWords.valsOf(keyWord);
 		DataValue[] valueVals = DataWords.valsOf(valueWord);
 		Bijection<Register> ret = new Bijection<>();

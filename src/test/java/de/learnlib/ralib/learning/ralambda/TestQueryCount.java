@@ -10,7 +10,6 @@ import org.testng.annotations.Test;
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.TestUtil;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -18,11 +17,7 @@ import de.learnlib.ralib.example.priority.PriorityQueueSUL;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.QueryStatistics;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
 import de.learnlib.ralib.theory.Theory;
@@ -51,14 +46,8 @@ public class TestQueryCount extends RaLibTestSuite {
                 ioOracle, teachers, consts, solver, sul.getInputSymbols()),
         		measurements);
 
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp)
-                -> new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
-
         QueryStatistics queryStats = new QueryStatistics(measurements, ioOracle);
-        SLLambda learner = new SLLambda(mto, hypFactory, mlo, teachers,
-        		consts, true, solver, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, teachers, consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(queryStats);
 
         learner.learn();
