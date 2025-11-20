@@ -7,14 +7,9 @@ import static de.learnlib.ralib.example.stack.StackAutomatonExample.T_INT;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableSet;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -30,7 +25,6 @@ import de.learnlib.ralib.learning.Hypothesis;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SDTLogicOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
@@ -49,7 +43,7 @@ public class LearnStackTest extends RaLibTestSuite {
     @Test
     public void testLearnStack() {
 
-	Constants consts = new Constants();
+    	Constants consts = new Constants();
         RegisterAutomaton sul = AUTOMATON;
         DataWordOracle dwOracle = new SimulatorOracle(sul);
 
@@ -69,21 +63,20 @@ public class LearnStackTest extends RaLibTestSuite {
                 new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
                         new Constants(), solver);
 
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         ce = Word.fromSymbols(
@@ -91,10 +84,10 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertEquals(hyp.getStates().size(), 4);
@@ -115,19 +108,12 @@ public class LearnStackTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
               dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        ralambda.setSolver(solver);
-
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
-        hyp = ralambda.getHypothesis();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -135,20 +121,20 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, new BigDecimal(2))));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ZERO)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         ce = Word.fromSymbols(
@@ -156,22 +142,12 @@ public class LearnStackTest extends RaLibTestSuite {
         		new PSymbolInstance(I_PUSH, new DataValue(T_INT, BigDecimal.ONE)),
         		new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ONE)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
-
-        Collection<SymbolicSuffix> suffixes = ralambda.getDT().getSuffixes();
-        Set<Word<ParameterizedSymbol>> suffixActions = suffixes.stream().map(s -> s.getActions()).collect(Collectors.toSet());
-        Set<Word<ParameterizedSymbol>> expectedSuffixActions = ImmutableSet.of(
-            Word.fromSymbols(),
-            Word.fromSymbols(I_PUSH),
-            Word.fromSymbols(I_PUSH, I_PUSH),
-            Word.fromSymbols(I_POP),
-            Word.fromSymbols(I_POP, I_POP));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
 
         Assert.assertEquals(hyp.getStates().size(), 4);
         Assert.assertEquals(hyp.getTransitions().size(), 10);
-        Assert.assertEquals(suffixActions, expectedSuffixActions);
     }
 
     @Test
@@ -188,19 +164,12 @@ public class LearnStackTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                   dwOracle, teachers, new Constants(), solver);
 
-        SDTLogicOracle slo = new MultiTheorySDTLogicOracle(consts, solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, false, solver, I_PUSH, I_POP);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers,
-                        new Constants(), solver);
-
-        RaLambda ralambda = new RaLambda(mto, hypFactory, slo, consts, false, false, I_PUSH, I_POP);
-        ralambda.setSolver(solver);
-
-        ralambda.learn();
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP0: {0}", hyp);
-        hyp = ralambda.getHypothesis();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP1: {0}", hyp);
 
         Word<PSymbolInstance> ce = Word.fromSymbols(
@@ -209,10 +178,10 @@ public class LearnStackTest extends RaLibTestSuite {
                 new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)),
                 new PSymbolInstance(I_POP, new DataValue(T_INT, BigDecimal.ZERO)));
 
-        ralambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
+        sllambda.addCounterexample(new DefaultQuery<>(ce, sul.accepts(ce)));
 
-        ralambda.learn();
-        hyp = ralambda.getHypothesis();
+        sllambda.learn();
+        hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "HYP2: {0}", hyp);
 
         Assert.assertTrue(hyp.accepts(ce));
@@ -251,26 +220,26 @@ public class LearnStackTest extends RaLibTestSuite {
         }
 
         Assert.assertEquals(Arrays.toString(measuresLambda),
-			    "[{TQ: 60, Resets: 1199, Inputs: 0}," +
-			    " {TQ: 65, Resets: 1859, Inputs: 0}," +
-			    " {TQ: 60, Resets: 1178, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1516, Inputs: 0}," +
-			    " {TQ: 70, Resets: 2717, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1443, Inputs: 0}," +
-			    " {TQ: 56, Resets: 1148, Inputs: 0}," +
-			    " {TQ: 41, Resets: 1089, Inputs: 0}," +
-			    " {TQ: 78, Resets: 2478, Inputs: 0}," +
-			    " {TQ: 44, Resets: 1139, Inputs: 0}]");
+			    "[{TQ: 93, Resets: 435, Inputs: 0}," +
+			    " {TQ: 103, Resets: 737, Inputs: 0}," +
+			    " {TQ: 88, Resets: 441, Inputs: 0}," +
+			    " {TQ: 98, Resets: 574, Inputs: 0}," +
+			    " {TQ: 113, Resets: 936, Inputs: 0}," +
+			    " {TQ: 92, Resets: 597, Inputs: 0}," +
+			    " {TQ: 82, Resets: 446, Inputs: 0}," +
+			    " {TQ: 58, Resets: 418, Inputs: 0}," +
+			    " {TQ: 133, Resets: 694, Inputs: 0}," +
+			    " {TQ: 63, Resets: 470, Inputs: 0}]");
         Assert.assertEquals(Arrays.toString(measuresStar),
-			    "[{TQ: 51, Resets: 1589, Inputs: 0}," +
-			    " {TQ: 50, Resets: 12577, Inputs: 0}," +
-			    " {TQ: 63, Resets: 1317, Inputs: 0}," +
-			    " {TQ: 50, Resets: 10669, Inputs: 0}," +
-			    " {TQ: 39, Resets: 11088, Inputs: 0}," +
-			    " {TQ: 62, Resets: 1310, Inputs: 0}," +
-			    " {TQ: 60, Resets: 1298, Inputs: 0}," +
-			    " {TQ: 49, Resets: 1207, Inputs: 0}," +
-			    " {TQ: 53, Resets: 11461, Inputs: 0}," +
-			    " {TQ: 49, Resets: 1301, Inputs: 0}]");
+			    "[{TQ: 51, Resets: 838, Inputs: 0}," +
+			    " {TQ: 50, Resets: 10681, Inputs: 0}," +
+			    " {TQ: 63, Resets: 599, Inputs: 0}," +
+			    " {TQ: 50, Resets: 9021, Inputs: 0}," +
+			    " {TQ: 39, Resets: 9971, Inputs: 0}," +
+			    " {TQ: 62, Resets: 606, Inputs: 0}," +
+			    " {TQ: 60, Resets: 603, Inputs: 0}," +
+			    " {TQ: 49, Resets: 520, Inputs: 0}," +
+			    " {TQ: 53, Resets: 9344, Inputs: 0}," +
+			    " {TQ: 49, Resets: 620, Inputs: 0}]");
     }
 }

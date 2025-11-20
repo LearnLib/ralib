@@ -53,6 +53,14 @@ public class Transition {
         return guard.evaluateSMT(SMTUtil.compose(registers, parameters, consts));
     }
 
+    public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
+    	return this.getAssignment().valuation(registers, parameters, consts);
+    }
+
+    /*
+     * @deprecated method is unsafe, use {@link #valuation()} instead
+     */
+    @Deprecated
     public RegisterValuation execute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
         return this.getAssignment().compute(registers, parameters, consts);
     }
