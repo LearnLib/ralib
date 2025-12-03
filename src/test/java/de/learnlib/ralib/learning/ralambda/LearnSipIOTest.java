@@ -15,19 +15,14 @@ import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
-import de.learnlib.ralib.dt.DTLeaf;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixFinder;
 import de.learnlib.ralib.equivalence.IOCounterExamplePrefixReplacer;
 import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.learning.SymbolicSuffix;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -38,7 +33,6 @@ import de.learnlib.ralib.theory.equality.EqualityTheory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
-import net.automatalib.word.Word;
 
 public class LearnSipIOTest extends RaLibTestSuite {
     @Test
@@ -82,22 +76,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo =
-                new MultiTheorySDTLogicOracle(consts, solver);
 
-        for (ParameterizedSymbol ps : actions) {
-        	if (!DTLeaf.isInput(ps) && ps.getArity() > 0) {
-//        	if (ps.getArity() > 0) {
-        		mto.treeQuery(Word.epsilon(), new SymbolicSuffix(ps));
-        		break;
-        	}
-        }
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
-
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                     model, teachers, consts, true, actions);
@@ -107,8 +87,8 @@ public class LearnSipIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            ralambda.learn();
-            Hypothesis hyp = ralambda.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
             if (ce == null) {
@@ -122,10 +102,10 @@ public class LearnSipIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            ralambda.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
@@ -81,7 +82,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected1.put(new SDTGuard.IntervalGuard(s1, r1, r3), SDTLeaf.REJECTING);
         expected1.put(SDTGuard.IntervalGuard.greaterOrEqualGuard(s1, r3), SDTLeaf.ACCEPTING);
 
-        Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, new ArrayList<DataValue>());
+        Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, new ArrayList<DataValue>(), new SuffixValuation());
 
         Assert.assertEquals(actual1.size(), expected1.size());
         Assert.assertTrue(actual1.entrySet().containsAll(expected1.entrySet()));
@@ -101,7 +102,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected2.put(new SDTGuard.IntervalGuard(s1, r2, r3, true, true), SDTLeaf.REJECTING);
         expected2.put(g6, SDTLeaf.ACCEPTING);
 
-        Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<DataValue>());
+        Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<DataValue>(), new SuffixValuation());
 
         Assert.assertEquals(actual2.size(), expected2.size());
         Assert.assertTrue(actual2.entrySet().containsAll(expected2.entrySet()));
@@ -122,7 +123,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected3.put(new SDTGuard.IntervalGuard(s1, r1, r2, false, true), SDTLeaf.ACCEPTING);
         expected3.put(SDTGuard.IntervalGuard.greaterGuard(s1, r2), SDTLeaf.REJECTING);
 
-        Map<SDTGuard, SDT> actual3 = dit.mergeGuards(sdts3, equivClasses, new ArrayList<DataValue>());
+        Map<SDTGuard, SDT> actual3 = dit.mergeGuards(sdts3, equivClasses, new ArrayList<DataValue>(), new SuffixValuation());
 
         Assert.assertEquals(actual3.size(), expected3.size());
         Assert.assertTrue(actual3.entrySet().containsAll(expected3.entrySet()));
@@ -145,7 +146,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected4.put(g5, SDTLeaf.ACCEPTING);
         expected4.put(g6, SDTLeaf.REJECTING);
 
-        Map<SDTGuard, SDT> actual4 = dit.mergeGuards(sdts4, equivClasses, new ArrayList<DataValue>());
+        Map<SDTGuard, SDT> actual4 = dit.mergeGuards(sdts4, equivClasses, new ArrayList<DataValue>(), new SuffixValuation());
 
         Assert.assertEquals(actual4.size(), expected4.size());
         Assert.assertTrue(actual4.entrySet().containsAll(expected4.entrySet()));
@@ -193,7 +194,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         sdts1.put(g3, SDTLeaf.ACCEPTING);
         sdts1.put(g4, SDTLeaf.ACCEPTING);
 
-        Map<SDTGuard, SDT> merged = dit.mergeGuards(sdts1, equivClasses, new ArrayList<>());
+        Map<SDTGuard, SDT> merged = dit.mergeGuards(sdts1, equivClasses, new ArrayList<>(), new SuffixValuation());
 
         Assert.assertEquals(merged.size(), 1);
         Assert.assertTrue(merged.containsKey(new SDTGuard.SDTTrueGuard(s1)));
@@ -256,7 +257,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected.put(new SDTGuard.IntervalGuard(s1, r1, r2, true, false), SDTLeaf.ACCEPTING);
         expected.put(g5, SDTLeaf.REJECTING);
 
-        Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, filtered);
+        Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, filtered, new SuffixValuation());
 
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertTrue(actual.entrySet().containsAll(expected.entrySet()));
@@ -318,7 +319,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected.put(new SDTGuard.IntervalGuard(s1, r1, r2, false, true), subSdt2);
         expected.put(g4, subSdt3);
 
-        Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, new ArrayList<>());
+        Map<SDTGuard, SDT> actual = dit.mergeGuards(sdts, equivClasses, new ArrayList<>(), new SuffixValuation());
 
         Assert.assertEquals(actual.size(), expected.size());
         Assert.assertTrue(actual.entrySet().containsAll(expected.entrySet()));
@@ -372,7 +373,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
 
         Map<SDTGuard, SDT> expected1 = new LinkedHashMap<>();
         expected1.put(new SDTGuard.SDTTrueGuard(s1), SDTLeaf.REJECTING);
-        Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, filteredOut);
+        Map<SDTGuard, SDT> actual1 = dit.mergeGuards(sdts1, equivClasses, filteredOut, new SuffixValuation());
 
         Assert.assertEquals(actual1.size(), expected1.size());
         Assert.assertTrue(actual1.entrySet().containsAll(expected1.entrySet()));
@@ -383,7 +384,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         Map<SDTGuard, SDT> expected2 = new LinkedHashMap<>();
         expected2.put(new SDTGuard.DisequalityGuard(s1, r1), SDTLeaf.REJECTING);
         expected2.put(g1, SDTLeaf.ACCEPTING);
-        Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<>());
+        Map<SDTGuard, SDT> actual2 = dit.mergeGuards(sdts2, equivClasses, new ArrayList<>(), new SuffixValuation());
 
         Assert.assertEquals(actual2.size(), expected2.size());
         Assert.assertTrue(actual2.entrySet().containsAll(expected2.entrySet()));
@@ -411,7 +412,7 @@ public class IneqGuardMergeTest extends RaLibTestSuite {
         expected3.put(new SDTGuard.IntervalGuard(s1, null, r2), sdt1);
         expected3.put(g3, sdt2);
         expected3.put(g4, sdt3);
-        Map<SDTGuard, SDT> actual3 = dit.mergeGuards(sdts3, equivClasses, new ArrayList<>());
+        Map<SDTGuard, SDT> actual3 = dit.mergeGuards(sdts3, equivClasses, new ArrayList<>(), new SuffixValuation());
 
         Assert.assertEquals(actual3.size(), expected3.size());
         Assert.assertTrue(actual3.entrySet().containsAll(expected3.entrySet()));

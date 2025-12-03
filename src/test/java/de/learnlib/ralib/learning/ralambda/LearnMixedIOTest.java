@@ -39,10 +39,7 @@ import de.learnlib.ralib.equivalence.IOCounterexampleLoopRemover;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.equivalence.IORandomWalk;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -101,13 +98,8 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOOracle ioOracle = new SULOracle(sul, ERROR);
 
         MultiTheoryTreeOracle mto = TestUtil.createMTO(ioOracle, teachers, consts, solver, inputs);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
-
-        RaLambda rastar = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        rastar.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, actions);
 
         IORandomWalk iowalk = new IORandomWalk(random,
                 sul,
@@ -127,8 +119,8 @@ public class LearnMixedIOTest extends RaLibTestSuite {
         IOCounterExamplePrefixFinder pref = new IOCounterExamplePrefixFinder(ioOracle);
 
         for (int check = 0; check < 100; ++check) {
-            rastar.learn();
-            Hypothesis hyp = rastar.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
 
             DefaultQuery<PSymbolInstance, Boolean> ce = iowalk.findCounterExample(hyp, null);
             if (ce == null) {
@@ -142,10 +134,10 @@ public class LearnMixedIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            rastar.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = rastar.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         IOEquivalenceTest checker = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 

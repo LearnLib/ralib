@@ -16,12 +16,9 @@ import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.equivalence.IOEquivalenceTest;
 import de.learnlib.ralib.learning.Hypothesis;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.DataWordSUL;
@@ -67,20 +64,15 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
         IOFilter ioFilter = new IOFilter(ioCache, inputs);
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(ioFilter, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
 
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-                new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
-
-        RaLambda ralambda = new RaLambda(mto, hypFactory, mlo, consts, true, actions);
-        ralambda.setSolver(solver);
+        SLLambda sllambda = new SLLambda(mto, teachers, consts, true, solver, actions);
 
         IOEquivalenceTest ioEquiv = new IOEquivalenceTest(
                 model, teachers, consts, true, actions);
 
         for (int check = 0; check < 10; ++check) {
-            ralambda.learn();
-            Hypothesis hyp = ralambda.getHypothesis();
+            sllambda.learn();
+            Hypothesis hyp = sllambda.getHypothesis();
             logger.log(Level.FINE, "HYP: {0}", hyp);
 
             DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
@@ -92,15 +84,14 @@ public class LearnPalindromeIOTest extends RaLibTestSuite {
             Assert.assertTrue(model.accepts(ce.getInput()));
             Assert.assertFalse(hyp.accepts(ce.getInput()));
 
-            ralambda.addCounterexample(ce);
+            sllambda.addCounterexample(ce);
         }
 
-        RegisterAutomaton hyp = ralambda.getHypothesis();
+        RegisterAutomaton hyp = sllambda.getHypothesis();
         logger.log(Level.FINE, "FINAL HYP: {0}", hyp);
         DefaultQuery<PSymbolInstance, Boolean> ce = ioEquiv.findCounterExample(hyp, null);
 
         Assert.assertNull(ce);
-//        Assert.assertEquals(hyp.getStates().size(), 5);
         Assert.assertEquals(hyp.getTransitions().size(), 16);
     }
 }

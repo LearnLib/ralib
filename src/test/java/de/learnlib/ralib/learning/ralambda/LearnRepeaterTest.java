@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import de.learnlib.query.DefaultQuery;
 import de.learnlib.ralib.RaLibTestSuite;
-import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
@@ -21,12 +20,9 @@ import de.learnlib.ralib.example.repeater.Repeater;
 import de.learnlib.ralib.example.repeater.RepeaterSUL;
 import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.QueryStatistics;
-import de.learnlib.ralib.oracles.SimulatorOracle;
-import de.learnlib.ralib.oracles.TreeOracleFactory;
 import de.learnlib.ralib.oracles.io.IOCache;
 import de.learnlib.ralib.oracles.io.IOFilter;
 import de.learnlib.ralib.oracles.io.IOOracle;
-import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.sul.SULOracle;
@@ -55,17 +51,12 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         ConstraintSolver solver = new ConstraintSolver();
 
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(oracle, teachers, consts, solver);
-        MultiTheorySDTLogicOracle mlo = new MultiTheorySDTLogicOracle(consts, solver);
-
-        TreeOracleFactory hypFactory = (RegisterAutomaton hyp) ->
-            new MultiTheoryTreeOracle(new SimulatorOracle(hyp), teachers, consts, solver);
 
         Measurements measurements = new Measurements();
         QueryStatistics stats = new QueryStatistics(measurements, ioOracle);
 
-        RaLambda learner = new RaLambda(mto, hypFactory, mlo, consts, true, sul.getActionSymbols());
+        SLLambda learner = new SLLambda(mto, teachers, consts, true, solver, sul.getActionSymbols());
         learner.setStatisticCounter(stats);
-        learner.setSolver(solver);
 
         learner.learn();
 
@@ -87,7 +78,6 @@ public class LearnRepeaterTest extends RaLibTestSuite {
         learner.learn();
 
         String str = stats.toString();
-        // System.out.println(str);
         Assert.assertTrue(str.contains("Counterexamples: 1"));
         Assert.assertTrue(str.contains("CE max length: 6"));
         Assert.assertTrue(str.contains("CE Analysis: {TQ: 0, Resets: 7, Inputs: 0}"));

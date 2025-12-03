@@ -19,6 +19,7 @@ package de.learnlib.ralib.theory;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
@@ -29,8 +30,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
+import gov.nasa.jpf.constraints.api.Expression;
 import net.automatalib.word.Word;
 
 /**
@@ -97,6 +100,22 @@ public interface Theory {
                           ParameterizedSymbol ps, SuffixValuation pval,
                           Constants constants,
                           SDTGuard guard, SuffixValue param, Set<DataValue> oldDvs);
+
+    /**
+     * Instantiate a representative data value for the parameter {@code param}
+     * of {@code ps} that satisfies {@code guard}.
+     *
+     * @param prefix
+     * @param ps
+     * @param guard
+     * @param param
+     * @param constants
+     * @param solver
+     * @return an {@code Optional} containing a data value satisfying {@code guard}, or an empty {@code Optional} if {@code guard} is unsatisfiable
+     */
+    public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
+            ParameterizedSymbol ps, Expression<Boolean> guard, int param,
+            Constants constants, ConstraintSolver solver);
 
     SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
 

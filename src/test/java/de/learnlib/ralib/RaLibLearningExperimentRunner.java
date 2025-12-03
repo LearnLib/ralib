@@ -18,8 +18,8 @@ import de.learnlib.ralib.learning.Measurements;
 import de.learnlib.ralib.learning.MeasuringOracle;
 import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
-import de.learnlib.ralib.learning.ralambda.RaDT;
-import de.learnlib.ralib.learning.ralambda.RaLambda;
+import de.learnlib.ralib.learning.ralambda.SLCT;
+import de.learnlib.ralib.learning.ralambda.SLLambda;
 import de.learnlib.ralib.learning.rastar.RaStar;
 import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.TreeOracleFactory;
@@ -125,11 +125,10 @@ public class RaLibLearningExperimentRunner {
 				learner = new RaStar(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
 				break;
 			case RALAMBDA:
-				learner = new RaLambda(mto, hypFactory, mlo, consts, ioMode, useOldAnalyzer, actionSymbols);
-				((RaLambda)learner).setSolver(solver);
+				learner = new SLLambda(mto, teachers, consts, ioMode, solver, actionSymbols);
 				break;
 			case RADT:
-			    learner = new RaDT(mto, hypFactory, mlo, consts, ioMode, actionSymbols);
+			    learner = new SLCT(mto, hypFactory, mlo, consts, ioMode, solver, actionSymbols);
 			    break;
 			default:
 				throw new UnsupportedOperationException(String.format("Algorithm %s not supported", algorithmName));
