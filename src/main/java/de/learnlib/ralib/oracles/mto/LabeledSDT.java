@@ -1,10 +1,8 @@
 package de.learnlib.ralib.oracles.mto;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import de.learnlib.ralib.theory.SDT;
@@ -141,51 +139,5 @@ public class LabeledSDT {
 			return null;
 		return new LabeledSDT(lsdt, label);
 	}
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        String regs = Arrays.toString(sdt.getRegisters().toArray());
-        sb.append(regs).append("-+\n");
-        toString(sb, spaces(regs.length()));
-        return sb.toString();
-    }
-
-    void toString(StringBuilder sb, String indentation) {
-    	if (sdt instanceof SDTLeaf) {
-    		sb.append(indentation).append("[Leaf").append(sdt.isAccepting() ? "+" : "-").append("]").append("\n");
-    	} else {
-	        LabeledSDT idioticSdt = this;
-	        sb.append(indentation).append("[]");
-	        final int childCount = idioticSdt.children.size();
-	        int count = 1;
-	        for (Entry<SDTGuard, LabeledSDT> e : idioticSdt.children.entrySet()) {
-	            SDTGuard g = e.getKey();
-	            String gString = g.toString();
-	            String nextIndent;
-	            if (count == childCount) {
-	                nextIndent = indentation + "      ";
-	            } else {
-	                nextIndent = indentation + " |    ";
-	            }
-
-	            if (count > 1) {
-	                sb.append(indentation).append(" +");
-	            }
-	            sb.append("- ").append(e.getValue().label).append(":").append(gString).append("\n");
-	            e.getValue().toString(sb, nextIndent);
-
-	            count++;
-	        }
-    	}
-    }
-
-    private String spaces(int max) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < max; i++) {
-            sb.append(" ");
-        }
-        return sb.toString();
-    }
 
 }
