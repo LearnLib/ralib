@@ -109,6 +109,7 @@
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
                          <arg>--enable-preview</arg>
+                         <arg>-Xlint:deprecation</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

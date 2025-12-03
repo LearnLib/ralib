@@ -51,11 +51,11 @@ public class SDT {
      * @return
      */
     // todo: SDTs cannot have registers anymore, this should be data values!
-    // this method is currently only used in the toString methods of SDTs. Changing
-    // it will require changing many test cases as the toString methods are used
-    // to check the correctness of many SDTs.
+    // This private method is currently only used in the toString method of this
+    // class. Removing it will require changing many test cases as the toString
+    // method is used to check the correctness of many SDTs.
     @Deprecated
-    public Set<Register> getRegisters() {
+    private Set<Register> getRegisters() {
         Set<DataValue> temp = new LinkedHashSet<>();
         this.getVariables().stream().filter(SDTGuardElement::isDataValue).forEach((x) -> {
             temp.add((DataValue) x);

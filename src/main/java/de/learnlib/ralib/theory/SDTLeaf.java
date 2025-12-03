@@ -25,7 +25,6 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SDTRelabeling;
-import de.learnlib.ralib.data.SymbolicDataValue;
 
 /**
  * Leaf implementation of an SDT.
@@ -101,11 +100,6 @@ public class SDTLeaf extends SDT {
     	Map<List<SDTGuard>, Boolean> ret = new LinkedHashMap<>();
     	ret.put(path, this.isAccepting());
     	return ret;
-    }
-
-    @Override
-    public Set<SymbolicDataValue.Register> getRegisters() {
-        return new LinkedHashSet<>();
     }
 
     @Override
