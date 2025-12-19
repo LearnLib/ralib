@@ -18,7 +18,7 @@ import de.learnlib.ralib.learning.RaLearningAlgorithm;
 import de.learnlib.ralib.learning.RaLearningAlgorithmName;
 import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -38,7 +38,7 @@ public class SLLambda implements RaLearningAlgorithm {
     private final TreeOracle sulOracle;
 
     private final OptimizedSymbolicSuffixBuilder suffixBuilder;
-    private final SymbolicSuffixRestrictionBuilder restrictionBuilder;
+    private final SLLambdaRestrictionBuilder restrictionBuilder;
 
     private final Map<DataType, Theory> teachers;
 
@@ -56,7 +56,7 @@ public class SLLambda implements RaLearningAlgorithm {
     	this.consts = consts;
     	this.ioMode = ioMode;
     	this.solver = solver;
-    	restrictionBuilder = sulOracle.getRestrictionBuilder();
+    	restrictionBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
     	suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrictionBuilder);
     	counterexamples = new LinkedList<>();
     	hyp = null;

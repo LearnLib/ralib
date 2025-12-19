@@ -13,10 +13,10 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
 import de.learnlib.ralib.theory.SDTLeaf;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -98,7 +98,7 @@ public class OptimizedSymbolicSuffixBuilder {
         int actionArity = actionSymbol.getArity();
         int subArity = DataWords.paramValLength(sub);
 
-        Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
         for (SuffixValue sv : actionSuffix.getDataValues()) {
             restrictions.put(sv, actionSuffix.getRestriction(sv));
         }
@@ -123,7 +123,7 @@ public class OptimizedSymbolicSuffixBuilder {
             SuffixValue newSV = new SuffixValue(oldSV.getDataType(), oldSV.getId()+actionArity);
             renaming.put(oldSV, newSV);
             SDTGuard renamedGuard = SDTGuard.relabel(guard, renaming);
-            SuffixValueRestriction restr = restrictionBuilder.restrictSuffixValue(renamedGuard, restrictions);
+            AbstractSuffixValueRestriction restr = restrictionBuilder.restrictSuffixValue(renamedGuard, restrictions);
             restrictions.put(newSV, restr);
         }
 
@@ -204,10 +204,10 @@ public class OptimizedSymbolicSuffixBuilder {
     private SymbolicSuffix mergeSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
         assert suffix1.getActions().equals(suffix2.getActions());
 
-        Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
         for (SuffixValue sv : suffix1.getDataValues()) {
-            SuffixValueRestriction restr1 = suffix1.getRestriction(sv);
-            SuffixValueRestriction restr2 = suffix2.getRestriction(sv);
+            AbstractSuffixValueRestriction restr1 = suffix1.getRestriction(sv);
+            AbstractSuffixValueRestriction restr2 = suffix2.getRestriction(sv);
             if (restr1.equals(restr2)) {
                 restrictions.put(sv, restr1);
             } else {
@@ -376,15 +376,15 @@ public class OptimizedSymbolicSuffixBuilder {
     SymbolicSuffix coalesceSuffixes(SymbolicSuffix suffix1, SymbolicSuffix suffix2) {
         assert suffix1.getActions().equals(suffix2.getActions());
 
-        Map<SuffixValue, SuffixValueRestriction> restrictions = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> restrictions = new LinkedHashMap<>();
 
         SymbolicDataValueGenerator.SuffixValueGenerator sgen = new SymbolicDataValueGenerator.SuffixValueGenerator();
         for (int i = 0; i < DataWords.paramLength(suffix1.getActions()); i++) {
             DataType type = suffix1.getDataValue(i+1).getDataType();
             SuffixValue sv = sgen.next(type);
-            SuffixValueRestriction restr1 = suffix1.getRestriction(sv);
-            SuffixValueRestriction restr2 = suffix2.getRestriction(sv);
-            SuffixValueRestriction restr = restr1.merge(restr2, restrictions);
+            AbstractSuffixValueRestriction restr1 = suffix1.getRestriction(sv);
+            AbstractSuffixValueRestriction restr2 = suffix2.getRestriction(sv);
+            AbstractSuffixValueRestriction restr = restr1.merge(restr2, restrictions);
             restrictions.put(sv, restr);
         }
 

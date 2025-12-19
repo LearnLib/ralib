@@ -49,7 +49,7 @@ import de.learnlib.ralib.oracles.DataWordOracle;
 import de.learnlib.ralib.oracles.SimulatorOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.oracles.mto.OptimizedSymbolicSuffixBuilder;
-import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.oracles.mto.SLLambdaRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
@@ -83,7 +83,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
 
-        SymbolicSuffixRestrictionBuilder rb = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+        SLLambdaRestrictionBuilder rb = new SLLambdaRestrictionBuilder(consts, teachers);
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
         ClassificationTree ct = new ClassificationTree(mto, solver, rb, sb, consts, false,
         		I_LOGIN, I_LOGOUT, I_REGISTER);
@@ -126,7 +126,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
         MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(
                 dwOracle, teachers, new Constants(), solver);
 
-        SymbolicSuffixRestrictionBuilder rb = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+        SLLambdaRestrictionBuilder rb = new SLLambdaRestrictionBuilder(consts, teachers);
         OptimizedSymbolicSuffixBuilder sb = new OptimizedSymbolicSuffixBuilder(consts, rb);
         ClassificationTree ct = new ClassificationTree(mto, solver, rb, sb, consts, false,
         		I_PUSH, I_POP);
@@ -211,7 +211,7 @@ public class PrefixFinderTest extends RaLibTestSuite {
 
     	MultiTheoryTreeOracle mto = new MultiTheoryTreeOracle(dwOracle, teachers, consts, solver);
 
-    	SymbolicSuffixRestrictionBuilder restrBuilder = new SymbolicSuffixRestrictionBuilder(consts, teachers);
+    	SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts, teachers);
     	OptimizedSymbolicSuffixBuilder suffixBuilder = new OptimizedSymbolicSuffixBuilder(consts, restrBuilder);
 
         DataValue dv0 = new DataValue(DT, BigDecimal.ZERO);

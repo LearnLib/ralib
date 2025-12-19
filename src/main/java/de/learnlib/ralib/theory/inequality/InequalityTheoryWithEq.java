@@ -36,12 +36,13 @@ import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.EquivalenceClassFilter;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.words.DataWords;
@@ -669,7 +670,11 @@ public abstract class InequalityTheoryWithEq implements Theory {
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
+    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
+    		return new UnrestrictedSuffixValue(suffixValue);
+    	}
+
     	int firstActionArity = suffix.size() > 0 ? suffix.getSymbol(0).getBaseSymbol().getArity() : 0;
     	if (suffixValue.getId() <= firstActionArity) {
     	    return new UnrestrictedSuffixValue(suffixValue);
@@ -727,8 +732,32 @@ public abstract class InequalityTheoryWithEq implements Theory {
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts) {
+    	return restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
+    }
+
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts) {
+    	return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
+    }
+
+//    @Override
+//    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
+//    	return restrictSuffixValue(suffixValue, run.getPrefix(id), run.getSuffix(id), consts, version);
+//    }
+
+    @Override
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
     	SuffixValue sv = guard.getParameter();
+
+    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
+    		return new UnrestrictedSuffixValue(sv);
+    	}
 
     	if (guard instanceof SDTGuard.IntervalGuard) {
     		SDTGuard.IntervalGuard ig = (SDTGuard.IntervalGuard) guard;
@@ -738,7 +767,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     			return new LesserSuffixValue(sv);
     		}
     	}
-    	SuffixValueRestriction restr = SuffixValueRestriction.genericRestriction(guard, prior);
+    	AbstractSuffixValueRestriction restr = AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     	if (restr instanceof FreshSuffixValue) {
     		restr = new GreaterSuffixValue(sv);
     	}

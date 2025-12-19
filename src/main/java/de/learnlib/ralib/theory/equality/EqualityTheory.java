@@ -23,12 +23,16 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +45,9 @@ import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.io.IOOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.theory.*;
-import de.learnlib.ralib.theory.SDT;
-import de.learnlib.ralib.theory.SDTLeaf;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -445,15 +448,307 @@ public abstract class EqualityTheory implements Theory {
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
+    	if (version == SymbolicSuffixRestrictionBuilder.Version.V1) {
+    		return new UnrestrictedSuffixValue(suffixValue);
+    	}
     	// for now, use generic restrictions with equality theory
-    	return SuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
+    	return AbstractSuffixValueRestriction.genericRestriction(suffixValue, prefix, suffix, consts);
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts) {
+//    	if (version != SymbolicSuffixRestrictionBuilder.Version.V3) {
+//    		return restrictSuffixValue(suffixValue, run.getPrefix(id), run.getSuffix(id), consts, version);
+//    	}
+
+//    	DataValue[] wVals = DataWords.valsOf(run.getWord());
+//    	int splitIndex = DataWords.valsOf(run.getPrefix(id)).length + 1;
+//    	RegisterValuation valuation = run.getValuation(id);
+//    	int suffixValueIndex = splitIndex + suffixValue.getId() - 1;
+
+//    	SuffixValuation suffixVals = new SuffixValuation();
+//    	SuffixValueGenerator svgen = new SuffixValueGenerator();
+//    	for (int i = splitIndex; i < wVals.length; i++) {
+//    		suffixVals.put(svgen.next(wVals[i].getDataType()), wVals[i]);
+//    	}
+    	DataValue[] prefixVals = DataWords.valsOf(prefix);
+    	DataValue[] suffixVals = DataWords.valsOf(suffix);
+    	DataValue suffixDataValue = suffixVals[suffixValue.getId() - 1];
+
+//		Collection<SymbolicDataValue> elements = new ArrayList<>();
+//		elements.addAll(valuation.keySet());
+//		elements.addAll(consts.keySet());
+//		SuffixValueGenerator sgen = new SuffixValueGenerator();
+//		for (DataValue d : suffixVals) {
+//			elements.add(sgen.next(d.getDataType()));
+//		}
+//		elements.addAll(suffixVals.keySet());
+
+    	// find all equalities
+//    	List<DataValue> eqs = new ArrayList<>();
+//    	List<Integer> eqIds = new ArrayList<>();
+		int equal = 0;
+		boolean equalsUnmapped = false;
+    	Set<SymbolicDataValue> eqParams = new LinkedHashSet<>();
+//    	Map<DataValue, Set<Register>> eqRegs = new LinkedHashMap<>();
+//    	Map<DataValue, Set<Constant>> eqConsts = new LinkedHashMap<>();
+//    	Map<DataValue, Set<SymbolicDataValue>> eqSuffixParams = new LinkedHashMap<>();
+    	for (int i = 0; i < prefix.length(); i++) {
+    		if (prefixVals[i].equals(suffixDataValue)) {
+//    			eqs.add(prefixVals[i]);
+//    			eqIds.add(i);
+    			equal++;
+    			boolean unmapped = true;
+    			if (valuation.containsValue(prefixVals[i])) {
+    				// register
+    				eqParams.addAll(valuation.getAllKeysForValue(prefixVals[i]));
+    				unmapped = false;
+    			}
+    			if (consts.containsValue(prefixVals[i])) {
+    				// constant
+    				eqParams.addAll(consts.getAllKeysForValue(prefixVals[i]));
+    				unmapped = false;
+    			}
+    			equalsUnmapped = equalsUnmapped || unmapped;
+    		}
+    	}
+
+    	for (int i = 0; i < suffixValue.getId() - 1; i++) {
+    		// prior suffix value
+    		if (suffixVals[i].equals(suffixDataValue)) {
+    			SuffixValue sv = new SuffixValue(suffixDataValue.getDataType(), i+1);
+    			equal++;
+    			eqParams.add(sv);
+    		}
+    	}
+
+    	// fresh
+//    	if (eqs.isEmpty()) {
+    	if (equal == 0) {
+    		return new FreshSuffixValue(suffixValue);
+    	}
+
+    	// unmapped
+    	if (equalsUnmapped && eqParams.isEmpty()) {
+    		return new UnmappedEqualityRestriction(suffixValue);
+    	}
+
+    	// equal to one and only one element
+//    	if (eqs.size() == 1 && eqParams.size() == 1) {
+    	if (!equalsUnmapped && eqParams.size() == 1) {
+    		return SuffixValueRestriction.equalityRestriction(suffixValue, eqParams.iterator().next());
+    	}
+
+    	// mapped
+//    	if (eqs.size() == eqParams.size()) {
+    	if (!equalsUnmapped) {
+    		SuffixValueRestriction eqRestr = SuffixValueRestriction.equalityRestriction(suffixValue, eqParams);
+    		FreshSuffixValue fresh = new FreshSuffixValue(suffixValue);
+    		return new DisjunctionRestriction(suffixValue, eqRestr, fresh);
+    	}
+
+    	// mixed (should not happen, but good practice to have an else case)
+    	return new UnrestrictedSuffixValue(suffixValue);
+
+//    	if (eqs.size() == 1) {
+//    		DataValue d = eqs.get(0);
+//    		// register or constant?
+//    		Set<Register> eqRegs = valuation.getAllKeysForValue(d);
+//    		Set<Constant> eqConsts = consts.getAllKeysForValue(d);
+//    		if (!eqRegs.isEmpty() && !eqConsts.isEmpty()) {
+//    			Expression<Boolean> eqr = new NumericBooleanExpression(suffixValue, NumericComparator.EQ, eqRegs.iterator().next());
+//    			Expression<Boolean> eqc = new NumericBooleanExpression(suffixValue, NumericComparator.EQ, eqConsts.iterator().next());
+//    			return new SuffixValueRestriction(suffixValue, ExpressionUtil.or(eqr, eqc));
+//    		}
+//    		if (!eqRegs.isEmpty()) {
+//    			return SuffixValueRestriction.equalityRestriction(suffixValue, eqRegs.iterator().next());
+//    		}
+//    		if (!eqConsts.isEmpty()) {
+//    			return SuffixValueRestriction.equalityRestriction(suffixValue, eqConsts.iterator().next());
+//    		}
+//    		// suffix value?
+//    		if (eqIds.get(0) > splitIndex) {
+//    			SuffixValue sv = new SuffixValue(suffixValue.getDataType(), eqIds.get(0) - splitIndex + 1);
+//    			return SuffixValueRestriction.equalityRestriction(suffixValue, sv);
+//    		}
+//    	}
+//
+//    	Set<SymbolicDataValue> diseqVals = new LinkedHashSet<>();
+//    	diseqVals.addAll(valuation.keySet());
+//    	diseqVals.addAll(consts.keySet());
+//    	diseqVals.addAll(suffixVals.keySet());
+//    	eqs.stream().forEach(d -> {
+//    		diseqVals.removeAll(valuation.getAllKeysForValue(d));
+//    		diseqVals.removeAll(consts.getAllKeysForValue(d));
+//    		suffixVals.entrySet().stream().filter(e -> e.getValue().equals(d)).forEach(e -> diseqVals.remove(e.getKey()));
+//    	});
+////    	for (int i = offset; i < vals.length; i++) {
+////    		if (!eqId.contains(i)) {
+////    			diseqVals.add(new SuffixValue(vals[i].getDataType(), i+1));
+////    		}
+////    	}
+//    	return SuffixValueRestriction.disequalityRestriction(suffixValue, diseqVals);
+    }
+
+//    private <T> void addElements(Map<DataValue, Set<T>> map, DataValue dv, Collection<T> sdvs) {
+//    	Set<T> vals = map.containsKey(dv) ? map.get(dv) : new LinkedHashSet<>();
+//    	vals.addAll(sdvs);
+//    	map.put(dv, vals);
+//    }
+//
+//    private Optional<SymbolicDataValue> mappedFrom(Mapping<? extends SymbolicDataValue, DataValue> mapping, DataValue val) {
+//    	Set<? extends SymbolicDataValue> keys = mapping.getAllKeysForValue(val);
+//    	if (keys.isEmpty()) {
+//    		return Optional.empty();
+//    	}
+//    	return Optional.of(keys.iterator().next());
+//    }
+
+    private BiMap<Integer, DataValue> pot(Word<PSymbolInstance> u, DataType type) {
+    	BiMap<Integer, DataValue> pot = HashBiMap.create();
+    	DataValue[] vals = DataWords.valsOf(u);
+    	for (int i = 0; i < vals.length; i++) {
+    		if (vals[i].getDataType().equals(type) && !pot.values().contains(vals[i])) {
+    			pot.put(i+1, vals[i]);
+    		}
+    	}
+    	return pot;
+    }
+
+    private Map<Integer, DataValue> potmap(Word<PSymbolInstance> u, RegisterValuation uValuation, Word<PSymbolInstance> w, RegisterValuation wValuation, DataType type) {
+    	BiMap<DataValue, Integer> pot = pot(u, type).inverse();
+    	Map<Integer, DataValue> map = new LinkedHashMap<>();
+    	for (Map.Entry<Register, DataValue> uEntry : uValuation.entrySet()) {
+    		DataValue wVal = wValuation.get(uEntry.getKey());
+    		if (wVal != null && wVal.getDataType().equals(type)) {
+    			int id = pot.get(uEntry.getValue());
+    			map.put(id, wVal);
+    		}
+    	}
+    	return map;
+    }
+
+    private Set<Integer> potmatch(Word<PSymbolInstance> w, DataValue d, Word<PSymbolInstance> u, RegisterValuation uValuation, Map<Integer, DataValue> potmap) {
+    	List<DataValue> wVals = new ArrayList<>(Arrays.asList(DataWords.valsOf(w, d.getDataType())));
+    	Set<Integer> indices = new LinkedHashSet<>();
+
+    	// add indices for each mapped occurrence of d
+    	for (Map.Entry<Integer, DataValue> potmapEntry : potmap.entrySet()) {
+    		if (potmapEntry.getValue().equals(d)) {
+    			indices.add(potmapEntry.getKey());
+    			wVals.remove(d);
+    		}
+    	}
+
+//    	potmap.forEach((i,dv) -> {if (dv.equals(d)) indices.add(i);});
+
+    	// if there are more occurrences of d than the unmapped, add all indices of unmapped data values
+    	if (wVals.contains(d)) {
+    		BiMap<Integer, DataValue> pot = pot(u, d.getDataType());
+        	pot.forEach((i,dv) -> {if (!uValuation.containsValue(dv)) indices.add(i);});
+    	}
+
+    	return indices;
+//    	BiMap<DataValue, Integer> pot = pot(u, d.getDataType()).inverse();
+//    	Set<Integer> ret = new LinkedHashSet<>();
+//    	for (Map.Entry<DataValue, Integer> potEntry : pot.entrySet()) {
+//    		DataValue potVal = potEntry.getKey();
+//    		int potId = potEntry.getValue();
+//    		if (potmap.get(potId) != null || !uValuation.values().contains(potVal)) {
+//    			ret.add(potId);
+//    		}
+//    	}
+//    	return ret;
+    }
+
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts) {
+    	int index = suffixValue.getId() - 1;
+    	DataValue[] suffixVals = DataWords.valsOf(suffix);
+    	DataValue[] uVals = DataWords.valsOf(u);
+    	DataValue d = suffixVals[index];
+
+    	List<DataValue> eqList = new ArrayList<>();
+    	Map<Integer, DataValue> potmap = potmap(u, uValuation, prefix, prefixValuation, d.getDataType());
+    	potmatch(prefix, d, u, uValuation, potmap).forEach(i -> eqList.add(uVals[i-1]));
+
+    	List<SuffixValue> suffixEqList = new ArrayList<>();
+    	List<SuffixValue> priorSuffixes = new ArrayList<>();
+    	for (int i = 0; i < index; i++) {
+			SuffixValue s = new SuffixValue(d.getDataType(), i+1);
+    		priorSuffixes.add(s);
+    		if (suffixVals[i].equals(d)) {
+    			suffixEqList.add(s);
+    		}
+    	}
+
+    	Set<Constant> constEqList = new LinkedHashSet<>(consts.getAllKeysForValue(d));
+    	assert constEqList.size() <= 1 : "Constant mapping is not injective";
+
+    	FreshSuffixValue fresh = new FreshSuffixValue(suffixValue);
+		UnmappedEqualityRestriction uer = new UnmappedEqualityRestriction(suffixValue);
+
+    	Collection<Register> regsEqList = dataValueToRegister(eqList, uValuation);
+    	regsEqList.forEach(r -> eqList.remove(uValuation.get(r)));
+
+    	SuffixValueRestriction eqRestrSuffix = SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList);
+    	SuffixValueRestriction eqRestrReg = SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+    	SuffixValueRestriction eqRestrConst = SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
+
+    	if (eqList.isEmpty()) {
+    		// no unmapped equality
+	    	if (regsEqList.size() == 1 && suffixEqList.isEmpty() && constEqList.isEmpty()) {
+	    		// equals one register
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, regsEqList);
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.size() == 1 && constEqList.isEmpty()) {
+	    		// equals one constant
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, suffixEqList);
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.size() == 1) {
+	    		// equals one prior suffix value
+	    		return SuffixValueRestriction.equalityRestriction(suffixValue, constEqList);
+	    	}
+	    	if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
+	    		// equals nothing
+	    		return fresh;
+	    	}
+	    	// equals any number of register, constant, prior suffix value, but no unmapped
+	    	return DisjunctionRestriction.create(suffixValue, fresh, eqRestrSuffix, eqRestrReg, eqRestrConst);
+    	} else if (regsEqList.isEmpty() && suffixEqList.isEmpty() && constEqList.isEmpty()) {
+    		// equals only unmapped
+    		return DisjunctionRestriction.create(suffixValue, uer, fresh);
+    	}
+
+    	// all classes of equality
+    	List<Register> regsDiseqList = new ArrayList<>(uValuation.keySet());
+    	regsDiseqList.removeAll(regsEqList);
+    	List<Constant> constDiseqList = new ArrayList<>(consts.keySet());
+    	constDiseqList.removeAll(constEqList);
+    	List<SuffixValue> suffixDiseqList = new ArrayList<>(priorSuffixes);
+    	suffixDiseqList.removeAll(suffixEqList);
+    	SuffixValueRestriction diseqRestrRegs = SuffixValueRestriction.disequalityRestriction(suffixValue, regsDiseqList);
+    	SuffixValueRestriction diseqRestrConst = SuffixValueRestriction.disequalityRestriction(suffixValue, constDiseqList);
+    	SuffixValueRestriction diseqRestrSuffix = SuffixValueRestriction.disequalityRestriction(suffixValue, suffixDiseqList);
+    	return DisjunctionRestriction.create(suffixValue, diseqRestrRegs, diseqRestrConst, diseqRestrSuffix);
+    }
+
+    private Collection<Register> dataValueToRegister(Collection<DataValue> vals, RegisterValuation valuation) {
+    	Collection<Register> regs = new ArrayList<>();
+    	valuation.forEach((r, v) -> {if (vals.contains(v)) regs.add(r);});
+    	return regs;
+    }
+
+    @Override
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
     	// for now, use generic restrictions with equality theory
-    	return SuffixValueRestriction.genericRestriction(guard, prior);
+    	return AbstractSuffixValueRestriction.genericRestriction(guard, prior);
     }
 
     @Override

@@ -24,12 +24,14 @@ import java.util.Set;
 
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SuffixValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.WordValuation;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -117,9 +119,21 @@ public interface Theory {
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver);
 
-    SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts);
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue,
+    		Word<PSymbolInstance> prefix,
+    		Word<PSymbolInstance> suffix,
+    		Word<PSymbolInstance> u,
+    		RegisterValuation prefixValuation,
+    		RegisterValuation uValuation,
+    		Constants consts);
 
-    SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior);
+    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version);
+
+    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix, Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts);
+
+//    AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts, SymbolicSuffixRestrictionBuilder.Version version);
+
+    AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version);
 
     boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue registers);
 

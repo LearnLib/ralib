@@ -30,8 +30,8 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.words.DataWords;
@@ -55,7 +55,7 @@ public class SymbolicSuffix {
     /**
      * restrictions on suffix values
      */
-    private final Map<SuffixValue, SuffixValueRestriction> restrictions;
+    private final Map<SuffixValue, AbstractSuffixValueRestriction> restrictions;
 
     /**
      * are generic suffix optimizations (fresh, equal to prior suffix value or unrestricted) used
@@ -72,7 +72,7 @@ public class SymbolicSuffix {
     	actions = Word.fromWords(s.actions);
     	restrictions = new LinkedHashMap<>();
 
-    	for (Map.Entry<SuffixValue, SuffixValueRestriction> r : s.restrictions.entrySet())
+    	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> r : s.restrictions.entrySet())
     		restrictions.put(r.getKey(), r.getValue());
     }
 
@@ -99,7 +99,7 @@ public class SymbolicSuffix {
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         for (DataValue dv : DataWords.valsOf(suffix)) {
         	SuffixValue sv = svgen.next(dv.getDataType());
-        	SuffixValueRestriction restriction = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
+        	AbstractSuffixValueRestriction restriction = AbstractSuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
         }
     }
@@ -156,14 +156,14 @@ public class SymbolicSuffix {
         SuffixValueGenerator svgen = new SuffixValueGenerator();
         for (DataValue dv : DataWords.valsOf(suffix)) {
         	SuffixValue sv = svgen.next(dv.getDataType());
-        	SuffixValueRestriction restriction = SuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
+        	AbstractSuffixValueRestriction restriction = AbstractSuffixValueRestriction.genericRestriction(sv, prefix, suffix, consts);
         	restrictions.put(sv, restriction);
         }
 
         int actionArity = suffix.firstSymbol().getBaseSymbol().getArity();
-        for (Map.Entry<SuffixValue, SuffixValueRestriction> e : symSuffix.restrictions.entrySet()) {
+        for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : symSuffix.restrictions.entrySet()) {
         	SuffixValue sv = e.getKey();
-        	SuffixValueRestriction restriction = e.getValue();
+        	AbstractSuffixValueRestriction restriction = e.getValue();
         	SuffixValue s = new SuffixValue(sv.getDataType(), sv.getId()+actionArity);
         	restrictions.put(s, restriction.shift(actionArity));
         }
@@ -180,9 +180,9 @@ public class SymbolicSuffix {
         this.restrictions = restrictionBuilder.restrictSuffix(prefix, suffix);
 
         int actionArity = suffix.firstSymbol().getBaseSymbol().getArity();
-        for (Map.Entry<SuffixValue, SuffixValueRestriction> e : symSuffix.restrictions.entrySet()) {
+        for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : symSuffix.restrictions.entrySet()) {
         	SuffixValue sv = e.getKey();
-        	SuffixValueRestriction restriction = e.getValue();
+        	AbstractSuffixValueRestriction restriction = e.getValue();
         	SuffixValue s = new SuffixValue(sv.getDataType(), sv.getId()+actionArity);
         	restrictions.put(s, restriction.shift(actionArity));
         }
@@ -216,13 +216,13 @@ public class SymbolicSuffix {
     	}
 	}
 
-    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<SuffixValue, SuffixValueRestriction> restrictions) {
+    public SymbolicSuffix(Word<ParameterizedSymbol> actions, Map<SuffixValue, ? extends AbstractSuffixValueRestriction> restrictions) {
     	this.genericOptimizations = false;
     	this.actions = actions;
-    	this.restrictions = restrictions;
+    	this.restrictions = new LinkedHashMap<>(restrictions);
     }
 
-    public SuffixValueRestriction getRestriction(SuffixValue sv) {
+    public AbstractSuffixValueRestriction getRestriction(SuffixValue sv) {
     	return restrictions.get(sv);
     }
 
@@ -244,7 +244,7 @@ public class SymbolicSuffix {
 
     public Set<SuffixValue> getFreeValues() {
     	Set<SuffixValue> freeValues = new LinkedHashSet<>();
-    	for (Map.Entry<SuffixValue, SuffixValueRestriction> restr : restrictions.entrySet()) {
+    	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> restr : restrictions.entrySet()) {
     		if (restr.getValue() instanceof UnrestrictedSuffixValue)
     			freeValues.add(restr.getKey());
     	}
@@ -263,12 +263,12 @@ public class SymbolicSuffix {
     public SymbolicSuffix concat(SymbolicSuffix other) {
 
     	Word<ParameterizedSymbol> actions = this.getActions().concat(other.actions);
-    	Map<SuffixValue, SuffixValueRestriction> concatRestr = new LinkedHashMap<>();
+    	Map<SuffixValue, AbstractSuffixValueRestriction> concatRestr = new LinkedHashMap<>();
     	int arity = restrictions.size();
     	concatRestr.putAll(restrictions);
-    	for (Map.Entry<SuffixValue, SuffixValueRestriction> e : other.restrictions.entrySet()) {
+    	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : other.restrictions.entrySet()) {
     		SuffixValue sv = new SuffixValue(e.getKey().getDataType(), e.getKey().getId()+arity);
-    		SuffixValueRestriction restr = e.getValue().shift(arity);
+    		AbstractSuffixValueRestriction restr = e.getValue().shift(arity);
     		concatRestr.put(sv, restr);
     	}
     	return new SymbolicSuffix(actions, concatRestr);

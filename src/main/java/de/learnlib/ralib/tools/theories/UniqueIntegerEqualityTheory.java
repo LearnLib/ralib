@@ -10,12 +10,14 @@ import java.util.Optional;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.RegisterValuation;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.oracles.io.IOOracle;
+import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.smt.ConstraintSolver;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.UniqueEqualityTheory;
 import de.learnlib.ralib.tools.classanalyzer.TypedTheory;
@@ -75,13 +77,13 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
 	}
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
-			Word<PSymbolInstance> suffix, Constants consts) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+			Word<PSymbolInstance> suffix, Constants consts, SymbolicSuffixRestrictionBuilder.Version version) {
         return new UnrestrictedSuffixValue(suffixValue);
     }
 
     @Override
-    public SuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, SuffixValueRestriction> prior) {
+    public AbstractSuffixValueRestriction restrictSuffixValue(SDTGuard guard, Map<SuffixValue, AbstractSuffixValueRestriction> prior, SymbolicSuffixRestrictionBuilder.Version version) {
         return new UnrestrictedSuffixValue(guard.getParameter());
     }
 
@@ -90,4 +92,23 @@ public class UniqueIntegerEqualityTheory extends UniqueEqualityTheory implements
         // not yet implemented for inequality theory
         return false;
     }
+
+	@Override
+	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+			Word<PSymbolInstance> suffix, RegisterValuation valuation, Constants consts) {
+		return new UnrestrictedSuffixValue(suffixValue);
+	}
+
+	@Override
+	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, Word<PSymbolInstance> prefix,
+			Word<PSymbolInstance> suffix, Word<PSymbolInstance> u, RegisterValuation prefixValuation,
+			RegisterValuation uValuation, Constants consts) {
+		return this.restrictSuffixValue(suffixValue, prefix, suffix, consts, SymbolicSuffixRestrictionBuilder.DEFAULT_VERSION);
+	}
+
+//	@Override
+//	public AbstractSuffixValueRestriction restrictSuffixValue(SuffixValue suffixValue, RARun run, int id, Constants consts,
+//			Version version) {
+//		return new UnrestrictedSuffixValue(suffixValue);
+//	}
 }

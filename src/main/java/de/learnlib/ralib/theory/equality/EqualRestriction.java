@@ -4,8 +4,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import de.learnlib.ralib.data.DataValue;
+import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
@@ -13,7 +16,7 @@ import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
 import gov.nasa.jpf.constraints.expressions.NumericComparator;
 
-public class EqualRestriction extends SuffixValueRestriction {
+public class EqualRestriction extends AbstractSuffixValueRestriction {
 	private final SuffixValue equalParam;
 
 	public EqualRestriction(SuffixValue param, SuffixValue equalParam) {
@@ -39,12 +42,18 @@ public class EqualRestriction extends SuffixValueRestriction {
 	}
 
 	@Override
-	public SuffixValueRestriction shift(int shiftStep) {
+	public AbstractSuffixValueRestriction shift(int shiftStep) {
 		return new EqualRestriction(this, shiftStep);
 	}
 
 	@Override
-	public SuffixValueRestriction merge(SuffixValueRestriction other, Map<SuffixValue, SuffixValueRestriction> prior) {
+	public AbstractSuffixValueRestriction concretize(Mapping<? extends SymbolicDataValue, DataValue> mapping) {
+		assert mapping.containsKey(equalParam);
+		return SuffixValueRestriction.equalityRestriction(parameter, mapping.get(equalParam));
+	}
+
+	@Override
+	public AbstractSuffixValueRestriction merge(AbstractSuffixValueRestriction other, Map<SuffixValue, AbstractSuffixValueRestriction> prior) {
 		assert other.getParameter().equals(parameter);
 		if (prior.get(equalParam) instanceof FreshSuffixValue) {
 			if (other instanceof EqualRestriction &&
@@ -85,5 +94,15 @@ public class EqualRestriction extends SuffixValueRestriction {
 	@Override
 	public boolean revealsRegister(SymbolicDataValue r) {
 		return equalParam.equals(r);
+	}
+
+	@Override
+	public boolean isTrue() {
+		return false;
+	}
+
+	@Override
+	public boolean isFalse() {
+		return false;
 	}
 }

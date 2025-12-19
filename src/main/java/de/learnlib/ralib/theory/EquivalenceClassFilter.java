@@ -28,7 +28,7 @@ public class EquivalenceClassFilter {
 		this.useOptimization = useOptimization;
 	}
 
-	public List<DataValue> toList(SuffixValueRestriction restr,
+	public List<DataValue> toList(AbstractSuffixValueRestriction restr,
 			Word<PSymbolInstance> prefix, Word<ParameterizedSymbol> suffix, WordValuation valuation) {
 
 		if (!useOptimization) {

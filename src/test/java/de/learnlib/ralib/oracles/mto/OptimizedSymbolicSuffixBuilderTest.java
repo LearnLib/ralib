@@ -188,7 +188,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
         Assert.assertEquals(actual1, expected1);
 
         SymbolicSuffix actual2 = builder.extendSuffix(word2.prefix(2), sdt2, suffix2);
-        Map<SymbolicDataValue.SuffixValue, SuffixValueRestriction> expectedRestr2 = new LinkedHashMap<>();
+        Map<SymbolicDataValue.SuffixValue, AbstractSuffixValueRestriction> expectedRestr2 = new LinkedHashMap<>();
         expectedRestr2.put(s1, new FreshSuffixValue(s1));
         expectedRestr2.put(s2, new FreshSuffixValue(s2));
         expectedRestr2.put(s3, new UnrestrictedSuffixValue(s3));
@@ -386,7 +386,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
 
         OptimizedSymbolicSuffixBuilder builder = new OptimizedSymbolicSuffixBuilder(consts);
         SymbolicSuffix suffix12 = builder.distinguishingSuffixFromSDTs(prefix1, sdt1, prefix2, sdt2, Word.fromSymbols(a, a, a), solver);
-        Map<SuffixValue, SuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> expectedRestr12 = new LinkedHashMap<>();
         expectedRestr12.put(s1, new FreshSuffixValue(s1));
         expectedRestr12.put(s2, new EqualRestriction(s2, s1));
         expectedRestr12.put(s3, new FreshSuffixValue(s3));
@@ -416,7 +416,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
                                 new SDTGuard.SDTTrueGuard(s3), SDTLeaf.REJECTING))))));
 
         SymbolicSuffix suffix34 = builder.distinguishingSuffixFromSDTs(prefix3, sdt3, prefix4, sdt4,  Word.fromSymbols(a, a, a), solver);
-        Map<SuffixValue, SuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
+        Map<SuffixValue, AbstractSuffixValueRestriction> expectedRestr34 = new LinkedHashMap<>();
         expectedRestr34.put(s1, new FreshSuffixValue(s1));
         expectedRestr34.put(s2, new UnrestrictedSuffixValue(s2));
         expectedRestr34.put(s3, new FreshSuffixValue(s3));
