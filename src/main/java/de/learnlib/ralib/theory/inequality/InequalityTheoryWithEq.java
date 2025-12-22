@@ -621,6 +621,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
         return returnThis;
     }
 
+    @Override
     public Optional<DataValue> instantiate(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Expression<Boolean> guard, int param,
             Constants constants, ConstraintSolver solver) {
