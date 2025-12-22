@@ -234,7 +234,6 @@ public abstract class InequalityTheoryWithEq implements Theory {
 				currMerged = null;
 				prevGuard = null;
 				prevSdt = null;
-				continue;
 			} else {
 				boolean keepMerging = true;
 				SDTGuard nextGuard = equivClasses.get(nextDv);
