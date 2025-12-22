@@ -69,6 +69,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
         this.type = t;
     }
 
+    @Override
     public NativeZ3Solver getSolver() {
     	return (NativeZ3Solver) solver;
     }
