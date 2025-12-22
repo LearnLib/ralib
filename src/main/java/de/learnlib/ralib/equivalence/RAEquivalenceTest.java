@@ -53,7 +53,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         RegisterValuation sys1reg;
         RegisterValuation sys2reg;
 
-        public Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
+        Tuple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);
@@ -153,7 +153,7 @@ public class RAEquivalenceTest implements IOEquivalenceOracle
         Word<PSymbolInstance> as;
         Word<PSymbolInstance> trace;
 
-        public Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word w, Word t) {
+        Triple(RALocation l1, RALocation l2, RegisterValuation r1, RegisterValuation r2, Word w, Word t) {
             sys1loc = l1;
             sys2loc = l2;
             sys1reg = RegisterValuation.copyOf(r1);

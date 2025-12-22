@@ -60,7 +60,7 @@ public class IOCounterexampleLoopRemover implements IOCounterExampleOptimizer {
         private final int min;
         private final int max;
 
-        public Loop(int min, int max) {
+        Loop(int min, int max) {
             this.min = min;
             this.max = max;
         }
