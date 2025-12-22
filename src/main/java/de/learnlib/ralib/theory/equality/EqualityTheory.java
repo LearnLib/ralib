@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -394,7 +394,7 @@ public abstract class EqualityTheory implements Theory {
         return query;
     }
 
-    /*
+    /**
      * Creates a "unary tree" of depth maxIndex - nextSufIndex which leads to a
      * rejecting Leaf. Edges are of type {@link SDTTrueGuard}. Used to shortcut
      * output processing.

@@ -43,6 +43,9 @@ public class Assignment {
         this.assignment = assignment;
     }
 
+    /**
+     * @return the valuation
+     */
     public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
     	RegisterValuation val = new RegisterValuation();
     	for (Map.Entry<Register, ? extends SymbolicDataValue> e : assignment.entrySet()) {
@@ -60,8 +63,8 @@ public class Assignment {
     	return val;
     }
 
-    /*
-     * @deprecated method is unsafe, use {@link #valuation()} instead
+    /**
+     * Deprecated and unsafe method; use {@link de.learnlib.ralib.automata.Assignment#valuation(RegisterValuation, ParameterValuation, Constants) Valuation} instead.
      * Method is unsafe because it keeps registers that are not given a new assignment, which can cause
      * a discrepancy in the number of registers a location has, depending on the path to the location.
      * Method is deprecated rather than removed because the functionality is used by XML automata models.
