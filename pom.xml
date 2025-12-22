@@ -85,7 +85,7 @@
     <scm>
         <connection>scm:git:https://github.com/LearnLib/ralib.git</connection>
         <developerConnection>scm:git:git@github.com:LearnLib/ralib.git</developerConnection>
-        <url>https://github.com/LearnLib/ralib/tree/develop</url>
+        <url>https://github.com/LearnLib/ralib/tree/main</url>
         <tag>HEAD</tag>
     </scm>
 
