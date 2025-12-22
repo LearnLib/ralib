@@ -12,8 +12,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Dependency versions appear alphabetically below -->
         <checker-qual.version>3.52.1</checker-qual.version>
@@ -105,10 +105,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <release>17</release>
+                    <release>21</release>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
-                         <arg>--enable-preview</arg>
                          <arg>-Xlint:deprecation</arg>
                     </compilerArgs>
                 </configuration>
