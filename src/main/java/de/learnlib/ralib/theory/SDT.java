@@ -439,7 +439,7 @@ public class SDT {
 			Expression<Boolean> x = entry.getKey();
 			Boolean outcome = entry.getValue();
 			for (Map.Entry<Expression<Boolean>, Boolean> otherEntry : otherExpressions.entrySet()) {
-				if (outcome != otherEntry.getValue()) {
+				if (!outcome.equals(otherEntry.getValue())) {
 					Expression<Boolean> otherX = otherEntry.getKey();
 					Expression<Boolean> renamed = ExpressionUtil.and(otherX, condition);
 					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
