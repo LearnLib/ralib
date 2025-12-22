@@ -7,13 +7,104 @@
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ralib</name>
-    <url>http://maven.apache.org</url>
+    <name>RALib</name>
+    <description>RALib is a library for active learning algorithms for register automata.</description>
+    <url>https://github.com/LearnLib/ralib</url>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>no-preserve-root</id>
+            <name>Simon Dierl</name>
+            <email>simon.dierl@tu-dortmund.de</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>pfg666</id>
+            <name>Paul Fiterau-Brostean</name>
+            <email>fiteraup@yahoo.com</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>fhowar</id>
+            <name>Falk Howar</name>
+            <email>falk.howar@gmail.com</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>kostis</id>
+            <name>Kostis Sagonas</name>
+            <email>kostis@it.uu.se</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>FredrikTaquist</id>
+            <name>Fredrik Tåquist</name>
+            <email>fredrik.takvist@it.uu.se</email>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Sofia Cassel</name>
+            <organization>Uppsala University, Uppsala, Sweden</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Malte Isberner</name>
+            <email>malte.isberner@gmail.com</email>
+            <organization>TU Dortmund University, Dortmund, Germany</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </contributor>
+    </contributors>
+
+    <scm>
+        <connection>scm:git:https://github.com/LearnLib/ralib.git</connection>
+        <developerConnection>scm:git:git@github.com:LearnLib/ralib.git</developerConnection>
+        <url>https://github.com/LearnLib/ralib/tree/main</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>sonatype</id>
+            <url>https://central.sonatype.com</url>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype</id>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Dependency versions appear alphabetically below -->
         <checker-qual.version>3.52.1</checker-qual.version>
@@ -27,14 +118,66 @@
 
         <!-- Plugin versions in alphabetical order -->
         <assembly-plugin.version>3.8.0</assembly-plugin.version>
+        <central-publish-plugin.version>0.9.0</central-publish-plugin.version>
         <compiler-plugin.version>3.14.1</compiler-plugin.version>
         <dependency-plugin.version>3.9.0</dependency-plugin.version>
+        <deploy-plugin.version>3.1.3</deploy-plugin.version>
+        <gpg-plugin.version>3.2.7</gpg-plugin.version>
+        <javadoc-plugin.version>3.11.2</javadoc-plugin.version>
+        <release-plugin.version>3.1.0</release-plugin.version>
+        <source-plugin.version>3.3.1</source-plugin.version>
         <spotless-plugin.version>3.1.0</spotless-plugin.version>
         <spotbugs-plugin.version>4.9.8.2</spotbugs-plugin.version>
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
     </properties>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publish-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>${deploy-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${gpg-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${javadoc-plugin.version}</version>
+                    <configuration>
+                        <quiet>true</quiet>
+                        <detectLinks>true</detectLinks>
+                        <linksource>false</linksource>
+                        <additionalOptions>--enable-preview</additionalOptions>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${release-plugin.version}</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <tagNameFormat>ralib-@{version}</tagNameFormat>
+                        <preparationGoals>verify</preparationGoals>
+                        <releaseProfiles>bundles,release</releaseProfiles>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${source-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- Dependency analysis -->
             <plugin>
@@ -67,6 +210,7 @@
                                 <include>**/*.xml</include>
                             </includes>
                             <excludes>
+                                <exclude>.idea/**/*.xml</exclude>
                                 <exclude>target/**/*.xml</exclude>
                             </excludes>
                             <endWithNewline />
@@ -105,7 +249,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <release>21</release>
                     <showWarnings>true</showWarnings>
                     <compilerArgs>
                          <arg>-Xlint:deprecation</arg>
@@ -260,4 +403,69 @@
             <version>${gson.version}</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <!-- enables building of javadoc and source JARs -->
+            <id>bundles</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- set certain configurations when performing a release -->
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <deploymentName>RALib ${project.version}</deploymentName>
+                            <publishingServerId>sonatype</publishingServerId>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
