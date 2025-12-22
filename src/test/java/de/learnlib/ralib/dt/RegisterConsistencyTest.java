@@ -69,9 +69,9 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		private final DTLeaf prefixLeaf;
 		private final DTLeaf leaf;
 
-		public SymbolicSuffix addedSuffix = null;
+		SymbolicSuffix addedSuffix = null;
 
-		public DummyDT(MappedPrefix word, MappedPrefix prefix) {
+		DummyDT(MappedPrefix word, MappedPrefix prefix) {
 			super(new DummyOracle(), false, new Constants(), (ParameterizedSymbol[])null);
 			leaf = new DTLeaf(word, null);
 			prefixLeaf = new DTLeaf(prefix, null);
