@@ -62,6 +62,10 @@ public class Assignment {
 
     /*
      * @deprecated method is unsafe, use {@link #valuation()} instead
+     * Method is unsafe because it keeps registers that are not given a new assignment, which can cause
+     * a discrepancy in the number of registers a location has, depending on the path to the location.
+     * Method is deprecated rather than removed because the functionality is used by XML automata models.
+     * Removal of method requires refactoring of XML models.
      */
     @Deprecated
     public RegisterValuation compute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
