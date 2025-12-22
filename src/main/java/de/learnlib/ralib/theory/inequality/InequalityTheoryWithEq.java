@@ -633,7 +633,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     			.collect(Collectors.toSet()));
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
-    	if (tryEquality(guard, p, fresh, solver)) {
+    	if (isSatisfiableWithEquality(guard, p, fresh, solver)) {
     		return Optional.of(fresh);
     	}
 
@@ -650,7 +650,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	}
 
     	for (DataValue val : vals) {
-    		if (tryEquality(guard, p, val, solver)) {
+    		if (isSatisfiableWithEquality(guard, p, val, solver)) {
     			return Optional.of(val);
     		}
     	}
@@ -658,7 +658,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
     	return Optional.empty();
     }
 
-    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver) {
+    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver) {
     	ParameterValuation valuation = new ParameterValuation();
     	valuation.put(p, val);
     	return solver.isSatisfiable(guard, valuation);

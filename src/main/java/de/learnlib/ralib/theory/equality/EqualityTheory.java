@@ -424,12 +424,12 @@ public abstract class EqualityTheory implements Theory {
     	vals.addAll(constants.values());
     	DataValue fresh = getFreshValue(new LinkedList<>(vals));
 
-    	if (tryEquality(guard, p, fresh, solver, constants)) {
+    	if (isSatisfiableWithEquality(guard, p, fresh, solver, constants)) {
     		return Optional.of(fresh);
     	}
 
     	for (DataValue val : vals) {
-    		if (tryEquality(guard, p, val, solver, constants)) {
+    		if (isSatisfiableWithEquality(guard, p, val, solver, constants)) {
     			return Optional.of(val);
     		}
     	}
@@ -437,7 +437,7 @@ public abstract class EqualityTheory implements Theory {
     	return Optional.empty();
     }
 
-    private boolean tryEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
+    private boolean isSatisfiableWithEquality(Expression<Boolean> guard, Parameter p, DataValue val, ConstraintSolver solver, Constants consts) {
     	Mapping<SymbolicDataValue, DataValue> valuation = new Mapping<>();
     	valuation.put(p, val);
     	valuation.putAll(consts);
