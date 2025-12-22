@@ -123,6 +123,7 @@ public class Bijection<T extends TypedValue> implements Map<T, T> {
 		return vars;
 	}
 
+	@Override
 	public String toString() {
 		return injection.toString();
 	}
