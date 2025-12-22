@@ -101,6 +101,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 *
 	 * @return {@code true} if this leaf corresponds to an accepting location
 	 */
+	@Override
 	public boolean isAccepting() {
 		return rp.getPath().isAccepting();
 	}
