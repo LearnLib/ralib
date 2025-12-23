@@ -254,7 +254,7 @@
                         <arg>-Xlint:deprecation</arg>
                         <arg>-XDcompilePolicy=simple</arg>
                         <arg>--should-stop=ifError=FLOW</arg>
-                        <arg>-Xplugin:ErrorProne -Xep:ObjectToString:OFF -Xep:BadInstanceof:OFF -Xep:UnusedVariable:OFF -Xep:UnusedMethod:OFF -Xep:EqualsGetClass:OFF -Xep:BigDecimalEquals:OFF -Xep:ReferenceEquality:OFF -Xep:ArrayAsKeyOfSetOrMap:OFF -Xep:IterableAndIterator:OFF -Xep:ObjectsHashCodePrimitive:OFF -Xep:StatementSwitchToExpressionSwitch:OFF -Xep:PatternMatchingInstanceof:OFF -Xep:JdkObsolete:OFF -Xep:AddressSelection:OFF -Xep:EmptyBlockTag:OFF -Xep:MissingSummary:OFF -Xep:NonApiType:OFF -Xep:StringSplitter:OFF -Xep:WaitNotInLoop:OFF -Xep:StringConcatToTextBlock:OFF -Xep:ModifiedButNotUsed:OFF -Xep:CompareToZero:OFF -Xep:MissingCasesInEnumSwitch:OFF</arg>
+                        <arg>-Xplugin:ErrorProne -Xep:ObjectToString:OFF -Xep:BadInstanceof:OFF -Xep:UnusedVariable:OFF -Xep:EqualsGetClass:OFF -Xep:BigDecimalEquals:OFF -Xep:ReferenceEquality:OFF -Xep:ArrayAsKeyOfSetOrMap:OFF -Xep:IterableAndIterator:OFF -Xep:ObjectsHashCodePrimitive:OFF -Xep:StatementSwitchToExpressionSwitch:OFF -Xep:PatternMatchingInstanceof:OFF -Xep:JdkObsolete:OFF -Xep:AddressSelection:OFF -Xep:EmptyBlockTag:OFF -Xep:MissingSummary:OFF -Xep:NonApiType:OFF -Xep:StringSplitter:OFF -Xep:WaitNotInLoop:OFF -Xep:StringConcatToTextBlock:OFF -Xep:ModifiedButNotUsed:OFF -Xep:CompareToZero:OFF -Xep:MissingCasesInEnumSwitch:OFF</arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
                         <path>
