@@ -603,7 +603,7 @@ public abstract class InequalityTheoryWithEq implements Theory {
                 throw new IllegalStateException("only =, != or interval allowed. Got " + guard);
             }
 
-            if (!(oldDvs.isEmpty())) {
+            if (! oldDvs.isEmpty()) {
                 for (DataValue oldDv : oldDvs) {
                     Valuation newVal = new Valuation();
                     newVal.putAll(val);
