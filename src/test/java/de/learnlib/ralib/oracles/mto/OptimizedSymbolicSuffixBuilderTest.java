@@ -501,7 +501,7 @@ public class OptimizedSymbolicSuffixBuilderTest {
     }
 
     @Test
-    private void testSDTPrune() {
+    public void testSDTPrune() {
         DataType type = new DataType("int");
 
         final Map<DataType, Theory> teachers = new LinkedHashMap<>();
