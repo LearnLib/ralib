@@ -283,7 +283,7 @@ public class SDT {
     // Returns true if all elements of a boolean array are true.
     private boolean isArrayTrue(Boolean[] maybeArr) {
         boolean maybe = true;
-        for (int c = 0; c < (maybeArr.length); c++) {
+        for (int c = 0; c < maybeArr.length; c++) {
             //log.trace(maybeArr[c]);
             if (!maybeArr[c]) {
                 maybe = false;

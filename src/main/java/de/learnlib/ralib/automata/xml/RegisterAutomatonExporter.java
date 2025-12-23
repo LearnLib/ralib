@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,11 +87,11 @@ public class RegisterAutomatonExporter {
         for (InputSymbol input : is) {
             RegisterAutomaton.Alphabet.Inputs.Symbol s = factory.createRegisterAutomatonAlphabetInputsSymbol();
             s.setName(input.getName());
-            int idx=1;
+            int idx = 1;
             for (DataType t : input.getPtypes()) {
                 RegisterAutomaton.Alphabet.Inputs.Symbol.Param param =
                         factory.createRegisterAutomatonAlphabetInputsSymbolParam();
-                param.setName("p" + (idx++));
+                param.setName("p" + idx++);
                 param.setType(t.getName());
                 s.getParam().add(param);
             }
@@ -105,11 +105,11 @@ public class RegisterAutomatonExporter {
         for (OutputSymbol output : os) {
             RegisterAutomaton.Alphabet.Outputs.Symbol s = factory.createRegisterAutomatonAlphabetOutputsSymbol();
             s.setName(output.getName());
-            int idx=1;
+            int idx = 1;
             for (DataType t : output.getPtypes()) {
                 RegisterAutomaton.Alphabet.Outputs.Symbol.Param param =
                         factory.createRegisterAutomatonAlphabetOutputsSymbolParam();
-                param.setName("p" + (idx++));
+                param.setName("p" + idx++);
                 param.setType(t.getName());
                 s.getParam().add(param);
             }
