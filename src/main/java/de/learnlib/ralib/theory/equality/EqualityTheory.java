@@ -96,7 +96,7 @@ public abstract class EqualityTheory implements Theory {
             List<SDTGuard.EqualityGuard> ds = new ArrayList<>();
             ds.add(eqGuard);
             LOGGER.trace("remapping: " + ds);
-            if (!(eqSdt.isEquivalentUnder(deqSdt, ds))) {
+            if (! eqSdt.isEquivalentUnder(deqSdt, ds)) {
                 LOGGER.trace("--> not eq.");
                 deqList.add(SDTGuard.toDeqGuard(eqGuard));
                 eqList.add(eqGuard);
