@@ -321,10 +321,6 @@ public class RegisterAutomatonImporter {
         return t;
     }
 
-    private boolean isDoubleTempCheck(String name) {
-        return name.equals("DOUBLE") || name.equals("double");
-    }
-
     private Map<String, SymbolicDataValue> buildValueMap(
             Map<String, ? extends SymbolicDataValue> ... maps) {
         Map<String, SymbolicDataValue> ret = new LinkedHashMap<>();

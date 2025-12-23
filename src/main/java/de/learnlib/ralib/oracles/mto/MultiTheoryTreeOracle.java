@@ -181,12 +181,6 @@ public class MultiTheoryTreeOracle implements TreeOracle {
     }
 
     private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
-            SDT... sdts) {
-        Node n = createNode(i, prefix, ps, pval, new LinkedHashMap<>(), sdts);
-        return n;
-    }
-
-    private Node createNode(int i, Word<PSymbolInstance> prefix, ParameterizedSymbol ps, SuffixValuation pval,
             Map<SuffixValue, Set<DataValue>> oldDvMap, SDT... sdts) {
 
         if (i == ps.getArity() + 1) {
@@ -466,7 +460,7 @@ public class MultiTheoryTreeOracle implements TreeOracle {
         updated[0] = oldBranching.buildFakeSDT();
         System.arraycopy(sdts, 0, updated, 1, sdts.length);
 
-        Node n = createNode(1, prefix, ps, new SuffixValuation(),oldDvs, updated);
+        Node n = createNode(1, prefix, ps, new SuffixValuation(), oldDvs, updated);
         MultiTheoryBranching mtb = new MultiTheoryBranching(prefix, ps, n, constants, updated);
         return mtb;
     }
