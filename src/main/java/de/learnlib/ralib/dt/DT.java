@@ -201,7 +201,7 @@ public class DT implements DiscriminationTree {
 
         // update old leaf
         boolean removed = leaf.removeShortPrefix(prefix);
-        assert (removed); // must not split a prefix that isn't there
+        assert removed; // must not split a prefix that isn't there
 
         //SDT tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);

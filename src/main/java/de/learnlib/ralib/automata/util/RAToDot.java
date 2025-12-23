@@ -77,7 +77,7 @@ public class RAToDot {
             if (!acceptingOnly || loc.isAccepting()) {
                 printLocation(loc);
                 stringRA.append(" [shape=");
-                stringRA.append( (loc.isAccepting()) ? "doublecircle" : "circle");
+                stringRA.append(loc.isAccepting() ? "doublecircle" : "circle");
                 stringRA.append("]");
                 stringRA.append(NEWLINE);
             }
