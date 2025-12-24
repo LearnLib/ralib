@@ -325,15 +325,15 @@ public class MultiTheoryTreeOracle implements TreeOracle {
             return guard1;
         }
 
-        if (guard1 instanceof SDTGuard.SDTAndGuard && guard2 instanceof SDTGuard.SDTAndGuard) {
-            List<SDTGuard> guards = new ArrayList<SDTGuard>(((SDTGuard.SDTAndGuard) guard1).conjuncts());
-            guards.addAll(((SDTGuard.SDTAndGuard) guard2).conjuncts());
+        if (guard1 instanceof SDTGuard.SDTAndGuard sdtAndGuard1 && guard2 instanceof SDTGuard.SDTAndGuard sdtAndGuard2) {
+            List<SDTGuard> guards = new ArrayList<SDTGuard>(sdtAndGuard1.conjuncts());
+            guards.addAll(sdtAndGuard2.conjuncts());
             return new SDTGuard.SDTAndGuard(guard1.getParameter(), guards);
         }
 
         if (guard1 instanceof SDTGuard.SDTAndGuard || guard2 instanceof SDTGuard.SDTAndGuard) {
-            SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard ?
-                    (SDTGuard.SDTAndGuard) guard1 : (SDTGuard.SDTAndGuard) guard2;
+            SDTGuard.SDTAndGuard andGuard = guard1 instanceof SDTGuard.SDTAndGuard sdtAndGuard ?
+                    sdtAndGuard : (SDTGuard.SDTAndGuard) guard2;
             SDTGuard otherGuard = guard2 instanceof SDTGuard.SDTAndGuard ? guard1 : guard2;
             List<SDTGuard> conjuncts = andGuard.conjuncts();
             conjuncts.add(otherGuard);

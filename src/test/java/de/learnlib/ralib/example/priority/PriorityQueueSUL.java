@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,7 +38,6 @@ public class PriorityQueueSUL extends DataWordSUL {
     public static final ParameterizedSymbol OFFER =
             new InputSymbol("offer", DOUBLE_TYPE);
 
-
     public final ParameterizedSymbol[] getInputSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER };
     }
@@ -58,7 +57,6 @@ public class PriorityQueueSUL extends DataWordSUL {
     public final ParameterizedSymbol[] getActionSymbols() {
         return new ParameterizedSymbol[] { POLL, OFFER, OUTPUT, OK, NOK, ERROR };
     }
-
 
     private PQWrapper pqueue;
     private final int capacity;
@@ -83,8 +81,8 @@ public class PriorityQueueSUL extends DataWordSUL {
     }
 
     private PSymbolInstance createOutputSymbol(Object x) {
-        if (x instanceof Boolean) {
-            return new PSymbolInstance( ((Boolean) x) ? OK : NOK);
+        if (x instanceof Boolean b) {
+            return new PSymbolInstance(b ? OK : NOK);
         } else if (x instanceof java.lang.Exception) {
             return new PSymbolInstance(ERROR);
         } else if (x == null) {

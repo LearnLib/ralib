@@ -333,8 +333,8 @@ public abstract class EqualityTheory implements Theory {
                 } else if (SDTGuardElement.isConstant(ereg)) {
                     return constants.get((Constant) ereg);
                 }
-            } else if (current instanceof SDTGuard.SDTAndGuard) {
-                guards.addAll(((SDTGuard.SDTAndGuard) current).conjuncts());
+            } else if (current instanceof SDTGuard.SDTAndGuard sdtAndGuard) {
+                guards.addAll(sdtAndGuard.conjuncts());
             }
             // todo: this only works under the assumption that disjunctions only contain disequality guards
         }
@@ -458,9 +458,9 @@ public abstract class EqualityTheory implements Theory {
 
     @Override
     public boolean guardRevealsRegister(SDTGuard guard, SymbolicDataValue register) {
-    	if (guard instanceof SDTGuard.EqualityGuard && ((SDTGuard.EqualityGuard) guard).register().equals(register)) {
+        if (guard instanceof SDTGuard.EqualityGuard equalityGuard && equalityGuard.register().equals(register)) {
     		return true;
-    	} else if (guard instanceof SDTGuard.DisequalityGuard && ((SDTGuard.DisequalityGuard)guard).register().equals(register)) {
+        } else if (guard instanceof SDTGuard.DisequalityGuard disequalityGuard && disequalityGuard.register().equals(register)) {
     		return true;
     	} else if (guard instanceof SDTGuard.SDTAndGuard ag) {
     		boolean revealsGuard = false;

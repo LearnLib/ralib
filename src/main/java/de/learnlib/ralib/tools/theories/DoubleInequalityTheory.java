@@ -122,7 +122,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             if (!iGuard.isBiggerGuard()) {
                 SDTGuardElement r = iGuard.greaterElement();
                 assert r != null;
-                DataValue ri = (r instanceof DataValue) ? (DataValue) r :
+                DataValue ri = (r instanceof DataValue dataValue) ? dataValue :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) r));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, ri.getValue());
                 // add the constant equivalence expression to the list
@@ -131,7 +131,7 @@ public class DoubleInequalityTheory extends InequalityTheoryWithEq implements Ty
             if (!iGuard.isSmallerGuard()) {
                 SDTGuardElement l = iGuard.smallerElement();
                 assert l != null;
-                DataValue li = (l instanceof DataValue) ? (DataValue) l :
+                DataValue li = (l instanceof DataValue dataValue) ? dataValue :
                         new DataValue(type, (BigDecimal) val.getValue( (Variable) l));
                 gov.nasa.jpf.constraints.expressions.Constant wm = new gov.nasa.jpf.constraints.expressions.Constant(BuiltinTypes.DECIMAL, li.getValue());
                 // add the constant equivalence expression to the list

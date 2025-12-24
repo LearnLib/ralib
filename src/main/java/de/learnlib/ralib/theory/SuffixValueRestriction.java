@@ -120,14 +120,14 @@ public abstract class SuffixValueRestriction {
     	if (guard instanceof SDTGuard.SDTTrueGuard || guard instanceof SDTGuard.DisequalityGuard) {
     		return new FreshSuffixValue(suffixValue);
     	// case equal to previous suffix value
-    	} else if (guard instanceof SDTGuard.EqualityGuard) {
-    		SDTGuardElement param = ((SDTGuard.EqualityGuard) guard).register();
-    		if (param instanceof SuffixValue) {
+	} else if (guard instanceof SDTGuard.EqualityGuard equalityGuard) {
+		SDTGuardElement param = equalityGuard.register();
+		if (param instanceof SuffixValue suffixValueParam) {
     			SuffixValueRestriction restr = prior.get(param);
     			if (restr instanceof FreshSuffixValue) {
-    				return new EqualRestriction(suffixValue, (SuffixValue)param);
-    			} else if (restr instanceof EqualRestriction) {
-    				return new EqualRestriction(suffixValue, ((EqualRestriction)restr).getEqualParameter());
+				return new EqualRestriction(suffixValue, suffixValueParam);
+			} else if (restr instanceof EqualRestriction equalRestriction) {
+				return new EqualRestriction(suffixValue, equalRestriction.getEqualParameter());
     			} else {
     				return new UnrestrictedSuffixValue(suffixValue);
     			}

@@ -106,8 +106,8 @@ public class RAToDot {
                 printLocation(t.getDestination());
                 stringRA.append(" [label=<");
 
-                if (t instanceof OutputTransition) {
-                    printOutputLabel( (OutputTransition)t );
+                if (t instanceof OutputTransition outputTransition) {
+                    printOutputLabel( outputTransition );
                 } else {
                     printInputLabel( t );
                 }

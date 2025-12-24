@@ -41,8 +41,8 @@ public class CTLeaf extends CTNode implements LocationComponent {
 		shortPrefixes = new LinkedHashSet<>();
 		prefixes = new LinkedHashSet<>();
 		prefixes.add(rp);
-		if (rp instanceof ShortPrefix) {
-			((ShortPrefix) rp).updateBranching();
+		if (rp instanceof ShortPrefix sp) {
+			sp.updateBranching();
 		}
 	}
 
@@ -120,8 +120,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	@Override
 	protected CTLeaf sift(Prefix prefix, TreeOracle oracle, ConstraintSolver solver, boolean ioMode) {
 		prefixes.add(prefix);
-		if (prefix instanceof ShortPrefix) {
-			ShortPrefix sp = (ShortPrefix) prefix;
+		if (prefix instanceof ShortPrefix sp) {
 			shortPrefixes.add(sp);
 			sp.updateBranching();
 		}
