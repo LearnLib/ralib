@@ -185,7 +185,7 @@ public class RegisterAutomatonImporter {
             Assignment assign = new Assignment(assignments);
 
             // output
-            if (ps instanceof OutputSymbol) {
+            if (ps instanceof OutputSymbol outputSymbol) {
 
                 Parameter[] pList = paramList(ps);
                 int idx = 0;
@@ -223,7 +223,7 @@ public class RegisterAutomatonImporter {
                 OutputMapping outMap = new OutputMapping(fresh, outputs);
 
                 OutputTransition tOut = new OutputTransition(p, outMap,
-                        (OutputSymbol) ps, from, to, assign);
+                        outputSymbol, from, to, assign);
                 iora.addTransition(from, ps, tOut);
                 LOGGER.trace(Category.EVENT, "Loading: {}", tOut);
             } // input

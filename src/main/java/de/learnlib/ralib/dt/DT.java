@@ -166,8 +166,8 @@ public class DT implements DiscriminationTree {
         } while (leaf == null);
 
         if (add && !leaf.getAccessSequence().equals(mp.getPrefix())) {
-            if (mp instanceof ShortPrefix) {
-                leaf.addShortPrefix((ShortPrefix) mp);
+            if (mp instanceof ShortPrefix shortPrefix) {
+                leaf.addShortPrefix(shortPrefix);
             } else {
                 leaf.addPrefix(mp);
             }
