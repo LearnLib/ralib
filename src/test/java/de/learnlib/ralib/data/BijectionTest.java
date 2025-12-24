@@ -80,5 +80,6 @@ public class BijectionTest extends RaLibTestSuite {
 		}
 
 		Assert.assertTrue(exceptionCaught);
+		Assert.assertEquals(bi.size(), 0);
 	}
 }
