@@ -3,8 +3,6 @@ package de.learnlib.ralib.theory.inequality;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -16,7 +14,6 @@ import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.Register;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
 import de.learnlib.ralib.theory.SDTGuard;
-import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.DoubleInequalityTheory;
 import gov.nasa.jpf.constraints.api.Valuation;
 
@@ -27,9 +24,9 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
 
         final DataType D_TYPE = new DataType("double");
 
-        final Map<DataType, Theory> teachers = new LinkedHashMap<>();
+        //final Map<DataType, Theory> teachers = new LinkedHashMap<>();
         DoubleInequalityTheory dit = new DoubleInequalityTheory(D_TYPE);
-        teachers.put(D_TYPE, dit);
+        //teachers.put(D_TYPE, dit);
 
         SuffixValue s1 = new SuffixValue(D_TYPE, 1);
         Register r1 = new Register(D_TYPE, 1);
