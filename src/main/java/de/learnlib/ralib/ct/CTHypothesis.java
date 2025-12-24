@@ -164,15 +164,15 @@ public class CTHypothesis extends Hypothesis {
     }
 
 	private Transition createSinkTransition(RALocation src, RALocation dest, ParameterizedSymbol ps) {
-		if (ps instanceof OutputSymbol) {
+		if (ps instanceof OutputSymbol outputSymbol) {
 			return new OutputTransition(new OutputMapping(),
-					(OutputSymbol) ps,
+					outputSymbol,
 					src, dest,
 					new Assignment(new VarMapping<>()));
 		}
-		if (ps instanceof InputSymbol) {
+		if (ps instanceof InputSymbol inputSymbol) {
 			return new InputTransition(ExpressionUtil.TRUE,
-					(InputSymbol) ps,
+					inputSymbol,
 					src, dest,
 					new Assignment(new VarMapping<>()));
 		}

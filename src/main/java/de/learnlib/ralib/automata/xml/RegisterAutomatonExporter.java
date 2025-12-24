@@ -130,7 +130,7 @@ public class RegisterAutomatonExporter {
             if (ra.getInitialState().equals(loc)) {
                 l.setInitial("true");
             }
-            ret.getLocation()   .add(l);
+            ret.getLocation().add(l);
         }
         return ret;
     }
@@ -140,11 +140,11 @@ public class RegisterAutomatonExporter {
                 factory.createRegisterAutomatonTransitions();
 
         for (Transition t : trans) {
-            if (t instanceof OutputTransition) {
-                ret.getTransition().add( exportOutputTransition( (OutputTransition)t, tmp ));
+            if (t instanceof OutputTransition outputTransition) {
+                ret.getTransition().add( exportOutputTransition(outputTransition, tmp));
             }
             else {
-                ret.getTransition().add( exportInputTransition( t ));
+                ret.getTransition().add(exportInputTransition(t));
             }
         }
         return ret;
@@ -272,10 +272,9 @@ public class RegisterAutomatonExporter {
         Set<OutputSymbol> outputs = new HashSet<>();
         for (Transition t : ra.getTransitions()) {
             ParameterizedSymbol ps = t.getLabel();
-            if (ps instanceof InputSymbol) {
-                inputs.add((InputSymbol)ps);
-            }
-            else {
+            if (ps instanceof InputSymbol inputSymbol) {
+                inputs.add(inputSymbol);
+            } else {
                 outputs.add((OutputSymbol) ps);
             }
         }

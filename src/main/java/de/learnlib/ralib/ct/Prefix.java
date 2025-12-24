@@ -39,7 +39,7 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 	private final CTPath path;
 
 	public Prefix(Word<PSymbolInstance> u, Bijection<DataValue> rpRenaming, CTPath path) {
-		this.prefix = u instanceof Prefix ? ((Prefix) u).getPrefix() : u;
+		this.prefix = u instanceof Prefix prefix ? prefix.getPrefix() : u;
 		this.rpBijection = rpRenaming;
 		this.path = path;
 	}
@@ -89,8 +89,8 @@ public class Prefix extends Word<PSymbolInstance> implements PrefixContainer {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof Prefix) {
-			return ((Prefix) other).prefix.equals(prefix);
+		if (other instanceof Prefix otherPrefix) {
+			return otherPrefix.prefix.equals(prefix);
 		}
 		return prefix.equals(other);
 	}

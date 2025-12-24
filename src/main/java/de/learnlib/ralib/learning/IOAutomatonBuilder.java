@@ -73,7 +73,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
             return null;
         }
 
-        if (!(action instanceof OutputSymbol)) {
+        if (!(action instanceof OutputSymbol outputSymbol)) {
             return super.createTransition(action, guard, src_loc, dest_loc, assign);
         }
 
@@ -95,7 +95,7 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
         OutputMapping outMap = new OutputMapping(fresh, outmap);
 
         return new OutputTransition(ExpressionUtil.TRUE,
-                outMap, (OutputSymbol) action, src_loc, dest_loc, assign);
+                outMap, outputSymbol, src_loc, dest_loc, assign);
     }
 
     private void analyzeExpression(Expression<Boolean> expr,
@@ -115,12 +115,12 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
                 Parameter p = null;
                 SymbolicDataValue sv = null;
 
-                if (left instanceof Parameter) {
+                if (left instanceof Parameter parameter) {
                     if (right instanceof Parameter) {
                         throw new UnsupportedOperationException("not implemented yet.");
                     }
                     else {
-                        p = (Parameter) left;
+                        p = parameter;
                         sv = (SymbolicDataValue) right;
                     }
                 }
