@@ -69,8 +69,7 @@ public class LoginExampleTreeOracle implements TreeOracle {
     }
 
     @Override
-    public SDT treeQuery(
-            Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
+    public SDT treeQuery(Word<PSymbolInstance> prefix, SymbolicSuffix suffix) {
 
         if (prefix.length() < 1) {
             return new LoginExampleSDT(SDTClass.REJECT, suffix, new LinkedHashSet<Register>());
@@ -109,6 +108,8 @@ public class LoginExampleTreeOracle implements TreeOracle {
                         state = State.ERROR;
                     }
                     break;
+                case ERROR:
+                    break;
             }
 
             if (state == State.ERROR) {
@@ -134,6 +135,9 @@ public class LoginExampleTreeOracle implements TreeOracle {
                         clazz = SDTClass.LOGIN;
                         break;
                 }
+                break;
+            case INIT:
+            case ERROR:
                 break;
         }
 
@@ -200,7 +204,6 @@ public class LoginExampleTreeOracle implements TreeOracle {
     public Branching updateBranching(Word<PSymbolInstance> prefix,
             ParameterizedSymbol ps, Branching current,
             SDT... sdts) {
-
         return getInitialBranching(prefix, ps, sdts);
     }
 
