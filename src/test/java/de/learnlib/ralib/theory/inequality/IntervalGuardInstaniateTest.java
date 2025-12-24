@@ -66,7 +66,7 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         Assert.assertNotEquals(dvle.getValue().compareTo(dv1.getValue()), 1);
         Assert.assertEquals(dvr.getValue().compareTo(dv1.getValue()), 1);
         Assert.assertNotEquals(dvre.getValue().compareTo(dv1.getValue()), -1);
-        Assert.assertTrue(dvi.getValue().compareTo(dv1.getValue()) == 1 && dvi.getValue().compareTo(dv3.getValue()) == -1);
-        Assert.assertFalse(dvic.getValue().compareTo(dv1.getValue()) == -1 && dvic.getValue().compareTo(dv3.getValue()) == 1);
+        Assert.assertTrue(dvi.getValue().compareTo(dv1.getValue()) > 0 && dvi.getValue().compareTo(dv3.getValue()) < 0);
+        Assert.assertFalse(dvic.getValue().compareTo(dv1.getValue()) < 0 && dvic.getValue().compareTo(dv3.getValue()) > 0);
     }
 }
