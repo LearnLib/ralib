@@ -30,8 +30,6 @@ import de.learnlib.ralib.TestUtil;
 import de.learnlib.ralib.automata.RegisterAutomaton;
 import de.learnlib.ralib.automata.xml.RegisterAutomatonImporter;
 import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.SymbolicDataValue.Register;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
 import de.learnlib.ralib.smt.ConstraintSolver;
@@ -111,9 +109,11 @@ public class SecondSDTBranchingTest extends RaLibTestSuite {
         SDT tqr1 = mto.treeQuery(prefix, symSuffix1);
         SDT tqr2 = mto.treeQuery(prefix, symSuffix2);
 
+        /*
         RegisterGenerator rgen = new RegisterGenerator();
         Register r1 = rgen.next(intType);
         Register r2 = rgen.next(intType);
+        */
         SDTRelabeling remap = new SDTRelabeling();
         /*
         remap.put(r1, r2);
