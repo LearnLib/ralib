@@ -11,7 +11,6 @@ import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.smt.ConstraintSolver;
 
 public class SDTEquivalenceTest extends RaLibTestSuite {
 
@@ -19,7 +18,6 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 
 	@Test
 	public void testEquivalence() {
-		ConstraintSolver solver = new ConstraintSolver();
 
 		SuffixValue s1 = new SuffixValue(DT, 1);
 		SuffixValue s2 = new SuffixValue(DT, 2);
@@ -65,7 +63,6 @@ public class SDTEquivalenceTest extends RaLibTestSuite {
 
 	@Test
 	public void testEquivalenceUnderBijection() {
-		ConstraintSolver solver = new ConstraintSolver();
 
 		SuffixValue s1 = new SuffixValue(DT, 1);
 		SuffixValue s2 = new SuffixValue(DT, 2);

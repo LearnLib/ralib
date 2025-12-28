@@ -32,14 +32,13 @@ public class IntervalGuardInstaniateTest extends RaLibTestSuite {
         Register r1 = new Register(D_TYPE, 1);
         Register r2 = new Register(D_TYPE, 2);
 
-        DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
+        //DataValue dv0 = new DataValue(D_TYPE, BigDecimal.ZERO);
         DataValue dv1 = new DataValue(D_TYPE, BigDecimal.ONE);
         DataValue dv2 = new DataValue(D_TYPE, BigDecimal.valueOf(2));
         DataValue dv3 = new DataValue(D_TYPE, BigDecimal.valueOf(3));
-        DataValue dv4 = new DataValue(D_TYPE, BigDecimal.valueOf(4));
 
         Valuation val = new Valuation();
-        val.setValue(r1 , dv1.getValue());
+        val.setValue(r1, dv1.getValue());
         val.setValue(r2, dv2.getValue());
 
         Collection<DataValue> alreadyUsed = new ArrayList<>();
