@@ -107,7 +107,7 @@
         <maven.compiler.release>21</maven.compiler.release>
 
         <!-- Dependency versions appear alphabetically below -->
-        <checker-qual.version>3.52.1</checker-qual.version>
+        <checker-qual.version>3.53.0</checker-qual.version>
         <commons-lang.version>3.20.0</commons-lang.version>
         <gson.version>2.13.2</gson.version>
         <guava.version>33.5.0-jre</guava.version>
