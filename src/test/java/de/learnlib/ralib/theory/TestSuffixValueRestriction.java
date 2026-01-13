@@ -64,8 +64,8 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	consts2.put(c1, dv2);
     	AbstractSuffixValueRestriction restr2Reg = theory.restrictSuffixValue(s1, prefix2, suffix2, val2, consts2);
     	AbstractSuffixValueRestriction restr2Con = theory.restrictSuffixValue(s2, prefix2, suffix2, val2, consts2);
-    	Assert.assertEquals(restr2Reg.toString(), "('s1' == 'r1')");
-    	Assert.assertEquals(restr2Con.toString(), "('s2' == 'c1')");
+    	Assert.assertEquals(restr2Reg.toString(), "(s1 == r1)");
+    	Assert.assertEquals(restr2Con.toString(), "(s2 == c1)");
 
     	// equal suffix
     	Word<PSymbolInstance> prefix3 = Word.fromSymbols(
@@ -76,7 +76,7 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	RegisterValuation val3 = new RegisterValuation();
     	Constants consts3 = new Constants();
     	AbstractSuffixValueRestriction restr3 = theory.restrictSuffixValue(s2, prefix3, suffix3, val3, consts3);
-    	Assert.assertEquals(restr3.toString(), "('s2' == 's1')");
+    	Assert.assertEquals(restr3.toString(), "(s2 == s1)");
 
     	// equal mapped
     	Word<PSymbolInstance> prefix4 = Word.fromSymbols(
@@ -91,8 +91,8 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	consts4.put(c1, dv1);
     	AbstractSuffixValueRestriction restr4_1 = theory.restrictSuffixValue(s1, prefix4, suffix4, val4, consts4);
     	AbstractSuffixValueRestriction restr4_2 = theory.restrictSuffixValue(s2, prefix4, suffix4, val4, consts4);
-    	Assert.assertEquals(restr4_1.toString(), "(('s1' == 'r1') || ('s1' == 'c1')) OR Fresh(s1)");
-    	Assert.assertEquals(restr4_2.toString(), "((('s2' == 'r1') || ('s2' == 'c1')) || ('s2' == 's1')) OR Fresh(s2)");
+    	Assert.assertEquals(restr4_1.toString(), "(s1 == r1) OR (s1 == c1) OR Fresh(s1)");
+    	Assert.assertEquals(restr4_2.toString(), "(s2 == r1) OR (s2 == c1) OR (s2 == s1) OR Fresh(s2)");
 
     	// equal unmapped
     	Word<PSymbolInstance> prefix5 = Word.fromSymbols(
@@ -150,7 +150,7 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     	}
     	SymbolicSuffix symSuff1 = new SymbolicSuffix(DataWords.actsOf(suffix1), restrs);
 
-    	Assert.assertEquals(symSuff1.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[('s1' == 'r1'), ('s2' == 'c1'), Unmapped(s3), Fresh(s4), ('s5' == 's4')]");
+    	Assert.assertEquals(symSuff1.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[(s1 == r1), (s2 == c1), Unmapped(s3), Fresh(s4), (s5 == s4)]");
 
     	SLLambdaRestrictionBuilder restrBuilder = new SLLambdaRestrictionBuilder(consts1, teachers);
     	SymbolicSuffix symSuff1Conc = restrBuilder.concretize(symSuff1,
@@ -158,6 +158,6 @@ public class TestSuffixValueRestriction extends RaLibTestSuite {
     			consts1,
     			ParameterValuation.fromPSymbolWord(prefix1));
 
-    	Assert.assertEquals(symSuff1Conc.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[('s1' == 1), ('s2' == 2), (('s3' == 3) || ('s3' == 4)), Fresh(s4), ('s5' == 's4')]");
+    	Assert.assertEquals(symSuff1Conc.toString(), "((?α[t] ?α[t] ?α[t] ?α[t] ?α[t]))[(s1 == 1[t]), (s2 == 2[t]), (s3 == 3[t]) OR (s3 == 4[t]), Fresh(s4), (s5 == s4)]");
     }
 }

@@ -35,6 +35,16 @@ import net.automatalib.word.Word;
  */
 public final class DataWords {
 
+	public static <T> Word<T> concatenate(Word<T> ... words) {
+		Word<T> con = Word.epsilon();
+		for (Word<T> word : words) {
+			for (T symbol : word) {
+				con = con.append(symbol);
+			}
+		}
+		return con;
+	}
+
     /**
      * returns sequence of data values of a specific type in a data word.
      *

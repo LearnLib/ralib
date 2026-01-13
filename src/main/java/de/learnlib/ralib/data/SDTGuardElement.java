@@ -24,4 +24,11 @@ public interface SDTGuardElement extends TypedValue {
 
     Expression<BigDecimal> asExpression();
 
+    public static Expression<BigDecimal> castToExpression(SDTGuardElement e) {
+    	if (isConstant(e) || isDataValue(e) || isSuffixValue(e) || isRegister(e)) {
+    		return (Expression<BigDecimal>) e;
+    	}
+    	throw new IllegalArgumentException("Unknown SDT guard element class: " + e.getClass());
+    }
+
 }

@@ -3,10 +3,12 @@ package de.learnlib.ralib.theory;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -43,6 +45,11 @@ public class UnrestrictedSuffixValue extends AbstractSuffixValueRestriction {
 	@Override
 	public boolean isFalse() {
 		return false;
+	}
+
+	@Override
+	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+		return this;
 	}
 
 	@Override

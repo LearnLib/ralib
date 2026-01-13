@@ -51,6 +51,8 @@ public abstract class AbstractSuffixValueRestriction {
 
 	public abstract boolean revealsRegister(SymbolicDataValue r);
 
+	public abstract <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection);
+
 	/**
 	 * Generate a generic restriction using Fresh, Unrestricted and Equal restriction types
 	 *
@@ -164,5 +166,15 @@ public abstract class AbstractSuffixValueRestriction {
     	} else {
     		return new UnrestrictedSuffixValue(suffixValue);
     	}
+	}
+
+	public static Map<SuffixValue, AbstractSuffixValueRestriction> shift(Map<SuffixValue, AbstractSuffixValueRestriction> restrictions, int shift) {
+		Map<SuffixValue, AbstractSuffixValueRestriction> ret = new LinkedHashMap<>();
+		for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+			SuffixValue s = new SuffixValue(e.getKey().getDataType(), e.getKey().getId() + shift);
+			AbstractSuffixValueRestriction r = e.getValue().shift(shift);
+			ret.put(s, r);
+		}
+		return ret;
 	}
 }

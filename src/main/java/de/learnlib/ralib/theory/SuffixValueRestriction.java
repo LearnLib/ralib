@@ -8,13 +8,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
+import de.learnlib.ralib.data.SDTGuardElement;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
+import de.learnlib.ralib.data.VarMapping;
+import de.learnlib.ralib.smt.ReplacingValuesVisitor;
+import de.learnlib.ralib.smt.ReplacingVarsVisitor;
 import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.smt.VarsValuationVisitor;
+import de.learnlib.ralib.theory.equality.EqualityRestriction;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.api.Variable;
 import gov.nasa.jpf.constraints.expressions.NumericBooleanExpression;
@@ -167,6 +174,28 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+		if (bijection.isEmpty()) {
+			return this;
+		}
+		T first = bijection.keySet().iterator().next();
+		if (first instanceof DataValue) {
+			ReplacingValuesVisitor rvv = new ReplacingValuesVisitor();
+			Mapping<DataValue, DataValue> map = new Mapping<>();
+			bijection.forEach((k,v) -> map.put((DataValue) k, (DataValue) v));
+			Expression<Boolean> expr = rvv.apply(this.expr, map);
+			return new SuffixValueRestriction(parameter, expr);
+		} else if (first instanceof SymbolicDataValue) {
+			ReplacingVarsVisitor rvv = new ReplacingVarsVisitor();
+			VarMapping<SymbolicDataValue, SymbolicDataValue> map = new VarMapping<>();
+			bijection.forEach((k,v) -> map.put((SymbolicDataValue) k, (SymbolicDataValue) v));
+			Expression<Boolean> expr = rvv.apply(this.expr, map);
+			return new SuffixValueRestriction(parameter, expr);
+		}
+		throw new RuntimeException("Unknown parameter type");
+	}
+
+	@Override
 	public String toString() {
 		return expr.toString();
 	}
@@ -203,18 +232,29 @@ public class SuffixValueRestriction extends AbstractSuffixValueRestriction {
 //		return concretize(suffix, regs, consts);
 //	}
 
-	public static SuffixValueRestriction equalityRestriction(SuffixValue s, Expression<?> ... elements) {
+	public static AbstractSuffixValueRestriction equalityRestriction(SuffixValue s, Expression<?> ... elements) {
 		if (elements.length == 0) {
 			return new FalseRestriction(s);
 		}
+
+		boolean isSDTGuardElement = true;
 		Expression[] eqs = new Expression[elements.length];
+		Set<SDTGuardElement> regs = new LinkedHashSet<>();
 		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] instanceof SDTGuardElement e) {
+				regs.add(e);
+			} else {
+				isSDTGuardElement = false;
+			}
 			eqs[i] = new NumericBooleanExpression(s, NumericComparator.EQ, elements[i]);
+		}
+		if (isSDTGuardElement) {
+			return new EqualityRestriction(s, regs);
 		}
 		return new SuffixValueRestriction(s, ExpressionUtil.or(eqs));
 	}
 
-	public static SuffixValueRestriction equalityRestriction(SuffixValue s, Collection<? extends Expression> elements) {
+	public static AbstractSuffixValueRestriction equalityRestriction(SuffixValue s, Collection<? extends Expression> elements) {
 //		return equalityRestriction(s, elements.toArray(new SymbolicDataValue[elements.size()]));
 		Expression[] elems = new Expression[elements.size()];
 		int i = 0;

@@ -4,10 +4,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
 import de.learnlib.ralib.theory.SuffixValueRestriction;
@@ -104,5 +106,10 @@ public class EqualRestriction extends AbstractSuffixValueRestriction {
 	@Override
 	public boolean isFalse() {
 		return false;
+	}
+
+	@Override
+	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+		return this;
 	}
 }

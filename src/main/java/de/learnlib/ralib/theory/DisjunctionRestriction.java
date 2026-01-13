@@ -7,10 +7,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -23,6 +25,9 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction {
 		this.disjuncts = new ArrayList<>();
 		boolean hasTrue = false;
 		for (AbstractSuffixValueRestriction restr : disjuncts) {
+			if (this.disjuncts.contains(restr)) {
+				continue;
+			}
 			if (restr.isTrue()) {
 				hasTrue = true;
 				break;
@@ -92,6 +97,13 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
+		disjuncts.forEach(r -> relabeled.add(r.relabel(bijection)));
+		return create(parameter, disjuncts);
+	}
+
+	@Override
 	public String toString() {
 		Iterator<AbstractSuffixValueRestriction> it = disjuncts.iterator();
 		String str = "";
@@ -120,7 +132,7 @@ public class DisjunctionRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> disjuncts) {
-		if (disjuncts.isEmpty()) {
+		if (disjuncts == null || disjuncts.isEmpty()) {
 			return new TrueRestriction(parameter);
 		}
 		if (disjuncts.size() == 1) {

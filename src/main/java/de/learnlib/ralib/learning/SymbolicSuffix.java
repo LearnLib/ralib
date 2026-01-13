@@ -24,14 +24,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.Constants;
 import de.learnlib.ralib.data.DataType;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.oracles.mto.SymbolicSuffixRestrictionBuilder;
 import de.learnlib.ralib.theory.AbstractSuffixValueRestriction;
 import de.learnlib.ralib.theory.FreshSuffixValue;
+import de.learnlib.ralib.theory.TrueRestriction;
 import de.learnlib.ralib.theory.UnrestrictedSuffixValue;
 import de.learnlib.ralib.theory.equality.EqualRestriction;
 import de.learnlib.ralib.words.DataWords;
@@ -132,7 +135,8 @@ public class SymbolicSuffix {
         for (ParameterizedSymbol ps : actions) {
             for (DataType t : ps.getPtypes()) {
                 SuffixValue sv = valgen.next(t);
-                restrictions.put(sv, new UnrestrictedSuffixValue(sv));
+//                restrictions.put(sv, new UnrestrictedSuffixValue(sv));
+                restrictions.put(sv, new TrueRestriction(sv));
             }
         }
     }
@@ -226,6 +230,10 @@ public class SymbolicSuffix {
     	return restrictions.get(sv);
     }
 
+    public Map<SuffixValue, AbstractSuffixValueRestriction> getRestrictions() {
+    	return restrictions;
+    }
+
     public SuffixValue getSuffixValue(int i) {
     	for (SuffixValue sv : restrictions.keySet()) {
     		if (sv.getId() == i)
@@ -272,6 +280,14 @@ public class SymbolicSuffix {
     		concatRestr.put(sv, restr);
     	}
     	return new SymbolicSuffix(actions, concatRestr);
+    }
+
+    public <T extends TypedValue> SymbolicSuffix relabel(Bijection<T> renaming) {
+    	Map<SuffixValue, AbstractSuffixValueRestriction> renamed = new LinkedHashMap<>();
+    	for (Map.Entry<SuffixValue, AbstractSuffixValueRestriction> e : restrictions.entrySet()) {
+    		renamed.put(e.getKey(), e.getValue().relabel(renaming));
+    	}
+    	return new SymbolicSuffix(actions, renamed);
     }
 
     public int length() {

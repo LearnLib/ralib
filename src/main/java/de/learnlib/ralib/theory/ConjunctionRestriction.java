@@ -1,15 +1,18 @@
 package de.learnlib.ralib.theory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import de.learnlib.ralib.data.Bijection;
 import de.learnlib.ralib.data.DataValue;
 import de.learnlib.ralib.data.Mapping;
 import de.learnlib.ralib.data.SymbolicDataValue;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
+import de.learnlib.ralib.data.TypedValue;
 import gov.nasa.jpf.constraints.api.Expression;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 
@@ -22,6 +25,9 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 		this.conjuncts = new ArrayList<>();
 		boolean hasFalse = false;
 		for (AbstractSuffixValueRestriction restr : conjuncts) {
+			if (this.conjuncts.contains(restr)) {
+				continue;
+			}
 			if (restr.isFalse()) {
 				hasFalse = true;
 				break;
@@ -85,6 +91,13 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
 	}
 
 	@Override
+	public <T extends TypedValue> AbstractSuffixValueRestriction relabel(Bijection<T> bijection) {
+		Collection<AbstractSuffixValueRestriction> relabeled = new ArrayList<>();
+		conjuncts.forEach(r -> relabeled.add(r.relabel(bijection)));
+		return create(parameter, relabeled);
+	}
+
+	@Override
 	public String toString() {
 		Iterator<AbstractSuffixValueRestriction> it = conjuncts.iterator();
 		String str = "";
@@ -110,5 +123,23 @@ public class ConjunctionRestriction extends AbstractSuffixValueRestriction {
         }
 		ConjunctionRestriction other = (ConjunctionRestriction) obj;
 		return other.conjuncts.equals(conjuncts);
+	}
+
+	public static AbstractSuffixValueRestriction create(SuffixValue parameter, Collection<? extends AbstractSuffixValueRestriction> conjuncts) {
+		if (conjuncts.isEmpty()) {
+			return new TrueRestriction(parameter);
+		}
+		if (conjuncts.size() == 1) {
+			return conjuncts.iterator().next();
+		}
+		ConjunctionRestriction conjunction = new ConjunctionRestriction(parameter, conjuncts);
+		if (conjunction.isTrue()) {
+			return new TrueRestriction(parameter);
+		}
+		return conjunction;
+	}
+
+	public static AbstractSuffixValueRestriction create(SuffixValue parameter, AbstractSuffixValueRestriction ... conjuncts) {
+		return create(parameter, Arrays.asList(conjuncts));
 	}
 }
