@@ -166,8 +166,8 @@ public class DT implements DiscriminationTree {
         } while (leaf == null);
 
         if (add && !leaf.getAccessSequence().equals(mp.getPrefix())) {
-            if (mp instanceof ShortPrefix) {
-                leaf.addShortPrefix((ShortPrefix) mp);
+            if (mp instanceof ShortPrefix shortPrefix) {
+                leaf.addShortPrefix(shortPrefix);
             } else {
                 leaf.addPrefix(mp);
             }
@@ -201,7 +201,7 @@ public class DT implements DiscriminationTree {
 
         // update old leaf
         boolean removed = leaf.removeShortPrefix(prefix);
-        assert (removed); // must not split a prefix that isn't there
+        assert removed; // must not split a prefix that isn't there
 
         //SDT tqr2 = leaf.getPrimePrefix().computeTQR(suffix, oracle);
         PathResult r2 = PathResult.computePathResult(oracle, leaf.getPrimePrefix(), node.getSuffixes(), ioMode);

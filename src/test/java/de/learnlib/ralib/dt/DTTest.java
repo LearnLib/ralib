@@ -22,7 +22,6 @@ import de.learnlib.ralib.oracles.TreeOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheorySDTLogicOracle;
 import de.learnlib.ralib.oracles.mto.MultiTheoryTreeOracle;
 import de.learnlib.ralib.smt.ConstraintSolver;
-import de.learnlib.ralib.theory.SDT;
 import de.learnlib.ralib.theory.Theory;
 import de.learnlib.ralib.tools.theories.IntegerEqualityTheory;
 import de.learnlib.ralib.words.PSymbolInstance;
@@ -43,11 +42,6 @@ public class DTTest {
         SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
         SymbolicSuffix suffPop = new SymbolicSuffix(epsilon, prePop);
         SymbolicSuffix suffPush = new SymbolicSuffix(epsilon, prePush);
-
-        SDT tqrPop = oracle.treeQuery(prePop, suffEps);
-        SDT tqrEps = oracle.treeQuery(epsilon, suffPop);
-        SDT tqrPush = oracle.treeQuery(prePush, suffPush);
-        SDT tqrPushPush = oracle.treeQuery(prePushPush, suffPush);
 
         DTInnerNode nodeEps = new DTInnerNode(suffEps);
         DTInnerNode nodePop = new DTInnerNode(suffPop);
@@ -96,9 +90,6 @@ public class DTTest {
 
         SymbolicSuffix suffEps = new SymbolicSuffix(epsilon, epsilon);
         SymbolicSuffix suffPop = new SymbolicSuffix(epsilon, prePop);
-
-        SDT tqrPop = oracle.treeQuery(prePop, suffEps);
-        SDT tqrEps = oracle.treeQuery(epsilon, suffPop);
 
         DTInnerNode nodeEps = new DTInnerNode(suffEps);
         DTInnerNode nodePop = new DTInnerNode(suffPop);

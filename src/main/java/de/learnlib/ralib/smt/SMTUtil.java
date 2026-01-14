@@ -91,7 +91,7 @@ public class SMTUtil {
     }
 
     public static Constant toConstant(DataValue v) {
-        return new Constant( BuiltinTypes.DECIMAL, (v.getValue()));
+        return new Constant(BuiltinTypes.DECIMAL, v.getValue());
     }
 
     public static Variable toVariable(DataValue v) {

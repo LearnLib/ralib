@@ -9,10 +9,7 @@ import org.testng.annotations.Test;
 
 import de.learnlib.ralib.RaLibTestSuite;
 import de.learnlib.ralib.data.*;
-import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.SymbolicDataValue.SuffixValue;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.RegisterGenerator;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.SuffixValueGenerator;
 import de.learnlib.ralib.learning.SymbolicSuffix;
 import de.learnlib.ralib.oracles.Branching;
@@ -69,9 +66,9 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		private final DTLeaf prefixLeaf;
 		private final DTLeaf leaf;
 
-		public SymbolicSuffix addedSuffix = null;
+		SymbolicSuffix addedSuffix = null;
 
-		public DummyDT(MappedPrefix word, MappedPrefix prefix) {
+		DummyDT(MappedPrefix word, MappedPrefix prefix) {
 			super(new DummyOracle(), false, new Constants(), (ParameterizedSymbol[])null);
 			leaf = new DTLeaf(word, null);
 			prefixLeaf = new DTLeaf(prefix, null);
@@ -111,14 +108,10 @@ public class RegisterConsistencyTest extends RaLibTestSuite {
 		SymbolicSuffix symSuffixPrefix = new SymbolicSuffix(prefix, word.suffix(1));
 		SymbolicSuffix symSuffixExpected = new SymbolicSuffix(prefix, suffixExpected);
 
-		RegisterGenerator rgen = new RegisterGenerator();
-		ParameterGenerator pgen = new ParameterGenerator();
 		SuffixValueGenerator svgen = new SuffixValueGenerator();
 
-		Parameter p1 = pgen.next(T_INT);
-		Parameter p2 = pgen.next(T_INT);
 		DataValue r1 = new DataValue(T_INT, BigDecimal.ZERO); //rgen.next(T_INT);
-		DataValue r2 = new DataValue(T_INT, BigDecimal.ONE); // rgen.next(T_INT);
+		DataValue r2 = new DataValue(T_INT, BigDecimal.ONE);  //rgen.next(T_INT);
 		SuffixValue s1 = svgen.next(T_INT);
 		SuffixValue s2 = svgen.next(T_INT);
 
