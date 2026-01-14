@@ -423,7 +423,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <doclint>all,-missing</doclint>
-			</configuration>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
