@@ -17,11 +17,11 @@ import de.learnlib.ralib.theory.SDT;
 /**
  * This data structure stores the SDTs from tree queries for a prefix along a path
  * in a {@link ClassificationTree}. It contains much of the same functionality as
- * {@link Row}, but adapted for use with classification trees.
+ * {@link de.learnlib.ralib.learning.rastar.Row}, but adapted for use with classification trees.
  *
  * @author fredrik
  * @author falk
- * @see Row
+ * @see de.learnlib.ralib.learning.rastar.Row
  */
 public class CTPath {
 	private final Map<SymbolicSuffix, SDT> sdts;

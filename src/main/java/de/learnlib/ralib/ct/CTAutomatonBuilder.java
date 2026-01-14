@@ -39,8 +39,10 @@ import net.automatalib.word.Word;
 
 /**
  * Builder class for building a {@link CTHypothesis} from a {@link ClassificationTree}.
- * This class implements similar functionality as {@link AutomatonBuilder} and {@link IOAutomatonBuilder},
- * but tailored for the {@link SLLambda} and {@link SLCT} learning algorithms.
+ * This class implements similar functionality as {@link AutomatonBuilder} and
+ * {@link de.learnlib.ralib.learning.IOAutomatonBuilder},
+ * but tailored for the {@link de.learnlib.ralib.learning.ralambda.SLLambda} and
+ * {@link de.learnlib.ralib.learning.ralambda.SLCT} learning algorithms.
  *
  * {@code CTAutomatonBuilder} supports construction of automata from an incomplete classification tree,
  * so long as the classification tree is closed and consistent.

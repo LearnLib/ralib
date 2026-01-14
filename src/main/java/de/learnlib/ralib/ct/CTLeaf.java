@@ -137,7 +137,7 @@ public class CTLeaf extends CTNode implements LocationComponent {
 	 * @param inputs all input symbols
 	 * @return {@code u} as a {@code ShortPrefix}
 	 * @see Branching
-	 * @see SDT
+	 * @see de.learnlib.ralib.theory.SDT
 	 * @see CTPath
 	 */
 	protected ShortPrefix elevatePrefix(Word<PSymbolInstance> u, TreeOracle oracle, ParameterizedSymbol ... inputs) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
+ * Constructs IO Register Automata from observation tables
  *
  * @author falk
  */
