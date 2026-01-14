@@ -29,6 +29,7 @@ import de.learnlib.ralib.smt.SMTUtil;
 import de.learnlib.ralib.words.DataWords;
 import de.learnlib.ralib.words.PSymbolInstance;
 import gov.nasa.jpf.constraints.api.Expression;
+import gov.nasa.jpf.constraints.expressions.Negation;
 import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
@@ -438,6 +439,13 @@ public class SDT {
 		for (Map.Entry<Expression<Boolean>, Boolean> entry : expressions.entrySet()) {
 			Expression<Boolean> x = entry.getKey();
 			Boolean outcome = entry.getValue();
+
+			Set<Expression<Boolean>> guardComplement = new LinkedHashSet<>(expressions.keySet());
+			guardComplement.remove(x);
+			for (Expression<Boolean> g : guardComplement) {
+				x = ExpressionUtil.and(x, new Negation(g));
+			}
+
 			for (Map.Entry<Expression<Boolean>, Boolean> otherEntry : otherExpressions.entrySet()) {
 				if (outcome != otherEntry.getValue()) {
 					Expression<Boolean> otherX = otherEntry.getKey();
@@ -445,7 +453,6 @@ public class SDT {
 					Expression<Boolean> con = ExpressionUtil.and(x, renamed);
 					ConstraintSolver solver = new ConstraintSolver();
                     if (solver.isSatisfiable(con, new Mapping<>())) {
-
 						return false;
 					}
 				}
@@ -471,10 +478,6 @@ public class SDT {
 
 		if (regs1.size() != regs2.size()) {
 			return null;
-		}
-
-		if (new HashSet<>(regs1).containsAll(regs2)) {
-			return sdt1.isEquivalentUnderCondition(sdt2, ExpressionUtil.TRUE) ? bi : null;
 		}
 
 		Set<DataValue> replace = new LinkedHashSet<>(regs1);

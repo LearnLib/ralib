@@ -358,11 +358,6 @@
             <artifactId>learnlib-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang.version}</version>
-        </dependency>
-        <dependency>
             <groupId>tools.aqua</groupId>
             <artifactId>jconstraints-core</artifactId>
             <version>${jconstraints.version}</version>

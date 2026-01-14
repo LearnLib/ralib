@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014-2015 The LearnLib Contributors
+ * Copyright (C) 2014-2025 The LearnLib Contributors
  * This file is part of LearnLib, http://www.learnlib.de/.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +35,6 @@ import de.learnlib.ralib.data.SymbolicDataValue.Constant;
 import de.learnlib.ralib.data.SymbolicDataValue.Parameter;
 import de.learnlib.ralib.data.VarMapping;
 import de.learnlib.ralib.data.util.SymbolicDataValueGenerator.ParameterGenerator;
-import de.learnlib.ralib.dt.DT;
 import de.learnlib.ralib.words.OutputSymbol;
 import de.learnlib.ralib.words.PSymbolInstance;
 import de.learnlib.ralib.words.ParameterizedSymbol;
@@ -47,6 +46,7 @@ import gov.nasa.jpf.constraints.util.ExpressionUtil;
 import net.automatalib.word.Word;
 
 /**
+ * Constructs IO Register Automata from observation tables
  *
  * @author falk
  */
@@ -57,16 +57,6 @@ public class IOAutomatonBuilder extends AutomatonBuilder {
     public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
             Constants consts) {
         super(components, consts);
-
-        this.reverseConsts = new LinkedHashMap<>();
-        for (Entry<Constant, DataValue> c : consts) {
-            reverseConsts.put(c.getValue().getValue(), c.getKey());
-        }
-    }
-
-    public IOAutomatonBuilder(Map<Word<PSymbolInstance>, LocationComponent> components,
-            Constants consts, DT dt) {
-    	super(components, consts, dt);
 
         this.reverseConsts = new LinkedHashMap<>();
         for (Entry<Constant, DataValue> c : consts) {

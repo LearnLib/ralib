@@ -17,6 +17,7 @@
 package de.learnlib.ralib.automata;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import de.learnlib.ralib.data.Constants;
@@ -42,6 +43,31 @@ public class Assignment {
         this.assignment = assignment;
     }
 
+    public RegisterValuation valuation(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
+    	RegisterValuation val = new RegisterValuation();
+    	for (Map.Entry<Register, ? extends SymbolicDataValue> e : assignment.entrySet()) {
+    		Register x = e.getKey();
+    		SymbolicDataValue sdv = e.getValue();
+    		DataValue d = sdv.isParameter() ? parameters.get((Parameter) sdv) :
+    			sdv.isRegister() ? registers.get((Register) sdv) :
+    				sdv.isConstant() ? consts.get((Constant) sdv) :
+    					null;
+    		if (d == null) {
+    			throw new IllegalStateException("Illegal assignment: " + x + " := " + sdv);
+    		}
+    		val.put(x, d);
+    	}
+    	return val;
+    }
+
+    /*
+     * @deprecated method is unsafe, use {@link #valuation()} instead
+     * Method is unsafe because it keeps registers that are not given a new assignment, which can cause
+     * a discrepancy in the number of registers a location has, depending on the path to the location.
+     * Method is deprecated rather than removed because the functionality is used by XML automata models.
+     * Removal of method requires refactoring of XML models.
+     */
+    @Deprecated
     public RegisterValuation compute(RegisterValuation registers, ParameterValuation parameters, Constants consts) {
         RegisterValuation val = new RegisterValuation();
         List<String> rNames = assignment.keySet().stream().map(k -> k.getName()).toList();
@@ -56,6 +82,12 @@ public class Assignment {
                 val.put(e.getKey(), registers.get((Register) valp));
             }
             else if (valp.isParameter()) {
+            	DataValue dv = parameters.get((Parameter) valp);
+            	for (Map.Entry<Parameter, DataValue> ep : parameters.entrySet()) {
+            		if (ep.getKey().equals(valp)) {
+            			dv = ep.getValue();
+            		}
+            	}
                 val.put(e.getKey(), parameters.get((Parameter) valp));
             }
             //TODO: check if we want to copy constant values into vars
